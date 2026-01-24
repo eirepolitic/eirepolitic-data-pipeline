@@ -3,17 +3,18 @@ monthly_extract.py
 
 Fetch ALL debates for Dáil 34 (no date filtering), download raw XML, upload to S3.
 
-Behavior:
-- Stores ONE XML per debate record using:
-    {debate_date}__{debate_id}.xml
-  This avoids collisions when multiple debates share a date.
-- Overwrites are allowed (reruns will replace objects with the same key).
+Uploads to:
+  s3://eirepolitic-data/raw/debates/xml/
+
+Naming:
+  YYYY-MM-DD__<debate_id>.xml
+
+Overwrites are allowed on reruns.
 
 Expected env vars (GitHub Actions):
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 - AWS_REGION
-- S3_BUCKET
 
 Optional env vars:
 - CHAMBER_ID (default: /ie/oireachtas/house/dail/34)
@@ -21,7 +22,6 @@ Optional env vars:
 - API_LIMIT (default: 200)
 - API_SLEEP (default: 0.2)
 - DOWNLOAD_TIMEOUT (default: 30)
-- PREFIX_BASE (default: raw/debates/dail34)
 """
 
 import os
@@ -34,6 +34,13 @@ import boto3
 API_BASE = "https://api.oireachtas.ie/v1"
 DATA_BASE = "https://data.oireachtas.ie"
 
+# Fixed bucket + prefix per your request
+S3_BUCKET = "eirepolitic-data"
+S3_PREFIX = "raw/debates/xml"
+
+AWS_REGION = os.environ.get("AWS_REGION", "ca-central-1")
+s3 = boto3.client("s3", region_name=AWS_REGION)
+
 CHAMBER_ID = os.environ.get("CHAMBER_ID", "/ie/oireachtas/house/dail/34")
 LANG = os.environ.get("LANG", "en")
 
@@ -41,16 +48,14 @@ API_LIMIT = int(os.environ.get("API_LIMIT", "200"))
 API_SLEEP = float(os.environ.get("API_SLEEP", "0.2"))
 DOWNLOAD_TIMEOUT = int(os.environ.get("DOWNLOAD_TIMEOUT", "30"))
 
-PREFIX_BASE = os.environ.get("PREFIX_BASE", "raw/debates/dail34")
 
-S3_BUCKET = os.environ["S3_BUCKET"]
-AWS_REGION = os.environ.get("AWS_REGION", "ca-central-1")
-
-s3 = boto3.client("s3", region_name=AWS_REGION)
-
-
-def safe_get(url: str, params: Optional[dict] = None, timeout: int = 30,
-             retries: int = 5, backoff: float = 2.0) -> requests.Response:
+def safe_get(
+    url: str,
+    params: Optional[dict] = None,
+    timeout: int = 30,
+    retries: int = 5,
+    backoff: float = 2.0
+) -> requests.Response:
     """
     GET with retry/backoff and basic 429 handling.
     """
@@ -83,8 +88,6 @@ def extract_debate_fields(item: Dict) -> Tuple[Optional[str], Optional[str], Opt
     xml_obj = formats.get("xml", {}) or {}
     xml_uri = xml_obj.get("uri")
 
-    # Best-effort ID:
-    # Prefer debateId if present, else use last segment of debateRecord.uri
     debate_id = debate.get("debateId")
     if not debate_id:
         uri = debate.get("uri", "") or ""
@@ -110,18 +113,17 @@ def safe_filename_part(s: str) -> str:
     Keep filenames S3-friendly and predictable.
     """
     s = (s or "").strip()
-    # Replace anything that's not alnum, dash, underscore with underscore
     return "".join(ch if (ch.isalnum() or ch in "-_") else "_" for ch in s) or "unknown"
 
 
 def build_s3_key(debate_date: str, debate_id: Optional[str]) -> str:
     """
-    Key format (per user request):
-      raw/debates/dail34/xml/YYYY-MM-DD__<debate_id>.xml
+    Key format:
+      raw/debates/xml/YYYY-MM-DD__<debate_id>.xml
     """
-    safe_id = safe_filename_part(debate_id or "unknown")
     safe_date = safe_filename_part(debate_date)
-    return f"{PREFIX_BASE}/xml/{safe_date}__{safe_id}.xml"
+    safe_id = safe_filename_part(debate_id or "unknown")
+    return f"{S3_PREFIX}/{safe_date}__{safe_id}.xml"
 
 
 def upload_xml_to_s3(key: str, xml_bytes: bytes) -> None:
@@ -164,7 +166,7 @@ def fetch_all_debates() -> List[Dict]:
 def main():
     print("🚀 Extracting ALL debates (no date filtering)")
     print(f"🏛️ Chamber: {CHAMBER_ID} | Lang: {LANG}")
-    print(f"🪣 Upload prefix: s3://{S3_BUCKET}/{PREFIX_BASE}/xml/")
+    print(f"🪣 Upload target: s3://{S3_BUCKET}/{S3_PREFIX}/")
     print("🧾 Naming: YYYY-MM-DD__<debate_id>.xml (overwrites allowed)\n")
 
     debates = fetch_all_debates()
