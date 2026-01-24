@@ -102,12 +102,25 @@ def s3_exists(bucket: str, key: str) -> bool:
 
 # ---------------- DATA HELPERS ----------------
 def is_missing(v) -> bool:
-    if v is None or (isinstance(v, float) and pd.isna(v)):
+    # Handles None, NaN, and pandas <NA>
+    try:
+        if pd.isna(v):
+            return True
+    except Exception:
+        pass
+
+    if v is None:
         return True
+
     if isinstance(v, str) and v.strip() == "":
         return True
-    return False
 
+    # Optional: treat literal strings that look missing as missing
+    if isinstance(v, str) and v.strip().lower() in {"nan", "na", "null", "none"}:
+        return True
+
+    return False
+    
 
 def make_speech_id(row: pd.Series) -> str:
     """
