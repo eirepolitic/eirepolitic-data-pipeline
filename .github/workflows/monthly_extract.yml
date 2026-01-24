@@ -2,12 +2,20 @@ name: Monthly Extract
 
 on:
   schedule:
-    - cron: "15 9 1 * *"   # Runs 09:15 UTC on the 1st of each month
+    - cron: "15 9 1 * *"   # 09:15 UTC on the 1st of each month
   workflow_dispatch:       # Lets you run it manually
+
+concurrency:
+  group: monthly-extract
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   extract:
     runs-on: ubuntu-latest
+    timeout-minutes: 180
 
     steps:
       - name: Check out repo
@@ -23,17 +31,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run extractor
+      - name: Run extractor (XML -> S3)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          TIMEZONE: "America/Vancouver"
         run: |
           python extract/monthly_extract.py
-          
-      - name: Convert XML to CSV (write to /debates)
+
+      - name: Convert XML to CSV (S3 -> CSV -> S3)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
