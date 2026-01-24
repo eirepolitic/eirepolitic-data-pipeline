@@ -46,3 +46,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           python extract/debates_xml_to_csv_s3.py
+
+      - name: OpenAI API key smoke test
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python extract/openai_smoke_test.py
