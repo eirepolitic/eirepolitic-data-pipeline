@@ -1,116 +1,204 @@
+"""
+monthly_extract.py
+
+Fetch ALL debates for Dáil 34 (no date filtering), download raw XML, upload to S3.
+
+Behavior:
+- Stores ONE XML per debate record using:
+    {debate_date}__{debate_id}.xml
+  This avoids collisions when multiple debates share a date.
+- Overwrites are allowed (reruns will replace objects with the same key).
+
+Expected env vars (GitHub Actions):
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_REGION
+- S3_BUCKET
+
+Optional env vars:
+- CHAMBER_ID (default: /ie/oireachtas/house/dail/34)
+- LANG (default: en)
+- API_LIMIT (default: 200)
+- API_SLEEP (default: 0.2)
+- DOWNLOAD_TIMEOUT (default: 30)
+- PREFIX_BASE (default: raw/debates/dail34)
+"""
+
 import os
-import json
 import time
-from zoneinfo import ZoneInfo
+from typing import Dict, List, Optional, Tuple
 
 import requests
 import boto3
 
-# ---------------- CONFIG ----------------
-BASE_URL = "https://api.oireachtas.ie/v1/debates"
+API_BASE = "https://api.oireachtas.ie/v1"
+DATA_BASE = "https://data.oireachtas.ie"
 
-# Irish context: GMT (not strictly needed anymore since we don't timestamp folders,
-# but kept in case you later timestamp within files/metadata)
-TZ = ZoneInfo("GMT")
+CHAMBER_ID = os.environ.get("CHAMBER_ID", "/ie/oireachtas/house/dail/34")
+LANG = os.environ.get("LANG", "en")
 
-# Filters
-CHAMBER_ID = "/ie/oireachtas/house/dail/34"
-LANG = "en"
+API_LIMIT = int(os.environ.get("API_LIMIT", "200"))
+API_SLEEP = float(os.environ.get("API_SLEEP", "0.2"))
+DOWNLOAD_TIMEOUT = int(os.environ.get("DOWNLOAD_TIMEOUT", "30"))
 
-# "Ignore pagination" => single request only
-SKIP = 0
-LIMIT = 500
+PREFIX_BASE = os.environ.get("PREFIX_BASE", "raw/debates/dail34")
 
-# Cloud storage (bucket is eirepolitic-data)
-S3_BUCKET = os.environ.get("S3_BUCKET", "eirepolitic-data")
+S3_BUCKET = os.environ["S3_BUCKET"]
 AWS_REGION = os.environ.get("AWS_REGION", "ca-central-1")
-
-# Save directly into raw/debates/ (no timestamp folder)
-S3_PREFIX = "raw/debates"
-
-# Optional: throttle between uploads
-UPLOAD_SLEEP = float(os.environ.get("UPLOAD_SLEEP", "0.0"))
 
 s3 = boto3.client("s3", region_name=AWS_REGION)
 
 
-# ---------------- HELPERS ----------------
-def safe_get(url, params, retries=5, backoff=2.0, timeout=60):
-    last_exc = None
+def safe_get(url: str, params: Optional[dict] = None, timeout: int = 30,
+             retries: int = 5, backoff: float = 2.0) -> requests.Response:
+    """
+    GET with retry/backoff and basic 429 handling.
+    """
     for attempt in range(1, retries + 1):
         try:
             r = requests.get(url, params=params, timeout=timeout)
             if r.status_code == 429:
                 time.sleep(backoff * attempt)
                 continue
-            if r.status_code >= 500:
-                time.sleep(backoff * attempt)
-                continue
             r.raise_for_status()
             return r
-        except Exception as e:
-            last_exc = e
+        except Exception:
+            if attempt == retries:
+                raise
             time.sleep(backoff * attempt)
-    raise last_exc or RuntimeError("Request failed")
+    raise RuntimeError("safe_get unreachable")
 
 
-def extract_debate_id(item: dict) -> str:
+def extract_debate_fields(item: Dict) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Creates a stable filename from debateRecord.uri (preferred),
-    fallback to a time-based id (rare).
+    Extract:
+    - debate_date (YYYY-MM-DD)
+    - xml_uri (relative or absolute)
+    - debate_id (best-effort stable identifier)
     """
-    rec = (item or {}).get("debateRecord", {}) or {}
-    uri = (rec.get("uri") or "").strip()
-    if uri:
-        tail = uri.rstrip("/").split("/")[-1]
-        tail = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in tail)
-        if tail:
-            return tail
-    return f"debate_{int(time.time() * 1000)}"
+    debate = (item or {}).get("debateRecord", {}) or {}
+    debate_date = debate.get("date") or item.get("contextDate")
+
+    formats = debate.get("formats", {}) or {}
+    xml_obj = formats.get("xml", {}) or {}
+    xml_uri = xml_obj.get("uri")
+
+    # Best-effort ID:
+    # Prefer debateId if present, else use last segment of debateRecord.uri
+    debate_id = debate.get("debateId")
+    if not debate_id:
+        uri = debate.get("uri", "") or ""
+        debate_id = uri.rstrip("/").split("/")[-1] if uri else None
+
+    if not debate_date or not xml_uri:
+        return None, None, None
+
+    return str(debate_date).strip(), str(xml_uri).strip(), str(debate_id).strip() if debate_id else None
 
 
-def s3_put_json(bucket: str, key: str, obj: dict):
-    body = json.dumps(obj, ensure_ascii=False, indent=2).encode("utf-8")
+def normalize_xml_url(xml_uri: str) -> str:
+    """
+    API often returns relative URIs for data.oireachtas.ie.
+    """
+    if xml_uri.startswith("http://") or xml_uri.startswith("https://"):
+        return xml_uri
+    return f"{DATA_BASE}{xml_uri}"
+
+
+def safe_filename_part(s: str) -> str:
+    """
+    Keep filenames S3-friendly and predictable.
+    """
+    s = (s or "").strip()
+    # Replace anything that's not alnum, dash, underscore with underscore
+    return "".join(ch if (ch.isalnum() or ch in "-_") else "_" for ch in s) or "unknown"
+
+
+def build_s3_key(debate_date: str, debate_id: Optional[str]) -> str:
+    """
+    Key format (per user request):
+      raw/debates/dail34/xml/YYYY-MM-DD__<debate_id>.xml
+    """
+    safe_id = safe_filename_part(debate_id or "unknown")
+    safe_date = safe_filename_part(debate_date)
+    return f"{PREFIX_BASE}/xml/{safe_date}__{safe_id}.xml"
+
+
+def upload_xml_to_s3(key: str, xml_bytes: bytes) -> None:
     s3.put_object(
-        Bucket=bucket,
+        Bucket=S3_BUCKET,
         Key=key,
-        Body=body,
-        ContentType="application/json",
+        Body=xml_bytes,
+        ContentType="application/xml",
     )
 
 
-# ---------------- MAIN ----------------
-def download_debates_one_page_and_store_individual():
-    params = {
-        "chamber_id": CHAMBER_ID,
-        "lang": LANG,
-        "skip": SKIP,
-        "limit": LIMIT,
-    }
+def fetch_all_debates() -> List[Dict]:
+    """
+    Page through /debates for the chamber. No date filters.
+    """
+    results: List[Dict] = []
+    skip = 0
 
-    print(f"🔄 Requesting debates (single page only) chamber_id={CHAMBER_ID} limit={LIMIT} skip={SKIP}")
-    r = safe_get(BASE_URL, params=params)
-    data = r.json()
-    results = data.get("results", []) or []
+    while True:
+        params = {
+            "chamber_id": CHAMBER_ID,
+            "lang": LANG,
+            "skip": skip,
+            "limit": API_LIMIT,
+        }
+        r = safe_get(f"{API_BASE}/debates", params=params, timeout=DOWNLOAD_TIMEOUT)
+        payload = r.json()
+        page = payload.get("results", []) or []
 
-    print(f"📥 Retrieved {len(results)} results (NOTE: pagination disabled; may not be complete if > {LIMIT}).")
-    if not results:
-        print("✅ No results returned. Done.")
-        return
+        if not page:
+            break
+
+        results.extend(page)
+        skip += API_LIMIT
+        time.sleep(API_SLEEP)
+
+    return results
+
+
+def main():
+    print("🚀 Extracting ALL debates (no date filtering)")
+    print(f"🏛️ Chamber: {CHAMBER_ID} | Lang: {LANG}")
+    print(f"🪣 Upload prefix: s3://{S3_BUCKET}/{PREFIX_BASE}/xml/")
+    print("🧾 Naming: YYYY-MM-DD__<debate_id>.xml (overwrites allowed)\n")
+
+    debates = fetch_all_debates()
+    print(f"📥 Debate records returned: {len(debates)}")
 
     uploaded = 0
-    for item in results:
-        debate_id = extract_debate_id(item)
-        key = f"{S3_PREFIX}/{debate_id}.json"  # direct in debates folder
-        s3_put_json(S3_BUCKET, key, item)
-        uploaded += 1
+    missing_xml = 0
+    failed = 0
 
-        if UPLOAD_SLEEP > 0:
-            time.sleep(UPLOAD_SLEEP)
+    for i, item in enumerate(debates, start=1):
+        debate_date, xml_uri, debate_id = extract_debate_fields(item)
+        if not debate_date or not xml_uri:
+            missing_xml += 1
+            continue
 
-    print(f"✅ Uploaded {uploaded} debate JSON files to s3://{S3_BUCKET}/{S3_PREFIX}/")
-    print("ℹ️ Files are written with stable names, so re-runs will overwrite matching debate_id files.")
+        xml_url = normalize_xml_url(xml_uri)
+        key = build_s3_key(debate_date, debate_id)
+
+        print(f"  [{i}/{len(debates)}] {debate_date} | id={debate_id or 'unknown'} -> {key}")
+
+        try:
+            r = safe_get(xml_url, timeout=DOWNLOAD_TIMEOUT)
+            upload_xml_to_s3(key, r.content)
+            uploaded += 1
+            time.sleep(API_SLEEP)
+        except Exception as e:
+            failed += 1
+            print(f"    ❌ Failed for {debate_date} (id={debate_id or 'unknown'}): {e}")
+
+    print("\n✅ Done.")
+    print(f"   Uploaded: {uploaded}")
+    print(f"   Missing XML link: {missing_xml}")
+    print(f"   Failed downloads/uploads: {failed}")
 
 
 if __name__ == "__main__":
-    download_debates_one_page_and_store_individual()
+    main()
