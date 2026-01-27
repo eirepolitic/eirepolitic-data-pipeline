@@ -1,5 +1,5 @@
 """
-classify_political_issue_openai_s3.py
+classify_political_issue_openai_s3.py (GPT-5-safe)
 
 Pipeline version:
 - Reads input CSV from S3
@@ -7,16 +7,19 @@ Pipeline version:
 - Only classifies rows where PoliticalIssues is missing in the output
 - Writes updated output CSV back to S3
 
-Defaults:
-- Input:  s3://eirepolitic-data/raw/debates/debate_speeches_extracted.csv
-- Output: s3://eirepolitic-data/processed/debates/debate_speeches_classified.csv
+Key GPT-5 fixes:
+- Use message-array input (not bare string)
+- Robustly extract text from resp.output (not only resp.output_text)
+- Treat empty output as retryable
+- Do NOT treat the literal label "NONE" as missing
+- Optional GPT-5 knobs: reasoning.effort, text.verbosity, larger max_output_tokens
 """
 
 import io
 import os
 import time
 import hashlib
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any, List
 
 import pandas as pd
 import boto3
@@ -31,6 +34,18 @@ OUTPUT_KEY = os.getenv("OUTPUT_KEY", "processed/debates/debate_speeches_classifi
 AWS_REGION = os.getenv("AWS_REGION", "ca-central-1")
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# For GPT-5 family (optional)
+OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "").strip()  # e.g. minimal/low/medium/high/none
+OPENAI_TEXT_VERBOSITY = os.getenv("OPENAI_TEXT_VERBOSITY", "").strip()      # e.g. low/medium/high
+
+# Determinism for non-GPT-5 models
+OPENAI_TEMPERATURE = os.getenv("OPENAI_TEMPERATURE", "").strip()            # e.g. "0"
+
+# Token controls
+DEFAULT_MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "0"))  # 0 => auto
+# (Auto logic below picks a safer default for GPT-5)
+
 DELAY_BETWEEN_REQUESTS = float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25"))
 MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))
 AUTOSAVE_INTERVAL = int(os.getenv("AUTOSAVE_INTERVAL", "50"))
@@ -41,7 +56,6 @@ TEST_ROWS = int(os.getenv("TEST_ROWS", "0"))
 CLASS_COL = "PoliticalIssues"
 TEXT_COL = "Speech Text"
 
-# Allowed categories (unchanged)
 ISSUE_CATEGORIES = [
     "Macroeconomics",
     "Civil Rights, Minority Issues and Civil Liberties",
@@ -102,7 +116,11 @@ def s3_exists(bucket: str, key: str) -> bool:
 
 # ---------------- DATA HELPERS ----------------
 def is_missing(v) -> bool:
-    # Handles None, NaN, and pandas <NA>
+    """
+    IMPORTANT:
+    - pd.NA / NaN / None / "" are missing
+    - The literal category "NONE" is NOT missing (it is a valid label)
+    """
     try:
         if pd.isna(v):
             return True
@@ -115,18 +133,14 @@ def is_missing(v) -> bool:
     if isinstance(v, str) and v.strip() == "":
         return True
 
-    # Optional: treat literal strings that look missing as missing
-    if isinstance(v, str) and v.strip().lower() in {"nan", "na", "null", "none"}:
+    # Treat obvious null-like strings as missing, BUT NOT "none" (that's a real label)
+    if isinstance(v, str) and v.strip().lower() in {"nan", "na", "null"}:
         return True
 
     return False
-    
+
 
 def make_speech_id(row: pd.Series) -> str:
-    """
-    Stable row identifier so we can resume across runs.
-    Uses several fields to reduce collision risk.
-    """
     parts = [
         str(row.get("Debate Date", "")).strip(),
         str(row.get("Speaker Name", "")).strip(),
@@ -174,44 +188,107 @@ def build_refinement_prompt(base_prompt: str, bad_output: str, reason: str) -> s
     )
 
 
-# ---------------- OPENAI CALL ----------------
-def run_openai(prompt: str, max_retries: int = 5, backoff: float = 2.0) -> str:
-    last_err = None
+# ---------------- OPENAI OUTPUT EXTRACTION ----------------
+def _get_attr(obj: Any, name: str, default=None):
+    try:
+        return getattr(obj, name)
+    except Exception:
+        return default
 
-    # Optional env controls
-    temp_str = os.getenv("OPENAI_TEMPERATURE", "").strip()     # e.g. "0"
-    effort = os.getenv("OPENAI_REASONING_EFFORT", "").strip()  # e.g. "minimal"
+
+def extract_text_from_response(resp: Any) -> str:
+    """
+    Robust extraction for Responses API objects.
+    Uses:
+      1) resp.output_text (SDK convenience)
+      2) resp.output[*].content[*].text (fallback)
+    """
+    text = (_get_attr(resp, "output_text", "") or "").strip()
+    if text:
+        return text
+
+    out_items = _get_attr(resp, "output", []) or []
+    chunks: List[str] = []
+    for item in out_items:
+        # We look for "message" items with "content" parts containing text
+        if _get_attr(item, "type", None) != "message":
+            continue
+        content_items = _get_attr(item, "content", []) or []
+        for c in content_items:
+            ctype = _get_attr(c, "type", None)
+            if ctype in ("output_text", "text"):
+                t = _get_attr(c, "text", None)
+                if t:
+                    chunks.append(str(t))
+
+    return "\n".join(chunks).strip()
+
+
+def max_output_tokens_for_model() -> int:
+    """
+    GPT-5 models can spend tokens on internal reasoning; too-low max_output_tokens can lead to empty final text.
+    Use a larger default for gpt-5* unless overridden.
+    """
+    if DEFAULT_MAX_OUTPUT_TOKENS and DEFAULT_MAX_OUTPUT_TOKENS > 0:
+        return DEFAULT_MAX_OUTPUT_TOKENS
+
+    if OPENAI_MODEL.startswith("gpt-5"):
+        return 128  # safer than 64 for reasoning models
+    return 64
+
+
+# ---------------- OPENAI CALL ----------------
+def run_openai(prompt: str, max_retries: int = 6, backoff: float = 2.0) -> str:
+    """
+    GPT-5-safe call:
+    - Uses message-array input
+    - Omits temperature for gpt-5*
+    - Optionally includes reasoning.effort + text.verbosity
+    - Treats empty text as retryable
+    """
+    last_err = None
+    max_out = max_output_tokens_for_model()
 
     for attempt in range(1, max_retries + 1):
         try:
             kwargs = {
                 "model": OPENAI_MODEL,
-                "input": prompt,
-                "max_output_tokens": 64,
+                "input": [{"role": "user", "content": prompt}],
+                "max_output_tokens": max_out,
             }
 
-            # GPT-5 models: prefer reasoning.effort for speed; omit temperature if unsupported
             if OPENAI_MODEL.startswith("gpt-5"):
-                if effort:
-                    kwargs["reasoning"] = {"effort": effort}  # minimal/low/medium/high :contentReference[oaicite:1]{index=1}
-                # IMPORTANT: do NOT send temperature for gpt-5-nano (or any gpt-5 model if it errors)
+                # Include reasoning effort only if provided
+                if OPENAI_REASONING_EFFORT:
+                    kwargs["reasoning"] = {"effort": OPENAI_REASONING_EFFORT}
 
+                # Verbosity control (optional)
+                if OPENAI_TEXT_VERBOSITY:
+                    kwargs["text"] = {"verbosity": OPENAI_TEXT_VERBOSITY}
+
+                # IMPORTANT: do NOT send temperature/top_p/logprobs to older gpt-5 models
             else:
-                # Non-GPT-5 models usually accept temperature
-                if temp_str != "":
-                    kwargs["temperature"] = float(temp_str)
+                if OPENAI_TEMPERATURE != "":
+                    kwargs["temperature"] = float(OPENAI_TEMPERATURE)
 
             resp = client.responses.create(**kwargs)
-            return (resp.output_text or "").strip()
+            text = extract_text_from_response(resp)
+
+            if not text:
+                # Treat empty output as a failure that we retry (common with reasoning-only responses)
+                raise RuntimeError("Model returned empty text output.")
+
+            return text.strip()
 
         except Exception as e:
             last_err = e
-            time.sleep(backoff * attempt)
+            # backoff + tiny jitter to avoid synchronized retries
+            time.sleep(backoff * attempt + 0.05)
 
     raise RuntimeError(f"OpenAI call failed after {max_retries} attempts: {last_err}")
 
 
-
+# ---------------- VALIDATION ----------------
 def rule_validate_label(label: str) -> Tuple[bool, str]:
     if label is None:
         return False, "Empty output."
@@ -260,7 +337,6 @@ def main() -> None:
     if "speech_id" not in df_in.columns:
         df_in["speech_id"] = df_in.apply(make_speech_id, axis=1)
     else:
-        # still ensure no missing ids
         missing_ids = df_in["speech_id"].isna() | (df_in["speech_id"].astype(str).str.strip() == "")
         if missing_ids.any():
             df_in.loc[missing_ids, "speech_id"] = df_in[missing_ids].apply(make_speech_id, axis=1)
@@ -271,7 +347,6 @@ def main() -> None:
         out_text = s3_get_text(S3_BUCKET, OUTPUT_KEY)
         df_out = pd.read_csv(io.StringIO(out_text))
 
-        # If old output didn't have speech_id, rebuild from its columns (best effort)
         if "speech_id" not in df_out.columns:
             df_out["speech_id"] = df_out.apply(make_speech_id, axis=1)
     else:
@@ -298,7 +373,6 @@ def main() -> None:
     # Determine rows to process = missing PoliticalIssues
     mask_missing = df_res[CLASS_COL].apply(is_missing)
 
-    # Optional TEST_ROWS cap (applies to missing rows only)
     idxs = df_res.index[mask_missing].tolist()
     if TEST_ROWS and TEST_ROWS > 0:
         idxs = idxs[:TEST_ROWS]
@@ -317,7 +391,6 @@ def main() -> None:
             print("⚠️ Empty speech → NONE.")
             continue
 
-        # Keep your old short-speech rule
         wc = len(speech.split())
         if wc < 20:
             df_res.at[idx, CLASS_COL] = "NONE"
@@ -337,7 +410,6 @@ def main() -> None:
 
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
-    # Final write
     print(f"\n📤 Writing output to s3://{S3_BUCKET}/{OUTPUT_KEY}")
     buf = io.StringIO()
     df_res.to_csv(buf, index=False, encoding="utf-8-sig")
