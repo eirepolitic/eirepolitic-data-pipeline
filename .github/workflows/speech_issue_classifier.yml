@@ -41,7 +41,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-          OPENAI_MODEL: "gpt-4.1"
+          OPENAI_MODEL: "gpt-5-nano"
           
           TEST_ROWS: ${{ inputs.test_rows }}
           S3_BUCKET: "eirepolitic-data"
