@@ -41,10 +41,13 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+          OPENAI_MODEL: "gpt-4.1"
+          
           TEST_ROWS: ${{ inputs.test_rows }}
-
           S3_BUCKET: "eirepolitic-data"
           INPUT_KEY: "raw/debates/debate_speeches_extracted.csv"
           OUTPUT_KEY: "processed/debates/debate_speeches_classified.csv"
         run: |
           python process/speech_issue_classifier.py
+
+      
