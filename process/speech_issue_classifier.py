@@ -176,23 +176,40 @@ def build_refinement_prompt(base_prompt: str, bad_output: str, reason: str) -> s
 
 # ---------------- OPENAI CALL ----------------
 def run_openai(prompt: str, max_retries: int = 5, backoff: float = 2.0) -> str:
-    """
-    Minimal, robust call wrapper with backoff.
-    """
     last_err = None
+
+    # Optional env controls
+    temp_str = os.getenv("OPENAI_TEMPERATURE", "").strip()     # e.g. "0"
+    effort = os.getenv("OPENAI_REASONING_EFFORT", "").strip()  # e.g. "minimal"
+
     for attempt in range(1, max_retries + 1):
         try:
-            resp = client.responses.create(
-                model=OPENAI_MODEL,
-                input=prompt,
-                temperature=0,
-                max_output_tokens=64,  # >=16; small but safe for long labels
-            )
+            kwargs = {
+                "model": OPENAI_MODEL,
+                "input": prompt,
+                "max_output_tokens": 64,
+            }
+
+            # GPT-5 models: prefer reasoning.effort for speed; omit temperature if unsupported
+            if OPENAI_MODEL.startswith("gpt-5"):
+                if effort:
+                    kwargs["reasoning"] = {"effort": effort}  # minimal/low/medium/high :contentReference[oaicite:1]{index=1}
+                # IMPORTANT: do NOT send temperature for gpt-5-nano (or any gpt-5 model if it errors)
+
+            else:
+                # Non-GPT-5 models usually accept temperature
+                if temp_str != "":
+                    kwargs["temperature"] = float(temp_str)
+
+            resp = client.responses.create(**kwargs)
             return (resp.output_text or "").strip()
+
         except Exception as e:
             last_err = e
             time.sleep(backoff * attempt)
+
     raise RuntimeError(f"OpenAI call failed after {max_retries} attempts: {last_err}")
+
 
 
 def rule_validate_label(label: str) -> Tuple[bool, str]:
