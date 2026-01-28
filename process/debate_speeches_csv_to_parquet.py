@@ -22,9 +22,20 @@ from botocore.exceptions import ClientError
 
 
 def _default_parquet_key(csv_key: str) -> str:
-    if csv_key.lower().endswith(".csv"):
-        return csv_key[:-4] + ".parquet"
-    return csv_key + ".parquet"
+    """
+    Write parquet to a dedicated prefix to avoid mixing formats in one LOCATION.
+    Example:
+      processed/debates/debate_speeches_classified.csv
+        -> processed/debates/parquets/debate_speeches_classified.parquet
+    """
+    base_name = os.path.basename(csv_key)
+    if base_name.lower().endswith(".csv"):
+        base_name = base_name[:-4] + ".parquet"
+    else:
+        base_name = base_name + ".parquet"
+
+    # Put parquet in a sibling subfolder under processed/debates/
+    return "processed/debates/parquets/" + base_name
 
 
 def main() -> int:
