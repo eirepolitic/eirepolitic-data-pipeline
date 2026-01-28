@@ -20,6 +20,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
 
+    # Make AWS creds available to ALL steps (fixes NoCredentialsError)
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      # If your AWS auth uses temporary credentials, uncomment:
+      # AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      # Shared pipeline config
+      S3_BUCKET: "eirepolitic-data"
+      INPUT_KEY: "raw/debates/debate_speeches_extracted.csv"
+      OUTPUT_KEY: "processed/debates/debate_speeches_classified.csv"
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -36,27 +49,17 @@ jobs:
 
       - name: Run speech issue classifier
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
           OPENAI_MODEL: "gpt-5-nano"   # or "gpt-5", "gpt-5-nano", "gpt-5.2"
           OPENAI_REASONING_EFFORT: "minimal"
           OPENAI_VERBOSITY: "low"
-          
           TEST_ROWS: ${{ inputs.test_rows }}
-          S3_BUCKET: "eirepolitic-data"
-          INPUT_KEY: "raw/debates/debate_speeches_extracted.csv"
-          OUTPUT_KEY: "processed/debates/debate_speeches_classified.csv"
         run: |
           python process/speech_issue_classifier.py
-      
-      - name: Convert classified CSV to Parquet
-        run: python process/debate_speeches_csv_to_parquet.py
-        env:
-          S3_BUCKET: eirepolitic-data
-          CSV_KEY: processed/debates/debate_speeches_classified.csv
-          # PARQUET_KEY optional; defaults to same path with .parquet
 
-      
+      - name: Convert classified CSV to Parquet
+        env:
+          CSV_KEY: "processed/debates/debate_speeches_classified.csv"
+          # PARQUET_KEY optional; defaults to same path with .parquet
+        run: |
+          python process/debate_speeches_csv_to_parquet.py
