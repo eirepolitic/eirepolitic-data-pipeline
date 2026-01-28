@@ -42,6 +42,12 @@ OPENAI_TEXT_VERBOSITY = os.getenv("OPENAI_TEXT_VERBOSITY", "").strip()      # e.
 # Determinism for non-GPT-5 models
 OPENAI_TEMPERATURE = os.getenv("OPENAI_TEMPERATURE", "").strip()            # e.g. "0"
 
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# For GPT-5 family only (safe defaults for classification/extraction tasks)
+OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "minimal")  # minimal/low/medium/high
+OPENAI_VERBOSITY = os.getenv("OPENAI_VERBOSITY", "low")  # low/medium/high
+
 # Token controls
 DEFAULT_MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "0"))  # 0 => auto
 # (Auto logic below picks a safer default for GPT-5)
@@ -138,6 +144,10 @@ def is_missing(v) -> bool:
         return True
 
     return False
+
+def is_gpt5_family(model_name: str) -> bool:
+    m = (model_name or "").strip().lower()
+    return m.startswith("gpt-5")
 
 
 def make_speech_id(row: pd.Series) -> str:
@@ -238,55 +248,38 @@ def max_output_tokens_for_model() -> int:
 
 
 # ---------------- OPENAI CALL ----------------
-def run_openai(prompt: str, max_retries: int = 6, backoff: float = 2.0) -> str:
+def run_openai(prompt: str, max_retries: int = 5, backoff: float = 2.0) -> str:
     """
-    GPT-5-safe call:
-    - Uses message-array input
-    - Omits temperature for gpt-5*
-    - Optionally includes reasoning.effort + text.verbosity
-    - Treats empty text as retryable
+    Robust OpenAI Responses API call wrapper.
+    - GPT-5 family: use reasoning.effort + text.verbosity (do NOT send temperature)
+    - Non GPT-5: use temperature=0 for determinism
     """
     last_err = None
-    max_out = max_output_tokens_for_model()
 
     for attempt in range(1, max_retries + 1):
         try:
-            kwargs = {
+            payload = {
                 "model": OPENAI_MODEL,
-                "input": [{"role": "user", "content": prompt}],
-                "max_output_tokens": max_out,
+                "input": prompt,
+                "max_output_tokens": 64,  # keep small; >=16 min
             }
 
-            if OPENAI_MODEL.startswith("gpt-5"):
-                # Include reasoning effort only if provided
-                if OPENAI_REASONING_EFFORT:
-                    kwargs["reasoning"] = {"effort": OPENAI_REASONING_EFFORT}
-
-                # Verbosity control (optional)
-                if OPENAI_TEXT_VERBOSITY:
-                    kwargs["text"] = {"verbosity": OPENAI_TEXT_VERBOSITY}
-
-                # IMPORTANT: do NOT send temperature/top_p/logprobs to older gpt-5 models
+            if is_gpt5_family(OPENAI_MODEL):
+                payload["reasoning"] = {"effort": OPENAI_REASONING_EFFORT}
+                payload["text"] = {"verbosity": OPENAI_VERBOSITY}
+                # IMPORTANT: do NOT include temperature/top_p/logprobs unless reasoning.effort == "none"
+                # (otherwise GPT-5* requests can error)  :contentReference[oaicite:2]{index=2}
             else:
-                if OPENAI_TEMPERATURE != "":
-                    kwargs["temperature"] = float(OPENAI_TEMPERATURE)
+                payload["temperature"] = 0
 
-            resp = client.responses.create(**kwargs)
-            text = extract_text_from_response(resp)
-
-            if not text:
-                # Treat empty output as a failure that we retry (common with reasoning-only responses)
-                raise RuntimeError("Model returned empty text output.")
-
-            return text.strip()
+            resp = client.responses.create(**payload)
+            return (resp.output_text or "").strip()
 
         except Exception as e:
             last_err = e
-            # backoff + tiny jitter to avoid synchronized retries
-            time.sleep(backoff * attempt + 0.05)
+            time.sleep(backoff * attempt)
 
     raise RuntimeError(f"OpenAI call failed after {max_retries} attempts: {last_err}")
-
 
 # ---------------- VALIDATION ----------------
 def rule_validate_label(label: str) -> Tuple[bool, str]:
