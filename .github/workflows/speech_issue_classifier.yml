@@ -60,6 +60,7 @@ jobs:
       - name: Convert classified CSV to Parquet
         env:
           CSV_KEY: "processed/debates/debate_speeches_classified.csv"
-          # PARQUET_KEY optional; defaults to same path with .parquet
+          PARQUET_KEY: "processed/debates/parquets/debate_speeches_classified.parquet"
         run: |
           python process/debate_speeches_csv_to_parquet.py
+
