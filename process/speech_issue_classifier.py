@@ -179,6 +179,8 @@ def build_base_prompt(speech_text: str) -> str:
     return f"""
 Classify the following Irish parliamentary speech into EXACTLY ONE political issue category from the list below.
 
+Only choose a category other than NONE if you are confident that it is the core topic of the speech.
+
 Choose ONE category only. Respond ONLY with the category name (or NONE).
 
 Allowed categories:
