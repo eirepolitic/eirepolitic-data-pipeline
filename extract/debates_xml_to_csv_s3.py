@@ -4,7 +4,7 @@ import re
 import pandas as pd
 import xml.etree.ElementTree as ET
 import boto3
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # Fixed locations per your pipeline
 BUCKET = "eirepolitic-data"
@@ -53,7 +53,6 @@ def debate_date_from_key(key: str) -> str:
     """
     fname = key.split("/")[-1]
     base = re.sub(r"\.xml$", "", fname, flags=re.IGNORECASE)
-    # take left side before "__" if present
     if "__" in base:
         return base.split("__", 1)[0]
     return base
@@ -70,7 +69,6 @@ def extract_speeches_from_xml_bytes(xml_bytes: bytes, debate_date: str) -> List[
     records = []
     speech_counter = 1
 
-    # Loop through each debateSection
     for section in root.findall(".//akn:debateSection", NS):
         section_id = section.get("eId", "")
 
@@ -80,7 +78,6 @@ def extract_speeches_from_xml_bytes(xml_bytes: bytes, debate_date: str) -> List[
         else:
             heading_text = section.get("name", "")
 
-        # Each speech within that section
         for speech in section.findall(".//akn:speech", NS):
             speaker_ref = speech.get("by", "")
             speaker_name = ""
@@ -124,6 +121,18 @@ def write_df_to_s3_csv(df: pd.DataFrame, key: str) -> None:
     )
 
 
+def _normalize_for_dedupe(s: pd.Series) -> pd.Series:
+    """
+    Normalize text for deduping:
+    - fill nulls
+    - strip
+    - collapse all whitespace to single spaces
+    """
+    s = s.fillna("").astype(str)
+    s = s.str.replace(r"\s+", " ", regex=True).str.strip()
+    return s
+
+
 def main():
     print(f"📥 Listing XML files: s3://{BUCKET}/{XML_PREFIX}")
     keys = list_s3_keys(XML_PREFIX)
@@ -141,11 +150,40 @@ def main():
 
     df = pd.DataFrame(all_records)
 
-    # Keep stable ordering (optional but helpful)
-    if not df.empty:
-        df = df.sort_values(["Debate Date", "Speech Order"], ascending=[True, True]).reset_index(drop=True)
+    if df.empty:
+        print("✅ Extracted 0 speeches total.")
+        print(f"📤 Writing CSV: s3://{BUCKET}/{OUTPUT_KEY}")
+        write_df_to_s3_csv(df, OUTPUT_KEY)
+        print("🎉 Done.")
+        return
 
-    print(f"✅ Extracted {len(df)} speeches total.")
+    # Stable ordering before dedupe so "keep first" is deterministic
+    df = df.sort_values(["Debate Date", "Speech Order"], ascending=[True, True]).reset_index(drop=True)
+
+    before = len(df)
+
+    # Create normalized helper columns used ONLY for dedupe keys
+    df["_dedupe_date"] = _normalize_for_dedupe(df["Debate Date"])
+    df["_dedupe_speaker"] = _normalize_for_dedupe(df["Speaker Name"])
+    df["_dedupe_text"] = _normalize_for_dedupe(df["Speech Text"])
+
+    # Drop duplicates on the requested combination
+    df = df.drop_duplicates(
+        subset=["_dedupe_date", "_dedupe_speaker", "_dedupe_text"],
+        keep="first"
+    ).reset_index(drop=True)
+
+    # Remove helper columns
+    df = df.drop(columns=["_dedupe_date", "_dedupe_speaker", "_dedupe_text"])
+
+    after = len(df)
+    removed = before - after
+    if removed > 0:
+        print(f"🧹 Deduped {removed} rows (kept {after} unique speeches).")
+    else:
+        print("🧹 No duplicates found under (Debate Date, Speaker Name, Speech Text).")
+
+    print(f"✅ Extracted {len(df)} speeches total (post-dedupe).")
     print(f"📤 Writing CSV: s3://{BUCKET}/{OUTPUT_KEY}")
     write_df_to_s3_csv(df, OUTPUT_KEY)
     print("🎉 Done.")
