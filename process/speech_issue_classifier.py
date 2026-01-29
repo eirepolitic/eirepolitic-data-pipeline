@@ -243,8 +243,8 @@ def max_output_tokens_for_model() -> int:
         return DEFAULT_MAX_OUTPUT_TOKENS
 
     if OPENAI_MODEL.startswith("gpt-5"):
-        return 512  # safer than 64 for reasoning models
-    return 128
+        return 128  # safer than 64 for reasoning models
+    return 64
 
 
 # ---------------- OPENAI CALL ----------------
