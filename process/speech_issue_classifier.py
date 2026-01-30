@@ -1,18 +1,12 @@
 """
-classify_political_issue_openai_s3.py (GPT-5-safe)
+classify_political_issue_openai_s3.py (GPT-5-safe) + Parquet output
 
-Pipeline version:
-- Reads input CSV from S3
-- Loads existing output CSV from S3 if present
-- Only classifies rows where PoliticalIssues is missing in the output
-- Writes updated output CSV back to S3
+Adds:
+- Writes Parquet to S3 after writing CSV (always, even if no rows processed)
+- Writes Parquet on autosave too
 
-Key GPT-5 fixes:
-- Use message-array input (not bare string)
-- Robustly extract text from resp.output (not only resp.output_text)
-- Treat empty output as retryable
-- Do NOT treat the literal label "NONE" as missing
-- Optional GPT-5 knobs: reasoning.effort, text.verbosity, larger max_output_tokens
+Env vars (optional additions):
+- PARQUET_KEY (default: processed/debates/parquets/<output_csv_base>.parquet)
 """
 
 import io
@@ -26,6 +20,9 @@ import boto3
 from botocore.exceptions import ClientError
 from openai import OpenAI
 
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 # ---------------- CONFIG ----------------
 S3_BUCKET = os.getenv("S3_BUCKET", "eirepolitic-data")
 INPUT_KEY = os.getenv("INPUT_KEY", "raw/debates/debate_speeches_extracted.csv")
@@ -35,22 +32,12 @@ AWS_REGION = os.getenv("AWS_REGION", "ca-central-1")
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-# For GPT-5 family (optional)
-OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "").strip()  # e.g. minimal/low/medium/high/none
-OPENAI_TEXT_VERBOSITY = os.getenv("OPENAI_TEXT_VERBOSITY", "").strip()      # e.g. low/medium/high
-
-# Determinism for non-GPT-5 models
-OPENAI_TEMPERATURE = os.getenv("OPENAI_TEMPERATURE", "").strip()            # e.g. "0"
-
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-
 # For GPT-5 family only (safe defaults for classification/extraction tasks)
-OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "minimal")  # minimal/low/medium/high
-OPENAI_VERBOSITY = os.getenv("OPENAI_VERBOSITY", "low")  # low/medium/high
+OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "minimal").strip()  # minimal/low/medium/high/none
+OPENAI_VERBOSITY = os.getenv("OPENAI_VERBOSITY", "low").strip()  # low/medium/high
 
 # Token controls
 DEFAULT_MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "0"))  # 0 => auto
-# (Auto logic below picks a safer default for GPT-5)
 
 DELAY_BETWEEN_REQUESTS = float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25"))
 MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))
@@ -94,6 +81,17 @@ s3 = boto3.client("s3", region_name=AWS_REGION)
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
+# ---------------- Parquet key default ----------------
+def _default_parquet_key(csv_key: str) -> str:
+    base = os.path.basename(csv_key)
+    if base.lower().endswith(".csv"):
+        base = base[:-4]
+    return f"processed/debates/parquets/{base}.parquet"
+
+
+PARQUET_KEY = os.getenv("PARQUET_KEY", _default_parquet_key(OUTPUT_KEY))
+
+
 # ---------------- S3 HELPERS ----------------
 def s3_get_text(bucket: str, key: str) -> str:
     resp = s3.get_object(Bucket=bucket, Key=key)
@@ -105,6 +103,15 @@ def s3_put_text(bucket: str, key: str, text: str, content_type: str = "text/csv"
         Bucket=bucket,
         Key=key,
         Body=text.encode("utf-8-sig"),
+        ContentType=content_type,
+    )
+
+
+def s3_put_bytes(bucket: str, key: str, b: bytes, content_type: str = "application/octet-stream") -> None:
+    s3.put_object(
+        Bucket=bucket,
+        Key=key,
+        Body=b,
         ContentType=content_type,
     )
 
@@ -144,6 +151,7 @@ def is_missing(v) -> bool:
         return True
 
     return False
+
 
 def is_gpt5_family(model_name: str) -> bool:
     m = (model_name or "").strip().lower()
@@ -209,12 +217,6 @@ def _get_attr(obj: Any, name: str, default=None):
 
 
 def extract_text_from_response(resp: Any) -> str:
-    """
-    Robust extraction for Responses API objects.
-    Uses:
-      1) resp.output_text (SDK convenience)
-      2) resp.output[*].content[*].text (fallback)
-    """
     text = (_get_attr(resp, "output_text", "") or "").strip()
     if text:
         return text
@@ -222,7 +224,6 @@ def extract_text_from_response(resp: Any) -> str:
     out_items = _get_attr(resp, "output", []) or []
     chunks: List[str] = []
     for item in out_items:
-        # We look for "message" items with "content" parts containing text
         if _get_attr(item, "type", None) != "message":
             continue
         content_items = _get_attr(item, "content", []) or []
@@ -237,25 +238,15 @@ def extract_text_from_response(resp: Any) -> str:
 
 
 def max_output_tokens_for_model() -> int:
-    """
-    GPT-5 models can spend tokens on internal reasoning; too-low max_output_tokens can lead to empty final text.
-    Use a larger default for gpt-5* unless overridden.
-    """
     if DEFAULT_MAX_OUTPUT_TOKENS and DEFAULT_MAX_OUTPUT_TOKENS > 0:
         return DEFAULT_MAX_OUTPUT_TOKENS
-
     if OPENAI_MODEL.startswith("gpt-5"):
-        return 128  # safer than 64 for reasoning models
+        return 128
     return 64
 
 
 # ---------------- OPENAI CALL ----------------
 def run_openai(prompt: str, max_retries: int = 5, backoff: float = 2.0) -> str:
-    """
-    Robust OpenAI Responses API call wrapper.
-    - GPT-5 family: use reasoning.effort + text.verbosity (do NOT send temperature)
-    - Non GPT-5: use temperature=0 for determinism
-    """
     last_err = None
 
     for attempt in range(1, max_retries + 1):
@@ -263,25 +254,24 @@ def run_openai(prompt: str, max_retries: int = 5, backoff: float = 2.0) -> str:
             payload = {
                 "model": OPENAI_MODEL,
                 "input": prompt,
-                "max_output_tokens": 64,  # keep small; >=16 min
+                "max_output_tokens": max_output_tokens_for_model(),
             }
 
             if is_gpt5_family(OPENAI_MODEL):
                 payload["reasoning"] = {"effort": OPENAI_REASONING_EFFORT}
                 payload["text"] = {"verbosity": OPENAI_VERBOSITY}
-                # IMPORTANT: do NOT include temperature/top_p/logprobs unless reasoning.effort == "none"
-                # (otherwise GPT-5* requests can error)  :contentReference[oaicite:2]{index=2}
             else:
                 payload["temperature"] = 0
 
             resp = client.responses.create(**payload)
-            return (resp.output_text or "").strip()
+            return extract_text_from_response(resp).strip()
 
         except Exception as e:
             last_err = e
             time.sleep(backoff * attempt)
 
     raise RuntimeError(f"OpenAI call failed after {max_retries} attempts: {last_err}")
+
 
 # ---------------- VALIDATION ----------------
 def rule_validate_label(label: str) -> Tuple[bool, str]:
@@ -320,6 +310,20 @@ def classify_speech_text_recursive(text: str) -> str:
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
     return "NONE"
+
+
+# ---------------- OUTPUT WRITERS ----------------
+def write_csv_and_parquet(df: pd.DataFrame) -> None:
+    # CSV
+    buf = io.StringIO()
+    df.to_csv(buf, index=False, encoding="utf-8-sig")
+    s3_put_text(S3_BUCKET, OUTPUT_KEY, buf.getvalue())
+
+    # Parquet (always)
+    table = pa.Table.from_pandas(df, preserve_index=False)
+    out_buf = io.BytesIO()
+    pq.write_table(table, out_buf, compression="snappy")
+    s3_put_bytes(S3_BUCKET, PARQUET_KEY, out_buf.getvalue(), content_type="application/x-parquet")
 
 
 # ---------------- MAIN PROCESS ----------------
@@ -398,17 +402,15 @@ def main() -> None:
 
         processed += 1
         if processed % AUTOSAVE_INTERVAL == 0:
-            print("💾 Autosaving partial progress to S3...")
-            buf = io.StringIO()
-            df_res.to_csv(buf, index=False, encoding="utf-8-sig")
-            s3_put_text(S3_BUCKET, OUTPUT_KEY, buf.getvalue())
+            print("💾 Autosaving partial progress (CSV + Parquet) to S3...")
+            write_csv_and_parquet(df_res)
 
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
-    print(f"\n📤 Writing output to s3://{S3_BUCKET}/{OUTPUT_KEY}")
-    buf = io.StringIO()
-    df_res.to_csv(buf, index=False, encoding="utf-8-sig")
-    s3_put_text(S3_BUCKET, OUTPUT_KEY, buf.getvalue())
+    # Always write outputs (even if idxs is empty)
+    print(f"\n📤 Writing output CSV to s3://{S3_BUCKET}/{OUTPUT_KEY}")
+    print(f"📤 Writing output Parquet to s3://{S3_BUCKET}/{PARQUET_KEY}")
+    write_csv_and_parquet(df_res)
     print("🎉 Done.")
 
 
