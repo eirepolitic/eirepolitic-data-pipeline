@@ -3,7 +3,7 @@ name: Monthly Extract
 on:
   schedule:
     - cron: "15 9 1 * *"   # 09:15 UTC on the 1st of each month
-  workflow_dispatch:       # Lets you run it manually
+  workflow_dispatch:
 
 concurrency:
   group: monthly-extract
@@ -46,3 +46,11 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           python extract/debates_xml_to_csv_s3.py
+
+      - name: Extract members (API -> CSV -> S3)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          python extract/monthly_members_extract.py
