@@ -45,7 +45,7 @@ jobs:
       - name: Members background summaries
         run: |
           if [ -n "${{ inputs.test_rows }}" ]; then
-            python -c "import yaml; p='tasks/members_background.yml'; d=yaml.safe_load(open(p)); d.setdefault('run',{})['test_rows']=int('${{ inputs.test_rows }}'); yaml.safe_dump(d, open(p,'w'), sort_keys=False)"
+            python -c "import yaml; p='tasks/llm_task_template.yml'; d=yaml.safe_load(open(p)); d.setdefault('run',{})['test_rows']=int('${{ inputs.test_rows }}'); yaml.safe_dump(d, open(p,'w'), sort_keys=False)"
           fi
           python process/llm_table_runner.py tasks/members_background.yml
 
