@@ -35,7 +35,7 @@ import io
 import os
 import re
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import boto3
 import pandas as pd
@@ -56,7 +56,6 @@ OUTPUT_PARQUET_KEY = os.getenv("OUTPUT_PARQUET_KEY", "processed/members/parquets
 AWS_REGION = os.getenv("AWS_REGION", "ca-central-1")
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
-
 OPENAI_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "low").strip()  # minimal/low/medium/high/none
 OPENAI_VERBOSITY = os.getenv("OPENAI_VERBOSITY", "low").strip()                # low/medium/high
 
@@ -152,11 +151,35 @@ def extract_text_from_response(resp: Any) -> str:
     return "\n".join(chunks).strip()
 
 
-_CIT_RE = re.compile(r"\s*\[\d+\]\s*")
-def strip_inline_citations(text: str) -> str:
-    # Remove common “[1]” style markers if the model includes them anyway
-    t = _CIT_RE.sub(" ", text)
-    return re.sub(r"\s{2,}", " ", t).strip()
+# Remove entire parenthetical references containing URLs/markdown links/domains,
+# plus leftover URLs and numeric citations.
+_PAREN_WITH_LINK_RE = re.compile(
+    r"\s*\([^)]*(https?://|www\.|\[[^\]]+\]\()([^)]*)\)\s*",
+    re.IGNORECASE
+)
+_URL_RE = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
+_BRACKET_CIT_RE = re.compile(r"\s*\[\d+\]\s*")
+
+
+def strip_citations_and_links(text: str) -> str:
+    t = (text or "").strip()
+
+    # Repeatedly remove any (...) that contains a URL or markdown link
+    while True:
+        new_t = _PAREN_WITH_LINK_RE.sub(" ", t)
+        if new_t == t:
+            break
+        t = new_t
+
+    # Remove any remaining raw URLs
+    t = _URL_RE.sub(" ", t)
+
+    # Remove bracket numeric citations like [1]
+    t = _BRACKET_CIT_RE.sub(" ", t)
+
+    # Normalize whitespace
+    t = re.sub(r"\s{2,}", " ", t).strip()
+    return t
 
 
 # ---------------- PROMPT ----------------
@@ -181,7 +204,7 @@ Rules:
 def run_openai_summary(prompt: str) -> str:
     last_err = None
 
-    # Note: OpenAI docs state web_search isn’t supported with gpt-5 + minimal reasoning.
+    # web_search isn’t supported with gpt-5 + minimal reasoning
     reasoning_effort = OPENAI_REASONING_EFFORT
     if is_gpt5_family(OPENAI_MODEL) and reasoning_effort == "minimal":
         reasoning_effort = "low"
@@ -204,7 +227,7 @@ def run_openai_summary(prompt: str) -> str:
 
             resp = client.responses.create(**payload)
             out = extract_text_from_response(resp)
-            out = strip_inline_citations(out)
+            out = strip_citations_and_links(out)
 
             if out:
                 return out
@@ -294,7 +317,7 @@ def main() -> None:
 
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
-    print(f"\n📤 Writing final CSV + Parquet to S3...")
+    print("\n📤 Writing final CSV + Parquet to S3...")
     buf = io.StringIO()
     df_res.to_csv(buf, index=False, encoding="utf-8-sig")
     s3_put_text(S3_BUCKET, OUTPUT_CSV_KEY, buf.getvalue())
