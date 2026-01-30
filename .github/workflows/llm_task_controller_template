@@ -1,0 +1,55 @@
+name: Run LLM Tasks (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_rows:
+        description: "Override test_rows for ALL tasks (blank = use task file)"
+        required: false
+        default: ""
+
+concurrency:
+  group: run-llm-tasks
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyarrow pyyaml
+
+      # Task 1
+      - name: Members background summaries
+        run: |
+          if [ -n "${{ inputs.test_rows }}" ]; then
+            python -c "import yaml; p='tasks/members_background.yml'; d=yaml.safe_load(open(p)); d.setdefault('run',{})['test_rows']=int('${{ inputs.test_rows }}'); yaml.safe_dump(d, open(p,'w'), sort_keys=False)"
+          fi
+          python process/llm_table_runner.py tasks/members_background.yml
+
+      # Task 2 (example placeholder)
+      # - name: Another task
+      #   run: |
+      #     python process/llm_table_runner.py tasks/another_task.yml
