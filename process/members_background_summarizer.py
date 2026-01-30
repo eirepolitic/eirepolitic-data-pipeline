@@ -172,7 +172,8 @@ Include, if available:
 Rules:
 - Neutral, factual tone.
 - If a detail cannot be verified reliably, omit it rather than guessing.
-- Do NOT include citations, links, or source lists.
+- Do NOT include citations, links, URLs, domain names, markdown links, or parenthetical source references.
+- Output plain text only.
 """.strip()
 
 
