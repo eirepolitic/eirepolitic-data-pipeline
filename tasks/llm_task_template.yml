@@ -1,7 +1,7 @@
 s3:
   bucket: eirepolitic-data
   region: us-east-2
-  input_key: raw/members/oireachtas_members_34th_dail.csv
+  input_key: processed/members/members_summaries.csv
   output_csv_key: processed/members/members_summaries.csv
   output_parquet_key: processed/members/parquets/members_summaries.parquet
 
