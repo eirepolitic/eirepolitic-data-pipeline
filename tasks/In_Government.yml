@@ -41,7 +41,8 @@ run:
   autosave_interval: 5
   delay_between_requests: 0.25
   max_retries: 5
-
+  overwrite_existing: true
+  
 # full_table writes all rows; processed_only writes only rows processed in this run
 write_mode: full_table
 
