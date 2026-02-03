@@ -1,0 +1,45 @@
+name: Build Constituency Image Index (Manual)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: constituency-images-index
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build_index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      S3_BUCKET: "eirepolitic-data"
+      SOURCE_PREFIX: "processed/constituencies/images/"
+      OUTPUT_CSV_KEY: "processed/constituencies/constituency_images.csv"
+      OUTPUT_PARQUET_KEY: "processed/constituencies/parquets/constituency_images.parquet"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyarrow
+
+      - name: Build image index
+        run: |
+          python process/constituency_images_indexer.py
