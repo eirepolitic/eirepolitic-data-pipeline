@@ -150,6 +150,8 @@ class TaskConfig:
     input_key: str
     output_csv_key: str
     output_parquet_key: str
+    overwrite_existing: bool
+
 
     keep_cols: List[str]
     id_col: Optional[str]
@@ -230,6 +232,7 @@ def load_config(path: str) -> TaskConfig:
         delay_between_requests=float(run.get("delay_between_requests", float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25")))),
         autosave_interval=int(run.get("autosave_interval", int(os.getenv("AUTOSAVE_INTERVAL", "25")))),
         test_rows=int(run.get("test_rows", int(os.getenv("TEST_ROWS", "0")))),
+        overwrite_existing=bool(run.get("overwrite_existing", False)),
 
         write_mode=str(wmode),
 
@@ -369,10 +372,19 @@ def run_task(cfg_path: str) -> None:
     if cfg.output_col not in df_res.columns:
         df_res[cfg.output_col] = pd.NA
 
-    df_res[cfg.output_col] = df_res[cfg.id_col].astype(str).map(lambda rid: existing.get(rid.strip(), pd.NA))
+    if cfg.overwrite_existing:
+        df_res[cfg.output_col] = pd.NA
+    else:
+        df_res[cfg.output_col] = df_res[cfg.id_col].astype(str).map(
+            lambda rid: existing.get(str(rid).strip(), pd.NA)
+        )
 
     # Determine work rows
-    idxs = df_res.index[df_res[cfg.output_col].apply(is_missing)].tolist()
+        if cfg.overwrite_existing:
+        idxs = df_res.index.tolist()
+    else:
+        idxs = df_res.index[df_res[cfg.output_col].apply(is_missing)].tolist()
+
     if cfg.test_rows and cfg.test_rows > 0:
         idxs = idxs[:cfg.test_rows]
         print(f"🧪 Test mode: {len(idxs)} rows.\n")
