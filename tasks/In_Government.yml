@@ -18,9 +18,11 @@ columns:
   output_col: in_government
 
 prompt_template: |
-  Use web search to identify whether the following current Irish TD is in government or not: "{var1}"
+  Use web search to identify whether the following current Irish TD was part of the coalition that formed the current Irish government: "{var1}"
 
-  If they are in government, return 'TRUE' else return 'FALSE'.
+  If they were, return 'TRUE' else return 'FALSE'.
+
+  The coalition is generally made up of 2+ parties and possibly independents.
 
   return only 'TRUE' or 'FALSE'.
   
