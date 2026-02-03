@@ -9,7 +9,11 @@ calls OpenAI Responses API (optionally with web_search), writes output CSV + Par
 
 Write modes:
 - full_table: write the full dataset (input rows + kept cols + output col)
-- processed_only: write only rows processed in this run (plus id + vars + output col)
+- processed_only: write only rows processed in this run (plus id + kept cols + output col)
+
+Overwrite mode:
+- overwrite_existing: true  => recompute output_col for ALL rows (or first TEST_ROWS) and overwrite values
+- overwrite_existing: false => only fill missing output_col values (default resumable behavior)
 
 Citation removal is toggleable.
 """
@@ -117,16 +121,12 @@ def strip_inline_citations(text: str) -> str:
     return re.sub(r"\s{2,}", " ", t).strip()
 
 
-def word_count(s: str) -> int:
-    return len((s or "").strip().split())
-
-
 def clamp_to_max_words(s: str, max_words: int) -> str:
     if max_words <= 0:
-        return s
+        return (s or "").strip()
     parts = (s or "").strip().split()
     if len(parts) <= max_words:
-        return s.strip()
+        return " ".join(parts).strip()
     return " ".join(parts[:max_words]).strip()
 
 
@@ -150,8 +150,6 @@ class TaskConfig:
     input_key: str
     output_csv_key: str
     output_parquet_key: str
-    overwrite_existing: bool
-
 
     keep_cols: List[str]
     id_col: Optional[str]
@@ -175,6 +173,7 @@ class TaskConfig:
     test_rows: int
 
     write_mode: str  # full_table | processed_only
+    overwrite_existing: bool
 
     # validation
     require_non_empty: bool
@@ -186,7 +185,6 @@ def load_config(path: str) -> TaskConfig:
     with open(path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    # Required
     s3cfg = cfg["s3"]
     colcfg = cfg["columns"]
     llm = cfg["llm"]
@@ -199,7 +197,6 @@ def load_config(path: str) -> TaskConfig:
     while len(vars_list) < 5:
         vars_list.append(None)
 
-    # LLM defaults: if no-tools mode, temperature=0 for determinism
     use_web = bool(llm.get("use_web_search", False))
     temp = llm.get("temperature", None)
     if (temp is None) and (not use_web) and (not is_gpt5_family(llm.get("model", ""))):
@@ -207,7 +204,7 @@ def load_config(path: str) -> TaskConfig:
 
     return TaskConfig(
         bucket=str(s3cfg.get("bucket", "eirepolitic-data")),
-        region=str(s3cfg.get("region", os.getenv("AWS_REGION", "ca-central-1"))),
+        region=str(s3cfg.get("region", os.getenv("AWS_REGION", "us-east-2"))),
         input_key=str(s3cfg["input_key"]),
         output_csv_key=str(s3cfg["output_csv_key"]),
         output_parquet_key=str(s3cfg["output_parquet_key"]),
@@ -232,9 +229,9 @@ def load_config(path: str) -> TaskConfig:
         delay_between_requests=float(run.get("delay_between_requests", float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25")))),
         autosave_interval=int(run.get("autosave_interval", int(os.getenv("AUTOSAVE_INTERVAL", "25")))),
         test_rows=int(run.get("test_rows", int(os.getenv("TEST_ROWS", "0")))),
-        overwrite_existing=bool(run.get("overwrite_existing", False)),
 
         write_mode=str(wmode),
+        overwrite_existing=bool(run.get("overwrite_existing", False)),
 
         require_non_empty=bool(val.get("require_non_empty", True)),
         max_words=int(val.get("max_words", 0)),
@@ -244,7 +241,6 @@ def load_config(path: str) -> TaskConfig:
 
 # ---------------- PROMPT RENDER ----------------
 def render_prompt(template: str, vars_map: Dict[str, str]) -> str:
-    # vars_map includes var1..var5 plus any extra like id/full_name if you want later
     return template.format(**vars_map)
 
 
@@ -253,7 +249,6 @@ def call_openai(client: OpenAI, cfg: TaskConfig, prompt: str) -> str:
     last_err = None
 
     reasoning_effort = cfg.reasoning_effort
-    # If using web_search with gpt-5 and minimal, bump to low (per earlier constraint you observed)
     if cfg.use_web_search and is_gpt5_family(cfg.model) and reasoning_effort == "minimal":
         reasoning_effort = "low"
 
@@ -274,13 +269,13 @@ def call_openai(client: OpenAI, cfg: TaskConfig, prompt: str) -> str:
             if is_gpt5_family(cfg.model):
                 payload["reasoning"] = {"effort": reasoning_effort}
                 payload["text"] = {"verbosity": cfg.verbosity}
-                # DO NOT include temperature/top_p for gpt-5* with reasoning != none
             else:
                 if cfg.temperature is not None:
                     payload["temperature"] = float(cfg.temperature)
 
             resp = client.responses.create(**payload)
             out = extract_text_from_response(resp)
+
             if cfg.strip_citations:
                 out = strip_inline_citations(out)
 
@@ -300,14 +295,28 @@ def validate_output(cfg: TaskConfig, text: str) -> Tuple[bool, str, str]:
         return False, "empty_output", t
 
     if cfg.max_words and cfg.max_words > 0:
-        t2 = clamp_to_max_words(t, cfg.max_words)
-        t = t2
+        t = clamp_to_max_words(t, cfg.max_words)
 
     if cfg.regex_must_match:
         if not re.search(cfg.regex_must_match, t or ""):
             return False, "regex_failed", t
 
     return True, "ok", t
+
+
+# ---------------- OUTPUT WRITER ----------------
+def write_outputs(s3, cfg: TaskConfig, df_res: pd.DataFrame, processed_rows: List[Dict[str, Any]]) -> None:
+    if cfg.write_mode == "processed_only":
+        df_write = pd.DataFrame(processed_rows)
+    else:
+        df_write = df_res
+
+    buf = io.StringIO()
+    df_write.to_csv(buf, index=False, encoding="utf-8-sig")
+    s3_put_text(s3, cfg.bucket, cfg.output_csv_key, buf.getvalue())
+
+    pq_bytes = df_to_parquet_bytes(df_write)
+    s3_put_bytes(s3, cfg.bucket, cfg.output_parquet_key, pq_bytes, content_type="application/x-parquet")
 
 
 # ---------------- MAIN RUN ----------------
@@ -320,7 +329,7 @@ def run_task(cfg_path: str) -> None:
     print(f"📥 Input:  s3://{cfg.bucket}/{cfg.input_key}")
     print(f"📤 Output: s3://{cfg.bucket}/{cfg.output_csv_key}")
     print(f"📦 Parquet:s3://{cfg.bucket}/{cfg.output_parquet_key}")
-    print(f"🧠 Model:  {cfg.model} | web_search={cfg.use_web_search}\n")
+    print(f"🧠 Model:  {cfg.model} | web_search={cfg.use_web_search} | overwrite_existing={cfg.overwrite_existing}\n")
 
     in_text = s3_get_text(s3, cfg.bucket, cfg.input_key)
     df_in = pd.read_csv(io.StringIO(in_text))
@@ -337,7 +346,6 @@ def run_task(cfg_path: str) -> None:
     # Ensure ID
     if cfg.id_col and cfg.id_col in df_base.columns:
         df_base[cfg.id_col] = df_base[cfg.id_col].astype(str).str.strip()
-        id_series = df_base[cfg.id_col]
     else:
         if not cfg.id_hash_cols:
             raise RuntimeError("No id_col present and id_hash_cols not provided.")
@@ -349,9 +357,8 @@ def run_task(cfg_path: str) -> None:
             axis=1,
         )
         cfg.id_col = "_row_id"
-        id_series = df_base[cfg.id_col]
 
-    # Load existing output if present
+    # Load existing output if present (so we don't lose other columns you're keeping)
     if s3_exists(s3, cfg.bucket, cfg.output_csv_key):
         out_text = s3_get_text(s3, cfg.bucket, cfg.output_csv_key)
         df_out = pd.read_csv(io.StringIO(out_text))
@@ -360,18 +367,19 @@ def run_task(cfg_path: str) -> None:
     else:
         df_out = pd.DataFrame(columns=list(df_base.columns) + [cfg.output_col])
 
-    # Build existing map by id
+    # Build existing map by id for this output_col only
     existing: Dict[str, str] = {}
     if (not df_out.empty) and (cfg.output_col in df_out.columns):
         for rid, val in zip(df_out[cfg.id_col].astype(str), df_out[cfg.output_col]):
             if rid and not is_missing(val):
                 existing[rid.strip()] = str(val).strip()
 
-    # Build df_res (full table mode uses base; processed_only mode builds later)
+    # Start df_res as base; add output_col
     df_res = df_base.copy()
     if cfg.output_col not in df_res.columns:
         df_res[cfg.output_col] = pd.NA
 
+    # Pre-fill from existing unless overwrite is enabled
     if cfg.overwrite_existing:
         df_res[cfg.output_col] = pd.NA
     else:
@@ -380,7 +388,7 @@ def run_task(cfg_path: str) -> None:
         )
 
     # Determine work rows
-        if cfg.overwrite_existing:
+    if cfg.overwrite_existing:
         idxs = df_res.index.tolist()
     else:
         idxs = df_res.index[df_res[cfg.output_col].apply(is_missing)].tolist()
@@ -396,11 +404,13 @@ def run_task(cfg_path: str) -> None:
 
     for n, idx in enumerate(idxs, start=1):
         row = df_res.loc[idx]
+
         vars_map: Dict[str, str] = {}
         for i, col in enumerate(cfg.var_cols, start=1):
             key = f"var{i}"
             if col and col in df_res.columns:
-                vars_map[key] = str(row.get(col, "") if row.get(col, "") is not None else "").strip()
+                v = row.get(col, "")
+                vars_map[key] = str(v if v is not None else "").strip()
             else:
                 vars_map[key] = ""
 
@@ -413,19 +423,16 @@ def run_task(cfg_path: str) -> None:
         ok, reason, cleaned = validate_output(cfg, out)
 
         if not ok:
-            # retry once with a short corrective suffix (keeps it generic)
             repair_prompt = prompt + f"\n\nFix: previous output failed '{reason}'. Return a corrected response."
             out2 = call_openai(client, cfg, repair_prompt)
             ok2, _, cleaned2 = validate_output(cfg, out2)
-            cleaned = cleaned2 if ok2 else cleaned  # keep best effort
+            cleaned = cleaned2 if ok2 else cleaned
 
         df_res.at[idx, cfg.output_col] = cleaned
 
-        # Collect processed_only payload
         if cfg.write_mode == "processed_only":
-            rec = {cfg.id_col: rid}
-            # include keep cols + vars cols (if present) + output col
-            for c in df_base.columns:
+            rec = {}
+            for c in df_res.columns:
                 rec[c] = row.get(c, None)
             rec[cfg.output_col] = cleaned
             processed_rows.append(rec)
@@ -442,24 +449,7 @@ def run_task(cfg_path: str) -> None:
     print("🎉 Done.")
 
 
-def write_outputs(s3, cfg: TaskConfig, df_res: pd.DataFrame, processed_rows: List[Dict[str, Any]]) -> None:
-    if cfg.write_mode == "processed_only":
-        df_write = pd.DataFrame(processed_rows)
-    else:
-        df_write = df_res
-
-    # CSV
-    buf = io.StringIO()
-    df_write.to_csv(buf, index=False, encoding="utf-8-sig")
-    s3_put_text(s3, cfg.bucket, cfg.output_csv_key, buf.getvalue())
-
-    # Parquet
-    pq_bytes = df_to_parquet_bytes(df_write)
-    s3_put_bytes(s3, cfg.bucket, cfg.output_parquet_key, pq_bytes, content_type="application/x-parquet")
-
-
 if __name__ == "__main__":
-    # Usage: python process/llm_table_runner.py tasks/my_task.yml
     import sys
     if len(sys.argv) != 2:
         raise SystemExit("Usage: python process/llm_table_runner.py <task_config.yml>")
