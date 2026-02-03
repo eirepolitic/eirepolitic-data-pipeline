@@ -1,0 +1,60 @@
+name: Delete Column From S3 CSV+Parquet (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_key:
+        description: "S3 key of CSV (e.g. processed/members/members_summaries.csv)"
+        required: true
+      parquet_key:
+        description: "S3 key of Parquet (e.g. processed/members/parquets/members_summaries.parquet)"
+        required: true
+      column:
+        description: "Column name to delete"
+        required: true
+      strict:
+        description: "1 = fail if column missing in either file; 0 = no-op where missing"
+        required: true
+        default: "0"
+
+concurrency:
+  group: delete-s3-column
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  delete_column:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: "eirepolitic-data"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyarrow
+
+      - name: Delete column in CSV+Parquet
+        env:
+          CSV_KEY: ${{ inputs.csv_key }}
+          PARQUET_KEY: ${{ inputs.parquet_key }}
+          COLUMN: ${{ inputs.column }}
+          STRICT: ${{ inputs.strict }}
+        run: |
+          python process/delete_s3_column.py
