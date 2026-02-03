@@ -27,8 +27,8 @@ jobs:
 
       S3_BUCKET: "eirepolitic-data"
       INPUT_KEY: "raw/members/oireachtas_members_34th_dail.csv"
-      OUTPUT_CSV_KEY: "processed/members/members_photo_urls.csv"
-      OUTPUT_PARQUET_KEY: "processed/members/parquets/members_photo_urls.parquet"
+      OUTPUT_CSV_KEY: "processed/members/member_photos/members_photo_urls.csv"
+      OUTPUT_PARQUET_KEY: "processed/members/member_photos/parquets/members_photo_urls.parquet"
 
     steps:
       - name: Check out repo
