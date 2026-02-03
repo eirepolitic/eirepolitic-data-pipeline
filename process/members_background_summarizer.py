@@ -12,8 +12,9 @@ Writes:
 - s3://<bucket>/processed/members/members_summaries.csv
 - s3://<bucket>/processed/members/parquets/members_summaries.parquet
 
-Resumable:
-- If output exists, only fills rows where background is missing.
+Resumable + multi-task safe:
+- If output exists, it is loaded and preserved (other columns kept).
+- Only updates OUT_COL ("background") unless FORCE_COLUMNS triggers recompute.
 
 Env vars:
 - OPENAI_API_KEY (required)
@@ -26,6 +27,7 @@ Env vars:
 - OPENAI_VERBOSITY (default: low)         # for gpt-5*
 - MAX_OUTPUT_TOKENS (default: 0 => auto)
 - TEST_ROWS (default: 0 => all missing)
+- FORCE_COLUMNS (default: "" e.g. "background" or "ALL")
 - AUTOSAVE_INTERVAL (default: 25)
 - DELAY_BETWEEN_REQUESTS (default: 0.25)
 - MAX_RETRIES (default: 5)
@@ -66,6 +68,9 @@ DELAY_BETWEEN_REQUESTS = float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "5"))
 
 OUT_COL = "background"
+FORCE_COLUMNS = {c.strip() for c in os.getenv("FORCE_COLUMNS", "").split(",") if c.strip()}
+FORCE_ALL = "ALL" in FORCE_COLUMNS
+
 KEY_COL = "member_code"
 NAME_COL = "full_name"
 
@@ -249,43 +254,71 @@ def dataframe_to_parquet_bytes(df: pd.DataFrame) -> bytes:
     return buf.getvalue()
 
 
+def autosave(df_res: pd.DataFrame) -> None:
+    buf = io.StringIO()
+    df_res.to_csv(buf, index=False, encoding="utf-8-sig")
+    s3_put_text(S3_BUCKET, OUTPUT_CSV_KEY, buf.getvalue())
+
+    pq_bytes = dataframe_to_parquet_bytes(df_res)
+    s3_put_bytes(S3_BUCKET, OUTPUT_PARQUET_KEY, pq_bytes, content_type="application/x-parquet")
+
+
 # ---------------- MAIN ----------------
 def main() -> None:
     print(f"📥 Loading input from s3://{S3_BUCKET}/{INPUT_KEY}")
     in_text = s3_get_text(S3_BUCKET, INPUT_KEY)
     df_in = pd.read_csv(io.StringIO(in_text))
 
-    # Reduce to required columns
     if KEY_COL not in df_in.columns or NAME_COL not in df_in.columns:
         raise RuntimeError(f"Input CSV must contain columns: '{KEY_COL}', '{NAME_COL}'")
 
+    # Base table is the source of truth for member list + ordering
     df_base = df_in[[KEY_COL, NAME_COL]].copy()
+    df_base[KEY_COL] = df_base[KEY_COL].astype(str).str.strip()
 
-    # Load existing output if present
+    # Load existing output if present (to preserve other columns)
     if s3_exists(S3_BUCKET, OUTPUT_CSV_KEY):
         print(f"📥 Loading existing output from s3://{S3_BUCKET}/{OUTPUT_CSV_KEY}")
         out_text = s3_get_text(S3_BUCKET, OUTPUT_CSV_KEY)
         df_out = pd.read_csv(io.StringIO(out_text))
     else:
         print("📄 No existing output found — creating new output.")
-        df_out = pd.DataFrame(columns=[KEY_COL, NAME_COL, OUT_COL])
+        df_out = pd.DataFrame(columns=[KEY_COL])
 
-    # Map existing summaries by member_code
-    existing: Dict[str, str] = {}
-    if not df_out.empty and KEY_COL in df_out.columns and OUT_COL in df_out.columns:
-        for code, val in zip(df_out[KEY_COL].astype(str), df_out[OUT_COL]):
-            if code and not is_missing(val):
-                existing[code.strip()] = str(val).strip()
+    # ---- Build df_res while preserving OTHER columns already in the output ----
+    if not df_out.empty and KEY_COL in df_out.columns:
+        df_out = df_out.copy()
+        df_out[KEY_COL] = df_out[KEY_COL].astype(str).str.strip()
 
-    # Build result frame (preserve base ordering)
-    df_res = df_base.copy()
-    df_res[OUT_COL] = df_res[KEY_COL].astype(str).map(lambda c: existing.get(c.strip(), pd.NA))
+        # Right-join onto df_base to:
+        # - keep exactly current members
+        # - preserve df_base ordering
+        # - refresh full_name from df_base (source of truth)
+        df_res = df_out.merge(df_base, on=KEY_COL, how="right", suffixes=("", "_src"))
 
-    # Find missing rows
-    idxs = df_res.index[df_res[OUT_COL].apply(is_missing)].tolist()
+        # If full_name existed in df_out, prefer df_base's full_name
+        # (merge created only one NAME_COL because df_base has NAME_COL; ensure it's correct)
+        # df_res[NAME_COL] is already from df_base due to merge on KEY_COL and inclusion in df_base.
+    else:
+        df_res = df_base.copy()
+
+    # Ensure background column exists
+    if OUT_COL not in df_res.columns:
+        df_res[OUT_COL] = pd.NA
+
+    # Decide rows to process
+    force_this = FORCE_ALL or (OUT_COL in FORCE_COLUMNS)
+    if force_this:
+        print(f"♻️ FORCE_COLUMNS active — recomputing column: {OUT_COL}")
+        mask_todo = pd.Series([True] * len(df_res), index=df_res.index)
+    else:
+        mask_todo = df_res[OUT_COL].apply(is_missing)
+
+    idxs = df_res.index[mask_todo].tolist()
+
     if TEST_ROWS and TEST_ROWS > 0:
         idxs = idxs[:TEST_ROWS]
-        print(f"🧪 Test mode: processing first {len(idxs)} missing rows.")
+        print(f"🧪 Test mode: processing first {len(idxs)} rows.")
     else:
         print(f"📄 Rows needing summaries: {len(idxs)}")
 
@@ -308,22 +341,12 @@ def main() -> None:
         processed += 1
         if processed % AUTOSAVE_INTERVAL == 0:
             print("💾 Autosaving CSV + Parquet to S3...")
-            buf = io.StringIO()
-            df_res.to_csv(buf, index=False, encoding="utf-8-sig")
-            s3_put_text(S3_BUCKET, OUTPUT_CSV_KEY, buf.getvalue())
-
-            pq_bytes = dataframe_to_parquet_bytes(df_res)
-            s3_put_bytes(S3_BUCKET, OUTPUT_PARQUET_KEY, pq_bytes, content_type="application/x-parquet")
+            autosave(df_res)
 
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
     print("\n📤 Writing final CSV + Parquet to S3...")
-    buf = io.StringIO()
-    df_res.to_csv(buf, index=False, encoding="utf-8-sig")
-    s3_put_text(S3_BUCKET, OUTPUT_CSV_KEY, buf.getvalue())
-
-    pq_bytes = dataframe_to_parquet_bytes(df_res)
-    s3_put_bytes(S3_BUCKET, OUTPUT_PARQUET_KEY, pq_bytes, content_type="application/x-parquet")
+    autosave(df_res)
 
     print("🎉 Done.")
     print(f"   CSV:    s3://{S3_BUCKET}/{OUTPUT_CSV_KEY}")
