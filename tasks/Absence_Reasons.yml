@@ -15,7 +15,7 @@ columns:
   vars:
     - full_name
 
-  output_col: conflicts_of_interest
+  output_col: absence_reason
 
 prompt_template: |
   Use web search to identify whether this Irish TD has had any reason why they may have siginificant absences from the Dail in 2025: "{var1}".
