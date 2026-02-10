@@ -18,7 +18,7 @@ columns:
   output_col: conflicts_of_interest
 
 prompt_template: |
-  Use web search to identify whether this Irish TD has had any reason why they may have siginificant absences from the Dail: "{var1}".
+  Use web search to identify whether this Irish TD has had any reason why they may have siginificant absences from the Dail in 2025: "{var1}".
 
   Reasons could be illness, job changes, family issues etc.
 
