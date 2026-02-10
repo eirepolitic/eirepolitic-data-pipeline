@@ -6,7 +6,7 @@ s3:
   output_parquet_key: processed/members/parquets/members_summaries.parquet
 
 columns:
-  keep: ["member_code", "full_name", "background", "in_government"]
+  keep: ["member_code", "full_name", "background"]
   id: "member_code"
   # Only used if id is missing:
   id_hash_cols: ["full_name"]
