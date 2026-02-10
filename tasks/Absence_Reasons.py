@@ -1,0 +1,49 @@
+s3:
+  bucket: eirepolitic-data
+  region: us-east-2
+  input_key: processed/members/members_summaries.csv
+  output_csv_key: processed/members/members_summaries.csv
+  output_parquet_key: processed/members/parquets/members_summaries.parquet
+
+columns:
+  keep: ["member_code", "full_name", "background", "in_government"]
+  id: "member_code"
+  # Only used if id is missing:
+  id_hash_cols: ["full_name"]
+
+  # Up to 5 vars available in the prompt as {var1}..{var5}
+  vars:
+    - full_name
+
+  output_col: conflicts_of_interest
+
+prompt_template: |
+  Use web search to identify whether this Irish TD has had any reason why they may have siginificant absences from the Dail: "{var1}".
+
+  Reasons could be illness, job changes, family issues etc.
+
+  Return the reason and affected period if a reason is identified, else only return NONE
+
+llm:
+  model: gpt-4.1-mini
+  use_web_search: true
+  strip_citations: False
+  reasoning_effort: medium
+  verbosity: medium
+  # Only used for non-gpt-5; omit to default determinism in no-tools mode
+  temperature:
+  max_output_tokens: 320
+
+run:
+  test_rows: 0
+  autosave_interval: 5
+  delay_between_requests: 0.25
+  max_retries: 5
+
+# full_table writes all rows; processed_only writes only rows processed in this run
+write_mode: full_table
+
+validation:
+  require_non_empty: true
+  max_words: 2000
+  regex_must_match:
