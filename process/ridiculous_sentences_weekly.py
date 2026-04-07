@@ -28,12 +28,11 @@ MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1200"))
 
 RUN_MODE = os.getenv("RUN_MODE", "year").strip().lower()  # year | previous_week
 RUN_YEAR = int(os.getenv("RUN_YEAR", "2026"))
+RUN_WEEK_ID = os.getenv("RUN_WEEK_ID", "").strip()  # optional exact week override, e.g. 202601
 AS_OF_DATE = os.getenv("AS_OF_DATE", "").strip()  # optional YYYY-MM-DD override for previous_week
 
 TOP_N_PER_WEEK = max(1, int(os.getenv("TOP_N_PER_WEEK", "10")))
-MIN_SENTENCE_WORDS = max(1, int(os.getenv("MIN_SENTENCE_WORDS", "5")))
-MAX_SENTENCE_WORDS = max(MIN_SENTENCE_WORDS, int(os.getenv("MAX_SENTENCE_WORDS", "50")))
-MAX_CANDIDATES_PER_WEEK_FOR_LLM = int(os.getenv("MAX_CANDIDATES_PER_WEEK_FOR_LLM", "250"))
+MAX_SENTENCE_WORDS = max(1, int(os.getenv("MAX_SENTENCE_WORDS", "50")))
 BATCH_SIZE = max(1, int(os.getenv("BATCH_SIZE", "20")))
 
 DELAY_BETWEEN_REQUESTS = float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25"))
@@ -52,52 +51,6 @@ client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 WORD_RE = re.compile(r"\b[\w'-]+\b")
 SENTENCE_SPLIT_RE = re.compile(r'(?<=[.!?])\s+(?=(?:["“‘(\[])?[A-Z0-9])')
-PROCEDURAL_RE = re.compile(
-    r"\b(i move|question put|committee stage|report stage|the house|ordered|amendment|schedule|section \d+|vote|division)\b",
-    flags=re.IGNORECASE,
-)
-
-HEURISTIC_KEYWORDS = {
-    "ridiculous": 18,
-    "laughable": 18,
-    "absurd": 15,
-    "nonsense": 14,
-    "disgrace": 14,
-    "disgraceful": 16,
-    "shame": 10,
-    "shameful": 14,
-    "scandal": 14,
-    "scandalous": 16,
-    "outrageous": 14,
-    "appalling": 12,
-    "embarrassment": 12,
-    "embarrassing": 12,
-    "bizarre": 12,
-    "joke": 12,
-    "joker": 14,
-    "clown": 18,
-    "hypocrisy": 12,
-    "hypocrite": 14,
-    "liar": 22,
-    "lies": 16,
-    "lying": 16,
-    "stupid": 18,
-    "mad": 8,
-    "crazy": 14,
-    "bonkers": 18,
-    "insane": 14,
-    "fool": 16,
-    "foolish": 12,
-    "nuts": 16,
-    "idiot": 20,
-    "moron": 22,
-    "pathetic": 14,
-    "wild": 6,
-    "unbelievable": 10,
-    "extraordinary": 8,
-    "farce": 14,
-    "fraud": 14,
-}
 
 
 def s3_get_text(bucket: str, key: str) -> str:
@@ -249,38 +202,6 @@ def previous_completed_week_id(today: date) -> str:
     return make_week_id(target_date)
 
 
-def score_candidate_heuristic(sentence: str) -> int:
-    s = sentence or ""
-    lower = s.lower()
-    wc = count_words(s)
-    score = 0
-
-    if 5 <= wc <= 18:
-        score += 14
-    elif wc <= 30:
-        score += 10
-    elif wc <= 40:
-        score += 6
-    else:
-        score += 2
-
-    if "?" in s:
-        score += 3
-    if "!" in s:
-        score += 4
-    if '"' in s or "“" in s or "”" in s:
-        score += 2
-
-    for keyword, weight in HEURISTIC_KEYWORDS.items():
-        if keyword in lower:
-            score += weight
-
-    if PROCEDURAL_RE.search(lower):
-        score -= 20
-
-    return score
-
-
 def build_candidates(df: pd.DataFrame) -> pd.DataFrame:
     records: List[Dict[str, Any]] = []
 
@@ -297,7 +218,7 @@ def build_candidates(df: pd.DataFrame) -> pd.DataFrame:
 
         for sentence in split_sentences(str(speech_text)):
             wc = count_words(sentence)
-            if wc < MIN_SENTENCE_WORDS or wc > MAX_SENTENCE_WORDS:
+            if wc <= 0 or wc > MAX_SENTENCE_WORDS:
                 continue
             if not re.search(r"[A-Za-z]", sentence):
                 continue
@@ -309,11 +230,10 @@ def build_candidates(df: pd.DataFrame) -> pd.DataFrame:
                 "sentence": normalize_ws(sentence),
                 "sentence_norm": normalize_sentence_for_dedupe(sentence),
                 "word_count": wc,
-                "heuristic_pre_score": score_candidate_heuristic(sentence),
             })
 
     if not records:
-        return pd.DataFrame(columns=["week_id", "debate_date", "speaker_name", "sentence", "sentence_norm", "word_count", "heuristic_pre_score", "candidate_id"])
+        return pd.DataFrame(columns=["week_id", "debate_date", "speaker_name", "sentence", "sentence_norm", "word_count", "candidate_id"])
 
     cdf = pd.DataFrame(records)
     cdf = cdf.drop_duplicates(subset=["week_id", "speaker_name", "sentence_norm"], keep="first").reset_index(drop=True)
@@ -324,6 +244,10 @@ def build_candidates(df: pd.DataFrame) -> pd.DataFrame:
 def filter_target_scope(cdf: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
     if cdf.empty:
         return cdf, []
+
+    if RUN_WEEK_ID:
+        scoped = cdf[cdf["week_id"].astype(str) == RUN_WEEK_ID].copy()
+        return scoped, [RUN_WEEK_ID] if not scoped.empty else [RUN_WEEK_ID]
 
     if RUN_MODE == "year":
         target_prefix = f"{RUN_YEAR}"
@@ -340,26 +264,10 @@ def filter_target_scope(cdf: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
     raise RuntimeError("RUN_MODE must be 'year' or 'previous_week'.")
 
 
-def shortlist_candidates(cdf: pd.DataFrame) -> pd.DataFrame:
-    if cdf.empty:
-        return cdf
-
-    frames: List[pd.DataFrame] = []
-    for _, group in cdf.groupby("week_id", sort=True):
-        g = group.sort_values(
-            ["heuristic_pre_score", "word_count", "speaker_name", "sentence"],
-            ascending=[False, True, True, True],
-        ).reset_index(drop=True)
-        if MAX_CANDIDATES_PER_WEEK_FOR_LLM > 0:
-            g = g.head(MAX_CANDIDATES_PER_WEEK_FOR_LLM).copy()
-        frames.append(g)
-
-    out = pd.concat(frames, ignore_index=True) if frames else cdf.iloc[0:0].copy()
-
+def apply_test_limit(cdf: pd.DataFrame) -> pd.DataFrame:
     if TEST_ROWS > 0:
-        out = out.head(TEST_ROWS).copy()
-
-    return out
+        return cdf.head(TEST_ROWS).copy()
+    return cdf
 
 
 def extract_json_payload(text: str) -> Any:
@@ -402,9 +310,10 @@ Scoring guidance:
 - 81 to 100: exceptional standout line that is unusually ridiculous, absurd, or clearly least-parliamentary
 
 Important rules:
-- Judge the sentence mainly on its wording, not on whether you agree with the politics.
-- Be willing to give low scores to normal sentences.
+- Judge the sentence only by its wording in parliamentary context.
+- Do not infer a score from topic alone.
 - Score every candidate independently.
+- Be willing to give low scores to normal sentences.
 - Use the full 1-100 range when justified.
 - Return every candidate_id exactly once.
 
@@ -479,7 +388,7 @@ def score_week(week_df: pd.DataFrame) -> pd.DataFrame:
     result["score"] = pd.NA
     week_id = str(result.at[0, "week_id"])
 
-    print(f"🧠 Scoring week {week_id} with {len(result)} shortlisted candidates...")
+    print(f"🧠 Scoring week {week_id} with {len(result)} candidate sentences...")
 
     for start in range(0, len(result), BATCH_SIZE):
         batch = result.iloc[start:start + BATCH_SIZE].copy()
@@ -534,7 +443,9 @@ def merge_with_existing(df_new: pd.DataFrame, target_weeks: List[str], replace_f
         combined = df_new.copy()
     else:
         existing = df_existing.copy()
-        if RUN_MODE == "year" and replace_full_target_scope:
+        if RUN_WEEK_ID:
+            existing = existing[existing["week_id"].astype(str) != RUN_WEEK_ID].copy()
+        elif RUN_MODE == "year" and replace_full_target_scope:
             existing = existing[~existing["week_id"].astype(str).str.startswith(str(RUN_YEAR))].copy()
         else:
             existing = existing[~existing["week_id"].astype(str).isin(target_weeks)].copy()
@@ -561,32 +472,34 @@ def main() -> None:
     print(f"🧾 Built {len(candidates)} sentence candidates after sentence filtering and dedupe.")
 
     scoped, target_weeks = filter_target_scope(candidates)
-    if RUN_MODE == "year":
+    if RUN_WEEK_ID:
+        print(f"📆 Target exact week: {RUN_WEEK_ID}")
+    elif RUN_MODE == "year":
         print(f"📆 Target year: {RUN_YEAR} | weeks found: {len(target_weeks)}")
     else:
         target_label = target_weeks[0] if target_weeks else "(none)"
         print(f"📆 Target previous completed week: {target_label}")
 
-    shortlisted = shortlist_candidates(scoped)
-    print(f"🎯 Shortlisted {len(shortlisted)} candidates for LLM scoring.")
+    target_candidates = apply_test_limit(scoped)
+    print(f"🎯 Sending {len(target_candidates)} candidate sentences to the LLM scorer.")
 
     scored_frames: List[pd.DataFrame] = []
     processed_weeks: List[str] = []
 
-    for i, week_id in enumerate(sorted(shortlisted["week_id"].astype(str).unique().tolist()), start=1):
-        week_df = shortlisted[shortlisted["week_id"].astype(str) == week_id].copy()
+    for i, week_id in enumerate(sorted(target_candidates["week_id"].astype(str).unique().tolist()), start=1):
+        week_df = target_candidates[target_candidates["week_id"].astype(str) == week_id].copy()
         scored_week = score_week(week_df)
         scored_frames.append(scored_week)
         processed_weeks.append(week_id)
 
         if AUTOSAVE_INTERVAL > 0 and i % AUTOSAVE_INTERVAL == 0:
-            partial_scored = pd.concat(scored_frames, ignore_index=True) if scored_frames else shortlisted.iloc[0:0].copy()
+            partial_scored = pd.concat(scored_frames, ignore_index=True) if scored_frames else target_candidates.iloc[0:0].copy()
             partial_top = select_top_rows(partial_scored)
             partial_combined = merge_with_existing(partial_top, processed_weeks, replace_full_target_scope=False)
             print(f"💾 Autosaving after {i} week(s)...")
             write_outputs(partial_combined)
 
-    scored = pd.concat(scored_frames, ignore_index=True) if scored_frames else shortlisted.iloc[0:0].copy()
+    scored = pd.concat(scored_frames, ignore_index=True) if scored_frames else target_candidates.iloc[0:0].copy()
     top_rows = select_top_rows(scored)
     print(f"🏁 Selected {len(top_rows)} final rows.")
 
