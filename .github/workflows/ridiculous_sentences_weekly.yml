@@ -11,12 +11,16 @@ on:
         description: "Year to process when run_mode=year"
         required: false
         default: "2026"
+      run_week_id:
+        description: "Exact week override for testing. Leave blank to use the selected run_mode. Default is 202601 for the current test run."
+        required: false
+        default: "202601"
       as_of_date:
         description: "Optional YYYY-MM-DD override when run_mode=previous_week"
         required: false
         default: ""
       test_rows:
-        description: "Limit shortlisted candidate rows for testing (blank = 0)"
+        description: "Limit total candidate sentences for testing (blank = 0)"
         required: false
         default: ""
       openai_model:
@@ -27,10 +31,6 @@ on:
         description: "How many candidate sentences to score per LLM call"
         required: false
         default: "20"
-      max_candidates_per_week_for_llm:
-        description: "Shortlist size per week before LLM scoring"
-        required: false
-        default: "250"
       top_n_per_week:
         description: "How many final sentences to keep per week"
         required: false
@@ -53,13 +53,13 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ inputs.openai_model }}
       RUN_MODE: ${{ inputs.run_mode }}
       RUN_YEAR: ${{ inputs.run_year }}
+      RUN_WEEK_ID: ${{ inputs.run_week_id }}
       AS_OF_DATE: ${{ inputs.as_of_date }}
       TEST_ROWS: ${{ inputs.test_rows || '0' }}
-      OPENAI_MODEL: ${{ inputs.openai_model }}
       BATCH_SIZE: ${{ inputs.batch_size }}
-      MAX_CANDIDATES_PER_WEEK_FOR_LLM: ${{ inputs.max_candidates_per_week_for_llm }}
       TOP_N_PER_WEEK: ${{ inputs.top_n_per_week }}
 
     steps:
