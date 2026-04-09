@@ -1,0 +1,81 @@
+name: Ridiculous Sentences Experiments (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_week_ids:
+        description: "Comma-separated weeks to test"
+        required: false
+        default: "202602,202603"
+      approach_filter:
+        description: "all | sentence_score | extract_then_score"
+        required: false
+        default: "all"
+      variant_filter:
+        description: "Optional comma-separated variant IDs"
+        required: false
+        default: ""
+      openai_model:
+        description: "Model name"
+        required: false
+        default: "gpt-4.1-mini"
+      batch_size:
+        description: "How many quotes to score per LLM call"
+        required: false
+        default: "20"
+      top_n_per_week:
+        description: "How many final rows to keep per week for each variant"
+        required: false
+        default: "10"
+      max_quotes_per_speech:
+        description: "Max extracted quotes per speech for extract_then_score"
+        required: false
+        default: "3"
+      test_speeches_per_week:
+        description: "Optional speech cap per week for a smaller smoke test"
+        required: false
+        default: ""
+
+concurrency:
+  group: ridiculous-sentences-experiments
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ inputs.openai_model }}
+      TARGET_WEEK_IDS: ${{ inputs.target_week_ids }}
+      APPROACH_FILTER: ${{ inputs.approach_filter }}
+      VARIANT_FILTER: ${{ inputs.variant_filter }}
+      BATCH_SIZE: ${{ inputs.batch_size }}
+      TOP_N_PER_WEEK: ${{ inputs.top_n_per_week }}
+      MAX_QUOTES_PER_SPEECH: ${{ inputs.max_quotes_per_speech }}
+      TEST_SPEECHES_PER_WEEK: ${{ inputs.test_speeches_per_week || '0' }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ridiculous sentence experiments
+        run: |
+          python process/ridiculous_sentences_experiments.py
