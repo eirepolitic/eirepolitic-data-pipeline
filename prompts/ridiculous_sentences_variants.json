@@ -1,0 +1,92 @@
+[
+  {
+    "variant_id": "sentence_strict_01",
+    "approach": "sentence_score",
+    "prompt_family": "strict_filter",
+    "description": "Very strict sentence scorer. Most sentences should score low.",
+    "scoring_instructions": "Only give a high score when a quote is genuinely unusual by parliamentary standards: laugh-out-loud funny, bizarre, absurd, cuttingly insulting, or clearly unparliamentary in wording. Normal political criticism, standard accusation, and routine debate theatre should usually score below 30. Scores above 70 should be rare."
+  },
+  {
+    "variant_id": "sentence_strict_02",
+    "approach": "sentence_score",
+    "prompt_family": "strict_filter",
+    "description": "Exception-only sentence scorer.",
+    "scoring_instructions": "Act like a severe editor selecting only exceptional outliers. Most candidates should be treated as unremarkable and score very low. Reserve high scores for quotes that would make a neutral reader stop because they sound ridiculous, surreal, brutally insulting, unexpectedly comic, or startlingly un-parliamentary."
+  },
+  {
+    "variant_id": "sentence_absurd_01",
+    "approach": "sentence_score",
+    "prompt_family": "absurd_funny",
+    "description": "Sentence scorer biased toward absurd, comic, surreal wording.",
+    "scoring_instructions": "Prioritize wording that sounds absurd, surreal, comically over-the-top, strange, or unintentionally funny. Do not reward merely angry or oppositional language unless it is also weird, comic, or ridiculous on its face."
+  },
+  {
+    "variant_id": "sentence_insult_01",
+    "approach": "sentence_score",
+    "prompt_family": "insulting_harsh",
+    "description": "Sentence scorer biased toward unusually harsh or insulting lines.",
+    "scoring_instructions": "Prioritize lines that sound unusually harsh, insulting, sneering, contemptuous, or close to unparliamentary. Ordinary criticism and familiar political attack lines should still score low unless the wording itself is striking."
+  },
+  {
+    "variant_id": "sentence_quotable_01",
+    "approach": "sentence_score",
+    "prompt_family": "quotable_memorable",
+    "description": "Sentence scorer biased toward memorable, quotable standout lines.",
+    "scoring_instructions": "Prioritize lines that would stand alone as memorable, quotable, or shareable because they are funny, ridiculous, biting, or bizarre. Do not reward lines just because they are short or emphatic."
+  },
+  {
+    "variant_id": "sentence_combo_01",
+    "approach": "sentence_score",
+    "prompt_family": "mixed_strict",
+    "description": "Balanced strict sentence scorer for funny, ridiculous, insulting, or unparliamentary lines.",
+    "scoring_instructions": "A high score requires at least one of these qualities to be obvious in the wording itself: funny, ridiculous, bizarre, insulting, unusually harsh, or clearly unparliamentary. If a quote is merely political, critical, dramatic, or rhetorical, keep the score low."
+  },
+  {
+    "variant_id": "extract_strict_01",
+    "approach": "extract_then_score",
+    "prompt_family": "strict_filter",
+    "description": "Strict extraction: only obvious standouts.",
+    "extraction_instructions": "Extract only quotes that are plainly standout by parliamentary standards. If the speech contains nothing genuinely funny, ridiculous, bizarre, insulting, unusually harsh, or unparliamentary, return an empty list.",
+    "scoring_instructions": "Only high-score quotes that are unmistakably standout by parliamentary standards. Most extracted quotes should still score conservatively unless the wording is truly exceptional."
+  },
+  {
+    "variant_id": "extract_strict_02",
+    "approach": "extract_then_score",
+    "prompt_family": "strict_filter",
+    "description": "Exception-only extraction with very high bar.",
+    "extraction_instructions": "Use a very high bar. Do not return a quote just because it is the sharpest line in the speech. Return a quote only if a neutral reader would notice it as bizarre, comic, ridiculous, unusually nasty, or unusually unparliamentary. Otherwise return an empty list.",
+    "scoring_instructions": "Treat the score as a rarity meter. Reserve high scores for quotes that feel like real outliers rather than normal debate conflict."
+  },
+  {
+    "variant_id": "extract_absurd_01",
+    "approach": "extract_then_score",
+    "prompt_family": "absurd_funny",
+    "description": "Extraction focused on absurd, surreal, and comic wording.",
+    "extraction_instructions": "Look for quotes that sound absurd, surreal, comic, strange, or unintentionally hilarious. Do not extract merely angry or oppositional lines unless they are also funny or ridiculous in wording.",
+    "scoring_instructions": "Prioritize absurdity, comic effect, bizarre imagery, and wording that would make a reader laugh or do a double take."
+  },
+  {
+    "variant_id": "extract_insult_01",
+    "approach": "extract_then_score",
+    "prompt_family": "insulting_harsh",
+    "description": "Extraction focused on unusually harsh or insulting wording.",
+    "extraction_instructions": "Look for quotes that are unusually insulting, contemptuous, sneering, mocking, or close to unparliamentary. Do not extract routine criticism or ordinary adversarial language.",
+    "scoring_instructions": "Prioritize quotes whose wording is notably harsh, insulting, contemptuous, or unusually unparliamentary, while keeping normal political attacks low."
+  },
+  {
+    "variant_id": "extract_quotable_01",
+    "approach": "extract_then_score",
+    "prompt_family": "quotable_memorable",
+    "description": "Extraction focused on quotable, memorable lines.",
+    "extraction_instructions": "Look for quotes that feel memorable, shareable, or instantly quotable because they are funny, weird, ridiculous, or sharply worded in an unusual way. Ignore ordinary rhetoric.",
+    "scoring_instructions": "Prioritize quotability and memorability. A high score should mean the quote feels worth surfacing on its own because it is strange, comic, biting, or ridiculous."
+  },
+  {
+    "variant_id": "extract_combo_01",
+    "approach": "extract_then_score",
+    "prompt_family": "mixed_strict",
+    "description": "Balanced extraction for funny, ridiculous, insulting, or unparliamentary quotes.",
+    "extraction_instructions": "Look for quotes that clearly fit at least one of these categories in their wording: funny, ridiculous, bizarre, insulting, unusually harsh, or clearly unparliamentary. If none do, return an empty list.",
+    "scoring_instructions": "A high score requires the quote to feel genuinely worth surfacing for one or more of these reasons: funny, ridiculous, bizarre, insulting, unusually harsh, or clearly unparliamentary. Keep ordinary lines low."
+  }
+]
