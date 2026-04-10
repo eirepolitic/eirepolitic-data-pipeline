@@ -10,11 +10,11 @@ on:
       approach_filter:
         description: "all | sentence_score | extract_then_score"
         required: false
-        default: "all"
+        default: "extract_then_score"
       variant_filter:
         description: "Optional comma-separated variant IDs"
         required: false
-        default: ""
+        default: "extract_strict_01,extract_strict_02,extract_absurd_01,extract_insult_01,extract_quotable_01,extract_combo_01"
       openai_model:
         description: "Model name"
         required: false
@@ -22,7 +22,7 @@ on:
       batch_size:
         description: "How many quotes to score per LLM call"
         required: false
-        default: "20"
+        default: "10"
       top_n_per_week:
         description: "How many final rows to keep per week for each variant"
         required: false
@@ -32,9 +32,9 @@ on:
         required: false
         default: "3"
       test_speeches_per_week:
-        description: "Optional speech cap per week for a smaller smoke test"
+        description: "Speech cap per week for the default smoke test"
         required: false
-        default: ""
+        default: "20"
 
 concurrency:
   group: ridiculous-sentences-experiments
@@ -60,7 +60,7 @@ jobs:
       BATCH_SIZE: ${{ inputs.batch_size }}
       TOP_N_PER_WEEK: ${{ inputs.top_n_per_week }}
       MAX_QUOTES_PER_SPEECH: ${{ inputs.max_quotes_per_speech }}
-      TEST_SPEECHES_PER_WEEK: ${{ inputs.test_speeches_per_week || '0' }}
+      TEST_SPEECHES_PER_WEEK: ${{ inputs.test_speeches_per_week || '20' }}
 
     steps:
       - name: Check out repo
