@@ -4,12 +4,11 @@ import re
 import json
 import time
 import hashlib
-from datetime import datetime, date, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import date, timedelta
+from typing import Any, Dict, List, Tuple
 
 import boto3
 import pandas as pd
-from botocore.exceptions import ClientError
 from openai import OpenAI
 
 import pyarrow as pa
@@ -38,8 +37,8 @@ TOP_N_PER_WEEK = max(1, int(os.getenv("TOP_N_PER_WEEK", "10")))
 MAX_SENTENCE_WORDS = max(1, int(os.getenv("MAX_SENTENCE_WORDS", "60")))
 MAX_EXTRACT_WORDS = max(1, int(os.getenv("MAX_EXTRACT_WORDS", "60")))
 MAX_QUOTES_PER_SPEECH = max(1, int(os.getenv("MAX_QUOTES_PER_SPEECH", "3")))
-BATCH_SIZE = max(1, int(os.getenv("BATCH_SIZE", "20")))
-TEST_SPEECHES_PER_WEEK = max(0, int(os.getenv("TEST_SPEECHES_PER_WEEK", "0")))
+BATCH_SIZE = max(1, int(os.getenv("BATCH_SIZE", "10")))
+TEST_SPEECHES_PER_WEEK = max(0, int(os.getenv("TEST_SPEECHES_PER_WEEK", "20")))
 
 DELAY_BETWEEN_REQUESTS = float(os.getenv("DELAY_BETWEEN_REQUESTS", "0.25"))
 AUTOSAVE_VARIANT_INTERVAL = max(0, int(os.getenv("AUTOSAVE_VARIANT_INTERVAL", "1")))
@@ -92,9 +91,9 @@ def extract_text_from_response(resp: Any) -> str:
     for item in output_items:
         if _get_attr(item, "type", None) != "message":
             continue
-        for content in (_get_attr(item, "content", []) or []):
-            if _get_attr(content, "type", None) in ("output_text", "text"):
-                value = _get_attr(content, "text", None)
+        for response_content in (_get_attr(item, "content", []) or []):
+            if _get_attr(response_content, "type", None) in ("output_text", "text"):
+                value = _get_attr(response_content, "text", None)
                 if value:
                     chunks.append(str(value))
     return "\n".join(chunks).strip()
@@ -406,6 +405,7 @@ def extract_candidates_from_speeches(df_speeches: pd.DataFrame, variant: Dict[st
             try:
                 out = call_openai(repair_prompt, max_output_tokens=max_tokens)
                 quotes = parse_extracted_quotes(out, speech_row["speech_text"])
+                last_err = None
                 break
             except Exception as e:
                 last_err = e
@@ -470,7 +470,7 @@ Candidates:
 """.strip()
 
 
-def parse_scores(text: str, expected_ids: List[str]) -> Dict[str, int]:
+def parse_scores(text: str, expected_ids: List[str], allow_partial: bool = False) -> Dict[str, int]:
     data = extract_json_payload(text)
     items = data["scores"] if isinstance(data, dict) and "scores" in data else data
     if not isinstance(items, list):
@@ -482,7 +482,7 @@ def parse_scores(text: str, expected_ids: List[str]) -> Dict[str, int]:
         if not isinstance(item, dict):
             continue
         cid = str(item.get("candidate_id", "")).strip()
-        if not cid:
+        if not cid or cid not in expected:
             continue
         try:
             score = int(item.get("score", 0))
@@ -491,10 +491,82 @@ def parse_scores(text: str, expected_ids: List[str]) -> Dict[str, int]:
         scores[cid] = max(1, min(100, score))
 
     missing = [cid for cid in expected_ids if cid not in scores]
+    if allow_partial:
+        if not scores:
+            raise ValueError("No valid scores returned for the requested candidate IDs.")
+        if missing:
+            print(f"    ↳ Partial score response: resolved={len(scores)}/{len(expected_ids)}; missing={len(missing)}")
+        return scores
+
     extras = [cid for cid in scores if cid not in expected]
     if missing or extras:
         raise ValueError(f"Invalid score payload. Missing={missing[:5]} Extras={extras[:5]}")
     return scores
+
+
+def request_scores_for_records(variant: Dict[str, Any], batch_records: List[Dict[str, Any]]) -> Dict[str, int]:
+    expected_ids = [row["candidate_id"] for row in batch_records]
+    prompt = build_scoring_prompt(variant, batch_records)
+    max_tokens = MAX_OUTPUT_TOKENS if MAX_OUTPUT_TOKENS > 0 else max(400, len(batch_records) * 30)
+
+    last_err = None
+    repair_prompt = prompt
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            out = call_openai(repair_prompt, max_output_tokens=max_tokens)
+            return parse_scores(out, expected_ids, allow_partial=True)
+        except Exception as e:
+            last_err = e
+            repair_prompt = prompt + f"\n\nThe previous output was invalid because: {e}\nReturn corrected valid JSON only."
+            time.sleep(1.5 * attempt)
+
+    raise RuntimeError(f"Failed to score requested records after {MAX_RETRIES} attempts: {last_err}")
+
+
+def score_records_with_fallback(variant: Dict[str, Any], batch_records: List[Dict[str, Any]]) -> Dict[str, int]:
+    if not batch_records:
+        return {}
+
+    resolved: Dict[str, int] = {}
+    queue: List[List[Dict[str, Any]]] = [batch_records]
+    expected_ids = [row["candidate_id"] for row in batch_records]
+
+    while queue:
+        chunk = queue.pop(0)
+        chunk = [row for row in chunk if row["candidate_id"] not in resolved]
+        if not chunk:
+            continue
+
+        try:
+            chunk_scores = request_scores_for_records(variant, chunk)
+        except Exception as e:
+            if len(chunk) == 1:
+                raise RuntimeError(f"Failed to score single candidate {chunk[0]['candidate_id']}: {e}")
+            midpoint = max(1, len(chunk) // 2)
+            print(f"    ↳ Score fallback split: chunk={len(chunk)} due to {e}")
+            queue.insert(0, chunk[midpoint:])
+            queue.insert(0, chunk[:midpoint])
+            continue
+
+        resolved.update(chunk_scores)
+        missing_rows = [row for row in chunk if row["candidate_id"] not in chunk_scores]
+        if missing_rows:
+            if len(missing_rows) == len(chunk):
+                if len(chunk) == 1:
+                    raise RuntimeError(f"Model returned no usable score for candidate {chunk[0]['candidate_id']}.")
+                midpoint = max(1, len(chunk) // 2)
+                print(f"    ↳ No progress on chunk={len(chunk)}; splitting for retries")
+                queue.insert(0, chunk[midpoint:])
+                queue.insert(0, chunk[:midpoint])
+            else:
+                print(f"    ↳ Retrying missing subset of size {len(missing_rows)}")
+                queue.insert(0, missing_rows)
+
+    missing_ids = [cid for cid in expected_ids if cid not in resolved]
+    if missing_ids:
+        raise RuntimeError(f"Unresolved candidate IDs after fallback scoring: {missing_ids[:10]}")
+
+    return {cid: resolved[cid] for cid in expected_ids}
 
 
 def score_candidates(cdf: pd.DataFrame, variant: Dict[str, Any]) -> pd.DataFrame:
@@ -513,28 +585,12 @@ def score_candidates(cdf: pd.DataFrame, variant: Dict[str, Any]) -> pd.DataFrame
             batch_idxs = idxs[start:start + BATCH_SIZE]
             batch_df = result.loc[batch_idxs, ["candidate_id", "quote"]].copy()
             batch_records = batch_df.to_dict(orient="records")
-            expected_ids = [row["candidate_id"] for row in batch_records]
+            scores = score_records_with_fallback(variant, batch_records)
 
-            prompt = build_scoring_prompt(variant, batch_records)
-            max_tokens = MAX_OUTPUT_TOKENS if MAX_OUTPUT_TOKENS > 0 else max(400, len(batch_records) * 30)
+            for idx in batch_idxs:
+                cid = result.at[idx, "candidate_id"]
+                result.at[idx, "score"] = scores[cid]
 
-            last_err = None
-            repair_prompt = prompt
-            for attempt in range(1, MAX_RETRIES + 1):
-                try:
-                    out = call_openai(repair_prompt, max_output_tokens=max_tokens)
-                    scores = parse_scores(out, expected_ids)
-                    for idx in batch_idxs:
-                        cid = result.at[idx, "candidate_id"]
-                        result.at[idx, "score"] = scores[cid]
-                    last_err = None
-                    break
-                except Exception as e:
-                    last_err = e
-                    repair_prompt = prompt + f"\n\nThe previous output was invalid because: {e}\nReturn corrected valid JSON only."
-                    time.sleep(1.5 * attempt)
-            if last_err is not None:
-                raise RuntimeError(f"Failed to score batch for variant={variant['variant_id']} week={week_id}: {last_err}")
             time.sleep(DELAY_BETWEEN_REQUESTS)
 
     result["score"] = result["score"].astype(int)
