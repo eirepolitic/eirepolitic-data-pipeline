@@ -7,27 +7,30 @@
 </head>
 <body>
   <div class="slide">
-    <div class="grid-2">
-      <div>
-        {{ c.section_heading('Constituency snapshot', constituency.name, 'Automated test carousel generated from existing processed data.') }}
-        <div class="pill-row">
-          {{ c.pill('TDs', constituency.member_count) }}
-          {{ c.pill('Parties', constituency.party_count) }}
-          {{ c.pill('Debate speeches', constituency.speech_count) }}
-        </div>
-        <div class="note-box">
-          <strong>Lead TD:</strong> {{ lead_member.full_name }}<br>
-          <strong>Most-tagged issue:</strong> {{ top_issue.label }}{% if top_issue.count %} ({{ top_issue.count }} speeches){% endif %}
-        </div>
-      </div>
-      <div class="image-panel">
-        {% if constituency.image_url %}
-        <img class="hero-image" src="{{ constituency.image_url }}" alt="{{ constituency.name }}">
-        {% else %}
-        <div class="placeholder">TODO: no constituency image found in constituency image index.</div>
-        {% endif %}
-      </div>
+    {% if style.ornament %}{{ c.ornaments() }}{% endif %}
+    {{ c.centered_title(slide.title ~ ':', constituency.name) }}
+    {{ c.top_rule() }}
+
+    {% if slide.content.show_map %}
+      {{ c.framed_image(constituency.image_url, constituency.name, 'TODO: no constituency image found in constituency image index.') }}
+    {% endif %}
+
+    {% if slide.content.show_top_issue %}
+    <div class="midline-text">
+      <span>Top Issue:</span>
+      <span class="value">{{ top_issue.label }}</span>
     </div>
+    {% endif %}
+
+    <div class="metrics-row">
+      {% if slide.content.show_vote_participation %}
+        {{ c.metric('Vote Participation %', constituency.vote_participation_pct) }}
+      {% endif %}
+      {% if slide.content.show_speech_rank %}
+        {{ c.metric('Speech Count Rank', constituency.speech_rank) }}
+      {% endif %}
+    </div>
+
     {{ c.footer(branding.account_name, branding.footer_note) }}
   </div>
 </body>
