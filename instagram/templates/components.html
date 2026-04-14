@@ -1,54 +1,35 @@
-{% macro pill(label, value) -%}
-<div class="pill">
-  <div class="pill-label">{{ label }}</div>
-  <div class="pill-value">{{ value }}</div>
-</div>
+{% macro ornaments() -%}
+<div class="ornament tl">❦</div>
+<div class="ornament tr">❦</div>
+<div class="ornament bl">❦</div>
+<div class="ornament br">❦</div>
 {%- endmacro %}
 
-{% macro section_heading(kicker, title, subtitle='') -%}
-<div class="section-heading">
-  <div class="kicker">{{ kicker }}</div>
+{% macro top_rule() -%}
+<div class="top-rule"></div>
+{%- endmacro %}
+
+{% macro centered_title(title, subtitle='') -%}
+<div class="centered-title">
   <h1>{{ title }}</h1>
-  {% if subtitle %}<p class="subtitle">{{ subtitle }}</p>{% endif %}
+  {% if subtitle %}<div class="subtitle">{{ subtitle }}</div>{% endif %}
 </div>
 {%- endmacro %}
 
-{% macro person_card(member) -%}
-<div class="person-card">
-  <div class="person-photo-wrap">
-    {% if member.photo_url %}
-    <img class="person-photo" src="{{ member.photo_url }}" alt="{{ member.full_name }}">
-    {% else %}
-    <div class="photo-placeholder">No photo available</div>
-    {% endif %}
-  </div>
-  <div class="person-copy">
-    <div class="eyebrow">TD profile</div>
-    <h2>{{ member.full_name }}</h2>
-    <div class="meta-row">{{ member.party or 'Party TODO' }} · {{ member.constituency or 'Constituency TODO' }}</div>
-    <div class="meta-row">Debate speeches tagged: {{ member.speech_count }}</div>
-    {% if member.background %}
-    <p class="body-copy">{{ member.background }}</p>
-    {% else %}
-    <p class="body-copy todo">TODO: no summary found in members summaries dataset.</p>
-    {% endif %}
-  </div>
+{% macro framed_image(src='', alt='', placeholder='TODO missing image') -%}
+<div class="framed-image">
+  {% if src %}
+  <img class="hero-image" src="{{ src }}" alt="{{ alt }}">
+  {% else %}
+  <div class="placeholder">{{ placeholder }}</div>
+  {% endif %}
 </div>
 {%- endmacro %}
 
-{% macro issue_rows(issues) -%}
-<div class="issue-list">
-  {% for issue in issues %}
-  <div class="issue-row">
-    <div class="issue-header">
-      <span>{{ issue.label }}</span>
-      <span>{{ issue.count }}</span>
-    </div>
-    <div class="bar-track">
-      <div class="bar-fill" style="width: {{ issue.percent }}%"></div>
-    </div>
-  </div>
-  {% endfor %}
+{% macro metric(label, value) -%}
+<div class="metric-block">
+  <div class="metric-value">{{ value }}</div>
+  <div class="metric-label">{{ label }}</div>
 </div>
 {%- endmacro %}
 
