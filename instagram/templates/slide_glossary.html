@@ -1,0 +1,23 @@
+{% import 'components.html' as c %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>{% include 'styles.css' %}</style>
+</head>
+<body>
+  <div class="slide">
+    {% if style.ornament %}{{ c.ornaments() }}{% endif %}
+    {{ c.centered_title('Glossary') }}
+    {{ c.top_rule() }}
+
+    <div class="glossary">
+      <p><strong>Issues:</strong> {{ glossary.issues }}</p>
+      <p><strong>Vote Participation %:</strong> {{ glossary.vote_participation_pct }}</p>
+      <p><strong>Speech Count Rank:</strong> {{ glossary.speech_rank }}</p>
+    </div>
+
+    {{ c.footer(branding.account_name, branding.footer_note) }}
+  </div>
+</body>
+</html>
