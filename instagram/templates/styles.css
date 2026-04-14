@@ -15,185 +15,195 @@ html, body {
   height: {{ slide_size.height }}px;
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
-body {
-  padding: 48px;
-}
+body { background: var(--bg); }
 .slide {
+  position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.96));
-  border: 1px solid var(--border);
-  position: relative;
+  background: var(--bg);
   overflow: hidden;
-  padding: 44px;
+  padding: 56px 58px 72px;
 }
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 28px;
-}
-.section-heading .kicker,
-.eyebrow,
-.label {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 15px;
+.ornament {
+  position: absolute;
+  font-size: 86px;
+  line-height: 1;
   color: var(--accent);
-  font-weight: 700;
+  opacity: 0.95;
 }
-.section-heading h1 {
-  margin: 10px 0 10px;
-  font-size: 58px;
-  line-height: 1.02;
+.tl { top: 8px; left: 10px; }
+.tr { top: 8px; right: 10px; transform: scaleX(-1); }
+.bl { bottom: 8px; left: 10px; transform: scaleY(-1); }
+.br { bottom: 8px; right: 10px; transform: scale(-1, -1); }
+.centered-title {
+  text-align: center;
+  margin-top: 18px;
+}
+.centered-title h1 {
+  margin: 0;
+  font-size: 64px;
+  line-height: 1.06;
+  font-weight: 500;
 }
 .subtitle {
-  margin: 0;
-  font-size: 24px;
-  line-height: 1.35;
+  margin-top: 10px;
+  font-size: 34px;
   color: var(--muted);
 }
-.hero-image,
-.person-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.top-rule {
+  width: 92%;
+  height: 8px;
+  background: var(--accent);
+  margin: 26px auto 0;
 }
-.image-panel {
-  height: 540px;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid var(--border);
+.framed-image {
+  width: 660px;
+  margin: 52px auto 0;
+  border: 10px solid var(--accent);
   background: var(--accent-2);
+  padding: 0;
 }
-.placeholder,
-.photo-placeholder {
+.hero-image {
   width: 100%;
-  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.placeholder {
+  min-height: 520px;
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 24px;
-  color: var(--muted);
-  font-size: 24px;
+  padding: 30px;
+  color: var(--bg);
+  background: var(--accent-2);
+  font-size: 30px;
 }
-.pill-row {
+.midline-text {
+  margin-top: 56px;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.35;
+}
+.midline-text .value {
+  margin-left: 18px;
+}
+.metrics-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 170px;
+}
+.metric-block {
+  width: 240px;
+  text-align: center;
+}
+.metric-value {
+  font-size: 66px;
+  font-weight: 500;
+  line-height: 1;
+}
+.metric-label {
+  margin-top: 12px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+.member-name {
+  text-align: center;
+  font-size: 56px;
+  line-height: 1.08;
   margin-top: 22px;
 }
-.pill {
-  min-width: 210px;
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-}
-.pill-label {
-  font-size: 14px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-}
-.pill-value {
+.detail-stack {
+  margin-top: 20px;
+  text-align: center;
   font-size: 34px;
-  font-weight: 800;
+  line-height: 1.85;
 }
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 24px;
+.detail-stack .label {
+  display: inline-block;
+  min-width: 250px;
+  text-align: right;
+  margin-right: 18px;
 }
-.issue-list {
+.chart-wrap {
+  width: 1000px;
+  margin: 18px auto 0;
+}
+.chart-area {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.y-labels {
+  padding-top: 4px;
+}
+.y-label {
+  height: 104px;
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 24px;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  padding-right: 12px;
+  font-size: 27px;
+  line-height: 1.2;
 }
-.issue-header {
+.bars-panel {
+  position: relative;
+  border-left: 2px solid rgba(243,239,230,0.4);
+  padding-left: 12px;
+}
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 58px;
+  width: 0;
+  border-left: 2px dotted rgba(243,239,230,0.55);
+}
+.bar-row {
+  position: relative;
+  height: 104px;
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 30px;
-  font-weight: 700;
-  margin-bottom: 10px;
+  align-items: center;
 }
-.bar-track {
-  width: 100%;
-  height: 18px;
-  background: #e8edf3;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
+.bar {
+  height: 76px;
   background: var(--accent);
 }
-.person-card {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 28px;
-  margin-top: 26px;
-}
-.person-photo-wrap {
-  height: 500px;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--accent-2);
-}
-.person-copy h2 {
-  margin: 8px 0 10px;
-  font-size: 48px;
-  line-height: 1.05;
-}
-.meta-row {
-  font-size: 24px;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-.body-copy,
-.bullets,
-.method-list {
-  font-size: 24px;
-  line-height: 1.45;
-}
-.todo {
-  color: #8a3b12;
-}
-.two-panels {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-top: 28px;
-}
-ul {
-  margin: 0;
-  padding-left: 26px;
-}
-.footer {
-  position: absolute;
-  left: 44px;
-  right: 44px;
-  bottom: 28px;
+.x-axis {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
+  padding-left: 0;
+  margin-top: 8px;
+  font-size: 24px;
+}
+.axis-label {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 24px;
+}
+.glossary {
+  width: 910px;
+  margin: 34px auto 0;
+  font-size: 30px;
+  line-height: 1.24;
+}
+.glossary p { margin: 0 0 34px; }
+.glossary strong { text-decoration: underline; }
+.footer {
+  position: absolute;
+  left: 58px;
+  right: 58px;
+  bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 17px;
   color: var(--muted);
 }
-.note-box {
-  margin-top: 24px;
-  padding: 18px 20px;
-  border-radius: 18px;
-  background: #edf6f9;
-  color: var(--text);
-  font-size: 22px;
-  line-height: 1.4;
-}
+.todo-inline { color: #ffe9a8; }
