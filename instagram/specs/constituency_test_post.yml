@@ -1,0 +1,39 @@
+post:
+  slug: constituency-test
+  title: Constituency Test Carousel
+  output_root: generated_posts
+  slide_size:
+    width: 1080
+    height: 1350
+
+data:
+  constituency: Dublin Bay South
+  member_name:
+  issue_limit: 5
+  member_selection: highest_speech_count
+
+slides:
+  - key: overview
+    type: constituency_overview
+    title: Constituency Overview
+  - key: top_issues
+    type: top_issues
+    title: Top Debate Issues
+  - key: member_profile
+    type: member_profile
+    title: TD Profile
+  - key: methodology
+    type: methodology
+    title: How this was built
+
+branding:
+  account_name: Eirepolitic
+  footer_note: Test pipeline output
+  palette:
+    bg: "#F4F1EA"
+    panel: "#FFFDF9"
+    text: "#102A43"
+    muted: "#5C6B7A"
+    accent: "#1F7A8C"
+    accent_2: "#BFDBF7"
+    border: "#D9E2EC"
