@@ -1,0 +1,34 @@
+{% import 'components.html' as c %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>{% include 'styles.css' %}</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="grid-2">
+      <div>
+        {{ c.section_heading('Constituency snapshot', constituency.name, 'Automated test carousel generated from existing processed data.') }}
+        <div class="pill-row">
+          {{ c.pill('TDs', constituency.member_count) }}
+          {{ c.pill('Parties', constituency.party_count) }}
+          {{ c.pill('Debate speeches', constituency.speech_count) }}
+        </div>
+        <div class="note-box">
+          <strong>Lead TD:</strong> {{ lead_member.full_name }}<br>
+          <strong>Most-tagged issue:</strong> {{ top_issue.label }}{% if top_issue.count %} ({{ top_issue.count }} speeches){% endif %}
+        </div>
+      </div>
+      <div class="image-panel">
+        {% if constituency.image_url %}
+        <img class="hero-image" src="{{ constituency.image_url }}" alt="{{ constituency.name }}">
+        {% else %}
+        <div class="placeholder">TODO: no constituency image found in constituency image index.</div>
+        {% endif %}
+      </div>
+    </div>
+    {{ c.footer(branding.account_name, branding.footer_note) }}
+  </div>
+</body>
+</html>
