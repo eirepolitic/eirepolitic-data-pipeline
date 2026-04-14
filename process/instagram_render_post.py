@@ -28,11 +28,12 @@ import argparse
 import asyncio
 import io
 import json
+import math
 import os
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import boto3
 import pandas as pd
@@ -61,7 +62,7 @@ TEMPLATE_BY_TYPE = {
     "constituency_overview": "slide_overview.html",
     "top_issues": "slide_top_issues.html",
     "member_profile": "slide_member_profile.html",
-    "methodology": "slide_methodology.html",
+    "glossary": "slide_glossary.html",
 }
 
 
@@ -120,6 +121,13 @@ def coalesce_text(*values: Any) -> Optional[str]:
     return None
 
 
+def format_metric(value: Any, suffix: str = "") -> str:
+    text = coalesce_text(value)
+    if not text:
+        return f"TODO{suffix}" if suffix else "TODO"
+    return f"{text}{suffix}"
+
+
 def safe_int(value: Any) -> int:
     try:
         if pd.isna(value):
@@ -132,32 +140,19 @@ def safe_int(value: Any) -> int:
         return 0
 
 
-def build_issue_counts(df_debate: pd.DataFrame, member_lookup: Dict[str, Dict[str, Any]], constituency_key: str) -> Counter:
-    counter: Counter = Counter()
-    if df_debate.empty:
-        return counter
-
-    speaker_col = "Speaker Name" if "Speaker Name" in df_debate.columns else "speaker_name"
-    issue_col = None
+def pick_issue_column(df_debate: pd.DataFrame) -> Optional[str]:
     for candidate in ["issue", "Issue", "issue_label", "category", "label"]:
         if candidate in df_debate.columns:
-            issue_col = candidate
-            break
-    if speaker_col not in df_debate.columns or not issue_col:
-        return counter
+            return candidate
+    return None
 
-    for _, row in df_debate.iterrows():
-        speaker_key = normalize_name(row.get(speaker_col, ""))
-        issue = str(row.get(issue_col, "") or "").strip()
-        if not speaker_key or not issue or issue.upper() == "NONE":
-            continue
-        member = member_lookup.get(speaker_key)
-        if not member:
-            continue
-        if member.get("constituency_key") != constituency_key:
-            continue
-        counter[issue] += 1
-    return counter
+
+def pick_speaker_column(df_debate: pd.DataFrame) -> Optional[str]:
+    if "Speaker Name" in df_debate.columns:
+        return "Speaker Name"
+    if "speaker_name" in df_debate.columns:
+        return "speaker_name"
+    return None
 
 
 def pick_constituency_image(df_images: pd.DataFrame, constituency_name: str) -> Optional[str]:
@@ -182,8 +177,11 @@ def build_member_table(df_members: pd.DataFrame, df_photos: pd.DataFrame, df_sum
     if not df_photos.empty:
         photos = df_photos.copy()
         if "member_code" in photos.columns and "photo_url" in photos.columns:
-            photo_cols = ["member_code", "photo_url"]
-            base = base.merge(photos[photo_cols].drop_duplicates(subset=["member_code"]), on="member_code", how="left")
+            base = base.merge(
+                photos[["member_code", "photo_url"]].drop_duplicates(subset=["member_code"]),
+                on="member_code",
+                how="left",
+            )
         elif "full_name" in photos.columns and "photo_url" in photos.columns:
             photos["member_key"] = photos["full_name"].map(normalize_name)
             base = base.merge(
@@ -195,9 +193,8 @@ def build_member_table(df_members: pd.DataFrame, df_photos: pd.DataFrame, df_sum
     if not df_summaries.empty:
         summaries = df_summaries.copy()
         if "member_code" in summaries.columns and "background" in summaries.columns:
-            summary_cols = ["member_code", "background"]
             base = base.merge(
-                summaries[summary_cols].drop_duplicates(subset=["member_code"]),
+                summaries[["member_code", "background"]].drop_duplicates(subset=["member_code"]),
                 on="member_code",
                 how="left",
             )
@@ -210,6 +207,72 @@ def build_member_table(df_members: pd.DataFrame, df_photos: pd.DataFrame, df_sum
             )
 
     return base
+
+
+def build_issue_records(df_debate: pd.DataFrame, member_lookup: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if df_debate.empty:
+        return []
+
+    speaker_col = pick_speaker_column(df_debate)
+    issue_col = pick_issue_column(df_debate)
+    if not speaker_col or not issue_col:
+        return []
+
+    records: List[Dict[str, Any]] = []
+    for _, row in df_debate.iterrows():
+        speaker_key = normalize_name(row.get(speaker_col, ""))
+        issue = str(row.get(issue_col, "") or "").strip()
+        if not speaker_key or not issue or issue.upper() == "NONE":
+            continue
+        member = member_lookup.get(speaker_key)
+        if not member:
+            continue
+        records.append(
+            {
+                "member_key": speaker_key,
+                "constituency_key": member.get("constituency_key"),
+                "issue": issue,
+            }
+        )
+    return records
+
+
+def issue_counts_from_records(records: List[Dict[str, Any]], *, constituency_key: Optional[str] = None, member_key: Optional[str] = None) -> Counter:
+    counter: Counter = Counter()
+    for rec in records:
+        if constituency_key and rec.get("constituency_key") != constituency_key:
+            continue
+        if member_key and rec.get("member_key") != member_key:
+            continue
+        counter[rec["issue"]] += 1
+    return counter
+
+
+def build_chart_axis(max_value: int) -> Dict[str, Any]:
+    if max_value <= 0:
+        return {"ticks": [0, 1], "grid_lines": [{"left_pct": 0}, {"left_pct": 100}], "max_value": 1}
+
+    rough_step = max(1, math.ceil(max_value / 3))
+    magnitude = 10 ** max(0, len(str(rough_step)) - 1)
+    step = max(1, math.ceil(rough_step / magnitude) * magnitude)
+    axis_max = step * math.ceil(max_value / step)
+    ticks = list(range(0, axis_max + 1, step))
+    if ticks[-1] != axis_max:
+        ticks.append(axis_max)
+    grid_lines = [{"left_pct": round((tick / axis_max) * 100, 4)} for tick in ticks]
+    return {"ticks": ticks, "grid_lines": grid_lines, "max_value": axis_max}
+
+
+def make_issue_rows(counter: Counter, limit: int) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    top = counter.most_common(limit)
+    max_value = top[0][1] if top else 0
+    axis = build_chart_axis(max_value)
+    axis_max = axis["max_value"]
+    for label, count in top:
+        percent = round((count / axis_max) * 100, 4) if axis_max else 0
+        rows.append({"label": label, "count": count, "percent": percent})
+    return rows, axis
 
 
 def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, Any]:
@@ -225,8 +288,6 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         if str(row.get("full_name", "")).strip()
     }
 
-    issue_counts = build_issue_counts(datasets["debate_issues"], member_lookup, constituency_key)
-
     members_in_constituency = df_members[df_members["constituency_key"] == constituency_key].copy()
     if members_in_constituency.empty:
         available = sorted(set(df_members.get("constituency", pd.Series(dtype=str)).dropna().astype(str).tolist()))[:20]
@@ -234,17 +295,10 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
             f"No members matched constituency '{constituency_name}'. Sample available constituencies: {available}"
         )
 
-    speech_count_map = Counter()
-    if not datasets["debate_issues"].empty:
-        debate_df = datasets["debate_issues"]
-        speaker_col = "Speaker Name" if "Speaker Name" in debate_df.columns else "speaker_name"
-        if speaker_col in debate_df.columns:
-            for speaker in debate_df[speaker_col].fillna(""):
-                key = normalize_name(speaker)
-                member = member_lookup.get(key)
-                if member and member.get("constituency_key") == constituency_key:
-                    speech_count_map[key] += 1
+    issue_records = build_issue_records(datasets["debate_issues"], member_lookup)
+    constituency_issue_counts = issue_counts_from_records(issue_records, constituency_key=constituency_key)
 
+    speech_count_map = Counter(rec["member_key"] for rec in issue_records if rec.get("constituency_key") == constituency_key)
     members_in_constituency["speech_count"] = members_in_constituency["member_key"].map(lambda x: speech_count_map.get(x, 0))
 
     requested_member = coalesce_text(spec["data"].get("member_name"))
@@ -255,25 +309,25 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         if not matches.empty:
             selected_member_row = matches.iloc[0]
     if selected_member_row is None:
-        members_in_constituency = members_in_constituency.sort_values(
-            by=["speech_count", "full_name"], ascending=[False, True]
-        )
+        members_in_constituency = members_in_constituency.sort_values(by=["speech_count", "full_name"], ascending=[False, True])
         selected_member_row = members_in_constituency.iloc[0]
 
-    issues = []
-    max_issue_count = max(issue_counts.values()) if issue_counts else 0
-    for label, count in issue_counts.most_common(spec["data"].get("issue_limit", 5)):
-        percent = round((count / max_issue_count) * 100, 2) if max_issue_count else 0
-        issues.append({"label": label, "count": count, "percent": percent})
+    member_key = selected_member_row["member_key"]
+    member_issue_counts = issue_counts_from_records(issue_records, member_key=member_key)
 
-    top_issue = issues[0] if issues else {"label": "TODO: no issue data", "count": 0, "percent": 0}
+    constituency_top_issue = constituency_issue_counts.most_common(1)[0][0] if constituency_issue_counts else "TODO"
+    member_top_issue = member_issue_counts.most_common(1)[0][0] if member_issue_counts else "TODO"
 
+    metrics = spec.get("data", {}).get("metrics", {})
     constituency = {
         "name": constituency_name,
         "member_count": int(len(members_in_constituency)),
         "party_count": int(members_in_constituency["party"].fillna("").replace("", pd.NA).dropna().nunique()),
-        "speech_count": int(sum(issue_counts.values())),
+        "speech_count": int(sum(constituency_issue_counts.values())),
         "image_url": pick_constituency_image(datasets["constituency_images"], constituency_name),
+        "top_issue_label": constituency_top_issue,
+        "vote_participation_pct": format_metric(metrics.get("vote_participation_pct"), "%"),
+        "speech_rank": format_metric(metrics.get("constituency_speech_rank") or metrics.get("speech_rank")),
     }
 
     member = {
@@ -283,10 +337,10 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         "photo_url": coalesce_text(selected_member_row.get("photo_url")),
         "background": coalesce_text(selected_member_row.get("background")),
         "speech_count": safe_int(selected_member_row.get("speech_count")),
-    }
-
-    lead_member = {
-        "full_name": member["full_name"],
+        "top_issue_label": member_top_issue,
+        "vote_participation_pct": format_metric(metrics.get("vote_participation_pct"), "%"),
+        "speech_rank": format_metric(metrics.get("speech_rank")),
+        "member_key": member_key,
     }
 
     datasets_used = []
@@ -299,15 +353,39 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
     return {
         "post": spec["post"],
         "branding": spec["branding"],
+        "style": spec.get("style", {}),
+        "data": spec.get("data", {}),
         "slide_size": spec["post"]["slide_size"],
         "slides": spec["slides"],
         "constituency": constituency,
-        "issues": issues,
         "member": member,
-        "lead_member": lead_member,
-        "top_issue": top_issue,
         "datasets_used": datasets_used,
+        "glossary": spec.get("data", {}).get("glossary", {}),
+        "constituency_issue_counts": dict(constituency_issue_counts),
+        "member_issue_counts": dict(member_issue_counts),
     }
+
+
+def prepare_slide_payload(base_context: Dict[str, Any], slide: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(base_context)
+    payload["slide"] = slide
+
+    if slide["type"] == "top_issues":
+        content = slide.get("content", {})
+        scope = content.get("scope", "constituency")
+        issue_limit = int(content.get("issue_limit") or base_context.get("data", {}).get("issue_limit", 8))
+        if scope == "member":
+            counter = Counter(base_context.get("member_issue_counts", {}))
+            title = base_context["member"]["full_name"]
+        else:
+            counter = Counter(base_context.get("constituency_issue_counts", {}))
+            title = base_context["constituency"]["name"]
+        rows, axis = make_issue_rows(counter, issue_limit)
+        payload["issues"] = rows
+        payload["axis"] = axis
+        payload["issues_scope_title"] = title
+
+    return payload
 
 
 def render_slides(spec: Dict[str, Any], context: Dict[str, Any], output_dir: Path) -> List[Path]:
@@ -322,11 +400,11 @@ def render_slides(spec: Dict[str, Any], context: Dict[str, Any], output_dir: Pat
     )
 
     rendered_paths: List[Path] = []
-    for idx, slide in enumerate(spec["slides"], start=1):
+    enabled_slides = [slide for slide in spec["slides"] if slide.get("enabled", True)]
+    for idx, slide in enumerate(enabled_slides, start=1):
         template_name = TEMPLATE_BY_TYPE[slide["type"]]
         template = env.get_template(template_name)
-        payload = dict(context)
-        payload["slide"] = slide
+        payload = prepare_slide_payload(context, slide)
         html = template.render(**payload)
         file_name = f"{idx:02d}_{slide['key']}.html"
         out_path = html_dir / file_name
