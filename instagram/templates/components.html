@@ -1,0 +1,60 @@
+{% macro pill(label, value) -%}
+<div class="pill">
+  <div class="pill-label">{{ label }}</div>
+  <div class="pill-value">{{ value }}</div>
+</div>
+{%- endmacro %}
+
+{% macro section_heading(kicker, title, subtitle='') -%}
+<div class="section-heading">
+  <div class="kicker">{{ kicker }}</div>
+  <h1>{{ title }}</h1>
+  {% if subtitle %}<p class="subtitle">{{ subtitle }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro person_card(member) -%}
+<div class="person-card">
+  <div class="person-photo-wrap">
+    {% if member.photo_url %}
+    <img class="person-photo" src="{{ member.photo_url }}" alt="{{ member.full_name }}">
+    {% else %}
+    <div class="photo-placeholder">No photo available</div>
+    {% endif %}
+  </div>
+  <div class="person-copy">
+    <div class="eyebrow">TD profile</div>
+    <h2>{{ member.full_name }}</h2>
+    <div class="meta-row">{{ member.party or 'Party TODO' }} · {{ member.constituency or 'Constituency TODO' }}</div>
+    <div class="meta-row">Debate speeches tagged: {{ member.speech_count }}</div>
+    {% if member.background %}
+    <p class="body-copy">{{ member.background }}</p>
+    {% else %}
+    <p class="body-copy todo">TODO: no summary found in members summaries dataset.</p>
+    {% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro issue_rows(issues) -%}
+<div class="issue-list">
+  {% for issue in issues %}
+  <div class="issue-row">
+    <div class="issue-header">
+      <span>{{ issue.label }}</span>
+      <span>{{ issue.count }}</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" style="width: {{ issue.percent }}%"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro footer(account_name, footer_note) -%}
+<div class="footer">
+  <span>{{ account_name }}</span>
+  <span>{{ footer_note }}</span>
+</div>
+{%- endmacro %}
