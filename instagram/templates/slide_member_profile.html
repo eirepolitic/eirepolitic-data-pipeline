@@ -7,8 +7,32 @@
 </head>
 <body>
   <div class="slide">
-    {{ c.section_heading('TD profile', member.full_name, member.constituency or constituency.name) }}
-    {{ c.person_card(member) }}
+    {% if style.ornament %}{{ c.ornaments() }}{% endif %}
+
+    {% if slide.content.show_photo %}
+      {{ c.framed_image(member.photo_url, member.full_name, 'TODO: no member photo found in member photo dataset.') }}
+    {% endif %}
+
+    <div class="member-name">{{ member.full_name }}</div>
+    {{ c.top_rule() }}
+
+    <div class="detail-stack">
+      <div><span class="label">Constituency:</span><span>{{ member.constituency }}</span></div>
+      <div><span class="label">Party:</span><span>{{ member.party or 'TODO' }}</span></div>
+      {% if slide.content.show_top_issue %}
+      <div><span class="label">Top Issue:</span><span>{{ member.top_issue_label }}</span></div>
+      {% endif %}
+    </div>
+
+    <div class="metrics-row">
+      {% if slide.content.show_vote_participation %}
+        {{ c.metric('Vote Participation %', member.vote_participation_pct) }}
+      {% endif %}
+      {% if slide.content.show_speech_rank %}
+        {{ c.metric('Speech Rank', member.speech_rank) }}
+      {% endif %}
+    </div>
+
     {{ c.footer(branding.account_name, branding.footer_note) }}
   </div>
 </body>
