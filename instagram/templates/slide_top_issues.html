@@ -1,0 +1,34 @@
+{% import 'components.html' as c %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>{% include 'styles.css' %}</style>
+</head>
+<body>
+  <div class="slide">
+    {{ c.section_heading('Debate issues', constituency.name, 'Issue counts are derived from classified debate speeches linked to TDs in this constituency.') }}
+    <div class="two-panels">
+      <div class="panel">
+        <div class="label">Top issues</div>
+        {% if issues %}
+          {{ c.issue_rows(issues) }}
+        {% else %}
+        <p class="body-copy todo">TODO: no issue rows available from the debate issue join.</p>
+        {% endif %}
+      </div>
+      <div class="panel">
+        <div class="label">How this is calculated</div>
+        <ul class="method-list">
+          <li>Take classified debate speeches.</li>
+          <li>Match speaker names to members by normalized full name.</li>
+          <li>Filter matched members to {{ constituency.name }}.</li>
+          <li>Count issue labels excluding blank or NONE.</li>
+        </ul>
+        <div class="note-box">Matched speeches: {{ constituency.speech_count }}<br>Members matched: {{ constituency.member_count }}</div>
+      </div>
+    </div>
+    {{ c.footer(branding.account_name, branding.footer_note) }}
+  </div>
+</body>
+</html>
