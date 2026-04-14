@@ -108,8 +108,12 @@ def normalize_constituency(value: Any) -> str:
 
 def coalesce_text(*values: Any) -> Optional[str]:
     for value in values:
-        if pd.isna(value) if not isinstance(value, str) else False:
-            continue
+        if not isinstance(value, str):
+            try:
+                if pd.isna(value):
+                    continue
+            except Exception:
+                pass
         text = str(value or "").strip()
         if text:
             return text
@@ -139,7 +143,7 @@ def build_issue_counts(df_debate: pd.DataFrame, member_lookup: Dict[str, Dict[st
         if candidate in df_debate.columns:
             issue_col = candidate
             break
-    if not speaker_col or not issue_col:
+    if speaker_col not in df_debate.columns or not issue_col:
         return counter
 
     for _, row in df_debate.iterrows():
@@ -177,19 +181,33 @@ def build_member_table(df_members: pd.DataFrame, df_photos: pd.DataFrame, df_sum
 
     if not df_photos.empty:
         photos = df_photos.copy()
-        if "member_code" in photos.columns:
-            base = base.merge(photos[[c for c in photos.columns if c in {"member_code", "photo_url", "full_name"}]], on="member_code", how="left")
-        elif "full_name" in photos.columns:
+        if "member_code" in photos.columns and "photo_url" in photos.columns:
+            photo_cols = ["member_code", "photo_url"]
+            base = base.merge(photos[photo_cols].drop_duplicates(subset=["member_code"]), on="member_code", how="left")
+        elif "full_name" in photos.columns and "photo_url" in photos.columns:
             photos["member_key"] = photos["full_name"].map(normalize_name)
-            base = base.merge(photos[[c for c in photos.columns if c in {"member_key", "photo_url"}]], on="member_key", how="left")
+            base = base.merge(
+                photos[["member_key", "photo_url"]].drop_duplicates(subset=["member_key"]),
+                on="member_key",
+                how="left",
+            )
 
     if not df_summaries.empty:
         summaries = df_summaries.copy()
-        if "member_code" in summaries.columns:
-            base = base.merge(summaries[[c for c in summaries.columns if c in {"member_code", "background", "full_name"}]], on="member_code", how="left")
-        elif "full_name" in summaries.columns:
+        if "member_code" in summaries.columns and "background" in summaries.columns:
+            summary_cols = ["member_code", "background"]
+            base = base.merge(
+                summaries[summary_cols].drop_duplicates(subset=["member_code"]),
+                on="member_code",
+                how="left",
+            )
+        elif "full_name" in summaries.columns and "background" in summaries.columns:
             summaries["member_key"] = summaries["full_name"].map(normalize_name)
-            base = base.merge(summaries[[c for c in summaries.columns if c in {"member_key", "background"}]], on="member_key", how="left")
+            base = base.merge(
+                summaries[["member_key", "background"]].drop_duplicates(subset=["member_key"]),
+                on="member_key",
+                how="left",
+            )
 
     return base
 
