@@ -1,0 +1,15 @@
+{% import 'components.html' as c %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>{% include 'styles.css' %}</style>
+</head>
+<body>
+  <div class="slide">
+    {{ c.section_heading('TD profile', member.full_name, member.constituency or constituency.name) }}
+    {{ c.person_card(member) }}
+    {{ c.footer(branding.account_name, branding.footer_note) }}
+  </div>
+</body>
+</html>
