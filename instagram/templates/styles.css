@@ -1,0 +1,209 @@
+:root {
+  --bg: {{ branding.palette.bg }};
+  --panel: {{ branding.palette.panel }};
+  --text: {{ branding.palette.text }};
+  --muted: {{ branding.palette.muted }};
+  --accent: {{ branding.palette.accent }};
+  --accent-2: {{ branding.palette.accent_2 }};
+  --border: {{ branding.palette.border }};
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  width: {{ slide_size.width }}px;
+  height: {{ slide_size.height }}px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+body { background: var(--bg); }
+.slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  padding: 56px 58px 72px;
+}
+.ornament {
+  position: absolute;
+  font-size: 86px;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.95;
+}
+.tl { top: 8px; left: 10px; }
+.tr { top: 8px; right: 10px; transform: scaleX(-1); }
+.bl { bottom: 8px; left: 10px; transform: scaleY(-1); }
+.br { bottom: 8px; right: 10px; transform: scale(-1, -1); }
+.centered-title {
+  text-align: center;
+  margin-top: 18px;
+}
+.centered-title h1 {
+  margin: 0;
+  font-size: 64px;
+  line-height: 1.06;
+  font-weight: 500;
+}
+.subtitle {
+  margin-top: 10px;
+  font-size: 34px;
+  color: var(--muted);
+}
+.top-rule {
+  width: 92%;
+  height: 8px;
+  background: var(--accent);
+  margin: 26px auto 0;
+}
+.framed-image {
+  width: 660px;
+  margin: 52px auto 0;
+  border: 10px solid var(--accent);
+  background: var(--accent-2);
+  padding: 0;
+}
+.hero-image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+.placeholder {
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 30px;
+  color: var(--bg);
+  background: var(--accent-2);
+  font-size: 30px;
+}
+.midline-text {
+  margin-top: 56px;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.35;
+}
+.midline-text .value {
+  margin-left: 18px;
+}
+.metrics-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
+  display: flex;
+  justify-content: center;
+  gap: 170px;
+}
+.metric-block {
+  width: 240px;
+  text-align: center;
+}
+.metric-value {
+  font-size: 66px;
+  font-weight: 500;
+  line-height: 1;
+}
+.metric-label {
+  margin-top: 12px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+.member-name {
+  text-align: center;
+  font-size: 56px;
+  line-height: 1.08;
+  margin-top: 22px;
+}
+.detail-stack {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.85;
+}
+.detail-stack .label {
+  display: inline-block;
+  min-width: 250px;
+  text-align: right;
+  margin-right: 18px;
+}
+.chart-wrap {
+  width: 1000px;
+  margin: 18px auto 0;
+}
+.chart-area {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.y-labels {
+  padding-top: 4px;
+}
+.y-label {
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  padding-right: 12px;
+  font-size: 27px;
+  line-height: 1.2;
+}
+.bars-panel {
+  position: relative;
+  border-left: 2px solid rgba(243,239,230,0.4);
+  padding-left: 12px;
+}
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 58px;
+  width: 0;
+  border-left: 2px dotted rgba(243,239,230,0.55);
+}
+.bar-row {
+  position: relative;
+  height: 104px;
+  display: flex;
+  align-items: center;
+}
+.bar {
+  height: 76px;
+  background: var(--accent);
+}
+.x-axis {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 0;
+  margin-top: 8px;
+  font-size: 24px;
+}
+.axis-label {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 24px;
+}
+.glossary {
+  width: 910px;
+  margin: 34px auto 0;
+  font-size: 30px;
+  line-height: 1.24;
+}
+.glossary p { margin: 0 0 34px; }
+.glossary strong { text-decoration: underline; }
+.footer {
+  position: absolute;
+  left: 58px;
+  right: 58px;
+  bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 17px;
+  color: var(--muted);
+}
+.todo-inline { color: #ffe9a8; }

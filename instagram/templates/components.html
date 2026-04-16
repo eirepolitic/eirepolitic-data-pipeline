@@ -1,0 +1,41 @@
+{% macro ornaments() -%}
+<div class="ornament tl">❦</div>
+<div class="ornament tr">❦</div>
+<div class="ornament bl">❦</div>
+<div class="ornament br">❦</div>
+{%- endmacro %}
+
+{% macro top_rule() -%}
+<div class="top-rule"></div>
+{%- endmacro %}
+
+{% macro centered_title(title, subtitle='') -%}
+<div class="centered-title">
+  <h1>{{ title }}</h1>
+  {% if subtitle %}<div class="subtitle">{{ subtitle }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro framed_image(src='', alt='', placeholder='TODO missing image') -%}
+<div class="framed-image">
+  {% if src %}
+  <img class="hero-image" src="{{ src }}" alt="{{ alt }}">
+  {% else %}
+  <div class="placeholder">{{ placeholder }}</div>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro metric(label, value) -%}
+<div class="metric-block">
+  <div class="metric-value">{{ value }}</div>
+  <div class="metric-label">{{ label }}</div>
+</div>
+{%- endmacro %}
+
+{% macro footer(account_name, footer_note) -%}
+<div class="footer">
+  <span>{{ account_name }}</span>
+  <span>{{ footer_note }}</span>
+</div>
+{%- endmacro %}
