@@ -343,6 +343,11 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         "member_key": member_key,
     }
 
+    top_issue = {
+        "label": constituency_top_issue,
+        "count": int(constituency_issue_counts.most_common(1)[0][1]) if constituency_issue_counts else 0,
+    }
+
     datasets_used = []
     for label, key in loader.used_keys.items():
         if key:
@@ -359,6 +364,7 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         "slides": spec["slides"],
         "constituency": constituency,
         "member": member,
+        "top_issue": top_issue,
         "datasets_used": datasets_used,
         "glossary": spec.get("data", {}).get("glossary", {}),
         "constituency_issue_counts": dict(constituency_issue_counts),
