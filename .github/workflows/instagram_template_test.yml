@@ -1,0 +1,105 @@
+name: Generate Instagram Template Test Post (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      constituency:
+        description: "Constituency name"
+        required: true
+        default: "Dublin Bay South"
+      member_name:
+        description: "Optional TD full name override"
+        required: false
+        default: ""
+      provider_suite:
+        description: "bannerbear | placid | both | local_html"
+        required: true
+        default: "both"
+
+concurrency:
+  group: instagram-template-test
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  render_post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: "eirepolitic-data"
+
+      BANNERBEAR_API_KEY: ${{ secrets.BANNERBEAR_API_KEY }}
+      BANNERBEAR_TEMPLATE_UID_OVERVIEW: ${{ secrets.BANNERBEAR_TEMPLATE_UID_OVERVIEW }}
+      BANNERBEAR_TEMPLATE_UID_MEMBER_PROFILE: ${{ secrets.BANNERBEAR_TEMPLATE_UID_MEMBER_PROFILE }}
+      BANNERBEAR_TEMPLATE_UID_TOP_ISSUES: ${{ secrets.BANNERBEAR_TEMPLATE_UID_TOP_ISSUES }}
+      BANNERBEAR_TEMPLATE_UID_GLOSSARY: ${{ secrets.BANNERBEAR_TEMPLATE_UID_GLOSSARY }}
+
+      PLACID_API_TOKEN: ${{ secrets.PLACID_API_TOKEN }}
+      PLACID_TEMPLATE_UUID_OVERVIEW: ${{ secrets.PLACID_TEMPLATE_UUID_OVERVIEW }}
+      PLACID_TEMPLATE_UUID_MEMBER_PROFILE: ${{ secrets.PLACID_TEMPLATE_UUID_MEMBER_PROFILE }}
+      PLACID_TEMPLATE_UUID_TOP_ISSUES: ${{ secrets.PLACID_TEMPLATE_UUID_TOP_ISSUES }}
+      PLACID_TEMPLATE_UUID_GLOSSARY: ${{ secrets.PLACID_TEMPLATE_UUID_GLOSSARY }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install chromium
+
+      - name: Run requested template test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          run_pipeline() {
+            local provider="$1"
+            local spec_path="$2"
+            python process/instagram_template_pipeline.py \
+              --spec "$spec_path" \
+              --provider "$provider" \
+              --constituency "${{ inputs.constituency }}" \
+              --member-name "${{ inputs.member_name }}"
+          }
+
+          case "${{ inputs.provider_suite }}" in
+            bannerbear)
+              run_pipeline bannerbear instagram/specs/bannerbear_constituency_test.yml
+              ;;
+            placid)
+              run_pipeline placid instagram/specs/placid_constituency_test.yml
+              ;;
+            both)
+              run_pipeline bannerbear instagram/specs/bannerbear_constituency_test.yml
+              run_pipeline placid instagram/specs/placid_constituency_test.yml
+              ;;
+            local_html)
+              run_pipeline local_html instagram/specs/bannerbear_constituency_test.yml
+              run_pipeline local_html instagram/specs/placid_constituency_test.yml
+              ;;
+            *)
+              echo "Unsupported provider_suite: ${{ inputs.provider_suite }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Upload generated post artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-template-test
+          path: generated_posts/
+          if-no-files-found: error
