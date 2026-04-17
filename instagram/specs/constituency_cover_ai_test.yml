@@ -1,0 +1,74 @@
+post:
+  slug: option5-constituency-cover-ai
+  title: Option 5 Constituency Cover AI Test
+  output_root: generated_posts
+  slide_size:
+    width: 1080
+    height: 1350
+
+style:
+  theme: classic_eirepolitic
+  ornament: true
+  image_frame: false
+  title_align: center
+
+experiment:
+  pipeline_option: 5
+  mode: experimental_llm_image_generation_assisted_visual
+  safe_first_target: constituency_cover
+  review_required: true
+  style_mode: both
+  style_directions:
+    - map_poster
+    - textured_editorial
+  safe_text_policy: deterministic_overlay_only
+  fallback_renderer_spec: instagram/specs/constituency_test_post.yml
+
+option5_prompt:
+  canvas_goal: Instagram constituency cover visual
+  composition_rules:
+    - Leave a clean central headline zone for deterministic text overlay
+    - Keep the design bold, legible, and poster-like
+    - Use large visual shapes rather than fine detail
+    - Avoid dense labels, tables, charts, and small text
+  negative_rules:
+    - no tiny text
+    - no tables
+    - no bar charts
+    - no dense labels
+    - no watermarks
+    - no extra logos
+    - no seals
+    - no politician faces
+    - no random numbers
+  style_fragments:
+    map_poster: Bold editorial poster background inspired by constituency-map shapes, layered paper-cut forms, strong contrast, elegant political infographic mood.
+    textured_editorial: Textured print-style editorial background with restrained collage feel, subtle grain, elegant framing, premium magazine-cover mood.
+
+data:
+  constituency: Wicklow-Wexford
+  member_name:
+  issue_limit: 8
+  generated_background_image_path:
+  cover_label: Constituency Profile
+
+slides:
+  - key: cover_ai
+    type: constituency_overview
+    title: Constituency Profile
+    enabled: true
+    content:
+      mode: ai_cover
+      show_test_badge: true
+
+branding:
+  account_name: Eirepolitic
+  footer_note: Option 5 experimental visual test
+  palette:
+    bg: "#355E2B"
+    panel: "#355E2B"
+    text: "#F3EFE6"
+    muted: "#E5DED1"
+    accent: "#F3EFE6"
+    accent_2: "#9EC5A2"
+    border: "#F3EFE6"
