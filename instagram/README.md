@@ -1,8 +1,9 @@
 # Instagram Infographic Template Test Pipeline
 
-This folder now supports two render paths for Instagram infographic visuals:
+This folder now supports three render paths for Instagram infographic visuals:
 
 - `bannerbear`: external template API path
+- `placid`: external template API path
 - `local_html`: existing repo-local HTML/CSS mock renderer
 
 Scope:
@@ -12,27 +13,32 @@ Scope:
 - no publishing automation
 - no LLM-generated visual design
 
-## Chosen test path
+## Chosen test paths
 
-The selected implementation path is a **Bannerbear template API test with local HTML fallback**.
+The repo now supports **two concrete external-template tests**:
 
-Why this was chosen:
+- Bannerbear
+- Placid
+
+Why these were chosen:
 
 - the repo already had a working constituency post context builder and a manual Instagram workflow
 - the repo already follows a strong pattern of explicit YAML config plus Python runner plus GitHub Actions
-- Bannerbear uses named template layer modifications, which fits this repo's existing spec-driven style well
-- the manual work we cannot do yet is limited to creating templates and supplying template IDs / API key
+- both Bannerbear and Placid are template-driven image APIs built around dynamic fields/layers, which fits this repo's explicit data-binding style
+- the manual work we cannot do yet is limited to creating templates and supplying template IDs / API keys
 - everything else can be built now: data prep, field mapping, workflow entry point, request payloads, fallback rendering, and docs
 
-## Current repo structure for the template test
+## Current repo structure for the template tests
 
 ```text
 instagram/
   README.md
   mappings/
     bannerbear_constituency_basic.yml
+    placid_constituency_basic.yml
   specs/
     bannerbear_constituency_test.yml
+    placid_constituency_test.yml
     constituency_test_post.yml
   templates/
     components.html
@@ -70,10 +76,10 @@ Primary inputs:
 1. Loads the YAML post spec.
 2. Builds the same constituency/member context already used by the local renderer.
 3. Enriches the context with explicit computed text fields for template binding.
-4. Loads the Bannerbear placeholder mapping file.
-5. Builds one modification payload per enabled slide.
-6. Tries to render via Bannerbear.
-7. If Bannerbear credentials or template IDs are missing, falls back to `local_html` unless disabled.
+4. Loads the provider-specific mapping file.
+5. Builds one request payload per enabled slide.
+6. Tries to render via Bannerbear or Placid.
+7. If provider credentials or template IDs are missing, falls back to `local_html` unless disabled.
 8. Writes render status, request payloads, responses, context JSON, and generated images into a deterministic post folder.
 
 ## Output convention
@@ -89,12 +95,10 @@ generated_posts/<post_slug>/
     04_glossary.png
   bannerbear/
     requests/
-      01_overview.json
-      02_member_profile.json
-      03_top_issues.json
-      04_glossary.json
     responses/
-      ...
+  placid/
+    requests/
+    responses/
   html/
     ... only when fallback local_html is used
 ```
@@ -103,7 +107,7 @@ generated_posts/<post_slug>/
 
 The default first test asset is a **constituency-based slide set** using real repo data.
 
-Default spec:
+Default setup:
 
 - constituency: `Dublin Bay South`
 - automatic member selection unless overridden
@@ -113,13 +117,14 @@ Default spec:
   - `top_issues`
   - `glossary`
 
-## Post spec
+## Test specs
 
-The new spec is:
+Two provider-specific specs are now included:
 
 - `instagram/specs/bannerbear_constituency_test.yml`
+- `instagram/specs/placid_constituency_test.yml`
 
-It controls:
+Both control:
 
 - output slug and dimensions
 - provider selection
@@ -131,19 +136,20 @@ It controls:
 
 ## Explicit template mapping
 
-The explicit placeholder mapping file is:
+Provider mapping files:
 
 - `instagram/mappings/bannerbear_constituency_basic.yml`
+- `instagram/mappings/placid_constituency_basic.yml`
 
-It defines, per slide key:
+They define, per slide key:
 
-- which Bannerbear template ID to use
-- which placeholder names must exist in that template
-- which context field populates each placeholder
-- whether the placeholder is text or image
+- which external template ID to use
+- which placeholder or layer names must exist in that template
+- which context field populates each placeholder or layer
+- whether it is text or image
 - any transform to apply
 
-### Placeholder names expected by the current mapping
+### Shared layer / placeholder names expected by the current tests
 
 `overview`
 - `headline`
@@ -198,11 +204,18 @@ python -m playwright install chromium
 
 Set AWS environment variables.
 
-### Run the external-template path with fallback enabled
+### Run the Bannerbear test with fallback enabled
 
 ```bash
 python process/instagram_template_pipeline.py \
   --spec instagram/specs/bannerbear_constituency_test.yml
+```
+
+### Run the Placid test with fallback enabled
+
+```bash
+python process/instagram_template_pipeline.py \
+  --spec instagram/specs/placid_constituency_test.yml
 ```
 
 ### Force the local mock renderer
@@ -232,25 +245,37 @@ Inputs:
 
 - `constituency`
 - `member_name`
-- `provider`
-- `spec_path`
+- `provider_suite`
+
+`provider_suite` values:
+
+- `bannerbear`
+- `placid`
+- `both`
+- `local_html`
 
 The workflow will:
 
 1. install dependencies
-2. attempt Bannerbear rendering
-3. fall back to local HTML if Bannerbear is not fully configured yet
+2. run the requested provider suite
+3. fall back to local HTML if the chosen external provider is not fully configured yet
 4. upload the generated post folder as an artifact
 
 ## Secrets expected for the Bannerbear path
-
-These are wired into the workflow already:
 
 - `BANNERBEAR_API_KEY`
 - `BANNERBEAR_TEMPLATE_UID_OVERVIEW`
 - `BANNERBEAR_TEMPLATE_UID_MEMBER_PROFILE`
 - `BANNERBEAR_TEMPLATE_UID_TOP_ISSUES`
 - `BANNERBEAR_TEMPLATE_UID_GLOSSARY`
+
+## Secrets expected for the Placid path
+
+- `PLACID_API_TOKEN`
+- `PLACID_TEMPLATE_UUID_OVERVIEW`
+- `PLACID_TEMPLATE_UUID_MEMBER_PROFILE`
+- `PLACID_TEMPLATE_UUID_TOP_ISSUES`
+- `PLACID_TEMPLATE_UUID_GLOSSARY`
 
 If these are absent, the pipeline still produces a mock output via `local_html` unless fallback is disabled.
 
@@ -259,31 +284,34 @@ If these are absent, the pipeline still produces a mock output via `local_html` 
 Already built in-repo:
 
 - data fetching and normalization from existing S3 datasets
-- post spec format for the external-template test
-- explicit placeholder mapping config
+- provider-specific post spec formats for external-template tests
+- explicit placeholder and layer mapping configs
 - Bannerbear request payload generation
+- Placid request payload generation
 - Bannerbear API render adapter
+- Placid API render adapter
 - local fallback renderer
-- manual GitHub Actions entry point
+- manual GitHub Actions entry point for one or both providers
 - deterministic artifact output structure
 
 Still manual later:
 
 - creating the actual Bannerbear templates
-- ensuring layer names match the mapping file
-- copying the template UIDs
-- adding the Bannerbear API key and template IDs as GitHub secrets
+- creating the actual Placid templates
+- ensuring layer names match the mapping files
+- copying the template IDs
+- adding API keys and template IDs as GitHub secrets
 
-## Current design tradeoff for the test
+## Current design tradeoff for the first external-template tests
 
-The `top_issues` external-template slide is intentionally mapped as a multiline ranked issue list instead of a dynamic bar chart.
+The `top_issues` slide is intentionally mapped as a multiline ranked issue list instead of a dynamic bar chart.
 
-That keeps the first external-template test:
+That keeps the first external-template tests:
 
 - explicit
 - low-friction
 - easy to bind
 - easy to inspect for text overflow
-- easy to recreate visually in Bannerbear
+- easy to recreate visually in Bannerbear or Placid
 
 The existing local HTML renderer still keeps the richer bar-chart mock path available for comparison.
