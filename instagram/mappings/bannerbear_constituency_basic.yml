@@ -1,0 +1,154 @@
+provider: bannerbear
+notes:
+  - One Bannerbear template per slide key.
+  - Each template should expose dynamic layers with the placeholder names below.
+  - Image layers use the image_url field. Text layers use the text field.
+
+slides:
+  overview:
+    template_uid: env:BANNERBEAR_TEMPLATE_UID_OVERVIEW
+    modifications:
+      - name: headline
+        kind: text
+        path: slide.title
+        transform: string
+      - name: constituency_name
+        kind: text
+        path: constituency.name
+        transform: string
+      - name: td_count
+        kind: text
+        path: constituency.member_count
+        transform: int_string
+      - name: party_count
+        kind: text
+        path: constituency.party_count
+        transform: int_string
+      - name: top_issue
+        kind: text
+        path: constituency.top_issue_label
+        transform: string
+      - name: vote_participation
+        kind: text
+        path: constituency.vote_participation_pct
+        transform: string
+      - name: speech_rank
+        kind: text
+        path: constituency.speech_rank
+        transform: string
+      - name: constituency_map
+        kind: image_url
+        path: constituency.image_url
+        transform: default_image_url
+      - name: footer_note
+        kind: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        kind: text
+        path: branding.account_name
+        transform: string
+
+  member_profile:
+    template_uid: env:BANNERBEAR_TEMPLATE_UID_MEMBER_PROFILE
+    modifications:
+      - name: headline
+        kind: text
+        path: slide.title
+        transform: string
+      - name: member_name
+        kind: text
+        path: member.full_name
+        transform: string
+      - name: party_name
+        kind: text
+        path: member.party
+        transform: string
+      - name: constituency_name
+        kind: text
+        path: member.constituency
+        transform: string
+      - name: member_top_issue
+        kind: text
+        path: member.top_issue_label
+        transform: string
+      - name: member_vote_participation
+        kind: text
+        path: member.vote_participation_pct
+        transform: string
+      - name: member_speech_rank
+        kind: text
+        path: member.speech_rank
+        transform: string
+      - name: member_background
+        kind: text
+        path: computed.member_background_short
+        transform: multiline
+      - name: member_photo
+        kind: image_url
+        path: member.photo_url
+        transform: default_image_url
+      - name: footer_note
+        kind: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        kind: text
+        path: branding.account_name
+        transform: string
+
+  top_issues:
+    template_uid: env:BANNERBEAR_TEMPLATE_UID_TOP_ISSUES
+    modifications:
+      - name: headline
+        kind: text
+        path: slide.title
+        transform: string
+      - name: constituency_name
+        kind: text
+        path: constituency.name
+        transform: string
+      - name: issue_summary
+        kind: text
+        path: computed.constituency_issue_summary
+        transform: multiline
+      - name: issue_note
+        kind: text
+        path: data.glossary.issues
+        transform: multiline
+      - name: footer_note
+        kind: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        kind: text
+        path: branding.account_name
+        transform: string
+
+  glossary:
+    template_uid: env:BANNERBEAR_TEMPLATE_UID_GLOSSARY
+    modifications:
+      - name: headline
+        kind: text
+        path: slide.title
+        transform: string
+      - name: issues_glossary
+        kind: text
+        path: data.glossary.issues
+        transform: multiline
+      - name: vote_participation_glossary
+        kind: text
+        path: data.glossary.vote_participation_pct
+        transform: multiline
+      - name: speech_rank_glossary
+        kind: text
+        path: data.glossary.speech_rank
+        transform: multiline
+      - name: footer_note
+        kind: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        kind: text
+        path: branding.account_name
+        transform: string
