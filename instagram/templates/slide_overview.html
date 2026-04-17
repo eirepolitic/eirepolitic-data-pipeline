@@ -6,6 +6,35 @@
   <style>{% include 'styles.css' %}</style>
 </head>
 <body>
+  {% if slide.content.mode == 'ai_cover' %}
+  <div class="slide cover-slide">
+    {% if data.generated_background_image_path %}
+      <div class="cover-bg">
+        <img class="cover-bg-image" src="{{ data.generated_background_image_path }}" alt="{{ constituency.name }}">
+      </div>
+    {% elif constituency.image_url %}
+      <div class="cover-bg">
+        <img class="cover-bg-image" src="{{ constituency.image_url }}" alt="{{ constituency.name }}">
+      </div>
+    {% endif %}
+
+    <div class="cover-overlay"></div>
+    {% if style.ornament %}{{ c.ornaments() }}{% endif %}
+
+    <div class="cover-inner">
+      {% if slide.content.show_test_badge %}
+      <div class="cover-test-badge">Experimental visual test</div>
+      {% endif %}
+
+      <div class="cover-title-stack">
+        <div class="cover-kicker">{{ slide.title }}</div>
+        <h1>{{ constituency.name }}</h1>
+      </div>
+
+      {{ c.footer(branding.account_name, branding.footer_note) }}
+    </div>
+  </div>
+  {% else %}
   <div class="slide">
     {% if style.ornament %}{{ c.ornaments() }}{% endif %}
     {{ c.centered_title(slide.title ~ ':', constituency.name) }}
@@ -33,5 +62,6 @@
 
     {{ c.footer(branding.account_name, branding.footer_note) }}
   </div>
+  {% endif %}
 </body>
 </html>

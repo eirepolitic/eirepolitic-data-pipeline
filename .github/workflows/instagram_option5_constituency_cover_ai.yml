@@ -1,0 +1,96 @@
+name: Generate Instagram Option 5 Constituency Cover AI Test (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      constituency:
+        description: "Constituency name"
+        required: true
+        default: "Wicklow-Wexford"
+      variant_count:
+        description: "Variants per style direction"
+        required: true
+        default: "1"
+      model:
+        description: "OpenAI image model"
+        required: true
+        default: "gpt-image-1"
+      style_mode:
+        description: "both | map_poster | textured_editorial"
+        required: true
+        default: "both"
+      spec_path:
+        description: "YAML spec path"
+        required: true
+        default: "instagram/specs/constituency_cover_ai_test.yml"
+
+concurrency:
+  group: instagram-option5-constituency-cover-ai
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  option5_cover_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      S3_BUCKET: "eirepolitic-data"
+      OPENAI_IMAGE_MODEL: ${{ inputs.model }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install chromium
+
+      - name: Prepare option 5 run
+        id: prepare
+        run: |
+          python process/instagram_option5_prepare_constituency_cover_test.py \
+            --spec "${{ inputs.spec_path }}" \
+            --constituency "${{ inputs.constituency }}" \
+            --variant-count "${{ inputs.variant_count }}" \
+            --style-mode "${{ inputs.style_mode }}"
+
+      - name: Generate option 5 images
+        run: |
+          python process/instagram_option5_generate_images.py \
+            --run-root "${{ steps.prepare.outputs.run_root }}" \
+            --jobs-path "${{ steps.prepare.outputs.jobs_path }}" \
+            --model "${{ inputs.model }}"
+
+      - name: Refresh review sheet
+        run: |
+          python process/instagram_option5_build_review_sheet.py \
+            --run-root "${{ steps.prepare.outputs.run_root }}"
+
+      - name: Render deterministic cover overlays
+        shell: bash
+        run: |
+          shopt -s nullglob
+          for spec in "${{ steps.prepare.outputs.run_root }}"/render_specs/*.yml; do
+            python process/instagram_render_post.py --spec "$spec"
+          done
+
+      - name: Upload option 5 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-option5-constituency-cover-ai
+          path: ${{ steps.prepare.outputs.run_root }}
+          if-no-files-found: error
