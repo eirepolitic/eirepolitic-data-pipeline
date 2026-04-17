@@ -1,0 +1,154 @@
+provider: placid
+notes:
+  - One Placid template per slide key.
+  - Each template should expose dynamic layers with the layer names below.
+  - Text layers use the text property. Picture layers use the image property.
+
+slides:
+  overview:
+    template_uuid: env:PLACID_TEMPLATE_UUID_OVERVIEW
+    layers:
+      - name: headline
+        property: text
+        path: slide.title
+        transform: string
+      - name: constituency_name
+        property: text
+        path: constituency.name
+        transform: string
+      - name: td_count
+        property: text
+        path: constituency.member_count
+        transform: int_string
+      - name: party_count
+        property: text
+        path: constituency.party_count
+        transform: int_string
+      - name: top_issue
+        property: text
+        path: constituency.top_issue_label
+        transform: string
+      - name: vote_participation
+        property: text
+        path: constituency.vote_participation_pct
+        transform: string
+      - name: speech_rank
+        property: text
+        path: constituency.speech_rank
+        transform: string
+      - name: constituency_map
+        property: image
+        path: constituency.image_url
+        transform: default_image_url
+      - name: footer_note
+        property: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        property: text
+        path: branding.account_name
+        transform: string
+
+  member_profile:
+    template_uuid: env:PLACID_TEMPLATE_UUID_MEMBER_PROFILE
+    layers:
+      - name: headline
+        property: text
+        path: slide.title
+        transform: string
+      - name: member_name
+        property: text
+        path: member.full_name
+        transform: string
+      - name: party_name
+        property: text
+        path: member.party
+        transform: string
+      - name: constituency_name
+        property: text
+        path: member.constituency
+        transform: string
+      - name: member_top_issue
+        property: text
+        path: member.top_issue_label
+        transform: string
+      - name: member_vote_participation
+        property: text
+        path: member.vote_participation_pct
+        transform: string
+      - name: member_speech_rank
+        property: text
+        path: member.speech_rank
+        transform: string
+      - name: member_background
+        property: text
+        path: computed.member_background_short
+        transform: multiline
+      - name: member_photo
+        property: image
+        path: member.photo_url
+        transform: default_image_url
+      - name: footer_note
+        property: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        property: text
+        path: branding.account_name
+        transform: string
+
+  top_issues:
+    template_uuid: env:PLACID_TEMPLATE_UUID_TOP_ISSUES
+    layers:
+      - name: headline
+        property: text
+        path: slide.title
+        transform: string
+      - name: constituency_name
+        property: text
+        path: constituency.name
+        transform: string
+      - name: issue_summary
+        property: text
+        path: computed.constituency_issue_summary
+        transform: multiline
+      - name: issue_note
+        property: text
+        path: data.glossary.issues
+        transform: multiline
+      - name: footer_note
+        property: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        property: text
+        path: branding.account_name
+        transform: string
+
+  glossary:
+    template_uuid: env:PLACID_TEMPLATE_UUID_GLOSSARY
+    layers:
+      - name: headline
+        property: text
+        path: slide.title
+        transform: string
+      - name: issues_glossary
+        property: text
+        path: data.glossary.issues
+        transform: multiline
+      - name: vote_participation_glossary
+        property: text
+        path: data.glossary.vote_participation_pct
+        transform: multiline
+      - name: speech_rank_glossary
+        property: text
+        path: data.glossary.speech_rank
+        transform: multiline
+      - name: footer_note
+        property: text
+        path: branding.footer_note
+        transform: string
+      - name: account_name
+        property: text
+        path: branding.account_name
+        transform: string
