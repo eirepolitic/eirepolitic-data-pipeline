@@ -8,9 +8,8 @@ post:
 
 style:
   theme: classic_eirepolitic
-  ornament: true
-  image_frame: true
-  title_align: center
+  renderer: pillow
+  chart_renderer: matplotlib
 
 data:
   constituency: Wicklow-Wexford
@@ -22,46 +21,34 @@ data:
     speech_rank:
     constituency_speech_rank:
   glossary:
-    issues: Political issue categories come from the Comparative Agendas Project. Speech counts come from the debate issue classifier assigning one category or NONE to each speech segment.
-    vote_participation_pct: Percentage of Dáil votes in the period where a TD voted, or for a constituency the average across its TDs.
-    speech_rank: Ranking by number of debate speech segments relative to peers.
+    issues: Political issue categories come from the debate issue classifier assigning one category or NONE to each speech segment.
+    vote_participation_pct: Placeholder until a dedicated vote participation table is connected.
+    speech_rank: Placeholder until a dedicated ranking table is connected.
 
 slides:
   - key: overview
     type: constituency_overview
-    title: Constituency Overview 2025
+    title: Constituency overview
     enabled: true
-    content:
-      show_map: true
-      show_top_issue: true
-      show_vote_participation: true
-      show_speech_rank: true
   - key: member_profile
     type: member_profile
-    title: TD Profile
+    title: TD profile
     enabled: true
-    content:
-      show_photo: true
-      show_top_issue: true
-      show_vote_participation: true
-      show_speech_rank: true
   - key: top_issues
     type: top_issues
-    title: Top Issues
+    title: Top issues in debate speeches
     enabled: true
     content:
       scope: constituency
-      issue_limit: 8
   - key: member_top_issues
     type: top_issues
-    title: Top Issues
+    title: Selected TD issue profile
     enabled: true
     content:
       scope: member
-      issue_limit: 8
   - key: glossary
     type: glossary
-    title: Glossary
+    title: Methodology and glossary
     enabled: true
 
 branding:
@@ -70,8 +57,13 @@ branding:
   palette:
     bg: "#355E2B"
     panel: "#355E2B"
+    panel_alt: "#446f39"
     text: "#F3EFE6"
     muted: "#E5DED1"
     accent: "#F3EFE6"
     accent_2: "#9EC5A2"
     border: "#F3EFE6"
+    chart_bar: "#F3EFE6"
+    chart_grid: "#9EC5A2"
+    chart_label: "#F3EFE6"
+    chart_tick: "#E5DED1"
