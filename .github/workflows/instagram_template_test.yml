@@ -78,17 +78,17 @@ jobs:
 
           case "${{ inputs.provider_suite }}" in
             bannerbear)
-              run_pipeline bannerbear instagram/specs/bannerbear_constituency_test.yml
+              run_pipeline bannerbear instagram/specs/bannerbear_overview_smoke_test.yml
               ;;
             placid)
               run_pipeline placid instagram/specs/placid_constituency_test.yml
               ;;
             both)
-              run_pipeline bannerbear instagram/specs/bannerbear_constituency_test.yml
+              run_pipeline bannerbear instagram/specs/bannerbear_overview_smoke_test.yml
               run_pipeline placid instagram/specs/placid_constituency_test.yml
               ;;
             local_html)
-              run_pipeline local_html instagram/specs/bannerbear_constituency_test.yml
+              run_pipeline local_html instagram/specs/bannerbear_overview_smoke_test.yml
               run_pipeline local_html instagram/specs/placid_constituency_test.yml
               ;;
             *)
