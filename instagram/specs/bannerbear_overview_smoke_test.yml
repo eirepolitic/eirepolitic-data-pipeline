@@ -1,0 +1,60 @@
+post:
+  slug: bannerbear-overview-smoke-test
+  title: Bannerbear Overview Smoke Test
+  output_root: generated_posts
+  slide_size:
+    width: 1080
+    height: 1350
+
+render:
+  provider: bannerbear
+  fallback_provider: local_html
+  template_mapping: instagram/mappings/bannerbear_constituency_basic.yml
+  bannerbear:
+    api_key_env: BANNERBEAR_API_KEY
+    use_sync_api: true
+    timeout_seconds: 45
+    poll_interval_seconds: 2
+
+style:
+  theme: classic_eirepolitic
+  ornament: true
+  image_frame: true
+  title_align: center
+
+data:
+  constituency: Dublin Bay South
+  member_name:
+  issue_limit: 8
+  member_selection: highest_speech_count
+  metrics:
+    vote_participation_pct:
+    speech_rank:
+    constituency_speech_rank:
+  glossary:
+    issues: Political issue categories come from the Comparative Agendas Project. Speech counts come from the debate issue classifier assigning one category or NONE to each speech segment.
+    vote_participation_pct: Percentage of Dáil votes in the period where a TD voted, or for a constituency the average across its TDs.
+    speech_rank: Ranking by number of debate speech segments relative to peers.
+
+slides:
+  - key: overview
+    type: constituency_overview
+    title: Constituency Overview 2025
+    enabled: true
+    content:
+      show_map: true
+      show_top_issue: true
+      show_vote_participation: true
+      show_speech_rank: true
+
+branding:
+  account_name: Eirepolitic
+  footer_note: Template pipeline test output
+  palette:
+    bg: "#355E2B"
+    panel: "#355E2B"
+    text: "#F3EFE6"
+    muted: "#E5DED1"
+    accent: "#F3EFE6"
+    accent_2: "#9EC5A2"
+    border: "#F3EFE6"
