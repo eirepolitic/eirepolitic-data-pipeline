@@ -1,0 +1,24 @@
+experiment:
+  pipeline_option: 5
+  mode: template_based_member_profile_ai_edit
+  review_required: true
+  source_truth_sidecar_required: true
+  year: 2025
+
+template_image_source: instagram/reference/member_profile_template.png
+
+selection:
+  order_by:
+    - speech_count_2025
+    - full_name
+  ascending:
+    - false
+    - true
+  exclude_names:
+    - Fionntán Ó Súilleabháin
+
+prompt:
+  voice:
+    clean: true
+    restrained: true
+    premium: true

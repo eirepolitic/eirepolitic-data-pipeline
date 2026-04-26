@@ -1,0 +1,58 @@
+name: Build Member Profile Metrics 2025 (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_start:
+        description: "Vote API start date"
+        required: true
+        default: "2025-01-01"
+      date_end:
+        description: "Vote API end date"
+        required: true
+        default: "2025-12-31"
+
+concurrency:
+  group: build-member-profile-metrics-2025
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build_metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: "eirepolitic-data"
+      VOTES_DATE_START: ${{ inputs.date_start }}
+      VOTES_DATE_END: ${{ inputs.date_end }}
+      TARGET_YEAR: "2025"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build Dail vote member records
+        run: |
+          python process/build_dail_votes_member_records.py \
+            --date-start "${{ inputs.date_start }}" \
+            --date-end "${{ inputs.date_end }}"
+
+      - name: Build member profile metrics 2025
+        run: |
+          python process/build_member_profile_metrics_2025.py
