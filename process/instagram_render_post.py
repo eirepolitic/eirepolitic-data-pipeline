@@ -31,6 +31,7 @@ import json
 import math
 import os
 import re
+import unicodedata
 from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
@@ -95,11 +96,16 @@ class S3CSVLoader:
         return pd.DataFrame()
 
 
+def strip_accents(text: str) -> str:
+    return "".join(ch for ch in unicodedata.normalize("NFKD", text) if not unicodedata.combining(ch))
+
+
 def normalize_name(value: Any) -> str:
     text = str(value or "").strip().lower()
+    text = strip_accents(text)
     text = text.replace("&", " and ")
     text = re.sub(r"[^a-z0-9]+", " ", text)
-    text = re.sub(r"\b(td|teachta d[aá]la|minister|deputy)\b", " ", text)
+    text = re.sub(r"\b(td|teachta dail|teachta dala|minister|deputy)\b", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -141,7 +147,15 @@ def safe_int(value: Any) -> int:
 
 
 def pick_issue_column(df_debate: pd.DataFrame) -> Optional[str]:
-    for candidate in ["issue", "Issue", "issue_label", "category", "label"]:
+    for candidate in [
+        "PoliticalIssues",
+        "political_issues",
+        "issue",
+        "Issue",
+        "issue_label",
+        "category",
+        "label",
+    ]:
         if candidate in df_debate.columns:
             return candidate
     return None

@@ -24,7 +24,7 @@ body { background: var(--bg); }
   height: 100%;
   background: var(--bg);
   overflow: hidden;
-  padding: 56px 58px 72px;
+  padding: 44px 58px 72px;
 }
 .ornament {
   position: absolute;
@@ -40,28 +40,28 @@ body { background: var(--bg); }
 .br { bottom: 8px; right: 10px; transform: scale(-1, -1); }
 .centered-title {
   text-align: center;
-  margin-top: 18px;
+  margin-top: 10px;
 }
 .centered-title h1 {
   margin: 0;
-  font-size: 64px;
-  line-height: 1.06;
+  font-size: 58px;
+  line-height: 1.04;
   font-weight: 500;
 }
 .subtitle {
-  margin-top: 10px;
-  font-size: 34px;
+  margin-top: 8px;
+  font-size: 30px;
   color: var(--muted);
 }
 .top-rule {
   width: 92%;
   height: 8px;
   background: var(--accent);
-  margin: 26px auto 0;
+  margin: 24px auto 0;
 }
 .framed-image {
   width: 660px;
-  margin: 52px auto 0;
+  margin: 42px auto 0;
   border: 10px solid var(--accent);
   background: var(--accent-2);
   padding: 0;
@@ -82,7 +82,7 @@ body { background: var(--bg); }
   font-size: 30px;
 }
 .midline-text {
-  margin-top: 56px;
+  margin-top: 42px;
   text-align: center;
   font-size: 34px;
   line-height: 1.35;
@@ -94,7 +94,7 @@ body { background: var(--bg); }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 118px;
+  bottom: 106px;
   display: flex;
   justify-content: center;
   gap: 170px;
@@ -115,19 +115,25 @@ body { background: var(--bg); }
 }
 .member-name {
   text-align: center;
-  font-size: 56px;
+  font-size: 50px;
   line-height: 1.08;
-  margin-top: 22px;
+  margin-top: 18px;
+}
+.member-metrics-row {
+  margin-top: 44px;
+  display: flex;
+  justify-content: center;
+  gap: 170px;
 }
 .detail-stack {
-  margin-top: 20px;
+  margin-top: 18px;
   text-align: center;
-  font-size: 34px;
-  line-height: 1.85;
+  font-size: 30px;
+  line-height: 1.7;
 }
 .detail-stack .label {
   display: inline-block;
-  min-width: 250px;
+  min-width: 210px;
   text-align: right;
   margin-right: 18px;
 }
