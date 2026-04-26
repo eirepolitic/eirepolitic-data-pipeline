@@ -29,6 +29,12 @@ CONTENT_TYPE_TO_SUFFIX = {
     "image/png": ".png",
     "image/webp": ".webp",
 }
+SUFFIX_TO_MIME = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -99,6 +105,12 @@ def download_to_path(source: str, destination: Path) -> Path:
     final_destination = ensure_destination_suffix(destination, suffix)
     shutil.copy2(source_path, final_destination)
     return final_destination
+
+
+def image_file_tuple(path: Path) -> tuple[str, bytes, str]:
+    suffix = path.suffix.lower()
+    mime = SUFFIX_TO_MIME.get(suffix, "image/png")
+    return (path.name, path.read_bytes(), mime)
 
 
 def select_member(df: pd.DataFrame, spec: Dict[str, Any]) -> pd.Series:
@@ -201,13 +213,12 @@ def main() -> None:
     (metadata_dir / "source_values.json").write_text(json.dumps(source_values, indent=2, ensure_ascii=False), encoding="utf-8")
 
     client = OpenAI()
-    with template_path.open("rb") as template_fh, member_photo_path.open("rb") as member_photo_fh:
-        result = client.images.edit(
-            model=args.model,
-            image=[template_fh, member_photo_fh],
-            prompt=prompt,
-            size=args.size,
-        )
+    result = client.images.edit(
+        model=args.model,
+        image=[image_file_tuple(template_path), image_file_tuple(member_photo_path)],
+        prompt=prompt,
+        size=args.size,
+    )
 
     b64_json = result.data[0].b64_json
     if not b64_json:
