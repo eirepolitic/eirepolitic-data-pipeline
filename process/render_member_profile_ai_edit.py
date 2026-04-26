@@ -4,6 +4,7 @@ import argparse
 import base64
 import io
 import json
+import mimetypes
 import os
 import shutil
 from datetime import datetime, timezone
@@ -23,6 +24,11 @@ DEFAULT_REGION = os.getenv("AWS_REGION", "ca-central-1")
 DEFAULT_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1")
 DEFAULT_SIZE = os.getenv("OPENAI_IMAGE_SIZE", "1024x1536")
 METRICS_KEY = os.getenv("MEMBER_PROFILE_METRICS_INPUT_KEY", "processed/members/member_profile_metrics_2025.csv")
+CONTENT_TYPE_TO_SUFFIX = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,19 +56,49 @@ def is_url(value: str) -> bool:
     return parsed.scheme in {"http", "https"}
 
 
+def infer_suffix_from_url_or_content_type(source: str, content_type: Optional[str] = None) -> str:
+    if content_type:
+        normalized = content_type.split(";")[0].strip().lower()
+        if normalized in CONTENT_TYPE_TO_SUFFIX:
+            return CONTENT_TYPE_TO_SUFFIX[normalized]
+
+    parsed = urlparse(str(source or ""))
+    url_suffix = Path(parsed.path).suffix.lower()
+    if url_suffix in {".jpg", ".jpeg", ".png", ".webp"}:
+        return ".jpg" if url_suffix == ".jpeg" else url_suffix
+
+    guessed, _ = mimetypes.guess_type(parsed.path)
+    if guessed in CONTENT_TYPE_TO_SUFFIX:
+        return CONTENT_TYPE_TO_SUFFIX[guessed]
+
+    return ".png"
+
+
+def ensure_destination_suffix(destination: Path, suffix: str) -> Path:
+    if destination.suffix.lower() == suffix.lower():
+        return destination
+    if destination.suffix:
+        return destination.with_suffix(suffix)
+    return destination.parent / f"{destination.name}{suffix}"
+
+
 def download_to_path(source: str, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     if is_url(source):
         response = requests.get(source, timeout=60)
         response.raise_for_status()
-        destination.write_bytes(response.content)
-        return destination
+        suffix = infer_suffix_from_url_or_content_type(source, response.headers.get("Content-Type"))
+        final_destination = ensure_destination_suffix(destination, suffix)
+        final_destination.write_bytes(response.content)
+        return final_destination
 
     source_path = Path(source)
     if not source_path.exists():
         raise FileNotFoundError(f"Missing local file: {source}")
-    shutil.copy2(source_path, destination)
-    return destination
+    suffix = source_path.suffix.lower() or ".png"
+    final_destination = ensure_destination_suffix(destination, suffix)
+    shutil.copy2(source_path, final_destination)
+    return final_destination
 
 
 def select_member(df: pd.DataFrame, spec: Dict[str, Any]) -> pd.Series:
@@ -136,7 +172,7 @@ def main() -> None:
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
     template_path = download_to_path(spec["template_image_source"], inputs_dir / "template_image.png")
-    member_photo_path = download_to_path(str(member["photo_url"]), inputs_dir / "member_photo")
+    member_photo_path = download_to_path(str(member["photo_url"]), inputs_dir / "member_photo.png")
 
     prompt = build_prompt(member, spec)
     (metadata_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
