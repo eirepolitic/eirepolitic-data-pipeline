@@ -33,15 +33,26 @@ from typing import Any, Dict, List, Optional
 import requests
 import yaml
 
-from process.instagram_render_post import (
-    DEFAULT_BUCKET,
-    DEFAULT_REGION,
-    S3CSVLoader,
-    build_post_context,
-    make_issue_rows,
-    render_slides,
-    screenshot_html_files,
-)
+try:
+    from process.instagram_render_post import (
+        DEFAULT_BUCKET,
+        DEFAULT_REGION,
+        S3CSVLoader,
+        build_post_context,
+        make_issue_rows,
+        render_slides,
+        screenshot_html_files,
+    )
+except ModuleNotFoundError:
+    from instagram_render_post import (
+        DEFAULT_BUCKET,
+        DEFAULT_REGION,
+        S3CSVLoader,
+        build_post_context,
+        make_issue_rows,
+        render_slides,
+        screenshot_html_files,
+    )
 
 
 BANNERBEAR_API_BASE = "https://api.bannerbear.com/v2"
