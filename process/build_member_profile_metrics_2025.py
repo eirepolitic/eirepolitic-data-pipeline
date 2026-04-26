@@ -9,6 +9,7 @@ import boto3
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from botocore.exceptions import ClientError
 
 from instagram_render_post import normalize_name
 
@@ -25,12 +26,33 @@ OUTPUT_PARQUET_KEY = os.getenv(
     "processed/members/parquets/member_profile_metrics_2025.parquet",
 )
 TARGET_YEAR = int(os.getenv("TARGET_YEAR", "2025"))
+PHOTO_KEY_CANDIDATES = [
+    INPUT_PHOTOS_KEY,
+    "processed/members/member_photos/members_photo_urls.csv",
+    "processed/members/members_photo_urls.csv",
+]
 
 
 def read_csv_from_s3(s3: Any, bucket: str, key: str) -> pd.DataFrame:
     obj = s3.get_object(Bucket=bucket, Key=key)
     text = obj["Body"].read().decode("utf-8-sig", errors="replace")
     return pd.read_csv(io.StringIO(text))
+
+
+def read_first_available_csv_from_s3(s3: Any, bucket: str, keys: Iterable[str]) -> pd.DataFrame:
+    last_error: Optional[Exception] = None
+    for key in dict.fromkeys(keys):
+        try:
+            return read_csv_from_s3(s3, bucket, key)
+        except ClientError as exc:
+            code = exc.response.get("Error", {}).get("Code", "")
+            if code in {"NoSuchKey", "404", "NotFound"}:
+                last_error = exc
+                continue
+            raise
+    if last_error:
+        raise last_error
+    raise RuntimeError("No CSV keys provided.")
 
 
 def write_csv_to_s3(s3: Any, *, bucket: str, key: str, df: pd.DataFrame) -> None:
@@ -170,7 +192,7 @@ def main() -> None:
     s3 = boto3.client("s3", region_name=DEFAULT_REGION)
 
     df_members = read_csv_from_s3(s3, DEFAULT_BUCKET, INPUT_MEMBERS_KEY)
-    df_photos = read_csv_from_s3(s3, DEFAULT_BUCKET, INPUT_PHOTOS_KEY)
+    df_photos = read_first_available_csv_from_s3(s3, DEFAULT_BUCKET, PHOTO_KEY_CANDIDATES)
     df_debates = read_csv_from_s3(s3, DEFAULT_BUCKET, INPUT_DEBATES_KEY)
     df_votes = read_csv_from_s3(s3, DEFAULT_BUCKET, INPUT_VOTES_KEY)
 
