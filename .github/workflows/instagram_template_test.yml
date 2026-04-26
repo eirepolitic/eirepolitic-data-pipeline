@@ -69,7 +69,7 @@ jobs:
           run_pipeline() {
             local provider="$1"
             local spec_path="$2"
-            python process/instagram_template_pipeline.py \
+            python -m process.instagram_template_pipeline \
               --spec "$spec_path" \
               --provider "$provider" \
               --constituency "${{ inputs.constituency }}" \
