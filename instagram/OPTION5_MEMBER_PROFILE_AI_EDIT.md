@@ -84,8 +84,10 @@ It:
 - picks a member with a photo
 - downloads the member photo
 - uses the template slide image as the master reference
-- calls the image edit model with the template plus the new portrait
-- writes sidecar truth metadata and the exact prompt used
+- generates a first-pass edited slide
+- validates the first pass against the template and source truth with a vision model
+- always runs a second-pass corrective edit for comparison
+- writes sidecar truth metadata and the exact prompts used
 
 ## Workflow
 
@@ -104,6 +106,22 @@ The workflow expects a template image file at:
 
 That file is not generated automatically. It should be added to the repo before running the member-profile AI edit workflow.
 
+## Output layout
+
+Each run now writes:
+- `inputs/template_image.*`
+- `inputs/member_photo.*`
+- `outputs/member_profile_ai_edit_v1.png`
+- `outputs/member_profile_ai_edit_v2.png`
+- `outputs/member_profile_ai_edit.png` (alias to latest, currently v2)
+- `metadata/source_values.json`
+- `metadata/prompt_v1.txt`
+- `metadata/prompt_v2.txt`
+- `metadata/validation_report.json`
+- `metadata/openai_response_v1.json`
+- `metadata/openai_response_v2.json`
+- `metadata/validation_response.json`
+
 ## Review rule
 
 Do not trust the edited output just because it resembles the template.
@@ -112,3 +130,4 @@ Check the generated image against:
 - `source_values.json`
 - the selected member photo
 - the exact visible values expected on the slide
+- the difference between `v1` and `v2`
