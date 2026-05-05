@@ -1,0 +1,8 @@
+media:
+  - id: member_photo
+    type: source_image
+    source: photo_url
+    required: false
+  - id: issue_chart_future
+    generator: horizontal_bar_chart
+    status: future_carousel_slide

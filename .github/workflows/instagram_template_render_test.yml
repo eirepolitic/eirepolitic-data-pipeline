@@ -1,0 +1,52 @@
+name: Instagram Template Render Test (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      template:
+        description: "Template ID without .json"
+        required: true
+        default: "profile_card_v1"
+      palette:
+        description: "Palette ID without .json"
+        required: true
+        default: "eirepolitic_dark"
+
+concurrency:
+  group: instagram-template-render-test
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  render_template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Render template with fake bindings
+        run: |
+          python process/instagram_render_template.py \
+            --template "instagram/templates/layouts/${{ inputs.template }}.json" \
+            --bindings "instagram/specs/template_render_test.yml" \
+            --palette "${{ inputs.palette }}" \
+            --output "generated_posts/template_render_test/png/${{ inputs.template }}.png"
+
+      - name: Upload rendered template
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-template-render-test-output
+          path: generated_posts/template_render_test/

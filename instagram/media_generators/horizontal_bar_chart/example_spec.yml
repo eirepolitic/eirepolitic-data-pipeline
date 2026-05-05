@@ -1,0 +1,24 @@
+schema_version: "1.0"
+generator: horizontal_bar_chart
+output:
+  root: generated_media
+  slug: top_issues_example
+input:
+  mode: inline
+  rows:
+    - label: Housing
+      value: 42
+    - label: Health
+      value: 31
+    - label: Transport
+      value: 19
+    - label: Education
+      value: 12
+params:
+  width: 920
+  height: 720
+  title: Top issues
+  subtitle: Classified speech mentions
+  palette: eirepolitic_dark
+  max_items: 10
+  sort: descending

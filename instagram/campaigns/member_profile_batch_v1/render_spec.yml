@@ -1,0 +1,17 @@
+campaign: member_profile_batch_v1
+post_type: member_profile
+variation:
+  grain: member
+  selector:
+    mode: top_speech_count
+    limit: 10
+data:
+  source_table: s3://eirepolitic-data/processed/members/member_profile_metrics_2025.csv
+render:
+  template: instagram/templates/layouts/profile_card_v1.json
+  output_root: generated_posts/member_profile_batch_v1
+  palette: eirepolitic_dark
+review:
+  build_index: true
+  include_source_values: true
+  footer_text: "Source: Oireachtas data pipeline, 2025"

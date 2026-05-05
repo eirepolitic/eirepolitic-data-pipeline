@@ -1,0 +1,12 @@
+slides:
+  - id: profile
+    template: profile_card_v1
+    bindings:
+      member_name: full_name
+      party: party
+      constituency: constituency
+      member_photo: photo_url
+      top_issue: top_issue_2025
+      vote_participation: vote_participation_pct_2025
+      speech_rank: speech_rank_2025
+      speech_count_text: speech_count_2025
