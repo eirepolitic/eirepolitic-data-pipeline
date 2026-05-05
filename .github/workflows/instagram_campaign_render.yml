@@ -57,13 +57,7 @@ jobs:
           SPEC_FILE="${SPEC_FILE:-render_spec_fixture.yml}"
           LIMIT="${LIMIT:-3}"
           SPEC_PATH="instagram/campaigns/${CAMPAIGN_SLUG}/${SPEC_FILE}"
-          OUTPUT_ROOT=$(python - <<'PY' "${SPEC_PATH}"
-          import sys, yaml
-          with open(sys.argv[1], encoding="utf-8") as f:
-              spec = yaml.safe_load(f)
-          print(spec.get("render", {}).get("output_root", f"generated_posts/{spec.get('campaign', 'campaign')}"))
-          PY
-          )
+          OUTPUT_ROOT=$(python -c 'import sys, yaml; spec=yaml.safe_load(open(sys.argv[1], encoding="utf-8")); print(spec.get("render", {}).get("output_root", f"generated_posts/{spec.get("campaign", "campaign")}"))' "${SPEC_PATH}")
           mkdir -p workflow_debug
           {
             echo "campaign_slug=${CAMPAIGN_SLUG}"
