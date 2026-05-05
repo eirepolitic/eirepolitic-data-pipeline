@@ -5,11 +5,11 @@ on:
     inputs:
       generator:
         description: "Generator to test"
-        required: true
+        required: false
         default: "horizontal_bar_chart"
       test_case:
         description: "Specific test case or all"
-        required: true
+        required: false
         default: "all"
 
 concurrency:
@@ -38,13 +38,19 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run media generator fake-data cases
+        shell: bash
         run: |
+          GENERATOR="${{ inputs.generator }}"
+          TEST_CASE="${{ inputs.test_case }}"
+          GENERATOR="${GENERATOR:-horizontal_bar_chart}"
+          TEST_CASE="${TEST_CASE:-all}"
           python process/instagram_generate_media.py \
-            --spec "instagram/media_generators/${{ inputs.generator }}/fake_data_cases.yml" \
-            --test-case "${{ inputs.test_case }}"
+            --spec "instagram/media_generators/${GENERATOR}/fake_data_cases.yml" \
+            --test-case "${TEST_CASE}"
 
       - name: Upload generated media tests
         uses: actions/upload-artifact@v4
         with:
           name: instagram-media-test-output
           path: generated_media_tests/
+          if-no-files-found: error
