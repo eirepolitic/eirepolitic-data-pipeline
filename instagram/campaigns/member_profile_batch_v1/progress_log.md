@@ -52,3 +52,16 @@
 - Improved `review_index.html` with metric details, warning display, binding/manifest references, and clearer human-review wording.
 - Validation passed:
   - Fixture campaign render with upgraded review pack run `25362379007` passed.
+
+## 2026-05-04 — copy pack v1
+
+- Added deterministic copy-pack builder at `process/instagram_build_copy_pack.py`.
+- The copy-pack builder reads a campaign `review_table.csv` and writes:
+  - `copy/captions.csv`
+  - one `.caption.txt` file per post
+  - one `.alt_text.txt` file per post
+  - `copy/copy_manifest.json`
+- Captions and alt text are deterministic drafts only; they preserve the existing human-review gate by carrying review status, publish readiness, and safety notes from the review table.
+- Updated the campaign render workflow to run the copy-pack builder after campaign rendering and include copy outputs in the artifact.
+- Validation passed:
+  - Campaign render plus copy-pack workflow run `25362929727` passed.
