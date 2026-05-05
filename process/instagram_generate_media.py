@@ -10,6 +10,7 @@ import yaml
 
 GENERATOR_MODULES = {
     "horizontal_bar_chart": "instagram.media_generators.horizontal_bar_chart.generator",
+    "ranking_table": "instagram.media_generators.ranking_table.generator",
 }
 
 
