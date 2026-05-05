@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "template_id": "big_media_title_v1",
+  "description": "Large media block with title and footer",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {"type": "solid", "color": "{palette.background}"},
+  "elements": [
+    {"id": "title", "type": "text", "placeholder": "slide_title", "x": 80, "y": 80, "w": 920, "h": 140, "style": {"font_family": "default_bold", "font_size": 56, "color": "{palette.text_primary}", "align": "center", "valign": "middle", "max_lines": 2, "shrink_to_fit": true}},
+    {"id": "main_media", "type": "image", "placeholder": "main_media", "x": 80, "y": 250, "w": 920, "h": 850, "fit": "contain", "background": "{palette.panel_background}", "radius": 28},
+    {"id": "footer", "type": "text", "placeholder": "footer_text", "x": 80, "y": 1220, "w": 920, "h": 60, "style": {"font_size": 24, "color": "{palette.text_muted}", "align": "center", "valign": "middle", "max_lines": 2}}
+  ]
+}
