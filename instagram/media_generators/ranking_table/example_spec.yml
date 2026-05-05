@@ -1,0 +1,27 @@
+schema_version: "1.0"
+generator: ranking_table
+output:
+  root: generated_media
+  slug: td_speech_ranking_example
+input:
+  mode: inline
+  rows:
+    - name: "Aoife Byrne"
+      sublabel: "Independent · Wicklow-Wexford"
+      value: 143
+    - name: "Ciarán Murphy"
+      sublabel: "Fianna Fáil · Cork South-Central"
+      value: 118
+    - name: "Niamh O'Sullivan"
+      sublabel: "Fine Gael · Dublin Bay South"
+      value: 91
+params:
+  width: 920
+  height: 720
+  title: "Speech activity ranking"
+  subtitle: "Fake data for layout testing"
+  palette: eirepolitic_dark
+  row_limit: 10
+  value_format: integer
+  value_header: "Speeches"
+  footer: "Source: fake data"

@@ -5,11 +5,11 @@ on:
     inputs:
       template:
         description: "Template ID without .json"
-        required: true
+        required: false
         default: "profile_card_v1"
       palette:
         description: "Palette ID without .json"
-        required: true
+        required: false
         default: "eirepolitic_dark"
 
 concurrency:
@@ -38,15 +38,31 @@ jobs:
           pip install -r requirements.txt
 
       - name: Render template with fake bindings
+        shell: bash
         run: |
-          python process/instagram_render_template.py \
-            --template "instagram/templates/layouts/${{ inputs.template }}.json" \
-            --bindings "instagram/specs/template_render_test.yml" \
-            --palette "${{ inputs.palette }}" \
-            --output "generated_posts/template_render_test/png/${{ inputs.template }}.png"
+          set -o pipefail
+          TEMPLATE="${{ inputs.template }}"
+          PALETTE="${{ inputs.palette }}"
+          TEMPLATE="${TEMPLATE:-profile_card_v1}"
+          PALETTE="${PALETTE:-eirepolitic_dark}"
+          mkdir -p workflow_debug
+          {
+            echo "template=${TEMPLATE}"
+            echo "palette=${PALETTE}"
+            python --version
+            python process/instagram_render_template.py \
+              --template "instagram/templates/layouts/${TEMPLATE}.json" \
+              --bindings "instagram/specs/template_render_test.yml" \
+              --palette "${PALETTE}" \
+              --output "generated_posts/template_render_test/png/${TEMPLATE}.png"
+          } 2>&1 | tee workflow_debug/template_render.log
 
       - name: Upload rendered template
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: instagram-template-render-test-output
-          path: generated_posts/template_render_test/
+          path: |
+            generated_posts/template_render_test/
+            workflow_debug/
+          if-no-files-found: warn
