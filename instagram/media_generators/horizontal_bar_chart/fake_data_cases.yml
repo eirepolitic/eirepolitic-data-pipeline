@@ -1,0 +1,70 @@
+base_spec:
+  schema_version: "1.0"
+  generator: horizontal_bar_chart
+  output:
+    root: generated_media_tests
+  params:
+    width: 920
+    height: 720
+    title: Horizontal bar chart stress test
+    subtitle: Fake visual QA data
+    palette: eirepolitic_dark
+    max_items: 10
+    sort: descending
+cases:
+  - id: small_3_labels
+    description: "3 short labels"
+    rows:
+      - {label: Housing, value: 42}
+      - {label: Health, value: 31}
+      - {label: Transport, value: 19}
+  - id: normal_8_labels
+    description: "8 normal labels"
+    rows:
+      - {label: Housing, value: 42}
+      - {label: Health, value: 31}
+      - {label: Transport, value: 19}
+      - {label: Education, value: 18}
+      - {label: Climate, value: 15}
+      - {label: Justice, value: 11}
+      - {label: Economy, value: 9}
+      - {label: Agriculture, value: 6}
+  - id: stress_20_long_labels
+    description: "20 long labels to test truncation and density"
+    params:
+      max_items: 20
+    rows:
+      - {label: "Housing affordability and planning delays", value: 42}
+      - {label: "Health service access and hospital waiting lists", value: 39}
+      - {label: "Public transport capacity and rural routes", value: 33}
+      - {label: "Climate action implementation and emissions", value: 28}
+      - {label: "Education places and special needs support", value: 25}
+      - {label: "Agriculture supports and farm incomes", value: 23}
+      - {label: "Justice reform and policing resources", value: 21}
+      - {label: "Enterprise policy and local employment", value: 19}
+      - {label: "Childcare cost and availability", value: 17}
+      - {label: "Energy costs and household bills", value: 15}
+      - {label: "Disability services and waiting lists", value: 13}
+      - {label: "Immigration policy and integration supports", value: 11}
+      - {label: "Road safety and local infrastructure", value: 10}
+      - {label: "Higher education funding", value: 8}
+      - {label: "Arts culture and heritage", value: 7}
+      - {label: "Defence forces retention", value: 6}
+      - {label: "Water infrastructure", value: 5}
+      - {label: "Planning reform", value: 4}
+      - {label: "Tourism", value: 3}
+      - {label: "Sport", value: 2}
+  - id: zero_and_decimal_values
+    description: "Zero and decimal values"
+    rows:
+      - {label: Housing, value: 0}
+      - {label: Health, value: 3.5}
+      - {label: Transport, value: 2.25}
+  - id: light_palette
+    description: "Light palette check"
+    params:
+      palette: eirepolitic_light
+    rows:
+      - {label: Housing, value: 42}
+      - {label: Health, value: 31}
+      - {label: Transport, value: 19}
