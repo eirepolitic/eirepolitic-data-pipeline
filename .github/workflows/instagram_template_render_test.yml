@@ -5,11 +5,11 @@ on:
     inputs:
       template:
         description: "Template ID without .json"
-        required: true
+        required: false
         default: "profile_card_v1"
       palette:
         description: "Palette ID without .json"
-        required: true
+        required: false
         default: "eirepolitic_dark"
 
 concurrency:
@@ -38,15 +38,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Render template with fake bindings
+        shell: bash
         run: |
+          TEMPLATE="${{ inputs.template }}"
+          PALETTE="${{ inputs.palette }}"
+          TEMPLATE="${TEMPLATE:-profile_card_v1}"
+          PALETTE="${PALETTE:-eirepolitic_dark}"
           python process/instagram_render_template.py \
-            --template "instagram/templates/layouts/${{ inputs.template }}.json" \
+            --template "instagram/templates/layouts/${TEMPLATE}.json" \
             --bindings "instagram/specs/template_render_test.yml" \
-            --palette "${{ inputs.palette }}" \
-            --output "generated_posts/template_render_test/png/${{ inputs.template }}.png"
+            --palette "${PALETTE}" \
+            --output "generated_posts/template_render_test/png/${TEMPLATE}.png"
 
       - name: Upload rendered template
         uses: actions/upload-artifact@v4
         with:
           name: instagram-template-render-test-output
           path: generated_posts/template_render_test/
+          if-no-files-found: error
