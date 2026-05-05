@@ -5,6 +5,7 @@ import io
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -78,19 +79,109 @@ def row_bindings(row: pd.Series, footer_text: str) -> dict[str, str]:
     }
 
 
-def write_review(output_root: Path, rows: list[dict[str, Any]]) -> None:
+def relpath(path: str | Path, root: Path) -> str:
+    try:
+        return Path(path).relative_to(root).as_posix()
+    except ValueError:
+        return Path(path).as_posix()
+
+
+def html_escape(value: Any) -> str:
+    text = str(value or "")
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
+
+
+def write_review(output_root: Path, rows: list[dict[str, Any]], spec: dict[str, Any], spec_path: str | Path) -> None:
     review_dir = output_root / "review"
     review_dir.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame(rows)
-    df.to_csv(review_dir / "review_table.csv", index=False, encoding="utf-8-sig")
-    cards = []
+
+    enriched_rows: list[dict[str, Any]] = []
     for row in rows:
-        rel = Path(row["output_file"]).relative_to(output_root)
+        warnings = str(row.get("warnings", "")).strip()
+        has_photo = bool(str(row.get("photo_url", "")).strip())
+        enriched = {
+            "review_status": "needs_review",
+            "review_notes": "",
+            "publish_ready": "no",
+            "needs_photo_check": "yes" if not has_photo else "no",
+            "has_render_warnings": "yes" if warnings else "no",
+            **row,
+            "output_file_rel": relpath(row["output_file"], output_root),
+            "bindings_file_rel": relpath(row.get("bindings_file", ""), output_root),
+            "render_manifest_file_rel": relpath(row.get("render_manifest_file", ""), output_root),
+        }
+        enriched_rows.append(enriched)
+
+    df = pd.DataFrame(enriched_rows)
+    df.to_csv(review_dir / "review_table.csv", index=False, encoding="utf-8-sig")
+
+    manifest = {
+        "success": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "campaign": spec.get("campaign"),
+        "post_type": spec.get("post_type"),
+        "spec_path": str(spec_path),
+        "output_root": str(output_root),
+        "rendered": len(enriched_rows),
+        "review_table": str(review_dir / "review_table.csv"),
+        "review_index": str(review_dir / "review_index.html"),
+        "items": enriched_rows,
+        "review_checklist": [
+            "Confirm member name, party, and constituency are correct.",
+            "Confirm image belongs to the correct member, or replace missing/incorrect images before publishing.",
+            "Check every metric against the source table.",
+            "Check long text for clipping or misleading truncation.",
+            "Check generated warnings before setting publish_ready=yes.",
+        ],
+    }
+    (review_dir / "review_manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    cards = []
+    for row in enriched_rows:
+        rel = html_escape(row["output_file_rel"])
+        warning_text = html_escape(row.get("warnings", "") or "None")
         cards.append(
-            f"<article><h2>{row['full_name']}</h2><p>{row['party']} · {row['constituency']}</p>"
-            f"<img src='../{rel.as_posix()}' /></article>"
+            "<article>"
+            f"<h2>{html_escape(row['full_name'])}</h2>"
+            f"<p><strong>{html_escape(row['party'])}</strong> · {html_escape(row['constituency'])}</p>"
+            f"<img src='../{rel}' alt='{html_escape(row['full_name'])}' />"
+            "<dl>"
+            f"<dt>Top issue</dt><dd>{html_escape(row['top_issue_2025'])}</dd>"
+            f"<dt>Vote participation</dt><dd>{html_escape(row['vote_participation_pct_2025'])}</dd>"
+            f"<dt>Speech rank</dt><dd>{html_escape(row['speech_rank_2025'])}</dd>"
+            f"<dt>Speech count</dt><dd>{html_escape(row['speech_count_2025'])}</dd>"
+            f"<dt>Warnings</dt><dd>{warning_text}</dd>"
+            f"<dt>Bindings</dt><dd><code>{html_escape(row['bindings_file_rel'])}</code></dd>"
+            f"<dt>Render manifest</dt><dd><code>{html_escape(row['render_manifest_file_rel'])}</code></dd>"
+            "</dl>"
+            "<p class='status'>Review status: needs_review · Publish ready: no</p>"
+            "</article>"
         )
-    html = """<!doctype html><html><head><meta charset='utf-8'><title>Review Index</title><style>body{font-family:sans-serif;background:#0f2f24;color:#f4ead7}article{margin:24px;padding:16px;border:1px solid #cbbf9f;border-radius:12px}img{max-width:360px;width:100%;display:block}</style></head><body><h1>Member Profile Batch v1 Review</h1>""" + "\n".join(cards) + "</body></html>"
+
+    html = """<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <title>Member Profile Batch v1 Review</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#0f2f24;color:#f4ead7;margin:0;padding:32px}
+    h1{margin-top:0} .summary{color:#cbbf9f;margin-bottom:24px}
+    article{margin:24px 0;padding:18px;border:1px solid #cbbf9f;border-radius:14px;background:#173d30;max-width:980px}
+    img{max-width:360px;width:100%;display:block;border-radius:10px;border:1px solid #cbbf9f;margin:14px 0}
+    dl{display:grid;grid-template-columns:180px 1fr;gap:8px 16px} dt{color:#d8b45f;font-weight:bold} dd{margin:0}
+    code{color:#f4ead7}.status{padding:10px 12px;background:#214a3b;border-radius:10px;display:inline-block}
+  </style>
+</head>
+<body>
+  <h1>Member Profile Batch v1 Review</h1>
+  <p class='summary'>Use this page for human review only. Set publish status in <code>review_table.csv</code> after checking every item.</p>
+""" + "\n".join(cards) + "\n</body></html>"
     (review_dir / "review_index.html").write_text(html, encoding="utf-8")
 
 
@@ -116,6 +207,8 @@ def render_campaign(spec_path: str | Path, limit_override: int | None = None) ->
         manifest = render_template_file(spec["render"]["template"], bindings_path, out_path, spec["render"].get("palette"))
         review_rows.append({
             "output_file": str(out_path),
+            "bindings_file": str(bindings_path),
+            "render_manifest_file": str(output_root / "metadata" / "manifests" / f"{slug}.render_manifest.json"),
             "full_name": bindings["member_name"],
             "party": bindings["party"],
             "constituency": bindings["constituency"],
@@ -126,7 +219,7 @@ def render_campaign(spec_path: str | Path, limit_override: int | None = None) ->
             "photo_url": bindings["member_photo"],
             "warnings": ";".join(manifest.get("warnings", [])),
         })
-    write_review(output_root, review_rows)
+    write_review(output_root, review_rows, spec, spec_path)
     return {"success": True, "campaign": spec["campaign"], "rendered": len(review_rows), "output_root": str(output_root)}
 
 
