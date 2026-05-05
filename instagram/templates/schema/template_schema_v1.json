@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EirePolitic Instagram Template Schema v1",
+  "type": "object",
+  "required": ["schema_version", "template_id", "width", "height", "elements"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "template_id": {"type": "string"},
+    "description": {"type": "string"},
+    "width": {"type": "integer"},
+    "height": {"type": "integer"},
+    "palette": {"type": "string"},
+    "background": {"type": "object"},
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "x", "y", "w", "h"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"enum": ["text", "image", "rectangle", "line", "group"]},
+          "placeholder": {"type": "string"},
+          "x": {"type": "integer"},
+          "y": {"type": "integer"},
+          "w": {"type": "integer"},
+          "h": {"type": "integer"},
+          "text": {"type": "string"},
+          "style": {"type": "object"},
+          "fit": {"enum": ["cover", "contain"]},
+          "radius": {"type": "integer"},
+          "fill": {"type": "string"},
+          "stroke": {"type": "string"}
+        }
+      }
+    }
+  }
+}
