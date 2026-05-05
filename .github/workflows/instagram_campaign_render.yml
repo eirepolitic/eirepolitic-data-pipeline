@@ -5,12 +5,16 @@ on:
     inputs:
       campaign_slug:
         description: "Campaign folder under instagram/campaigns"
-        required: true
+        required: false
         default: "member_profile_batch_v1"
+      spec_file:
+        description: "Render spec filename inside the campaign folder"
+        required: false
+        default: "render_spec_fixture.yml"
       limit:
         description: "Optional row limit override"
-        required: true
-        default: "10"
+        required: false
+        default: "3"
 
 concurrency:
   group: instagram-campaign-render
@@ -43,13 +47,32 @@ jobs:
           pip install -r requirements.txt
 
       - name: Render campaign
+        shell: bash
         run: |
-          python process/instagram_render_campaign.py \
-            --campaign "instagram/campaigns/${{ inputs.campaign_slug }}/render_spec.yml" \
-            --limit "${{ inputs.limit }}"
+          set -o pipefail
+          CAMPAIGN_SLUG="${{ inputs.campaign_slug }}"
+          SPEC_FILE="${{ inputs.spec_file }}"
+          LIMIT="${{ inputs.limit }}"
+          CAMPAIGN_SLUG="${CAMPAIGN_SLUG:-member_profile_batch_v1}"
+          SPEC_FILE="${SPEC_FILE:-render_spec_fixture.yml}"
+          LIMIT="${LIMIT:-3}"
+          mkdir -p workflow_debug
+          {
+            echo "campaign_slug=${CAMPAIGN_SLUG}"
+            echo "spec_file=${SPEC_FILE}"
+            echo "limit=${LIMIT}"
+            python --version
+            python process/instagram_render_campaign.py \
+              --campaign "instagram/campaigns/${CAMPAIGN_SLUG}/${SPEC_FILE}" \
+              --limit "${LIMIT}"
+          } 2>&1 | tee workflow_debug/campaign_render.log
 
       - name: Upload campaign outputs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: instagram-campaign-render-output
-          path: generated_posts/${{ inputs.campaign_slug }}/
+          path: |
+            generated_posts/**
+            workflow_debug/
+          if-no-files-found: warn
