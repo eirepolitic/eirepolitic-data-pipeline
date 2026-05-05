@@ -14,6 +14,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--template", help="Path to template JSON. Optional if --bindings contains template.")
     parser.add_argument("--bindings", required=True, help="YAML/JSON file containing bindings and optional output path.")
     parser.add_argument("--output", help="Output PNG path. Overrides output in bindings file.")
+    parser.add_argument("--palette", help="Optional palette ID override, for example eirepolitic_dark.")
     return parser.parse_args()
 
 
@@ -39,6 +40,8 @@ def main() -> None:
         raise RuntimeError("bindings must be a mapping.")
 
     template = load_json(template_path)
+    if args.palette:
+        template["palette"] = args.palette
     result = render_template(template, bindings, output_path)
     print(f"Rendered: {result.output_path}")
     print(f"Source values: {result.source_values_path}")
