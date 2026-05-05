@@ -46,7 +46,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Render campaign
+      - name: Render campaign and copy pack
         shell: bash
         run: |
           set -o pipefail
@@ -56,15 +56,28 @@ jobs:
           CAMPAIGN_SLUG="${CAMPAIGN_SLUG:-member_profile_batch_v1}"
           SPEC_FILE="${SPEC_FILE:-render_spec_fixture.yml}"
           LIMIT="${LIMIT:-3}"
+          SPEC_PATH="instagram/campaigns/${CAMPAIGN_SLUG}/${SPEC_FILE}"
+          OUTPUT_ROOT=$(python - <<'PY' "${SPEC_PATH}"
+          import sys, yaml
+          with open(sys.argv[1], encoding="utf-8") as f:
+              spec = yaml.safe_load(f)
+          print(spec.get("render", {}).get("output_root", f"generated_posts/{spec.get('campaign', 'campaign')}"))
+          PY
+          )
           mkdir -p workflow_debug
           {
             echo "campaign_slug=${CAMPAIGN_SLUG}"
             echo "spec_file=${SPEC_FILE}"
+            echo "spec_path=${SPEC_PATH}"
             echo "limit=${LIMIT}"
+            echo "output_root=${OUTPUT_ROOT}"
             python --version
             python process/instagram_render_campaign.py \
-              --campaign "instagram/campaigns/${CAMPAIGN_SLUG}/${SPEC_FILE}" \
+              --campaign "${SPEC_PATH}" \
               --limit "${LIMIT}"
+            python process/instagram_build_copy_pack.py \
+              --review-table "${OUTPUT_ROOT}/review/review_table.csv" \
+              --copy-dir "${OUTPUT_ROOT}/copy"
           } 2>&1 | tee workflow_debug/campaign_render.log
 
       - name: Upload campaign outputs
