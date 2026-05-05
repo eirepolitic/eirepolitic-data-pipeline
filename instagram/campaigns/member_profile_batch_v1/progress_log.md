@@ -8,3 +8,14 @@
 - Added horizontal bar chart generator, fake-data cases, and limits doc.
 - Added manual GitHub Actions workflows for template rendering and media generator tests.
 - Started `member_profile_batch_v1` campaign documentation.
+
+## 2026-05-04 — v2 campaign fixes
+
+- Reviewed merged `main` after foundation PR was merged.
+- Found campaign renderer crash risk: `process/instagram_render_campaign.py` imported `render_template_file`, but `instagram/renderer/template_renderer.py` did not expose it.
+- Added `render_template_file` wrapper for campaign rendering from JSON template + YAML/JSON bindings.
+- Added support for template palette override in campaign renders.
+- Added support for both `stroke` and `outline` rectangle keys.
+- Added image placeholder background rendering before missing-image fallback marks.
+- Added second media generator: `ranking_table` with example spec, fake-data test cases, and limits documentation.
+- Registered `ranking_table` in `process/instagram_generate_media.py`.
