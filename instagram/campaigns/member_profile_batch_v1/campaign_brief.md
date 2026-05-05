@@ -1,32 +1,42 @@
 # Member Profile Batch v1 — Campaign Brief
 
 ## Goal
-Generate deterministic Instagram profile cards for selected Dáil members using existing eirepolitic data products.
+
+Generate one deterministic Instagram profile image per selected TD using existing 2025 member metrics.
 
 ## Intended audience
-People who want quick, visual summaries of TD activity and profile context.
+
+People who want quick, factual summaries of Dáil member activity.
 
 ## Post type
-Single-image member profile cards. Future versions may become carousel posts.
+
+Single-image member profile card first. Carousel variants can be added later.
 
 ## Variation grain
-Member. Version 1 renders one output image per selected TD.
+
+`member`
 
 ## Data sources
+
+- `processed/members/member_profile_metrics_2025.csv`
 - `raw/members/oireachtas_members_34th_dail.csv`
 - `processed/members/members_photo_urls.csv`
-- `processed/members/member_photos/members_photo_urls.csv` fallback
-- `processed/members/member_profile_metrics_2025.csv`
-- `processed/members/members_summaries.csv` when background text is included
+- `processed/debates/debate_speeches_classified.csv`
+- `processed/votes/dail_vote_member_records.csv`
 
 ## Templates
+
 - `instagram/templates/layouts/profile_card_v1.json`
 
 ## Media generators
-None required for the first single-card render. Later versions can add issue charts or rankings.
+
+- None required for the first single-card render.
+- Horizontal bar chart generator is available for future carousel slides.
 
 ## Review requirements
-Every generated image must be checked for name/photo correctness, text overflow, missing photos, misleading metrics, and visual legibility before publishing.
+
+Manually check every generated card for name, party, constituency, metrics, missing images, text fit, and source warnings before publication.
 
 ## Scheduling
-Manual only for v1. No cron schedule until reviewed outputs are approved.
+
+Manual only for v1.
