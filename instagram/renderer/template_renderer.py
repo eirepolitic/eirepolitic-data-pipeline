@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import requests
+import yaml
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from .constants import FONT_CANDIDATES
@@ -27,6 +28,18 @@ class RenderResult:
 
 def load_json(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def load_yaml_or_json(path: str | Path) -> dict[str, Any]:
+    path = Path(path)
+    text = path.read_text(encoding="utf-8")
+    if path.suffix.lower() == ".json":
+        data = json.loads(text)
+    else:
+        data = yaml.safe_load(text)
+    if not isinstance(data, dict):
+        raise RuntimeError(f"Expected mapping in {path}")
+    return data
 
 
 def load_palette(palette_id: str) -> dict[str, str]:
@@ -184,12 +197,21 @@ def rounded_mask(width: int, height: int, radius: int) -> Image.Image:
     return mask
 
 
-def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bindings: Mapping[str, Any], warnings: list[str]) -> None:
+def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bindings: Mapping[str, Any], palette: Mapping[str, str], warnings: list[str]) -> None:
     placeholder = element.get("placeholder")
     reference = str(bindings.get(placeholder, "") if placeholder else element.get("source", ""))
     if placeholder and placeholder not in bindings:
         warnings.append(f"missing_binding:{placeholder}")
     x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
+    background = resolve_palette_value(element.get("background"), palette)
+    if background:
+        radius = int(element.get("radius", 0) or 0)
+        box = (x, y, x + w, y + h)
+        if radius:
+            draw.rounded_rectangle(box, radius=radius, fill=background)
+        else:
+            draw.rectangle(box, fill=background)
+
     image = load_image(reference, warnings)
     if image is None:
         draw.line((x + 24, y + 24, x + w - 24, y + h - 24), fill="#ffffff", width=3)
@@ -213,8 +235,8 @@ def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Ma
 def draw_rectangle(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], palette: Mapping[str, str]) -> None:
     x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
     fill = resolve_palette_value(element.get("fill", "#000000"), palette)
-    outline = resolve_palette_value(element.get("outline"), palette)
-    line_width = int(element.get("width", 1) or 1)
+    outline = resolve_palette_value(element.get("outline", element.get("stroke")), palette)
+    line_width = int(element.get("width", element.get("stroke_width", 1)) or 1)
     radius = int(element.get("radius", 0) or 0)
     box = (x, y, x + w, y + h)
     if radius:
@@ -241,7 +263,7 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
         elif element_type == "text":
             draw_text_element(draw, element, bindings, palette, warnings)
         elif element_type == "image":
-            draw_image_element(image, draw, element, bindings, warnings)
+            draw_image_element(image, draw, element, bindings, palette, warnings)
         elif element_type == "line":
             x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
             fill = resolve_palette_value(element.get("fill", "#ffffff"), palette)
@@ -280,3 +302,28 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
     }, indent=2), encoding="utf-8")
 
     return RenderResult(output_path=output_path, source_values_path=source_path, manifest_path=manifest_path, warnings=warnings)
+
+
+def render_template_file(
+    template_path: str | Path,
+    bindings_path: str | Path,
+    output_path: str | Path,
+    palette_override: str | None = None,
+) -> dict[str, Any]:
+    """Load a JSON template plus YAML/JSON bindings and render a PNG.
+
+    This wrapper is used by campaign renderers and workflows. It returns the
+    render manifest as a plain dict for easy review-table use.
+    """
+    template = load_json(template_path)
+    if palette_override:
+        template = dict(template)
+        template["palette"] = palette_override
+
+    binding_doc = load_yaml_or_json(bindings_path)
+    bindings = binding_doc.get("bindings", binding_doc)
+    if not isinstance(bindings, dict):
+        raise RuntimeError(f"bindings must be a mapping in {bindings_path}")
+
+    result = render_template(template, bindings, output_path)
+    return load_json(result.manifest_path)
