@@ -65,3 +65,19 @@
 - Updated the campaign render workflow to run the copy-pack builder after campaign rendering and include copy outputs in the artifact.
 - Validation passed:
   - Campaign render plus copy-pack workflow run `25362929727` passed.
+
+## 2026-05-05 — gated publish queue v1
+
+- Added review-gated publish queue builder at `process/instagram_build_publish_queue.py`.
+- The queue builder reads `copy/captions.csv` and writes:
+  - `queue/publish_queue.csv`
+  - `queue/blocked_items.csv`
+  - `queue/publish_queue_manifest.json`
+- Queue rules require all of the following before an item is queued:
+  - `publish_ready` is yes/true/1
+  - `review_status` is approved/ready/ready_to_publish/publish_ready
+  - `safety_notes` is empty
+- Fixture runs are expected to produce an empty queue and blocked rows because generated review tables default to `needs_review` and `publish_ready=no`.
+- Updated the campaign render workflow to run render, copy pack, and gated queue in one validation chain.
+- Validation passed:
+  - Campaign render plus copy pack plus gated queue workflow run `25388486336` passed.
