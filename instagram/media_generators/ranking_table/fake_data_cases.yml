@@ -1,0 +1,88 @@
+base_spec:
+  schema_version: "1.0"
+  generator: ranking_table
+  output:
+    root: generated_media_tests
+  params:
+    width: 920
+    height: 720
+    title: "Ranking table stress test"
+    subtitle: "Fake data cases"
+    palette: eirepolitic_dark
+    row_limit: 10
+    value_format: integer
+    value_header: "Value"
+    footer: "Source: fake data"
+
+cases:
+  - id: normal_8_rows
+    description: "8 normal rows"
+    rows:
+      - {name: "Aoife Byrne", sublabel: "Independent · Wicklow-Wexford", value: 143}
+      - {name: "Ciarán Murphy", sublabel: "Fianna Fáil · Cork South-Central", value: 118}
+      - {name: "Niamh O'Sullivan", sublabel: "Fine Gael · Dublin Bay South", value: 91}
+      - {name: "Patrick Walsh", sublabel: "Sinn Féin · Galway West", value: 88}
+      - {name: "Maeve Kelly", sublabel: "Labour · Dublin Central", value: 76}
+      - {name: "Eoin Ryan", sublabel: "Green Party · Limerick City", value: 66}
+      - {name: "Sarah Nolan", sublabel: "Social Democrats · Meath East", value: 53}
+      - {name: "Liam O'Dea", sublabel: "Independent Ireland · Kerry", value: 44}
+
+  - id: stress_20_rows
+    description: "20 rows, should truncate to row_limit"
+    params:
+      row_limit: 10
+    rows:
+      - {name: "Member 01", sublabel: "Party · Constituency", value: 101}
+      - {name: "Member 02", sublabel: "Party · Constituency", value: 99}
+      - {name: "Member 03", sublabel: "Party · Constituency", value: 97}
+      - {name: "Member 04", sublabel: "Party · Constituency", value: 95}
+      - {name: "Member 05", sublabel: "Party · Constituency", value: 93}
+      - {name: "Member 06", sublabel: "Party · Constituency", value: 91}
+      - {name: "Member 07", sublabel: "Party · Constituency", value: 89}
+      - {name: "Member 08", sublabel: "Party · Constituency", value: 87}
+      - {name: "Member 09", sublabel: "Party · Constituency", value: 85}
+      - {name: "Member 10", sublabel: "Party · Constituency", value: 83}
+      - {name: "Member 11", sublabel: "Party · Constituency", value: 81}
+      - {name: "Member 12", sublabel: "Party · Constituency", value: 79}
+      - {name: "Member 13", sublabel: "Party · Constituency", value: 77}
+      - {name: "Member 14", sublabel: "Party · Constituency", value: 75}
+      - {name: "Member 15", sublabel: "Party · Constituency", value: 73}
+      - {name: "Member 16", sublabel: "Party · Constituency", value: 71}
+      - {name: "Member 17", sublabel: "Party · Constituency", value: 69}
+      - {name: "Member 18", sublabel: "Party · Constituency", value: 67}
+      - {name: "Member 19", sublabel: "Party · Constituency", value: 65}
+      - {name: "Member 20", sublabel: "Party · Constituency", value: 63}
+
+  - id: long_names_and_parties
+    description: "Long names and long sublabels should truncate safely"
+    rows:
+      - {name: "Dr. Saoirse Ní Mhaolmhuaidh-Mac Giolla Phádraig", sublabel: "Very Long Party Name For Layout Testing · Dublin Rathdown and South Wicklow", value: 284}
+      - {name: "Christopher Alexander Fitzgerald-O'Connor", sublabel: "Independent Alliance For Local Accountability · Cork North-Central", value: 191}
+      - {name: "Máire de Buitléir", sublabel: "Fianna Fáil · Laois", value: 176}
+      - {name: "Tom Short", sublabel: "Green Party · Clare", value: 88}
+
+  - id: missing_and_non_numeric
+    description: "Missing names, labels, and non-numeric values"
+    rows:
+      - {name: "", sublabel: "Missing name", value: 44}
+      - {name: "Valid Member", sublabel: "Party", value: "not-a-number"}
+      - {label: "Label fallback", party: "Party fallback", value: 22}
+      - {name: "No Value", sublabel: "Party", value: null}
+
+  - id: light_palette_mobile
+    description: "Smaller canvas and light palette"
+    params:
+      width: 720
+      height: 720
+      palette: eirepolitic_light
+      row_limit: 8
+      title: "Mobile ranking test"
+    rows:
+      - {name: "Aoife Byrne", sublabel: "Independent", value: 143}
+      - {name: "Ciarán Murphy", sublabel: "Fianna Fáil", value: 118}
+      - {name: "Niamh O'Sullivan", sublabel: "Fine Gael", value: 91}
+      - {name: "Patrick Walsh", sublabel: "Sinn Féin", value: 88}
+      - {name: "Maeve Kelly", sublabel: "Labour", value: 76}
+      - {name: "Eoin Ryan", sublabel: "Green Party", value: 66}
+      - {name: "Sarah Nolan", sublabel: "Social Democrats", value: 53}
+      - {name: "Liam O'Dea", sublabel: "Independent Ireland", value: 44}
