@@ -30,3 +30,15 @@
 - Validation passed after the import-path fix:
   - Template render workflow run `25361718752` passed.
   - Media generator workflow run `25361720272` passed.
+
+## 2026-05-04 — fixture campaign validation
+
+- Added local fixture input data at `instagram/campaigns/member_profile_batch_v1/fixtures/member_profile_metrics_fixture.csv`.
+- Added local fixture render spec at `instagram/campaigns/member_profile_batch_v1/render_spec_fixture.yml`.
+- Changed the campaign workflow default to render the fixture spec first, so campaign rendering can be validated without S3 or AWS secrets.
+- Kept production S3 rendering available by setting `spec_file=render_spec.yml` when manually dispatching the workflow.
+- Added `all` generator mode to `process/instagram_generate_media.py`.
+- Changed the media workflow default to `generator=all`, so all registered generators are tested by default.
+- Validation passed:
+  - All-generators media workflow run `25361969750` passed.
+  - Fixture campaign render workflow run `25361971238` passed.
