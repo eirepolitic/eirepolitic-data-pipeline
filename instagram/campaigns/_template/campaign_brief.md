@@ -1,28 +1,37 @@
 # Campaign Brief
 
 ## Goal
-Describe the content goal and what the finished Instagram outputs should communicate.
+
+Describe the post series goal.
 
 ## Intended audience
-Describe who the posts are for.
+
+Describe who the post is for.
 
 ## Post type
-Describe the post format, for example member profile, constituency summary, issue explainer, or ranking card.
+
+Describe the post format.
 
 ## Variation grain
-Define whether one output is created per member, constituency, issue, week, or custom list.
+
+Examples: member, constituency, week, issue, explicit list.
 
 ## Data sources
-List source datasets and any required preprocessing.
+
+List source tables and generated media inputs.
 
 ## Templates
-List JSON templates used by the campaign.
+
+List JSON layout templates.
 
 ## Media generators
-List any generator specs used to create charts, cards, maps, or other media.
+
+List generator specs.
 
 ## Review requirements
-Define what must be manually checked before publishing.
+
+State what must be manually checked before publication.
 
 ## Scheduling
-Manual first. Add scheduling only after the campaign is approved.
+
+Manual by default. Add scheduling only when approved.
