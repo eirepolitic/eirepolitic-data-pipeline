@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       generator:
-        description: "Generator to test"
+        description: "Generator to test, or all"
         required: false
-        default: "horizontal_bar_chart"
+        default: "all"
       test_case:
         description: "Specific test case or all"
         required: false
@@ -43,7 +43,7 @@ jobs:
           set -o pipefail
           GENERATOR="${{ inputs.generator }}"
           TEST_CASE="${{ inputs.test_case }}"
-          GENERATOR="${GENERATOR:-horizontal_bar_chart}"
+          GENERATOR="${GENERATOR:-all}"
           TEST_CASE="${TEST_CASE:-all}"
           mkdir -p workflow_debug
           {
@@ -51,7 +51,7 @@ jobs:
             echo "test_case=${TEST_CASE}"
             python --version
             python process/instagram_generate_media.py \
-              --spec "instagram/media_generators/${GENERATOR}/fake_data_cases.yml" \
+              --generator "${GENERATOR}" \
               --test-case "${TEST_CASE}"
           } 2>&1 | tee workflow_debug/media_test.log
 
