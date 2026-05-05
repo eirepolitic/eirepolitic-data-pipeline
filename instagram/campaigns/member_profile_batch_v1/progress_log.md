@@ -42,3 +42,13 @@
 - Validation passed:
   - All-generators media workflow run `25361969750` passed.
   - Fixture campaign render workflow run `25361971238` passed.
+
+## 2026-05-04 — review pack upgrade
+
+- Upgraded `process/instagram_render_campaign.py` review outputs.
+- `review_table.csv` now includes review workflow columns: `review_status`, `review_notes`, `publish_ready`, `needs_photo_check`, and `has_render_warnings`.
+- `review_table.csv` now includes relative output, bindings, and render-manifest paths.
+- Added campaign-level `review_manifest.json` with item metadata and a review checklist.
+- Improved `review_index.html` with metric details, warning display, binding/manifest references, and clearer human-review wording.
+- Validation passed:
+  - Fixture campaign render with upgraded review pack run `25362379007` passed.
