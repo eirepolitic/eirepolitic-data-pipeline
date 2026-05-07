@@ -64,6 +64,34 @@ jobs:
               --run-label "${RUN_LABEL}" \
               --root-prefix "instagram/previews" \
               --public-read "false"
+            python process/instagram_generate_preview_links.py \
+              --campaign-slug "${CAMPAIGN_SLUG}" \
+              --root-prefix "instagram/previews" \
+              --output-root "${OUTPUT_ROOT}" \
+              --output "${OUTPUT_ROOT}/preview_links.json"
+            cp "${OUTPUT_ROOT}/preview_links.json" workflow_debug/preview_links.json
+            python - "${OUTPUT_ROOT}/preview_links.json" >> "${GITHUB_STEP_SUMMARY}" <<'PY'
+          import json
+          import sys
+
+          data = json.load(open(sys.argv[1], encoding="utf-8"))
+          print("## Instagram S3 preview links")
+          print()
+          print(f"- Campaign: `{data.get('campaign_slug')}`")
+          print(f"- S3 prefix: `s3://{data.get('bucket')}/{data.get('prefix')}/`")
+          print(f"- Link expiry: `{data.get('expires_in_days')}` days")
+          review_url = data.get("review_index_url")
+          if review_url:
+              print(f"- [Open review index]({review_url})")
+          print()
+          print("### PNG previews")
+          for item in data.get("png_urls", []):
+              rel = item.get("relative_path")
+              url = item.get("presigned_url")
+              print(f"- [{rel}]({url})")
+          print()
+          print("Review only: this workflow does not publish, schedule, or approve Instagram content.")
+          PY
           } 2>&1 | tee workflow_debug/s3_preview_test.log
 
       - name: Upload local copy of preview outputs
