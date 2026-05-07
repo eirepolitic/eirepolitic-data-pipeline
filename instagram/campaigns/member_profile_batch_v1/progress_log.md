@@ -81,3 +81,18 @@
 - Updated the campaign render workflow to run render, copy pack, and gated queue in one validation chain.
 - Validation passed:
   - Campaign render plus copy pack plus gated queue workflow run `25388486336` passed.
+
+## 2026-05-07 — S3 preview upload support
+
+- Added `process/instagram_upload_preview_to_s3.py`.
+- The uploader copies a generated campaign output folder to S3 under both:
+  - `instagram/previews/<campaign_slug>/run-<github_run_id>/`
+  - `instagram/previews/<campaign_slug>/latest/`
+- The uploader writes `preview_upload_manifest.json` containing preview URLs, latest URLs, uploaded file metadata, and notes about public access.
+- Added optional workflow inputs:
+  - `upload_preview`
+  - `preview_public_read`
+  - `preview_root_prefix`
+- Default remains `upload_preview=false`, so ordinary fixture validation does not write to S3.
+- Validation passed for the default no-upload path after adding preview support:
+  - Campaign render workflow run `25511264848` passed.
