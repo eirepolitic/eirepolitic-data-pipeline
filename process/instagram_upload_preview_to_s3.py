@@ -16,6 +16,13 @@ DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_ROOT_PREFIX = "instagram/previews"
 
 
+def env_default(name: str, fallback: str) -> str:
+    value = os.getenv(name)
+    if value is None or str(value).strip() == "":
+        return fallback
+    return str(value).strip()
+
+
 def bool_arg(value: str | bool | None) -> bool:
     if isinstance(value, bool):
         return value
@@ -35,6 +42,8 @@ def content_type(path: Path) -> str:
         return "text/csv"
     if path.suffix.lower() == ".json":
         return "application/json"
+    if path.suffix.lower() == ".html":
+        return "text/html"
     return "application/octet-stream"
 
 
@@ -55,10 +64,33 @@ def upload_preview(
     if not output_root.exists():
         raise FileNotFoundError(f"Output root does not exist: {output_root}")
 
+    bucket = (bucket or DEFAULT_BUCKET).strip()
+    region = (region or DEFAULT_REGION).strip()
+    root_prefix = (root_prefix or DEFAULT_ROOT_PREFIX).strip()
+    if not bucket:
+        raise RuntimeError("S3 bucket is blank after applying defaults.")
+    if not region:
+        raise RuntimeError("AWS region is blank after applying defaults.")
+
+    files = iter_files(output_root)
+    if not files:
+        raise RuntimeError(f"No files found to upload under: {output_root}")
+
+    print(json.dumps({
+        "event": "s3_preview_upload_start",
+        "bucket": bucket,
+        "region": region,
+        "root_prefix": root_prefix,
+        "campaign_slug": campaign_slug,
+        "run_label": run_label,
+        "output_root": str(output_root),
+        "file_count": len(files),
+        "public_read": public_read,
+    }, indent=2))
+
     s3 = boto3.client("s3", region_name=region)
     preview_prefix = f"{root_prefix.strip('/')}/{campaign_slug.strip('/')}/{run_label.strip('/')}"
     latest_prefix = f"{root_prefix.strip('/')}/{campaign_slug.strip('/')}/latest"
-    files = iter_files(output_root)
     uploaded: list[dict[str, Any]] = []
 
     extra_args_base: dict[str, Any] = {}
@@ -70,6 +102,7 @@ def upload_preview(
         for prefix in [preview_prefix, latest_prefix]:
             key = f"{prefix}/{rel}"
             extra_args = {**extra_args_base, "ContentType": content_type(path)}
+            print(f"Uploading {rel} -> s3://{bucket}/{key}")
             s3.upload_file(str(path), bucket, key, ExtraArgs=extra_args)
             if prefix == preview_prefix:
                 uploaded.append({
@@ -108,6 +141,7 @@ def upload_preview(
     for prefix in [preview_prefix, latest_prefix]:
         key = f"{prefix}/preview_upload_manifest.json"
         extra_args = {**extra_args_base, "ContentType": "application/json"}
+        print(f"Uploading preview manifest -> s3://{bucket}/{key}")
         s3.upload_file(str(manifest_path), bucket, key, ExtraArgs=extra_args)
 
     return manifest
@@ -118,10 +152,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", required=True, help="Local generated_posts campaign output root.")
     parser.add_argument("--campaign-slug", required=True)
     parser.add_argument("--run-label", required=True, help="Preview version label, for example github run ID.")
-    parser.add_argument("--bucket", default=os.getenv("S3_BUCKET", DEFAULT_BUCKET))
-    parser.add_argument("--region", default=os.getenv("AWS_REGION", DEFAULT_REGION))
-    parser.add_argument("--root-prefix", default=os.getenv("PREVIEW_ROOT_PREFIX", DEFAULT_ROOT_PREFIX))
-    parser.add_argument("--public-read", default=os.getenv("PREVIEW_PUBLIC_READ", "0"), help="Set true/1/yes to request public-read ACL.")
+    parser.add_argument("--bucket", default=env_default("S3_BUCKET", DEFAULT_BUCKET))
+    parser.add_argument("--region", default=env_default("AWS_REGION", DEFAULT_REGION))
+    parser.add_argument("--root-prefix", default=env_default("PREVIEW_ROOT_PREFIX", DEFAULT_ROOT_PREFIX))
+    parser.add_argument("--public-read", default=env_default("PREVIEW_PUBLIC_READ", "0"), help="Set true/1/yes to request public-read ACL.")
     return parser.parse_args()
 
 
