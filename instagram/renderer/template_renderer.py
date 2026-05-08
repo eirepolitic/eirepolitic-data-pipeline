@@ -115,16 +115,25 @@ def fit_text(
     max_lines = int(style.get("max_lines", 999))
     shrink = bool(style.get("shrink_to_fit", False))
     kind = str(style.get("font_family", "default_regular"))
+    spacing = int(style.get("line_spacing", 8))
 
     while True:
         font = load_font(kind, size)
-        lines = text_lines(draw, text, font, width)
-        if max_lines and len(lines) > max_lines:
-            lines = lines[:max_lines]
+        wrapped_lines = text_lines(draw, text, font, width)
+        too_many_lines = bool(max_lines and len(wrapped_lines) > max_lines)
+        lines = wrapped_lines
+
+        # If shrink_to_fit is enabled, first try smaller font sizes until the
+        # text fits the requested line count. Only ellipsize at the minimum size.
+        if too_many_lines and (not shrink or size <= min_size):
+            lines = wrapped_lines[:max_lines]
             lines[-1] = ellipsize_to_width(draw, lines[-1], font, width)
-        bbox = draw.multiline_textbbox((0, 0), "\n".join(lines), font=font, spacing=int(style.get("line_spacing", 8))) if lines else (0, 0, 0, 0)
+
+        bbox = draw.multiline_textbbox((0, 0), "\n".join(lines), font=font, spacing=spacing) if lines else (0, 0, 0, 0)
         fits_height = (bbox[3] - bbox[1]) <= height
-        if not shrink or (fits_height and len(lines) <= max_lines) or size <= min_size:
+        fits_line_count = not too_many_lines
+
+        if not shrink or (fits_height and fits_line_count) or size <= min_size:
             return font, lines
         size -= 2
 
