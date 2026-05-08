@@ -82,11 +82,11 @@
       "h": 78,
       "style": {
         "font_size": 30,
-        "min_font_size": 20,
+        "min_font_size": 18,
         "color": "{palette.accent}",
         "align": "right",
         "valign": "middle",
-        "max_lines": 2,
+        "max_lines": 1,
         "shrink_to_fit": true,
         "line_spacing": 6
       }
@@ -200,24 +200,6 @@
         "font_size": 52,
         "min_font_size": 34,
         "color": "{palette.text_primary}",
-        "align": "center",
-        "valign": "middle",
-        "max_lines": 1,
-        "shrink_to_fit": true
-      }
-    },
-    {
-      "id": "speech_count",
-      "type": "text",
-      "placeholder": "speech_count_text",
-      "x": 112,
-      "y": 1208,
-      "w": 856,
-      "h": 38,
-      "style": {
-        "font_size": 25,
-        "min_font_size": 20,
-        "color": "{palette.text_muted}",
         "align": "center",
         "valign": "middle",
         "max_lines": 1,
