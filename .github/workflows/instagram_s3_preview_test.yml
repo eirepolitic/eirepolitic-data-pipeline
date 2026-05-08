@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Render max-length real-record campaign and upload S3 preview
+      - name: Render synthetic max-length campaign and upload S3 preview
         shell: bash
         run: |
           set -o pipefail
@@ -91,7 +91,7 @@ jobs:
           print(f"- Campaign: `{data.get('campaign_slug')}`")
           print(f"- S3 prefix: `s3://{data.get('bucket')}/{data.get('prefix')}/`")
           print(f"- Link expiry: `{data.get('expires_in_days')}` days")
-          print(f"- Max-length selected record: `{meta.get('selected_full_name')}` · `{meta.get('selected_constituency')}` · `{meta.get('selected_party')}`")
+          print(f"- Synthetic max-length row: `{meta.get('selected_full_name')}` · `{meta.get('selected_constituency')}` · `{meta.get('selected_party')}`")
           review_url = data.get("review_index_url")
           if review_url:
               print(f"- [Open review index]({review_url})")
