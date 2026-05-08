@@ -229,7 +229,7 @@ def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Ma
         image = ImageOps.fit(image, (w, h), method=Image.Resampling.LANCZOS)
     radius = int(element.get("radius", 0) or 0)
     mask = rounded_mask(w, h, radius) if radius else image.getchannel("A")
-    base.alpha_composite(image, (x, y), mask)
+    base.paste(image, (x, y), mask)
 
 
 def draw_rectangle(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], palette: Mapping[str, str]) -> None:
