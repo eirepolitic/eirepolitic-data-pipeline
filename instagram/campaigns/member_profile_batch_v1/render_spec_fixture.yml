@@ -8,7 +8,7 @@ variation:
 data:
   source_table: generated_posts/member_profile_batch_v1_max_length_fixture/member_profile_metrics_max_length.csv
 render:
-  template: instagram/templates/layouts/profile_card_main_v1.json
+  template: instagram/templates/layouts/profile_card_main_celtic_v2.json
   output_root: generated_posts/member_profile_batch_v1_fixture
   palette: eirepolitic_dark
 review:
