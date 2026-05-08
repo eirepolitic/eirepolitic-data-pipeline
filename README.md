@@ -6,6 +6,6 @@ Latest review index:
 https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/review/review_index.html
 
 Latest PNG previews:
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/richard-boyd-barrett.png
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/jennifer-carroll-macneill.png
 
 Review only: this does not publish, schedule, or approve Instagram content.
