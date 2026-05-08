@@ -1,0 +1,246 @@
+{
+  "schema_version": "1.0",
+  "template_id": "profile_card_v2",
+  "description": "Centered TD profile card stress-test layout for member_profile_batch_v1",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.background}"
+  },
+  "elements": [
+    {
+      "id": "card_bg",
+      "type": "rectangle",
+      "x": 56,
+      "y": 56,
+      "w": 968,
+      "h": 1238,
+      "radius": 36,
+      "fill": "{palette.panel_background}",
+      "stroke": "{palette.border}"
+    },
+    {
+      "id": "member_photo",
+      "type": "image",
+      "placeholder": "member_photo",
+      "x": 290,
+      "y": 92,
+      "w": 500,
+      "h": 520,
+      "fit": "cover",
+      "radius": 32,
+      "background": "{palette.panel_background_alt}"
+    },
+    {
+      "id": "member_name",
+      "type": "text",
+      "placeholder": "member_name",
+      "x": 100,
+      "y": 636,
+      "w": 880,
+      "h": 118,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 58,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "constituency",
+      "type": "text",
+      "placeholder": "constituency",
+      "x": 100,
+      "y": 772,
+      "w": 420,
+      "h": 78,
+      "style": {
+        "font_size": 30,
+        "min_font_size": 20,
+        "color": "{palette.text_muted}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    },
+    {
+      "id": "party",
+      "type": "text",
+      "placeholder": "party",
+      "x": 560,
+      "y": 772,
+      "w": 420,
+      "h": 78,
+      "style": {
+        "font_size": 30,
+        "min_font_size": 20,
+        "color": "{palette.accent}",
+        "align": "right",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    },
+    {
+      "id": "metrics_panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 892,
+      "w": 920,
+      "h": 300,
+      "radius": 28,
+      "fill": "{palette.panel_background_alt}"
+    },
+    {
+      "id": "top_issue_label",
+      "type": "text",
+      "text": "Top issue in 2025 debate speeches",
+      "x": 112,
+      "y": 922,
+      "w": 856,
+      "h": 36,
+      "style": {
+        "font_size": 25,
+        "color": "{palette.text_muted}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "top_issue",
+      "type": "text",
+      "placeholder": "top_issue",
+      "x": 112,
+      "y": 966,
+      "w": 856,
+      "h": 74,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 42,
+        "min_font_size": 28,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    },
+    {
+      "id": "vote_label",
+      "type": "text",
+      "text": "Vote participation",
+      "x": 112,
+      "y": 1064,
+      "w": 370,
+      "h": 34,
+      "style": {
+        "font_size": 24,
+        "color": "{palette.text_muted}",
+        "align": "center",
+        "valign": "middle"
+      }
+    },
+    {
+      "id": "vote_participation",
+      "type": "text",
+      "placeholder": "vote_participation",
+      "x": 112,
+      "y": 1106,
+      "w": 370,
+      "h": 62,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 52,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "speech_label",
+      "type": "text",
+      "text": "Speech rank",
+      "x": 598,
+      "y": 1064,
+      "w": 370,
+      "h": 34,
+      "style": {
+        "font_size": 24,
+        "color": "{palette.text_muted}",
+        "align": "center",
+        "valign": "middle"
+      }
+    },
+    {
+      "id": "speech_rank",
+      "type": "text",
+      "placeholder": "speech_rank",
+      "x": 598,
+      "y": 1106,
+      "w": 370,
+      "h": 62,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 52,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "speech_count",
+      "type": "text",
+      "placeholder": "speech_count_text",
+      "x": 112,
+      "y": 1208,
+      "w": 856,
+      "h": 38,
+      "style": {
+        "font_size": 25,
+        "min_font_size": 20,
+        "color": "{palette.text_muted}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "footer",
+      "type": "text",
+      "placeholder": "footer_text",
+      "x": 90,
+      "y": 1250,
+      "w": 900,
+      "h": 34,
+      "style": {
+        "font_size": 20,
+        "min_font_size": 16,
+        "color": "{palette.text_muted}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    }
+  ]
+}
