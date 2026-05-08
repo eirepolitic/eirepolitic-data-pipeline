@@ -59,7 +59,8 @@ jobs:
               --metadata-output "${MAX_FIXTURE_META}" \
               --aws-region "${AWS_REGION}"
             cp "${MAX_FIXTURE_META}" workflow_debug/max_length_fixture_metadata.json
-            python process/instagram_render_campaign.py \
+            python process/instagram_build_svg_profile_templates.py
+            python process/instagram_render_template_variants.py \
               --campaign "${SPEC_PATH}" \
               --limit "1"
             python process/instagram_build_copy_pack.py \
