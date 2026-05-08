@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   preview_test:
@@ -93,6 +93,54 @@ jobs:
           print("Review only: this workflow does not publish, schedule, or approve Instagram content.")
           PY
           } 2>&1 | tee workflow_debug/s3_preview_test.log
+
+      - name: Publish one-click preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAMPAIGN_SLUG="member_profile_batch_v1"
+          SPEC_PATH="instagram/campaigns/${CAMPAIGN_SLUG}/render_spec_fixture.yml"
+          OUTPUT_ROOT=$(python -c 'import sys, yaml; spec=yaml.safe_load(open(sys.argv[1], encoding="utf-8")); print(spec.get("render", {}).get("output_root") or ("generated_posts/" + str(spec.get("campaign", "campaign"))))' "${SPEC_PATH}")
+          PREVIEW_BRANCH="instagram-preview-output"
+          PREVIEW_DIR="preview"
+          rm -rf /tmp/instagram-preview-worktree
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "${PREVIEW_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${PREVIEW_BRANCH}:${PREVIEW_BRANCH}"
+            git worktree add /tmp/instagram-preview-worktree "${PREVIEW_BRANCH}"
+          else
+            git worktree add --detach /tmp/instagram-preview-worktree HEAD
+            git -C /tmp/instagram-preview-worktree switch --orphan "${PREVIEW_BRANCH}"
+            git -C /tmp/instagram-preview-worktree rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p "/tmp/instagram-preview-worktree/${PREVIEW_DIR}"
+          rm -rf "/tmp/instagram-preview-worktree/${PREVIEW_DIR:?}/"*
+          cp -R "${OUTPUT_ROOT}/." "/tmp/instagram-preview-worktree/${PREVIEW_DIR}/"
+          cat > "/tmp/instagram-preview-worktree/README.md" <<EOF
+          # Instagram preview output
+
+          This branch is machine-updated by the review-only Instagram S3 preview workflow.
+
+          Latest review index:
+          https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/review/review_index.html
+
+          Latest PNG preview example:
+          https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/png/aoife-byrne.png
+
+          Review only: this does not publish, schedule, or approve Instagram content.
+          EOF
+          git -C /tmp/instagram-preview-worktree add .
+          git -C /tmp/instagram-preview-worktree commit -m "Update Instagram preview output for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/instagram-preview-worktree push origin "${PREVIEW_BRANCH}"
+          {
+            echo "## One-click GitHub preview links"
+            echo
+            echo "- [Open latest review index](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/review/review_index.html)"
+            echo "- [Open Aoife Byrne PNG](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/png/aoife-byrne.png)"
+            echo "- [Open Ciarán Murphy PNG](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/png/ciar-n-murphy.png)"
+            echo "- [Open Niamh O'Sullivan PNG](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/png/niamh-o-sullivan.png)"
+          } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload local copy of preview outputs
         if: always()
