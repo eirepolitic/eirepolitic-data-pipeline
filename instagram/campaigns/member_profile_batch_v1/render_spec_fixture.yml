@@ -4,14 +4,14 @@ variation:
   grain: member
   selector:
     mode: top_speech_count
-    limit: 3
+    limit: 1
 data:
-  source_table: instagram/campaigns/member_profile_batch_v1/fixtures/member_profile_metrics_fixture.csv
+  source_table: generated_posts/member_profile_batch_v1_max_length_fixture/member_profile_metrics_max_length.csv
 render:
-  template: instagram/templates/layouts/profile_card_v1.json
+  template: instagram/templates/layouts/profile_card_main_v1.json
   output_root: generated_posts/member_profile_batch_v1_fixture
   palette: eirepolitic_dark
 review:
   build_index: true
   include_source_values: true
-  footer_text: "Source: fixture data | Campaign renderer test"
+  footer_text: "Source: synthetic max-length field stress test | Oireachtas data pipeline, 2025"
