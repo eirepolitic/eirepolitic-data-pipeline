@@ -59,7 +59,8 @@ jobs:
               --metadata-output "${MAX_FIXTURE_META}" \
               --aws-region "${AWS_REGION}"
             cp "${MAX_FIXTURE_META}" workflow_debug/max_length_fixture_metadata.json
-            python process/instagram_render_campaign.py \
+            python process/instagram_build_celtic_profile_templates.py
+            python process/instagram_render_template_variants.py \
               --campaign "${SPEC_PATH}" \
               --limit "1"
             python process/instagram_build_copy_pack.py \
@@ -83,7 +84,6 @@ jobs:
             python - "${OUTPUT_ROOT}/preview_links.json" "${MAX_FIXTURE_META}" >> "${GITHUB_STEP_SUMMARY}" <<'PY'
           import json
           import sys
-
           data = json.load(open(sys.argv[1], encoding="utf-8"))
           meta = json.load(open(sys.argv[2], encoding="utf-8"))
           print("## Instagram S3 preview links")
@@ -132,7 +132,6 @@ jobs:
           python - "/tmp/instagram-preview-worktree/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "/tmp/instagram-preview-worktree/${PREVIEW_DIR}/png" <<'PY'
           import sys
           from pathlib import Path
-
           readme_path = Path(sys.argv[1])
           repo = sys.argv[2]
           branch = sys.argv[3]
@@ -154,11 +153,7 @@ jobs:
                   lines.append(f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/png/{name}")
           else:
               lines.append("No PNG previews found.")
-          lines += [
-              "",
-              "Review only: this does not publish, schedule, or approve Instagram content.",
-              "",
-          ]
+          lines += ["", "Review only: this does not publish, schedule, or approve Instagram content.", ""]
           readme_path.write_text("\n".join(lines), encoding="utf-8")
           PY
           git -C /tmp/instagram-preview-worktree add .
