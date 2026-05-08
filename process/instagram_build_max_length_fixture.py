@@ -11,7 +11,7 @@ import boto3
 import pandas as pd
 
 DEFAULT_REGION = "ca-central-1"
-DEFAULT_SCORE_COLUMNS = [
+DEFAULT_STRESS_COLUMNS = [
     "full_name",
     "party",
     "constituency",
@@ -20,6 +20,7 @@ DEFAULT_SCORE_COLUMNS = [
     "speech_count_2025",
     "speech_rank_2025",
 ]
+PHOTO_COLUMNS = ["photo_url"]
 
 
 def read_csv(path: str, region: str) -> pd.DataFrame:
@@ -34,46 +35,123 @@ def read_csv(path: str, region: str) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def text_len(value: Any) -> int:
+def clean_value(value: Any) -> str:
     if pd.isna(value):
-        return 0
-    return len(str(value).strip())
+        return ""
+    return str(value).strip()
 
 
-def build_max_length_fixture(df: pd.DataFrame, score_columns: list[str]) -> tuple[pd.DataFrame, dict[str, Any]]:
-    available = [col for col in score_columns if col in df.columns]
+def text_len(value: Any) -> int:
+    return len(clean_value(value))
+
+
+def longest_value(df: pd.DataFrame, column: str) -> tuple[Any, int | None, int]:
+    """Return the longest non-empty value for a column, plus source row index and text length."""
+    if column not in df.columns:
+        return "", None, 0
+
+    best_index: int | None = None
+    best_value: Any = ""
+    best_length = -1
+    best_tiebreak = ""
+
+    for idx, raw in df[column].items():
+        value = clean_value(raw)
+        if not value:
+            continue
+        length = len(value)
+        # Deterministic tie-break: alphabetically earliest value.
+        tiebreak = value.lower()
+        if length > best_length or (length == best_length and (not best_tiebreak or tiebreak < best_tiebreak)):
+            best_index = int(idx)
+            best_value = raw
+            best_length = length
+            best_tiebreak = tiebreak
+
+    if best_index is None:
+        return "", None, 0
+    return best_value, best_index, best_length
+
+
+def longest_valid_photo(df: pd.DataFrame) -> tuple[str, int | None, int]:
+    for column in PHOTO_COLUMNS:
+        if column not in df.columns:
+            continue
+        candidates = df[column].fillna("").astype(str).str.strip()
+        candidates = candidates[candidates.str.startswith(("http://", "https://"))]
+        if not candidates.empty:
+            # Prefer the longest URL only as a stress value; any valid photo works for layout testing.
+            ordered = candidates.sort_values(key=lambda s: s.str.len(), ascending=False)
+            idx = int(ordered.index[0])
+            value = str(ordered.iloc[0]).strip()
+            return value, idx, len(value)
+    return "", None, 0
+
+
+def build_max_length_fixture(df: pd.DataFrame, stress_columns: list[str]) -> tuple[pd.DataFrame, dict[str, Any]]:
+    available = [col for col in stress_columns if col in df.columns]
     if not available:
-        raise RuntimeError(f"None of the score columns exist in the input table: {score_columns}")
+        raise RuntimeError(f"None of the stress columns exist in the input table: {stress_columns}")
 
-    scored = df.copy()
-    scored["_max_length_score"] = scored[available].apply(lambda row: sum(text_len(v) for v in row), axis=1)
-    scored["_max_length_name"] = scored.get("full_name", pd.Series([""] * len(scored))).fillna("").astype(str)
-    scored = scored.sort_values(by=["_max_length_score", "_max_length_name"], ascending=[False, True])
-    selected = scored.head(1).drop(columns=["_max_length_score", "_max_length_name"])
+    # Start from the longest-name row to preserve any extra columns expected downstream,
+    # then overwrite display fields with the longest real value found independently per field.
+    base_col = "full_name" if "full_name" in df.columns else available[0]
+    _, base_index, _ = longest_value(df, base_col)
+    if base_index is None:
+        base_index = int(df.index[0])
 
-    row = scored.iloc[0]
+    synthetic = df.loc[[base_index]].copy()
+    field_sources: dict[str, dict[str, Any]] = {}
+
+    for column in available:
+        value, source_index, length = longest_value(df, column)
+        if source_index is not None:
+            synthetic.at[synthetic.index[0], column] = value
+        field_sources[column] = {
+            "source_row_index": source_index,
+            "source_full_name": clean_value(df.at[source_index, "full_name"]) if source_index is not None and "full_name" in df.columns else "",
+            "value": clean_value(value),
+            "length": int(length),
+        }
+
+    photo_value, photo_source_index, photo_length = longest_valid_photo(df)
+    if "photo_url" in df.columns and photo_value:
+        synthetic.at[synthetic.index[0], "photo_url"] = photo_value
+        field_sources["photo_url"] = {
+            "source_row_index": photo_source_index,
+            "source_full_name": clean_value(df.at[photo_source_index, "full_name"]) if photo_source_index is not None and "full_name" in df.columns else "",
+            "value": photo_value,
+            "length": int(photo_length),
+        }
+
+    # Make the synthetic nature explicit in stable ID/code-style columns if present.
+    if "member_code" in synthetic.columns:
+        synthetic.at[synthetic.index[0], "member_code"] = "synthetic-max-length"
+
+    row = synthetic.iloc[0]
     metadata = {
         "success": True,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "selection_mode": "single_real_record_max_text_length",
-        "score_columns_requested": score_columns,
-        "score_columns_used": available,
-        "selected_full_name": str(row.get("full_name", "")),
-        "selected_party": str(row.get("party", "")),
-        "selected_constituency": str(row.get("constituency", "")),
-        "max_length_score": int(row.get("_max_length_score", 0)),
+        "selection_mode": "synthetic_longest_value_per_field",
+        "stress_columns_requested": stress_columns,
+        "stress_columns_used": available,
+        "selected_full_name": clean_value(row.get("full_name", "")),
+        "selected_party": clean_value(row.get("party", "")),
+        "selected_constituency": clean_value(row.get("constituency", "")),
+        "synthetic_row": True,
         "input_rows": int(len(df)),
+        "field_sources": field_sources,
     }
-    return selected, metadata
+    return synthetic, metadata
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build a one-row max-length real-record fixture for Instagram template stress tests.")
+    parser = argparse.ArgumentParser(description="Build a one-row synthetic max-length fixture for Instagram template stress tests.")
     parser.add_argument("--source-table", required=True, help="CSV path or S3 URI for source member metrics.")
-    parser.add_argument("--output", required=True, help="Output CSV path for one selected row.")
+    parser.add_argument("--output", required=True, help="Output CSV path for one synthetic row.")
     parser.add_argument("--metadata-output", help="Optional JSON metadata path.")
     parser.add_argument("--aws-region", default=DEFAULT_REGION)
-    parser.add_argument("--score-columns", nargs="*", default=DEFAULT_SCORE_COLUMNS)
+    parser.add_argument("--score-columns", nargs="*", default=DEFAULT_STRESS_COLUMNS, help="Display fields to stress with their longest available values.")
     return parser.parse_args()
 
 
