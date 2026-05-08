@@ -1,12 +1,12 @@
 {
   "success": true,
-  "created_at": "2026-05-08T05:41:19.619140+00:00",
+  "created_at": "2026-05-08T06:02:23.356740+00:00",
   "copy_csv": "generated_posts/member_profile_batch_v1_fixture/copy/captions.csv",
   "queue_dir": "generated_posts/member_profile_batch_v1_fixture/queue",
   "publish_queue_csv": "generated_posts/member_profile_batch_v1_fixture/queue/publish_queue.csv",
   "blocked_items_csv": "generated_posts/member_profile_batch_v1_fixture/queue/blocked_items.csv",
   "queued_count": 0,
-  "blocked_count": 3,
+  "blocked_count": 1,
   "gate_rules": {
     "publish_ready": "must equal yes/true/1",
     "review_status": [
