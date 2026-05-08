@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
+import cairosvg
 import requests
 import yaml
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -123,8 +124,6 @@ def fit_text(
         too_many_lines = bool(max_lines and len(wrapped_lines) > max_lines)
         lines = wrapped_lines
 
-        # If shrink_to_fit is enabled, first try smaller font sizes until the
-        # text fits the requested line count. Only ellipsize at the minimum size.
         if too_many_lines and (not shrink or size <= min_size):
             lines = wrapped_lines[:max_lines]
             lines[-1] = ellipsize_to_width(draw, lines[-1], font, width)
@@ -180,11 +179,25 @@ def draw_text_element(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bin
         cursor_y += line_height + spacing
 
 
-def load_image(reference: str, warnings: list[str]) -> Image.Image | None:
+def _svg_to_image(reference: str, width: int, height: int) -> Image.Image:
+    if reference.startswith(("http://", "https://")):
+        response = requests.get(reference, timeout=20)
+        response.raise_for_status()
+        png_bytes = cairosvg.svg2png(bytestring=response.content, output_width=width, output_height=height)
+    else:
+        png_bytes = cairosvg.svg2png(url=str(Path(reference)), output_width=width, output_height=height)
+    return Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+
+
+def load_image(reference: str, warnings: list[str], width: int | None = None, height: int | None = None) -> Image.Image | None:
     if not reference:
         warnings.append("missing_image_reference")
         return None
     try:
+        if reference.lower().endswith(".svg"):
+            if width is None or height is None:
+                width = height = 300
+            return _svg_to_image(reference, width, height)
         if reference.startswith(("http://", "https://")):
             response = requests.get(reference, timeout=20)
             response.raise_for_status()
@@ -206,6 +219,21 @@ def rounded_mask(width: int, height: int, radius: int) -> Image.Image:
     return mask
 
 
+def apply_image_transforms(image: Image.Image, element: Mapping[str, Any]) -> Image.Image:
+    if bool(element.get("flip_horizontal", False)):
+        image = ImageOps.mirror(image)
+    if bool(element.get("flip_vertical", False)):
+        image = ImageOps.flip(image)
+    rotate = int(element.get("rotate", 0) or 0) % 360
+    if rotate:
+        image = image.rotate(-rotate, expand=False, resample=Image.Resampling.BICUBIC)
+    opacity = element.get("opacity")
+    if opacity is not None:
+        alpha = image.getchannel("A").point(lambda p: int(p * float(opacity)))
+        image.putalpha(alpha)
+    return image
+
+
 def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bindings: Mapping[str, Any], palette: Mapping[str, str], warnings: list[str]) -> None:
     placeholder = element.get("placeholder")
     reference = str(bindings.get(placeholder, "") if placeholder else element.get("source", ""))
@@ -221,7 +249,7 @@ def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Ma
         else:
             draw.rectangle(box, fill=background)
 
-    image = load_image(reference, warnings)
+    image = load_image(reference, warnings, w, h)
     if image is None:
         draw.line((x + 24, y + 24, x + w - 24, y + h - 24), fill="#ffffff", width=3)
         draw.line((x + w - 24, y + 24, x + 24, y + h - 24), fill="#ffffff", width=3)
@@ -232,10 +260,11 @@ def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Ma
         pasted = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         pasted.alpha_composite(image, ((w - image.width) // 2, (h - image.height) // 2))
         image = pasted
-    elif fit == "stretch":
+    elif fit == "stretch" or reference.lower().endswith(".svg"):
         image = image.resize((w, h), Image.Resampling.LANCZOS)
     else:
         image = ImageOps.fit(image, (w, h), method=Image.Resampling.LANCZOS)
+    image = apply_image_transforms(image, element)
     radius = int(element.get("radius", 0) or 0)
     mask = rounded_mask(w, h, radius) if radius else image.getchannel("A")
     base.paste(image, (x, y), mask)
@@ -306,7 +335,7 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
         "width": width,
         "height": height,
         "template_id": template.get("template_id"),
-        "renderer_version": "1.0",
+        "renderer_version": "1.1-svg-assets",
         "warnings": warnings,
     }, indent=2), encoding="utf-8")
 
@@ -319,11 +348,6 @@ def render_template_file(
     output_path: str | Path,
     palette_override: str | None = None,
 ) -> dict[str, Any]:
-    """Load a JSON template plus YAML/JSON bindings and render a PNG.
-
-    This wrapper is used by campaign renderers and workflows. It returns the
-    render manifest as a plain dict for easy review-table use.
-    """
     template = load_json(template_path)
     if palette_override:
         template = dict(template)
