@@ -44,7 +44,7 @@ jobs:
           MAX_FIXTURE_META="${MAX_FIXTURE_DIR}/member_profile_metrics_max_length.metadata.json"
           OUTPUT_ROOT=$(python -c 'import sys, yaml; spec=yaml.safe_load(open(sys.argv[1], encoding="utf-8")); print(spec.get("render", {}).get("output_root") or ("generated_posts/" + str(spec.get("campaign", "campaign"))))' "${SPEC_PATH}")
           RUN_LABEL="run-${GITHUB_RUN_ID}"
-          mkdir -p workflow_debug "${MAX_FIXTURE_DIR}" instagram/assets/corners
+          mkdir -p workflow_debug "${MAX_FIXTURE_DIR}"
           {
             echo "campaign_slug=${CAMPAIGN_SLUG}"
             echo "spec_path=${SPEC_PATH}"
@@ -59,13 +59,9 @@ jobs:
               --metadata-output "${MAX_FIXTURE_META}" \
               --aws-region "${AWS_REGION}"
             cp "${MAX_FIXTURE_META}" workflow_debug/max_length_fixture_metadata.json
-            base64 -d "instagram/assets/corners/celtic_corner_white_v1.png.b64" > "instagram/assets/corners/celtic_corner_white_v1.png"
-            python - <<'PY'
-          from PIL import Image
-          img = Image.open("instagram/assets/corners/celtic_corner_white_v1.png")
-          alpha = img.getchannel("A")
-          print({"corner_asset_mode": img.mode, "corner_asset_size": img.size, "alpha_extrema": alpha.getextrema()})
-          PY
+            python process/instagram_restore_celtic_corner_png.py \
+              --input "instagram/assets/corners/celtic_corner_white_v1.png.b64" \
+              --output "instagram/assets/corners/celtic_corner_white_v1.png"
             python process/instagram_render_campaign.py \
               --campaign "${SPEC_PATH}" \
               --limit "1"
