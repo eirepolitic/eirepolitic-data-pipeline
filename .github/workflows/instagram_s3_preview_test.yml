@@ -84,7 +84,9 @@ jobs:
           set -euo pipefail
           python process/instagram_restore_base64_asset.py \
             --input "${CORNER_B64}" \
-            --output "${CORNER_PNG}"
+            --output "${CORNER_PNG}" \
+            --verify-image \
+            --fallback-variant "${SELECTED_CORNER}" | tee workflow_debug/corner_asset_restore.json
           python - <<'PY'
           import json
           import os
