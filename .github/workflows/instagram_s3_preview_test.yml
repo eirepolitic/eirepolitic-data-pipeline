@@ -43,7 +43,7 @@ jobs:
           MAX_FIXTURE_PATH="${MAX_FIXTURE_DIR}/member_profile_metrics_max_length.csv"
           MAX_FIXTURE_META="${MAX_FIXTURE_DIR}/member_profile_metrics_max_length.metadata.json"
           OUTPUT_ROOT=$(python -c 'import sys, yaml; spec=yaml.safe_load(open(sys.argv[1], encoding="utf-8")); print(spec.get("render", {}).get("output_root") or ("generated_posts/" + str(spec.get("campaign", "campaign"))))' "${SPEC_PATH}")
-          SELECTED_CORNER="c"
+          SELECTED_CORNER="b"
           CORNER_B64="instagram/assets/corners/gpt/celtic_corner_gpt_v1_${SELECTED_CORNER}.png.b64"
           CORNER_PNG="instagram/assets/corners/gpt/celtic_corner_gpt_v1_${SELECTED_CORNER}.png"
           RUN_LABEL="run-${GITHUB_RUN_ID}"
