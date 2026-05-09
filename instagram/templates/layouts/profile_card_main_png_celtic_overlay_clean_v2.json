@@ -1,0 +1,251 @@
+{
+  "schema_version": "1.0",
+  "template_id": "profile_card_main_png_celtic_overlay_clean_v2",
+  "description": "Clean profile card with no built-in corner decorations; transparent PNG Celtic corners are applied only after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.panel_background}"
+  },
+  "elements": [
+    {
+      "id": "member_photo",
+      "type": "image",
+      "placeholder": "member_photo",
+      "x": 248,
+      "y": 92,
+      "w": 584,
+      "h": 560,
+      "fit": "cover",
+      "radius": 0,
+      "background": "{palette.panel_background_alt}"
+    },
+    {
+      "id": "photo_border",
+      "type": "rectangle",
+      "x": 242,
+      "y": 86,
+      "w": 596,
+      "h": 572,
+      "radius": 0,
+      "fill": null,
+      "stroke": "{palette.border}",
+      "width": 6
+    },
+    {
+      "id": "member_name",
+      "type": "text",
+      "placeholder": "member_name",
+      "x": 80,
+      "y": 680,
+      "w": 920,
+      "h": 116,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 66,
+        "min_font_size": 36,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "name_rule",
+      "type": "line",
+      "x": 160,
+      "y": 814,
+      "w": 760,
+      "h": 0,
+      "fill": "{palette.border}",
+      "width": 6
+    },
+    {
+      "id": "constituency_label",
+      "type": "text",
+      "text": "Constituency:",
+      "x": 150,
+      "y": 844,
+      "w": 340,
+      "h": 58,
+      "style": {
+        "font_size": 34,
+        "min_font_size": 22,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "constituency",
+      "type": "text",
+      "placeholder": "constituency",
+      "x": 520,
+      "y": 844,
+      "w": 410,
+      "h": 58,
+      "style": {
+        "font_size": 38,
+        "min_font_size": 21,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "party_label",
+      "type": "text",
+      "text": "Party:",
+      "x": 150,
+      "y": 936,
+      "w": 340,
+      "h": 58,
+      "style": {
+        "font_size": 34,
+        "min_font_size": 22,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "party",
+      "type": "text",
+      "placeholder": "party",
+      "x": 520,
+      "y": 936,
+      "w": 410,
+      "h": 58,
+      "style": {
+        "font_size": 38,
+        "min_font_size": 20,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "top_issue_label",
+      "type": "text",
+      "text": "Top Issue:",
+      "x": 150,
+      "y": 1028,
+      "w": 340,
+      "h": 58,
+      "style": {
+        "font_size": 34,
+        "min_font_size": 22,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "top_issue",
+      "type": "text",
+      "placeholder": "top_issue",
+      "x": 520,
+      "y": 1028,
+      "w": 410,
+      "h": 58,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 38,
+        "min_font_size": 20,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "vote_participation",
+      "type": "text",
+      "placeholder": "vote_participation",
+      "x": 150,
+      "y": 1160,
+      "w": 340,
+      "h": 72,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 38,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "vote_label",
+      "type": "text",
+      "text": "Vote Participation %",
+      "x": 130,
+      "y": 1230,
+      "w": 380,
+      "h": 42,
+      "style": {
+        "font_size": 26,
+        "min_font_size": 18,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "speech_rank",
+      "type": "text",
+      "placeholder": "speech_rank",
+      "x": 590,
+      "y": 1160,
+      "w": 340,
+      "h": 72,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 38,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "speech_label",
+      "type": "text",
+      "text": "Speech Rank",
+      "x": 570,
+      "y": 1230,
+      "w": 380,
+      "h": 42,
+      "style": {
+        "font_size": 26,
+        "min_font_size": 18,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    }
+  ]
+}
