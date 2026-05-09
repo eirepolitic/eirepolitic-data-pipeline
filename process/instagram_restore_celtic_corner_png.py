@@ -10,7 +10,13 @@ from PIL import Image, ImageDraw
 CREAM_WHITE = (244, 234, 215, 255)
 
 
-def _cubic(p0: tuple[float, float], p1: tuple[float, float], p2: tuple[float, float], p3: tuple[float, float], steps: int = 120) -> list[tuple[int, int]]:
+def _cubic(
+    p0: tuple[float, float],
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    p3: tuple[float, float],
+    steps: int = 100,
+) -> list[tuple[int, int]]:
     points: list[tuple[int, int]] = []
     for i in range(steps + 1):
         t = i / steps
@@ -26,63 +32,66 @@ def _draw_curve(draw: ImageDraw.ImageDraw, points: list[tuple[int, int]], width:
 
 
 def _draw_compact_fallback_asset(output_path: Path) -> None:
-    """Create a compact transparent corner asset only when the committed PNG is absent.
+    """Create a minimal transparent corner ornament.
 
-    The preview workflow normally restores the committed image-derived transparent PNG.
-    This fallback keeps the workflow review-only and avoids using the older full-frame
-    procedural corner generator.
+    This intentionally avoids full-width top/bottom/side lines. The artwork stays
+    inside the corner area so the final card reads as four small ornaments rather
+    than a continuous Celtic frame.
     """
-    scale = 3
     size = 512
-    canvas = Image.new("RGBA", (size * scale, size * scale), (0, 0, 0, 0))
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
 
-    def s(points: list[tuple[int, int]]) -> list[tuple[int, int]]:
-        return [(x * scale, y * scale) for x, y in points]
-
-    def c(p0, p1, p2, p3, steps=120):
-        return s(_cubic(p0, p1, p2, p3, steps))
-
-    # Corner knot cluster.
-    for box in [(26, 26, 130, 130), (82, 26, 186, 130), (26, 82, 130, 186), (72, 72, 176, 176)]:
-        draw.rounded_rectangle(tuple(v * scale for v in box), radius=36 * scale, outline=CREAM_WHITE, width=11 * scale)
-
-    # Shorter, image-asset-like flourishes: enough ornament without forming a frame.
-    for pts in [
-        c((116, 56), (190, 20), (285, 30), (340, 84)),
-        c((162, 116), (242, 162), (318, 152), (392, 86)),
-        c((110, 152), (182, 212), (286, 214), (354, 148)),
-        c((56, 116), (20, 190), (30, 285), (84, 340)),
-        c((116, 162), (162, 242), (152, 318), (86, 392)),
-        c((152, 110), (212, 182), (214, 286), (148, 354)),
+    # Small knot cluster, inset from the actual edges.
+    for box in [
+        (42, 42, 142, 142),
+        (98, 42, 198, 142),
+        (42, 98, 142, 198),
     ]:
-        _draw_curve(draw, pts, 11 * scale)
+        draw.rounded_rectangle(box, radius=32, outline=CREAM_WHITE, width=10)
 
-    # Small terminal curls.
+    # Short flourishes only; none run far enough to become frame rails.
     for pts in [
-        c((330, 83), (390, 38), (444, 42), (478, 82), 80),
-        c((83, 330), (38, 390), (42, 444), (82, 478), 80),
-        c((244, 72), (306, 44), (356, 48), (410, 92), 80),
-        c((72, 244), (44, 306), (48, 356), (92, 410), 80),
+        _cubic((146, 72), (205, 42), (268, 54), (316, 104)),
+        _cubic((146, 128), (202, 172), (265, 166), (324, 112)),
+        _cubic((72, 146), (42, 205), (54, 268), (104, 316)),
+        _cubic((128, 146), (172, 202), (166, 265), (112, 324)),
+        _cubic((112, 92), (158, 120), (206, 112), (246, 82)),
+        _cubic((92, 112), (120, 158), (112, 206), (82, 246)),
     ]:
-        _draw_curve(draw, pts, 6 * scale)
+        _draw_curve(draw, pts, 14)
 
-    image = canvas.resize((size, size), Image.Resampling.LANCZOS)
+    # Small terminal curls, kept away from the card edges.
+    for pts in [
+        _cubic((306, 102), (340, 72), (378, 74), (404, 106), 70),
+        _cubic((102, 306), (72, 340), (74, 378), (106, 404), 70),
+        _cubic((235, 84), (280, 58), (318, 62), (350, 92), 70),
+        _cubic((84, 235), (58, 280), (62, 318), (92, 350), 70),
+    ]:
+        _draw_curve(draw, pts, 8)
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output_path, format="PNG", optimize=True)
+    canvas.save(output_path, format="PNG", optimize=True)
 
 
-def restore_asset(input_path: str | Path, output_path: str | Path) -> dict[str, object]:
+def restore_asset(
+    input_path: str | Path,
+    output_path: str | Path,
+    prefer_generated: bool = False,
+) -> dict[str, object]:
     input_path = Path(input_path)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    source = "committed_b64"
-    if input_path.exists():
+    if prefer_generated:
+        source = "minimal_generated"
+        _draw_compact_fallback_asset(output_path)
+    elif input_path.exists():
+        source = "committed_b64"
         raw = base64.b64decode("".join(input_path.read_text(encoding="utf-8").split()))
         output_path.write_bytes(raw)
     else:
-        source = "compact_fallback"
+        source = "minimal_generated_missing_b64"
         _draw_compact_fallback_asset(output_path)
 
     image = Image.open(output_path).convert("RGBA")
@@ -104,11 +113,16 @@ def restore_asset(input_path: str | Path, output_path: str | Path) -> dict[str, 
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Restore a committed transparent Celtic corner PNG asset.")
+    parser = argparse.ArgumentParser(description="Restore or generate a transparent Celtic corner PNG asset.")
     parser.add_argument("--input", default="instagram/assets/corners/celtic_corner_white_v1.png.b64")
     parser.add_argument("--output", default="instagram/assets/corners/celtic_corner_white_v1.png")
+    parser.add_argument(
+        "--prefer-generated",
+        action="store_true",
+        help="Generate the minimal no-frame corner asset even if the committed b64 asset exists.",
+    )
     args = parser.parse_args()
-    print(json.dumps(restore_asset(args.input, args.output), indent=2))
+    print(json.dumps(restore_asset(args.input, args.output, args.prefer_generated), indent=2))
 
 
 if __name__ == "__main__":
