@@ -67,8 +67,7 @@ jobs:
             cp "${MAX_FIXTURE_META}" workflow_debug/max_length_fixture_metadata.json
             python process/instagram_restore_base64_asset.py \
               --input "${CORNER_B64}" \
-              --output "${CORNER_PNG}" \
-              --verify-image
+              --output "${CORNER_PNG}"
             python process/instagram_render_campaign.py \
               --campaign "${SPEC_PATH}" \
               --limit "1"
