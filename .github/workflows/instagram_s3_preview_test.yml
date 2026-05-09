@@ -43,6 +43,9 @@ jobs:
           MAX_FIXTURE_PATH="${MAX_FIXTURE_DIR}/member_profile_metrics_max_length.csv"
           MAX_FIXTURE_META="${MAX_FIXTURE_DIR}/member_profile_metrics_max_length.metadata.json"
           OUTPUT_ROOT=$(python -c 'import sys, yaml; spec=yaml.safe_load(open(sys.argv[1], encoding="utf-8")); print(spec.get("render", {}).get("output_root") or ("generated_posts/" + str(spec.get("campaign", "campaign"))))' "${SPEC_PATH}")
+          SELECTED_CORNER="b"
+          CORNER_B64="instagram/assets/corners/gpt/celtic_corner_gpt_v1_${SELECTED_CORNER}.png.b64"
+          CORNER_PNG="instagram/assets/corners/gpt/celtic_corner_gpt_v1_${SELECTED_CORNER}.png"
           RUN_LABEL="run-${GITHUB_RUN_ID}"
           mkdir -p workflow_debug "${MAX_FIXTURE_DIR}"
           {
@@ -51,6 +54,9 @@ jobs:
             echo "output_root=${OUTPUT_ROOT}"
             echo "max_fixture_path=${MAX_FIXTURE_PATH}"
             echo "run_label=${RUN_LABEL}"
+            echo "selected_corner=${SELECTED_CORNER}"
+            echo "corner_b64=${CORNER_B64}"
+            echo "corner_png=${CORNER_PNG}"
             echo "aws_region=${AWS_REGION}"
             python --version
             python process/instagram_build_max_length_fixture.py \
@@ -59,20 +65,20 @@ jobs:
               --metadata-output "${MAX_FIXTURE_META}" \
               --aws-region "${AWS_REGION}"
             cp "${MAX_FIXTURE_META}" workflow_debug/max_length_fixture_metadata.json
-            python process/instagram_restore_celtic_corner_png.py \
-              --input "instagram/assets/corners/celtic_corner_white_v1.png.b64" \
-              --output "instagram/assets/corners/celtic_corner_white_v1.png" \
-              --prefer-generated
+            python process/instagram_restore_base64_asset.py \
+              --input "${CORNER_B64}" \
+              --output "${CORNER_PNG}" \
+              --verify-image
             python process/instagram_render_campaign.py \
               --campaign "${SPEC_PATH}" \
               --limit "1"
             python process/instagram_apply_corner_overlay.py \
               --output-root "${OUTPUT_ROOT}" \
-              --asset "instagram/assets/corners/celtic_corner_white_v1.png" \
+              --asset "${CORNER_PNG}" \
               --size "150" \
               --margin-x "24" \
               --margin-y "24" \
-              --opacity "0.82"
+              --opacity "0.88"
             python process/instagram_build_copy_pack.py \
               --review-table "${OUTPUT_ROOT}/review/review_table.csv" \
               --copy-dir "${OUTPUT_ROOT}/copy"
