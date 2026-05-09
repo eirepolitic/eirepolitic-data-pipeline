@@ -76,8 +76,8 @@ jobs:
               --output-root "${OUTPUT_ROOT}" \
               --asset "${CORNER_PNG}" \
               --size "150" \
-              --margin-x "24" \
-              --margin-y "24" \
+              --margin-x "8" \
+              --margin-y "8" \
               --opacity "0.88"
             python process/instagram_build_copy_pack.py \
               --review-table "${OUTPUT_ROOT}/review/review_table.csv" \
