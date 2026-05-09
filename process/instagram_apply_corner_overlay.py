@@ -76,8 +76,8 @@ def main() -> None:
     parser.add_argument("--output-root", required=True)
     parser.add_argument("--asset", default="instagram/assets/corners/celtic_corner_white_v1.png")
     parser.add_argument("--size", type=int, default=150)
-    parser.add_argument("--margin-x", type=int, default=24)
-    parser.add_argument("--margin-y", type=int, default=24)
+    parser.add_argument("--margin-x", type=int, default=8)
+    parser.add_argument("--margin-y", type=int, default=8)
     parser.add_argument("--opacity", type=float, default=0.82)
     args = parser.parse_args()
 
