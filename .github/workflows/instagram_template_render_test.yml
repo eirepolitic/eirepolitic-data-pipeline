@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_visual_v1"
+        default: "title_text_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_visual_v1}"
+          TEMPLATE="${TEMPLATE:-title_text_v1}"
           mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import math
@@ -96,7 +96,8 @@ jobs:
 
           bindings = {
               "bindings": {
-                  "slide_title": "Example One-Visual Post",
+                  "slide_title": "Example Text Post",
+                  "body_text": "• Bullet point one shows the main idea\n• Bullet point two gives useful context\n• Bullet point three adds a clear takeaway\n• Bullet point four can support a longer post",
                   "main_visual": str(visual_path),
                   "main_media": str(visual_path),
                   "footer_text": "Template preview only | Eirepolitic data pipeline",
