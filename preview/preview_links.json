@@ -1,6 +1,6 @@
 {
   "success": true,
-  "created_at": "2026-05-09T08:24:08.961604+00:00",
+  "created_at": "2026-05-17T22:03:25.050031+00:00",
   "bucket": "eirepolitic-data",
   "region": "ca-central-1",
   "campaign_slug": "member_profile_batch_v1",
@@ -8,11 +8,11 @@
   "source": "local_output_root",
   "expires_in_seconds": 604800,
   "expires_in_days": 7.0,
-  "review_index_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_index.html?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3351193cc1591353c19c7ed7413cf1b20b23d93db370c45bd24f15f43193ca37",
+  "review_index_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_index.html?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=da5badee937a2210c9a3e3d957cc14c59a8c8962ae823c063087cd44228f5681",
   "png_urls": [
     {
       "relative_path": "png/jennifer-carroll-macneill.png",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=0bb19d5aa9be114e378224569c8ebcd8b9a33f50c9b0775ec5784ccec789222c"
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3109e4078290eaf510e853f5ea0c7a805b7bb2d1bd4085f757919dd3143f866e"
     }
   ],
   "files": [
@@ -21,7 +21,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/copy/captions.csv",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/copy/captions.csv",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/captions.csv",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/captions.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=58c2c1a47cf236b7d37da755b694e3f225db262d5d6666fbe0efa3ddd6d98af3",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/captions.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=fcc7ae9756204b627e2564fc816484b65bff749983a58bd26bbdc870b73d0ba9",
       "size_bytes": 1246,
       "last_modified": null
     },
@@ -30,7 +30,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/copy/copy_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/copy/copy_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/copy_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/copy_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=67cd7d26bb753b95a7f5fe2383295a479dd25ae968f836aa99909f95433b5daf",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/copy_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=17945c343f9f36bebc5d2a4fa7562a916662e0bc989bf91225ac52e9899c7487",
       "size_bytes": 2028,
       "last_modified": null
     },
@@ -39,7 +39,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.alt_text.txt",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.alt_text.txt",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.alt_text.txt",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.alt_text.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=739602b5387a6c105ba79ebc4415ca0ff9cc748a63470f91d6028e834de3fd9b",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.alt_text.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=ebf7951f3f844f81aef028fed1c0a420d87c3ff74dc3e8c3ccac087694deb3ce",
       "size_bytes": 278,
       "last_modified": null
     },
@@ -48,7 +48,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.caption.txt",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.caption.txt",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.caption.txt",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.caption.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=94799131e267833bc8d6c07d2be1382f4813a395052325546e910514069cb73d",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/copy/jennifer-carroll-macneill.caption.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=e415112cff69917f4b3cf961336a097cef13f022f4d2ddeddb9bf0258ccb1da2",
       "size_bytes": 385,
       "last_modified": null
     },
@@ -57,7 +57,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/metadata/bindings/jennifer-carroll-macneill.yml",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/metadata/bindings/jennifer-carroll-macneill.yml",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/bindings/jennifer-carroll-macneill.yml",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/bindings/jennifer-carroll-macneill.yml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=ebf82248d92c78daaba3c9cc736162b988ad97e19de034c7f26cab6e6b84542b",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/bindings/jennifer-carroll-macneill.yml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=c61b61ff590c315ec3c42b26e70a946114661ef394c129021af87e898fc30a59",
       "size_bytes": 505,
       "last_modified": null
     },
@@ -66,7 +66,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/metadata/corner_overlay_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/metadata/corner_overlay_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/corner_overlay_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/corner_overlay_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=27fcb5c011ab0d55e2c446f6c7635698609b96ea7a6a71fecd75781063eff86a",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/corner_overlay_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=230fc9ca729bc3ce9fff4219ceb872fd81787d441046de3050495690c19e19bc",
       "size_bytes": 413,
       "last_modified": null
     },
@@ -75,7 +75,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/metadata/manifests/jennifer-carroll-macneill.render_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/metadata/manifests/jennifer-carroll-macneill.render_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/manifests/jennifer-carroll-macneill.render_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/manifests/jennifer-carroll-macneill.render_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=db37fcce2a4fe19f96622d61df53a99b98ca892fba18bd3b39be13e926ba0d28",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/manifests/jennifer-carroll-macneill.render_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=1a0ff537e8c2e2ad745fe92474a160cd12aa291fd9efcbda0ebc81f9c424de95",
       "size_bytes": 271,
       "last_modified": null
     },
@@ -84,7 +84,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/metadata/source_values/jennifer-carroll-macneill.source_values.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/metadata/source_values/jennifer-carroll-macneill.source_values.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/source_values/jennifer-carroll-macneill.source_values.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/source_values/jennifer-carroll-macneill.source_values.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=c231f6bb280b5bc6ed6ac2f6c9941de4198c1ed84dd4143d723e99f53345e224",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/metadata/source_values/jennifer-carroll-macneill.source_values.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=17ddb0264b93d732c0039de3c33f91b3d666b2182ab42d4f5b4b5a8f234bde1e",
       "size_bytes": 741,
       "last_modified": null
     },
@@ -93,8 +93,8 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=0bb19d5aa9be114e378224569c8ebcd8b9a33f50c9b0775ec5784ccec789222c",
-      "size_bytes": 403019,
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/png/jennifer-carroll-macneill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3109e4078290eaf510e853f5ea0c7a805b7bb2d1bd4085f757919dd3143f866e",
+      "size_bytes": 410589,
       "last_modified": null
     },
     {
@@ -102,7 +102,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/preview_upload_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/preview_upload_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/preview_upload_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/preview_upload_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=0e8a7f4d2aa9cc501cd44eef4fa714de50cccecfec6c19c71865effd48ec225f",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/preview_upload_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=217dbc834bb88994b1beeb694097b481c842a6c10d4eda547611190041729759",
       "size_bytes": 7387,
       "last_modified": null
     },
@@ -111,7 +111,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/queue/blocked_items.csv",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/queue/blocked_items.csv",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/blocked_items.csv",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/blocked_items.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=7ee552aac702d622c384038bbc56c1c2c0bc0da90425c51b4a0982fe20c9bae2",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/blocked_items.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=2af4cc68ef45378a345506161b731ce9f07e6114361b42b74fc6ed865e7061a7",
       "size_bytes": 1279,
       "last_modified": null
     },
@@ -120,7 +120,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/queue/publish_queue.csv",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue.csv",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue.csv",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=2051ab51a4a062265aa24cba2fa36f5e4a95cb80444afcdf31230f5067b71704",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=b4eb4656e7dd92daf6c1afccd714c08292e8299cfe2b2fc7ce3df0f7e6e5ba05",
       "size_bytes": 4,
       "last_modified": null
     },
@@ -129,7 +129,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/queue/publish_queue_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=424bcc35fa7ea4ed32628a6ca9c87ef7c77f28966990c8064d5cf3e356b4ac22",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/queue/publish_queue_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=42b9bd5db22882b3e642ed23793ce95e94d0897a2cd77f5dacf35674070d2aa9",
       "size_bytes": 987,
       "last_modified": null
     },
@@ -138,7 +138,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/review/review_index.html",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/review/review_index.html",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_index.html",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_index.html?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3351193cc1591353c19c7ed7413cf1b20b23d93db370c45bd24f15f43193ca37",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_index.html?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=da5badee937a2210c9a3e3d957cc14c59a8c8962ae823c063087cd44228f5681",
       "size_bytes": 1635,
       "last_modified": null
     },
@@ -147,7 +147,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/review/review_manifest.json",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/review/review_manifest.json",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_manifest.json",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=11289c64e11e35ec85e9f928e4470caf4c8220d04cd819a68397b8042ae2228c",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_manifest.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a94e2c945b360af8587c10b48ada2b46a77e90d11ebd4a0ddb8afd701d561b51",
       "size_bytes": 2162,
       "last_modified": null
     },
@@ -156,7 +156,7 @@
       "s3_key": "instagram/previews/member_profile_batch_v1/latest/review/review_table.csv",
       "s3_uri": "s3://eirepolitic-data/instagram/previews/member_profile_batch_v1/latest/review/review_table.csv",
       "public_style_url": "https://eirepolitic-data.s3.ca-central-1.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_table.csv",
-      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_table.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260509%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260509T082408Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=67e61ebf52f2a86b5eaa34131e2c3355fa5e045a62aac2fb1ace9eabc3991fcc",
+      "presigned_url": "https://eirepolitic-data.s3.amazonaws.com/instagram/previews/member_profile_batch_v1/latest/review/review_table.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZPEOI4CA3GNONMQE%2F20260517%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20260517T220325Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=347d04fd6cf6d492b1c33e90a54b2f9e3e4b19bf8df59a9c794bca45a92cc645",
       "size_bytes": 1011,
       "last_modified": null
     }
