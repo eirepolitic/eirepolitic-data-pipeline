@@ -1,0 +1,191 @@
+name: Instagram One Visual Template Preview (Manual)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: instagram-one-visual-template-preview
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  preview_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TEMPLATE_PATH: "instagram/templates/layouts/one_visual_title_v1.json"
+      OUTPUT_ROOT: "generated_posts/one_visual_title_v1_preview"
+      PREVIEW_SLUG: "one-visual-title-v1"
+      CORNER_B64: "instagram/assets/corners/gpt/celtic_corner_gpt_v1_b.png.b64"
+      CORNER_PNG: "instagram/assets/corners/gpt/celtic_corner_gpt_v1_b.png"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build example visual and bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
+          python - <<'PY'
+          from pathlib import Path
+          import math
+          import yaml
+          from PIL import Image, ImageDraw, ImageFont
+
+          output_root = Path("generated_posts/one_visual_title_v1_preview")
+          visual_path = output_root / "input" / "example-main-visual.png"
+          bindings_path = output_root / "metadata" / "bindings" / "one-visual-title-v1.yml"
+
+          w, h = 1600, 1100
+          image = Image.new("RGB", (w, h), "#214a3b")
+          draw = ImageDraw.Draw(image)
+          draw.rectangle((0, 0, w, int(h * 0.58)), fill="#3b725c")
+          draw.rectangle((0, int(h * 0.58), w, h), fill="#173d30")
+          draw.ellipse((170, 120, 410, 360), fill="#d8b45f")
+
+          hill = []
+          for x in range(0, w + 1, 8):
+              t = x / w
+              y = int(h * 0.66 + math.sin(t * math.pi) * 110)
+              hill.append((x, y))
+          hill.extend([(w, h), (0, h)])
+          draw.polygon(hill, fill="#0f2f24")
+
+          try:
+              title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 92)
+              sub_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 42)
+          except Exception:
+              title_font = ImageFont.load_default()
+              sub_font = ImageFont.load_default()
+
+          label = "MAIN VISUAL"
+          sub = "example image / chart area"
+          label_box = draw.textbbox((0, 0), label, font=title_font)
+          sub_box = draw.textbbox((0, 0), sub, font=sub_font)
+          draw.rounded_rectangle((360, 760, 1240, 1000), radius=36, fill="#173d30")
+          draw.text(((w - (label_box[2] - label_box[0])) // 2, 800), label, fill="#f4ead7", font=title_font)
+          draw.text(((w - (sub_box[2] - sub_box[0])) // 2, 915), sub, fill="#cbbf9f", font=sub_font)
+
+          visual_path.parent.mkdir(parents=True, exist_ok=True)
+          image.save(visual_path, format="PNG")
+
+          bindings = {
+              "bindings": {
+                  "slide_title": "Example One-Visual Post",
+                  "main_visual": str(visual_path),
+              }
+          }
+          bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False), encoding="utf-8")
+          print(f"visual={visual_path}")
+          print(f"bindings={bindings_path}")
+          PY
+
+      - name: Restore standard corner asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/instagram_restore_base64_asset.py \
+            --input "${CORNER_B64}" \
+            --output "${CORNER_PNG}" \
+            --verify-image | tee workflow_debug/corner_asset_restore.json
+
+      - name: Render one visual template
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from instagram.renderer.template_renderer import render_template_file
+
+          template_path = Path("instagram/templates/layouts/one_visual_title_v1.json")
+          bindings_path = Path("generated_posts/one_visual_title_v1_preview/metadata/bindings/one-visual-title-v1.yml")
+          output_path = Path("generated_posts/one_visual_title_v1_preview/png/one-visual-title-v1.png")
+          manifest = render_template_file(template_path, bindings_path, output_path, "eirepolitic_dark")
+          Path("workflow_debug/render_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Apply standard corner overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/instagram_apply_corner_overlay.py \
+            --output-root "${OUTPUT_ROOT}" \
+            --asset "${CORNER_PNG}" \
+            --size "150" \
+            --margin-x "8" \
+            --margin-y "8" \
+            --opacity "0.88" | tee workflow_debug/corner_overlay_manifest.json
+
+      - name: Publish one-click preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREVIEW_BRANCH="instagram-preview-output"
+          PREVIEW_DIR="preview"
+          rm -rf /tmp/instagram-preview-worktree
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "${PREVIEW_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${PREVIEW_BRANCH}:${PREVIEW_BRANCH}"
+            git worktree add /tmp/instagram-preview-worktree "${PREVIEW_BRANCH}"
+          else
+            git worktree add --detach /tmp/instagram-preview-worktree HEAD
+            git -C /tmp/instagram-preview-worktree switch --orphan "${PREVIEW_BRANCH}"
+            git -C /tmp/instagram-preview-worktree rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p "/tmp/instagram-preview-worktree/${PREVIEW_DIR}"
+          rm -rf "/tmp/instagram-preview-worktree/${PREVIEW_DIR:?}/"*
+          cp -R "${OUTPUT_ROOT}/." "/tmp/instagram-preview-worktree/${PREVIEW_DIR}/"
+          python - "/tmp/instagram-preview-worktree/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${PREVIEW_SLUG}" <<'PY'
+          import sys
+          from pathlib import Path
+
+          readme_path = Path(sys.argv[1])
+          repo = sys.argv[2]
+          branch = sys.argv[3]
+          preview_dir = sys.argv[4]
+          preview_slug = sys.argv[5]
+          lines = [
+              "# Instagram template preview output",
+              "",
+              "This branch is machine-updated by review-only Instagram preview workflows.",
+              "",
+              "Latest one-visual title preview:",
+              f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/png/{preview_slug}.png",
+              "",
+              "Corner overlay manifest:",
+              f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/metadata/corner_overlay_manifest.json",
+              "",
+              "Review only: this does not publish, schedule, or approve Instagram content.",
+              "",
+          ]
+          readme_path.write_text("\n".join(lines), encoding="utf-8")
+          PY
+          git -C /tmp/instagram-preview-worktree add .
+          git -C /tmp/instagram-preview-worktree commit -m "Update one visual template preview for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/instagram-preview-worktree push origin "${PREVIEW_BRANCH}"
+
+      - name: Upload local copy of preview outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-one-visual-template-preview-output
+          path: |
+            generated_posts/**
+            workflow_debug/
+          if-no-files-found: warn
