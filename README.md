@@ -1,11 +1,11 @@
-# Instagram preview output
+# Instagram template preview output
 
-This branch is machine-updated by the review-only Instagram S3 preview workflow.
+This branch is machine-updated by review-only Instagram preview workflows.
 
-Latest review index:
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/review/review_index.html
+Latest template preview:
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/one_visual_title_v1.png
 
-Latest PNG previews:
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/jennifer-carroll-macneill.png
+Corner overlay manifest:
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/metadata/corner_overlay_manifest.json
 
 Review only: this does not publish, schedule, or approve Instagram content.
