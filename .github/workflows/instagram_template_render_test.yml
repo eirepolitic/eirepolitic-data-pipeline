@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "one_visual_title_v1"
+        default: "title_visual_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-one_visual_title_v1}"
+          TEMPLATE="${TEMPLATE:-title_visual_v1}"
           mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import math
