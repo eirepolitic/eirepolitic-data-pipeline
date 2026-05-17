@@ -20,7 +20,7 @@ jobs:
       AWS_REGION: "ca-central-1"
       S3_BUCKET: "eirepolitic-data"
       CAMPAIGN_SLUG: "member_profile_batch_v1"
-      SELECTED_CORNER: "a"
+      SELECTED_CORNER: "b"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -85,8 +85,7 @@ jobs:
           python process/instagram_restore_base64_asset.py \
             --input "${CORNER_B64}" \
             --output "${CORNER_PNG}" \
-            --verify-image \
-            --fallback-variant "${SELECTED_CORNER}" | tee workflow_debug/corner_asset_restore.json
+            --verify-image | tee workflow_debug/corner_asset_restore.json
           python - <<'PY'
           import json
           import os
