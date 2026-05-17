@@ -8,7 +8,7 @@ variation:
 data:
   source_table: s3://eirepolitic-data/processed/members/member_profile_metrics_2025.csv
 render:
-  template: instagram/templates/layouts/profile_card_v1.json
+  template: instagram/templates/layouts/title_visual_info_v1.json
   output_root: generated_posts/member_profile_batch_v1
   palette: eirepolitic_dark
 review:
