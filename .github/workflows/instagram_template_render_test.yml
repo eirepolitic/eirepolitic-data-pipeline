@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "profile_card_v1"
+        default: "one_visual_title_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -17,12 +17,18 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   render_template:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      OUTPUT_ROOT: "generated_posts/template_render_test"
+      PREVIEW_BRANCH: "instagram-preview-output"
+      PREVIEW_DIR: "preview"
+      CORNER_B64: "instagram/assets/corners/gpt/celtic_corner_gpt_v1_b.png.b64"
+      CORNER_PNG: "instagram/assets/corners/gpt/celtic_corner_gpt_v1_b.png"
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -37,25 +43,163 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Build example binding assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEMPLATE="${{ inputs.template }}"
+          TEMPLATE="${TEMPLATE:-one_visual_title_v1}"
+          mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
+          python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
+          import math
+          import sys
+          from pathlib import Path
+
+          import yaml
+          from PIL import Image, ImageDraw, ImageFont
+
+          output_root = Path(sys.argv[1])
+          template = sys.argv[2]
+          visual_path = output_root / "input" / "example-main-visual.png"
+          bindings_path = output_root / "metadata" / "bindings" / f"{template}.yml"
+
+          visual = Image.new("RGB", (1600, 1100), "#214a3b")
+          draw = ImageDraw.Draw(visual)
+          draw.rectangle((0, 0, 1600, 620), fill="#3b725c")
+          draw.rectangle((0, 620, 1600, 1100), fill="#173d30")
+          draw.ellipse((170, 120, 410, 360), fill="#d8b45f")
+          hill = []
+          for x in range(0, 1601, 8):
+              t = x / 1600
+              y = int(720 + math.sin(t * math.pi) * 110)
+              hill.append((x, y))
+          hill.extend([(1600, 1100), (0, 1100)])
+          draw.polygon(hill, fill="#0f2f24")
+
+          try:
+              title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 92)
+              sub_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 42)
+          except Exception:
+              title_font = ImageFont.load_default()
+              sub_font = ImageFont.load_default()
+
+          label = "MAIN VISUAL"
+          sub = "example image / chart area"
+          label_box = draw.textbbox((0, 0), label, font=title_font)
+          sub_box = draw.textbbox((0, 0), sub, font=sub_font)
+          draw.rounded_rectangle((360, 760, 1240, 1000), radius=36, fill="#173d30")
+          draw.text(((1600 - (label_box[2] - label_box[0])) // 2, 800), label, fill="#f4ead7", font=title_font)
+          draw.text(((1600 - (sub_box[2] - sub_box[0])) // 2, 915), sub, fill="#cbbf9f", font=sub_font)
+
+          visual_path.parent.mkdir(parents=True, exist_ok=True)
+          visual.save(visual_path, format="PNG")
+
+          bindings = {
+              "bindings": {
+                  "slide_title": "Example One-Visual Post",
+                  "main_visual": str(visual_path),
+                  "main_media": str(visual_path),
+                  "footer_text": "Template preview only | Eirepolitic data pipeline",
+                  "member_name": "Example Member",
+                  "party": "Example Party",
+                  "constituency": "Example Constituency",
+                  "member_photo": str(visual_path),
+                  "top_issue": "Example Issue",
+                  "vote_participation": "87%",
+                  "speech_rank": "4th",
+                  "speech_count_text": "126 issue-labelled speeches in 2025"
+              }
+          }
+          bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
+          print(f"visual_path={visual_path}")
+          print(f"bindings_path={bindings_path}")
+          PY
+          echo "TEMPLATE=${TEMPLATE}" >> "${GITHUB_ENV}"
+
+      - name: Restore standard corner asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/instagram_restore_base64_asset.py \
+            --input "${CORNER_B64}" \
+            --output "${CORNER_PNG}" \
+            --verify-image | tee workflow_debug/corner_asset_restore.json
+
       - name: Render template with fake bindings
         shell: bash
         run: |
-          set -o pipefail
-          TEMPLATE="${{ inputs.template }}"
+          set -euo pipefail
           PALETTE="${{ inputs.palette }}"
-          TEMPLATE="${TEMPLATE:-profile_card_v1}"
           PALETTE="${PALETTE:-eirepolitic_dark}"
-          mkdir -p workflow_debug
           {
             echo "template=${TEMPLATE}"
             echo "palette=${PALETTE}"
             python --version
             python process/instagram_render_template.py \
               --template "instagram/templates/layouts/${TEMPLATE}.json" \
-              --bindings "instagram/specs/template_render_test.yml" \
+              --bindings "${OUTPUT_ROOT}/metadata/bindings/${TEMPLATE}.yml" \
               --palette "${PALETTE}" \
-              --output "generated_posts/template_render_test/png/${TEMPLATE}.png"
+              --output "${OUTPUT_ROOT}/png/${TEMPLATE}.png"
           } 2>&1 | tee workflow_debug/template_render.log
+
+      - name: Apply standard corner overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/instagram_apply_corner_overlay.py \
+            --output-root "${OUTPUT_ROOT}" \
+            --asset "${CORNER_PNG}" \
+            --size "150" \
+            --margin-x "8" \
+            --margin-y "8" \
+            --opacity "0.88" | tee workflow_debug/corner_overlay_manifest.json
+
+      - name: Publish one-click preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/instagram-preview-worktree
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "${PREVIEW_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${PREVIEW_BRANCH}:${PREVIEW_BRANCH}"
+            git worktree add /tmp/instagram-preview-worktree "${PREVIEW_BRANCH}"
+          else
+            git worktree add --detach /tmp/instagram-preview-worktree HEAD
+            git -C /tmp/instagram-preview-worktree switch --orphan "${PREVIEW_BRANCH}"
+            git -C /tmp/instagram-preview-worktree rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p "/tmp/instagram-preview-worktree/${PREVIEW_DIR}"
+          rm -rf "/tmp/instagram-preview-worktree/${PREVIEW_DIR:?}/"*
+          cp -R "${OUTPUT_ROOT}/." "/tmp/instagram-preview-worktree/${PREVIEW_DIR}/"
+          python - "/tmp/instagram-preview-worktree/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${TEMPLATE}" <<'PY'
+          import sys
+          from pathlib import Path
+
+          readme_path = Path(sys.argv[1])
+          repo = sys.argv[2]
+          branch = sys.argv[3]
+          preview_dir = sys.argv[4]
+          template = sys.argv[5]
+          lines = [
+              "# Instagram template preview output",
+              "",
+              "This branch is machine-updated by review-only Instagram preview workflows.",
+              "",
+              "Latest template preview:",
+              f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/png/{template}.png",
+              "",
+              "Corner overlay manifest:",
+              f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/metadata/corner_overlay_manifest.json",
+              "",
+              "Review only: this does not publish, schedule, or approve Instagram content.",
+              "",
+          ]
+          readme_path.write_text("\n".join(lines), encoding="utf-8")
+          PY
+          git -C /tmp/instagram-preview-worktree add .
+          git -C /tmp/instagram-preview-worktree commit -m "Update template render preview for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/instagram-preview-worktree push origin "${PREVIEW_BRANCH}"
 
       - name: Upload rendered template
         if: always()
