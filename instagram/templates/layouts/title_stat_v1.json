@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "template_id": "title_stat_v1",
+  "description": "Title-above-key-stat post layout. No built-in corner decorations; standard corner overlay is applied after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.panel_background}"
+  },
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "placeholder": "slide_title",
+      "x": 80,
+      "y": 95,
+      "w": 920,
+      "h": 130,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "stat_panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 245,
+      "w": 920,
+      "h": 1010,
+      "radius": 0,
+      "fill": "{palette.panel_background_alt}",
+      "stroke": null,
+      "width": 0
+    },
+    {
+      "id": "stat_value",
+      "type": "text",
+      "placeholder": "stat_value",
+      "x": 120,
+      "y": 360,
+      "w": 840,
+      "h": 250,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 150,
+        "min_font_size": 74,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "stat_label",
+      "type": "text",
+      "placeholder": "stat_label",
+      "x": 130,
+      "y": 630,
+      "w": 820,
+      "h": 130,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 50,
+        "min_font_size": 30,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "body_text",
+      "type": "text",
+      "placeholder": "body_text",
+      "x": 150,
+      "y": 820,
+      "w": 780,
+      "h": 310,
+      "style": {
+        "font_size": 38,
+        "min_font_size": 26,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "top",
+        "max_lines": 6,
+        "shrink_to_fit": true,
+        "line_spacing": 14
+      }
+    }
+  ]
+}
