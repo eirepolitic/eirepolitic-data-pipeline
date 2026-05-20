@@ -1,8 +1,21 @@
 {
-  "template_id": "title_ranking_top10_draft_v1",
+  "template_id": "title_timeline_draft_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Example Top 10 Ranking",
+    "slide_title": "Example Timeline Post",
+    "timeline_intro": "Use this layout for a clean sequence of key events or milestones.",
+    "event_1_date": "Jan",
+    "event_1_title": "First milestone",
+    "event_1_body": "A short explanation of the first point in the sequence.",
+    "event_2_date": "Mar",
+    "event_2_title": "Second milestone",
+    "event_2_body": "Useful context that explains what changed next.",
+    "event_3_date": "Jun",
+    "event_3_title": "Third milestone",
+    "event_3_body": "Another key moment, result, decision, or update.",
+    "event_4_date": "Sep",
+    "event_4_title": "Final milestone",
+    "event_4_body": "A concise ending point or current status.",
     "ranking_intro": "Compact layout for ordered top-ten results.",
     "ranking_text": "1. Highest participation — 92%\n2. Second result — 87%\n3. Third result — 81%\n4. Fourth result — 76%\n5. Fifth result — 71%\n6. Sixth result — 68%\n7. Seventh result — 64%\n8. Eighth result — 61%\n9. Ninth result — 58%\n10. Tenth result — 54%",
     "rank_1_label": "Highest participation",
@@ -15,7 +28,7 @@
     "rank_4_value": "76%",
     "rank_5_label": "Fifth result",
     "rank_5_value": "71%",
-    "bottom_note": "Use this when a full top ten matters more than detail.",
+    "bottom_note": "Use this when the sequence matters more than detail.",
     "body_text": "• Bullet point one shows the main idea\n• Bullet point two gives useful context\n• Bullet point three adds a clear takeaway",
     "stat_value": "87%",
     "stat_label": "Vote participation in 2025",
@@ -39,6 +52,6 @@
     "speech_rank": "4th",
     "speech_count_text": "126 issue-labelled speeches in 2025"
   },
-  "created_at": "2026-05-20T06:53:15.080001+00:00",
+  "created_at": "2026-05-20T06:58:54.890004+00:00",
   "warnings": []
 }

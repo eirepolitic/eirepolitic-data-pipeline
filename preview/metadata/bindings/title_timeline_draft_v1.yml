@@ -1,5 +1,18 @@
 bindings:
-  slide_title: Example Top 10 Ranking
+  slide_title: Example Timeline Post
+  timeline_intro: Use this layout for a clean sequence of key events or milestones.
+  event_1_date: Jan
+  event_1_title: First milestone
+  event_1_body: A short explanation of the first point in the sequence.
+  event_2_date: Mar
+  event_2_title: Second milestone
+  event_2_body: Useful context that explains what changed next.
+  event_3_date: Jun
+  event_3_title: Third milestone
+  event_3_body: Another key moment, result, decision, or update.
+  event_4_date: Sep
+  event_4_title: Final milestone
+  event_4_body: A concise ending point or current status.
   ranking_intro: Compact layout for ordered top-ten results.
   ranking_text: '1. Highest participation — 92%
 
@@ -30,7 +43,7 @@ bindings:
   rank_4_value: 76%
   rank_5_label: Fifth result
   rank_5_value: 71%
-  bottom_note: Use this when a full top ten matters more than detail.
+  bottom_note: Use this when the sequence matters more than detail.
   body_text: '• Bullet point one shows the main idea
 
     • Bullet point two gives useful context
