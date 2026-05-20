@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_two_visuals_draft_v1"
+        default: "title_qa_draft_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_two_visuals_draft_v1}"
+          TEMPLATE="${TEMPLATE:-title_qa_draft_v1}"
           mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import math
@@ -96,7 +96,10 @@ jobs:
 
           bindings = {
               "bindings": {
-                  "slide_title": "Example Two-Visual Post",
+                  "slide_title": "Example Q&A Post",
+                  "question_text": "What does this number actually mean?",
+                  "answer_text": "A Q&A layout is useful when the post needs to explain one point clearly. The question sets up the reader, and the answer gives the short explanation underneath.",
+                  "bottom_note": "Use this for explainers, definitions, or myth-versus-fact style posts.",
                   "visual_1": str(visual_path),
                   "visual_2": str(visual_2_path),
                   "visual_1_caption": "First visual caption or short explanation",
@@ -129,7 +132,6 @@ jobs:
                   "rank_4_value": "76%",
                   "rank_5_label": "Fifth result",
                   "rank_5_value": "71%",
-                  "bottom_note": "Use this when the sequence matters more than detail.",
                   "stat_value": "87%",
                   "stat_label": "Vote participation in 2025",
                   "quote_text": "A clear quote can carry the whole slide when the surrounding design stays quiet.",
