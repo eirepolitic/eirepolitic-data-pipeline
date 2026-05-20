@@ -1,9 +1,21 @@
 bindings:
-  slide_title: Example Q&A Post
+  slide_title: Example Fact Grid Post
+  grid_intro: Four compact facts for quick scanning.
+  fact_1_value: 87%
+  fact_1_label: Participation
+  fact_1_body: Main headline metric or compact explanation.
+  fact_2_value: '42'
+  fact_2_label: Speeches
+  fact_2_body: Second short fact with supporting context.
+  fact_3_value: 4th
+  fact_3_label: Ranking
+  fact_3_body: Useful for rank, position, or category result.
+  fact_4_value: '12'
+  fact_4_label: Votes
+  fact_4_body: Final supporting figure or key takeaway.
+  bottom_note: Use this when several small facts matter equally.
   question_text: What does this number actually mean?
   answer_text: A Q&A layout is useful when the post needs to explain one point clearly.
-    The question sets up the reader, and the answer gives the short explanation underneath.
-  bottom_note: Use this for explainers, definitions, or myth-versus-fact style posts.
   visual_1: generated_posts/template_render_test/input/example-main-visual.png
   visual_2: generated_posts/template_render_test/input/example-secondary-visual.png
   visual_1_caption: First visual caption or short explanation
@@ -11,7 +23,7 @@ bindings:
   main_visual: generated_posts/template_render_test/input/example-main-visual.png
   main_media: generated_posts/template_render_test/input/example-main-visual.png
   body_text: This layout gives the visual most of the slide, then adds a short explanation
-    underneath. It works well for a chart, photo, or map with context.
+    underneath.
   timeline_intro: Use this layout for a clean sequence of key events or milestones.
   event_1_date: Jan
   event_1_title: First milestone
