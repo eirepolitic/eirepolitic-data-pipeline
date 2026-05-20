@@ -3,7 +3,7 @@
 This branch is machine-updated by review-only Instagram preview workflows.
 
 Latest template preview:
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/title_text_v1.png
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/png/title_stat_v1.png
 
 Corner overlay manifest:
 https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/metadata/corner_overlay_manifest.json

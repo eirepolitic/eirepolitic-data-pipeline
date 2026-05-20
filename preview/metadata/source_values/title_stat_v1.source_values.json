@@ -1,9 +1,11 @@
 {
-  "template_id": "title_text_v1",
+  "template_id": "title_stat_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Example Text Post",
-    "body_text": "• Bullet point one shows the main idea\n• Bullet point two gives useful context\n• Bullet point three adds a clear takeaway\n• Bullet point four can support a longer post",
+    "slide_title": "Example Stat Post",
+    "stat_value": "87%",
+    "stat_label": "Vote participation in 2025",
+    "body_text": "This layout is for one major figure with a short explanation underneath. It works best when the number is the main point of the slide.",
     "main_visual": "generated_posts/template_render_test/input/example-main-visual.png",
     "main_media": "generated_posts/template_render_test/input/example-main-visual.png",
     "footer_text": "Template preview only | Eirepolitic data pipeline",
@@ -16,6 +18,6 @@
     "speech_rank": "4th",
     "speech_count_text": "126 issue-labelled speeches in 2025"
   },
-  "created_at": "2026-05-17T22:48:29.935504+00:00",
+  "created_at": "2026-05-20T06:31:20.848707+00:00",
   "warnings": []
 }
