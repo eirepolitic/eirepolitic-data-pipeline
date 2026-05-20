@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "template_id": "title_compare_draft_v1",
+  "description": "Draft title-above-two-column comparison post layout. No built-in corner decorations; standard corner overlay is applied after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.panel_background}"
+  },
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "placeholder": "slide_title",
+      "x": 80,
+      "y": 95,
+      "w": 920,
+      "h": 130,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "compare_panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 245,
+      "w": 920,
+      "h": 1010,
+      "radius": 0,
+      "fill": "{palette.panel_background_alt}",
+      "stroke": null,
+      "width": 0
+    },
+    {
+      "id": "divider",
+      "type": "line",
+      "x": 540,
+      "y": 335,
+      "w": 0,
+      "h": 820,
+      "fill": "{palette.border}",
+      "width": 5
+    },
+    {
+      "id": "left_heading",
+      "type": "text",
+      "placeholder": "left_heading",
+      "x": 120,
+      "y": 330,
+      "w": 380,
+      "h": 90,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 44,
+        "min_font_size": 28,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    },
+    {
+      "id": "right_heading",
+      "type": "text",
+      "placeholder": "right_heading",
+      "x": 580,
+      "y": 330,
+      "w": 380,
+      "h": 90,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 44,
+        "min_font_size": 28,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    },
+    {
+      "id": "left_value",
+      "type": "text",
+      "placeholder": "left_value",
+      "x": 120,
+      "y": 470,
+      "w": 380,
+      "h": 170,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 92,
+        "min_font_size": 48,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "right_value",
+      "type": "text",
+      "placeholder": "right_value",
+      "x": 580,
+      "y": 470,
+      "w": 380,
+      "h": 170,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 92,
+        "min_font_size": 48,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "left_body",
+      "type": "text",
+      "placeholder": "left_body",
+      "x": 135,
+      "y": 700,
+      "w": 350,
+      "h": 360,
+      "style": {
+        "font_size": 34,
+        "min_font_size": 24,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "top",
+        "max_lines": 7,
+        "shrink_to_fit": true,
+        "line_spacing": 12
+      }
+    },
+    {
+      "id": "right_body",
+      "type": "text",
+      "placeholder": "right_body",
+      "x": 595,
+      "y": 700,
+      "w": 350,
+      "h": 360,
+      "style": {
+        "font_size": 34,
+        "min_font_size": 24,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "top",
+        "max_lines": 7,
+        "shrink_to_fit": true,
+        "line_spacing": 12
+      }
+    },
+    {
+      "id": "bottom_note",
+      "type": "text",
+      "placeholder": "bottom_note",
+      "x": 150,
+      "y": 1110,
+      "w": 780,
+      "h": 80,
+      "style": {
+        "font_size": 28,
+        "min_font_size": 20,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 6
+      }
+    }
+  ]
+}
