@@ -1,5 +1,17 @@
 bindings:
-  slide_title: Example Comparison Post
+  slide_title: Example Ranking Post
+  ranking_intro: Ranked list layout for top-five results or ordered takeaways.
+  rank_1_label: Highest participation
+  rank_1_value: 92%
+  rank_2_label: Second result
+  rank_2_value: 87%
+  rank_3_label: Third result
+  rank_3_value: 81%
+  rank_4_label: Fourth result
+  rank_4_value: 76%
+  rank_5_label: Fifth result
+  rank_5_value: 71%
+  bottom_note: Use this when order matters more than explanation.
   body_text: '• Bullet point one shows the main idea
 
     • Bullet point two gives useful context
@@ -24,7 +36,6 @@ bindings:
     Clearer trend
 
     Easy side-by-side read'
-  bottom_note: Use this template when the core message is a clean two-way comparison.
   main_visual: generated_posts/template_render_test/input/example-main-visual.png
   main_media: generated_posts/template_render_test/input/example-main-visual.png
   footer_text: Template preview only | Eirepolitic data pipeline
