@@ -1,5 +1,9 @@
 bindings:
-  slide_title: Example Two-Visual Post
+  slide_title: Example Q&A Post
+  question_text: What does this number actually mean?
+  answer_text: A Q&A layout is useful when the post needs to explain one point clearly.
+    The question sets up the reader, and the answer gives the short explanation underneath.
+  bottom_note: Use this for explainers, definitions, or myth-versus-fact style posts.
   visual_1: generated_posts/template_render_test/input/example-main-visual.png
   visual_2: generated_posts/template_render_test/input/example-secondary-visual.png
   visual_1_caption: First visual caption or short explanation
@@ -51,7 +55,6 @@ bindings:
   rank_4_value: 76%
   rank_5_label: Fifth result
   rank_5_value: 71%
-  bottom_note: Use this when the sequence matters more than detail.
   stat_value: 87%
   stat_label: Vote participation in 2025
   quote_text: A clear quote can carry the whole slide when the surrounding design

@@ -1,8 +1,11 @@
 {
-  "template_id": "title_two_visuals_draft_v1",
+  "template_id": "title_qa_draft_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Example Two-Visual Post",
+    "slide_title": "Example Q&A Post",
+    "question_text": "What does this number actually mean?",
+    "answer_text": "A Q&A layout is useful when the post needs to explain one point clearly. The question sets up the reader, and the answer gives the short explanation underneath.",
+    "bottom_note": "Use this for explainers, definitions, or myth-versus-fact style posts.",
     "visual_1": "generated_posts/template_render_test/input/example-main-visual.png",
     "visual_2": "generated_posts/template_render_test/input/example-secondary-visual.png",
     "visual_1_caption": "First visual caption or short explanation",
@@ -35,7 +38,6 @@
     "rank_4_value": "76%",
     "rank_5_label": "Fifth result",
     "rank_5_value": "71%",
-    "bottom_note": "Use this when the sequence matters more than detail.",
     "stat_value": "87%",
     "stat_label": "Vote participation in 2025",
     "quote_text": "A clear quote can carry the whole slide when the surrounding design stays quiet.",
@@ -56,6 +58,6 @@
     "speech_rank": "4th",
     "speech_count_text": "126 issue-labelled speeches in 2025"
   },
-  "created_at": "2026-05-20T07:10:58.605514+00:00",
+  "created_at": "2026-05-20T07:19:02.062783+00:00",
   "warnings": []
 }
