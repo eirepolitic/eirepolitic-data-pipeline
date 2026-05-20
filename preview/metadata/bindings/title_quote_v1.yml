@@ -1,9 +1,15 @@
 bindings:
-  slide_title: Example Stat Post
+  slide_title: Example Quote Post
+  body_text: '• Bullet point one shows the main idea
+
+    • Bullet point two gives useful context
+
+    • Bullet point three adds a clear takeaway'
   stat_value: 87%
   stat_label: Vote participation in 2025
-  body_text: This layout is for one major figure with a short explanation underneath.
-    It works best when the number is the main point of the slide.
+  quote_text: A clear quote can carry the whole slide when the surrounding design
+    stays quiet.
+  quote_attribution: Example attribution
   main_visual: generated_posts/template_render_test/input/example-main-visual.png
   main_media: generated_posts/template_render_test/input/example-main-visual.png
   footer_text: Template preview only | Eirepolitic data pipeline
