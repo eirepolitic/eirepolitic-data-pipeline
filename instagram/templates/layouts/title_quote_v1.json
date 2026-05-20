@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0",
+  "template_id": "title_quote_v1",
+  "description": "Title-above-quote post layout. No built-in corner decorations; standard corner overlay is applied after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.panel_background}"
+  },
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "placeholder": "slide_title",
+      "x": 80,
+      "y": 95,
+      "w": 920,
+      "h": 130,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "quote_panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 245,
+      "w": 920,
+      "h": 1010,
+      "radius": 0,
+      "fill": "{palette.panel_background_alt}",
+      "stroke": null,
+      "width": 0
+    },
+    {
+      "id": "quote_mark_top",
+      "type": "text",
+      "text": "“",
+      "x": 120,
+      "y": 290,
+      "w": 160,
+      "h": 150,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 130,
+        "min_font_size": 90,
+        "color": "{palette.text_muted}",
+        "align": "left",
+        "valign": "top",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "quote_text",
+      "type": "text",
+      "placeholder": "quote_text",
+      "x": 150,
+      "y": 425,
+      "w": 780,
+      "h": 470,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 58,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 6,
+        "shrink_to_fit": true,
+        "line_spacing": 14
+      }
+    },
+    {
+      "id": "quote_rule",
+      "type": "line",
+      "x": 300,
+      "y": 970,
+      "w": 480,
+      "h": 0,
+      "fill": "{palette.border}",
+      "width": 4
+    },
+    {
+      "id": "quote_attribution",
+      "type": "text",
+      "placeholder": "quote_attribution",
+      "x": 150,
+      "y": 1010,
+      "w": 780,
+      "h": 140,
+      "style": {
+        "font_size": 38,
+        "min_font_size": 26,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    }
+  ]
+}
