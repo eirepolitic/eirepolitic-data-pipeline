@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_stat_v1"
+        default: "title_quote_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -43,12 +43,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build example binding assets
+      - name: Build generic example bindings
         shell: bash
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_stat_v1}"
+          TEMPLATE="${TEMPLATE:-title_quote_v1}"
           mkdir -p "${OUTPUT_ROOT}/input" "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import math
@@ -90,16 +90,17 @@ jobs:
           draw.rounded_rectangle((360, 760, 1240, 1000), radius=36, fill="#173d30")
           draw.text(((1600 - (label_box[2] - label_box[0])) // 2, 800), label, fill="#f4ead7", font=title_font)
           draw.text(((1600 - (sub_box[2] - sub_box[0])) // 2, 915), sub, fill="#cbbf9f", font=sub_font)
-
           visual_path.parent.mkdir(parents=True, exist_ok=True)
           visual.save(visual_path, format="PNG")
 
           bindings = {
               "bindings": {
-                  "slide_title": "Example Stat Post",
+                  "slide_title": "Example Quote Post",
+                  "body_text": "• Bullet point one shows the main idea\n• Bullet point two gives useful context\n• Bullet point three adds a clear takeaway",
                   "stat_value": "87%",
                   "stat_label": "Vote participation in 2025",
-                  "body_text": "This layout is for one major figure with a short explanation underneath. It works best when the number is the main point of the slide.",
+                  "quote_text": "A clear quote can carry the whole slide when the surrounding design stays quiet.",
+                  "quote_attribution": "Example attribution",
                   "main_visual": str(visual_path),
                   "main_media": str(visual_path),
                   "footer_text": "Template preview only | Eirepolitic data pipeline",
@@ -114,7 +115,6 @@ jobs:
               }
           }
           bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
-          print(f"visual_path={visual_path}")
           print(f"bindings_path={bindings_path}")
           PY
           echo "TEMPLATE=${TEMPLATE}" >> "${GITHUB_ENV}"
@@ -134,16 +134,11 @@ jobs:
           set -euo pipefail
           PALETTE="${{ inputs.palette }}"
           PALETTE="${PALETTE:-eirepolitic_dark}"
-          {
-            echo "template=${TEMPLATE}"
-            echo "palette=${PALETTE}"
-            python --version
-            python process/instagram_render_template.py \
-              --template "instagram/templates/layouts/${TEMPLATE}.json" \
-              --bindings "${OUTPUT_ROOT}/metadata/bindings/${TEMPLATE}.yml" \
-              --palette "${PALETTE}" \
-              --output "${OUTPUT_ROOT}/png/${TEMPLATE}.png"
-          } 2>&1 | tee workflow_debug/template_render.log
+          python process/instagram_render_template.py \
+            --template "instagram/templates/layouts/${TEMPLATE}.json" \
+            --bindings "${OUTPUT_ROOT}/metadata/bindings/${TEMPLATE}.yml" \
+            --palette "${PALETTE}" \
+            --output "${OUTPUT_ROOT}/png/${TEMPLATE}.png" | tee workflow_debug/template_render.log
 
       - name: Apply standard corner overlay
         shell: bash
@@ -178,27 +173,20 @@ jobs:
           python - "/tmp/instagram-preview-worktree/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${TEMPLATE}" <<'PY'
           import sys
           from pathlib import Path
-
           readme_path = Path(sys.argv[1])
           repo = sys.argv[2]
           branch = sys.argv[3]
           preview_dir = sys.argv[4]
           template = sys.argv[5]
-          lines = [
+          readme_path.write_text("\n".join([
               "# Instagram template preview output",
-              "",
-              "This branch is machine-updated by review-only Instagram preview workflows.",
               "",
               "Latest template preview:",
               f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/png/{template}.png",
               "",
-              "Corner overlay manifest:",
-              f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/metadata/corner_overlay_manifest.json",
-              "",
               "Review only: this does not publish, schedule, or approve Instagram content.",
               "",
-          ]
-          readme_path.write_text("\n".join(lines), encoding="utf-8")
+          ]), encoding="utf-8")
           PY
           git -C /tmp/instagram-preview-worktree add .
           git -C /tmp/instagram-preview-worktree commit -m "Update template render preview for run ${GITHUB_RUN_ID}" || true
