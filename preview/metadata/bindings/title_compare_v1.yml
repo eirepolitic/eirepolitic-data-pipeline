@@ -1,5 +1,5 @@
 bindings:
-  slide_title: Example Quote Post
+  slide_title: Example Comparison Post
   body_text: '• Bullet point one shows the main idea
 
     • Bullet point two gives useful context
@@ -10,6 +10,21 @@ bindings:
   quote_text: A clear quote can carry the whole slide when the surrounding design
     stays quiet.
   quote_attribution: Example attribution
+  left_heading: Before
+  right_heading: After
+  left_value: 42%
+  right_value: 68%
+  left_body: 'Lower participation
+
+    Less visible trend
+
+    Harder to compare'
+  right_body: 'Higher participation
+
+    Clearer trend
+
+    Easy side-by-side read'
+  bottom_note: Use this template when the core message is a clean two-way comparison.
   main_visual: generated_posts/template_render_test/input/example-main-visual.png
   main_media: generated_posts/template_render_test/input/example-main-visual.png
   footer_text: Template preview only | Eirepolitic data pipeline

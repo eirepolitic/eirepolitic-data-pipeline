@@ -1,13 +1,20 @@
 {
-  "template_id": "title_quote_v1",
+  "template_id": "title_compare_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Example Quote Post",
+    "slide_title": "Example Comparison Post",
     "body_text": "• Bullet point one shows the main idea\n• Bullet point two gives useful context\n• Bullet point three adds a clear takeaway",
     "stat_value": "87%",
     "stat_label": "Vote participation in 2025",
     "quote_text": "A clear quote can carry the whole slide when the surrounding design stays quiet.",
     "quote_attribution": "Example attribution",
+    "left_heading": "Before",
+    "right_heading": "After",
+    "left_value": "42%",
+    "right_value": "68%",
+    "left_body": "Lower participation\nLess visible trend\nHarder to compare",
+    "right_body": "Higher participation\nClearer trend\nEasy side-by-side read",
+    "bottom_note": "Use this template when the core message is a clean two-way comparison.",
     "main_visual": "generated_posts/template_render_test/input/example-main-visual.png",
     "main_media": "generated_posts/template_render_test/input/example-main-visual.png",
     "footer_text": "Template preview only | Eirepolitic data pipeline",
@@ -20,6 +27,6 @@
     "speech_rank": "4th",
     "speech_count_text": "126 issue-labelled speeches in 2025"
   },
-  "created_at": "2026-05-20T06:34:58.507078+00:00",
+  "created_at": "2026-05-20T06:38:16.698303+00:00",
   "warnings": []
 }
