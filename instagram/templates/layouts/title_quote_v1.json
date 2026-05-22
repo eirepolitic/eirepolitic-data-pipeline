@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0",
+  "template_id": "title_quote_v1",
+  "description": "Title-above-quote post layout. No built-in corner decorations; standard corner overlay is applied after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.panel_background}"
+  },
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "placeholder": "slide_title",
+      "x": 80,
+      "y": 190,
+      "w": 920,
+      "h": 130,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 62,
+        "min_font_size": 34,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "quote_panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 375,
+      "w": 920,
+      "h": 785,
+      "radius": 0,
+      "fill": "{palette.panel_background_alt}",
+      "stroke": null,
+      "width": 0
+    },
+    {
+      "id": "quote_mark_open_inline",
+      "type": "text",
+      "text": "“",
+      "x": 195,
+      "y": 480,
+      "w": 80,
+      "h": 95,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 104,
+        "min_font_size": 78,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "quote_text",
+      "type": "text",
+      "placeholder": "quote_text",
+      "x": 265,
+      "y": 500,
+      "w": 550,
+      "h": 275,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 54,
+        "min_font_size": 32,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 6,
+        "shrink_to_fit": true,
+        "line_spacing": 14
+      }
+    },
+    {
+      "id": "quote_mark_close_inline",
+      "type": "text",
+      "text": "”",
+      "x": 805,
+      "y": 705,
+      "w": 80,
+      "h": 95,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 104,
+        "min_font_size": 78,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "quote_rule",
+      "type": "line",
+      "x": 320,
+      "y": 850,
+      "w": 440,
+      "h": 0,
+      "fill": "{palette.border}",
+      "width": 4
+    },
+    {
+      "id": "quote_attribution",
+      "type": "text",
+      "placeholder": "quote_attribution",
+      "x": 150,
+      "y": 890,
+      "w": 780,
+      "h": 120,
+      "style": {
+        "font_size": 38,
+        "min_font_size": 26,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    }
+  ]
+}
