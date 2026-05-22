@@ -1,7 +1,29 @@
 bindings:
-  slide_title: Top Five Issues This Week
-  ranking_intro: A compact ranked-list preview for political metrics, survey results,
-    or constituency comparisons.
+  slide_title: Top 10 Constituency Issues
+  ranking_intro: A dense top-10 preview for rankings that need more entries without
+    losing readability.
+  ranking_text: '1. Housing and rent — 47%
+
+    2. Cost of living — 39%
+
+    3. Healthcare access — 31%
+
+    4. Immigration — 24%
+
+    5. Climate policy — 18%
+
+    6. Public transport — 16%
+
+    7. Tax and spending — 14%
+
+    8. Education — 12%
+
+    9. Rural services — 10%
+
+    10. Justice and policing — 8%'
+  bottom_note: Example top-10 ranking preview. Values are placeholders for layout
+    review only.
+  ranking_intro_short: Compact ranking preview.
   rank_1_label: Housing and rent
   rank_1_value: 47%
   rank_2_label: Cost of living
@@ -12,8 +34,6 @@ bindings:
   rank_4_value: 24%
   rank_5_label: Climate policy
   rank_5_value: 18%
-  bottom_note: Example ranking preview. Values are placeholders for layout review
-    only.
   left_heading: Current Support
   right_heading: Previous Poll
   left_value: 47%

@@ -1,9 +1,12 @@
 {
-  "template_id": "title_ranking_draft_v1",
+  "template_id": "title_ranking_top10_draft_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Top Five Issues This Week",
-    "ranking_intro": "A compact ranked-list preview for political metrics, survey results, or constituency comparisons.",
+    "slide_title": "Top 10 Constituency Issues",
+    "ranking_intro": "A dense top-10 preview for rankings that need more entries without losing readability.",
+    "ranking_text": "1. Housing and rent — 47%\n2. Cost of living — 39%\n3. Healthcare access — 31%\n4. Immigration — 24%\n5. Climate policy — 18%\n6. Public transport — 16%\n7. Tax and spending — 14%\n8. Education — 12%\n9. Rural services — 10%\n10. Justice and policing — 8%",
+    "bottom_note": "Example top-10 ranking preview. Values are placeholders for layout review only.",
+    "ranking_intro_short": "Compact ranking preview.",
     "rank_1_label": "Housing and rent",
     "rank_1_value": "47%",
     "rank_2_label": "Cost of living",
@@ -14,7 +17,6 @@
     "rank_4_value": "24%",
     "rank_5_label": "Climate policy",
     "rank_5_value": "18%",
-    "bottom_note": "Example ranking preview. Values are placeholders for layout review only.",
     "left_heading": "Current Support",
     "right_heading": "Previous Poll",
     "left_value": "47%",
@@ -45,6 +47,6 @@
     "answer_text": "A Q&A layout is useful when the post needs to explain one point clearly.",
     "body_text_bullets": "• Bullet one\n• Bullet two\n• Bullet three"
   },
-  "created_at": "2026-05-22T18:06:30.158825+00:00",
+  "created_at": "2026-05-22T18:31:50.966645+00:00",
   "warnings": []
 }
