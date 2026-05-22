@@ -1,15 +1,26 @@
 {
-  "template_id": "title_compare_draft_v1",
+  "template_id": "title_ranking_draft_v1",
   "palette": "eirepolitic_dark",
   "bindings": {
-    "slide_title": "Two Political Measures Compared",
+    "slide_title": "Top Five Issues This Week",
+    "ranking_intro": "A compact ranked-list preview for political metrics, survey results, or constituency comparisons.",
+    "rank_1_label": "Housing and rent",
+    "rank_1_value": "47%",
+    "rank_2_label": "Cost of living",
+    "rank_2_value": "39%",
+    "rank_3_label": "Healthcare access",
+    "rank_3_value": "31%",
+    "rank_4_label": "Immigration",
+    "rank_4_value": "24%",
+    "rank_5_label": "Climate policy",
+    "rank_5_value": "18%",
+    "bottom_note": "Example ranking preview. Values are placeholders for layout review only.",
     "left_heading": "Current Support",
     "right_heading": "Previous Poll",
     "left_value": "47%",
     "right_value": "39%",
     "left_body": "The latest sample shows stronger support among respondents after undecided voters are excluded.",
     "right_body": "The previous result provides a simple benchmark for comparing direction and scale of change.",
-    "bottom_note": "Example comparison preview. Figures are placeholder values for layout review only.",
     "quote_text": "Politics should be judged by what changes in people's lives, not by what trends for a day.",
     "quote_attribution": "— Eirepolitic preview quote",
     "stat_value": "47%",
@@ -34,6 +45,6 @@
     "answer_text": "A Q&A layout is useful when the post needs to explain one point clearly.",
     "body_text_bullets": "• Bullet one\n• Bullet two\n• Bullet three"
   },
-  "created_at": "2026-05-22T17:22:36.921004+00:00",
+  "created_at": "2026-05-22T17:26:39.686151+00:00",
   "warnings": []
 }
