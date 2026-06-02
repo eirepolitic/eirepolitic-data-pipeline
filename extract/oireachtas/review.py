@@ -6,7 +6,6 @@ can publish to the `oireachtas-review-output` branch.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -92,8 +91,12 @@ def _sample_markdown(table: str, rows: Sequence[Mapping[str, Any]]) -> str:
     if not rows:
         return f"# `{table}` sample\n\nNo sample rows.\n"
 
-    df = pd.DataFrame(rows)
-    display = df.copy()
-    for column in display.columns:
-        display[column] = display[column].astype(str).str.slice(0, 250)
-    return f"# `{table}` sample\n\n" + display.to_markdown(index=False) + "\n"
+    columns = list(rows[0].keys())
+    lines = [f"# `{table}` sample", "", "| " + " | ".join(columns) + " |", "| " + " | ".join("---" for _ in columns) + " |"]
+    for row in rows:
+        values = []
+        for column in columns:
+            value = str(row.get(column, "")).replace("|", "\\|").replace("\n", " ")[:250]
+            values.append(value)
+        lines.append("| " + " | ".join(values) + " |")
+    return "\n".join(lines) + "\n"
