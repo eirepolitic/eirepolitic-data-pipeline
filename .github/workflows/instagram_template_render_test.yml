@@ -62,20 +62,20 @@ jobs:
           bindings = {
               "bindings": {
                   "slide_title": "Four Facts From The Data",
-                  "grid_intro": "A compact grid for four key figures, short labels, and quick supporting context.",
+                  "grid_intro": "A compact grid for fast political takeaways, headline numbers, and supporting context.",
                   "fact_1_value": "47%",
-                  "fact_1_label": "Housing",
-                  "fact_1_body": "Share naming housing or rent as the most urgent political issue.",
-                  "fact_2_value": "39%",
-                  "fact_2_label": "Cost of living",
-                  "fact_2_body": "Respondents citing prices, bills, and household pressure as priorities.",
-                  "fact_3_value": "31%",
-                  "fact_3_label": "Healthcare",
-                  "fact_3_body": "Level of concern around access, waiting lists, and local services.",
-                  "fact_4_value": "18%",
-                  "fact_4_label": "Climate",
-                  "fact_4_body": "Share putting climate policy among their highest-ranked concerns.",
-                  "bottom_note": "Example grid preview. Figures are placeholders for layout review only."
+                  "fact_1_label": "Top Issue",
+                  "fact_1_body": "Housing and rent lead the sample as the most selected concern.",
+                  "fact_2_value": "+8",
+                  "fact_2_label": "Point Shift",
+                  "fact_2_body": "Support moved upward compared with the previous benchmark.",
+                  "fact_3_value": "3rd",
+                  "fact_3_label": "Ranked Place",
+                  "fact_3_body": "Healthcare access remains one of the strongest secondary issues.",
+                  "fact_4_value": "12k",
+                  "fact_4_label": "Records Read",
+                  "fact_4_body": "The preview simulates a pipeline summary metric for review.",
+                  "bottom_note": "Example grid facts preview. Figures are placeholders for layout review only."
               }
           }
           bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
