@@ -1,8 +1,4 @@
-"""CLI entry point for unified Oireachtas table builds.
-
-F03 supports `_discovery` mode to probe Oireachtas API endpoint payload shapes
-before real table builders are implemented.
-"""
+"""CLI entry point for unified Oireachtas table builds."""
 
 from __future__ import annotations
 
@@ -13,11 +9,13 @@ import sys
 from pathlib import Path
 from typing import Any, Sequence
 
+from .client import OireachtasClient
 from .discovery import DISCOVERY_TABLE, discovery_dq, discovery_schema, run_endpoint_discovery
 from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_json, make_s3_client, put_json
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
+from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
 
 
 VALID_MODES = ("discover", "test", "incremental", "full", "backfill")
@@ -31,53 +29,20 @@ def build_parser() -> argparse.ArgumentParser:
         description="Build or inspect unified Oireachtas tables.",
     )
     parser.add_argument("--table", help="Table registry key, _smoke, or _discovery.")
-    parser.add_argument(
-        "--mode",
-        choices=VALID_MODES,
-        default="test",
-        help="Build mode.",
-    )
+    parser.add_argument("--mode", choices=VALID_MODES, default="test", help="Build mode.")
     parser.add_argument("--chamber", default="dail", help="Oireachtas chamber, e.g. dail or seanad.")
     parser.add_argument("--house-no", default="34", help="House number where applicable.")
     parser.add_argument("--date-start", help="Start date YYYY-MM-DD for fact tables.")
     parser.add_argument("--date-end", help="End date YYYY-MM-DD for fact tables.")
     parser.add_argument("--limit", type=int, default=25, help="API/test row limit.")
     parser.add_argument("--sample-rows", type=int, default=10, help="Rows to publish in review sample.")
-    parser.add_argument(
-        "--write-review-sample",
-        action="store_true",
-        help="Write review sample files when supported.",
-    )
-    parser.add_argument(
-        "--list-tables",
-        action="store_true",
-        help="List configured tables and exit.",
-    )
-    parser.add_argument(
-        "--config",
-        default=str(DEFAULT_TABLES_CONFIG),
-        help="Path to table registry YAML.",
-    )
-    parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Print machine-readable output for list/validation commands.",
-    )
-    parser.add_argument(
-        "--s3-bucket",
-        default=os.getenv("S3_BUCKET", DEFAULT_BUCKET),
-        help="S3 bucket for smoke/review outputs.",
-    )
-    parser.add_argument(
-        "--aws-region",
-        default=os.getenv("AWS_REGION", DEFAULT_REGION),
-        help="AWS region for S3 client.",
-    )
-    parser.add_argument(
-        "--review-root",
-        default=str(REVIEW_ROOT),
-        help="Local review output root for workflow publishing.",
-    )
+    parser.add_argument("--write-review-sample", action="store_true", help="Write review sample files when supported.")
+    parser.add_argument("--list-tables", action="store_true", help="List configured tables and exit.")
+    parser.add_argument("--config", default=str(DEFAULT_TABLES_CONFIG), help="Path to table registry YAML.")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable output for list/validation commands.")
+    parser.add_argument("--s3-bucket", default=os.getenv("S3_BUCKET", DEFAULT_BUCKET), help="S3 bucket for outputs.")
+    parser.add_argument("--aws-region", default=os.getenv("AWS_REGION", DEFAULT_REGION), help="AWS region for S3 client.")
+    parser.add_argument("--review-root", default=str(REVIEW_ROOT), help="Local review output root for workflow publishing.")
     parser.add_argument(
         "--github-repository",
         default=os.getenv("GITHUB_REPOSITORY", "eirepolitic/eirepolitic-data-pipeline"),
@@ -112,7 +77,6 @@ def list_tables(config_path: str, *, as_json: bool = False) -> int:
 
 
 def run_smoke(args: argparse.Namespace) -> int:
-    """Run F02 S3/review smoke test."""
     if args.mode != "test":
         print("ERROR: _smoke only supports --mode test.", file=sys.stderr)
         return 2
@@ -151,11 +115,7 @@ def run_smoke(args: argparse.Namespace) -> int:
     put_json(s3, bucket=args.s3_bucket, key=manifest_key, payload=manifest)
 
     sample_rows[0]["status"] = "success"
-    schema = {
-        "table": SMOKE_TABLE,
-        "primary_key": ["check_name"],
-        "columns": list(sample_rows[0].keys()),
-    }
+    schema = {"table": SMOKE_TABLE, "primary_key": ["check_name"], "columns": list(sample_rows[0].keys())}
     dq = {
         "table": SMOKE_TABLE,
         "dq_status": "pass",
@@ -165,20 +125,8 @@ def run_smoke(args: argparse.Namespace) -> int:
         ],
     }
 
-    review_dir = write_review_bundle(
-        table=SMOKE_TABLE,
-        manifest=manifest,
-        schema=schema,
-        dq=dq,
-        sample_rows=sample_rows,
-        root=Path(args.review_root),
-    )
-    review_url = raw_review_url(
-        repo=args.github_repository,
-        branch=REVIEW_BRANCH,
-        table=SMOKE_TABLE,
-        filename="manifest.json",
-    )
+    review_dir = write_review_bundle(table=SMOKE_TABLE, manifest=manifest, schema=schema, dq=dq, sample_rows=sample_rows, root=Path(args.review_root))
+    review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=SMOKE_TABLE, filename="manifest.json")
 
     print(f"TABLE={SMOKE_TABLE}")
     print(f"MODE={args.mode}")
@@ -190,12 +138,10 @@ def run_smoke(args: argparse.Namespace) -> int:
     print(f"REVIEW_LOCAL_DIR={review_dir}")
     print(f"REVIEW_SAMPLE_RAW_URL={review_url}")
     print("DQ_STATUS=pass")
-
     return 0
 
 
 def run_discovery(args: argparse.Namespace) -> int:
-    """Run F03 endpoint discovery and write review bundle."""
     if args.mode != "discover":
         print("ERROR: _discovery only supports --mode discover.", file=sys.stderr)
         return 2
@@ -203,20 +149,8 @@ def run_discovery(args: argparse.Namespace) -> int:
     rows, manifest = run_endpoint_discovery(limit=max(1, min(args.limit, 10)))
     schema = discovery_schema(rows)
     dq = discovery_dq(rows)
-    review_dir = write_review_bundle(
-        table=DISCOVERY_TABLE,
-        manifest=manifest,
-        schema=schema,
-        dq=dq,
-        sample_rows=rows,
-        root=Path(args.review_root),
-    )
-    review_url = raw_review_url(
-        repo=args.github_repository,
-        branch=REVIEW_BRANCH,
-        table=DISCOVERY_TABLE,
-        filename="manifest.json",
-    )
+    review_dir = write_review_bundle(table=DISCOVERY_TABLE, manifest=manifest, schema=schema, dq=dq, sample_rows=rows, root=Path(args.review_root))
+    review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=DISCOVERY_TABLE, filename="manifest.json")
 
     print(f"TABLE={DISCOVERY_TABLE}")
     print(f"MODE={args.mode}")
@@ -230,6 +164,67 @@ def run_discovery(args: argparse.Namespace) -> int:
     print(f"ENDPOINT_OK_COUNT={manifest.get('ok_count')}")
     print(f"ENDPOINT_FAILED_COUNT={manifest.get('failed_count')}")
     return 0
+
+
+def run_real_table(args: argparse.Namespace) -> int:
+    if args.mode not in {"test", "full", "incremental", "backfill"}:
+        print(f"ERROR: {args.table} does not support --mode {args.mode}.", file=sys.stderr)
+        return 2
+
+    schema = get_table_schema(args.table, Path(args.config))
+    s3 = make_s3_client(region_name=args.aws_region)
+    client = OireachtasClient(timeout_seconds=30, retries=5, backoff_seconds=2.0, sleep_seconds=0.2)
+
+    if args.table == HOUSES_TABLE:
+        result = build_silver_houses(
+            client=client,
+            s3=s3,
+            bucket=args.s3_bucket,
+            schema=schema,
+            limit=args.limit,
+            mode=args.mode,
+        )
+    else:
+        payload = {
+            "status": "validated",
+            "message": "Real table execution is not implemented for this table yet.",
+            "table": schema.name,
+            "mode": args.mode,
+            "layer": schema.layer,
+            "cadence": schema.cadence,
+            "primary_key": schema.primary_key,
+            "columns": schema.columns,
+            "endpoint": schema.endpoint,
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
+        return 0
+
+    review_dir = write_review_bundle(
+        table=result.table,
+        manifest=result.manifest,
+        schema=result.schema,
+        dq=result.dq,
+        sample_rows=result.rows,
+        root=Path(args.review_root),
+    )
+    review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=result.table, filename="manifest.json")
+    csv_key = result.s3_keys.get("csv")
+    parquet_key = result.s3_keys.get("parquet")
+    manifest_key = result.s3_keys.get("manifest")
+
+    print(f"TABLE={result.table}")
+    print(f"MODE={args.mode}")
+    print(f"ROWS={result.manifest.get('output_rows')}")
+    print(f"COLUMNS={len(result.schema.get('columns', []))}")
+    print(f"PRIMARY_KEY={','.join(result.schema.get('primary_key', []))}")
+    print(f"PRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}")
+    print(f"CSV_KEY=s3://{args.s3_bucket}/{csv_key}")
+    print(f"PARQUET_KEY=s3://{args.s3_bucket}/{parquet_key}")
+    print(f"MANIFEST_KEY=s3://{args.s3_bucket}/{manifest_key}")
+    print(f"REVIEW_LOCAL_DIR={review_dir}")
+    print(f"REVIEW_SAMPLE_RAW_URL={review_url}")
+    print(f"DQ_STATUS={result.dq.get('dq_status')}")
+    return 0 if result.dq.get("dq_status") != "fail" else 1
 
 
 def validate_command(args: argparse.Namespace) -> int:
@@ -246,37 +241,7 @@ def validate_command(args: argparse.Namespace) -> int:
     if args.table == DISCOVERY_TABLE:
         return run_discovery(args)
 
-    schema = get_table_schema(args.table, Path(args.config))
-    payload = {
-        "status": "validated",
-        "message": "F03 skeleton: real table execution is implemented in later packets.",
-        "table": schema.name,
-        "mode": args.mode,
-        "layer": schema.layer,
-        "cadence": schema.cadence,
-        "primary_key": schema.primary_key,
-        "columns": schema.columns,
-        "endpoint": schema.endpoint,
-        "params": {
-            "chamber": args.chamber,
-            "house_no": args.house_no,
-            "date_start": args.date_start,
-            "date_end": args.date_end,
-            "limit": args.limit,
-            "sample_rows": args.sample_rows,
-            "write_review_sample": bool(args.write_review_sample),
-        },
-    }
-
-    if args.json:
-        print(json.dumps(payload, indent=2, sort_keys=True))
-    else:
-        print(payload["message"])
-        print(f"table={schema.name}")
-        print(f"mode={args.mode}")
-        print(f"primary_key={schema.primary_key_display}")
-        print(f"columns={len(schema.columns)}")
-    return 0
+    return run_real_table(args)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
