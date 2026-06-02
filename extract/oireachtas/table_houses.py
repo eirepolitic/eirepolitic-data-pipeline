@@ -132,13 +132,14 @@ def _normalise_house_row(item: Mapping[str, Any], *, snapshot_date: str, endpoin
     date_range = dict(house.get("dateRange") or {})
     start = parse_iso_date(date_range.get("start"))
     end = parse_iso_date(date_range.get("end"))
-    house_uri = house.get("uri") or f"generated:house:{stable_hash([house.get('houseCode'), house.get('houseNo'), house.get('showAs')])}"
+    house_code = _text_or_none(house.get("houseCode") or house.get("chamberCode"))
+    house_uri = house.get("uri") or f"generated:house:{stable_hash([house_code, house.get('houseNo'), house.get('showAs')])}"
 
     return {
         "house_uri": str(house_uri),
         "house_no": _text_or_none(house.get("houseNo")),
-        "house_code": _text_or_none(house.get("houseCode") or house.get("chamberCode")),
-        "chamber": _text_or_none(house.get("chamberType") or house.get("chamberCode") or house.get("houseType")),
+        "house_code": house_code,
+        "chamber": house_code or _text_or_none(house.get("chamberCode") or house.get("chamberType") or house.get("houseType")),
         "show_as": _text_or_none(house.get("showAs")),
         "date_start": start,
         "date_end": end,
