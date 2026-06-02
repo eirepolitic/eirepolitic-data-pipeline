@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_qa_draft_v1"
+        default: "title_grid_facts_draft_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_qa_draft_v1}"
+          TEMPLATE="${TEMPLATE:-title_grid_facts_draft_v1}"
           mkdir -p "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import sys
@@ -61,10 +61,21 @@ jobs:
 
           bindings = {
               "bindings": {
-                  "slide_title": "Question And Answer",
-                  "question_text": "What changed in the latest political data?",
-                  "answer_text": "The latest figures show a clear movement in the headline trend. The layout is designed for quick explanation: one question, one direct answer, and a short source note if needed.",
-                  "bottom_note": "Example Q&A preview. Text is placeholder content for layout review only."
+                  "slide_title": "Four Facts From The Data",
+                  "grid_intro": "A compact grid for four key figures, short labels, and quick supporting context.",
+                  "fact_1_value": "47%",
+                  "fact_1_label": "Housing",
+                  "fact_1_body": "Share naming housing or rent as the most urgent political issue.",
+                  "fact_2_value": "39%",
+                  "fact_2_label": "Cost of living",
+                  "fact_2_body": "Respondents citing prices, bills, and household pressure as priorities.",
+                  "fact_3_value": "31%",
+                  "fact_3_label": "Healthcare",
+                  "fact_3_body": "Level of concern around access, waiting lists, and local services.",
+                  "fact_4_value": "18%",
+                  "fact_4_label": "Climate",
+                  "fact_4_body": "Share putting climate policy among their highest-ranked concerns.",
+                  "bottom_note": "Example grid preview. Figures are placeholders for layout review only."
               }
           }
           bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
