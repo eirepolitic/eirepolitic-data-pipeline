@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_grid_facts_draft_v1"
+        default: "title_source_note_draft_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_grid_facts_draft_v1}"
+          TEMPLATE="${TEMPLATE:-title_source_note_draft_v1}"
           mkdir -p "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import sys
@@ -61,21 +61,11 @@ jobs:
 
           bindings = {
               "bindings": {
-                  "slide_title": "Four Facts From The Data",
-                  "grid_intro": "A compact grid for fast political takeaways, headline numbers, and supporting context.",
-                  "fact_1_value": "47%",
-                  "fact_1_label": "Top Issue",
-                  "fact_1_body": "Housing and rent lead the sample as the most selected concern.",
-                  "fact_2_value": "+8",
-                  "fact_2_label": "Point Shift",
-                  "fact_2_body": "Support moved upward compared with the previous benchmark.",
-                  "fact_3_value": "3rd",
-                  "fact_3_label": "Ranked Place",
-                  "fact_3_body": "Healthcare access remains one of the strongest secondary issues.",
-                  "fact_4_value": "12k",
-                  "fact_4_label": "Records Read",
-                  "fact_4_body": "The preview simulates a pipeline summary metric for review.",
-                  "bottom_note": "Example grid facts preview. Figures are placeholders for layout review only."
+                  "slide_title": "What The Data Shows",
+                  "main_statement": "Support shifted clearly after undecided voters were excluded.",
+                  "body_text": "This layout is designed for posts where the main claim needs a short explanation and a visible source or method note. It keeps the conclusion prominent while leaving room for transparent context.",
+                  "source_text": "Source: Eirepolitic pipeline preview dataset. Method: records filtered, grouped, and summarised for layout testing only.",
+                  "bottom_note": "Example source note preview. Placeholder values for review only."
               }
           }
           bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
