@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `_smoke`
-- `review/_smoke/latest/sample.csv`
-- `review/_smoke/latest/sample.md`
-- `review/_smoke/latest/manifest.json`
-- `review/_smoke/latest/schema.json`
-- `review/_smoke/latest/dq.json`
+### `_discovery`
+- `review/_discovery/latest/sample.csv`
+- `review/_discovery/latest/sample.md`
+- `review/_discovery/latest/manifest.json`
+- `review/_discovery/latest/schema.json`
+- `review/_discovery/latest/dq.json`

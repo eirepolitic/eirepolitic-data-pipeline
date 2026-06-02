@@ -1,5 +1,0 @@
-# `_smoke` sample
-
-| check_name | status | bucket | key | created_at_utc |
-| --- | --- | --- | --- | --- |
-| s3_put_get | success | eirepolitic-data | processed/oireachtas_unified/review/_smoke/latest/manifest.json | 2026-06-02T16:10:54+00:00 |
