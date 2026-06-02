@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       table:
-        description: "Table key to test. Use _smoke for F02."
+        description: "Table key to test. Use _smoke for F02 or _discovery for F03."
         required: true
-        default: "_smoke"
+        default: "_discovery"
       mode:
         description: "Build mode"
         required: true
-        default: "test"
+        default: "discover"
         type: choice
         options:
           - discover
@@ -37,7 +37,7 @@ on:
       limit:
         description: "API/test row limit"
         required: false
-        default: "25"
+        default: "5"
       sample_rows:
         description: "Review sample row count"
         required: false
