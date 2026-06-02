@@ -1,0 +1,27 @@
+# Default parameters for the unified Oireachtas extraction layer.
+# Table-specific overrides live in configs/oireachtas/tables.yml.
+
+api:
+  base_url: "https://api.oireachtas.ie/v1"
+  data_base_url: "https://data.oireachtas.ie"
+  default_limit: 25
+  max_limit: 200
+  timeout_seconds: 30
+  retries: 5
+  backoff_seconds: 2
+  sleep_seconds: 0.2
+
+defaults:
+  chamber: "dail"
+  house_no: "34"
+  language: "en"
+
+s3:
+  bucket: "eirepolitic-data"
+  region: "ca-central-1"
+  unified_prefix: "oireachtas_unified"
+
+review:
+  branch: "oireachtas-review-output"
+  root: "review"
+  sample_rows: 10

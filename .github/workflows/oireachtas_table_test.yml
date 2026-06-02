@@ -1,0 +1,160 @@
+name: Oireachtas Table Test (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      table:
+        description: "Table key to test. Use _smoke for F02."
+        required: true
+        default: "_smoke"
+      mode:
+        description: "Build mode"
+        required: true
+        default: "test"
+        type: choice
+        options:
+          - discover
+          - test
+          - incremental
+          - full
+          - backfill
+      chamber:
+        description: "Chamber"
+        required: false
+        default: "dail"
+      house_no:
+        description: "House number"
+        required: false
+        default: "34"
+      date_start:
+        description: "Start date YYYY-MM-DD"
+        required: false
+        default: ""
+      date_end:
+        description: "End date YYYY-MM-DD"
+        required: false
+        default: ""
+      limit:
+        description: "API/test row limit"
+        required: false
+        default: "25"
+      sample_rows:
+        description: "Review sample row count"
+        required: false
+        default: "10"
+
+concurrency:
+  group: oireachtas-table-test-${{ inputs.table }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  table_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION || 'ca-central-1' }}
+      S3_BUCKET: "eirepolitic-data"
+      REVIEW_OUTPUT_ROOT: "oireachtas_review_output"
+      REVIEW_BRANCH: "oireachtas-review-output"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Oireachtas table test
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(
+            --table "${{ inputs.table }}"
+            --mode "${{ inputs.mode }}"
+            --chamber "${{ inputs.chamber }}"
+            --house-no "${{ inputs.house_no }}"
+            --limit "${{ inputs.limit }}"
+            --sample-rows "${{ inputs.sample_rows }}"
+            --write-review-sample
+            --s3-bucket "${S3_BUCKET}"
+            --aws-region "${AWS_REGION}"
+            --review-root "${REVIEW_OUTPUT_ROOT}"
+            --github-repository "${GITHUB_REPOSITORY}"
+          )
+          if [[ -n "${{ inputs.date_start }}" ]]; then
+            args+=(--date-start "${{ inputs.date_start }}")
+          fi
+          if [[ -n "${{ inputs.date_end }}" ]]; then
+            args+=(--date-end "${{ inputs.date_end }}")
+          fi
+          python -m extract.oireachtas.build_table "${args[@]}" | tee oireachtas_table_test.log
+
+      - name: Publish review output branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then
+            echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}"
+            exit 1
+          fi
+          rm -rf /tmp/oireachtas-review-worktree
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "${REVIEW_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${REVIEW_BRANCH}:${REVIEW_BRANCH}"
+            git worktree add /tmp/oireachtas-review-worktree "${REVIEW_BRANCH}"
+          else
+            git worktree add --detach /tmp/oireachtas-review-worktree HEAD
+            git -C /tmp/oireachtas-review-worktree switch --orphan "${REVIEW_BRANCH}"
+            git -C /tmp/oireachtas-review-worktree rm -rf . >/dev/null 2>&1 || true
+          fi
+          rm -rf /tmp/oireachtas-review-worktree/*
+          cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
+          git -C /tmp/oireachtas-review-worktree add .
+          git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas review output for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"
+
+      - name: Write workflow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Oireachtas table test"
+            echo
+            echo "- Table: \`${{ inputs.table }}\`"
+            echo "- Mode: \`${{ inputs.mode }}\`"
+            echo "- Review branch: \`${REVIEW_BRANCH}\`"
+            echo "- Manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/${{ inputs.table }}/latest/manifest.json"
+            echo "- Sample CSV: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/${{ inputs.table }}/latest/sample.csv"
+            echo
+            echo '```text'
+            if [[ -f oireachtas_table_test.log ]]; then
+              tail -n 80 oireachtas_table_test.log
+            else
+              echo "No table-test log found."
+            fi
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload review artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-table-test-output
+          path: |
+            oireachtas_review_output/**
+            oireachtas_table_test.log
+          if-no-files-found: warn
