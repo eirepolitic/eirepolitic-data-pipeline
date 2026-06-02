@@ -1,0 +1,237 @@
+# Unified Oireachtas table registry.
+# Status values: planned, in_progress, tested, confirmed, deprecated.
+# This registry starts broad so the CLI and review workflow can validate the
+# intended model before each table builder is implemented.
+
+tables:
+  silver_houses:
+    layer: silver
+    status: planned
+    cadence: yearly
+    endpoint: "/houses"
+    primary_key: ["house_uri"]
+    description: "House/chamber dimension."
+    columns: [house_uri, house_no, house_code, chamber, show_as, date_start, date_end, is_current, source_endpoint, snapshot_date, source_hash]
+
+  silver_constituencies:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/constituencies"
+    primary_key: ["constituency_uri"]
+    description: "Constituency dimension."
+    columns: [constituency_uri, constituency_code, constituency_name, show_as, house_uri, house_no, chamber, date_start, date_end, is_current, source_endpoint, snapshot_date, source_hash]
+
+  silver_parties:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/parties"
+    primary_key: ["party_uri"]
+    description: "Political party dimension."
+    columns: [party_uri, party_code, party_name, show_as, date_start, date_end, is_current, source_endpoint, snapshot_date, source_hash]
+
+  silver_members:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/members"
+    primary_key: ["member_code"]
+    description: "Stable member/person identity table."
+    columns: [member_code, member_uri, full_name, first_name, last_name, display_name, gender, member_key, is_current_member, latest_party_name, latest_constituency_name, latest_house_no, source_endpoint, snapshot_date, source_hash]
+
+  silver_member_memberships:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/members"
+    primary_key: ["membership_id"]
+    description: "Time-aware member-to-house bridge."
+    columns: [membership_id, member_code, member_uri, house_uri, house_no, house_code, chamber, membership_start, membership_end, is_current, source_hash, snapshot_date]
+
+  silver_member_parties:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/members"
+    primary_key: ["member_party_id"]
+    description: "Time-aware member-to-party bridge."
+    columns: [member_party_id, membership_id, member_code, party_uri, party_name, party_start, party_end, is_current, snapshot_date]
+
+  silver_member_constituencies:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/members"
+    primary_key: ["member_constituency_id"]
+    description: "Time-aware member-to-constituency bridge."
+    columns: [member_constituency_id, membership_id, member_code, constituency_uri, constituency_name, represent_start, represent_end, is_current, snapshot_date]
+
+  silver_member_offices:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/members"
+    primary_key: ["member_office_id"]
+    description: "Member office/ministerial/chair role bridge where exposed."
+    columns: [member_office_id, membership_id, member_code, office_uri, office_name, office_start, office_end, is_current, snapshot_date]
+
+  silver_source_files:
+    layer: silver
+    status: planned
+    cadence: follows_parent
+    primary_key: ["source_file_id"]
+    description: "Inventory of XML/PDF/source files discovered from formats fields."
+    columns: [source_file_id, source_entity_type, source_entity_id, format_type, format_uri, format_url, s3_key, content_type, download_status, downloaded_at_utc, byte_size, etag_or_hash, snapshot_date]
+
+  silver_debate_records:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/debates"
+    primary_key: ["debate_id"]
+    description: "Debate metadata records."
+    columns: [debate_id, debate_uri, context_date, debate_date, chamber, house_uri, house_no, house_code, show_as, source_xml_uri, source_xml_url, source_pdf_uri, source_pdf_url, source_file_id_xml, source_file_id_pdf, api_result_hash, snapshot_date]
+
+  silver_debate_sections:
+    layer: silver
+    status: planned
+    cadence: weekly
+    primary_key: ["debate_section_id"]
+    description: "Debate section records parsed from API/XML."
+    columns: [debate_section_id, debate_id, section_eid, section_uri, section_order, heading, show_as, parent_section_id, snapshot_date]
+
+  silver_speeches:
+    layer: silver
+    status: planned
+    cadence: weekly
+    primary_key: ["speech_id"]
+    description: "Atomic speech records parsed from debate XML."
+    columns: [speech_id, debate_id, debate_section_id, debate_date, speech_order, speaker_ref, speaker_name, speaker_member_code, speaker_match_method, speaker_match_confidence, speech_text, speech_text_hash, word_count, char_count, language, source_file_id, xml_source_key, snapshot_date]
+
+  silver_divisions:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/divisions"
+    primary_key: ["division_id"]
+    description: "Division/vote event table."
+    columns: [division_id, vote_id, division_date, chamber, house_uri, house_no, committee_code, subject, outcome, debate_id, debate_section_id, debate_show_as, api_result_hash, snapshot_date]
+
+  silver_division_tallies:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/divisions"
+    primary_key: ["division_tally_id"]
+    description: "Division-level tally counts by vote type."
+    columns: [division_tally_id, division_id, vote_code, vote_label, show_as, member_count, snapshot_date]
+
+  silver_member_votes:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/divisions"
+    primary_key: ["member_vote_id"]
+    description: "Member-level vote records."
+    columns: [member_vote_id, division_id, vote_id, division_date, member_code, member_name, vote_code, vote_label, party_name_at_vote, constituency_name_at_vote, snapshot_date]
+
+  silver_questions:
+    layer: silver
+    status: planned
+    cadence: weekly
+    endpoint: "/questions"
+    primary_key: ["question_id"]
+    description: "Parliamentary questions."
+    columns: [question_id, question_uri, question_date, question_no, question_type, question_text, answer_text, asked_by_member_code, asked_by_name, to_minister_or_department, debate_section_id, source_xml_uri, source_xml_url, source_pdf_uri, source_pdf_url, source_file_id_xml, source_file_id_pdf, snapshot_date, source_hash]
+
+  silver_bills:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["bill_id"]
+    description: "Bill/legislation item table."
+    columns: [bill_id, bill_uri, bill_no, bill_year, title, short_title, origin_house_uri, origin_house_name, bill_type, status, introduced_date, last_event_date, source_endpoint, snapshot_date, source_hash]
+
+  silver_bill_versions:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["bill_version_id"]
+    description: "Bill version/document table."
+    columns: [bill_version_id, bill_id, version_label, version_date, format_pdf_uri, format_pdf_url, format_xml_uri, format_xml_url, source_file_id_pdf, source_file_id_xml, s3_pdf_key, s3_xml_key, snapshot_date]
+
+  silver_bill_stages:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["bill_stage_id"]
+    description: "Bill stage/progress history."
+    columns: [bill_stage_id, bill_id, stage_name, stage_date, house_uri, house_name, stage_outcome, order_in_bill, snapshot_date]
+
+  control_pipeline_runs:
+    layer: control
+    status: planned
+    cadence: every_run
+    primary_key: ["run_id"]
+    description: "Pipeline run audit log."
+    columns: [run_id, workflow_run_id, table_name, mode, cadence, started_at_utc, finished_at_utc, status, input_params_json, raw_rows, output_rows, error_message, manifest_s3_key]
+
+  control_table_manifests:
+    layer: control
+    status: planned
+    cadence: every_run
+    primary_key: ["table_name"]
+    description: "Latest manifest pointer per table."
+    columns: [table_name, latest_run_id, latest_snapshot_date, latest_parquet_key, latest_csv_key, row_count, column_count, schema_hash, primary_key_unique, dq_status, updated_at_utc]
+
+  control_data_quality_results:
+    layer: control
+    status: planned
+    cadence: every_run
+    primary_key: ["dq_result_id"]
+    description: "Data-quality result records."
+    columns: [dq_result_id, run_id, table_name, check_name, status, metric_value, threshold, message, created_at_utc]
+
+  gold_current_members:
+    layer: gold
+    status: planned
+    cadence: weekly
+    primary_key: ["member_code"]
+    description: "Current member roster mart."
+    columns: [member_code, full_name, party_name, constituency_name, house_no, office_name, snapshot_date]
+
+  gold_member_activity_yearly:
+    layer: gold
+    status: planned
+    cadence: weekly_current_year
+    primary_key: ["member_code", "year"]
+    description: "Member annual activity metrics."
+    columns: [member_code, year, speech_count, debate_day_count, division_count, votes_cast_count, vote_participation_pct, ta_count, nil_count, staon_count, speech_rank, vote_participation_rank, snapshot_date]
+
+  gold_member_activity_monthly:
+    layer: gold
+    status: planned
+    cadence: weekly_current_year
+    primary_key: ["member_code", "year_month"]
+    description: "Member monthly activity metrics."
+    columns: [member_code, year_month, speech_count, debate_day_count, votes_cast_count, snapshot_date]
+
+  gold_constituency_activity_yearly:
+    layer: gold
+    status: planned
+    cadence: monthly
+    primary_key: ["constituency_name", "year"]
+    description: "Constituency annual activity metrics."
+    columns: [constituency_name, year, member_count, speech_count, votes_cast_count, snapshot_date]
+
+  gold_content_fact_pool:
+    layer: gold
+    status: planned
+    cadence: weekly
+    primary_key: ["fact_id"]
+    description: "Deterministic candidate fact pool for Instagram content."
+    columns: [fact_id, fact_type, entity_type, entity_id, period_start, period_end, headline, metric_name, metric_value, source_table, source_key, snapshot_date]
