@@ -11,9 +11,20 @@ api:
   backoff_seconds: 2
   sleep_seconds: 0.2
 
+endpoint_aliases:
+  # F03 discovery on 2026-06-02 confirmed both /divisions and /votes returned
+  # HTTP 200 with identical result wrapper keys and schema hash for the same
+  # Dáil 34 January 2025 test window. Use /divisions as the documented standard
+  # endpoint and keep /votes as a compatibility fallback because legacy repo code
+  # already used it successfully.
+  divisions:
+    canonical: "/divisions"
+    fallback: "/votes"
+
 defaults:
   chamber: "dail"
   house_no: "34"
+  chamber_id: "/ie/oireachtas/house/dail/34"
   language: "en"
 
 s3:
