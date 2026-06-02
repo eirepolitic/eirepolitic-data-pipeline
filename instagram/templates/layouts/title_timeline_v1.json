@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "template_id": "title_timeline_v1",
+  "description": "Title-above-timeline post layout. No built-in corner decorations; standard corner overlay is applied after render.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {"type": "solid", "color": "{palette.panel_background}"},
+  "elements": [
+    {"id":"title","type":"text","placeholder":"slide_title","x":80,"y":95,"w":920,"h":130,"style":{"font_family":"default_bold","font_size":62,"min_font_size":34,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":8}},
+    {"id":"timeline_panel","type":"rectangle","x":80,"y":245,"w":920,"h":1010,"radius":0,"fill":"{palette.panel_background_alt}","stroke":null,"width":0},
+    {"id":"timeline_intro","type":"text","placeholder":"timeline_intro","x":135,"y":300,"w":810,"h":70,"style":{"font_size":30,"min_font_size":22,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":6}},
+    {"id":"timeline_axis","type":"line","x":240,"y":405,"w":0,"h":690,"fill":"{palette.border}","width":5},
+    {"id":"event_1_marker","type":"rectangle","x":218,"y":420,"w":44,"h":44,"radius":0,"fill":"{palette.text_primary}","stroke":null,"width":0},
+    {"id":"event_1_date","type":"text","placeholder":"event_1_date","x":120,"y":410,"w":90,"h":64,"style":{"font_family":"default_bold","font_size":30,"min_font_size":20,"color":"{palette.text_primary}","align":"right","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":4}},
+    {"id":"event_1_title","type":"text","placeholder":"event_1_title","x":290,"y":395,"w":635,"h":54,"style":{"font_family":"default_bold","font_size":38,"min_font_size":24,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":1,"shrink_to_fit":true}},
+    {"id":"event_1_body","type":"text","placeholder":"event_1_body","x":290,"y":455,"w":635,"h":88,"style":{"font_size":29,"min_font_size":21,"color":"{palette.text_primary}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":7}},
+    {"id":"event_2_marker","type":"rectangle","x":218,"y":600,"w":44,"h":44,"radius":0,"fill":"{palette.text_primary}","stroke":null,"width":0},
+    {"id":"event_2_date","type":"text","placeholder":"event_2_date","x":120,"y":590,"w":90,"h":64,"style":{"font_family":"default_bold","font_size":30,"min_font_size":20,"color":"{palette.text_primary}","align":"right","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":4}},
+    {"id":"event_2_title","type":"text","placeholder":"event_2_title","x":290,"y":575,"w":635,"h":54,"style":{"font_family":"default_bold","font_size":38,"min_font_size":24,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":1,"shrink_to_fit":true}},
+    {"id":"event_2_body","type":"text","placeholder":"event_2_body","x":290,"y":635,"w":635,"h":88,"style":{"font_size":29,"min_font_size":21,"color":"{palette.text_primary}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":7}},
+    {"id":"event_3_marker","type":"rectangle","x":218,"y":780,"w":44,"h":44,"radius":0,"fill":"{palette.text_primary}","stroke":null,"width":0},
+    {"id":"event_3_date","type":"text","placeholder":"event_3_date","x":120,"y":770,"w":90,"h":64,"style":{"font_family":"default_bold","font_size":30,"min_font_size":20,"color":"{palette.text_primary}","align":"right","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":4}},
+    {"id":"event_3_title","type":"text","placeholder":"event_3_title","x":290,"y":755,"w":635,"h":54,"style":{"font_family":"default_bold","font_size":38,"min_font_size":24,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":1,"shrink_to_fit":true}},
+    {"id":"event_3_body","type":"text","placeholder":"event_3_body","x":290,"y":815,"w":635,"h":88,"style":{"font_size":29,"min_font_size":21,"color":"{palette.text_primary}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":7}},
+    {"id":"event_4_marker","type":"rectangle","x":218,"y":960,"w":44,"h":44,"radius":0,"fill":"{palette.text_primary}","stroke":null,"width":0},
+    {"id":"event_4_date","type":"text","placeholder":"event_4_date","x":120,"y":950,"w":90,"h":64,"style":{"font_family":"default_bold","font_size":30,"min_font_size":20,"color":"{palette.text_primary}","align":"right","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":4}},
+    {"id":"event_4_title","type":"text","placeholder":"event_4_title","x":290,"y":935,"w":635,"h":54,"style":{"font_family":"default_bold","font_size":38,"min_font_size":24,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":1,"shrink_to_fit":true}},
+    {"id":"event_4_body","type":"text","placeholder":"event_4_body","x":290,"y":995,"w":635,"h":88,"style":{"font_size":29,"min_font_size":21,"color":"{palette.text_primary}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":7}},
+    {"id":"bottom_note","type":"text","placeholder":"bottom_note","x":145,"y":1155,"w":790,"h":65,"style":{"font_size":26,"min_font_size":19,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":5}}
+  ]
+}
