@@ -4,27 +4,29 @@
 **Document role:** Source of truth for the Oireachtas database layer behind the Instagram content creation platform.  
 **Created:** 2026-06-02  
 **Last updated:** 2026-06-02  
-**Status:** Plan created. Unified pipelines not yet built. Existing pipelines remain active.  
+**Current branch:** `gpt/docs-oireachtas_unified_data_model_plan.md-a4926f5c`  
+**Merge status:** Not yet merged to `main`. Continue work from this branch unless a later branch supersedes it.  
+**Status:** Plan strengthened after review. Unified pipelines not yet built. Existing pipelines remain active.  
 **Primary S3 bucket:** `s3://eirepolitic-data`  
 **AWS region observed:** `ca-central-1`  
-**Scope:** deterministic Oireachtas API extraction, normalization, CSV/Parquet writing, S3 layout, refresh schedules, GitHub Actions runners, and table validation.  
-**Out of scope:** LLM issue classification, LLM summarisation, Instagram publishing, scheduling posts, automatic approval.
+**Scope:** deterministic Oireachtas API extraction, source-file download, normalization, CSV/Parquet writing, S3 layout, GitHub Actions runners, refresh schedules, validation, review samples, and eventual cutover from existing pipelines.  
+**Out of scope:** LLM issue classification, LLM summarisation, Instagram publishing, post scheduling, automatic approval, changing visual templates.
 
 ---
 
 ## 1. Mandatory operating rules for future agents
 
-1. Read this file before changing any Oireachtas database work.
-2. Inspect the current repo before editing; other chats may have changed files.
+1. Read this file before changing any Oireachtas/database work.
+2. Inspect the current repo before editing; other chats may have changed files after this document was written.
 3. Keep old pipelines until the unified replacement is confirmed table-by-table.
-4. Build new pipelines in parallel under new paths/prefixes.
-5. Use existing repo scripts to learn working API parameters and parsing patterns.
-6. Use Oireachtas documentation plus live test pulls because the API is messy and docs are imperfect.
-7. Work table-by-table: design, build test, run, inspect small sample, patch, retry, confirm, document, move on.
-8. Ask the user only when a functional, cost, legal, or architecture decision cannot safely be made from context.
-9. Keep chat replies short.
-10. Never say a GitHub/AWS tool cannot be used without first checking available tools and prior chat/tool history.
-11. With the GitHub action tool, pass only the repository name:
+4. Build new pipelines in parallel under new code paths and new S3 prefixes.
+5. Use existing repo scripts to learn working API parameters, pagination, parsing, S3 writing, and workflow conventions.
+6. Use official Oireachtas API/open-data documentation plus live API test pulls because the API is messy and documentation is imperfect.
+7. Work table-by-table: design, build test, run, inspect small sample, patch, rerun, confirm, document, move on.
+8. Require user input only when a functional, cost, legal, permission, or architecture decision cannot safely be made from repo/context.
+9. Keep chat replies short and practical.
+10. Do not say a GitHub/AWS tool cannot be used without first checking available tools, previous tool results, and chat history.
+11. With the connected GitHub action tool, pass only the repository name:
 
 ```json
 {"repo": "eirepolitic-data-pipeline"}
@@ -32,9 +34,90 @@
 
 Do **not** pass `owner/repo`.
 
+12. If AWS/Lambda tools are exposed in a future chat, use them when useful. If not, use GitHub Actions with existing AWS secrets to perform S3/API tests.
+13. Do not touch LLM pipelines unless only documenting that they are out of scope.
+14. Do not delete or disable old workflows until explicit cutover criteria are met and documented here.
+
 ---
 
-## 2. Update rule for this document
+## 2. Source evidence reviewed
+
+### 2.1 Uploaded handoff
+
+File reviewed locally:
+
+```text
+/mnt/data/instagram_content_system_handoff(1).md
+```
+
+Important requirements extracted:
+
+- The Instagram system is review-only: no publishing, no scheduling, no automatic approval.
+- Generated outputs must be reviewed from real generated artifacts, not approximations.
+- The reliable assistant-visible review path is a dedicated GitHub output branch.
+- Existing proven branch for Instagram previews: `instagram-preview-output`.
+- S3 remains useful for storage, but public-style S3 URLs are not reliable for assistant review because uploads use `public-read=false` and public access/browser access can fail.
+- Review-output branches may be public if the repo is public; only publish safe review samples there.
+- The GitHub tool repo parameter must be repo name only.
+- The current S3 bucket is `eirepolitic-data`, region `ca-central-1`.
+
+### 2.2 Current repo files inspected
+
+Current `main` files observed during planning:
+
+| File | Relevant finding |
+|---|---|
+| `extract/monthly_extract.py` | Existing working `/debates` pagination, XML URI extraction, `data.oireachtas.ie` download, S3 raw XML write. |
+| `extract/debates_xml_to_csv_s3.py` | Existing Akoma Ntoso XML speech parser, S3 XML listing, speech CSV write. Needs stronger IDs and `itertext()` parsing. |
+| `extract/monthly_members_extract.py` | Existing `/members` flattening for Dáil 34 members/memberships/parties/constituencies. |
+| `process/build_dail_votes_member_records.py` | Existing vote/division flattening and Parquet writing. Uses `/v1/votes`, while public docs list `/v1/divisions`; must test both. |
+| `process/debate_speeches_csv_to_parquet.py` | Existing column cleaning and Parquet write pattern. |
+| `process/build_member_profile_metrics_2025.py` | Current downstream Instagram metric builder that should eventually consume unified gold/silver tables. |
+| `.github/workflows/monthly_extract.yml` | Existing monthly scheduled debates/members extraction. |
+| `.github/workflows/build_member_profile_metrics_2025.yml` | Existing manual votes + profile metrics workflow. |
+| `.github/workflows/speech_issue_classifier.yml` | LLM classification workflow; out of scope. |
+| `.github/workflows/instagram_s3_preview_test.yml` | Proven pattern for publishing workflow outputs to a dedicated branch with `contents: write`. Use this pattern for table review samples. |
+| `instagram/README.md` | Documents current downstream inputs and confirms Instagram relies on S3-backed member/debate/photo/constituency datasets. |
+| `requirements.txt` | Already includes `requests`, `boto3`, `pandas`, `pyarrow`, `pyyaml`, and other dependencies needed for the deterministic database layer. |
+
+### 2.3 Public API documentation facts
+
+Useful URLs:
+
+- `https://api.oireachtas.ie/`
+- `https://data.oireachtas.ie/`
+- `https://www.oireachtas.ie/en/open-data/`
+- `https://data.gov.ie/dataset/houses-of-the-oireachtas-open-data-apis`
+- `https://github.com/Irishsmurf/OireachtasAPI`
+
+Important API facts to design around:
+
+1. API metadata is served from `https://api.oireachtas.ie/v1`.
+2. Oireachtas states the APIs are intended to be used with `https://data.oireachtas.ie` source files.
+3. Debate and parliamentary-question source files are XML and comply with Akoma Ntoso-style structure.
+4. Bills, Acts, and other documents may be PDF.
+5. Source files are retrieved by appending `formats` URI fragments from API JSON to `https://data.oireachtas.ie`.
+6. New data are made available as soon as published, so weekly incremental pulls are needed for current facts.
+7. APIs are a work in progress; schema drift and endpoint quirks are expected.
+8. Documented JSON resources include:
+   - `/v1/debates`
+   - `/v1/legislation`
+   - `/v1/questions`
+   - `/v1/divisions`
+   - `/v1/constituencies`
+   - `/v1/parties`
+   - `/v1/houses`
+   - `/v1/members`
+
+Known mismatch:
+
+- Existing repo script uses `/v1/votes`.
+- Public docs/data.gov list votes as `/v1/divisions`.
+- The unified client must run endpoint discovery and either standardize on `/divisions` or keep a documented `/votes` fallback if live API testing proves it is needed.
+
+---
+
+## 3. Document update rule
 
 Update this file whenever any of these change:
 
@@ -47,13 +130,15 @@ Update this file whenever any of these change:
 - table status changes from planned/tested/confirmed;
 - old pipeline is deprecated or replaced;
 - API behaviour is discovered that affects extraction;
-- user makes a decision that affects design.
+- user makes a design decision;
+- S3/GitHub/AWS permissions are discovered or changed;
+- review-output branch structure changes.
 
-Every update must add a dated entry in **Section 15 — Change log**.
+Every update must add a dated entry in **Section 17 — Change log**.
 
 ---
 
-## 3. Goal
+## 4. Goal
 
 Create a unified, stable, joinable Oireachtas data model for Instagram content and future analytics.
 
@@ -64,60 +149,66 @@ The system must:
 3. preserve raw API/file data;
 4. normalize messy nested payloads into clean tables;
 5. write CSV and Parquet versions to S3;
-6. expose small review samples that the assistant can inspect;
+6. expose small review samples that the assistant can inspect from a raw GitHub output branch;
 7. refresh tables weekly, monthly, or yearly based on volatility;
-8. support joins across members, memberships, parties, constituencies, debates, speeches, divisions/votes, questions, and legislation;
-9. provide deterministic base tables for later LLM enrichment.
+8. support joins across members, memberships, parties, constituencies, houses, debates, speeches, divisions/votes, questions, bills, bill stages, and source files;
+9. provide deterministic base tables for later LLM enrichment;
+10. eventually replace existing old pipelines after confirmed equivalence/cutover.
 
 ---
 
-## 4. Current repo inventory observed on `main`
+## 5. Current production-ish repo state to preserve
 
-### 4.1 Existing Oireachtas-related scripts
+### 5.1 Existing Oireachtas-related scripts
 
 | File | Current purpose | Reuse notes |
 |---|---|---|
-| `extract/monthly_extract.py` | Fetches all Dáil 34 debates from `/debates`, downloads XML files, writes to `raw/debates/xml/`. | Reuse pagination, `formats.xml.uri`, `data.oireachtas.ie` file download, retry pattern. |
-| `extract/debates_xml_to_csv_s3.py` | Parses raw debate XML from S3 into a denormalized speeches CSV. | Reuse Akoma Ntoso XML namespace approach; improve IDs, nested text handling, speaker matching. |
-| `extract/monthly_members_extract.py` | Fetches Dáil 34 members and writes one flattened CSV. | Reuse member/membership/party/constituency traversal. |
-| `process/build_dail_votes_member_records.py` | Pulls votes/divisions and writes division/member-vote CSV + Parquet. | Reuse tally flattening; verify endpoint because docs list `/divisions` while script uses `/votes`. |
-| `process/debate_speeches_csv_to_parquet.py` | Converts CSV to Parquet with cleaned columns. | Reuse Parquet and column-cleaning conventions. |
-| `process/build_member_profile_metrics_2025.py` | Builds downstream Instagram metrics from members, classified speeches, votes, photos. | Later replace inputs with unified gold/silver tables. |
+| `extract/monthly_extract.py` | Fetches all Dáil 34 debates from `/debates`, downloads XML files, writes to `raw/debates/xml/`. | Reuse pagination, retry/backoff, XML URI handling, file naming. |
+| `extract/debates_xml_to_csv_s3.py` | Parses raw debate XML from S3 into denormalized speeches. | Reuse namespace strategy, but improve text extraction, IDs, metadata, speaker resolution. |
+| `extract/monthly_members_extract.py` | Fetches Dáil 34 members and writes one flattened CSV. | Reuse traversal of `memberships`, `parties`, `represents`. |
+| `process/build_dail_votes_member_records.py` | Pulls vote/division data and writes division/member-vote CSV + Parquet. | Reuse tally flattening and Parquet writing; do not keep its committee filtering in base tables. |
+| `process/build_member_profile_metrics_2025.py` | Creates current Instagram profile metrics from old member/debate/vote/photo inputs. | Treat as downstream consumer to replace later. |
+| `process/debate_speeches_csv_to_parquet.py` | Converts classified debate CSV to Parquet. | Reuse column cleaning and Parquet pattern. |
 
-### 4.2 Existing workflows
+### 5.2 Existing workflows
 
-| File | Current purpose |
-|---|---|
-| `.github/workflows/monthly_extract.yml` | Monthly debates XML extract, XML-to-CSV, and members extract. |
-| `.github/workflows/build_member_profile_metrics_2025.yml` | Manual vote pull and member profile metrics build. |
-| `.github/workflows/speech_issue_classifier.yml` | Manual LLM issue classifier and Parquet conversion; out of scope for this deterministic layer. |
+| File | Current purpose | Preserve? |
+|---|---|---|
+| `.github/workflows/monthly_extract.yml` | Monthly old debates XML + parsed speech CSV + members CSV. | Yes until cutover. |
+| `.github/workflows/build_member_profile_metrics_2025.yml` | Manual old vote/member-profile metric build. | Yes until gold tables replace it. |
+| `.github/workflows/speech_issue_classifier.yml` | Manual LLM issue classification. | Yes, but out of scope. |
+| `.github/workflows/instagram_s3_preview_test.yml` | Proven raw GitHub output branch publishing pattern. | Use as model for `oireachtas-review-output`. |
 
-### 4.3 Existing S3 paths to avoid overwriting
+### 5.3 Existing S3 paths not to overwrite
 
 | Path | Current use |
 |---|---|
-| `raw/debates/xml/` | Existing raw debate XML. |
-| `raw/debates/debate_speeches_extracted.csv` | Existing parsed speech CSV. |
-| `raw/members/oireachtas_members_34th_dail.csv` | Existing member CSV. |
-| `processed/votes/dail_vote_divisions.csv` | Existing vote division CSV. |
-| `processed/votes/parquets/dail_vote_divisions.parquet` | Existing vote division Parquet. |
-| `processed/votes/dail_vote_member_records.csv` | Existing member-vote CSV. |
-| `processed/votes/parquets/dail_vote_member_records.parquet` | Existing member-vote Parquet. |
-| `processed/members/member_profile_metrics_2025.csv` | Existing Instagram metrics CSV. |
+| `raw/debates/xml/` | Old raw debate XML. |
+| `raw/debates/debate_speeches_extracted.csv` | Old parsed speeches. |
+| `raw/members/oireachtas_members_34th_dail.csv` | Old member CSV. |
+| `processed/debates/debate_speeches_classified.csv` | LLM-classified speeches; out of scope. |
+| `processed/votes/dail_vote_divisions.csv` | Old vote divisions. |
+| `processed/votes/parquets/dail_vote_divisions.parquet` | Old vote divisions Parquet. |
+| `processed/votes/dail_vote_member_records.csv` | Old member votes. |
+| `processed/votes/parquets/dail_vote_member_records.parquet` | Old member votes Parquet. |
+| `processed/members/member_profile_metrics_2025.csv` | Old Instagram member metrics. |
+| `processed/members/parquets/member_profile_metrics_2025.parquet` | Old member metrics Parquet. |
 
----
+### 5.4 Current downstream Instagram inputs to replace later
 
-## 5. External API facts to design around
+From `instagram/README.md` and current scripts, current downstream inputs include:
 
-Observed from Oireachtas open-data/API docs and existing repo code:
+```text
+raw/members/oireachtas_members_34th_dail.csv
+processed/members/members_summaries.csv
+processed/members/member_photos/members_photo_urls.csv
+processed/members/members_photo_urls.csv
+processed/debates/debate_speeches_classified.csv
+processed/constituencies/constituency_images.csv
+processed/members/member_profile_metrics_2025.csv
+```
 
-1. API base: `https://api.oireachtas.ie/v1`.
-2. Linked raw files are usually under `https://data.oireachtas.ie`.
-3. API metadata identifies source files via nested `formats` fields.
-4. Available documented datasets include debates, divisions/votes, parliamentary questions, legislation, members, houses, parties, and constituencies.
-5. Oireachtas documentation says API datasets are intended to be used with `data.oireachtas.ie` raw datasets.
-6. Data can appear as soon as published; late edits/revisions must be expected.
-7. Current repo uses `/votes`; docs/data.gov list votes as `/divisions`. The unified client must test both and standardize the working documented endpoint with fallback.
+The unified data model should eventually replace only the deterministic Oireachtas-derived inputs. Photo URLs, constituency images, and LLM summaries/classifications remain separate layers.
 
 ---
 
@@ -125,13 +216,22 @@ Observed from Oireachtas open-data/API docs and existing repo code:
 
 ```text
 Oireachtas API + data.oireachtas.ie
-  -> bronze raw JSON/XML/PDF + manifests
+  -> bronze raw JSON/XML/PDF + run manifests
   -> silver normalized joinable CSV/Parquet tables
   -> gold deterministic Instagram-ready marts
-  -> later LLM enrichment layer
+  -> later enrichment layer: LLM classifications/summaries/copy assistance
 ```
 
-### 6.1 New repo structure
+### 6.1 Layer definitions
+
+| Layer | Purpose | Writes |
+|---|---|---|
+| Bronze | Exact raw API pages and source files for replay/debugging. | JSON, XML, PDF, manifest JSON. |
+| Silver | Clean, typed, joinable normalized model. | CSV + Parquet for every confirmed table. |
+| Gold | Deterministic Instagram/data-app marts built from silver only. | CSV + Parquet. |
+| Enrichment | Later LLM-derived classifications/summaries. | Out of this workstream. |
+
+### 6.2 New repo structure
 
 Build new code in a separate package so old scripts remain untouched:
 
@@ -139,21 +239,25 @@ Build new code in a separate package so old scripts remain untouched:
 extract/oireachtas/
   __init__.py
   client.py              # API client, pagination, retry, endpoint alias handling
-  io_s3.py               # S3 CSV/Parquet/JSON/XML helpers
+  io_s3.py               # S3 CSV/Parquet/JSON/XML/PDF helpers
   normalize.py           # text/date/name/URI/hash helpers
   schemas.py             # table schema and validation helpers
+  discovery.py           # endpoint smoke tests and payload-shape summaries
   xml_debates.py         # debate XML parser
   xml_questions.py       # question XML parser if needed
   build_table.py         # CLI: build one table
   build_all.py           # cadence orchestrator
+  review.py              # sample/schema/manifest publishing helpers
 
 configs/oireachtas/
   tables.yml             # table registry
   api_params.yml         # default chamber/house/date params
-  schema_overrides.yml   # API quirks and field aliases
+  schema_overrides.yml   # API quirks, field aliases, nullable exceptions
+  cadences.yml           # weekly/monthly/yearly table groups
 
 tests/oireachtas/
   test_normalize.py
+  test_client.py
   test_xml_debates.py
   test_table_contracts.py
   fixtures/
@@ -165,7 +269,7 @@ tests/oireachtas/
   oireachtas_yearly_refresh.yml
 ```
 
-### 6.2 Standard CLI shape
+### 6.3 Standard CLI shape
 
 All new table builds should use one entry point:
 
@@ -186,10 +290,30 @@ Modes:
 
 | Mode | Meaning |
 |---|---|
-| `test` | small sample, review outputs, no production overwrite |
-| `incremental` | recent/current changed data |
-| `full` | full refresh for a table/scope |
-| `backfill` | historical load by date/house range |
+| `discover` | endpoint smoke test, no production outputs, writes payload-shape summary. |
+| `test` | small sample, review outputs, no production overwrite. |
+| `incremental` | recent/current changed data. |
+| `full` | full refresh for a table/scope. |
+| `backfill` | historical load by date/house range. |
+
+### 6.4 Shared client requirements
+
+`client.py` must support:
+
+1. base URL default `https://api.oireachtas.ie/v1`;
+2. file base URL default `https://data.oireachtas.ie`;
+3. endpoint registry and aliases;
+4. `/divisions` with optional `/votes` fallback;
+5. `requests.Session` reuse;
+6. retries/backoff for `429`, `5xx`, timeout, connection reset;
+7. pagination via `skip`/`limit`;
+8. result count logging;
+9. raw page preservation before transform;
+10. manifest per run;
+11. schema drift summary;
+12. source-file download from `formats` fields;
+13. no API key assumption;
+14. deterministic test mode with small limits.
 
 ---
 
@@ -202,25 +326,121 @@ raw/oireachtas_unified/api/<endpoint>/snapshot_date=<YYYY-MM-DD>/run_id=<run_id>
 raw/oireachtas_unified/files/<source_type>/<id_or_date>/<file>
 processed/oireachtas_unified/silver/<table>/snapshot_date=<YYYY-MM-DD>/run_id=<run_id>/part-00000.parquet
 processed/oireachtas_unified/silver_csv/<table>/snapshot_date=<YYYY-MM-DD>/run_id=<run_id>/<table>.csv
+processed/oireachtas_unified/gold/<table>/snapshot_date=<YYYY-MM-DD>/run_id=<run_id>/part-00000.parquet
+processed/oireachtas_unified/gold_csv/<table>/snapshot_date=<YYYY-MM-DD>/run_id=<run_id>/<table>.csv
 processed/oireachtas_unified/latest/parquet/<table>.parquet
 processed/oireachtas_unified/latest/csv/<table>.csv
 processed/oireachtas_unified/manifests/<table>/run_id=<run_id>.json
 processed/oireachtas_unified/review/<table>/latest/sample.csv
 processed/oireachtas_unified/review/<table>/latest/schema.json
+processed/oireachtas_unified/review/<table>/latest/manifest.json
 ```
 
 Rules:
 
 1. Parquet is the analytical source of truth.
-2. CSV is kept for Appsmith/Power BI/manual review.
-3. Raw API pages and raw downloaded files are preserved.
+2. CSV is kept for Appsmith, Power BI, review, and simple GitHub output samples.
+3. Raw API pages and downloaded files are preserved.
 4. Every confirmed table gets a manifest.
 5. Every test run writes a small review sample.
-6. Do not overwrite old non-unified paths until cutover is approved.
+6. Do not overwrite old non-unified paths until cutover.
+7. Add an S3 smoke-test step before broad writes to verify permissions on new prefixes.
+8. Keep review samples small and safe because raw GitHub output branches may be public.
+
+### 7.1 S3 permission caveat
+
+The handoff only proves S3 preview permissions around:
+
+```text
+s3://eirepolitic-data/instagram/previews/*
+```
+
+It does **not** prove write/read permissions for:
+
+```text
+s3://eirepolitic-data/raw/oireachtas_unified/*
+s3://eirepolitic-data/processed/oireachtas_unified/*
+```
+
+Before building many tables, the first workflow must run a narrow smoke test:
+
+1. `PutObject` one JSON manifest to `processed/oireachtas_unified/review/_smoke/latest/manifest.json`.
+2. `GetObject` the same file.
+3. Optionally `PutObject` one tiny CSV.
+4. Fail fast if permissions are missing.
+
+If S3 permissions fail, document exact error in this file and use available AWS/GitHub tools to fix or request the minimum permission change.
 
 ---
 
-## 8. Data model key strategy
+## 8. Review-output branch design
+
+The uploaded handoff proves the most reliable assistant-review path is a dedicated GitHub branch, not public S3 URLs or artifact ZIP inspection.
+
+Create/use:
+
+```text
+branch: oireachtas-review-output
+folder: review/
+```
+
+Branch layout:
+
+```text
+README.md
+review/index.md
+review/_smoke/latest/manifest.json
+review/<table>/latest/sample.csv
+review/<table>/latest/sample.md
+review/<table>/latest/schema.json
+review/<table>/latest/manifest.json
+review/<table>/latest/dq.json
+```
+
+Workflow requirements:
+
+1. `permissions: contents: write` is required.
+2. Use the same worktree/orphan-branch pattern as `.github/workflows/instagram_s3_preview_test.yml`.
+3. Treat the output branch as generated, not source.
+4. Overwrite only the `review/` folder on each run.
+5. Include raw GitHub URLs in `GITHUB_STEP_SUMMARY`.
+6. Do not publish large full datasets to the review branch.
+7. Do not rely on GitHub artifacts as the primary assistant review path.
+8. Do not claim a sample was inspected unless the assistant opened the raw branch file, workflow logs, or S3 object directly.
+
+Required raw URL pattern:
+
+```text
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/<table>/latest/sample.csv
+```
+
+Required log block:
+
+```text
+TABLE=<table>
+MODE=<discover|test|incremental|full|backfill>
+ROWS=<n>
+COLUMNS=<n>
+PRIMARY_KEY=<key>
+PRIMARY_KEY_UNIQUE=<true|false>
+CSV_KEY=s3://...
+PARQUET_KEY=s3://...
+MANIFEST_KEY=s3://...
+REVIEW_SAMPLE_RAW_URL=https://raw.githubusercontent.com/...
+DQ_STATUS=<pass|warn|fail>
+```
+
+Sample policy:
+
+- default 10 rows;
+- cap sample CSV at 100 rows in manual tests;
+- truncate very long text in `sample.md`, but keep full sampled fields in `sample.csv`;
+- include `schema.json` and `manifest.json` for machine inspection;
+- never include LLM output fields in this deterministic review layer.
+
+---
+
+## 9. Data model key strategy
 
 Use stable source identifiers first, generated hashes second, display-name joins last.
 
@@ -236,6 +456,7 @@ Use stable source identifiers first, generated hashes second, display-name joins
 | Division/vote | `division_id` or `vote_id + date` | subject + date + chamber hash |
 | Question | `question_id` or URI | date + number + member hash |
 | Bill | bill URI / number + year | title + introduced date hash |
+| Source file | `source_file_id` | file URL/S3 key hash |
 
 Generated deterministic IDs:
 
@@ -243,11 +464,18 @@ Generated deterministic IDs:
 sha256("|".join(stable_fields).lower().strip().encode()).hexdigest()[:16]
 ```
 
+Name-based joining rules:
+
+1. Do not use display names as primary keys.
+2. Display-name joins are allowed only as fallback.
+3. Fallback joins must record `match_method` and preferably `match_confidence`.
+4. Unmatched rows must be retained with null FK and clear match status.
+
 ---
 
-## 9. Silver tables
+## 10. Silver data model
 
-### 9.1 Core dimensions
+### 10.1 Core dimensions
 
 #### `silver_houses`
 
@@ -409,7 +637,33 @@ Columns:
 
 Cadence: weekly current + monthly full.
 
-### 9.2 Debates and speeches
+### 10.2 Source file inventory
+
+#### `silver_source_files`
+
+Purpose: normalize every XML/PDF/source file discovered from `formats` fields.
+
+Grain: one row per source file URI.
+
+Columns:
+
+- `source_file_id`
+- `source_entity_type`
+- `source_entity_id`
+- `format_type`
+- `format_uri`
+- `format_url`
+- `s3_key`
+- `content_type`
+- `download_status`
+- `downloaded_at_utc`
+- `byte_size`
+- `etag_or_hash`
+- `snapshot_date`
+
+Cadence: follows parent table. Use skip-existing where files are immutable.
+
+### 10.3 Debates and speeches
 
 #### `silver_debate_records`
 
@@ -430,6 +684,8 @@ Columns:
 - `source_xml_url`
 - `source_pdf_uri`
 - `source_pdf_url`
+- `source_file_id_xml`
+- `source_file_id_pdf`
 - `api_result_hash`
 - `snapshot_date`
 
@@ -468,11 +724,13 @@ Columns:
 - `speaker_name`
 - `speaker_member_code`
 - `speaker_match_method`
+- `speaker_match_confidence`
 - `speech_text`
 - `speech_text_hash`
 - `word_count`
 - `char_count`
 - `language`
+- `source_file_id`
 - `xml_source_key`
 - `snapshot_date`
 
@@ -483,12 +741,14 @@ Parser requirements:
 3. Preserve unmatched speakers instead of dropping rows.
 4. Resolve speakers via XML person refs first, member code/URI second, normalized-name fallback last.
 5. Never dedupe only on date + speaker + text; include debate/section/order/hash.
+6. Keep procedural/non-member speakers if the XML includes them.
+7. Do not run LLM classification here.
 
 Cadence: weekly recent incremental + monthly reconciliation.
 
 Optional later table: `silver_speech_paragraphs` if paragraph-level data is useful.
 
-### 9.3 Divisions/votes
+### 10.4 Divisions/votes
 
 #### `silver_divisions`
 
@@ -551,7 +811,7 @@ Columns:
 
 Cadence: follows divisions.
 
-### 9.4 Parliamentary questions
+### 10.5 Parliamentary questions
 
 #### `silver_questions`
 
@@ -574,6 +834,8 @@ Columns:
 - `source_xml_url`
 - `source_pdf_uri`
 - `source_pdf_url`
+- `source_file_id_xml`
+- `source_file_id_pdf`
 - `snapshot_date`
 - `source_hash`
 
@@ -581,7 +843,7 @@ Cadence: weekly recent incremental + monthly reconciliation.
 
 Optional deterministic table only if API exposes topics: `silver_question_topics`. No LLM topic tagging in this workstream.
 
-### 9.5 Legislation
+### 10.6 Legislation
 
 #### `silver_bills`
 
@@ -621,6 +883,8 @@ Columns:
 - `format_pdf_url`
 - `format_xml_uri`
 - `format_xml_url`
+- `source_file_id_pdf`
+- `source_file_id_xml`
 - `s3_pdf_key`
 - `s3_xml_key`
 - `snapshot_date`
@@ -647,7 +911,7 @@ Cadence: monthly.
 
 Optional if sponsors are exposed reliably: `silver_bill_sponsors`.
 
-### 9.6 Control tables
+### 10.7 Control tables
 
 #### `control_pipeline_runs`
 
@@ -705,7 +969,7 @@ Columns:
 
 ---
 
-## 10. Gold tables for Instagram/data apps
+## 11. Gold tables for Instagram/data apps
 
 Build only after required silver inputs are confirmed.
 
@@ -753,7 +1017,8 @@ Deterministic candidate facts for Instagram cards:
 - vote participation rankings;
 - bill milestones;
 - question volumes;
-- debate/activity facts.
+- debate/activity facts;
+- current-membership facts.
 
 Cadence: weekly after dependent tables refresh.
 
@@ -761,9 +1026,9 @@ No LLM-generated fields in gold until the enrichment layer is explicitly added.
 
 ---
 
-## 11. Refresh cadence
+## 12. Refresh cadence
 
-### 11.1 Weekly workflow
+### 12.1 Weekly workflow
 
 File: `.github/workflows/oireachtas_weekly_refresh.yml`  
 Proposed cron: `20 3 * * 0`
@@ -777,7 +1042,9 @@ Run:
 - current-year gold activity tables;
 - control manifests and DQ outputs.
 
-### 11.2 Monthly workflow
+Default window: last 45 days for recent event/fact tables, plus current year for yearly gold metrics.
+
+### 12.2 Monthly workflow
 
 File: `.github/workflows/oireachtas_monthly_refresh.yml`  
 Proposed cron: `35 4 1 * *`
@@ -788,9 +1055,10 @@ Run:
 - parties;
 - legislation/bills/stages/versions;
 - current house/year reconciliation for debates, votes, and questions;
+- source-file inventory reconciliation;
 - constituency gold marts.
 
-### 11.3 Yearly workflow
+### 12.3 Yearly workflow
 
 File: `.github/workflows/oireachtas_yearly_refresh.yml`  
 Proposed cron: `15 5 2 1 *`
@@ -803,7 +1071,7 @@ Run:
 - annual DQ summary;
 - previous-year gold freeze.
 
-### 11.4 Manual test workflow
+### 12.4 Manual test workflow
 
 File: `.github/workflows/oireachtas_table_test.yml`
 
@@ -820,65 +1088,54 @@ Inputs:
 - `write_review_sample`
 - `publish_review_branch`
 
----
+Required workflow permissions:
 
-## 12. Assistant-visible test/review loop
-
-The attached handoff established that the assistant can reliably inspect generated outputs through a dedicated GitHub output branch. Reuse that pattern for data samples.
-
-Create/use branch:
-
-```text
-oireachtas-review-output
+```yaml
+permissions:
+  contents: write
 ```
 
-Branch layout:
-
-```text
-review/index.md
-review/<table>/latest/sample.csv
-review/<table>/latest/schema.json
-review/<table>/latest/manifest.json
-```
-
-Per-table loop:
-
-1. Build parser/table in test mode.
-2. Run manual workflow with small limits/date range.
-3. Write S3 review sample.
-4. Publish sample/schema/manifest to `oireachtas-review-output`.
-5. Assistant opens raw GitHub sample output.
-6. Assistant checks schema, row count, nulls, IDs, joins, parse quality.
-7. Patch parser and rerun until acceptable.
-8. Mark table confirmed in this document.
-9. Move to next table.
-
-Required log output for each test:
-
-```text
-TABLE=<table>
-MODE=test
-ROWS=<n>
-COLUMNS=<n>
-PRIMARY_KEY=<key>
-PRIMARY_KEY_UNIQUE=<true|false>
-CSV_KEY=s3://...
-PARQUET_KEY=s3://...
-REVIEW_SAMPLE_RAW_URL=https://raw.githubusercontent.com/...
-```
-
-Sample policy:
-
-- default 10 rows;
-- truncate long text in logs;
-- full sample CSV in review branch/S3;
-- do not include LLM output fields.
+Use `contents: write` because it must publish to `oireachtas-review-output`.
 
 ---
 
-## 13. Validation rules
+## 13. Table-by-table autonomous test loop
 
-### 13.1 Every table
+This section is the operating loop the user requested.
+
+For each table:
+
+1. Implement only the minimum parser/build logic for that table and its dependencies.
+2. Run `discover` mode if payload shape is unknown.
+3. Run `test` mode with tiny limits/date windows.
+4. Write CSV, Parquet, manifest, schema, and DQ output to S3 test/review paths.
+5. Publish sample/schema/manifest/DQ to `oireachtas-review-output`.
+6. Assistant fetches raw GitHub sample output or workflow logs.
+7. Assistant checks:
+   - column names;
+   - row count;
+   - required key nulls;
+   - primary key uniqueness;
+   - obvious parsing failures;
+   - join feasibility;
+   - nested arrays not wrongly discarded;
+   - source-file links/S3 keys where applicable.
+8. Patch code and rerun until table is acceptable.
+9. Mark table confirmed in this document with actual run evidence.
+10. Move to next table.
+
+Do not pause for user input unless:
+
+- S3/GitHub/AWS permissions block progress;
+- API behaviour creates a real model-design decision;
+- a cost-affecting architecture choice appears;
+- a cutover/deprecation decision is needed.
+
+---
+
+## 14. Validation rules
+
+### 14.1 Every table
 
 - required columns exist;
 - table is not empty unless explicitly allowed in test mode;
@@ -891,7 +1148,7 @@ Sample policy:
 - date fields parse above threshold;
 - row count and warnings appear in logs.
 
-### 13.2 Join checks
+### 14.2 Join checks
 
 | Check | Rule |
 |---|---|
@@ -900,9 +1157,12 @@ Sample policy:
 | speech speaker match rate | warn below 70%; unmatched non-members may be valid |
 | `silver_member_parties.member_code -> silver_members.member_code` | fail if broken FK > 0 |
 | `silver_member_constituencies.member_code -> silver_members.member_code` | fail if broken FK > 0 |
+| `silver_debate_sections.debate_id -> silver_debate_records.debate_id` | fail if broken FK > 0 |
+| `silver_speeches.debate_section_id -> silver_debate_sections.debate_section_id` | warn if broken because some XML may be odd; fail after parser confirmed |
 | debate XML download coverage | warn below 98%, fail below 90% in full/current runs |
+| source file rows with `download_status=success` have S3 key | fail if missing |
 
-### 13.3 Schema drift
+### 14.3 Schema drift
 
 For every endpoint run:
 
@@ -913,9 +1173,21 @@ For every endpoint run:
 5. fail only when required fields disappear;
 6. store drift details in manifest.
 
+### 14.4 Equivalence checks before cutover
+
+Before replacing old outputs:
+
+| Old output | New comparison |
+|---|---|
+| `raw/members/oireachtas_members_34th_dail.csv` | compare to `silver_members` + current membership joins. |
+| `raw/debates/debate_speeches_extracted.csv` | compare row counts and text samples to `silver_speeches`. |
+| `processed/votes/dail_vote_divisions.csv` | compare to `silver_divisions`, filtered to old Dáil-only assumptions. |
+| `processed/votes/dail_vote_member_records.csv` | compare to `silver_member_votes`, filtered to old Dáil-only assumptions. |
+| `processed/members/member_profile_metrics_2025.csv` | compare to `gold_member_activity_yearly` plus member/photo inputs. |
+
 ---
 
-## 14. Implementation sequence
+## 15. Implementation sequence
 
 ### Phase 0 — Plan
 
@@ -925,20 +1197,37 @@ Status: **done**
 - [x] Inspect repo tree.
 - [x] Inspect existing Oireachtas-related scripts/workflows.
 - [x] Verify public API endpoint list.
-- [x] Create this document.
+- [x] Create plan document.
+- [x] Review plan against user request, handoff, repo, and API docs.
+- [x] Strengthen plan with review branch mechanics, S3 permission caveats, source-file inventory, and exact acceptance gates.
 
-### Phase 1 — Foundation
+### Phase 1 — Foundation and review loop
 
 Status: **not started**
 
-- [ ] Create `extract/oireachtas/` package.
-- [ ] Create `configs/oireachtas/` files.
-- [ ] Implement client, S3 IO, normalization, schema validation.
-- [ ] Create manual table test workflow.
-- [ ] Add review output branch publishing.
-- [ ] Prove one tiny table end-to-end.
+Build these first:
 
-Recommended first proof table: `silver_houses`. Fallback: `silver_members`, because the current repo already has working member extraction.
+- [ ] `extract/oireachtas/__init__.py`
+- [ ] `extract/oireachtas/client.py`
+- [ ] `extract/oireachtas/io_s3.py`
+- [ ] `extract/oireachtas/normalize.py`
+- [ ] `extract/oireachtas/schemas.py`
+- [ ] `extract/oireachtas/discovery.py`
+- [ ] `extract/oireachtas/review.py`
+- [ ] `extract/oireachtas/build_table.py`
+- [ ] `configs/oireachtas/tables.yml`
+- [ ] `configs/oireachtas/api_params.yml`
+- [ ] `.github/workflows/oireachtas_table_test.yml`
+
+Foundation acceptance criteria:
+
+1. S3 smoke test succeeds for `processed/oireachtas_unified/review/_smoke/latest/manifest.json`.
+2. Review branch `oireachtas-review-output` is created/updated by workflow.
+3. Raw GitHub URL to review sample is printed in workflow summary.
+4. One endpoint runs in `discover` mode and writes payload-shape summary.
+5. One tiny table writes CSV + Parquet + manifest + schema + DQ output.
+
+Recommended first proof table: `silver_houses`. Fallback: `silver_members` because the existing repo already has working member extraction.
 
 ### Phase 2 — Core dimensions
 
@@ -960,20 +1249,22 @@ Build and confirm in this order:
 Status: **not started**
 
 1. Test `/divisions` and `/votes`.
-2. Build `silver_divisions`.
-3. Build `silver_division_tallies`.
-4. Build `silver_member_votes`.
-5. Compare against old `process/build_dail_votes_member_records.py` output.
+2. Document which endpoint works and why.
+3. Build `silver_divisions`.
+4. Build `silver_division_tallies`.
+5. Build `silver_member_votes`.
+6. Compare against old `process/build_dail_votes_member_records.py` output.
 
 ### Phase 4 — Debates/speeches
 
 Status: **not started**
 
 1. Build `silver_debate_records`.
-2. Build raw XML downloader/checker.
-3. Build `silver_debate_sections`.
-4. Build `silver_speeches`.
-5. Compare sample output with old `extract/debates_xml_to_csv_s3.py` output.
+2. Build `silver_source_files` support for debate XML/PDF.
+3. Build raw XML downloader/checker.
+4. Build `silver_debate_sections`.
+5. Build `silver_speeches`.
+6. Compare sample output with old `extract/debates_xml_to_csv_s3.py` output.
 
 ### Phase 5 — Questions
 
@@ -981,7 +1272,7 @@ Status: **not started**
 
 1. Discover `/questions` payload shape.
 2. Build `silver_questions` metadata.
-3. Add XML/PDF download if useful.
+3. Add source-file rows/downloads if formats fields are present.
 4. Add XML question parser only after sample review.
 
 ### Phase 6 — Legislation
@@ -1031,49 +1322,119 @@ Do not begin until unified tables are confirmed.
 
 ---
 
-## 15. Change log
+## 16. Initial implementation tickets
+
+Use this as the next development checklist.
+
+### Ticket 1 — Foundation package skeleton
+
+Create package files and a minimal table registry. No API calls yet.
+
+Acceptance:
+
+- imports work;
+- `python -m extract.oireachtas.build_table --help` works;
+- no old pipeline files modified.
+
+### Ticket 2 — API discovery client
+
+Implement endpoint smoke tests.
+
+Acceptance:
+
+- can call `/houses`, `/members`, `/debates`, `/divisions`, `/questions`, `/legislation`, `/parties`, `/constituencies` in `discover` mode with tiny limits;
+- writes raw JSON pages to S3 test prefix if S3 smoke test passes;
+- writes review payload-shape summary to `oireachtas-review-output`.
+
+### Ticket 3 — S3 + review branch smoke test
+
+Implement the no-table smoke test.
+
+Acceptance:
+
+- workflow creates/updates `oireachtas-review-output`;
+- raw GitHub URL opens for `review/_smoke/latest/manifest.json`;
+- S3 Put/Get works on unified review prefix;
+- document updated with result.
+
+### Ticket 4 — First table: `silver_houses`
+
+Acceptance:
+
+- test run writes CSV + Parquet + manifest + schema;
+- review sample available through raw GitHub branch;
+- primary key uniqueness validated;
+- this document updated with row count, S3 keys, workflow run ID, and status.
+
+### Ticket 5 — Fallback first data-rich table: `silver_members`
+
+Only use if `/houses` is unsuitable as first proof.
+
+Acceptance:
+
+- compare row count with old `raw/members/oireachtas_members_34th_dail.csv` for Dáil 34 scope;
+- output member identities and membership bridges;
+- document differences.
+
+---
+
+## 17. Change log
 
 | Date | Change | Files affected | Status |
 |---|---|---|---|
 | 2026-06-02 | Created source-of-truth technical plan for unified Oireachtas data model/pipeline workstream. | `docs/oireachtas_unified_data_model_plan.md` | Done |
+| 2026-06-02 | Reviewed plan against user request, uploaded handoff, current repo, and public Oireachtas docs. Strengthened with branch status, proven review-output mechanics, S3 permission caveat, source-file inventory, client/discovery requirements, stricter validation/cutover gates, and initial implementation tickets. | `docs/oireachtas_unified_data_model_plan.md` | Done |
 
 ---
 
-## 16. Status tracker
+## 18. Status tracker
 
 | Component/table | Status | Notes |
 |---|---|---|
-| Plan document | Created | This file |
-| Foundation package | Not started | Next task |
-| Manual test workflow | Not started | Required before table iteration |
-| Review output branch loop | Not started | Reuse Instagram preview-output pattern |
-| `silver_houses` | Not started | First recommended test table |
-| `silver_constituencies` | Not started | Core dimension |
-| `silver_parties` | Not started | Core dimension |
-| `silver_members` | Not started | Existing extractor available |
-| `silver_member_memberships` | Not started | Required for time-aware joins |
-| `silver_member_parties` | Not started | Required for party-at-date joins |
-| `silver_member_constituencies` | Not started | Required for constituency-at-date joins |
-| `silver_member_offices` | Not started | Useful if API exposes offices reliably |
-| `silver_divisions` | Not started | Endpoint needs verification |
-| `silver_division_tallies` | Not started | Derived from division payload |
-| `silver_member_votes` | Not started | Existing old script available |
-| `silver_debate_records` | Not started | Existing old script available |
-| `silver_debate_sections` | Not started | Needs improved XML/API parser |
-| `silver_speeches` | Not started | Existing old parser available |
-| `silver_questions` | Not started | Discovery needed |
-| `silver_bills` | Not started | Discovery needed |
-| `silver_bill_versions` | Not started | Discovery needed |
-| `silver_bill_stages` | Not started | Discovery needed |
-| Gold marts | Not started | Build after silver confirmed |
-| Weekly workflow | Not started | Later |
-| Monthly workflow | Not started | Later |
-| Yearly workflow | Not started | Later |
+| Plan document | Strengthened | This file on branch `gpt/docs-oireachtas_unified_data_model_plan.md-a4926f5c`. |
+| Foundation package | Not started | Next task. |
+| S3 smoke test | Not started | Must verify unified-prefix permissions. |
+| Manual test workflow | Not started | Required before table iteration. |
+| Review output branch loop | Not started | Must create `oireachtas-review-output`. |
+| Endpoint discovery | Not started | Needed before table builds. |
+| `silver_houses` | Not started | First recommended proof table. |
+| `silver_constituencies` | Not started | Core dimension. |
+| `silver_parties` | Not started | Core dimension. |
+| `silver_members` | Not started | Existing extractor available. |
+| `silver_member_memberships` | Not started | Required for time-aware joins. |
+| `silver_member_parties` | Not started | Required for party-at-date joins. |
+| `silver_member_constituencies` | Not started | Required for constituency-at-date joins. |
+| `silver_member_offices` | Not started | Useful if API exposes offices reliably. |
+| `silver_source_files` | Not started | Added during plan review. |
+| `silver_divisions` | Not started | Endpoint needs verification: `/divisions` vs `/votes`. |
+| `silver_division_tallies` | Not started | Derived from division payload. |
+| `silver_member_votes` | Not started | Existing old script available. |
+| `silver_debate_records` | Not started | Existing old script available. |
+| `silver_debate_sections` | Not started | Needs improved XML/API parser. |
+| `silver_speeches` | Not started | Existing old parser available. |
+| `silver_questions` | Not started | Discovery needed. |
+| `silver_bills` | Not started | Discovery needed. |
+| `silver_bill_versions` | Not started | Discovery needed. |
+| `silver_bill_stages` | Not started | Discovery needed. |
+| Gold marts | Not started | Build after silver confirmed. |
+| Weekly workflow | Not started | Later. |
+| Monthly workflow | Not started | Later. |
+| Yearly workflow | Not started | Later. |
 
 ---
 
-## 17. Immediate next action
+## 19. Immediate next action
 
-Create Phase 1 foundation files and the manual table-test workflow, then prove `silver_houses` end-to-end in test mode.
+Create Phase 1 foundation files and the manual table-test workflow, then prove the review loop and S3 unified prefix before building real tables.
 
-Fallback if `/houses` is awkward: prove `silver_members` first using the existing member extractor as the behaviour reference.
+Recommended first execution order:
+
+1. Add package skeleton and config skeleton.
+2. Add `oireachtas_table_test.yml` with `contents: write`.
+3. Implement S3/review branch smoke test.
+4. Run workflow manually.
+5. Fetch raw GitHub review output.
+6. Update this document with actual run evidence.
+7. Build `silver_houses` in test mode.
+
+Fallback if `/houses` is awkward: prove `silver_members` first using the existing member extractor as behaviour reference.
