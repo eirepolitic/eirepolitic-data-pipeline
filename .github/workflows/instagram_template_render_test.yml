@@ -6,7 +6,7 @@ on:
       template:
         description: "Template ID without .json"
         required: false
-        default: "title_two_visuals_draft_v1"
+        default: "title_qa_draft_v1"
       palette:
         description: "Palette ID without .json"
         required: false
@@ -48,53 +48,27 @@ jobs:
         run: |
           set -euo pipefail
           TEMPLATE="${{ inputs.template }}"
-          TEMPLATE="${TEMPLATE:-title_two_visuals_draft_v1}"
-          mkdir -p "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/metadata/assets" "${OUTPUT_ROOT}/png" workflow_debug
+          TEMPLATE="${TEMPLATE:-title_qa_draft_v1}"
+          mkdir -p "${OUTPUT_ROOT}/metadata/bindings" "${OUTPUT_ROOT}/png" workflow_debug
           python - "${OUTPUT_ROOT}" "${TEMPLATE}" <<'PY'
           import sys
           from pathlib import Path
           import yaml
-          from PIL import Image, ImageDraw
 
           output_root = Path(sys.argv[1])
           template = sys.argv[2]
-          assets = output_root / "metadata" / "assets"
-          visual_1 = assets / "two_visuals_sample_1.png"
-          visual_2 = assets / "two_visuals_sample_2.png"
-
-          img1 = Image.new("RGB", (840, 390), "#102a22")
-          d1 = ImageDraw.Draw(img1)
-          for y in range(70, 340, 65):
-              d1.line((60, y, 780, y), fill="#35564a", width=2)
-          bars = [(110, 260), (230, 220), (350, 180), (470, 140), (590, 105)]
-          for x, top in bars:
-              d1.rectangle((x, top, x + 75, 330), fill="#d8c690")
-          d1.text((55, 30), "Sample poll movement", fill="#f2e6b8")
-          img1.save(visual_1)
-
-          img2 = Image.new("RGB", (840, 300), "#102a22")
-          d2 = ImageDraw.Draw(img2)
-          d2.rectangle((70, 70, 770, 230), outline="#35564a", width=4)
-          d2.line((100, 205, 235, 170, 370, 160, 505, 120, 640, 95, 735, 82), fill="#f2e6b8", width=6)
-          for x, y in [(100,205),(235,170),(370,160),(505,120),(640,95),(735,82)]:
-              d2.ellipse((x-8, y-8, x+8, y+8), fill="#d8c690")
-          d2.text((55, 30), "Sample trend line", fill="#f2e6b8")
-          img2.save(visual_2)
-
           bindings_path = output_root / "metadata" / "bindings" / f"{template}.yml"
+
           bindings = {
               "bindings": {
-                  "slide_title": "Two Visuals, One Political Story",
-                  "visual_1": str(visual_1),
-                  "visual_1_caption": "First visual: support rises across the sample period.",
-                  "visual_2": str(visual_2),
-                  "visual_2_caption": "Second visual: trend direction is confirmed by later data."
+                  "slide_title": "Question And Answer",
+                  "question_text": "What changed in the latest political data?",
+                  "answer_text": "The latest figures show a clear movement in the headline trend. The layout is designed for quick explanation: one question, one direct answer, and a short source note if needed.",
+                  "bottom_note": "Example Q&A preview. Text is placeholder content for layout review only."
               }
           }
           bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
           print(f"bindings_path={bindings_path}")
-          print(f"visual_1={visual_1}")
-          print(f"visual_2={visual_2}")
           PY
           echo "TEMPLATE=${TEMPLATE}" >> "${GITHUB_ENV}"
 
