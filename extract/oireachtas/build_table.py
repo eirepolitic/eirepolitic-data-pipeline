@@ -1,7 +1,7 @@
 """CLI entry point for unified Oireachtas table builds.
 
-F02 adds the `_smoke` path used by GitHub Actions to prove S3 Put/Get and
-review-output generation before any real table builds begin.
+F03 supports `_discovery` mode to probe Oireachtas API endpoint payload shapes
+before real table builders are implemented.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any, Sequence
 
+from .discovery import DISCOVERY_TABLE, discovery_dq, discovery_schema, run_endpoint_discovery
 from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_json, make_s3_client, put_json
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
@@ -29,7 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="python -m extract.oireachtas.build_table",
         description="Build or inspect unified Oireachtas tables.",
     )
-    parser.add_argument("--table", help="Table registry key, e.g. silver_members. Use _smoke for F02.")
+    parser.add_argument("--table", help="Table registry key, _smoke, or _discovery.")
     parser.add_argument(
         "--mode",
         choices=VALID_MODES,
@@ -193,6 +194,44 @@ def run_smoke(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_discovery(args: argparse.Namespace) -> int:
+    """Run F03 endpoint discovery and write review bundle."""
+    if args.mode != "discover":
+        print("ERROR: _discovery only supports --mode discover.", file=sys.stderr)
+        return 2
+
+    rows, manifest = run_endpoint_discovery(limit=max(1, min(args.limit, 10)))
+    schema = discovery_schema(rows)
+    dq = discovery_dq(rows)
+    review_dir = write_review_bundle(
+        table=DISCOVERY_TABLE,
+        manifest=manifest,
+        schema=schema,
+        dq=dq,
+        sample_rows=rows,
+        root=Path(args.review_root),
+    )
+    review_url = raw_review_url(
+        repo=args.github_repository,
+        branch=REVIEW_BRANCH,
+        table=DISCOVERY_TABLE,
+        filename="manifest.json",
+    )
+
+    print(f"TABLE={DISCOVERY_TABLE}")
+    print(f"MODE={args.mode}")
+    print(f"ROWS={len(rows)}")
+    print(f"COLUMNS={len(schema.get('columns', []))}")
+    print("PRIMARY_KEY=endpoint_name")
+    print("PRIMARY_KEY_UNIQUE=true")
+    print(f"REVIEW_LOCAL_DIR={review_dir}")
+    print(f"REVIEW_SAMPLE_RAW_URL={review_url}")
+    print(f"DQ_STATUS={dq.get('dq_status')}")
+    print(f"ENDPOINT_OK_COUNT={manifest.get('ok_count')}")
+    print(f"ENDPOINT_FAILED_COUNT={manifest.get('failed_count')}")
+    return 0
+
+
 def validate_command(args: argparse.Namespace) -> int:
     if args.list_tables:
         return list_tables(args.config, as_json=args.json)
@@ -204,10 +243,13 @@ def validate_command(args: argparse.Namespace) -> int:
     if args.table == SMOKE_TABLE:
         return run_smoke(args)
 
+    if args.table == DISCOVERY_TABLE:
+        return run_discovery(args)
+
     schema = get_table_schema(args.table, Path(args.config))
     payload = {
         "status": "validated",
-        "message": "F02 skeleton: real table execution is implemented in later packets.",
+        "message": "F03 skeleton: real table execution is implemented in later packets.",
         "table": schema.name,
         "mode": args.mode,
         "layer": schema.layer,
