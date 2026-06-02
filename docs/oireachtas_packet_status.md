@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-02  
-**Current packet:** F03 — API discovery client  
+**Current packet:** T01 — `silver_houses`  
 
 This file is a compact handoff/status companion to `docs/oireachtas_unified_data_model_plan.md`.
 
@@ -59,14 +59,6 @@ Relevant commits:
 
 - `de90c2904b19c3851358af38addeee35cb053cff` — squash merge for plan/F01/F02 base work.
 
-Handoff:
-
-```text
-Continue from main.
-Next packet after F01: F02 — S3 + review-branch smoke test.
-Do not start table builds until F02 and F03 are complete.
-```
-
 ---
 
 ### F02 — S3 + review-branch smoke test
@@ -81,13 +73,7 @@ Files created/modified:
 - `extract/oireachtas/build_table.py`
 - `.github/workflows/oireachtas_table_test.yml`
 
-Workflow:
-
-```text
-Oireachtas Table Test (Manual)
-```
-
-Successful run:
+Successful workflow run:
 
 ```text
 run_id=26832499568
@@ -102,13 +88,13 @@ S3 smoke object verified by workflow:
 s3://eirepolitic-data/processed/oireachtas_unified/review/_smoke/latest/manifest.json
 ```
 
-Review branch object verified by assistant via GitHub tool:
+Review branch object verified by assistant:
 
 ```text
 https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/_smoke/latest/manifest.json
 ```
 
-Manifest contents confirmed:
+Manifest confirmed:
 
 ```json
 {
@@ -125,42 +111,116 @@ Manifest contents confirmed:
 Notes:
 
 - First smoke run `26832405873` also succeeded, but used `AWS_REGION=us-east-2` from repo secrets.
-- Workflow was patched to force `ca-central-1` to match the bucket/Instagram preview convention.
-- Second smoke run `26832499568` succeeded and produced the final accepted evidence.
+- Workflow was patched to force `ca-central-1`.
 - Review branch publishing works.
 - S3 PutObject/GetObject works for the unified review prefix.
+
+---
+
+### F03 — API discovery client
+
+**Status:** confirmed  
+**Completed:** 2026-06-02  
+
+Files created/modified:
+
+- `extract/oireachtas/client.py`
+- `extract/oireachtas/discovery.py`
+- `extract/oireachtas/build_table.py`
+- `.github/workflows/oireachtas_table_test.yml`
+- `configs/oireachtas/api_params.yml`
+- `docs/oireachtas_packet_status.md`
+
+Successful workflow run:
+
+```text
+run_id=26832847170
+run_number=3
+conclusion=success
+url=https://github.com/eirepolitic/eirepolitic-data-pipeline/actions/runs/26832847170
+```
+
+Review outputs verified by assistant:
+
+```text
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/_discovery/latest/manifest.json
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/_discovery/latest/sample.csv
+```
+
+Discovery result summary:
+
+```text
+endpoint_count=9
+ok_count=9
+failed_count=0
+```
+
+Endpoints confirmed HTTP 200:
+
+- `/houses`
+- `/members`
+- `/debates`
+- `/divisions`
+- `/votes`
+- `/questions`
+- `/legislation`
+- `/parties`
+- `/constituencies`
+
+Important discovery finding:
+
+```text
+/divisions and /votes both returned HTTP 200 for Dáil 34 January 2025.
+Both returned result_wrapper_keys=contextDate,division.
+Both returned schema_hash=99138f2da33a4956.
+Decision: use /divisions as canonical documented endpoint and keep /votes as compatibility fallback.
+```
+
+Config updated:
+
+```text
+configs/oireachtas/api_params.yml
+endpoint_aliases.divisions.canonical=/divisions
+endpoint_aliases.divisions.fallback=/votes
+```
+
+Notes:
+
+- Discovery is one-page/payload-shape only, not a data table build.
+- `parties?limit=5` returned 11 rows and `constituencies?limit=5` returned 8 rows, so some endpoints do not strictly honour `limit` as expected. Builders must not assume exact page size.
+- F03 confirmed enough endpoint shape to begin T01.
 
 Handoff:
 
 ```text
 Continue from main.
-Next packet: F03 — API discovery client.
-Do not start table builds until F03 is complete.
+Next packet: T01 — silver_houses.
+Workflow defaults currently point to _discovery/discover because they were changed for F03 dispatch-tool limitations.
+For T01, update workflow defaults to table=silver_houses and mode=test before dispatching, or dispatch manually with inputs outside this tool.
 ```
 
 ---
 
 ## Next packet
 
-### F03 — API discovery client
+### T01 — `silver_houses`
 
 Goal:
 
-- build shared Oireachtas API client;
-- discover payload shapes for documented endpoints;
-- test `/divisions` and `/votes` behaviour;
-- publish endpoint payload-shape summaries to `oireachtas-review-output`.
+- build the first real silver table from `/houses`;
+- write CSV, Parquet, schema, manifest, and DQ outputs;
+- publish a review sample to `oireachtas-review-output`;
+- inspect the sample before marking confirmed.
 
 Expected files:
 
-- `extract/oireachtas/client.py`
-- `extract/oireachtas/discovery.py`
+- likely new table builder module under `extract/oireachtas/`
 - updates to `extract/oireachtas/build_table.py`
-- possible updates to `configs/oireachtas/api_params.yml`
-- possible updates to `docs/oireachtas_unified_data_model_plan.md`
+- possible updates to `.github/workflows/oireachtas_table_test.yml` defaults for dispatch
+- updates to this status file after successful run
 
-Expected workflow:
+Expected workflow command:
 
 ```bash
-python -m extract.oireachtas.build_table --table _discovery --mode discover
+python -m extract.oireachtas.build_table --table silver_houses --mode test --limit 25 --write-review-sample
 ```
