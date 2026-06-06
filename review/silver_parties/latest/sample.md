@@ -1,0 +1,14 @@
+# `silver_parties` sample
+
+| party_uri | party_code | party_name | show_as | date_start | date_end | is_current | source_endpoint | snapshot_date | source_hash |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Anti-Austerity_Alliance_People_Before_Profit | Anti-Austerity_Alliance_People_Before_Profit | Anti-Austerity Alliance - People Before Profit | Anti-Austerity Alliance - People Before Profit | None | None | True | /parties | 2026-06-06 | 788ad97f01f57a6f |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Fianna_Fáil | Fianna_Fáil | Fianna Fáil | Fianna Fáil | None | None | True | /parties | 2026-06-06 | 16028b003fe17a93 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Fine_Gael | Fine_Gael | Fine Gael | Fine Gael | None | None | True | /parties | 2026-06-06 | 32b80b7e0b044eb3 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Independent | Independent | Independent | Independent | None | None | True | /parties | 2026-06-06 | 940a0033ffc1cdd7 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Labour_Party | Labour_Party | Labour Party | Labour Party | None | None | True | /parties | 2026-06-06 | 49842769804a1e0f |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/People_Before_Profit_Alliance | People_Before_Profit_Alliance | People Before Profit Alliance | People Before Profit Alliance | None | None | True | /parties | 2026-06-06 | 999339f61f716c75 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Renua | Renua | Renua | Renua | None | None | True | /parties | 2026-06-06 | bf2b9ef3f218a22e |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Sinn_Féin | Sinn_Féin | Sinn Féin | Sinn Féin | None | None | True | /parties | 2026-06-06 | 30ac6c993f3cebf4 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Social_Democrats | Social_Democrats | Social Democrats | Social Democrats | None | None | True | /parties | 2026-06-06 | 770a07c731decd56 |
+| https://data.oireachtas.ie/ie/oireachtas/party/dail/31/Socialist_Party | Socialist_Party | Socialist Party | Socialist Party | None | None | True | /parties | 2026-06-06 | 6d4cbc5bed64ac66 |

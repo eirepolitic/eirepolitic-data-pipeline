@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `silver_constituencies`
-- `review/silver_constituencies/latest/sample.csv`
-- `review/silver_constituencies/latest/sample.md`
-- `review/silver_constituencies/latest/manifest.json`
-- `review/silver_constituencies/latest/schema.json`
-- `review/silver_constituencies/latest/dq.json`
+### `silver_parties`
+- `review/silver_parties/latest/sample.csv`
+- `review/silver_parties/latest/sample.md`
+- `review/silver_parties/latest/manifest.json`
+- `review/silver_parties/latest/schema.json`
+- `review/silver_parties/latest/dq.json`
