@@ -17,6 +17,7 @@ from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
 from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
 from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
+from .table_member_memberships import TABLE_NAME as MEMBER_MEMBERSHIPS_TABLE, build_silver_member_memberships
 from .table_members import TABLE_NAME as MEMBERS_TABLE, build_silver_members
 from .table_parties import TABLE_NAME as PARTIES_TABLE, build_silver_parties
 
@@ -171,38 +172,13 @@ def run_real_table(args: argparse.Namespace) -> int:
     if args.table == HOUSES_TABLE:
         result = build_silver_houses(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
     elif args.table == CONSTITUENCIES_TABLE:
-        result = build_silver_constituencies(
-            client=client,
-            s3=s3,
-            bucket=args.s3_bucket,
-            schema=schema,
-            limit=args.limit,
-            mode=args.mode,
-            chamber=args.chamber,
-            house_no=args.house_no,
-        )
+        result = build_silver_constituencies(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode, chamber=args.chamber, house_no=args.house_no)
     elif args.table == PARTIES_TABLE:
-        result = build_silver_parties(
-            client=client,
-            s3=s3,
-            bucket=args.s3_bucket,
-            schema=schema,
-            limit=args.limit,
-            mode=args.mode,
-            chamber=args.chamber,
-            house_no=args.house_no,
-        )
+        result = build_silver_parties(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode, chamber=args.chamber, house_no=args.house_no)
     elif args.table == MEMBERS_TABLE:
-        result = build_silver_members(
-            client=client,
-            s3=s3,
-            bucket=args.s3_bucket,
-            schema=schema,
-            limit=args.limit,
-            mode=args.mode,
-            chamber=args.chamber,
-            house_no=args.house_no,
-        )
+        result = build_silver_members(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode, chamber=args.chamber, house_no=args.house_no)
+    elif args.table == MEMBER_MEMBERSHIPS_TABLE:
+        result = build_silver_member_memberships(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode, chamber=args.chamber, house_no=args.house_no)
     else:
         payload = {
             "status": "validated",
