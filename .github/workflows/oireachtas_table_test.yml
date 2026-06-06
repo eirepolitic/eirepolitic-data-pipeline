@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "silver_constituencies"
+        default: "silver_parties"
       mode:
         description: "Build mode"
         required: true
@@ -122,7 +122,7 @@ jobs:
             git -C /tmp/oireachtas-review-worktree switch --orphan "${REVIEW_BRANCH}"
             git -C /tmp/oireachtas-review-worktree rm -rf . >/dev/null 2>&1 || true
           fi
-          rm -rf /tmp/oireachtas-review-worktree/*
+          mkdir -p /tmp/oireachtas-review-worktree/review
           cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
           git -C /tmp/oireachtas-review-worktree add .
           git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas review output for run ${GITHUB_RUN_ID}" || true
