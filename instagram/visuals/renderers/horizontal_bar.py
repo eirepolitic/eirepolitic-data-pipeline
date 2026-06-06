@@ -78,21 +78,13 @@ def render(
 
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
-    ax = fig.add_axes([0.24, 0.18, 0.68, 0.62])
+    ax = fig.add_axes([0.22, 0.10, 0.71, 0.82])
     ax.set_facecolor(palette["panel"])
-
-    title = str(sample.get("title") or params.get("title") or "Horizontal bar chart")
-    subtitle = str(sample.get("subtitle") or params.get("subtitle") or "")
-    footer = str(sample.get("source_note") or params.get("footer") or "")
-
-    fig.text(0.075, 0.92, title, color=palette["text"], fontsize=24, fontweight="bold", ha="left", va="top")
-    if subtitle:
-        fig.text(0.075, 0.865, subtitle, color=palette["muted"], fontsize=13, ha="left", va="top")
 
     if clean_rows and max(values) > 0:
         ax.barh(range(len(clean_rows)), values, color=palette["accent"], height=0.58)
         ax.set_yticks(range(len(clean_rows)))
-        ax.set_yticklabels(labels, color=palette["text"], fontsize=10)
+        ax.set_yticklabels(labels, color=palette["text"], fontsize=12)
         ax.invert_yaxis()
         max_value = max(values)
         x_limit = max_value * 1.18 if max_value else 1
@@ -103,20 +95,34 @@ def render(
                 value_label = f"{value:g}%"
             else:
                 value_label = f"{value:,.0f}" if math.isfinite(value) else "0"
-            ax.text(value + x_limit * 0.018, idx, value_label, color=palette["text"], fontsize=11, fontweight="bold", va="center")
+            ax.text(
+                value + x_limit * 0.018,
+                idx,
+                value_label,
+                color=palette["text"],
+                fontsize=12,
+                fontweight="bold",
+                va="center",
+            )
     else:
         warnings.append("empty_or_zero_rows")
-        ax.text(0.5, 0.5, "No data available", color=palette["muted"], fontsize=16, ha="center", va="center", transform=ax.transAxes)
+        ax.text(
+            0.5,
+            0.5,
+            "No data available",
+            color=palette["muted"],
+            fontsize=16,
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+        )
         ax.set_yticks([])
         ax.set_xticks([])
 
     ax.xaxis.grid(True, color=palette["grid"], alpha=0.22)
-    ax.tick_params(axis="x", colors=palette["muted"], labelsize=9)
+    ax.tick_params(axis="x", colors=palette["muted"], labelsize=10)
     for spine in ax.spines.values():
         spine.set_visible(False)
-
-    if footer:
-        fig.text(0.075, 0.07, footer, color=palette["muted"], fontsize=10, ha="left", va="bottom")
 
     output_png = Path(output_png)
     output_png.parent.mkdir(parents=True, exist_ok=True)
