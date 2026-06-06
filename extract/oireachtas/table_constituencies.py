@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping
 
 import pandas as pd
 
@@ -52,7 +52,10 @@ def build_silver_constituencies(
     if not isinstance(results, list):
         raise RuntimeError(f"Unexpected /constituencies results type: {type(results).__name__}")
 
-    rows = [_normalise_constituency_row(item, snapshot_date=snapshot_date, endpoint=endpoint) for item in results]
+    rows: list[dict[str, Any]] = []
+    for item in results:
+        rows.extend(_normalise_constituency_record(record, house, snapshot_date=snapshot_date, endpoint=endpoint) for record, house in _iter_constituency_records(item))
+
     rows = _dedupe_rows(rows, primary_key="constituency_uri")
     df = pd.DataFrame(rows, columns=schema.columns)
 
@@ -125,17 +128,66 @@ def build_silver_constituencies(
     )
 
 
-def _normalise_constituency_row(item: Mapping[str, Any], *, snapshot_date: str, endpoint: str) -> dict[str, Any]:
-    constituency = dict((item or {}).get("constituency") or {})
-    house = _extract_house(constituency, item)
-    date_range = dict(constituency.get("dateRange") or constituency.get("date_range") or {})
+def _iter_constituency_records(item: Any) -> Iterable[tuple[Mapping[str, Any], Mapping[str, Any]]]:
+    """Yield constituency records with the best available parent house context.
 
-    start = parse_iso_date(date_range.get("start") or constituency.get("dateStart") or constituency.get("startDate"))
-    end = parse_iso_date(date_range.get("end") or constituency.get("dateEnd") or constituency.get("endDate"))
-    show_as = _first_text(constituency, "showAs", "show_as", "name", "constituencyName")
-    name = _first_text(constituency, "name", "constituencyName", "showAs", "show_as")
-    code = _first_text(constituency, "constituencyCode", "code", "id")
-    uri = _first_text(constituency, "uri", "constituencyUri")
+    The `/constituencies` endpoint returns wrappers that can contain a house and
+    nested constituency arrays. This method supports direct `constituency`
+    wrappers, `constituencies` arrays under either result or house, and a small
+    recursive fallback for schema drift.
+    """
+    if not isinstance(item, Mapping):
+        return []
+
+    emitted: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
+    root_house = _extract_house({}, item)
+
+    direct = item.get("constituency")
+    if isinstance(direct, Mapping):
+        emitted.append((direct, _extract_house(direct, item) or root_house))
+
+    for parent in (item, root_house):
+        if not isinstance(parent, Mapping):
+            continue
+        nested = parent.get("constituencies")
+        if isinstance(nested, list):
+            for entry in nested:
+                if isinstance(entry, Mapping):
+                    record = entry.get("constituency") if isinstance(entry.get("constituency"), Mapping) else entry
+                    house = _extract_house(record, entry) or root_house
+                    emitted.append((record, house))
+
+    if emitted:
+        return emitted
+
+    # Last-resort recursive fallback: locate mappings under keys named
+    # `constituencies` anywhere in the wrapper.
+    return list(_recursive_constituencies(item, root_house))
+
+
+def _recursive_constituencies(value: Any, house_context: Mapping[str, Any]) -> Iterable[tuple[Mapping[str, Any], Mapping[str, Any]]]:
+    if not isinstance(value, Mapping):
+        return
+    local_house = _extract_house({}, value) or house_context
+    for key, child in value.items():
+        if key == "constituencies" and isinstance(child, list):
+            for entry in child:
+                if isinstance(entry, Mapping):
+                    record = entry.get("constituency") if isinstance(entry.get("constituency"), Mapping) else entry
+                    house = _extract_house(record, entry) or local_house
+                    yield record, house
+        elif isinstance(child, Mapping):
+            yield from _recursive_constituencies(child, local_house)
+
+
+def _normalise_constituency_record(record: Mapping[str, Any], house: Mapping[str, Any], *, snapshot_date: str, endpoint: str) -> dict[str, Any]:
+    date_range = dict(record.get("dateRange") or record.get("date_range") or {})
+    start = parse_iso_date(date_range.get("start") or record.get("dateStart") or record.get("startDate"))
+    end = parse_iso_date(date_range.get("end") or record.get("dateEnd") or record.get("endDate"))
+    show_as = _first_text(record, "showAs", "show_as", "name", "constituencyName")
+    name = _first_text(record, "name", "constituencyName", "showAs", "show_as")
+    code = _first_text(record, "constituencyCode", "code", "id")
+    uri = _first_text(record, "uri", "constituencyUri")
     house_uri = _first_text(house, "uri", "houseUri")
     house_no = _first_text(house, "houseNo", "house_no")
     chamber = _first_text(house, "houseCode", "chamberCode", "chamber", "houseType")
@@ -156,16 +208,18 @@ def _normalise_constituency_row(item: Mapping[str, Any], *, snapshot_date: str, 
         "is_current": is_current_range(start, end),
         "source_endpoint": endpoint,
         "snapshot_date": snapshot_date,
-        "source_hash": stable_record_hash(item),
+        "source_hash": stable_record_hash(record),
     }
 
 
-def _extract_house(constituency: Mapping[str, Any], item: Mapping[str, Any]) -> Mapping[str, Any]:
+def _extract_house(record: Mapping[str, Any], item: Mapping[str, Any]) -> Mapping[str, Any]:
     for candidate in (
-        constituency.get("house"),
-        constituency.get("houseRecord"),
-        constituency.get("houseInfo"),
+        record.get("house") if isinstance(record, Mapping) else None,
+        record.get("houseRecord") if isinstance(record, Mapping) else None,
+        record.get("houseInfo") if isinstance(record, Mapping) else None,
         item.get("house") if isinstance(item, Mapping) else None,
+        item.get("houseRecord") if isinstance(item, Mapping) else None,
+        item.get("houseInfo") if isinstance(item, Mapping) else None,
     ):
         if isinstance(candidate, Mapping):
             return candidate
@@ -200,9 +254,14 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     required_columns = set(schema.columns)
     missing_columns = sorted(required_columns - set(df.columns))
     row_count = int(len(df))
-    non_null_pk = bool(row_count and df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
-    unique_pk = bool(row_count and not df[pk].duplicated().any())
-    name_populated = bool(row_count and df["constituency_name"].notna().any())
+    if row_count == 0 or pk not in df.columns:
+        non_null_pk = False
+        unique_pk = False
+        name_populated = False
+    else:
+        non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
+        unique_pk = bool(not df[pk].duplicated().any())
+        name_populated = bool(df["constituency_name"].notna().any() and (df["constituency_name"].astype(str).str.strip() != "").any())
     status = "pass" if row_count > 0 and not missing_columns and non_null_pk and unique_pk and name_populated else "fail"
 
     return {
