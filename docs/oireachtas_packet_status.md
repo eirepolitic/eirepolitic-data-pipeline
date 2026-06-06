@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-06  
-**Current packet:** T03 — `silver_parties`  
+**Current packet:** T04 — `silver_members`  
 
 This file is a compact handoff/status companion to `docs/oireachtas_unified_data_model_plan.md`.
 
@@ -98,13 +98,6 @@ conclusion=success
 url=https://github.com/eirepolitic/eirepolitic-data-pipeline/actions/runs/26832847170
 ```
 
-Review outputs verified:
-
-```text
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/_discovery/latest/manifest.json
-https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/_discovery/latest/sample.csv
-```
-
 Discovery summary:
 
 ```text
@@ -125,7 +118,7 @@ Endpoints confirmed HTTP 200:
 - `/parties`
 - `/constituencies`
 
-Important discovery finding:
+Important finding:
 
 ```text
 /divisions and /votes both returned HTTP 200 for Dáil 34 January 2025.
@@ -136,7 +129,7 @@ Decision: use /divisions as canonical documented endpoint and keep /votes as com
 
 Notes:
 
-- `parties?limit=5` returned 11 rows and `constituencies?limit=5` returned 8 rows, so builders must not assume exact page size.
+- Some endpoints do not strictly honour `limit`, so builders must not assume exact page size.
 
 ---
 
@@ -182,20 +175,6 @@ primary_key_unique=true
 endpoint=/houses
 url=https://api.oireachtas.ie/v1/houses?limit=25
 run_id=silver_houses_20260602T205114Z
-```
-
-Final S3 outputs:
-
-```text
-s3://eirepolitic-data/raw/oireachtas_unified/api/houses/snapshot_date=2026-06-02/run_id=silver_houses_20260602T205114Z/page-00000.json
-s3://eirepolitic-data/processed/oireachtas_unified/silver_csv/silver_houses/snapshot_date=2026-06-02/run_id=silver_houses_20260602T205114Z/silver_houses.csv
-s3://eirepolitic-data/processed/oireachtas_unified/silver/silver_houses/snapshot_date=2026-06-02/run_id=silver_houses_20260602T205114Z/part-00000.parquet
-s3://eirepolitic-data/processed/oireachtas_unified/latest/csv/silver_houses.csv
-s3://eirepolitic-data/processed/oireachtas_unified/latest/parquet/silver_houses.parquet
-s3://eirepolitic-data/processed/oireachtas_unified/manifests/silver_houses/run_id=silver_houses_20260602T205114Z.json
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_houses/latest/sample.csv
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_houses/latest/schema.json
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_houses/latest/manifest.json
 ```
 
 Important fix:
@@ -250,54 +229,118 @@ url=https://api.oireachtas.ie/v1/constituencies?limit=25&chamber=dail&house_no=3
 run_id=silver_constituencies_20260606T175022Z
 ```
 
-Final S3 outputs:
-
-```text
-s3://eirepolitic-data/raw/oireachtas_unified/api/constituencies/snapshot_date=2026-06-06/run_id=silver_constituencies_20260606T175022Z/page-00000.json
-s3://eirepolitic-data/processed/oireachtas_unified/silver_csv/silver_constituencies/snapshot_date=2026-06-06/run_id=silver_constituencies_20260606T175022Z/silver_constituencies.csv
-s3://eirepolitic-data/processed/oireachtas_unified/silver/silver_constituencies/snapshot_date=2026-06-06/run_id=silver_constituencies_20260606T175022Z/part-00000.parquet
-s3://eirepolitic-data/processed/oireachtas_unified/latest/csv/silver_constituencies.csv
-s3://eirepolitic-data/processed/oireachtas_unified/latest/parquet/silver_constituencies.parquet
-s3://eirepolitic-data/processed/oireachtas_unified/manifests/silver_constituencies/run_id=silver_constituencies_20260606T175022Z.json
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_constituencies/latest/sample.csv
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_constituencies/latest/schema.json
-s3://eirepolitic-data/processed/oireachtas_unified/review/silver_constituencies/latest/manifest.json
-```
-
 Important fixes/discoveries:
 
 - Initial parser produced one blank generated row because `/constituencies` uses `constituencyOrPanel`, not `constituency`.
 - Workflow was patched to publish review output even when table DQ fails, so parser diagnostics can be inspected from the review branch.
 - Parser was patched to handle `constituencyOrPanel` and `representCode`.
 - CLI was patched to pass `chamber` and `house_no` filters into the constituency builder.
-- Final sample contains 43 Dáil 34 constituencies, including Cork South-Central, Roscommon-Galway, Tipperary North, Mayo, Dublin Mid-West, Clare, Meath East, Dún Laoghaire, Offaly, and Dublin Central.
+- Final sample contains 43 Dáil 34 constituencies.
 - `house_uri` points to `https://data.oireachtas.ie/ie/oireachtas/house/dail/34`, matching the confirmed `silver_houses` key.
-- `date_start`/`date_end` are blank in this API payload; `is_current=True` is expected for open-ended rows.
+
+---
+
+### T03 — `silver_parties`
+
+**Status:** confirmed  
+**Completed:** 2026-06-06  
+
+Files created/modified:
+
+- `extract/oireachtas/table_parties.py`
+- `extract/oireachtas/build_table.py`
+- `.github/workflows/oireachtas_table_test.yml`
+- `docs/oireachtas_packet_status.md`
+
+Successful final workflow run:
+
+```text
+run_id=27069711527
+run_number=12
+conclusion=success
+url=https://github.com/eirepolitic/eirepolitic-data-pipeline/actions/runs/27069711527
+```
+
+Earlier T03 runs:
+
+```text
+run_id=27069638979 conclusion=failure
+run_id=27069677765 conclusion=success
+```
+
+The first T03 run failed before review output was available. The second succeeded mechanically but used unfiltered `/parties`, returning Dáil 31 rows. The final run passed `chamber=dail` and `house_no=34`.
+
+Review outputs verified:
+
+```text
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/silver_parties/latest/manifest.json
+https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/oireachtas-review-output/review/silver_parties/latest/sample.csv
+```
+
+Final manifest summary:
+
+```text
+table=silver_parties
+mode=test
+status=success
+dq_status=pass
+raw_rows=11
+output_rows=11
+primary_key=party_uri
+primary_key_unique=true
+endpoint=/parties
+params=chamber:dail, house_no:34, limit:25
+url=https://api.oireachtas.ie/v1/parties?limit=25&chamber=dail&house_no=34
+run_id=silver_parties_20260606T175826Z
+write_errors=[]
+```
+
+Final S3 outputs:
+
+```text
+s3://eirepolitic-data/raw/oireachtas_unified/api/parties/snapshot_date=2026-06-06/run_id=silver_parties_20260606T175826Z/page-00000.json
+s3://eirepolitic-data/processed/oireachtas_unified/silver_csv/silver_parties/snapshot_date=2026-06-06/run_id=silver_parties_20260606T175826Z/silver_parties.csv
+s3://eirepolitic-data/processed/oireachtas_unified/silver/silver_parties/snapshot_date=2026-06-06/run_id=silver_parties_20260606T175826Z/part-00000.parquet
+s3://eirepolitic-data/processed/oireachtas_unified/latest/csv/silver_parties.csv
+s3://eirepolitic-data/processed/oireachtas_unified/latest/parquet/silver_parties.parquet
+s3://eirepolitic-data/processed/oireachtas_unified/manifests/silver_parties/run_id=silver_parties_20260606T175826Z.json
+s3://eirepolitic-data/processed/oireachtas_unified/review/silver_parties/latest/sample.csv
+s3://eirepolitic-data/processed/oireachtas_unified/review/silver_parties/latest/schema.json
+s3://eirepolitic-data/processed/oireachtas_unified/review/silver_parties/latest/manifest.json
+```
+
+Important fixes/discoveries:
+
+- `/parties` uses wrapper shape `party` plus parent `house`.
+- Unfiltered `/parties` returned Dáil 31 rows, so the builder and CLI were patched to pass `chamber` and `house_no` filters.
+- Final sample contains 11 Dáil 34 party rows, including `100% RDR`, `Aontú`, `Fianna Fáil`, `Fine Gael`, `Green Party`, `Independent`, `Independent Ireland`, `Labour Party`, `People Before Profit-Solidarity`, and `Sinn Féin`.
+- `date_start`/`date_end` are blank in this API payload; `is_current=True` is expected for open-ended filtered rows.
+- Workflow review publishing was patched to preserve existing review folders instead of wiping the branch each run.
 
 Handoff:
 
 ```text
 Continue from main.
-Next packet: T03 — silver_parties.
-Workflow defaults currently point to table=silver_constituencies and mode=test. For T03, update workflow defaults to table=silver_parties and mode=test before dispatching, or dispatch manually with inputs outside this tool.
+Next packet: T04 — silver_members.
+Workflow defaults currently point to table=silver_parties and mode=test. For T04, update workflow defaults to table=silver_members and mode=test before dispatching, or dispatch manually with inputs outside this tool.
 ```
 
 ---
 
 ## Next packet
 
-### T03 — `silver_parties`
+### T04 — `silver_members`
 
 Goal:
 
-- build the party dimension from `/parties`;
+- build the member/person identity table from `/members`;
 - write CSV, Parquet, schema, manifest, and DQ outputs;
 - publish and inspect review sample;
-- verify party URI/name/code fields are populated and primary key is unique.
+- verify `member_code`, names, latest party, latest constituency, and latest house fields are populated.
 
 Expected files:
 
-- likely `extract/oireachtas/table_parties.py`
+- likely `extract/oireachtas/table_members.py`
 - updates to `extract/oireachtas/build_table.py`
 - possible update to `.github/workflows/oireachtas_table_test.yml` defaults for dispatch
 - updates to this status file after successful run
@@ -305,5 +348,5 @@ Expected files:
 Expected workflow command:
 
 ```bash
-python -m extract.oireachtas.build_table --table silver_parties --mode test --limit 25 --write-review-sample
+python -m extract.oireachtas.build_table --table silver_members --mode test --limit 25 --write-review-sample
 ```
