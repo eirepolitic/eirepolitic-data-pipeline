@@ -93,6 +93,8 @@ def build_silver_constituencies(
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
+        "raw_result_sample": results[:2],
+        "raw_result_key_paths": sorted(_key_paths(results[0], max_depth=5)) if results and isinstance(results[0], Mapping) else [],
         "s3_keys": {
             "raw_json": raw_key,
             "csv": csv_key,
@@ -129,16 +131,8 @@ def build_silver_constituencies(
 
 
 def _iter_constituency_records(item: Any) -> Iterable[tuple[Mapping[str, Any], Mapping[str, Any]]]:
-    """Yield constituency records with the best available parent house context.
-
-    The `/constituencies` endpoint returns wrappers that can contain a house and
-    nested constituency arrays. This method supports direct `constituency`
-    wrappers, `constituencies` arrays under either result or house, and a small
-    recursive fallback for schema drift.
-    """
     if not isinstance(item, Mapping):
         return []
-
     emitted: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
     root_house = _extract_house({}, item)
 
@@ -160,8 +154,6 @@ def _iter_constituency_records(item: Any) -> Iterable[tuple[Mapping[str, Any], M
     if emitted:
         return emitted
 
-    # Last-resort recursive fallback: locate mappings under keys named
-    # `constituencies` anywhere in the wrapper.
     return list(_recursive_constituencies(item, root_house))
 
 
@@ -278,6 +270,23 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "constituency_name_populated", "status": "pass" if name_populated else "fail"},
         ],
     }
+
+
+def _key_paths(value: Any, *, prefix: str = "", depth: int = 0, max_depth: int = 5) -> set[str]:
+    if depth >= max_depth:
+        return set()
+    paths: set[str] = set()
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            child_path = f"{prefix}.{key}" if prefix else str(key)
+            paths.add(child_path)
+            paths.update(_key_paths(child, prefix=child_path, depth=depth + 1, max_depth=max_depth))
+    elif isinstance(value, list):
+        list_path = f"{prefix}[]" if prefix else "[]"
+        paths.add(list_path)
+        if value:
+            paths.update(_key_paths(value[0], prefix=list_path, depth=depth + 1, max_depth=max_depth))
+    return paths
 
 
 def _run_id(table: str) -> str:
