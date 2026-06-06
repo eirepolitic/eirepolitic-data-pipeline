@@ -1,3 +1,14 @@
 # `silver_constituencies` sample
 
-No sample rows.
+| constituency_uri | constituency_code | constituency_name | show_as | house_uri | house_no | chamber | date_start | date_end | is_current | source_endpoint | snapshot_date | source_hash |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-Central | Cork-South-Central | Cork South-Central | Cork South-Central | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 2eb87da5dcc15457 |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Roscommon-Galway | Roscommon-Galway | Roscommon-Galway | Roscommon-Galway | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 373952e68f0f3bf2 |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Tipperary-North | Tipperary-North | Tipperary North | Tipperary North | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | c97ea67ff790c3bc |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo | Mayo | Mayo | Mayo | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 6163d27a2d3f2e44 |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Mid-West | Dublin-Mid-West | Dublin Mid-West | Dublin Mid-West | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 4a86bcf3ad45828e |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Clare | Clare | Clare | Clare | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 6e3bbbe271f3bd19 |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-East | Meath-East | Meath East | Meath East | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 85a41356f3ef3225 |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dún-Laoghaire | Dún-Laoghaire | Dún Laoghaire | Dún Laoghaire | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | dfc148b0d157790b |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Offaly | Offaly | Offaly | Offaly | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 8c4ae723261207db |
+| https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Central | Dublin-Central | Dublin Central | Dublin Central | https://data.oireachtas.ie/ie/oireachtas/house/dail/34 | 34 | dail | None | None | True | /constituencies | 2026-06-06 | 0a199130dfa79c33 |
