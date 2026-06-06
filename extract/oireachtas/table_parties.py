@@ -70,7 +70,19 @@ def build_silver_parties(
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
 
     dq = _dq_results(df, schema)
+    write_errors: list[str] = []
     schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
+    s3_keys = {
+        "raw_json": raw_key,
+        "csv": csv_key,
+        "parquet": parquet_key,
+        "latest_csv": latest_csv_key,
+        "latest_parquet": latest_parquet_key,
+        "manifest": manifest_key,
+        "review_sample": review_sample_key,
+        "review_schema": review_schema_key,
+        "review_manifest": review_manifest_key,
+    }
     manifest = {
         "table": TABLE_NAME,
         "mode": mode,
@@ -90,38 +102,41 @@ def build_silver_parties(
         "dq_status": dq["dq_status"],
         "raw_result_sample": results[:2],
         "raw_result_key_paths": sorted(_key_paths(results[0], max_depth=5)) if results and isinstance(results[0], Mapping) else [],
-        "s3_keys": {
-            "raw_json": raw_key,
-            "csv": csv_key,
-            "parquet": parquet_key,
-            "latest_csv": latest_csv_key,
-            "latest_parquet": latest_parquet_key,
-            "manifest": manifest_key,
-            "review_sample": review_sample_key,
-            "review_schema": review_schema_key,
-            "review_manifest": review_manifest_key,
-        },
+        "write_errors": write_errors,
+        "s3_keys": s3_keys,
     }
 
-    put_json(s3, bucket=bucket, key=raw_key, payload=payload)
-    put_dataframe_csv(s3, bucket=bucket, key=csv_key, df=df)
-    put_dataframe_parquet(s3, bucket=bucket, key=parquet_key, df=df)
-    put_dataframe_csv(s3, bucket=bucket, key=latest_csv_key, df=df)
-    put_dataframe_parquet(s3, bucket=bucket, key=latest_parquet_key, df=df)
-    put_json(s3, bucket=bucket, key=manifest_key, payload=manifest)
+    # Keep the builder returning diagnostics even when S3/Parquet writes fail.
+    try:
+        put_json(s3, bucket=bucket, key=raw_key, payload=payload)
+        put_dataframe_csv(s3, bucket=bucket, key=csv_key, df=df)
+        if not df.empty:
+            put_dataframe_parquet(s3, bucket=bucket, key=parquet_key, df=df)
+        put_dataframe_csv(s3, bucket=bucket, key=latest_csv_key, df=df)
+        if not df.empty:
+            put_dataframe_parquet(s3, bucket=bucket, key=latest_parquet_key, df=df)
+        put_json(s3, bucket=bucket, key=manifest_key, payload=manifest)
+
+        sample_df = df.head(10)
+        put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=sample_df)
+        put_json(s3, bucket=bucket, key=review_schema_key, payload=schema_payload)
+        put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
+    except Exception as exc:  # diagnostics must survive table-build failures
+        write_errors.append(f"{type(exc).__name__}: {exc}")
+        dq["dq_status"] = "fail"
+        dq["checks"].append({"check_name": "s3_write", "status": "fail", "message": write_errors[-1]})
+        manifest["status"] = "failed"
+        manifest["dq_status"] = "fail"
+        manifest["write_errors"] = write_errors
 
     sample_df = df.head(10)
-    put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=sample_df)
-    put_json(s3, bucket=bucket, key=review_schema_key, payload=schema_payload)
-    put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
-
     return TableBuildResult(
         table=TABLE_NAME,
         rows=sample_df.to_dict(orient="records"),
         manifest=manifest,
         schema=schema_payload,
         dq=dq,
-        s3_keys=manifest["s3_keys"],
+        s3_keys=s3_keys,
     )
 
 
@@ -145,7 +160,6 @@ def _iter_party_records(item: Any) -> Iterable[Mapping[str, Any]]:
     if emitted:
         return emitted
 
-    # If the result itself has party-like fields, use it directly.
     if any(key in item for key in ("partyCode", "showAs", "uri", "name")):
         return [item]
 
