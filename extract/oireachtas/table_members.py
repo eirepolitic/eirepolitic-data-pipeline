@@ -279,22 +279,74 @@ def _latest_membership_context(memberships: list[Mapping[str, Any]]) -> dict[str
 
 def _membership_start(membership: Mapping[str, Any]) -> str | None:
     date_range = dict(membership.get("dateRange") or membership.get("date_range") or {})
-    return parse_iso_date(date_range.get("start") or membership.get("membershipStart") or membership.get("startDate") or membership.get("dateStart"))
+    member_date_range = dict(membership.get("memberDateRange") or {})
+    return parse_iso_date(
+        date_range.get("start")
+        or member_date_range.get("start")
+        or membership.get("membershipStart")
+        or membership.get("startDate")
+        or membership.get("dateStart")
+    )
 
 
 def _membership_end(membership: Mapping[str, Any]) -> str | None:
     date_range = dict(membership.get("dateRange") or membership.get("date_range") or {})
-    return parse_iso_date(date_range.get("end") or membership.get("membershipEnd") or membership.get("endDate") or membership.get("dateEnd"))
+    member_date_range = dict(membership.get("memberDateRange") or {})
+    return parse_iso_date(
+        date_range.get("end")
+        or member_date_range.get("end")
+        or membership.get("membershipEnd")
+        or membership.get("endDate")
+        or membership.get("dateEnd")
+    )
 
 
 def _party_name(membership: Mapping[str, Any]) -> str | None:
     party = _first_mapping(membership, "party", "partyDetails")
-    return _first_text(party, "showAs", "partyName", "name") or _first_text(membership, "partyName", "party")
+    direct = _first_text(party, "showAs", "partyName", "name") or _first_text(membership, "partyName", "party")
+    if direct:
+        return direct
+    parties = membership.get("parties")
+    selected = _latest_nested_record(parties, wrapper_key="party")
+    return _first_text(selected, "showAs", "partyName", "name")
 
 
 def _constituency_name(membership: Mapping[str, Any]) -> str | None:
     constituency = _first_mapping(membership, "constituency", "constituencyOrPanel", "represent")
-    return _first_text(constituency, "showAs", "name", "constituencyName") or _first_text(membership, "constituencyName", "represent")
+    direct = _first_text(constituency, "showAs", "name", "constituencyName") or _first_text(membership, "constituencyName", "represent")
+    if direct:
+        return direct
+    represents = membership.get("represents")
+    selected = _latest_nested_record(represents, wrapper_key="represent")
+    return _first_text(selected, "showAs", "name", "constituencyName", "representName")
+
+
+def _latest_nested_record(value: Any, *, wrapper_key: str) -> Mapping[str, Any]:
+    if isinstance(value, Mapping):
+        nested = value.get(wrapper_key)
+        return nested if isinstance(nested, Mapping) else value
+    if not isinstance(value, list):
+        return {}
+    records: list[Mapping[str, Any]] = []
+    for entry in value:
+        if not isinstance(entry, Mapping):
+            continue
+        nested = entry.get(wrapper_key)
+        records.append(nested if isinstance(nested, Mapping) else entry)
+    if not records:
+        return {}
+    current = [record for record in records if is_current_range(_nested_start(record), _nested_end(record))]
+    return sorted(current or records, key=lambda record: (_nested_end(record) or "9999-12-31", _nested_start(record) or ""), reverse=True)[0]
+
+
+def _nested_start(record: Mapping[str, Any]) -> str | None:
+    date_range = dict(record.get("dateRange") or record.get("date_range") or {})
+    return parse_iso_date(date_range.get("start") or record.get("startDate") or record.get("dateStart"))
+
+
+def _nested_end(record: Mapping[str, Any]) -> str | None:
+    date_range = dict(record.get("dateRange") or record.get("date_range") or {})
+    return parse_iso_date(date_range.get("end") or record.get("endDate") or record.get("dateEnd"))
 
 
 def _house_no(membership: Mapping[str, Any]) -> str | None:
