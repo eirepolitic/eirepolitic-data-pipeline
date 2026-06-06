@@ -103,12 +103,13 @@ jobs:
           python -m extract.oireachtas.build_table "${args[@]}" | tee oireachtas_table_test.log
 
       - name: Publish review output branch
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
           if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then
-            echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}"
-            exit 1
+            echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}; skipping branch publish."
+            exit 0
           fi
           rm -rf /tmp/oireachtas-review-worktree
           git config user.name "github-actions[bot]"
