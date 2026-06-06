@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `silver_parties`
-- `review/silver_parties/latest/sample.csv`
-- `review/silver_parties/latest/sample.md`
-- `review/silver_parties/latest/manifest.json`
-- `review/silver_parties/latest/schema.json`
-- `review/silver_parties/latest/dq.json`
+### `silver_members`
+- `review/silver_members/latest/sample.csv`
+- `review/silver_members/latest/sample.md`
+- `review/silver_members/latest/manifest.json`
+- `review/silver_members/latest/schema.json`
+- `review/silver_members/latest/dq.json`

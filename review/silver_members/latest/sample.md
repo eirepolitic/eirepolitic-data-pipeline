@@ -1,0 +1,14 @@
+# `silver_members` sample
+
+| member_code | member_uri | full_name | first_name | last_name | display_name | gender | member_key | is_current_member | latest_party_name | latest_constituency_name | latest_house_no | source_endpoint | snapshot_date | source_hash |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Ciarán-Ahern.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/Ciarán-Ahern.D.2024-11-29 | Ciarán Ahern | Ciarán | Ahern | Ciarán Ahern | None | 84982be851d6bab5 | True | None | None | 34 | /members | 2026-06-06 | fc6f5a2909d5bd66 |
+| William-Aird.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/William-Aird.D.2024-11-29 | William Aird | William | Aird | William Aird | None | f9db113463ecef1d | True | None | None | 34 | /members | 2026-06-06 | 254f6dbc08227f42 |
+| Catherine-Ardagh.S.2016-04-25 | https://data.oireachtas.ie/ie/oireachtas/member/id/Catherine-Ardagh.S.2016-04-25 | Catherine Ardagh | Catherine | Ardagh | Catherine Ardagh | None | 47078b63e682f9f1 | True | None | None | 34 | /members | 2026-06-06 | bf0f28c61406f458 |
+| Ivana-Bacik.S.2007-07-23 | https://data.oireachtas.ie/ie/oireachtas/member/id/Ivana-Bacik.S.2007-07-23 | Ivana Bacik | Ivana | Bacik | Ivana Bacik | None | e8e80930c0e410a1 | True | None | None | 34 | /members | 2026-06-06 | b39fc1132d96e7ad |
+| Cathy-Bennett.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/Cathy-Bennett.D.2024-11-29 | Cathy Bennett | Cathy | Bennett | Cathy Bennett | None | df1419838245e81c | True | None | None | 34 | /members | 2026-06-06 | f434d5426eb2c065 |
+| Grace-Boland.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/Grace-Boland.D.2024-11-29 | Grace Boland | Grace | Boland | Grace Boland | None | 20f2314b6318d589 | True | None | None | 34 | /members | 2026-06-06 | c5fc606ca6a8f90b |
+| Richard-Boyd-Barrett.D.2011-03-09 | https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09 | Richard Boyd Barrett | Richard | Boyd Barrett | Richard Boyd Barrett | None | ca14ca596939ee40 | True | None | None | 34 | /members | 2026-06-06 | 6c030d4c8ff90163 |
+| Tom-Brabazon.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/Tom-Brabazon.D.2024-11-29 | Tom Brabazon | Tom | Brabazon | Tom Brabazon | None | 3c88163497d330d7 | True | None | None | 34 | /members | 2026-06-06 | d49136c68345d832 |
+| John-Brady.D.2016-10-03 | https://data.oireachtas.ie/ie/oireachtas/member/id/John-Brady.D.2016-10-03 | John Brady | John | Brady | John Brady | None | b7d8d0ba8cc96e9b | True | None | None | 34 | /members | 2026-06-06 | fe5c6304fbd089bb |
+| Brian-Brennan.D.2024-11-29 | https://data.oireachtas.ie/ie/oireachtas/member/id/Brian-Brennan.D.2024-11-29 | Brian Brennan | Brian | Brennan | Brian Brennan | None | 30b633211ec6f347 | True | None | None | 34 | /members | 2026-06-06 | 56af893f8b879233 |
