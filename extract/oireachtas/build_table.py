@@ -181,7 +181,16 @@ def run_real_table(args: argparse.Namespace) -> int:
             house_no=args.house_no,
         )
     elif args.table == PARTIES_TABLE:
-        result = build_silver_parties(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
+        result = build_silver_parties(
+            client=client,
+            s3=s3,
+            bucket=args.s3_bucket,
+            schema=schema,
+            limit=args.limit,
+            mode=args.mode,
+            chamber=args.chamber,
+            house_no=args.house_no,
+        )
     else:
         payload = {
             "status": "validated",
