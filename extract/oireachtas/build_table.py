@@ -15,6 +15,7 @@ from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_json, make_s3_client, put
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
+from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
 from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
 
 
@@ -84,15 +85,8 @@ def run_smoke(args: argparse.Namespace) -> int:
     now = utc_now_iso()
     manifest_key = "processed/oireachtas_unified/review/_smoke/latest/manifest.json"
     sample_rows = [
-        {
-            "check_name": "s3_put_get",
-            "status": "pending",
-            "bucket": args.s3_bucket,
-            "key": manifest_key,
-            "created_at_utc": now,
-        }
+        {"check_name": "s3_put_get", "status": "pending", "bucket": args.s3_bucket, "key": manifest_key, "created_at_utc": now}
     ]
-
     manifest: dict[str, Any] = {
         "table": SMOKE_TABLE,
         "mode": args.mode,
@@ -124,10 +118,8 @@ def run_smoke(args: argparse.Namespace) -> int:
             {"check_name": "review_bundle", "status": "pass", "message": "Local review bundle written."},
         ],
     }
-
     review_dir = write_review_bundle(table=SMOKE_TABLE, manifest=manifest, schema=schema, dq=dq, sample_rows=sample_rows, root=Path(args.review_root))
     review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=SMOKE_TABLE, filename="manifest.json")
-
     print(f"TABLE={SMOKE_TABLE}")
     print(f"MODE={args.mode}")
     print("ROWS=1")
@@ -151,7 +143,6 @@ def run_discovery(args: argparse.Namespace) -> int:
     dq = discovery_dq(rows)
     review_dir = write_review_bundle(table=DISCOVERY_TABLE, manifest=manifest, schema=schema, dq=dq, sample_rows=rows, root=Path(args.review_root))
     review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=DISCOVERY_TABLE, filename="manifest.json")
-
     print(f"TABLE={DISCOVERY_TABLE}")
     print(f"MODE={args.mode}")
     print(f"ROWS={len(rows)}")
@@ -176,14 +167,9 @@ def run_real_table(args: argparse.Namespace) -> int:
     client = OireachtasClient(timeout_seconds=30, retries=5, backoff_seconds=2.0, sleep_seconds=0.2)
 
     if args.table == HOUSES_TABLE:
-        result = build_silver_houses(
-            client=client,
-            s3=s3,
-            bucket=args.s3_bucket,
-            schema=schema,
-            limit=args.limit,
-            mode=args.mode,
-        )
+        result = build_silver_houses(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
+    elif args.table == CONSTITUENCIES_TABLE:
+        result = build_silver_constituencies(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
     else:
         payload = {
             "status": "validated",
@@ -199,14 +185,7 @@ def run_real_table(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
         return 0
 
-    review_dir = write_review_bundle(
-        table=result.table,
-        manifest=result.manifest,
-        schema=result.schema,
-        dq=result.dq,
-        sample_rows=result.rows,
-        root=Path(args.review_root),
-    )
+    review_dir = write_review_bundle(table=result.table, manifest=result.manifest, schema=result.schema, dq=result.dq, sample_rows=result.rows, root=Path(args.review_root))
     review_url = raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=result.table, filename="manifest.json")
     csv_key = result.s3_keys.get("csv")
     parquet_key = result.s3_keys.get("parquet")
@@ -230,17 +209,13 @@ def run_real_table(args: argparse.Namespace) -> int:
 def validate_command(args: argparse.Namespace) -> int:
     if args.list_tables:
         return list_tables(args.config, as_json=args.json)
-
     if not args.table:
         print("ERROR: --table is required unless --list-tables is used.", file=sys.stderr)
         return 2
-
     if args.table == SMOKE_TABLE:
         return run_smoke(args)
-
     if args.table == DISCOVERY_TABLE:
         return run_discovery(args)
-
     return run_real_table(args)
 
 
