@@ -35,13 +35,19 @@ def build_silver_constituencies(
     schema: TableSchema,
     limit: int,
     mode: str,
+    chamber: str | None = None,
+    house_no: str | None = None,
 ) -> TableBuildResult:
     """Fetch `/constituencies`, normalize, and write silver_constituencies outputs."""
     started_at = utc_now_iso()
     run_id = _run_id(TABLE_NAME)
     snapshot_date = started_at[:10]
     endpoint = schema.endpoint or "/constituencies"
-    params = {"limit": max(1, min(limit, 200))}
+    params: dict[str, Any] = {"limit": max(1, min(limit, 200))}
+    if chamber:
+        params["chamber"] = chamber
+    if house_no:
+        params["house_no"] = house_no
 
     summary = client.get_json_summary(endpoint, params=params)
     if not summary.ok or not summary.payload:
@@ -70,12 +76,7 @@ def build_silver_constituencies(
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
 
     dq = _dq_results(df, schema)
-    schema_payload = {
-        "table": TABLE_NAME,
-        "primary_key": schema.primary_key,
-        "columns": schema.columns,
-        "row_count": int(len(df)),
-    }
+    schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     manifest = {
         "table": TABLE_NAME,
         "mode": mode,
@@ -120,14 +121,7 @@ def build_silver_constituencies(
     put_json(s3, bucket=bucket, key=review_schema_key, payload=schema_payload)
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
 
-    return TableBuildResult(
-        table=TABLE_NAME,
-        rows=sample_df.to_dict(orient="records"),
-        manifest=manifest,
-        schema=schema_payload,
-        dq=dq,
-        s3_keys=manifest["s3_keys"],
-    )
+    return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=manifest["s3_keys"])
 
 
 def _iter_constituency_records(item: Any) -> Iterable[tuple[Mapping[str, Any], Mapping[str, Any]]]:
@@ -136,20 +130,22 @@ def _iter_constituency_records(item: Any) -> Iterable[tuple[Mapping[str, Any], M
     emitted: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
     root_house = _extract_house({}, item)
 
-    direct = item.get("constituency")
-    if isinstance(direct, Mapping):
-        emitted.append((direct, _extract_house(direct, item) or root_house))
+    for direct_key in ("constituencyOrPanel", "constituency"):
+        direct = item.get(direct_key)
+        if isinstance(direct, Mapping):
+            emitted.append((direct, _extract_house(direct, item) or root_house))
 
     for parent in (item, root_house):
         if not isinstance(parent, Mapping):
             continue
-        nested = parent.get("constituencies")
-        if isinstance(nested, list):
-            for entry in nested:
-                if isinstance(entry, Mapping):
-                    record = entry.get("constituency") if isinstance(entry.get("constituency"), Mapping) else entry
-                    house = _extract_house(record, entry) or root_house
-                    emitted.append((record, house))
+        for nested_key in ("constituencies", "constituencyOrPanels"):
+            nested = parent.get(nested_key)
+            if isinstance(nested, list):
+                for entry in nested:
+                    if isinstance(entry, Mapping):
+                        record = _unwrap_constituency(entry)
+                        house = _extract_house(record, entry) or root_house
+                        emitted.append((record, house))
 
     if emitted:
         return emitted
@@ -162,14 +158,22 @@ def _recursive_constituencies(value: Any, house_context: Mapping[str, Any]) -> I
         return
     local_house = _extract_house({}, value) or house_context
     for key, child in value.items():
-        if key == "constituencies" and isinstance(child, list):
+        if key in {"constituencies", "constituencyOrPanels"} and isinstance(child, list):
             for entry in child:
                 if isinstance(entry, Mapping):
-                    record = entry.get("constituency") if isinstance(entry.get("constituency"), Mapping) else entry
+                    record = _unwrap_constituency(entry)
                     house = _extract_house(record, entry) or local_house
                     yield record, house
         elif isinstance(child, Mapping):
             yield from _recursive_constituencies(child, local_house)
+
+
+def _unwrap_constituency(entry: Mapping[str, Any]) -> Mapping[str, Any]:
+    for key in ("constituencyOrPanel", "constituency"):
+        value = entry.get(key)
+        if isinstance(value, Mapping):
+            return value
+    return entry
 
 
 def _normalise_constituency_record(record: Mapping[str, Any], house: Mapping[str, Any], *, snapshot_date: str, endpoint: str) -> dict[str, Any]:
@@ -178,7 +182,7 @@ def _normalise_constituency_record(record: Mapping[str, Any], house: Mapping[str
     end = parse_iso_date(date_range.get("end") or record.get("dateEnd") or record.get("endDate"))
     show_as = _first_text(record, "showAs", "show_as", "name", "constituencyName")
     name = _first_text(record, "name", "constituencyName", "showAs", "show_as")
-    code = _first_text(record, "constituencyCode", "code", "id")
+    code = _first_text(record, "constituencyCode", "representCode", "code", "id")
     uri = _first_text(record, "uri", "constituencyUri")
     house_uri = _first_text(house, "uri", "houseUri")
     house_no = _first_text(house, "houseNo", "house_no")
