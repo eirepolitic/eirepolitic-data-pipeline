@@ -35,13 +35,19 @@ def build_silver_parties(
     schema: TableSchema,
     limit: int,
     mode: str,
+    chamber: str | None = None,
+    house_no: str | None = None,
 ) -> TableBuildResult:
     """Fetch `/parties`, normalize, and write silver_parties outputs."""
     started_at = utc_now_iso()
     run_id = _run_id(TABLE_NAME)
     snapshot_date = started_at[:10]
     endpoint = schema.endpoint or "/parties"
-    params = {"limit": max(1, min(limit, 200))}
+    params: dict[str, Any] = {"limit": max(1, min(limit, 200))}
+    if chamber:
+        params["chamber"] = chamber
+    if house_no:
+        params["house_no"] = house_no
 
     summary = client.get_json_summary(endpoint, params=params)
     if not summary.ok or not summary.payload:
@@ -106,7 +112,6 @@ def build_silver_parties(
         "s3_keys": s3_keys,
     }
 
-    # Keep the builder returning diagnostics even when S3/Parquet writes fail.
     try:
         put_json(s3, bucket=bucket, key=raw_key, payload=payload)
         put_dataframe_csv(s3, bucket=bucket, key=csv_key, df=df)
@@ -121,7 +126,7 @@ def build_silver_parties(
         put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=sample_df)
         put_json(s3, bucket=bucket, key=review_schema_key, payload=schema_payload)
         put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
-    except Exception as exc:  # diagnostics must survive table-build failures
+    except Exception as exc:
         write_errors.append(f"{type(exc).__name__}: {exc}")
         dq["dq_status"] = "fail"
         dq["checks"].append({"check_name": "s3_write", "status": "fail", "message": write_errors[-1]})
