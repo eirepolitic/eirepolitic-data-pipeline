@@ -169,7 +169,16 @@ def run_real_table(args: argparse.Namespace) -> int:
     if args.table == HOUSES_TABLE:
         result = build_silver_houses(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
     elif args.table == CONSTITUENCIES_TABLE:
-        result = build_silver_constituencies(client=client, s3=s3, bucket=args.s3_bucket, schema=schema, limit=args.limit, mode=args.mode)
+        result = build_silver_constituencies(
+            client=client,
+            s3=s3,
+            bucket=args.s3_bucket,
+            schema=schema,
+            limit=args.limit,
+            mode=args.mode,
+            chamber=args.chamber,
+            house_no=args.house_no,
+        )
     else:
         payload = {
             "status": "validated",
