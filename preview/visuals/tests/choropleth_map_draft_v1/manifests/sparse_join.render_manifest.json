@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "sparse_join",
+  "template_id": "choropleth_map_draft_v1",
+  "renderer": "choropleth_map",
+  "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/sparse_join.png",
+  "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/sparse_join.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "no_data_features:C02,C04,C06,C08"
+  ],
+  "created_at": "2026-06-07T18:00:14.989712+00:00",
+  "description": "Partial data coverage with no-data regions"
+}

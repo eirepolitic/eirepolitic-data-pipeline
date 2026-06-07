@@ -1,0 +1,100 @@
+{
+  "visual_id": "missing_values",
+  "template_id": "choropleth_map_draft_v1",
+  "renderer": "choropleth_map",
+  "created_at": "2026-06-07T18:00:15.167115+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/data/cases.csv",
+    "case_id": "missing_values",
+    "case_description": "Includes missing and invalid values",
+    "registry_path": "instagram/visuals/tests/choropleth_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/choropleth_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "feature_count": 8,
+    "joined_feature_count": 6,
+    "missing_feature_ids": [
+      "C02",
+      "C04"
+    ],
+    "unmatched_data_ids": []
+  },
+  "bindings": {
+    "feature_id": "feature_id",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "missing_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "missing_values"
+  },
+  "source_note": "Fixture data and synthetic geography for visual variation review only",
+  "attribution": {
+    "source_name": "Synthetic fixture geography",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "Internal test fixture",
+    "notes": "Deterministic synthetic polygons. Not for publication."
+  },
+  "value_range": {
+    "min": 14.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "case_id": "missing_values",
+      "feature_id": "C01",
+      "value": "18"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C02",
+      "value": ""
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C03",
+      "value": "42"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C04",
+      "value": "unknown"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C05",
+      "value": "14"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C06",
+      "value": "33"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C07",
+      "value": "38"
+    },
+    {
+      "case_id": "missing_values",
+      "feature_id": "C08",
+      "value": "27"
+    }
+  ],
+  "warnings": [
+    "missing_or_invalid_value:C02",
+    "missing_or_invalid_value:C04",
+    "no_data_features:C02,C04"
+  ]
+}

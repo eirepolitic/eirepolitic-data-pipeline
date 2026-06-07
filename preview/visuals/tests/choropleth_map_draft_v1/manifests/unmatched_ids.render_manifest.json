@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "visual_id": "unmatched_ids",
+  "template_id": "choropleth_map_draft_v1",
+  "renderer": "choropleth_map",
+  "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/unmatched_ids.png",
+  "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/unmatched_ids.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "unmatched_data_features:C100,C99",
+    "no_data_features:C03,C04,C05,C06,C07,C08"
+  ],
+  "created_at": "2026-06-07T18:00:15.018699+00:00",
+  "description": "Data rows that do not match geography features"
+}

@@ -1,0 +1,93 @@
+{
+  "visual_id": "wide_range",
+  "template_id": "choropleth_map_draft_v1",
+  "renderer": "choropleth_map",
+  "created_at": "2026-06-07T18:00:15.078843+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/data/cases.csv",
+    "case_id": "wide_range",
+    "case_description": "Values spanning several orders of magnitude",
+    "registry_path": "instagram/visuals/tests/choropleth_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/choropleth_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "feature_count": 8,
+    "joined_feature_count": 8,
+    "missing_feature_ids": [],
+    "unmatched_data_ids": []
+  },
+  "bindings": {
+    "feature_id": "feature_id",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "wide_range"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "wide_range"
+  },
+  "source_note": "Fixture data and synthetic geography for visual variation review only",
+  "attribution": {
+    "source_name": "Synthetic fixture geography",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "Internal test fixture",
+    "notes": "Deterministic synthetic polygons. Not for publication."
+  },
+  "value_range": {
+    "min": 1.0,
+    "max": 72000.0
+  },
+  "rows_rendered": [
+    {
+      "case_id": "wide_range",
+      "feature_id": "C01",
+      "value": "1"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C02",
+      "value": "8"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C03",
+      "value": "40"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C04",
+      "value": "180"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C05",
+      "value": "900"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C06",
+      "value": "4200"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C07",
+      "value": "16000"
+    },
+    {
+      "case_id": "wide_range",
+      "feature_id": "C08",
+      "value": "72000"
+    }
+  ],
+  "warnings": []
+}

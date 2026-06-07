@@ -1,0 +1,148 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/choropleth_map_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/choropleth_map_draft_v1.yml",
+  "case_count": 10,
+  "contact_sheet": "generated_visual_tests/choropleth_map_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "complete_join",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/complete_join.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/complete_join.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:14.958836+00:00",
+      "description": "Complete one-to-one geography join"
+    },
+    {
+      "success": true,
+      "visual_id": "sparse_join",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/sparse_join.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/sparse_join.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "no_data_features:C02,C04,C06,C08"
+      ],
+      "created_at": "2026-06-07T18:00:14.989712+00:00",
+      "description": "Partial data coverage with no-data regions"
+    },
+    {
+      "success": true,
+      "visual_id": "unmatched_ids",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/unmatched_ids.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/unmatched_ids.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "unmatched_data_features:C100,C99",
+        "no_data_features:C03,C04,C05,C06,C07,C08"
+      ],
+      "created_at": "2026-06-07T18:00:15.018699+00:00",
+      "description": "Data rows that do not match geography features"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.048644+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.078843+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_values",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/zero_values.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/zero_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.108297+00:00",
+      "description": "Includes zero values"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.137837+00:00",
+      "description": "Includes negative values"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value:C02",
+        "missing_or_invalid_value:C04",
+        "no_data_features:C02,C04"
+      ],
+      "created_at": "2026-06-07T18:00:15.167115+00:00",
+      "description": "Includes missing and invalid values"
+    },
+    {
+      "success": true,
+      "visual_id": "single_value",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/single_value.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/single_value.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.196535+00:00",
+      "description": "All regions have the same value"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "choropleth_map_draft_v1",
+      "renderer": "choropleth_map",
+      "output_png": "generated_visual_tests/choropleth_map_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/choropleth_map_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T18:00:15.226486+00:00",
+      "description": "Wide values with labels and legend"
+    }
+  ]
+}
