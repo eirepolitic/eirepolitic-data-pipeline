@@ -1,0 +1,94 @@
+template: instagram/visuals/templates/point_map_draft_v1.yml
+geography:
+  path: instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json
+bindings:
+  x: x
+  y: y
+  label: label
+  category: category
+  value: value
+source_note: "Fixture data and synthetic geography for visual variation review only"
+attribution:
+  source_name: Synthetic fixture geography
+  source_url: ""
+  retrieved_at: ""
+  license: "Internal test fixture"
+  notes: "Deterministic synthetic polygons. Not for publication."
+cases:
+  - id: few_points
+    description: Three-point minimal map
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: few_points
+  - id: many_points
+    description: Dense point map
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: many_points
+  - id: category_mix
+    description: Mixed point categories and legend
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: category_mix
+  - id: tight_values
+    description: Similar point values
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: tight_values
+  - id: wide_values
+    description: Point values spanning several orders of magnitude
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_values
+  - id: zero_values
+    description: Includes zero-sized value inputs
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: zero_values
+  - id: negative_values
+    description: Includes negative values and should warn
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: missing_values
+    description: Missing coordinates and values should warn
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_values
+  - id: out_of_bounds
+    description: Coordinates outside geography coordinate space should warn
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: out_of_bounds
+  - id: long_labels
+    description: Long labels should truncate cleanly
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_labels
+  - id: phone_readability_stress
+    description: Mixed categories, long labels, wide values, and zero values
+    data: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress
