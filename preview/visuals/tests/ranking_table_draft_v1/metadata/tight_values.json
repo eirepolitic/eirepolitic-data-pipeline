@@ -1,0 +1,85 @@
+{
+  "visual_id": "tight_values",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "created_at": "2026-06-07T17:38:22.725030+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "case_id": "tight_values",
+    "case_description": "Similar values close together",
+    "registry_path": "instagram/visuals/tests/ranking_table_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/ranking_table_draft_v1.yml"
+  },
+  "bindings": {
+    "rank": "rank",
+    "name": "name",
+    "sublabel": "sublabel",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "tight_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "tight_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "rank": "1",
+      "name": "Housing",
+      "sublabel": "Issue mentions",
+      "value": 57.0
+    },
+    {
+      "rank": "2",
+      "name": "Health",
+      "sublabel": "Issue mentions",
+      "value": 56.0
+    },
+    {
+      "rank": "3",
+      "name": "Transport",
+      "sublabel": "Issue mentions",
+      "value": 55.0
+    },
+    {
+      "rank": "4",
+      "name": "Climate",
+      "sublabel": "Issue mentions",
+      "value": 54.0
+    },
+    {
+      "rank": "5",
+      "name": "Education",
+      "sublabel": "Issue mentions",
+      "value": 53.0
+    },
+    {
+      "rank": "6",
+      "name": "Justice",
+      "sublabel": "Issue mentions",
+      "value": 52.0
+    },
+    {
+      "rank": "7",
+      "name": "Economy",
+      "sublabel": "Issue mentions",
+      "value": 51.0
+    }
+  ],
+  "warnings": []
+}

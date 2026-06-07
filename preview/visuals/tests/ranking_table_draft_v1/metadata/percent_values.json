@@ -1,0 +1,67 @@
+{
+  "visual_id": "percent_values",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "created_at": "2026-06-07T17:38:22.693894+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "case_id": "percent_values",
+    "case_description": "Percent-style values using default integer template for draft review",
+    "registry_path": "instagram/visuals/tests/ranking_table_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/ranking_table_draft_v1.yml"
+  },
+  "bindings": {
+    "rank": "rank",
+    "name": "name",
+    "sublabel": "sublabel",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "percent_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "percent_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "rank": "1",
+      "name": "Party A",
+      "sublabel": "Polling support",
+      "value": 37.0
+    },
+    {
+      "rank": "2",
+      "name": "Party B",
+      "sublabel": "Polling support",
+      "value": 31.0
+    },
+    {
+      "rank": "3",
+      "name": "Party C",
+      "sublabel": "Polling support",
+      "value": 18.0
+    },
+    {
+      "rank": "4",
+      "name": "Others",
+      "sublabel": "Polling support",
+      "value": 14.0
+    }
+  ],
+  "warnings": []
+}

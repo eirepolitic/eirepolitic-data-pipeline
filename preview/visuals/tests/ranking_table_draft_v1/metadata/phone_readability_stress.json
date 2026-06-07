@@ -1,0 +1,91 @@
+{
+  "visual_id": "phone_readability_stress",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "created_at": "2026-06-07T17:38:22.876366+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "case_id": "phone_readability_stress",
+    "case_description": "Long names, long sublabels, wide values, and max rows",
+    "registry_path": "instagram/visuals/tests/ranking_table_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/ranking_table_draft_v1.yml"
+  },
+  "bindings": {
+    "rank": "rank",
+    "name": "name",
+    "sublabel": "sublabel",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "phone_readability_stress"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "phone_readability_stress"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "rank": "1",
+      "name": "Dr Aoife Siobhán Byrne-Mac Giolla Phádraig",
+      "sublabel": "Dublin Bay South and Inner Suburbs",
+      "value": 42000.0
+    },
+    {
+      "rank": "2",
+      "name": "Councillor Christopher Alexander Murphy",
+      "sublabel": "Cork North Central and Surrounding Towns",
+      "value": 7600.0
+    },
+    {
+      "rank": "3",
+      "name": "Niamh Catherine Kelly O'Sullivan",
+      "sublabel": "Galway West and Coastal Communities",
+      "value": 950.0
+    },
+    {
+      "rank": "4",
+      "name": "Seán Patrick Walsh-McCarthy",
+      "sublabel": "Limerick City and County Metropolitan Area",
+      "value": 120.0
+    },
+    {
+      "rank": "5",
+      "name": "Maeve Elizabeth O'Brien",
+      "sublabel": "Fine Gael Parliamentary Party",
+      "value": 15.0
+    },
+    {
+      "rank": "6",
+      "name": "Rory Collins",
+      "sublabel": "Sinn Féin Local Organisation",
+      "value": 7.0
+    },
+    {
+      "rank": "7",
+      "name": "Eimear Ryan",
+      "sublabel": "Social Democrats Constituency Office",
+      "value": 1.0
+    },
+    {
+      "rank": "8",
+      "name": "Patrick Nolan",
+      "sublabel": "People Before Profit Alliance",
+      "value": 0.0
+    }
+  ],
+  "warnings": []
+}

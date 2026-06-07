@@ -1,0 +1,96 @@
+{
+  "visual_id": "candidate_ranking_table_draft_v1",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "created_at": "2026-06-07T17:38:11.281342+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "sample_path": "instagram/visuals/samples/ranking_table_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/ranking_table_draft_v1.yml"
+  },
+  "bindings": {
+    "rank": "rank",
+    "name": "name",
+    "sublabel": "sublabel",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "max_rows"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "future_group_by_options": [
+      "constituency",
+      "party",
+      "candidate",
+      "county",
+      "issue_category",
+      "time_period"
+    ]
+  },
+  "source_note": "Source: realistic placeholder data for visual review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "rank": "1",
+      "name": "Aoife Byrne",
+      "sublabel": "Green Party",
+      "value": 126.0
+    },
+    {
+      "rank": "2",
+      "name": "Cian Murphy",
+      "sublabel": "Independent",
+      "value": 93.0
+    },
+    {
+      "rank": "3",
+      "name": "Niamh Kelly",
+      "sublabel": "Labour",
+      "value": 81.0
+    },
+    {
+      "rank": "4",
+      "name": "Sean Walsh",
+      "sublabel": "Fianna Fáil",
+      "value": 64.0
+    },
+    {
+      "rank": "5",
+      "name": "Maeve O'Brien",
+      "sublabel": "Fine Gael",
+      "value": 58.0
+    },
+    {
+      "rank": "6",
+      "name": "Rory Collins",
+      "sublabel": "Sinn Féin",
+      "value": 44.0
+    },
+    {
+      "rank": "7",
+      "name": "Eimear Ryan",
+      "sublabel": "Social Democrats",
+      "value": 31.0
+    },
+    {
+      "rank": "8",
+      "name": "Patrick Nolan",
+      "sublabel": "People Before Profit",
+      "value": 22.0
+    }
+  ],
+  "warnings": []
+}

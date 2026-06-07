@@ -1,0 +1,69 @@
+{
+  "visual_id": "negative_values",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "created_at": "2026-06-07T17:38:22.804963+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "case_id": "negative_values",
+    "case_description": "Includes negative values and should warn",
+    "registry_path": "instagram/visuals/tests/ranking_table_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/ranking_table_draft_v1.yml"
+  },
+  "bindings": {
+    "rank": "rank",
+    "name": "name",
+    "sublabel": "sublabel",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "negative_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "negative_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "rank": "1",
+      "name": "Housing",
+      "sublabel": "Issue mentions",
+      "value": 90.0
+    },
+    {
+      "rank": "2",
+      "name": "Transport",
+      "sublabel": "Issue mentions",
+      "value": 60.0
+    },
+    {
+      "rank": "3",
+      "name": "Climate",
+      "sublabel": "Issue mentions",
+      "value": 45.0
+    },
+    {
+      "rank": "4",
+      "name": "Health",
+      "sublabel": "Issue mentions",
+      "value": -7.0
+    }
+  ],
+  "warnings": [
+    "negative_values_present"
+  ]
+}

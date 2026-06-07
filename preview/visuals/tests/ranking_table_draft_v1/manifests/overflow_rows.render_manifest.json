@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "overflow_rows",
+  "template_id": "ranking_table_draft_v1",
+  "renderer": "ranking_table",
+  "output_png": "generated_visual_tests/ranking_table_draft_v1/png/overflow_rows.png",
+  "metadata_path": "generated_visual_tests/ranking_table_draft_v1/metadata/overflow_rows.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_rows:10->8"
+  ],
+  "created_at": "2026-06-07T17:38:22.606811+00:00",
+  "description": "Ten rows; should truncate to template max"
+}
