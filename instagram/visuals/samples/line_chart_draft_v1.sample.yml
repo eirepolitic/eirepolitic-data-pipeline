@@ -3,12 +3,15 @@ template: instagram/visuals/templates/line_chart_draft_v1.yml
 source_note: "Source: realistic placeholder data for visual review only"
 input:
   mode: local_csv
-  path: instagram/visuals/tests/line_chart_draft_v1/data/two_series.csv
+  path: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
 bindings:
   x: period
   value: value
   series: series
-filters: []
+filters:
+  - field: case_id
+    operator: equals
+    value: two_series
 grouping:
   batch_enabled: false
   future_group_by_options:
