@@ -70,6 +70,9 @@ jobs:
             python process/instagram_render_visual.py \
               --sample "instagram/visuals/samples/line_chart_draft_v1.sample.yml" \
               --output-root "generated_visuals/line_chart_draft_v1"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/stacked_bar_draft_v1.sample.yml" \
+              --output-root "generated_visuals/stacked_bar_draft_v1"
           } 2>&1 | tee workflow_debug/visual_preview.log
 
       - name: Render visual variation test packs
@@ -87,6 +90,9 @@ jobs:
             python process/instagram_render_visual_test_pack.py \
               --registry "instagram/visuals/tests/line_chart_draft_v1/cases.yml" \
               --output-root "generated_visual_tests/line_chart_draft_v1"
+            python process/instagram_render_visual_test_pack.py \
+              --registry "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml" \
+              --output-root "generated_visual_tests/stacked_bar_draft_v1"
           } 2>&1 | tee workflow_debug/visual_test_pack.log
 
       - name: Publish visual preview branch
@@ -95,7 +101,7 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
-          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1"
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
           git config user.name "github-actions[bot]"
@@ -141,6 +147,7 @@ jobs:
               "horizontal_bar_draft_v1",
               "vertical_bar_draft_v1",
               "line_chart_draft_v1",
+              "stacked_bar_draft_v1",
           ]
           lines = [
               "# Instagram visual preview output",
