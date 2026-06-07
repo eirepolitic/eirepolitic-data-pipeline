@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "silver_member_offices"
+        default: "silver_source_files"
       mode:
         description: "Build mode"
         required: true
@@ -29,15 +29,15 @@ on:
       date_start:
         description: "Start date YYYY-MM-DD"
         required: false
-        default: ""
+        default: "2025-01-01"
       date_end:
         description: "End date YYYY-MM-DD"
         required: false
-        default: ""
+        default: "2025-01-31"
       limit:
         description: "API/test row limit"
         required: false
-        default: "200"
+        default: "10"
       sample_rows:
         description: "Review sample row count"
         required: false
