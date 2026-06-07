@@ -19,6 +19,7 @@ from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silv
 from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
 from .table_member_constituencies import TABLE_NAME as MEMBER_CONSTITUENCIES_TABLE, build_silver_member_constituencies
 from .table_member_memberships import TABLE_NAME as MEMBER_MEMBERSHIPS_TABLE, build_silver_member_memberships
+from .table_member_offices import TABLE_NAME as MEMBER_OFFICES_TABLE, build_silver_member_offices
 from .table_member_parties import TABLE_NAME as MEMBER_PARTIES_TABLE, build_silver_member_parties
 from .table_members import TABLE_NAME as MEMBERS_TABLE, build_silver_members
 from .table_parties import TABLE_NAME as PARTIES_TABLE, build_silver_parties
@@ -122,6 +123,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_member_parties(**filtered)
     elif args.table == MEMBER_CONSTITUENCIES_TABLE:
         result = build_silver_member_constituencies(**filtered)
+    elif args.table == MEMBER_OFFICES_TABLE:
+        result = build_silver_member_offices(**filtered)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
