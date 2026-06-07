@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "09_items_overflow",
+  "template_id": "vertical_bar_draft_v1",
+  "renderer": "vertical_bar",
+  "output_png": "generated_visual_tests/vertical_bar_draft_v1/png/09_items_overflow.png",
+  "metadata_path": "generated_visual_tests/vertical_bar_draft_v1/metadata/09_items_overflow.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_rows:9->8"
+  ],
+  "created_at": "2026-06-07T16:43:44.868389+00:00",
+  "description": "Nine-item overflow chart; should truncate to template max"
+}

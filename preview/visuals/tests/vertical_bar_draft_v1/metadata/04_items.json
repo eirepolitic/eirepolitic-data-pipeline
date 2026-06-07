@@ -1,0 +1,56 @@
+{
+  "visual_id": "04_items",
+  "template_id": "vertical_bar_draft_v1",
+  "renderer": "vertical_bar",
+  "created_at": "2026-06-07T16:43:44.680282+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/04_items.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/04_items.csv",
+    "case_id": "04_items",
+    "case_description": "Four-item compact chart",
+    "registry_path": "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/vertical_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "04_items"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Housing",
+      "value": 120.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Health",
+      "value": 96.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Transport",
+      "value": 72.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Education",
+      "value": 48.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": []
+}

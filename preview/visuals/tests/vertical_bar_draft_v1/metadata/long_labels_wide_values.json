@@ -1,0 +1,79 @@
+{
+  "visual_id": "long_labels_wide_values",
+  "template_id": "vertical_bar_draft_v1",
+  "renderer": "vertical_bar",
+  "created_at": "2026-06-07T16:43:45.781825+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels_wide_values.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels_wide_values.csv",
+    "case_id": "long_labels_wide_values",
+    "case_description": "Long labels plus wide value range",
+    "registry_path": "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/vertical_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels_wide_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation",
+      "value": 950.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Emergency department waiting times",
+      "value": 410.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Regional public transport reliability",
+      "value": 170.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Special education classroom supports",
+      "value": 68.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Household electricity and heating costs",
+      "value": 24.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Community policing and neighbourhood safety",
+      "value": 7.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Rural roads broadband and infrastructure",
+      "value": 1.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "long_label:Affordable rental accommodatio",
+    "long_label:Emergency department waiting t",
+    "long_label:Regional public transport reli",
+    "long_label:Special education classroom su",
+    "long_label:Household electricity and heat",
+    "long_label:Community policing and neighbo",
+    "long_label:Rural roads broadband and infr"
+  ]
+}

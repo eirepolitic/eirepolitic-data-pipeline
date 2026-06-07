@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "negative_value_included",
+  "template_id": "vertical_bar_draft_v1",
+  "renderer": "vertical_bar",
+  "output_png": "generated_visual_tests/vertical_bar_draft_v1/png/negative_value_included.png",
+  "metadata_path": "generated_visual_tests/vertical_bar_draft_v1/metadata/negative_value_included.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "negative_values_present"
+  ],
+  "created_at": "2026-06-07T16:43:45.611962+00:00",
+  "description": "Includes negative value to confirm warning behavior"
+}

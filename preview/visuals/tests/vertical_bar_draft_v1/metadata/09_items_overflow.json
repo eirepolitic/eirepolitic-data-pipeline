@@ -1,0 +1,78 @@
+{
+  "visual_id": "09_items_overflow",
+  "template_id": "vertical_bar_draft_v1",
+  "renderer": "vertical_bar",
+  "created_at": "2026-06-07T16:43:44.868389+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/09_items_overflow.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/09_items_overflow.csv",
+    "case_id": "09_items_overflow",
+    "case_description": "Nine-item overflow chart; should truncate to template max",
+    "registry_path": "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/vertical_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "09_items_overflow"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Housing",
+      "value": 140.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Health",
+      "value": 126.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Transport",
+      "value": 112.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Climate",
+      "value": 98.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Education",
+      "value": 84.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Cost of living",
+      "value": 70.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Justice",
+      "value": 56.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Agriculture",
+      "value": 42.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "truncated_rows:9->8"
+  ]
+}
