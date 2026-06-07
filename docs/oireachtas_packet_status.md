@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-07  
-**Current packet:** T10 — `silver_debate_records`
+**Current packet:** T11 — `silver_debate_sections`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -127,55 +127,66 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - Builder: `extract/oireachtas/table_source_files.py`
 - Initial run: `27098586209`
 - Final run: `27098621113`
-- Run number: 21
-- Result: success
 - Rows: 25
 - PK: `source_file_id`, unique
 - DQ: pass
 - Metadata-only inventory. No PDF/XML download is performed in this packet.
 - Test window: `2025-01-01` to `2025-01-31`, `limit=10`.
-- Endpoint coverage:
-  - `/debates`: 2 raw debate records, 4 file rows.
-  - `/questions`: 10 raw question records, 10 file rows.
-  - `/legislation`: 10 raw legislation records, 11 file rows.
-- Actual `formats` shapes observed:
-  - debate: `debateRecord.formats.pdf.uri`, `debateRecord.formats.xml.uri`, plus nested debate-section formats that can be null placeholders.
-  - questions: `question.debateSection.formats.xml.uri`; some `pdf` keys are null.
-  - legislation: `bill.versions[].version.formats.pdf.uri`, `bill.relatedDocs[].relatedDoc.formats.pdf.uri`, with `xml` keys sometimes null.
-- Initial run failed DQ because null-only placeholder containers such as `{pdf:null, xml:null}` were emitted as blank `.bin` rows.
-- Parser was patched to skip null-only/locatorless format records and require `format_uri` or `format_url`.
+- Endpoint coverage: `/debates` produced 4 rows, `/questions` 10 rows, `/legislation` 11 rows.
+- Actual `formats` shapes include debate-level `debateRecord.formats.pdf.uri` and `.xml.uri`, question `question.debateSection.formats.xml.uri`, and legislation version/related-doc format URIs.
+- Parser skips null-only placeholder containers such as `{pdf:null, xml:null}`.
 - `download_status` is fixed to `not_downloaded`; `downloaded_at_utc`, `byte_size`, and `etag_or_hash` stay blank until a later download packet.
 - S3 target keys are deterministic and sanitized under `raw/oireachtas_unified/source_files/{source_entity_type}/...`.
-- S3 run ID: `silver_source_files_20260607T164455Z`
-- Review:
-  - `review/silver_source_files/latest/manifest.json`
-  - `review/silver_source_files/latest/sample.csv`
-
-## Next packet
 
 ### T10 — `silver_debate_records`
 
+- Builder: `extract/oireachtas/table_debate_records.py`
+- Final run: `27098769263`
+- Run number: 22
+- Result: success
+- Raw rows: 2
+- Output rows: 2
+- PK: `debate_id`, unique
+- DQ: pass
+- Endpoint: `/debates?chamber_id=/ie/oireachtas/house/dail/34&lang=en&date_start=2025-01-01&date_end=2025-01-31&limit=10`
+- Grain: one row per `debateRecord` result.
+- `debate_id` and `debate_uri` use `debateRecord.uri`.
+- `house_uri`, `house_no=34`, and `house_code=dail` join to `silver_houses`.
+- `source_xml_uri` and `source_pdf_uri` are populated from `debateRecord.formats.xml.uri` and `debateRecord.formats.pdf.uri`.
+- `source_file_id_xml` and `source_file_id_pdf` use the same stable hash formula as T09: entity type `debate`, debate URI, format type, format URI, and format URL.
+- Verified sample IDs align with T09:
+  - `2025-01-23` XML: `source_file:2e3f8d29d92f6ad336f74a71`; PDF: `source_file:9216f5bf768de51664ec03f7`
+  - `2025-01-22` XML: `source_file:a7530d36b8e66d9be3c0c883`; PDF: `source_file:383ef87ae86b82d5dc202736`
+- S3 run ID: `silver_debate_records_20260607T165119Z`
+- Review:
+  - `review/silver_debate_records/latest/manifest.json`
+  - `review/silver_debate_records/latest/sample.csv`
+
+## Next packet
+
+### T11 — `silver_debate_sections`
+
 Goal:
 
-- build debate metadata records from `/debates`;
-- normalize debate-level identity, date, chamber/house fields, title/show_as, source XML/PDF URIs/URLs, and source file joins;
-- reuse the source-file ID logic from T09 where possible so `source_file_id_xml` and `source_file_id_pdf` align with `silver_source_files`;
+- build debate-section records from `/debates`;
+- explode `debateRecord.debateSections[].debateSection`;
+- normalize `debate_section_id`, `debate_id`, `section_eid`, `section_uri`, ordering, heading/show_as, parent section ID, and snapshot date;
+- preserve join to `silver_debate_records.debate_id`;
 - write raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate `debate_id`, `debate_uri`, `debate_date`, `house_uri`, `house_no`, source XML/PDF fields, and source file IDs.
+- validate section IDs are unique/non-null, debate joins are populated, section order is deterministic, and headings/show_as are populated where available.
 
 Expected files:
 
-- `extract/oireachtas/table_debate_records.py`
-- possible shared helper extraction from `table_source_files.py` if reuse becomes worthwhile
+- `extract/oireachtas/table_debate_sections.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_debate_records`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_debate_sections`
 - update this status file after validation
 
 Expected command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_debate_records \
+  --table silver_debate_sections \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -189,7 +200,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T10 — silver_debate_records.
-Workflow default currently points to silver_source_files.
-Use the confirmed /debates payload and T09 source-file format logic.
+Start T11 — silver_debate_sections.
+Workflow default currently points to silver_debate_records.
+Use the confirmed /debates payload and debateRecord.debateSections[].debateSection shape.
 ```
