@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "silver_member_constituencies"
+        default: "silver_member_offices"
       mode:
         description: "Build mode"
         required: true
@@ -37,7 +37,7 @@ on:
       limit:
         description: "API/test row limit"
         required: false
-        default: "25"
+        default: "200"
       sample_rows:
         description: "Review sample row count"
         required: false
