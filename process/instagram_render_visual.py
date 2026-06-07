@@ -16,6 +16,7 @@ from instagram.visuals.renderers.common import load_yaml, rows_from_sample
 
 RENDERERS = {
     "horizontal_bar": "instagram.visuals.renderers.horizontal_bar",
+    "vertical_bar": "instagram.visuals.renderers.vertical_bar",
 }
 
 
