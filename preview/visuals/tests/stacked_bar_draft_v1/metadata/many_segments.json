@@ -1,0 +1,94 @@
+{
+  "visual_id": "many_segments",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "created_at": "2026-06-07T17:32:29.874982+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "case_id": "many_segments",
+    "case_description": "Six segments; should truncate to template max",
+    "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/stacked_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "category": "category",
+    "segment": "segment",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "many_segments"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "many_segments"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "category": "Dublin",
+      "segment": "Housing",
+      "value": 35.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Health",
+      "value": 28.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Transport",
+      "value": 19.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Climate",
+      "value": 14.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Education",
+      "value": 11.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Housing",
+      "value": 31.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Health",
+      "value": 24.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Transport",
+      "value": 16.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Climate",
+      "value": 12.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Education",
+      "value": 9.0
+    }
+  ],
+  "warnings": [
+    "truncated_segments:6->5"
+  ]
+}

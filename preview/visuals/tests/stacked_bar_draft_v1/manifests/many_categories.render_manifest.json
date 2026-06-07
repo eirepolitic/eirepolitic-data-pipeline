@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "many_categories",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/many_categories.png",
+  "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/many_categories.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_categories:9->8"
+  ],
+  "created_at": "2026-06-07T17:32:29.765170+00:00",
+  "description": "Nine categories; should truncate to template max"
+}

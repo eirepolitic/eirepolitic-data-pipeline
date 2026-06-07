@@ -1,0 +1,181 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/stacked_bar_draft_v1.yml",
+  "case_count": 10,
+  "contact_sheet": "generated_visual_tests/stacked_bar_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "few_categories",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/few_categories.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/few_categories.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T17:32:29.670387+00:00",
+      "description": "Three categories with three segments"
+    },
+    {
+      "success": true,
+      "visual_id": "many_categories",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/many_categories.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/many_categories.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_categories:9->8"
+      ],
+      "created_at": "2026-06-07T17:32:29.765170+00:00",
+      "description": "Nine categories; should truncate to template max"
+    },
+    {
+      "success": true,
+      "visual_id": "many_segments",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/many_segments.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/many_segments.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_segments:6->5"
+      ],
+      "created_at": "2026-06-07T17:32:29.874982+00:00",
+      "description": "Six segments; should truncate to template max"
+    },
+    {
+      "success": true,
+      "visual_id": "long_category_labels",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/long_category_labels.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/long_category_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_category:Dublin Bay South and Inn",
+        "long_category:Dublin Bay South and Inn",
+        "long_category:Dublin Bay South and Inn",
+        "long_category:Cork North Central and S",
+        "long_category:Cork North Central and S",
+        "long_category:Cork North Central and S"
+      ],
+      "created_at": "2026-06-07T17:32:29.941932+00:00",
+      "description": "Long x-axis category labels"
+    },
+    {
+      "success": true,
+      "visual_id": "long_segment_labels",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/long_segment_labels.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/long_segment_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_segment:Affordable rental accomm",
+        "long_segment:Emergency department wai",
+        "long_segment:Regional public transpor",
+        "long_segment:Affordable rental accomm",
+        "long_segment:Emergency department wai",
+        "long_segment:Regional public transpor"
+      ],
+      "created_at": "2026-06-07T17:32:30.007966+00:00",
+      "description": "Long legend segment labels"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_values",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/zero_values.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/zero_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T17:32:30.074631+00:00",
+      "description": "Includes zero-valued segments"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-07T17:32:30.141488+00:00",
+      "description": "Includes negative values; should warn and clamp for stacked rendering"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value",
+        "missing_or_invalid_value"
+      ],
+      "created_at": "2026-06-07T17:32:30.207346+00:00",
+      "description": "Includes missing values; should warn and skip invalid rows"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_totals",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/wide_totals.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/wide_totals.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-07T17:32:30.271803+00:00",
+      "description": "Large total differences between categories"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "stacked_bar_draft_v1",
+      "renderer": "stacked_bar",
+      "output_png": "generated_visual_tests/stacked_bar_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/stacked_bar_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_category:Dublin Bay South and Inn",
+        "long_segment:Affordable rental accomm",
+        "long_category:Dublin Bay South and Inn",
+        "long_segment:Emergency department wai",
+        "long_category:Dublin Bay South and Inn",
+        "long_segment:Regional public transpor",
+        "long_category:Cork North Central and S",
+        "long_segment:Affordable rental accomm",
+        "long_category:Cork North Central and S",
+        "long_segment:Emergency department wai",
+        "long_category:Cork North Central and S",
+        "long_segment:Regional public transpor",
+        "long_category:Galway West and Coastal ",
+        "long_segment:Affordable rental accomm",
+        "long_category:Galway West and Coastal ",
+        "long_segment:Emergency department wai",
+        "long_category:Galway West and Coastal ",
+        "long_segment:Regional public transpor"
+      ],
+      "created_at": "2026-06-07T17:32:30.347685+00:00",
+      "description": "Long categories, long segments, and wide totals"
+    }
+  ]
+}

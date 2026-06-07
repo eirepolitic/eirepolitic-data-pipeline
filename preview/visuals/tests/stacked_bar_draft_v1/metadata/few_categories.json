@@ -1,0 +1,87 @@
+{
+  "visual_id": "few_categories",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "created_at": "2026-06-07T17:32:29.670387+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "case_id": "few_categories",
+    "case_description": "Three categories with three segments",
+    "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/stacked_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "category": "category",
+    "segment": "segment",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "few_categories"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "few_categories"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "category": "Dublin Bay South",
+      "segment": "Housing",
+      "value": 42.0
+    },
+    {
+      "category": "Dublin Bay South",
+      "segment": "Health",
+      "value": 31.0
+    },
+    {
+      "category": "Dublin Bay South",
+      "segment": "Transport",
+      "value": 18.0
+    },
+    {
+      "category": "Cork North Central",
+      "segment": "Housing",
+      "value": 37.0
+    },
+    {
+      "category": "Cork North Central",
+      "segment": "Health",
+      "value": 25.0
+    },
+    {
+      "category": "Cork North Central",
+      "segment": "Transport",
+      "value": 21.0
+    },
+    {
+      "category": "Galway West",
+      "segment": "Housing",
+      "value": 28.0
+    },
+    {
+      "category": "Galway West",
+      "segment": "Health",
+      "value": 34.0
+    },
+    {
+      "category": "Galway West",
+      "segment": "Transport",
+      "value": 16.0
+    }
+  ],
+  "warnings": []
+}

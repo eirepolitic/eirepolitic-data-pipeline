@@ -1,0 +1,72 @@
+{
+  "visual_id": "wide_totals",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "created_at": "2026-06-07T17:32:30.271803+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "case_id": "wide_totals",
+    "case_description": "Large total differences between categories",
+    "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/stacked_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "category": "category",
+    "segment": "segment",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "wide_totals"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "wide_totals"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "category": "Dublin",
+      "segment": "Housing",
+      "value": 4200.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Health",
+      "value": 300.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Transport",
+      "value": 12.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Housing",
+      "value": 2100.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Health",
+      "value": 900.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Transport",
+      "value": 45.0
+    }
+  ],
+  "warnings": []
+}

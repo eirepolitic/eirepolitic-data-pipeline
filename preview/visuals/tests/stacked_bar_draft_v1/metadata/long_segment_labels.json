@@ -1,0 +1,79 @@
+{
+  "visual_id": "long_segment_labels",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "created_at": "2026-06-07T17:32:30.007966+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "case_id": "long_segment_labels",
+    "case_description": "Long legend segment labels",
+    "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/stacked_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "category": "category",
+    "segment": "segment",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_segment_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_segment_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "category": "Dublin",
+      "segment": "Affordable rental accommodation",
+      "value": 42.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Emergency department waiting times",
+      "value": 31.0
+    },
+    {
+      "category": "Dublin",
+      "segment": "Regional public transport reliability",
+      "value": 18.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Affordable rental accommodation",
+      "value": 37.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Emergency department waiting times",
+      "value": 25.0
+    },
+    {
+      "category": "Cork",
+      "segment": "Regional public transport reliability",
+      "value": 21.0
+    }
+  ],
+  "warnings": [
+    "long_segment:Affordable rental accomm",
+    "long_segment:Emergency department wai",
+    "long_segment:Regional public transpor",
+    "long_segment:Affordable rental accomm",
+    "long_segment:Emergency department wai",
+    "long_segment:Regional public transpor"
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "visual_id": "many_categories",
+  "template_id": "stacked_bar_draft_v1",
+  "renderer": "stacked_bar",
+  "created_at": "2026-06-07T17:32:29.765170+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "case_id": "many_categories",
+    "case_description": "Nine categories; should truncate to template max",
+    "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/stacked_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "category": "category",
+    "segment": "segment",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "many_categories"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "many_categories"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "category": "Constituency 1",
+      "segment": "Housing",
+      "value": 30.0
+    },
+    {
+      "category": "Constituency 1",
+      "segment": "Health",
+      "value": 22.0
+    },
+    {
+      "category": "Constituency 1",
+      "segment": "Transport",
+      "value": 14.0
+    },
+    {
+      "category": "Constituency 2",
+      "segment": "Housing",
+      "value": 34.0
+    },
+    {
+      "category": "Constituency 2",
+      "segment": "Health",
+      "value": 18.0
+    },
+    {
+      "category": "Constituency 2",
+      "segment": "Transport",
+      "value": 16.0
+    },
+    {
+      "category": "Constituency 3",
+      "segment": "Housing",
+      "value": 28.0
+    },
+    {
+      "category": "Constituency 3",
+      "segment": "Health",
+      "value": 26.0
+    },
+    {
+      "category": "Constituency 3",
+      "segment": "Transport",
+      "value": 11.0
+    },
+    {
+      "category": "Constituency 4",
+      "segment": "Housing",
+      "value": 40.0
+    },
+    {
+      "category": "Constituency 4",
+      "segment": "Health",
+      "value": 17.0
+    },
+    {
+      "category": "Constituency 4",
+      "segment": "Transport",
+      "value": 15.0
+    },
+    {
+      "category": "Constituency 5",
+      "segment": "Housing",
+      "value": 24.0
+    },
+    {
+      "category": "Constituency 5",
+      "segment": "Health",
+      "value": 29.0
+    },
+    {
+      "category": "Constituency 5",
+      "segment": "Transport",
+      "value": 13.0
+    },
+    {
+      "category": "Constituency 6",
+      "segment": "Housing",
+      "value": 35.0
+    },
+    {
+      "category": "Constituency 6",
+      "segment": "Health",
+      "value": 20.0
+    },
+    {
+      "category": "Constituency 6",
+      "segment": "Transport",
+      "value": 9.0
+    },
+    {
+      "category": "Constituency 7",
+      "segment": "Housing",
+      "value": 29.0
+    },
+    {
+      "category": "Constituency 7",
+      "segment": "Health",
+      "value": 24.0
+    },
+    {
+      "category": "Constituency 7",
+      "segment": "Transport",
+      "value": 17.0
+    },
+    {
+      "category": "Constituency 8",
+      "segment": "Housing",
+      "value": 33.0
+    },
+    {
+      "category": "Constituency 8",
+      "segment": "Health",
+      "value": 23.0
+    },
+    {
+      "category": "Constituency 8",
+      "segment": "Transport",
+      "value": 12.0
+    }
+  ],
+  "warnings": [
+    "truncated_categories:9->8"
+  ]
+}
