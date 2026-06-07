@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-07  
-**Current packet:** T11 — `silver_debate_sections`
+**Current packet:** T12 — `silver_speeches`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -97,7 +97,7 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - PK: `member_party_id`, unique
 - DQ: pass
 - Grain: one row per `membership.parties[].party`.
-- `membership_id` joins to `silver_member_memberships`; `member_code` joins to `silver_members`; `party_uri` joins to `silver_parties`.
+- Joins: `membership_id` → `silver_member_memberships`; `member_code` → `silver_members`; `party_uri` → `silver_parties`.
 
 ### T07 — `silver_member_constituencies`
 
@@ -107,7 +107,6 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - PK: `member_constituency_id`, unique
 - DQ: pass
 - Grain: one row per `membership.represents[].represent`.
-- `membership_id` joins to `silver_member_memberships`; `member_code` joins to `silver_members`; `constituency_uri` joins to `silver_constituencies`.
 - Represents usually omit dates, so parser falls back to parent membership dates.
 
 ### T08 — `silver_member_offices`
@@ -119,7 +118,7 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - PK: `member_office_id`, unique
 - DQ: pass
 - Grain: one row per `membership.offices[]` office-history record.
-- Actual office shape is `officeName.showAs`, `officeName.uri`, `dateRange.start`, `dateRange.end`.
+- Actual office shape: `officeName.showAs`, `officeName.uri`, `dateRange.start`, `dateRange.end`.
 - `officeName.uri` is commonly null, so stable generated office identifiers are used.
 
 ### T09 — `silver_source_files`
@@ -130,77 +129,85 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - Rows: 25
 - PK: `source_file_id`, unique
 - DQ: pass
-- Metadata-only inventory. No PDF/XML download is performed in this packet.
+- Metadata-only inventory; no PDF/XML download yet.
 - Test window: `2025-01-01` to `2025-01-31`, `limit=10`.
-- Endpoint coverage: `/debates` produced 4 rows, `/questions` 10 rows, `/legislation` 11 rows.
-- Actual `formats` shapes include debate-level `debateRecord.formats.pdf.uri` and `.xml.uri`, question `question.debateSection.formats.xml.uri`, and legislation version/related-doc format URIs.
-- Parser skips null-only placeholder containers such as `{pdf:null, xml:null}`.
-- `download_status` is fixed to `not_downloaded`; `downloaded_at_utc`, `byte_size`, and `etag_or_hash` stay blank until a later download packet.
-- S3 target keys are deterministic and sanitized under `raw/oireachtas_unified/source_files/{source_entity_type}/...`.
+- Endpoint coverage: `/debates` 4 rows, `/questions` 10 rows, `/legislation` 11 rows.
+- Parser skips null-only format containers such as `{pdf:null, xml:null}`.
+- `download_status=not_downloaded`; byte/hash/download-time fields remain blank until a download packet.
 
 ### T10 — `silver_debate_records`
 
 - Builder: `extract/oireachtas/table_debate_records.py`
 - Final run: `27098769263`
-- Run number: 22
-- Result: success
-- Raw rows: 2
-- Output rows: 2
+- Rows: 2
 - PK: `debate_id`, unique
 - DQ: pass
-- Endpoint: `/debates?chamber_id=/ie/oireachtas/house/dail/34&lang=en&date_start=2025-01-01&date_end=2025-01-31&limit=10`
 - Grain: one row per `debateRecord` result.
-- `debate_id` and `debate_uri` use `debateRecord.uri`.
+- `debate_id` uses `debateRecord.uri`.
 - `house_uri`, `house_no=34`, and `house_code=dail` join to `silver_houses`.
-- `source_xml_uri` and `source_pdf_uri` are populated from `debateRecord.formats.xml.uri` and `debateRecord.formats.pdf.uri`.
-- `source_file_id_xml` and `source_file_id_pdf` use the same stable hash formula as T09: entity type `debate`, debate URI, format type, format URI, and format URL.
-- Verified sample IDs align with T09:
-  - `2025-01-23` XML: `source_file:2e3f8d29d92f6ad336f74a71`; PDF: `source_file:9216f5bf768de51664ec03f7`
-  - `2025-01-22` XML: `source_file:a7530d36b8e66d9be3c0c883`; PDF: `source_file:383ef87ae86b82d5dc202736`
-- S3 run ID: `silver_debate_records_20260607T165119Z`
-- Review:
-  - `review/silver_debate_records/latest/manifest.json`
-  - `review/silver_debate_records/latest/sample.csv`
-
-## Next packet
+- XML/PDF source-file IDs use the same T09 hash formula and were verified to align with T09 output.
 
 ### T11 — `silver_debate_sections`
 
+- Builder: `extract/oireachtas/table_debate_sections.py`
+- Final run: `27099679458`
+- Run number: 23
+- Result: success
+- Raw debate rows: 2
+- Output section rows: 8
+- PK: `debate_section_id`, unique
+- DQ: pass
+- Endpoint: `/debates?chamber_id=/ie/oireachtas/house/dail/34&lang=en&date_start=2025-01-01&date_end=2025-01-31&limit=10`
+- Grain: one row per `debateRecord.debateSections[].debateSection`.
+- `debate_section_id` uses the section URI when available.
+- `debate_id` joins to `silver_debate_records.debate_id`.
+- `section_eid` uses `debateSectionId` values such as `dbsect_2`, `dbsect_7`, and `dbsect_19`.
+- `section_order` is deterministic and restarts at 1 for each debate.
+- `heading` and `show_as` are populated from `showAs` for the confirmed API shape.
+- Parent section values were null in this test sample and remain blank.
+- Section counts matched API metadata: 6 sections for 2025-01-23 and 2 for 2025-01-22.
+- S3 run ID: `silver_debate_sections_20260607T172953Z`
+- Review:
+  - `review/silver_debate_sections/latest/manifest.json`
+  - `review/silver_debate_sections/latest/sample.csv`
+
+## Next packet
+
+### T12 — `silver_speeches`
+
 Goal:
 
-- build debate-section records from `/debates`;
-- explode `debateRecord.debateSections[].debateSection`;
-- normalize `debate_section_id`, `debate_id`, `section_eid`, `section_uri`, ordering, heading/show_as, parent section ID, and snapshot date;
-- preserve join to `silver_debate_records.debate_id`;
-- write raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate section IDs are unique/non-null, debate joins are populated, section order is deterministic, and headings/show_as are populated where available.
+- download or stream the debate XML referenced by `silver_debate_records.source_xml_uri`;
+- parse Akoma Ntoso debate XML into atomic speech rows;
+- populate `speech_id`, `debate_id`, `debate_section_id`, `debate_date`, `speech_order`, speaker reference/name/member code, match method/confidence, normalized speech text, hashes/counts/language, `source_file_id`, XML source key, and snapshot date;
+- preserve joins to `silver_debate_records`, `silver_debate_sections`, `silver_members`, and `silver_source_files`;
+- store downloaded XML in the deterministic source-file S3 key where practical and update source metadata in a later reconciliation packet if needed;
+- write CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
+- validate text extraction, section assignment, speaker extraction, stable speech keys, order, and source-file joins.
+
+Expected implementation strategy:
+
+1. Inspect existing legacy XML download/parsing pipelines in the repo for working Akoma Ntoso parsing methods.
+2. Add a reusable HTTP binary/text fetch method or dedicated source-file downloader with retries and content checks.
+3. Test against one confirmed debate XML first, likely 2025-01-22 or 2025-01-23.
+4. Publish raw XML diagnostics and a small speech sample.
+5. Patch namespaces, speaker references, section IDs, and text normalization based on actual XML.
+6. Expand to both January test debates only after one-file parsing is confirmed.
 
 Expected files:
 
-- `extract/oireachtas/table_debate_sections.py`
+- `extract/oireachtas/table_speeches.py`
+- likely `extract/oireachtas/xml_debates.py` or another shared parser module
+- possible update to `extract/oireachtas/client.py` for non-JSON downloads
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_debate_sections`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_speeches`
 - update this status file after validation
-
-Expected command:
-
-```bash
-python -m extract.oireachtas.build_table \
-  --table silver_debate_sections \
-  --mode test \
-  --chamber dail \
-  --house-no 34 \
-  --date-start 2025-01-01 \
-  --date-end 2025-01-31 \
-  --limit 10 \
-  --write-review-sample
-```
 
 Handoff instruction:
 
 ```text
 Continue from main.
-Start T11 — silver_debate_sections.
-Workflow default currently points to silver_debate_records.
-Use the confirmed /debates payload and debateRecord.debateSections[].debateSection shape.
+Start T12 — silver_speeches.
+Workflow default currently points to silver_debate_sections.
+First inspect existing repo XML parsers/downloaders before implementing new Akoma Ntoso parsing logic.
 ```
