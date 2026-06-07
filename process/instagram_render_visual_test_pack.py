@@ -22,6 +22,7 @@ RENDERERS = {
     "horizontal_bar": "instagram.visuals.renderers.horizontal_bar",
     "vertical_bar": "instagram.visuals.renderers.vertical_bar",
     "line_chart": "instagram.visuals.renderers.line_chart",
+    "stacked_bar": "instagram.visuals.renderers.stacked_bar",
 }
 
 
