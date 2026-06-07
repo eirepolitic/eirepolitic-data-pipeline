@@ -20,6 +20,7 @@ from instagram.visuals.renderers.common import load_yaml, rows_from_sample, writ
 
 RENDERERS = {
     "horizontal_bar": "instagram.visuals.renderers.horizontal_bar",
+    "vertical_bar": "instagram.visuals.renderers.vertical_bar",
 }
 
 
@@ -36,6 +37,7 @@ def _render_case(
     template: dict[str, Any],
     case: dict[str, Any],
     output_root: Path,
+    registry_path: Path,
 ) -> dict[str, Any]:
     case_id = str(case["id"])
     sample = {
@@ -78,7 +80,7 @@ def _render_case(
             **input_metadata,
             "case_id": case_id,
             "case_description": case.get("description", ""),
-            "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+            "registry_path": str(registry_path.relative_to(REPO_ROOT)),
             "template_path": registry["template"],
         },
     )
@@ -160,7 +162,7 @@ def run_test_pack(registry_path: str | Path, output_root: str | Path) -> dict[st
 
     output_root = Path(output_root)
     manifests = [
-        _render_case(registry, template, case, output_root)
+        _render_case(registry, template, case, output_root, registry_path)
         for case in registry.get("cases", [])
     ]
     contact_sheet = build_contact_sheet(manifests, output_root)
