@@ -95,6 +95,7 @@ def build_silver_source_files(
     rows: list[dict[str, Any]] = []
     endpoint_summaries: list[dict[str, Any]] = []
     raw_format_samples: list[dict[str, Any]] = []
+    skipped_null_formats = 0
     raw_payloads: dict[str, Any] = {}
 
     for spec in endpoint_specs:
@@ -106,6 +107,7 @@ def build_silver_source_files(
             results = []
 
         endpoint_rows: list[dict[str, Any]] = []
+        endpoint_skipped = 0
         for item_index, item in enumerate(results):
             if not isinstance(item, Mapping):
                 continue
@@ -113,6 +115,10 @@ def build_silver_source_files(
             for format_record in _iter_format_records(item):
                 if len(raw_format_samples) < 10:
                     raw_format_samples.append(dict(format_record.raw))
+                if not (format_record.format_uri or format_record.format_url):
+                    skipped_null_formats += 1
+                    endpoint_skipped += 1
+                    continue
                 row = _normalise_format_row(
                     format_record=format_record,
                     source_entity_type=str(spec["entity_type"]),
@@ -132,6 +138,7 @@ def build_silver_source_files(
                 "ok": bool(summary.ok),
                 "raw_rows": len(results),
                 "format_rows": len(endpoint_rows),
+                "skipped_null_format_rows": endpoint_skipped,
                 "raw_result_key_paths": sorted(_key_paths(results[0], max_depth=7)) if results and isinstance(results[0], Mapping) else [],
                 "error": summary.error,
             }
@@ -180,6 +187,7 @@ def build_silver_source_files(
         "date_end": date_end,
         "metadata_only": True,
         "download_status": "not_downloaded",
+        "skipped_null_format_rows": skipped_null_formats,
         "endpoint_summaries": endpoint_summaries,
         "raw_format_samples": raw_format_samples,
         "raw_format_key_paths": sorted(_key_paths(raw_format_samples[0], max_depth=7)) if raw_format_samples else [],
@@ -241,45 +249,44 @@ def _format_records_from_container(container: Any) -> Iterable[FormatRecord]:
     if not isinstance(container, Mapping):
         return
 
-    # Shape 1: {"pdf": {"uri": ..., "url": ...}, "xml": {...}}
+    # Shape 1: {"pdf": {"uri": ...}, "xml": {"uri": ...}, "writtens_pdf": null}
     emitted = False
+    has_format_like_key = any(_looks_like_format_key(str(key)) for key in container.keys())
     for key, child in container.items():
         if isinstance(child, Mapping) and (_first_text(child, "uri", "url", "href", "downloadUrl") or _looks_like_format_key(str(key))):
-            emitted = True
-            yield _make_format_record(child, fallback_type=str(key))
+            record = _make_format_record(child, fallback_type=str(key))
+            if record.format_uri or record.format_url:
+                emitted = True
+                yield record
         elif isinstance(child, list) and _looks_like_format_key(str(key)):
-            emitted = True
             for entry in child:
                 if isinstance(entry, Mapping):
-                    yield _make_format_record(entry, fallback_type=str(key))
-    if emitted:
+                    record = _make_format_record(entry, fallback_type=str(key))
+                    if record.format_uri or record.format_url:
+                        emitted = True
+                        yield record
+    if emitted or has_format_like_key:
         return
 
     # Shape 2: {"formatType": "pdf", "uri": ..., "url": ...}
-    yield _make_format_record(container, fallback_type=None)
+    record = _make_format_record(container, fallback_type=None)
+    if record.format_uri or record.format_url:
+        yield record
 
 
 def _make_format_record(raw: Mapping[str, Any], *, fallback_type: str | None) -> FormatRecord:
     format_type = _first_text(raw, "formatType", "type", "mediaType", "name", "label") or fallback_type
     format_uri = _first_text(raw, "uri", "formatUri")
     format_url = _first_text(raw, "url", "href", "downloadUrl", "formatUrl")
-
-    # If only a data.oireachtas.ie URI is exposed, use it as URL too because it is dereferenceable in later download packets.
     if not format_url and format_uri and format_uri.startswith("http"):
         format_url = format_uri
     if not format_uri and format_url and format_url.startswith("http"):
         format_uri = format_url
-
-    return FormatRecord(
-        format_type=_normalise_format_type(format_type, format_uri or format_url),
-        format_uri=format_uri,
-        format_url=format_url,
-        raw=raw,
-    )
+    return FormatRecord(format_type=_normalise_format_type(format_type, format_uri or format_url), format_uri=format_uri, format_url=format_url, raw=raw)
 
 
 def _normalise_format_row(*, format_record: FormatRecord, source_entity_type: str, source_entity_id: str, snapshot_date: str) -> dict[str, Any]:
-    format_type = format_record.format_type or _infer_format_type(format_record.format_uri or format_record.format_url)
+    format_type = format_record.format_type or _infer_format_type(format_record.format_uri or format_record.format_url) or "unknown"
     source_file_id = f"source_file:{stable_hash([source_entity_type, source_entity_id, format_type, format_record.format_uri, format_record.format_url], length=24)}"
     format_url = format_record.format_url
     s3_key = _target_s3_key(source_entity_type=source_entity_type, source_entity_id=source_entity_id, source_file_id=source_file_id, format_type=format_type, format_url=format_url or format_record.format_uri)
@@ -301,7 +308,6 @@ def _normalise_format_row(*, format_record: FormatRecord, source_entity_type: st
 
 
 def _entity_id(item: Mapping[str, Any], *, entity_type: str, item_index: int) -> str:
-    # Prefer a wrapper-level URI-like identifier; otherwise hash the one result item.
     for value in _walk_mappings(item):
         for key in ("uri", f"{entity_type}Uri", "debateUri", "questionUri", "billUri", "id", f"{entity_type}Id"):
             text = _first_text(value, key)
@@ -323,7 +329,8 @@ def _walk_mappings(value: Any) -> Iterable[Mapping[str, Any]]:
 def _target_s3_key(*, source_entity_type: str, source_entity_id: str, source_file_id: str, format_type: str | None, format_url: str | None) -> str:
     ext = _extension(format_type, format_url)
     entity_slug = _safe_slug(source_entity_id)[-120:] or "entity"
-    return str(PurePosixPath("raw/oireachtas_unified/source_files", source_entity_type, entity_slug, f"{source_file_id}.{ext}"))
+    safe_id = _safe_slug(source_file_id)
+    return str(PurePosixPath("raw/oireachtas_unified/source_files", source_entity_type, entity_slug, f"{safe_id}.{ext}"))
 
 
 def _safe_slug(value: str | None) -> str:
@@ -348,14 +355,7 @@ def _extension(format_type: str | None, url: str | None) -> str:
 
 def _content_type(format_type: str | None, url: str | None) -> str | None:
     ext = _extension(format_type, url)
-    return {
-        "xml": "application/xml",
-        "pdf": "application/pdf",
-        "json": "application/json",
-        "html": "text/html",
-        "txt": "text/plain",
-        "csv": "text/csv",
-    }.get(ext)
+    return {"xml": "application/xml", "pdf": "application/pdf", "json": "application/json", "html": "text/html", "txt": "text/plain", "csv": "text/csv"}.get(ext)
 
 
 def _normalise_format_type(value: str | None, url: str | None) -> str | None:
@@ -384,7 +384,7 @@ def _infer_format_type(url: str | None) -> str | None:
 
 
 def _looks_like_format_key(key: str) -> bool:
-    return key.lower() in {"pdf", "xml", "json", "html", "txt", "csv", "akn", "docx"}
+    return key.lower() in {"pdf", "xml", "json", "html", "txt", "csv", "akn", "docx", "writtens_pdf"}
 
 
 def _first_text(mapping: Mapping[str, Any], *keys: str) -> str | None:
