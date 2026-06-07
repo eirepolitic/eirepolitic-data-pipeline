@@ -17,6 +17,7 @@ from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
 from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
 from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
+from .table_member_constituencies import TABLE_NAME as MEMBER_CONSTITUENCIES_TABLE, build_silver_member_constituencies
 from .table_member_memberships import TABLE_NAME as MEMBER_MEMBERSHIPS_TABLE, build_silver_member_memberships
 from .table_member_parties import TABLE_NAME as MEMBER_PARTIES_TABLE, build_silver_member_parties
 from .table_members import TABLE_NAME as MEMBERS_TABLE, build_silver_members
@@ -119,6 +120,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_member_memberships(**filtered)
     elif args.table == MEMBER_PARTIES_TABLE:
         result = build_silver_member_parties(**filtered)
+    elif args.table == MEMBER_CONSTITUENCIES_TABLE:
+        result = build_silver_member_constituencies(**filtered)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
