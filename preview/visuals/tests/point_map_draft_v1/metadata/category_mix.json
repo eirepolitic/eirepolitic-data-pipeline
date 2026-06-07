@@ -1,0 +1,103 @@
+{
+  "visual_id": "category_mix",
+  "template_id": "point_map_draft_v1",
+  "renderer": "point_map",
+  "created_at": "2026-06-07T18:05:57.876475+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/point_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/point_map_draft_v1/data/cases.csv",
+    "case_id": "category_mix",
+    "case_description": "Mixed point categories and legend",
+    "registry_path": "instagram/visuals/tests/point_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/point_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "has_basemap": true
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "label": "label",
+    "category": "category",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "category_mix"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "category_mix"
+  },
+  "source_note": "Fixture data and synthetic geography for visual variation review only",
+  "attribution": {
+    "source_name": "Synthetic fixture geography",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "Internal test fixture",
+    "notes": "Deterministic synthetic polygons. Not for publication."
+  },
+  "point_count": 7,
+  "value_range": {
+    "min": 18.0,
+    "max": 120.0
+  },
+  "rows_rendered": [
+    {
+      "x": 220.0,
+      "y": 180.0,
+      "label": "Dublin",
+      "category": "Office",
+      "value": 120.0
+    },
+    {
+      "x": 520.0,
+      "y": 290.0,
+      "label": "Cork",
+      "category": "Office",
+      "value": 80.0
+    },
+    {
+      "x": 710.0,
+      "y": 520.0,
+      "label": "Galway",
+      "category": "Office",
+      "value": 55.0
+    },
+    {
+      "x": 400.0,
+      "y": 410.0,
+      "label": "Canvass A",
+      "category": "Event",
+      "value": 32.0
+    },
+    {
+      "x": 640.0,
+      "y": 390.0,
+      "label": "Canvass B",
+      "category": "Event",
+      "value": 44.0
+    },
+    {
+      "x": 300.0,
+      "y": 580.0,
+      "label": "Incident A",
+      "category": "Incident",
+      "value": 18.0
+    },
+    {
+      "x": 800.0,
+      "y": 450.0,
+      "label": "Incident B",
+      "category": "Incident",
+      "value": 26.0
+    }
+  ],
+  "warnings": []
+}

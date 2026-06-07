@@ -1,0 +1,72 @@
+{
+  "visual_id": "missing_values",
+  "template_id": "point_map_draft_v1",
+  "renderer": "point_map",
+  "created_at": "2026-06-07T18:05:58.009555+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/point_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/point_map_draft_v1/data/cases.csv",
+    "case_id": "missing_values",
+    "case_description": "Missing coordinates and values should warn",
+    "registry_path": "instagram/visuals/tests/point_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/point_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json",
+    "has_basemap": true
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "label": "label",
+    "category": "category",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "missing_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "missing_values"
+  },
+  "source_note": "Fixture data and synthetic geography for visual variation review only",
+  "attribution": {
+    "source_name": "Synthetic fixture geography",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "Internal test fixture",
+    "notes": "Deterministic synthetic polygons. Not for publication."
+  },
+  "point_count": 2,
+  "value_range": {
+    "min": 1.0,
+    "max": 120.0
+  },
+  "rows_rendered": [
+    {
+      "x": 220.0,
+      "y": 180.0,
+      "label": "Dublin",
+      "category": "Office",
+      "value": 120.0
+    },
+    {
+      "x": 400.0,
+      "y": 410.0,
+      "label": "Limerick",
+      "category": "Office",
+      "value": 1.0
+    }
+  ],
+  "warnings": [
+    "missing_or_invalid_coordinates:Cork",
+    "missing_or_invalid_coordinates:Galway",
+    "missing_or_invalid_value:Limerick"
+  ]
+}

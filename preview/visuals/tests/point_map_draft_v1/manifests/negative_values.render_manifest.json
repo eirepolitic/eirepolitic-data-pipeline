@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "negative_values",
+  "template_id": "point_map_draft_v1",
+  "renderer": "point_map",
+  "output_png": "generated_visual_tests/point_map_draft_v1/png/negative_values.png",
+  "metadata_path": "generated_visual_tests/point_map_draft_v1/metadata/negative_values.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "negative_values_present"
+  ],
+  "created_at": "2026-06-07T18:05:57.983654+00:00",
+  "description": "Includes negative values and should warn"
+}

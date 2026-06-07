@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "visual_id": "out_of_bounds",
+  "template_id": "point_map_draft_v1",
+  "renderer": "point_map",
+  "output_png": "generated_visual_tests/point_map_draft_v1/png/out_of_bounds.png",
+  "metadata_path": "generated_visual_tests/point_map_draft_v1/metadata/out_of_bounds.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "out_of_bounds_point:Cork",
+    "out_of_bounds_point:Galway",
+    "out_of_bounds_point:Limerick"
+  ],
+  "created_at": "2026-06-07T18:05:58.036824+00:00",
+  "description": "Coordinates outside geography coordinate space should warn"
+}
