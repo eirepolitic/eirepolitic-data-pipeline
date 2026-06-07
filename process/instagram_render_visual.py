@@ -20,6 +20,7 @@ RENDERERS = {
     "line_chart": "instagram.visuals.renderers.line_chart",
     "stacked_bar": "instagram.visuals.renderers.stacked_bar",
     "ranking_table": "instagram.visuals.renderers.ranking_table",
+    "choropleth_map": "instagram.visuals.renderers.choropleth_map",
 }
 
 
