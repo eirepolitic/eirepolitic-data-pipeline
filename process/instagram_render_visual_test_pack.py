@@ -24,6 +24,7 @@ RENDERERS = {
     "line_chart": "instagram.visuals.renderers.line_chart",
     "stacked_bar": "instagram.visuals.renderers.stacked_bar",
     "ranking_table": "instagram.visuals.renderers.ranking_table",
+    "choropleth_map": "instagram.visuals.renderers.choropleth_map",
 }
 
 
@@ -66,6 +67,7 @@ def _render_case(
             "mode": "local_csv",
             "path": case["data"],
         },
+        "geography": case.get("geography", registry.get("geography", {})),
         "bindings": registry.get("bindings", {}),
         "filters": case.get("filters", []),
         "grouping": {
