@@ -67,6 +67,9 @@ jobs:
             python process/instagram_render_visual.py \
               --sample "instagram/visuals/samples/vertical_bar_draft_v1.sample.yml" \
               --output-root "generated_visuals/vertical_bar_draft_v1"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/line_chart_draft_v1.sample.yml" \
+              --output-root "generated_visuals/line_chart_draft_v1"
           } 2>&1 | tee workflow_debug/visual_preview.log
 
       - name: Render visual variation test packs
@@ -81,6 +84,9 @@ jobs:
             python process/instagram_render_visual_test_pack.py \
               --registry "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml" \
               --output-root "generated_visual_tests/vertical_bar_draft_v1"
+            python process/instagram_render_visual_test_pack.py \
+              --registry "instagram/visuals/tests/line_chart_draft_v1/cases.yml" \
+              --output-root "generated_visual_tests/line_chart_draft_v1"
           } 2>&1 | tee workflow_debug/visual_test_pack.log
 
       - name: Publish visual preview branch
@@ -89,6 +95,7 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
           git config user.name "github-actions[bot]"
@@ -106,7 +113,7 @@ jobs:
           mkdir -p "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}"
           rm -rf "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR:?}/"*
 
-          for visual_id in horizontal_bar_draft_v1 vertical_bar_draft_v1; do
+          for visual_id in ${VISUAL_IDS}; do
             SAMPLE_DIR="/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/samples/${visual_id}"
             TEST_DIR="/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/tests/${visual_id}"
             mkdir -p "${SAMPLE_DIR}/png" "${SAMPLE_DIR}/metadata" "${SAMPLE_DIR}/manifests"
@@ -130,7 +137,11 @@ jobs:
           branch = sys.argv[3]
           preview_dir = sys.argv[4]
           root = readme_path.parent
-          visual_ids = ["horizontal_bar_draft_v1", "vertical_bar_draft_v1"]
+          visual_ids = [
+              "horizontal_bar_draft_v1",
+              "vertical_bar_draft_v1",
+              "line_chart_draft_v1",
+          ]
           lines = [
               "# Instagram visual preview output",
               "",
@@ -156,7 +167,7 @@ jobs:
           {
             echo "## Instagram visual contact sheets"
             echo
-            for visual_id in horizontal_bar_draft_v1 vertical_bar_draft_v1; do
+            for visual_id in ${VISUAL_IDS}; do
               echo "- [Open ${visual_id} contact sheet](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/tests/${visual_id}/contact_sheet.png)"
             done
           } >> "${GITHUB_STEP_SUMMARY}"
