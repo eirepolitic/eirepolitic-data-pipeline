@@ -24,11 +24,10 @@ This contact-sheet process is the standard QA and regression-testing method for 
 
 - `horizontal_bar_draft_v1`
 - `vertical_bar_draft_v1`
+- `line_chart_draft_v1`
 
 ## Planned visual sequence
 
-- vertical bar chart
-- line chart
 - stacked bar chart
 - ranking table
 - choropleth map
