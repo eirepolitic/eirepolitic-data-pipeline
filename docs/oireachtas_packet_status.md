@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-07  
-**Current packet:** T09 — `silver_source_files`
+**Current packet:** T10 — `silver_debate_records`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -115,66 +115,81 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - Builder: `extract/oireachtas/table_member_offices.py`
 - Initial run: `27098251798`
 - Final run: `27098313330`
-- Run number: 19
-- Result: success
-- Raw members: 176 for Dáil 34
-- Output rows: 77
+- Rows: 77 from 176 Dáil 34 members
 - PK: `member_office_id`, unique
 - DQ: pass
-- Endpoint: `/members?limit=200&chamber=dail&house_no=34`
 - Grain: one row per `membership.offices[]` office-history record.
-- `membership_id` uses the parent membership URI and joins to `silver_member_memberships.membership_id`.
-- `member_code` joins to `silver_members.member_code`.
-- Actual office shape is:
-
-```text
-officeName.showAs
-officeName.uri
-dateRange.start
-dateRange.end
-```
-
-- `officeName.uri` is commonly null, so stable generated `office_uri` and `member_office_id` values are used.
-- Initial run produced 70 rows but failed DQ because `officeName` is a nested object rather than text.
-- Parser was patched to read nested `officeName.showAs`; final run produced 77 named office rows.
-- Sample office values include:
-  - Minister for Housing, Local Government and Heritage
-  - Minister for Enterprise, Tourism and Employment
-  - Minister of State at the Department of Justice
-  - Minister of State at the Department of the Taoiseach and other departments
-- Office history correctly preserves closed and open-ended date ranges and sets `is_current` accordingly.
-- S3 run ID: `silver_member_offices_20260607T163158Z`
-- Review:
-  - `review/silver_member_offices/latest/manifest.json`
-  - `review/silver_member_offices/latest/sample.csv`
-
-## Next packet
+- Actual office shape is `officeName.showAs`, `officeName.uri`, `dateRange.start`, `dateRange.end`.
+- `officeName.uri` is commonly null, so stable generated office identifiers are used.
 
 ### T09 — `silver_source_files`
 
+- Builder: `extract/oireachtas/table_source_files.py`
+- Initial run: `27098586209`
+- Final run: `27098621113`
+- Run number: 21
+- Result: success
+- Rows: 25
+- PK: `source_file_id`, unique
+- DQ: pass
+- Metadata-only inventory. No PDF/XML download is performed in this packet.
+- Test window: `2025-01-01` to `2025-01-31`, `limit=10`.
+- Endpoint coverage:
+  - `/debates`: 2 raw debate records, 4 file rows.
+  - `/questions`: 10 raw question records, 10 file rows.
+  - `/legislation`: 10 raw legislation records, 11 file rows.
+- Actual `formats` shapes observed:
+  - debate: `debateRecord.formats.pdf.uri`, `debateRecord.formats.xml.uri`, plus nested debate-section formats that can be null placeholders.
+  - questions: `question.debateSection.formats.xml.uri`; some `pdf` keys are null.
+  - legislation: `bill.versions[].version.formats.pdf.uri`, `bill.relatedDocs[].relatedDoc.formats.pdf.uri`, with `xml` keys sometimes null.
+- Initial run failed DQ because null-only placeholder containers such as `{pdf:null, xml:null}` were emitted as blank `.bin` rows.
+- Parser was patched to skip null-only/locatorless format records and require `format_uri` or `format_url`.
+- `download_status` is fixed to `not_downloaded`; `downloaded_at_utc`, `byte_size`, and `etag_or_hash` stay blank until a later download packet.
+- S3 target keys are deterministic and sanitized under `raw/oireachtas_unified/source_files/{source_entity_type}/...`.
+- S3 run ID: `silver_source_files_20260607T164455Z`
+- Review:
+  - `review/silver_source_files/latest/manifest.json`
+  - `review/silver_source_files/latest/sample.csv`
+
+## Next packet
+
+### T10 — `silver_debate_records`
+
 Goal:
 
-- build a reusable inventory of source XML/PDF/document files discovered in API `formats` fields;
-- determine which parent endpoint(s) expose formats consistently, beginning with `/debates`, `/questions`, and `/legislation`;
-- normalize format type, source URI/URL, content type, S3 destination key, download status, byte size, and hash metadata;
-- create deterministic `source_file_id` values;
-- write CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- separate metadata discovery from actual download logic where useful so downstream debate/question/bill tables can reuse the file inventory.
+- build debate metadata records from `/debates`;
+- normalize debate-level identity, date, chamber/house fields, title/show_as, source XML/PDF URIs/URLs, and source file joins;
+- reuse the source-file ID logic from T09 where possible so `source_file_id_xml` and `source_file_id_pdf` align with `silver_source_files`;
+- write raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
+- validate `debate_id`, `debate_uri`, `debate_date`, `house_uri`, `house_no`, source XML/PDF fields, and source file IDs.
 
 Expected files:
 
-- `extract/oireachtas/table_source_files.py`
-- likely updates to `extract/oireachtas/client.py` or a dedicated source-file helper
+- `extract/oireachtas/table_debate_records.py`
+- possible shared helper extraction from `table_source_files.py` if reuse becomes worthwhile
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_source_files`
-- reset workflow test limit from `200` to an appropriate small endpoint-specific value
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_debate_records`
 - update this status file after validation
+
+Expected command:
+
+```bash
+python -m extract.oireachtas.build_table \
+  --table silver_debate_records \
+  --mode test \
+  --chamber dail \
+  --house-no 34 \
+  --date-start 2025-01-01 \
+  --date-end 2025-01-31 \
+  --limit 10 \
+  --write-review-sample
+```
 
 Handoff instruction:
 
 ```text
 Continue from main.
-Start T09 — silver_source_files.
-Workflow default currently points to silver_member_offices with limit=200.
-First inspect formats payload shapes from debates, questions, and legislation before finalizing the source-file grain.
+Start T10 — silver_debate_records.
+Workflow default currently points to silver_source_files.
+Use the confirmed /debates payload and T09 source-file format logic.
 ```
