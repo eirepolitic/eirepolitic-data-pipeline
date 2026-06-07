@@ -13,7 +13,6 @@ from .io_s3 import put_dataframe_csv, put_dataframe_parquet, put_json
 from .normalize import is_current_range, parse_iso_date, stable_hash, utc_now_iso
 from .schemas import TableSchema
 
-
 TABLE_NAME = "silver_member_offices"
 
 
@@ -27,18 +26,7 @@ class TableBuildResult:
     s3_keys: dict[str, str]
 
 
-def build_silver_member_offices(
-    *,
-    client: OireachtasClient,
-    s3: Any,
-    bucket: str,
-    schema: TableSchema,
-    limit: int,
-    mode: str,
-    chamber: str | None = None,
-    house_no: str | None = None,
-) -> TableBuildResult:
-    """Fetch `/members`, explode membership offices, and write outputs."""
+def build_silver_member_offices(*, client: OireachtasClient, s3: Any, bucket: str, schema: TableSchema, limit: int, mode: str, chamber: str | None = None, house_no: str | None = None) -> TableBuildResult:
     started_at = utc_now_iso()
     run_id = _run_id(TABLE_NAME)
     snapshot_date = started_at[:10]
@@ -59,10 +47,13 @@ def build_silver_member_offices(
         raise RuntimeError(f"Unexpected /members results type: {type(results).__name__}")
 
     rows: list[dict[str, Any]] = []
+    raw_office_samples: list[dict[str, Any]] = []
     for item in results:
         for member in _iter_member_records(item):
             for membership in _iter_memberships(member, item):
                 for office in _iter_offices(membership):
+                    if len(raw_office_samples) < 5:
+                        raw_office_samples.append(dict(office))
                     rows.append(_normalise_office_row(member, membership, office, snapshot_date=snapshot_date))
 
     rows = _dedupe_rows(rows, primary_key="member_office_id")
@@ -109,7 +100,8 @@ def build_silver_member_offices(
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
-        "raw_result_sample": results[:2],
+        "raw_office_samples": raw_office_samples,
+        "raw_office_key_paths": sorted(_key_paths(raw_office_samples[0], max_depth=6)) if raw_office_samples else [],
         "raw_result_key_paths": sorted(_key_paths(results[0], max_depth=6)) if results and isinstance(results[0], Mapping) else [],
         "write_errors": write_errors,
         "s3_keys": s3_keys,
@@ -124,7 +116,6 @@ def build_silver_member_offices(
         if not df.empty:
             put_dataframe_parquet(s3, bucket=bucket, key=latest_parquet_key, df=df)
         put_json(s3, bucket=bucket, key=manifest_key, payload=manifest)
-
         sample_df = df.head(10)
         put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=sample_df)
         put_json(s3, bucket=bucket, key=review_schema_key, payload=schema_payload)
@@ -135,7 +126,6 @@ def build_silver_member_offices(
         dq["checks"].append({"check_name": "s3_write", "status": "fail", "message": write_errors[-1]})
         manifest["status"] = "failed"
         manifest["dq_status"] = "fail"
-        manifest["write_errors"] = write_errors
 
     sample_df = df.head(10)
     return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
@@ -147,9 +137,7 @@ def _iter_member_records(item: Any) -> Iterable[Mapping[str, Any]]:
     member = item.get("member")
     if isinstance(member, Mapping):
         return [member]
-    if any(key in item for key in ("memberCode", "fullName", "showAs", "uri")):
-        return [item]
-    return []
+    return [item] if any(key in item for key in ("memberCode", "fullName", "showAs", "uri")) else []
 
 
 def _iter_memberships(member: Mapping[str, Any], wrapper: Mapping[str, Any]) -> Iterable[Mapping[str, Any]]:
@@ -187,15 +175,13 @@ def _normalise_office_row(member: Mapping[str, Any], membership: Mapping[str, An
     member_code = _first_text(member, "memberCode", "code", "id")
     membership_id = _first_text(membership, "uri", "membershipUri") or f"generated:membership:{stable_hash([member_code, _date_start(membership), _date_end(membership)])}"
     office_uri = _first_text(office, "uri", "officeUri")
-    office_name = _first_text(office, "showAs", "officeName", "name", "title", "role", "position")
+    office_name = _office_name(office)
     office_start = _date_start(office)
     office_end = _date_end(office)
     if not office_uri:
         office_uri = f"generated:office:{stable_hash([office_name, office_start, office_end])}"
-    member_office_id = f"generated:member_office:{stable_hash([membership_id, member_code, office_uri, office_start, office_end])}"
-
     return {
-        "member_office_id": member_office_id,
+        "member_office_id": f"generated:member_office:{stable_hash([membership_id, member_code, office_uri, office_start, office_end])}",
         "membership_id": membership_id,
         "member_code": member_code,
         "office_uri": office_uri,
@@ -205,6 +191,25 @@ def _normalise_office_row(member: Mapping[str, Any], membership: Mapping[str, An
         "is_current": is_current_range(office_start, office_end),
         "snapshot_date": snapshot_date,
     }
+
+
+def _office_name(office: Mapping[str, Any]) -> str | None:
+    direct = _first_text(office, "showAs", "officeName", "name", "title", "role", "position")
+    if direct:
+        return direct
+    for key in ("officeName", "names", "name"):
+        value = office.get(key)
+        if isinstance(value, list):
+            for entry in value:
+                if isinstance(entry, Mapping):
+                    text = _first_text(entry, "showAs", "nameEn", "nameGa", "name", "title")
+                    if text:
+                        return text
+        elif isinstance(value, Mapping):
+            text = _first_text(value, "showAs", "nameEn", "nameGa", "name", "title")
+            if text:
+                return text
+    return None
 
 
 def _date_start(record: Mapping[str, Any]) -> str | None:
@@ -237,10 +242,9 @@ def _dedupe_rows(rows: list[dict[str, Any]], *, primary_key: str) -> list[dict[s
     deduped: list[dict[str, Any]] = []
     for row in rows:
         key = str(row.get(primary_key) or "")
-        if key in seen:
-            continue
-        seen.add(key)
-        deduped.append(row)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(row)
     return deduped
 
 
