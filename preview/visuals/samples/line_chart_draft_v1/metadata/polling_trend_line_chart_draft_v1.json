@@ -1,0 +1,107 @@
+{
+  "visual_id": "polling_trend_line_chart_draft_v1",
+  "template_id": "line_chart_draft_v1",
+  "renderer": "line_chart",
+  "created_at": "2026-06-07T16:54:20.603806+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "sample_path": "instagram/visuals/samples/line_chart_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/line_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "value": "value",
+    "series": "series"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "two_series"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "future_group_by_options": [
+      "constituency",
+      "party",
+      "candidate",
+      "county",
+      "issue_category",
+      "time_period"
+    ]
+  },
+  "source_note": "Source: realistic placeholder data for visual review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "x": "Jan",
+      "series": "Party A",
+      "value": 34.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party A",
+      "value": 36.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party A",
+      "value": 38.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party A",
+      "value": 41.0
+    },
+    {
+      "x": "May",
+      "series": "Party A",
+      "value": 43.0
+    },
+    {
+      "x": "Jun",
+      "series": "Party A",
+      "value": 46.0
+    },
+    {
+      "x": "Jan",
+      "series": "Party B",
+      "value": 42.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party B",
+      "value": 40.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party B",
+      "value": 39.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party B",
+      "value": 37.0
+    },
+    {
+      "x": "May",
+      "series": "Party B",
+      "value": 35.0
+    },
+    {
+      "x": "Jun",
+      "series": "Party B",
+      "value": 33.0
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,72 @@
+{
+  "visual_id": "long_period_labels",
+  "template_id": "line_chart_draft_v1",
+  "renderer": "line_chart",
+  "created_at": "2026-06-07T16:54:28.615960+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "case_id": "long_period_labels",
+    "case_description": "Long x-axis labels",
+    "registry_path": "instagram/visuals/tests/line_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/line_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "value": "value",
+    "series": "series"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_period_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_period_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "x": "January 2025",
+      "series": "Support",
+      "value": 31.0
+    },
+    {
+      "x": "February 2025",
+      "series": "Support",
+      "value": 33.0
+    },
+    {
+      "x": "March 2025",
+      "series": "Support",
+      "value": 35.0
+    },
+    {
+      "x": "April 2025",
+      "series": "Support",
+      "value": 34.0
+    },
+    {
+      "x": "May 2025",
+      "series": "Support",
+      "value": 38.0
+    },
+    {
+      "x": "June 2025",
+      "series": "Support",
+      "value": 40.0
+    }
+  ],
+  "warnings": []
+}

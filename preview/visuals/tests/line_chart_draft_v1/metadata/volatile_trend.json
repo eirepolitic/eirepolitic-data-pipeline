@@ -1,0 +1,72 @@
+{
+  "visual_id": "volatile_trend",
+  "template_id": "line_chart_draft_v1",
+  "renderer": "line_chart",
+  "created_at": "2026-06-07T16:54:28.249450+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/line_chart_draft_v1/data/cases.csv",
+    "case_id": "volatile_trend",
+    "case_description": "Sharp up and down movement",
+    "registry_path": "instagram/visuals/tests/line_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/line_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "value": "value",
+    "series": "series"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "volatile_trend"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "volatile_trend"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "x": "Jan",
+      "series": "Support",
+      "value": 22.0
+    },
+    {
+      "x": "Feb",
+      "series": "Support",
+      "value": 47.0
+    },
+    {
+      "x": "Mar",
+      "series": "Support",
+      "value": 31.0
+    },
+    {
+      "x": "Apr",
+      "series": "Support",
+      "value": 55.0
+    },
+    {
+      "x": "May",
+      "series": "Support",
+      "value": 26.0
+    },
+    {
+      "x": "Jun",
+      "series": "Support",
+      "value": 49.0
+    }
+  ],
+  "warnings": []
+}
