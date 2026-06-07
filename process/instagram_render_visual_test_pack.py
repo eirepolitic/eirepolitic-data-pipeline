@@ -21,6 +21,7 @@ from instagram.visuals.renderers.common import load_yaml, rows_from_sample, writ
 RENDERERS = {
     "horizontal_bar": "instagram.visuals.renderers.horizontal_bar",
     "vertical_bar": "instagram.visuals.renderers.vertical_bar",
+    "line_chart": "instagram.visuals.renderers.line_chart",
 }
 
 
@@ -30,6 +31,21 @@ def _font(kind: str, size: int) -> ImageFont.ImageFont:
         if Path(candidate).exists():
             return ImageFont.truetype(candidate, size=size)
     return ImageFont.load_default()
+
+
+def _apply_filters(rows: list[dict[str, Any]], filters: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    filtered = list(rows)
+    for rule in filters or []:
+        field = str(rule.get("field", ""))
+        operator = str(rule.get("operator", "equals"))
+        value = str(rule.get("value", ""))
+        if not field:
+            continue
+        if operator == "equals":
+            filtered = [row for row in filtered if str(row.get(field, "")) == value]
+        else:
+            raise ValueError(f"Unsupported filter operator: {operator}")
+    return filtered
 
 
 def _render_case(
@@ -59,6 +75,7 @@ def _render_case(
     }
 
     rows, input_metadata = rows_from_sample(sample)
+    rows = _apply_filters(rows, sample.get("filters", []))
     renderer_name = str(template.get("renderer", ""))
     module_name = RENDERERS.get(renderer_name)
     if not module_name:
