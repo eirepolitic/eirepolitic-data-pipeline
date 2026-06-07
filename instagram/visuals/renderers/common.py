@@ -36,6 +36,7 @@ def load_palette(template: dict[str, Any]) -> dict[str, str]:
         "text": str(palette.get("text", "#f4ead7")),
         "muted": str(palette.get("muted", "#cbbf9f")),
         "accent": str(palette.get("accent", "#d8b45f")),
+        "accent_2": str(palette.get("accent_2", "#9ec5a2")),
         "grid": str(palette.get("grid", "#cbbf9f")),
         "warning": str(palette.get("warning", "#b55b5b")),
     }
