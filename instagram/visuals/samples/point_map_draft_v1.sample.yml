@@ -1,0 +1,33 @@
+visual_id: campaign_locations_point_map_draft_v1
+template: instagram/visuals/templates/point_map_draft_v1.yml
+geography:
+  path: instagram/visuals/tests/choropleth_map_draft_v1/geography/sample_constituencies.json
+source_note: "Source: synthetic fixture geography and placeholder point data for visual review only"
+input:
+  mode: local_csv
+  path: instagram/visuals/tests/point_map_draft_v1/data/cases.csv
+bindings:
+  x: x
+  y: y
+  label: label
+  category: category
+  value: value
+filters:
+  - field: case_id
+    operator: equals
+    value: category_mix
+grouping:
+  batch_enabled: false
+  future_group_by_options:
+    - constituency
+    - party
+    - candidate
+    - county
+    - issue_category
+    - time_period
+attribution:
+  source_name: Synthetic fixture geography
+  source_url: ""
+  retrieved_at: ""
+  license: "Internal test fixture"
+  notes: "Deterministic synthetic polygons. Not for publication."
