@@ -1,0 +1,98 @@
+template: instagram/visuals/templates/ranking_table_draft_v1.yml
+bindings:
+  rank: rank
+  name: name
+  sublabel: sublabel
+  value: value
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: few_rows
+    description: Three-row compact ranking
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: few_rows
+  - id: max_rows
+    description: Eight-row target maximum ranking
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: max_rows
+  - id: overflow_rows
+    description: Ten rows; should truncate to template max
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: overflow_rows
+  - id: long_names
+    description: Long candidate names
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_names
+  - id: long_sublabels
+    description: Long party or constituency sublabels
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_sublabels
+  - id: percent_values
+    description: Percent-style values using default integer template for draft review
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: percent_values
+  - id: tight_values
+    description: Similar values close together
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: tight_values
+  - id: wide_values
+    description: Very wide value range
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_values
+  - id: zero_values
+    description: Includes zero values
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: zero_values
+  - id: negative_values
+    description: Includes negative values and should warn
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: non_numeric_values
+    description: Includes non-numeric and missing values and should warn
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: non_numeric_values
+  - id: phone_readability_stress
+    description: Long names, long sublabels, wide values, and max rows
+    data: instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress
