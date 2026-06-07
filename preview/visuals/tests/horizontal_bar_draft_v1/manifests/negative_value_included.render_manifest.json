@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "negative_value_included",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "output_png": "generated_visual_tests/horizontal_bar_draft_v1/png/negative_value_included.png",
+  "metadata_path": "generated_visual_tests/horizontal_bar_draft_v1/metadata/negative_value_included.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "negative_values_present"
+  ],
+  "created_at": "2026-06-07T16:26:19.383625+00:00",
+  "description": "Includes negative value to confirm warning behavior"
+}

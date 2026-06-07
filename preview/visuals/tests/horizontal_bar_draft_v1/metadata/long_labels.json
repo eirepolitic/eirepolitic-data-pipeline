@@ -1,0 +1,78 @@
+{
+  "visual_id": "long_labels",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:18.940827+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels.csv",
+    "case_id": "long_labels",
+    "case_description": "Long label wrapping",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Access to affordable rental accommodation",
+      "value": 109.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Emergency department overcrowding",
+      "value": 96.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Reliability of regional public transport",
+      "value": 83.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Availability of special education supports",
+      "value": 70.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Household electricity and heating costs",
+      "value": 57.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Community policing and neighbourhood safety",
+      "value": 44.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Investment in rural and regional infrastructure",
+      "value": 31.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "long_label:Access to affordable rental accommodat",
+    "long_label:Reliability of regional public transpo",
+    "long_label:Availability of special education supp",
+    "long_label:Household electricity and heating cost",
+    "long_label:Community policing and neighbourhood s",
+    "long_label:Investment in rural and regional infra"
+  ]
+}

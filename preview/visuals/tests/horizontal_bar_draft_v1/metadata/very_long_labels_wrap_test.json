@@ -1,0 +1,79 @@
+{
+  "visual_id": "very_long_labels_wrap_test",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:19.017089+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/very_long_labels_wrap_test.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/very_long_labels_wrap_test.csv",
+    "case_id": "very_long_labels_wrap_test",
+    "case_description": "Very long label stress test",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "very_long_labels_wrap_test"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Long-term availability of affordable and secure rental accommodation for working families",
+      "value": 112.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Reducing emergency department waiting times across regional and urban hospitals",
+      "value": 99.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Improving the frequency reliability and affordability of regional public transport services",
+      "value": 86.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Expanding access to special education teaching resources and classroom supports",
+      "value": 73.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Protecting households from sustained increases in electricity heating and fuel costs",
+      "value": 60.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Strengthening community policing visibility and neighbourhood crime prevention programmes",
+      "value": 47.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Delivering major investment in rural roads broadband and regional public infrastructure",
+      "value": 34.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "long_label:Long-term availability of affordable a",
+    "long_label:Reducing emergency department waiting ",
+    "long_label:Improving the frequency reliability an",
+    "long_label:Expanding access to special education ",
+    "long_label:Protecting households from sustained i",
+    "long_label:Strengthening community policing visib",
+    "long_label:Delivering major investment in rural r"
+  ]
+}

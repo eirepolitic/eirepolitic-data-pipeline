@@ -1,0 +1,71 @@
+{
+  "visual_id": "medium_labels",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:18.863851+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/medium_labels.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/medium_labels.csv",
+    "case_id": "medium_labels",
+    "case_description": "Medium label readability",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "medium_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable housing",
+      "value": 102.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Hospital waiting lists",
+      "value": 91.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Public transport",
+      "value": 80.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Primary education",
+      "value": 69.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Energy prices",
+      "value": 58.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Community safety",
+      "value": 47.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Regional development",
+      "value": 36.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": []
+}

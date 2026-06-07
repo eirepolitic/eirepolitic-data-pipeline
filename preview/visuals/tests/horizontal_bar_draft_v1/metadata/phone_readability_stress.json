@@ -1,0 +1,82 @@
+{
+  "visual_id": "phone_readability_stress",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:19.611875+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/phone_readability_stress.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/phone_readability_stress.csv",
+    "case_id": "phone_readability_stress",
+    "case_description": "Mixed worst-case phone readability stress test",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "phone_readability_stress"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Long-term affordable and secure rental accommodation for working families",
+      "value": 99999.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Emergency department overcrowding and hospital waiting times",
+      "value": 42000.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Regional public transport frequency reliability and affordability",
+      "value": 8500.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Special education teaching resources and classroom supports",
+      "value": 1200.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Household electricity heating and fuel costs",
+      "value": 175.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Community policing visibility and crime prevention programmes",
+      "value": 12.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Rural roads broadband and public infrastructure investment",
+      "value": 1.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "long_label:Long-term affordable and secure rental",
+    "long_label:Emergency department overcrowding and ",
+    "long_label:Regional public transport frequency re",
+    "long_label:Special education teaching resources a",
+    "long_label:Household electricity heating and fuel",
+    "long_label:Community policing visibility and crim",
+    "long_label:Rural roads broadband and public infra",
+    "long_label:Childcare availability affordability a",
+    "long_label:Mental health service access and waiti",
+    "truncated_rows:9->7"
+  ]
+}

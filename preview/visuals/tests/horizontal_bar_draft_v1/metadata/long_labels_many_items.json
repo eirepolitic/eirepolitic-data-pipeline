@@ -1,0 +1,77 @@
+{
+  "visual_id": "long_labels_many_items",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:19.461585+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels_many_items.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/long_labels_many_items.csv",
+    "case_id": "long_labels_many_items",
+    "case_description": "Long labels plus many items",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels_many_items"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation",
+      "value": 140.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Emergency department waiting times",
+      "value": 126.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Regional public transport reliability",
+      "value": 112.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Special education classroom supports",
+      "value": 98.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Household electricity and heating costs",
+      "value": 84.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Community policing and neighbourhood safety",
+      "value": 70.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Rural roads broadband and infrastructure",
+      "value": 56.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": [
+    "long_label:Household electricity and heating cost",
+    "long_label:Community policing and neighbourhood s",
+    "long_label:Rural roads broadband and infrastructu",
+    "long_label:Childcare availability and affordabili",
+    "truncated_rows:9->7"
+  ]
+}

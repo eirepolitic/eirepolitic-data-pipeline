@@ -1,0 +1,71 @@
+{
+  "visual_id": "small_values",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-07T16:26:19.200226+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/horizontal_bar_draft_v1/data/small_values.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/horizontal_bar_draft_v1/data/small_values.csv",
+    "case_id": "small_values",
+    "case_description": "Very small positive values",
+    "registry_path": "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "issue",
+    "value": "speech_count",
+    "group": "constituency"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "small_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Housing",
+      "value": 7.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Health",
+      "value": 6.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Transport",
+      "value": 5.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Climate",
+      "value": 4.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Education",
+      "value": 3.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Justice",
+      "value": 2.0,
+      "group": "Test Constituency"
+    },
+    {
+      "label": "Economy",
+      "value": 1.0,
+      "group": "Test Constituency"
+    }
+  ],
+  "warnings": []
+}
