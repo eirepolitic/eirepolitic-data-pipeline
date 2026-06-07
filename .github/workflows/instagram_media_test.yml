@@ -55,34 +55,32 @@ jobs:
               --test-case "${TEST_CASE}"
           } 2>&1 | tee workflow_debug/media_test.log
 
-      - name: Render draft visual sample
+      - name: Render draft visual samples
         shell: bash
         run: |
           set -o pipefail
-          SAMPLE_PATH="instagram/visuals/samples/horizontal_bar_draft_v1.sample.yml"
-          OUTPUT_ROOT="generated_visuals"
           mkdir -p workflow_debug
           {
-            echo "sample_path=${SAMPLE_PATH}"
-            echo "output_root=${OUTPUT_ROOT}"
             python process/instagram_render_visual.py \
-              --sample "${SAMPLE_PATH}" \
-              --output-root "${OUTPUT_ROOT}"
+              --sample "instagram/visuals/samples/horizontal_bar_draft_v1.sample.yml" \
+              --output-root "generated_visuals/horizontal_bar_draft_v1"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/vertical_bar_draft_v1.sample.yml" \
+              --output-root "generated_visuals/vertical_bar_draft_v1"
           } 2>&1 | tee workflow_debug/visual_preview.log
 
-      - name: Render horizontal bar visual variation test pack
+      - name: Render visual variation test packs
         shell: bash
         run: |
           set -o pipefail
-          REGISTRY_PATH="instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml"
-          OUTPUT_ROOT="generated_visual_tests/horizontal_bar_draft_v1"
           mkdir -p workflow_debug
           {
-            echo "registry_path=${REGISTRY_PATH}"
-            echo "output_root=${OUTPUT_ROOT}"
             python process/instagram_render_visual_test_pack.py \
-              --registry "${REGISTRY_PATH}" \
-              --output-root "${OUTPUT_ROOT}"
+              --registry "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml" \
+              --output-root "generated_visual_tests/horizontal_bar_draft_v1"
+            python process/instagram_render_visual_test_pack.py \
+              --registry "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml" \
+              --output-root "generated_visual_tests/vertical_bar_draft_v1"
           } 2>&1 | tee workflow_debug/visual_test_pack.log
 
       - name: Publish visual preview branch
@@ -91,7 +89,6 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
-          TEST_PREVIEW_DIR="${PREVIEW_DIR}/tests/horizontal_bar_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
           git config user.name "github-actions[bot]"
@@ -109,23 +106,22 @@ jobs:
           mkdir -p "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}"
           rm -rf "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR:?}/"*
 
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/png"
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/metadata"
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/manifests"
-          cp -R generated_visuals/png/. "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/png/"
-          cp -R generated_visuals/metadata/. "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/metadata/"
-          cp -R generated_visuals/manifests/. "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/manifests/"
+          for visual_id in horizontal_bar_draft_v1 vertical_bar_draft_v1; do
+            SAMPLE_DIR="/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/samples/${visual_id}"
+            TEST_DIR="/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/tests/${visual_id}"
+            mkdir -p "${SAMPLE_DIR}/png" "${SAMPLE_DIR}/metadata" "${SAMPLE_DIR}/manifests"
+            mkdir -p "${TEST_DIR}/png" "${TEST_DIR}/metadata" "${TEST_DIR}/manifests"
+            cp -R "generated_visuals/${visual_id}/png/." "${SAMPLE_DIR}/png/"
+            cp -R "generated_visuals/${visual_id}/metadata/." "${SAMPLE_DIR}/metadata/"
+            cp -R "generated_visuals/${visual_id}/manifests/." "${SAMPLE_DIR}/manifests/"
+            cp -R "generated_visual_tests/${visual_id}/png/." "${TEST_DIR}/png/"
+            cp -R "generated_visual_tests/${visual_id}/metadata/." "${TEST_DIR}/metadata/"
+            cp -R "generated_visual_tests/${visual_id}/manifests/." "${TEST_DIR}/manifests/"
+            cp "generated_visual_tests/${visual_id}/contact_sheet.png" "${TEST_DIR}/contact_sheet.png"
+            cp "generated_visual_tests/${visual_id}/test_pack_manifest.json" "${TEST_DIR}/test_pack_manifest.json"
+          done
 
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/png"
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/metadata"
-          mkdir -p "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/manifests"
-          cp -R generated_visual_tests/horizontal_bar_draft_v1/png/. "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/png/"
-          cp -R generated_visual_tests/horizontal_bar_draft_v1/metadata/. "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/metadata/"
-          cp -R generated_visual_tests/horizontal_bar_draft_v1/manifests/. "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/manifests/"
-          cp generated_visual_tests/horizontal_bar_draft_v1/contact_sheet.png "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/contact_sheet.png"
-          cp generated_visual_tests/horizontal_bar_draft_v1/test_pack_manifest.json "/tmp/instagram-visual-preview-worktree/${TEST_PREVIEW_DIR}/test_pack_manifest.json"
-
-          python - "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${TEST_PREVIEW_DIR}" <<'PY'
+          python - "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" <<'PY'
           import sys
           from pathlib import Path
 
@@ -133,34 +129,23 @@ jobs:
           repo = sys.argv[2]
           branch = sys.argv[3]
           preview_dir = sys.argv[4]
-          test_preview_dir = sys.argv[5]
-          png_dir = readme_path.parent / "png"
-          test_png_dir = readme_path.parent / "tests" / "horizontal_bar_draft_v1" / "png"
-          pngs = sorted(p.name for p in png_dir.glob("*.png"))
-          test_pngs = sorted(p.name for p in test_png_dir.glob("*.png"))
+          root = readme_path.parent
+          visual_ids = ["horizontal_bar_draft_v1", "vertical_bar_draft_v1"]
           lines = [
               "# Instagram visual preview output",
               "",
               "This folder is machine-updated by the review-only Instagram Media Generator Test workflow.",
               "",
-              "Latest PNG previews:",
+              "Contact sheets:",
           ]
-          for name in pngs:
-              lines.append(f"https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/png/{name}")
-          lines += [
-              "",
-              "Horizontal bar variation contact sheet:",
-              f"https://raw.githubusercontent.com/{repo}/{branch}/{test_preview_dir}/contact_sheet.png",
-              "",
-              "Horizontal bar variation PNGs:",
-          ]
-          for name in test_pngs:
-              lines.append(f"https://raw.githubusercontent.com/{repo}/{branch}/{test_preview_dir}/png/{name}")
-          lines += [
-              "",
-              "Review only: this does not publish, schedule, or approve Instagram content.",
-              "",
-          ]
+          for visual_id in visual_ids:
+              lines.append(f"- {visual_id}: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/tests/{visual_id}/contact_sheet.png")
+          lines += ["", "Sample PNGs:"]
+          for visual_id in visual_ids:
+              png_dir = root / "samples" / visual_id / "png"
+              for png in sorted(png_dir.glob("*.png")):
+                  lines.append(f"- {visual_id}/{png.name}: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/samples/{visual_id}/png/{png.name}")
+          lines += ["", "Review only: this does not publish, schedule, or approve Instagram content.", ""]
           readme_path.write_text("\n".join(lines), encoding="utf-8")
           PY
 
@@ -169,13 +154,10 @@ jobs:
           git -C /tmp/instagram-visual-preview-worktree push origin "${PREVIEW_BRANCH}"
 
           {
-            echo "## Instagram visual preview links"
+            echo "## Instagram visual contact sheets"
             echo
-            echo "- [Open horizontal bar contact sheet](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${TEST_PREVIEW_DIR}/contact_sheet.png)"
-            echo
-            echo "### Individual variation PNGs"
-            find generated_visual_tests/horizontal_bar_draft_v1/png -maxdepth 1 -type f -name '*.png' -printf '%f\n' | sort | while read -r png_name; do
-              echo "- [Open ${png_name}](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${TEST_PREVIEW_DIR}/png/${png_name})"
+            for visual_id in horizontal_bar_draft_v1 vertical_bar_draft_v1; do
+              echo "- [Open ${visual_id} contact sheet](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/tests/${visual_id}/contact_sheet.png)"
             done
           } >> "${GITHUB_STEP_SUMMARY}"
 
