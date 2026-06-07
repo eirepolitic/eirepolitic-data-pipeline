@@ -21,6 +21,7 @@ RENDERERS = {
     "stacked_bar": "instagram.visuals.renderers.stacked_bar",
     "ranking_table": "instagram.visuals.renderers.ranking_table",
     "choropleth_map": "instagram.visuals.renderers.choropleth_map",
+    "point_map": "instagram.visuals.renderers.point_map",
 }
 
 
