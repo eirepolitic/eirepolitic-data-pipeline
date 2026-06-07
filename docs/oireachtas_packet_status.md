@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-07  
-**Current packet:** T08 — `silver_member_offices`
+**Current packet:** T09 — `silver_source_files`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -14,7 +14,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - AWS region: `ca-central-1`
 - S3 bucket: `eirepolitic-data`
 - Review branch: `oireachtas-review-output`
-- Review publishing preserves existing table folders and runs even after table/DQ failure when local review output exists.
+- Review publishing preserves existing table folders and runs after table/DQ failure when local review output exists.
 - Standard outputs per confirmed table: raw API JSON, partitioned CSV, partitioned Parquet, latest CSV/Parquet pointers, run manifest, and review sample/schema/manifest.
 
 ## Completed foundation packets
@@ -98,64 +98,83 @@ Confirmed files include `extract/oireachtas/*` foundation files and `configs/oir
 - DQ: pass
 - Grain: one row per `membership.parties[].party`.
 - `membership_id` joins to `silver_member_memberships`; `member_code` joins to `silver_members`; `party_uri` joins to `silver_parties`.
-- Party rows have `party_start=2024-11-29`, open-ended `party_end`, and `is_current=True` for Dáil 34 test sample.
 
 ### T07 — `silver_member_constituencies`
 
 - Builder: `extract/oireachtas/table_member_constituencies.py`
 - Final run: `27098119595`
-- Run number: 17
-- Result: success
 - Rows: 25
 - PK: `member_constituency_id`, unique
 - DQ: pass
-- Endpoint: `/members?limit=25&chamber=dail&house_no=34`
-- Grain: one row per `membership.represents[].represent` record.
-- `membership_id` uses the parent membership URI and joins to `silver_member_memberships.membership_id`.
-- `member_code` joins to `silver_members.member_code`.
-- `constituency_uri` joins to `silver_constituencies.constituency_uri`.
-- Represents usually omit their own dates, so parser uses `represent.dateRange` where present and falls back to parent `membership.dateRange`.
-- Final sample has populated constituency URI/name, `represent_start=2024-11-29`, open-ended `represent_end`, and `is_current=True` for Dáil 34.
-- S3 run ID: `silver_member_constituencies_20260607T162359Z`
-- Review:
-  - `review/silver_member_constituencies/latest/manifest.json`
-  - `review/silver_member_constituencies/latest/sample.csv`
-
-## Next packet
+- Grain: one row per `membership.represents[].represent`.
+- `membership_id` joins to `silver_member_memberships`; `member_code` joins to `silver_members`; `constituency_uri` joins to `silver_constituencies`.
+- Represents usually omit dates, so parser falls back to parent membership dates.
 
 ### T08 — `silver_member_offices`
 
+- Builder: `extract/oireachtas/table_member_offices.py`
+- Initial run: `27098251798`
+- Final run: `27098313330`
+- Run number: 19
+- Result: success
+- Raw members: 176 for Dáil 34
+- Output rows: 77
+- PK: `member_office_id`, unique
+- DQ: pass
+- Endpoint: `/members?limit=200&chamber=dail&house_no=34`
+- Grain: one row per `membership.offices[]` office-history record.
+- `membership_id` uses the parent membership URI and joins to `silver_member_memberships.membership_id`.
+- `member_code` joins to `silver_members.member_code`.
+- Actual office shape is:
+
+```text
+officeName.showAs
+officeName.uri
+dateRange.start
+dateRange.end
+```
+
+- `officeName.uri` is commonly null, so stable generated `office_uri` and `member_office_id` values are used.
+- Initial run produced 70 rows but failed DQ because `officeName` is a nested object rather than text.
+- Parser was patched to read nested `officeName.showAs`; final run produced 77 named office rows.
+- Sample office values include:
+  - Minister for Housing, Local Government and Heritage
+  - Minister for Enterprise, Tourism and Employment
+  - Minister of State at the Department of Justice
+  - Minister of State at the Department of the Taoiseach and other departments
+- Office history correctly preserves closed and open-ended date ranges and sets `is_current` accordingly.
+- S3 run ID: `silver_member_offices_20260607T163158Z`
+- Review:
+  - `review/silver_member_offices/latest/manifest.json`
+  - `review/silver_member_offices/latest/sample.csv`
+
+## Next packet
+
+### T09 — `silver_source_files`
+
 Goal:
 
-- build the time-aware member office/role bridge from `/members`;
-- explode `member.memberships[].membership.offices[]` where present;
-- write raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate `member_office_id`, `membership_id`, `member_code`, `office_uri`, `office_name`, office dates, and current flag.
+- build a reusable inventory of source XML/PDF/document files discovered in API `formats` fields;
+- determine which parent endpoint(s) expose formats consistently, beginning with `/debates`, `/questions`, and `/legislation`;
+- normalize format type, source URI/URL, content type, S3 destination key, download status, byte size, and hash metadata;
+- create deterministic `source_file_id` values;
+- write CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
+- separate metadata discovery from actual download logic where useful so downstream debate/question/bill tables can reuse the file inventory.
 
 Expected files:
 
-- `extract/oireachtas/table_member_offices.py`
+- `extract/oireachtas/table_source_files.py`
+- likely updates to `extract/oireachtas/client.py` or a dedicated source-file helper
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_member_offices`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_source_files`
+- reset workflow test limit from `200` to an appropriate small endpoint-specific value
 - update this status file after validation
-
-Expected command:
-
-```bash
-python -m extract.oireachtas.build_table \
-  --table silver_member_offices \
-  --mode test \
-  --chamber dail \
-  --house-no 34 \
-  --limit 25 \
-  --write-review-sample
-```
 
 Handoff instruction:
 
 ```text
 Continue from main.
-Start T08 — silver_member_offices.
-Workflow default currently points to silver_member_constituencies.
-Use the confirmed member bridge builders as the implementation pattern.
+Start T09 — silver_source_files.
+Workflow default currently points to silver_member_offices with limit=200.
+First inspect formats payload shapes from debates, questions, and legislation before finalizing the source-file grain.
 ```
