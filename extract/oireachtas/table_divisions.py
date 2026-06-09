@@ -8,7 +8,7 @@ from typing import Any, Mapping
 
 import pandas as pd
 
-from .client import OireachtasClient, ResponseSummary
+from .client import ApiResponseSummary, OireachtasClient
 from .io_s3 import put_dataframe_csv, put_dataframe_parquet, put_json
 from .normalize import parse_iso_date, stable_hash, stable_record_hash, utc_now_iso
 from .schemas import TableSchema
@@ -63,11 +63,7 @@ def build_silver_divisions(
     if not isinstance(results, list):
         raise RuntimeError(f"Unexpected division results type: {type(results).__name__}")
 
-    rows = [
-        _normalise_division_row(item, snapshot_date=snapshot_date)
-        for item in results
-        if isinstance(item, Mapping)
-    ]
+    rows = [_normalise_division_row(item, snapshot_date=snapshot_date) for item in results if isinstance(item, Mapping)]
     rows = _dedupe_rows(rows, primary_key="division_id")
     df = pd.DataFrame(rows, columns=schema.columns)
 
@@ -83,12 +79,7 @@ def build_silver_divisions(
 
     dq = _dq_results(df, schema)
     write_errors: list[str] = []
-    schema_payload = {
-        "table": TABLE_NAME,
-        "primary_key": schema.primary_key,
-        "columns": schema.columns,
-        "row_count": int(len(df)),
-    }
+    schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     s3_keys = {
         "raw_json": raw_key,
         "csv": csv_key,
@@ -148,17 +139,10 @@ def build_silver_divisions(
         manifest["write_errors"] = write_errors
 
     sample_df = df.head(10)
-    return TableBuildResult(
-        table=TABLE_NAME,
-        rows=sample_df.to_dict(orient="records"),
-        manifest=manifest,
-        schema=schema_payload,
-        dq=dq,
-        s3_keys=s3_keys,
-    )
+    return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
 
 
-def _fetch_divisions(client: OireachtasClient, params: Mapping[str, Any]) -> tuple[ResponseSummary, str, bool]:
+def _fetch_divisions(client: OireachtasClient, params: Mapping[str, Any]) -> tuple[ApiResponseSummary, str, bool]:
     canonical = client.get_json_summary(CANONICAL_ENDPOINT, params=params)
     if canonical.ok and canonical.payload is not None:
         return canonical, CANONICAL_ENDPOINT, False
@@ -171,51 +155,21 @@ def _normalise_division_row(item: Mapping[str, Any], *, snapshot_date: str) -> d
     division_uri = _first_text(record, "uri", "divisionUri", "voteUri")
     vote_id = _first_text(record, "voteId", "divisionId", "id", "eId")
     division_id = division_uri or vote_id or f"generated:division:{stable_hash(record, length=24)}"
-
     context_date = parse_iso_date(item.get("contextDate"))
-    division_date = (
-        parse_iso_date(record.get("date"))
-        or parse_iso_date(record.get("voteDate"))
-        or parse_iso_date(record.get("divisionDate"))
-        or context_date
-    )
-
+    division_date = parse_iso_date(record.get("date")) or parse_iso_date(record.get("voteDate")) or parse_iso_date(record.get("divisionDate")) or context_date
     house = _first_mapping(record, "house")
     chamber_record = _first_mapping(record, "chamber")
     house_uri = _first_text(house, "uri") or _first_text(chamber_record, "uri") or _deep_first_text(record, "houseUri")
     house_no = _first_text(house, "houseNo", "number") or _deep_first_text(record, "houseNo")
-    chamber = (
-        _first_text(house, "houseCode", "chamberCode", "showAs")
-        or _first_text(chamber_record, "houseCode", "chamberCode", "showAs")
-        or _deep_first_text(record, "chamberCode")
-    )
-
+    chamber = _first_text(house, "houseCode", "chamberCode", "showAs") or _first_text(chamber_record, "houseCode", "chamberCode", "showAs") or _deep_first_text(record, "chamberCode")
     debate = _first_mapping(record, "debate", "debateRecord")
     debate_section = _first_mapping(record, "debateSection")
     debate_uri = _first_text(debate, "uri", "debateUri") or _deep_first_text(record, "debateUri")
     debate_section_uri = _first_text(debate_section, "uri", "sectionUri") or _deep_first_text(record, "debateSectionUri")
-    debate_show_as = (
-        _first_text(debate_section, "showAs", "heading", "title")
-        or _first_text(debate, "showAs", "title")
-        or _deep_first_text(record, "debateShowAs")
-    )
-
-    subject = (
-        _first_text(record, "subject", "showAs", "title", "motion", "question")
-        or _deep_first_text(record, "subject")
-        or _deep_first_text(record, "showAs")
-    )
-    outcome = (
-        _first_text(record, "outcome", "result", "decision", "voteResult")
-        or _deep_first_text(record, "outcome")
-        or _deep_first_text(record, "result")
-    )
-    committee_code = (
-        _first_text(record, "committeeCode")
-        or _deep_first_text(record, "committeeCode")
-        or _deep_first_text(record, "committeeId")
-    )
-
+    debate_show_as = _first_text(debate_section, "showAs", "heading", "title") or _first_text(debate, "showAs", "title") or _deep_first_text(record, "debateShowAs")
+    subject = _first_text(record, "subject", "showAs", "title", "motion", "question") or _deep_first_text(record, "subject") or _deep_first_text(record, "showAs")
+    outcome = _first_text(record, "outcome", "result", "decision", "voteResult") or _deep_first_text(record, "outcome") or _deep_first_text(record, "result")
+    committee_code = _first_text(record, "committeeCode") or _deep_first_text(record, "committeeCode") or _deep_first_text(record, "committeeId")
     return {
         "division_id": division_id,
         "vote_id": vote_id,
