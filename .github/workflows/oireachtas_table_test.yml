@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "silver_divisions"
+        default: "silver_division_tallies"
       mode:
         description: "Build mode"
         required: true
