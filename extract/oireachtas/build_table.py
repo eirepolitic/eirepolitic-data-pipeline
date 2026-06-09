@@ -18,6 +18,7 @@ from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registr
 from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
 from .table_debate_records import TABLE_NAME as DEBATE_RECORDS_TABLE, build_silver_debate_records
 from .table_debate_sections import TABLE_NAME as DEBATE_SECTIONS_TABLE, build_silver_debate_sections
+from .table_divisions import TABLE_NAME as DIVISIONS_TABLE, build_silver_divisions
 from .table_houses import TABLE_NAME as HOUSES_TABLE, build_silver_houses
 from .table_member_constituencies import TABLE_NAME as MEMBER_CONSTITUENCIES_TABLE, build_silver_member_constituencies
 from .table_member_memberships import TABLE_NAME as MEMBER_MEMBERSHIPS_TABLE, build_silver_member_memberships
@@ -137,6 +138,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_debate_sections(**filtered, date_start=args.date_start, date_end=args.date_end)
     elif args.table == SPEECHES_TABLE:
         result = build_silver_speeches(**filtered, date_start=args.date_start, date_end=args.date_end)
+    elif args.table == DIVISIONS_TABLE:
+        result = build_silver_divisions(**filtered, date_start=args.date_start, date_end=args.date_end)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
