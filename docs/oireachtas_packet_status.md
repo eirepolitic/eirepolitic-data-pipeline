@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-09  
-**Current packet:** T14 — `silver_division_tallies`
+**Current packet:** T15 — `silver_member_votes`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -91,75 +91,77 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 ### T13 — `silver_divisions`
 
 - Builder: `extract/oireachtas/table_divisions.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Initial runtime-error run: `27222580162`
-- First successful payload run: `27222697330`
-- Compact-diagnostics run: `27222821976`
 - Final run: `27222935479`
-- Run number: 29
-- Result: success
 - Raw rows: 3
 - Output rows: 3
 - PK: `division_id`, unique
 - DQ: pass
-- Test window: `2025-01-01` to `2025-01-31`, Dáil 34.
-- Canonical endpoint used: `/divisions`.
-- `/votes` fallback was not used.
-- Corrected runtime import from `ResponseSummary` to `ApiResponseSummary`.
-- Confirmed API shape:
-  - result wrapper: `division`;
-  - stable event URI: `division.uri`;
-  - vote ID: `division.voteId`;
-  - date/time: `division.date`, `division.datetime`;
-  - house: `division.house.{uri,houseNo,houseCode,committeeCode}`;
-  - chamber: `division.chamber.{uri,showAs}`;
-  - event subject: `division.subject.showAs`;
-  - outcome: `division.outcome`;
-  - debate: `division.debate.{uri,showAs,debateSection}`.
-- `division.debate.debateSection` is a scalar section EID such as `dbsect_2`; the parser derives the full URI matching `silver_debate_sections.debate_section_id`.
-- Correct event subjects and section joins validated for:
-  - `vote_164` → `dbsect_2`;
-  - `vote_2` → `dbsect_7`;
-  - `vote_3` → `dbsect_13`.
-- Nested tally shape confirmed for T14/T15:
-  - `division.tallies.taVotes.{showAs,tally,members[]}`;
-  - `division.tallies.nilVotes.{showAs,tally,members[]}`;
-  - `division.tallies.staonVotes.{showAs,tally,members[]}`;
-  - each member entry wraps `member.{memberCode,showAs,uri}`.
-- First test division counts: Tá 95, Níl 77, Staon 0.
-- Final run ID: `silver_divisions_20260609T171109Z`.
-- Review:
-  - `review/silver_divisions/latest/manifest.json`
-  - `review/silver_divisions/latest/sample.csv`
-  - `review/silver_divisions/latest/dq.json`
-
-## Next packet
+- Canonical endpoint `/divisions` used; `/votes` fallback not used.
+- Confirmed event subject, outcome, house, debate and debate-section parsing.
+- `division.debate.debateSection` is a scalar EID; parser derives the full T11-compatible section URI.
+- Confirmed tally/member shape under `division.tallies.{taVotes,nilVotes,staonVotes}`.
 
 ### T14 — `silver_division_tallies`
 
+- Builder: `extract/oireachtas/table_division_tallies.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27236879805`
+- Run number: 30
+- Result: success
+- Raw division rows: 3
+- Output tally rows: 9
+- Division count: 3
+- PK: `division_tally_id`, unique
+- DQ: pass
+- Canonical endpoint `/divisions` used; `/votes` fallback not used.
+- Grain: one row per division and tally category.
+- Confirmed standard categories for every division:
+  - `ta` / `yes` / `Tá`
+  - `nil` / `no` / `Níl`
+  - `staon` / `abstain` / `Staon`
+- Stable tally IDs use a hash of `division_id` and normalized `vote_code`.
+- Counts validated as non-negative.
+- API `tally` values matched `members[]` lengths for all 9 rows; mismatch list was empty.
+- Test counts:
+  - `vote_164`: Tá 95, Níl 77, Staon 0.
+  - `vote_2`: Tá 95, Níl 76, Staon 0.
+  - `vote_3`: Tá 97, Níl 72, Staon 0.
+- Generic category fallback is supported for future API categories beyond the three confirmed values.
+- Final run ID: `silver_division_tallies_20260609T212658Z`.
+- Review:
+  - `review/silver_division_tallies/latest/manifest.json`
+  - `review/silver_division_tallies/latest/sample.csv`
+  - `review/silver_division_tallies/latest/dq.json`
+
+## Next packet
+
+### T15 — `silver_member_votes`
+
 Goal:
 
-- build one row per division and vote category from `division.tallies`;
-- normalize `division_tally_id`, `division_id`, `vote_code`, `vote_label`, `show_as`, `member_count`, and snapshot date;
-- support confirmed categories `taVotes`, `nilVotes`, and `staonVotes` without hard-failing if additional categories appear;
-- preserve exact join to `silver_divisions.division_id`;
-- validate deterministic IDs, three category rows per standard division, non-negative counts, and equality between API `tally` and `members[]` length where applicable;
+- build one row per member vote from `division.tallies.*.members[].member`;
+- normalize `member_vote_id`, `division_id`, `vote_id`, `division_date`, `member_code`, `member_name`, `vote_code`, `vote_label`, party/constituency-at-vote fields, and snapshot date;
+- use confirmed normalized vote codes `ta`, `nil`, and `staon`, while supporting additional categories generically;
+- preserve joins to `silver_divisions.division_id` and `silver_members.member_code`;
+- derive deterministic member-vote IDs from division, member, and vote code;
+- validate row counts equal the sum of T14 tally counts, member codes are populated and unique within a division, and each member has at most one vote category per division;
+- populate party and constituency at vote only where the division payload provides them; otherwise leave blank for a later temporal enrichment join;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample.
 
 Expected files:
 
-- `extract/oireachtas/table_division_tallies.py`
+- `extract/oireachtas/table_member_votes.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_division_tallies`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_member_votes`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_division_tallies \
+  --table silver_member_votes \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -173,7 +175,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T14 — silver_division_tallies.
-Workflow default currently points to silver_divisions.
-Use the confirmed division.tallies shape from T13.
+Start T15 — silver_member_votes.
+Workflow default currently points to silver_division_tallies.
+Use division.tallies.*.members[].member from the confirmed T13/T14 payload.
 ```
