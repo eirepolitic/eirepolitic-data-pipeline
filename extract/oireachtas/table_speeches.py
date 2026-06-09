@@ -17,7 +17,6 @@ from .normalize import normalize_format_url, safe_text, stable_hash, utc_now_iso
 from .schemas import TableSchema
 from .xml_debates import ParsedSpeech, parse_debate_xml
 
-
 TABLE_NAME = "silver_speeches"
 
 
@@ -93,7 +92,12 @@ def build_silver_speeches(
         try:
             xml_bytes = _download_xml(http, xml_url)
             put_bytes(s3, bucket=bucket, key=xml_source_key, body=xml_bytes, content_type="application/xml")
-            parsed, diagnostics = parse_debate_xml(xml_bytes=xml_bytes, debate_id=debate_id, debate_date=debate_date)
+            parsed, diagnostics = parse_debate_xml(
+                xml_bytes=xml_bytes,
+                debate_id=debate_id,
+                debate_date=debate_date,
+                default_language="en",
+            )
             rows.extend(
                 _normalise_speech_row(
                     speech,
@@ -141,6 +145,8 @@ def build_silver_speeches(
 
     dq = _dq_results(df, schema)
     write_errors: list[str] = []
+    matched_rows = int(df["speaker_member_code"].notna().sum()) if not df.empty else 0
+    language_rows = int(df["language"].notna().sum()) if not df.empty else 0
     schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     s3_keys = {
         "raw_json": raw_key,
@@ -167,6 +173,9 @@ def build_silver_speeches(
         "status_code": summary.status_code,
         "raw_rows": len(results),
         "output_rows": int(len(df)),
+        "speaker_member_code_rows": matched_rows,
+        "speaker_member_code_pct": round((matched_rows / len(df) * 100), 2) if len(df) else 0.0,
+        "language_rows": language_rows,
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
@@ -219,9 +228,16 @@ def _download_xml(session: requests.Session, url: str) -> bytes:
 
 
 def _normalise_speech_row(speech: ParsedSpeech, *, source_file_id: str, xml_source_key: str, snapshot_date: str) -> dict[str, Any]:
-    member_code = _member_code_from_ref(speech.speaker_ref)
-    match_method = "speaker_ref_member_code" if member_code else None
-    confidence = 1.0 if member_code else None
+    member_code = speech.speaker_member_code or _member_code_from_ref(speech.speaker_ref)
+    if speech.speaker_member_code:
+        match_method = "xml_tlc_person_href"
+        confidence = 1.0
+    elif member_code:
+        match_method = "speaker_ref_member_code"
+        confidence = 0.8
+    else:
+        match_method = None
+        confidence = None
     text_hash = sha256(speech.speech_text.encode("utf-8")).hexdigest()[:24]
     return {
         "speech_id": speech.speech_id,
@@ -300,17 +316,19 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = debate_ok = section_any = order_ok = text_ok = counts_ok = source_ok = False
+        non_null_pk = unique_pk = debate_ok = section_ok = order_ok = text_ok = counts_ok = source_ok = member_any = language_ok = False
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
         debate_ok = bool(df["debate_id"].notna().all() and (df["debate_id"].astype(str).str.strip() != "").all())
-        section_any = bool(df["debate_section_id"].notna().any())
+        section_ok = bool(df["debate_section_id"].notna().all() and (df["debate_section_id"].astype(str).str.strip() != "").all())
         order_ok = bool(df["speech_order"].notna().all() and not df.duplicated(subset=["debate_id", "speech_order"]).any())
         text_ok = bool(df["speech_text"].notna().all() and (df["speech_text"].astype(str).str.strip() != "").all())
         counts_ok = bool((df["word_count"].fillna(0) > 0).all() and (df["char_count"].fillna(0) > 0).all())
         source_ok = bool(df["source_file_id"].notna().all() and df["xml_source_key"].notna().all())
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, debate_ok, section_any, order_ok, text_ok, counts_ok, source_ok]) else "fail"
+        member_any = bool(df["speaker_member_code"].notna().any())
+        language_ok = bool(df["language"].notna().all() and (df["language"].astype(str).str.strip() != "").all())
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, debate_ok, section_ok, order_ok, text_ok, counts_ok, source_ok, member_any, language_ok]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
@@ -323,11 +341,13 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "primary_key_non_null", "status": "pass" if non_null_pk else "fail"},
             {"check_name": "primary_key_unique", "status": "pass" if unique_pk else "fail"},
             {"check_name": "debate_id_populated", "status": "pass" if debate_ok else "fail"},
-            {"check_name": "debate_section_id_any_populated", "status": "pass" if section_any else "fail"},
+            {"check_name": "debate_section_id_populated", "status": "pass" if section_ok else "fail"},
             {"check_name": "speech_order_unique_per_debate", "status": "pass" if order_ok else "fail"},
             {"check_name": "speech_text_populated", "status": "pass" if text_ok else "fail"},
             {"check_name": "word_and_char_counts_positive", "status": "pass" if counts_ok else "fail"},
             {"check_name": "source_file_fields_populated", "status": "pass" if source_ok else "fail"},
+            {"check_name": "speaker_member_code_any_populated", "status": "pass" if member_any else "fail"},
+            {"check_name": "language_populated", "status": "pass" if language_ok else "fail"},
         ],
     }
 
