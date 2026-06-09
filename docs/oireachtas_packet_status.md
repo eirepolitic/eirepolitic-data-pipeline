@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-09  
-**Current packet:** T13 — `silver_divisions`
+**Current packet:** T14 — `silver_division_tallies`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -79,69 +79,87 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Builders/helpers:
   - `extract/oireachtas/table_speeches.py`
   - `extract/oireachtas/xml_debates.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Initial run: `27222041321`
 - Final run: `27222202849`
-- Run number: 25
-- Result: success
 - Raw debate rows: 2
 - Output speech rows: 357
 - PK: `speech_id`, unique
 - DQ: pass
-- Test window: `2025-01-01` to `2025-01-31`, Dáil 34.
-- Downloaded and persisted two Akoma Ntoso XML files:
-  - 2025-01-23: 276,286 bytes; 132 speeches.
-  - 2025-01-22: 103,413 bytes; 225 speeches.
-- XML files are stored under deterministic T09-compatible keys in `raw/oireachtas_unified/source_files/debate/...`.
-- `source_file_id` values align with T09/T10:
-  - `source_file:2e3f8d29d92f6ad336f74a71`
-  - `source_file:a7530d36b8e66d9be3c0c883`
-- Parser uses namespace-agnostic stdlib XML handling and supports:
-  - `debateSection` nesting;
-  - top-level section joins while excluding nested `division`, `ta`, `nil`, `staon`, and `prelude` sections;
-  - `speech` ordering per debate;
-  - speaker labels from `<from>`;
-  - member codes from `TLCPerson.href` `/member/id/...` values;
-  - clean speech text excluding speaker label and recorded time;
-  - deterministic text hashes, word counts, and character counts.
-- Speaker member-code enrichment:
-  - 344 of 357 rows matched;
-  - 96.36% coverage;
-  - unmatched rows are mainly collective/interjection speakers such as `#` / `Deputies`.
-- `language` populated for all 357 rows as `en` for the requested English extraction.
-- All speech rows have populated joins to `silver_debate_records`, `silver_debate_sections`, and `silver_source_files`.
-- Final run ID: `silver_speeches_20260609T165808Z`.
-- Review:
-  - `review/silver_speeches/latest/manifest.json`
-  - `review/silver_speeches/latest/sample.csv`
-
-## Next packet
+- Speaker member-code enrichment: 344 of 357 rows, 96.36%.
+- XML files persisted under deterministic T09-compatible S3 keys.
+- Source IDs align with T09/T10.
 
 ### T13 — `silver_divisions`
 
+- Builder: `extract/oireachtas/table_divisions.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Initial runtime-error run: `27222580162`
+- First successful payload run: `27222697330`
+- Compact-diagnostics run: `27222821976`
+- Final run: `27222935479`
+- Run number: 29
+- Result: success
+- Raw rows: 3
+- Output rows: 3
+- PK: `division_id`, unique
+- DQ: pass
+- Test window: `2025-01-01` to `2025-01-31`, Dáil 34.
+- Canonical endpoint used: `/divisions`.
+- `/votes` fallback was not used.
+- Corrected runtime import from `ResponseSummary` to `ApiResponseSummary`.
+- Confirmed API shape:
+  - result wrapper: `division`;
+  - stable event URI: `division.uri`;
+  - vote ID: `division.voteId`;
+  - date/time: `division.date`, `division.datetime`;
+  - house: `division.house.{uri,houseNo,houseCode,committeeCode}`;
+  - chamber: `division.chamber.{uri,showAs}`;
+  - event subject: `division.subject.showAs`;
+  - outcome: `division.outcome`;
+  - debate: `division.debate.{uri,showAs,debateSection}`.
+- `division.debate.debateSection` is a scalar section EID such as `dbsect_2`; the parser derives the full URI matching `silver_debate_sections.debate_section_id`.
+- Correct event subjects and section joins validated for:
+  - `vote_164` → `dbsect_2`;
+  - `vote_2` → `dbsect_7`;
+  - `vote_3` → `dbsect_13`.
+- Nested tally shape confirmed for T14/T15:
+  - `division.tallies.taVotes.{showAs,tally,members[]}`;
+  - `division.tallies.nilVotes.{showAs,tally,members[]}`;
+  - `division.tallies.staonVotes.{showAs,tally,members[]}`;
+  - each member entry wraps `member.{memberCode,showAs,uri}`.
+- First test division counts: Tá 95, Níl 77, Staon 0.
+- Final run ID: `silver_divisions_20260609T171109Z`.
+- Review:
+  - `review/silver_divisions/latest/manifest.json`
+  - `review/silver_divisions/latest/sample.csv`
+  - `review/silver_divisions/latest/dq.json`
+
+## Next packet
+
+### T14 — `silver_division_tallies`
+
 Goal:
 
-- build division/vote event rows from canonical `/divisions`;
-- use `/votes` only as compatibility fallback if required;
-- normalize `division_id`, `vote_id`, date, chamber/house, committee code, subject, outcome, debate links, and result hash;
-- preserve joins to `silver_houses`, `silver_debate_records`, and `silver_debate_sections` where supplied;
-- publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- inspect the actual division wrapper and nested tally/member-vote structures for T14/T15.
+- build one row per division and vote category from `division.tallies`;
+- normalize `division_tally_id`, `division_id`, `vote_code`, `vote_label`, `show_as`, `member_count`, and snapshot date;
+- support confirmed categories `taVotes`, `nilVotes`, and `staonVotes` without hard-failing if additional categories appear;
+- preserve exact join to `silver_divisions.division_id`;
+- validate deterministic IDs, three category rows per standard division, non-negative counts, and equality between API `tally` and `members[]` length where applicable;
+- publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample.
 
 Expected files:
 
-- `extract/oireachtas/table_divisions.py`
+- `extract/oireachtas/table_division_tallies.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_divisions`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_division_tallies`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_divisions \
+  --table silver_division_tallies \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -155,7 +173,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T13 — silver_divisions.
-Workflow default currently points to silver_speeches.
-Use /divisions as canonical and retain /votes only as fallback.
+Start T14 — silver_division_tallies.
+Workflow default currently points to silver_divisions.
+Use the confirmed division.tallies shape from T13.
 ```
