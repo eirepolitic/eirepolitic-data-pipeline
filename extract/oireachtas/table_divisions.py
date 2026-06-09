@@ -91,6 +91,7 @@ def build_silver_divisions(
         "review_schema": review_schema_key,
         "review_manifest": review_manifest_key,
     }
+    first_result = results[0] if results and isinstance(results[0], Mapping) else {}
     manifest = {
         "table": TABLE_NAME,
         "mode": mode,
@@ -111,8 +112,9 @@ def build_silver_divisions(
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
-        "raw_result_samples": results[:3],
-        "raw_result_key_paths": sorted(_key_paths(results[0], max_depth=8)) if results and isinstance(results[0], Mapping) else [],
+        "raw_result_key_paths": sorted(_key_paths(first_result, max_depth=9)),
+        "raw_result_structure": _compact_structure(first_result, max_depth=6),
+        "nested_collection_summary": _collection_summary(first_result),
         "write_errors": write_errors,
         "s3_keys": s3_keys,
     }
@@ -166,6 +168,9 @@ def _normalise_division_row(item: Mapping[str, Any], *, snapshot_date: str) -> d
     debate_section = _first_mapping(record, "debateSection")
     debate_uri = _first_text(debate, "uri", "debateUri") or _deep_first_text(record, "debateUri")
     debate_section_uri = _first_text(debate_section, "uri", "sectionUri") or _deep_first_text(record, "debateSectionUri")
+    section_eid = _first_text(debate_section, "debateSectionId", "sectionId", "eId") or _deep_first_text(record, "debateSectionId")
+    if not debate_section_uri and section_eid and debate_uri:
+        debate_section_uri = f"{debate_uri.rsplit('/', 1)[0]}/{section_eid}"
     debate_show_as = _first_text(debate_section, "showAs", "heading", "title") or _first_text(debate, "showAs", "title") or _deep_first_text(record, "debateShowAs")
     subject = _first_text(record, "subject", "showAs", "title", "motion", "question") or _deep_first_text(record, "subject") or _deep_first_text(record, "showAs")
     outcome = _first_text(record, "outcome", "result", "decision", "voteResult") or _deep_first_text(record, "outcome") or _deep_first_text(record, "result")
@@ -234,6 +239,35 @@ def _deep_first_text(value: Any, target_key: str) -> str | None:
     return None
 
 
+def _compact_structure(value: Any, *, depth: int = 0, max_depth: int = 6) -> Any:
+    if depth >= max_depth:
+        return f"<{type(value).__name__}>"
+    if isinstance(value, Mapping):
+        return {str(key): _compact_structure(child, depth=depth + 1, max_depth=max_depth) for key, child in value.items()}
+    if isinstance(value, list):
+        return {"type": "list", "length": len(value), "first": _compact_structure(value[0], depth=depth + 1, max_depth=max_depth) if value else None}
+    if value is None:
+        return None
+    text = str(value)
+    return text[:160] + ("..." if len(text) > 160 else "")
+
+
+def _collection_summary(value: Any, *, prefix: str = "") -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            if isinstance(child, list):
+                first_type = type(child[0]).__name__ if child else None
+                first_keys = sorted(child[0].keys()) if child and isinstance(child[0], Mapping) else []
+                rows.append({"path": path, "length": len(child), "first_type": first_type, "first_keys": first_keys})
+            rows.extend(_collection_summary(child, prefix=path))
+    elif isinstance(value, list):
+        for child in value[:1]:
+            rows.extend(_collection_summary(child, prefix=f"{prefix}[]"))
+    return rows[:50]
+
+
 def _dedupe_rows(rows: list[dict[str, Any]], *, primary_key: str) -> list[dict[str, Any]]:
     seen: set[str] = set()
     deduped: list[dict[str, Any]] = []
@@ -279,7 +313,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     }
 
 
-def _key_paths(value: Any, *, prefix: str = "", depth: int = 0, max_depth: int = 8) -> set[str]:
+def _key_paths(value: Any, *, prefix: str = "", depth: int = 0, max_depth: int = 9) -> set[str]:
     if depth >= max_depth:
         return set()
     paths: set[str] = set()
