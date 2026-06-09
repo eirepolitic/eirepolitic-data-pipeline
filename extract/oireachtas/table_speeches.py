@@ -306,7 +306,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         unique_pk = bool(not df[pk].duplicated().any())
         debate_ok = bool(df["debate_id"].notna().all() and (df["debate_id"].astype(str).str.strip() != "").all())
         section_any = bool(df["debate_section_id"].notna().any())
-        order_ok = bool(df["speech_order"].notna().all() and not df["speech_order"].duplicated().any())
+        order_ok = bool(df["speech_order"].notna().all() and not df.duplicated(subset=["debate_id", "speech_order"]).any())
         text_ok = bool(df["speech_text"].notna().all() and (df["speech_text"].astype(str).str.strip() != "").all())
         counts_ok = bool((df["word_count"].fillna(0) > 0).all() and (df["char_count"].fillna(0) > 0).all())
         source_ok = bool(df["source_file_id"].notna().all() and df["xml_source_key"].notna().all())
@@ -324,7 +324,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "primary_key_unique", "status": "pass" if unique_pk else "fail"},
             {"check_name": "debate_id_populated", "status": "pass" if debate_ok else "fail"},
             {"check_name": "debate_section_id_any_populated", "status": "pass" if section_any else "fail"},
-            {"check_name": "speech_order_unique", "status": "pass" if order_ok else "fail"},
+            {"check_name": "speech_order_unique_per_debate", "status": "pass" if order_ok else "fail"},
             {"check_name": "speech_text_populated", "status": "pass" if text_ok else "fail"},
             {"check_name": "word_and_char_counts_positive", "status": "pass" if counts_ok else "fail"},
             {"check_name": "source_file_fields_populated", "status": "pass" if source_ok else "fail"},
