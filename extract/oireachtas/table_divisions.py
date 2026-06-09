@@ -159,22 +159,35 @@ def _normalise_division_row(item: Mapping[str, Any], *, snapshot_date: str) -> d
     division_id = division_uri or vote_id or f"generated:division:{stable_hash(record, length=24)}"
     context_date = parse_iso_date(item.get("contextDate"))
     division_date = parse_iso_date(record.get("date")) or parse_iso_date(record.get("voteDate")) or parse_iso_date(record.get("divisionDate")) or context_date
+
     house = _first_mapping(record, "house")
     chamber_record = _first_mapping(record, "chamber")
     house_uri = _first_text(house, "uri") or _first_text(chamber_record, "uri") or _deep_first_text(record, "houseUri")
     house_no = _first_text(house, "houseNo", "number") or _deep_first_text(record, "houseNo")
     chamber = _first_text(house, "houseCode", "chamberCode", "showAs") or _first_text(chamber_record, "houseCode", "chamberCode", "showAs") or _deep_first_text(record, "chamberCode")
+
     debate = _first_mapping(record, "debate", "debateRecord")
-    debate_section = _first_mapping(record, "debateSection")
     debate_uri = _first_text(debate, "uri", "debateUri") or _deep_first_text(record, "debateUri")
+    debate_section = _first_mapping(record, "debateSection")
     debate_section_uri = _first_text(debate_section, "uri", "sectionUri") or _deep_first_text(record, "debateSectionUri")
-    section_eid = _first_text(debate_section, "debateSectionId", "sectionId", "eId") or _deep_first_text(record, "debateSectionId")
+    section_eid = (
+        _text_value(debate.get("debateSection"))
+        or _first_text(debate_section, "debateSectionId", "sectionId", "eId")
+        or _deep_first_text(record, "debateSectionId")
+    )
     if not debate_section_uri and section_eid and debate_uri:
         debate_section_uri = f"{debate_uri.rsplit('/', 1)[0]}/{section_eid}"
     debate_show_as = _first_text(debate_section, "showAs", "heading", "title") or _first_text(debate, "showAs", "title") or _deep_first_text(record, "debateShowAs")
-    subject = _first_text(record, "subject", "showAs", "title", "motion", "question") or _deep_first_text(record, "subject") or _deep_first_text(record, "showAs")
+
+    subject_record = _first_mapping(record, "subject")
+    subject = (
+        _first_text(subject_record, "showAs", "title", "text", "name")
+        or _first_text(record, "subject", "showAs", "title", "motion", "question")
+        or _deep_first_text(record, "subjectText")
+    )
     outcome = _first_text(record, "outcome", "result", "decision", "voteResult") or _deep_first_text(record, "outcome") or _deep_first_text(record, "result")
-    committee_code = _first_text(record, "committeeCode") or _deep_first_text(record, "committeeCode") or _deep_first_text(record, "committeeId")
+    committee_code = _first_text(house, "committeeCode") or _first_text(record, "committeeCode") or _deep_first_text(record, "committeeId")
+
     return {
         "division_id": division_id,
         "vote_id": vote_id,
@@ -212,21 +225,24 @@ def _first_mapping(mapping: Mapping[str, Any], *keys: str) -> Mapping[str, Any]:
 def _first_text(mapping: Mapping[str, Any], *keys: str) -> str | None:
     for key in keys:
         value = mapping.get(key)
-        if value is None or isinstance(value, (dict, list)):
-            continue
-        text = str(value).strip()
+        text = _text_value(value)
         if text:
             return text
     return None
 
 
+def _text_value(value: Any) -> str | None:
+    if value is None or isinstance(value, (dict, list)):
+        return None
+    text = str(value).strip()
+    return text or None
+
+
 def _deep_first_text(value: Any, target_key: str) -> str | None:
     if isinstance(value, Mapping):
-        direct = value.get(target_key)
-        if direct is not None and not isinstance(direct, (dict, list)):
-            text = str(direct).strip()
-            if text:
-                return text
+        direct = _text_value(value.get(target_key))
+        if direct:
+            return direct
         for child in value.values():
             found = _deep_first_text(child, target_key)
             if found:
@@ -285,7 +301,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = date_ok = house_ok = subject_ok = outcome_any = False
+        non_null_pk = unique_pk = date_ok = house_ok = subject_ok = outcome_any = section_any = False
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
@@ -293,7 +309,8 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         house_ok = bool(df["house_uri"].notna().all() and (df["house_uri"].astype(str).str.strip() != "").all())
         subject_ok = bool(df["subject"].notna().all() and (df["subject"].astype(str).str.strip() != "").all())
         outcome_any = bool(df["outcome"].notna().any() and (df["outcome"].astype(str).str.strip() != "").any())
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, date_ok, house_ok, subject_ok, outcome_any]) else "fail"
+        section_any = bool(df["debate_section_id"].notna().any() and (df["debate_section_id"].astype(str).str.strip() != "").any())
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, date_ok, house_ok, subject_ok, outcome_any, section_any]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
@@ -309,6 +326,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "house_uri_populated", "status": "pass" if house_ok else "fail"},
             {"check_name": "subject_populated", "status": "pass" if subject_ok else "fail"},
             {"check_name": "outcome_any_populated", "status": "pass" if outcome_any else "fail"},
+            {"check_name": "debate_section_id_any_populated", "status": "pass" if section_any else "fail"},
         ],
     }
 
