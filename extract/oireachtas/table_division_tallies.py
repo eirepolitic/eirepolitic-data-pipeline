@@ -76,11 +76,7 @@ def build_silver_division_tallies(
         record = _record(item)
         division_id = _division_id(record)
         tallies = record.get("tallies") if isinstance(record.get("tallies"), Mapping) else {}
-        category_rows = _normalise_tallies(
-            tallies,
-            division_id=division_id,
-            snapshot_date=snapshot_date,
-        )
+        category_rows = _normalise_tallies(tallies, division_id=division_id, snapshot_date=snapshot_date)
         rows.extend(category_rows)
         source_diagnostics.append(
             {
@@ -92,7 +88,8 @@ def build_silver_division_tallies(
         )
 
     rows = _dedupe_rows(rows, primary_key="division_tally_id")
-    df = pd.DataFrame(rows, columns=schema.columns)
+    diagnostic_df = pd.DataFrame(rows)
+    df = diagnostic_df.reindex(columns=schema.columns)
 
     raw_key = f"raw/oireachtas_unified/api/divisions/snapshot_date={snapshot_date}/run_id={run_id}/page-00000.json"
     csv_key = f"processed/oireachtas_unified/silver_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"
@@ -104,14 +101,9 @@ def build_silver_division_tallies(
     review_schema_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/schema.json"
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
 
-    dq = _dq_results(df, schema)
+    dq = _dq_results(df, diagnostic_df, schema)
     write_errors: list[str] = []
-    schema_payload = {
-        "table": TABLE_NAME,
-        "primary_key": schema.primary_key,
-        "columns": schema.columns,
-        "row_count": int(len(df)),
-    }
+    schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     s3_keys = {
         "raw_json": raw_key,
         "csv": csv_key,
@@ -173,30 +165,15 @@ def build_silver_division_tallies(
         manifest["write_errors"] = write_errors
 
     sample_df = df.head(10)
-    return TableBuildResult(
-        table=TABLE_NAME,
-        rows=sample_df.to_dict(orient="records"),
-        manifest=manifest,
-        schema=schema_payload,
-        dq=dq,
-        s3_keys=s3_keys,
-    )
+    return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
 
 
-def _normalise_tallies(
-    tallies: Mapping[str, Any],
-    *,
-    division_id: str,
-    snapshot_date: str,
-) -> list[dict[str, Any]]:
+def _normalise_tallies(tallies: Mapping[str, Any], *, division_id: str, snapshot_date: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for source_key, value in tallies.items():
         if not isinstance(value, Mapping):
             continue
-        vote_code, vote_label = VOTE_CATEGORY_MAP.get(
-            str(source_key),
-            (_generic_vote_code(str(source_key)), _generic_vote_label(str(source_key))),
-        )
+        vote_code, vote_label = VOTE_CATEGORY_MAP.get(str(source_key), (_generic_vote_code(str(source_key)), _generic_vote_label(str(source_key))))
         members = value.get("members")
         members_list = members if isinstance(members, list) else []
         api_tally = _to_non_negative_int(value.get("tally"))
@@ -239,8 +216,7 @@ def _generic_vote_code(source_key: str) -> str:
 
 
 def _generic_vote_label(source_key: str) -> str:
-    code = _generic_vote_code(source_key)
-    return code.replace("_", " ")
+    return _generic_vote_code(source_key).replace("_", " ")
 
 
 def _to_non_negative_int(value: Any) -> int | None:
@@ -266,14 +242,7 @@ def _tally_member_mismatches(rows: list[dict[str, Any]]) -> list[dict[str, Any]]
         api_tally = row.get("_api_tally")
         members_length = row.get("_members_length")
         if api_tally is not None and members_length is not None and api_tally != members_length:
-            mismatches.append(
-                {
-                    "division_id": row.get("division_id"),
-                    "vote_code": row.get("vote_code"),
-                    "api_tally": api_tally,
-                    "members_length": members_length,
-                }
-            )
+            mismatches.append({"division_id": row.get("division_id"), "vote_code": row.get("vote_code"), "api_tally": api_tally, "members_length": members_length})
     return mismatches
 
 
@@ -289,7 +258,7 @@ def _dedupe_rows(rows: list[dict[str, Any]], *, primary_key: str) -> list[dict[s
     return deduped
 
 
-def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
+def _dq_results(df: pd.DataFrame, diagnostic_df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     pk = schema.primary_key[0]
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
@@ -305,26 +274,14 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         show_as_ok = bool(df["show_as"].notna().all() and (df["show_as"].astype(str).str.strip() != "").all())
         numeric_counts = pd.to_numeric(df["member_count"], errors="coerce")
         count_ok = bool(numeric_counts.notna().all() and (numeric_counts >= 0).all())
-        api_tallies = pd.to_numeric(df["_api_tally"], errors="coerce")
-        member_lengths = pd.to_numeric(df["_members_length"], errors="coerce")
+        api_tallies = pd.to_numeric(diagnostic_df["_api_tally"], errors="coerce")
+        member_lengths = pd.to_numeric(diagnostic_df["_members_length"], errors="coerce")
         comparable = api_tallies.notna() & member_lengths.notna()
         mismatch_ok = bool((api_tallies[comparable] == member_lengths[comparable]).all())
         required = {"ta", "nil", "staon"}
         division_count = int(df["division_id"].nunique())
         categories_ok = all(required.issubset(set(group["vote_code"].astype(str))) for _, group in df.groupby("division_id"))
-    status = "pass" if all([
-        row_count > 0,
-        not missing_columns,
-        non_null_pk,
-        unique_pk,
-        division_ok,
-        code_ok,
-        label_ok,
-        show_as_ok,
-        count_ok,
-        mismatch_ok,
-        categories_ok,
-    ]) else "fail"
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, division_ok, code_ok, label_ok, show_as_ok, count_ok, mismatch_ok, categories_ok]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
