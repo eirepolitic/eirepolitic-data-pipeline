@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-10  
-**Current packet:** T16 — `silver_questions`
+**Current packet:** T17 — `silver_bills`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -71,65 +71,77 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - API tally values matched member-array lengths for all rows.
 
 ### T15 — `silver_member_votes`
-
-- Builder: `extract/oireachtas/table_member_votes.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27291681684`
-- Run number: 31
-- Result: success
-- Raw division rows: 3
-- Output member-vote rows: 512
-- Expected rows from T14 tallies: 512
-- Division count: 3
-- Distinct member codes: 172
-- PK: `member_vote_id`, unique
-- DQ: pass
-- Canonical endpoint `/divisions` used; `/votes` fallback not used.
-- Grain: one row per `division.tallies.*.members[].member` vote.
-- Stable member-vote IDs use a hash of `division_id`, `member_code`, and normalized `vote_code`.
-- Confirmed vote codes present in this sample: `ta` and `nil`; `staon` had zero member rows in all three divisions.
-- Per-division totals:
-  - `vote_164`: 172 rows = 95 Tá + 77 Níl.
-  - `vote_2`: 171 rows = 95 Tá + 76 Níl.
-  - `vote_3`: 169 rows = 97 Tá + 72 Níl.
-- No duplicate member codes within any division.
-- Exactly one vote row per member per division.
-- All member codes, member names, vote IDs, division IDs, dates, vote codes, and vote labels are populated.
-- `party_name_at_vote` and `constituency_name_at_vote` are blank because the division payload does not provide them; these remain for later temporal enrichment.
-- Final run ID: `silver_member_votes_20260610T165200Z`.
-- Review:
-  - `review/silver_member_votes/latest/manifest.json`
-  - `review/silver_member_votes/latest/sample.csv`
-  - `review/silver_member_votes/latest/dq.json`
-- Operational note: several workflow dispatch/write attempts briefly returned GitHub `401 Requires authentication`; retry succeeded without any configuration change. Treat this as a transient action-authentication failure unless it recurs consistently.
-
-## Next packet
+- Final run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass.
+- Expected rows from T14 tallies: 512.
+- No duplicate member vote per division.
+- `party_name_at_vote` and `constituency_name_at_vote` remain blank because the division payload does not expose them.
 
 ### T16 — `silver_questions`
 
+- Builder: `extract/oireachtas/table_questions.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27292008182`
+- Run number: 32
+- Result: success
+- Raw question rows: 10
+- Output rows: 10
+- PK: `question_id`, unique
+- DQ: pass
+- Endpoint: `/questions?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
+- Confirmed API shape:
+  - wrapper: `question`;
+  - identity: `question.uri`;
+  - date/number/type: `question.date`, `question.questionNumber`, `question.questionType`;
+  - text: `question.showAs`;
+  - asker: `question.by.{memberCode,showAs,uri}`;
+  - recipient: `question.to.{showAs,roleCode,roleType,uri}`;
+  - debate section: `question.debateSection.{uri,debateSectionId,showAs}`;
+  - formats: `question.debateSection.formats.{xml,pdf}`.
+- All 10 rows were `written` questions dated 2025-01-22.
+- All question IDs, dates, numbers, texts, asker member codes/names, recipients, debate-section IDs, XML URIs and XML source-file IDs were populated.
+- XML source-file IDs use the same T09 hash formula and matched the known T09 sample IDs, including:
+  - `pq_1` → `source_file:319b4198732329ee813cf7e4`;
+  - `pq_2` → `source_file:a478282a299281cb94f781b3`;
+  - `pq_3` → `source_file:75d7aaebfb0dfe95e5245fc9`;
+  - `pq_4` → `source_file:213f2c82a61debdb4586bd48`;
+  - `pq_5` → `source_file:58dd1ddab0310b6eaaa2318e`;
+  - `pq_6` → `source_file:c99911fbbe6b272b50adb08b`.
+- The API response did not include answer text, so `answer_text` is blank for all 10 rows.
+- PDF formats were null, so PDF URI/URL/source-file fields are blank.
+- Question debate-section URIs point to `/writtens/dbsect_*`; they are stable source identifiers but are not present in the T11 oral/main debate-section test sample. A later written-question XML packet may expand section coverage and answer text extraction.
+- Final run ID: `silver_questions_20260610T165735Z`.
+- Review:
+  - `review/silver_questions/latest/manifest.json`
+  - `review/silver_questions/latest/sample.csv`
+  - `review/silver_questions/latest/dq.json`
+
+## Next packet
+
+### T17 — `silver_bills`
+
 Goal:
 
-- build one row per parliamentary question from `/questions`;
-- inspect and normalize question identity, date, number, type/status, subject/text, asker/member references, department/recipient, answer metadata, debate-section links, and source XML/PDF references;
-- preserve joins to `silver_members`, `silver_debate_sections`, and `silver_source_files` where the API provides stable identifiers;
-- reuse T09 source-file ID hashing for question XML/PDF references;
+- build one row per bill from `/legislation`;
+- normalize bill identity, number/year, titles, origin house, bill type, status, introduction date, and latest event date;
+- preserve joins to `silver_houses` through `origin_house_uri`;
+- inspect sponsors, stages, versions, debates, related documents, and events for T18/T19;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate primary-key uniqueness, dates, question text/subject, member references, and source-file joins.
+- validate primary-key uniqueness, bill number/year/title, origin house, status, and date fields.
 
 Expected files:
 
-- `extract/oireachtas/table_questions.py`
+- `extract/oireachtas/table_bills.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_questions`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bills`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_questions \
+  --table silver_bills \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -143,7 +155,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T16 — silver_questions.
-Workflow default currently points to silver_member_votes.
-Inspect the actual /questions wrapper and nested answer/member/format shapes before finalizing parsing.
+Start T17 — silver_bills.
+Workflow default currently points to silver_questions.
+Use /legislation and inspect actual bill/date/event/version shapes before finalizing parsing.
 ```
