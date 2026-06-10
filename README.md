@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `silver_division_tallies`
-- `review/silver_division_tallies/latest/sample.csv`
-- `review/silver_division_tallies/latest/sample.md`
-- `review/silver_division_tallies/latest/manifest.json`
-- `review/silver_division_tallies/latest/schema.json`
-- `review/silver_division_tallies/latest/dq.json`
+### `silver_member_votes`
+- `review/silver_member_votes/latest/sample.csv`
+- `review/silver_member_votes/latest/sample.md`
+- `review/silver_member_votes/latest/manifest.json`
+- `review/silver_member_votes/latest/schema.json`
+- `review/silver_member_votes/latest/dq.json`
