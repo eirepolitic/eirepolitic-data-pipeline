@@ -28,6 +28,7 @@ from .table_member_parties import TABLE_NAME as MEMBER_PARTIES_TABLE, build_silv
 from .table_member_votes import TABLE_NAME as MEMBER_VOTES_TABLE, build_silver_member_votes
 from .table_members import TABLE_NAME as MEMBERS_TABLE, build_silver_members
 from .table_parties import TABLE_NAME as PARTIES_TABLE, build_silver_parties
+from .table_questions import TABLE_NAME as QUESTIONS_TABLE, build_silver_questions
 from .table_source_files import TABLE_NAME as SOURCE_FILES_TABLE, build_silver_source_files
 from .table_speeches import TABLE_NAME as SPEECHES_TABLE, build_silver_speeches
 
@@ -146,6 +147,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_division_tallies(**filtered, date_start=args.date_start, date_end=args.date_end)
     elif args.table == MEMBER_VOTES_TABLE:
         result = build_silver_member_votes(**filtered, date_start=args.date_start, date_end=args.date_end)
+    elif args.table == QUESTIONS_TABLE:
+        result = build_silver_questions(**filtered, date_start=args.date_start, date_end=args.date_end)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
