@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-06-09  
-**Current packet:** T15 — `silver_member_votes`
+**Last updated:** 2026-06-10  
+**Current packet:** T16 — `silver_questions`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -26,142 +26,110 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 ## Confirmed table packets
 
 ### T01 — `silver_houses`
-- Builder: `extract/oireachtas/table_houses.py`
 - Run `26847237939`; 25 rows; PK `house_uri`; DQ pass.
 
 ### T02 — `silver_constituencies`
-- Builder: `extract/oireachtas/table_constituencies.py`
 - Run `27069529002`; 43 Dáil 34 rows; PK `constituency_uri`; DQ pass.
 
 ### T03 — `silver_parties`
-- Builder: `extract/oireachtas/table_parties.py`
 - Run `27069711527`; 11 Dáil 34 rows; PK `party_uri`; DQ pass.
 
 ### T04 — `silver_members`
-- Builder: `extract/oireachtas/table_members.py`
 - Run `27070132888`; 25 test rows; PK `member_code`; DQ pass.
 
 ### T05 — `silver_member_memberships`
-- Builder: `extract/oireachtas/table_member_memberships.py`
 - Run `27070298915`; 25 rows; PK `membership_id`; DQ pass.
 
 ### T06 — `silver_member_parties`
-- Builder: `extract/oireachtas/table_member_parties.py`
 - Run `27097902733`; 25 rows; PK `member_party_id`; DQ pass.
 
 ### T07 — `silver_member_constituencies`
-- Builder: `extract/oireachtas/table_member_constituencies.py`
 - Run `27098119595`; 25 rows; PK `member_constituency_id`; DQ pass.
 
 ### T08 — `silver_member_offices`
-- Builder: `extract/oireachtas/table_member_offices.py`
-- Final run `27098313330`; 77 rows from 176 Dáil 34 members; PK `member_office_id`; DQ pass.
-- Actual office name shape: `officeName.showAs`.
+- Final run `27098313330`; 77 rows; PK `member_office_id`; DQ pass.
 
 ### T09 — `silver_source_files`
-- Builder: `extract/oireachtas/table_source_files.py`
 - Final run `27098621113`; 25 rows; PK `source_file_id`; DQ pass.
-- Metadata-only source inventory across debates, questions, and legislation.
-- Null-only format containers are skipped.
 
 ### T10 — `silver_debate_records`
-- Builder: `extract/oireachtas/table_debate_records.py`
 - Run `27098769263`; 2 rows; PK `debate_id`; DQ pass.
-- XML/PDF source IDs align with T09.
 
 ### T11 — `silver_debate_sections`
-- Builder: `extract/oireachtas/table_debate_sections.py`
 - Run `27099679458`; 8 rows; PK `debate_section_id`; DQ pass.
-- Section counts matched API metadata: 6 for 2025-01-23 and 2 for 2025-01-22.
 
 ### T12 — `silver_speeches`
-
-- Builders/helpers:
-  - `extract/oireachtas/table_speeches.py`
-  - `extract/oireachtas/xml_debates.py`
-- Final run: `27222202849`
-- Raw debate rows: 2
-- Output speech rows: 357
-- PK: `speech_id`, unique
-- DQ: pass
-- Speaker member-code enrichment: 344 of 357 rows, 96.36%.
-- XML files persisted under deterministic T09-compatible S3 keys.
-- Source IDs align with T09/T10.
+- Final run `27222202849`; 357 rows; PK `speech_id`; DQ pass.
+- Speaker member-code enrichment: 344/357 rows, 96.36%.
 
 ### T13 — `silver_divisions`
-
-- Builder: `extract/oireachtas/table_divisions.py`
-- Final run: `27222935479`
-- Raw rows: 3
-- Output rows: 3
-- PK: `division_id`, unique
-- DQ: pass
-- Canonical endpoint `/divisions` used; `/votes` fallback not used.
-- Confirmed event subject, outcome, house, debate and debate-section parsing.
-- `division.debate.debateSection` is a scalar EID; parser derives the full T11-compatible section URI.
-- Confirmed tally/member shape under `division.tallies.{taVotes,nilVotes,staonVotes}`.
+- Final run `27222935479`; 3 rows; PK `division_id`; DQ pass.
+- Canonical `/divisions` used; `/votes` fallback not used.
 
 ### T14 — `silver_division_tallies`
-
-- Builder: `extract/oireachtas/table_division_tallies.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27236879805`
-- Run number: 30
-- Result: success
-- Raw division rows: 3
-- Output tally rows: 9
-- Division count: 3
-- PK: `division_tally_id`, unique
-- DQ: pass
-- Canonical endpoint `/divisions` used; `/votes` fallback not used.
-- Grain: one row per division and tally category.
-- Confirmed standard categories for every division:
-  - `ta` / `yes` / `Tá`
-  - `nil` / `no` / `Níl`
-  - `staon` / `abstain` / `Staon`
-- Stable tally IDs use a hash of `division_id` and normalized `vote_code`.
-- Counts validated as non-negative.
-- API `tally` values matched `members[]` lengths for all 9 rows; mismatch list was empty.
-- Test counts:
-  - `vote_164`: Tá 95, Níl 77, Staon 0.
-  - `vote_2`: Tá 95, Níl 76, Staon 0.
-  - `vote_3`: Tá 97, Níl 72, Staon 0.
-- Generic category fallback is supported for future API categories beyond the three confirmed values.
-- Final run ID: `silver_division_tallies_20260609T212658Z`.
-- Review:
-  - `review/silver_division_tallies/latest/manifest.json`
-  - `review/silver_division_tallies/latest/sample.csv`
-  - `review/silver_division_tallies/latest/dq.json`
-
-## Next packet
+- Final run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass.
+- API tally values matched member-array lengths for all rows.
 
 ### T15 — `silver_member_votes`
 
+- Builder: `extract/oireachtas/table_member_votes.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27291681684`
+- Run number: 31
+- Result: success
+- Raw division rows: 3
+- Output member-vote rows: 512
+- Expected rows from T14 tallies: 512
+- Division count: 3
+- Distinct member codes: 172
+- PK: `member_vote_id`, unique
+- DQ: pass
+- Canonical endpoint `/divisions` used; `/votes` fallback not used.
+- Grain: one row per `division.tallies.*.members[].member` vote.
+- Stable member-vote IDs use a hash of `division_id`, `member_code`, and normalized `vote_code`.
+- Confirmed vote codes present in this sample: `ta` and `nil`; `staon` had zero member rows in all three divisions.
+- Per-division totals:
+  - `vote_164`: 172 rows = 95 Tá + 77 Níl.
+  - `vote_2`: 171 rows = 95 Tá + 76 Níl.
+  - `vote_3`: 169 rows = 97 Tá + 72 Níl.
+- No duplicate member codes within any division.
+- Exactly one vote row per member per division.
+- All member codes, member names, vote IDs, division IDs, dates, vote codes, and vote labels are populated.
+- `party_name_at_vote` and `constituency_name_at_vote` are blank because the division payload does not provide them; these remain for later temporal enrichment.
+- Final run ID: `silver_member_votes_20260610T165200Z`.
+- Review:
+  - `review/silver_member_votes/latest/manifest.json`
+  - `review/silver_member_votes/latest/sample.csv`
+  - `review/silver_member_votes/latest/dq.json`
+- Operational note: several workflow dispatch/write attempts briefly returned GitHub `401 Requires authentication`; retry succeeded without any configuration change. Treat this as a transient action-authentication failure unless it recurs consistently.
+
+## Next packet
+
+### T16 — `silver_questions`
+
 Goal:
 
-- build one row per member vote from `division.tallies.*.members[].member`;
-- normalize `member_vote_id`, `division_id`, `vote_id`, `division_date`, `member_code`, `member_name`, `vote_code`, `vote_label`, party/constituency-at-vote fields, and snapshot date;
-- use confirmed normalized vote codes `ta`, `nil`, and `staon`, while supporting additional categories generically;
-- preserve joins to `silver_divisions.division_id` and `silver_members.member_code`;
-- derive deterministic member-vote IDs from division, member, and vote code;
-- validate row counts equal the sum of T14 tally counts, member codes are populated and unique within a division, and each member has at most one vote category per division;
-- populate party and constituency at vote only where the division payload provides them; otherwise leave blank for a later temporal enrichment join;
-- publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample.
+- build one row per parliamentary question from `/questions`;
+- inspect and normalize question identity, date, number, type/status, subject/text, asker/member references, department/recipient, answer metadata, debate-section links, and source XML/PDF references;
+- preserve joins to `silver_members`, `silver_debate_sections`, and `silver_source_files` where the API provides stable identifiers;
+- reuse T09 source-file ID hashing for question XML/PDF references;
+- publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
+- validate primary-key uniqueness, dates, question text/subject, member references, and source-file joins.
 
 Expected files:
 
-- `extract/oireachtas/table_member_votes.py`
+- `extract/oireachtas/table_questions.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_member_votes`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_questions`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_member_votes \
+  --table silver_questions \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -175,7 +143,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T15 — silver_member_votes.
-Workflow default currently points to silver_division_tallies.
-Use division.tallies.*.members[].member from the confirmed T13/T14 payload.
+Start T16 — silver_questions.
+Workflow default currently points to silver_member_votes.
+Inspect the actual /questions wrapper and nested answer/member/format shapes before finalizing parsing.
 ```
