@@ -1,0 +1,62 @@
+{
+  "visual_id": "large_values",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "created_at": "2026-06-10T16:54:26.683610+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "case_id": "large_values",
+    "case_description": "Large values using compact automatic formatting",
+    "registry_path": "instagram/visuals/tests/table_card_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/table_card_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "sublabel": "sublabel"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "large_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "large_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Registered voters",
+      "value": "3850000",
+      "sublabel": "National roll"
+    },
+    {
+      "label": "First preferences",
+      "value": "1245000",
+      "sublabel": "Valid ballots"
+    },
+    {
+      "label": "Campaign spend",
+      "value": "845000",
+      "sublabel": "Declared total"
+    },
+    {
+      "label": "Social impressions",
+      "value": "12500000",
+      "sublabel": "Thirty days"
+    }
+  ],
+  "warnings": []
+}

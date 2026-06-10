@@ -1,0 +1,84 @@
+{
+  "visual_id": "overflow_cards",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "created_at": "2026-06-10T16:54:26.518753+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "case_id": "overflow_cards",
+    "case_description": "Ten cards; should truncate to template maximum",
+    "registry_path": "instagram/visuals/tests/table_card_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/table_card_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "sublabel": "sublabel"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "overflow_cards"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "overflow_cards"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Metric 1",
+      "value": "1",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 2",
+      "value": "2",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 3",
+      "value": "3",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 4",
+      "value": "4",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 5",
+      "value": "5",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 6",
+      "value": "6",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 7",
+      "value": "7",
+      "sublabel": "Test"
+    },
+    {
+      "label": "Metric 8",
+      "value": "8",
+      "sublabel": "Test"
+    }
+  ],
+  "warnings": [
+    "truncated_rows:10->8"
+  ]
+}

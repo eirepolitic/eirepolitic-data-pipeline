@@ -10,6 +10,7 @@ Contact sheets:
 - ranking_table_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/ranking_table_draft_v1/contact_sheet.png
 - choropleth_map_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/choropleth_map_draft_v1/contact_sheet.png
 - point_map_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/point_map_draft_v1/contact_sheet.png
+- table_card_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/table_card_draft_v1/contact_sheet.png
 
 Sample PNGs:
 - horizontal_bar_draft_v1/top_issues_horizontal_bar_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/horizontal_bar_draft_v1/png/top_issues_horizontal_bar_draft_v1.png
@@ -19,5 +20,6 @@ Sample PNGs:
 - ranking_table_draft_v1/candidate_ranking_table_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/ranking_table_draft_v1/png/candidate_ranking_table_draft_v1.png
 - choropleth_map_draft_v1/constituency_choropleth_map_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/choropleth_map_draft_v1/png/constituency_choropleth_map_draft_v1.png
 - point_map_draft_v1/campaign_locations_point_map_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/point_map_draft_v1/png/campaign_locations_point_map_draft_v1.png
+- table_card_draft_v1/key_metrics_table_card_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/table_card_draft_v1/png/key_metrics_table_card_draft_v1.png
 
 Review only: this does not publish, schedule, or approve Instagram content.

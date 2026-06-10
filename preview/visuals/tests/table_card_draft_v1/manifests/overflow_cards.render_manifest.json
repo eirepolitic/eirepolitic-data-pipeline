@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "overflow_cards",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "output_png": "generated_visual_tests/table_card_draft_v1/png/overflow_cards.png",
+  "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/overflow_cards.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_rows:10->8"
+  ],
+  "created_at": "2026-06-10T16:54:26.518753+00:00",
+  "description": "Ten cards; should truncate to template maximum"
+}

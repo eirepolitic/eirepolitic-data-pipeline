@@ -1,0 +1,67 @@
+{
+  "visual_id": "key_metrics_table_card_draft_v1",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "created_at": "2026-06-10T16:54:09.287369+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "sample_path": "instagram/visuals/samples/table_card_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/table_card_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "sublabel": "sublabel"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "04_cards"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "future_group_by_options": [
+      "constituency",
+      "party",
+      "candidate",
+      "county",
+      "issue_category",
+      "time_period"
+    ]
+  },
+  "source_note": "Source: realistic placeholder data for visual review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Seats won",
+      "value": "12",
+      "sublabel": "Current election"
+    },
+    {
+      "label": "Vote share",
+      "value": "37.4",
+      "sublabel": "National total"
+    },
+    {
+      "label": "First preferences",
+      "value": "84520",
+      "sublabel": "Valid ballots"
+    },
+    {
+      "label": "Constituencies led",
+      "value": "8",
+      "sublabel": "Count"
+    }
+  ],
+  "warnings": []
+}

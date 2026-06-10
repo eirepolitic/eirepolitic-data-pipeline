@@ -1,0 +1,88 @@
+{
+  "visual_id": "phone_readability_stress",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "created_at": "2026-06-10T16:54:26.826260+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "case_id": "phone_readability_stress",
+    "case_description": "Maximum cards with long labels, long sublabels, text, and wide values",
+    "registry_path": "instagram/visuals/tests/table_card_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/table_card_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "sublabel": "sublabel"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "phone_readability_stress"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "phone_readability_stress"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Percentage share of first preference votes nationally",
+      "value": "37.4",
+      "sublabel": "Percentage of valid first preference ballots cast nationwide"
+    },
+    {
+      "label": "Total number of parliamentary seats currently held",
+      "value": "12",
+      "sublabel": "Compared with the previous general election result across all constituencies"
+    },
+    {
+      "label": "Registered voters",
+      "value": "3850000",
+      "sublabel": "National electoral register"
+    },
+    {
+      "label": "Declared campaign expenditure",
+      "value": "845000",
+      "sublabel": "Latest filing period"
+    },
+    {
+      "label": "Leading policy issue",
+      "value": "Housing",
+      "sublabel": "Current public polling"
+    },
+    {
+      "label": "Net approval balance",
+      "value": "-12",
+      "sublabel": "Four-week rolling average"
+    },
+    {
+      "label": "Constituencies currently led",
+      "value": "8",
+      "sublabel": "Count"
+    },
+    {
+      "label": "National turnout",
+      "value": "61.2",
+      "sublabel": "Eligible voters"
+    }
+  ],
+  "warnings": [
+    "long_label:Percentage share of first preferen",
+    "long_sublabel:Percentage share of firs",
+    "long_label:Total number of parliamentary seat",
+    "long_sublabel:Total number of parliame",
+    "non_numeric_value:Leading policy issue"
+  ]
+}

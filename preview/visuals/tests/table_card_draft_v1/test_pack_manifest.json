@@ -1,0 +1,173 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/table_card_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/table_card_draft_v1.yml",
+  "case_count": 11,
+  "contact_sheet": "generated_visual_tests/table_card_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "02_cards",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/02_cards.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/02_cards.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.404103+00:00",
+      "description": "Two-card minimal grid"
+    },
+    {
+      "success": true,
+      "visual_id": "04_cards",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/04_cards.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/04_cards.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.437757+00:00",
+      "description": "Four-card balanced grid"
+    },
+    {
+      "success": true,
+      "visual_id": "08_cards",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/08_cards.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/08_cards.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.480805+00:00",
+      "description": "Eight-card target maximum grid"
+    },
+    {
+      "success": true,
+      "visual_id": "overflow_cards",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/overflow_cards.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/overflow_cards.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_rows:10->8"
+      ],
+      "created_at": "2026-06-10T16:54:26.518753+00:00",
+      "description": "Ten cards; should truncate to template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "long_labels",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/long_labels.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/long_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Total number of parliamentary seat",
+        "long_label:Percentage share of first preferen",
+        "long_label:Number of constituencies where the"
+      ],
+      "created_at": "2026-06-10T16:54:26.573390+00:00",
+      "description": "Long metric labels"
+    },
+    {
+      "success": true,
+      "visual_id": "long_sublabels",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/long_sublabels.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/long_sublabels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_sublabel:Seats won",
+        "long_sublabel:Vote share",
+        "long_sublabel:Turnout"
+      ],
+      "created_at": "2026-06-10T16:54:26.621952+00:00",
+      "description": "Long supporting descriptions"
+    },
+    {
+      "success": true,
+      "visual_id": "small_values",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/small_values.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/small_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.651015+00:00",
+      "description": "Small integer values"
+    },
+    {
+      "success": true,
+      "visual_id": "large_values",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/large_values.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/large_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.683610+00:00",
+      "description": "Large values using compact automatic formatting"
+    },
+    {
+      "success": true,
+      "visual_id": "mixed_text_values",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/mixed_text_values.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/mixed_text_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "non_numeric_value:Government status",
+        "non_numeric_value:Leading issue",
+        "non_numeric_value:Trend",
+        "non_numeric_value:Region"
+      ],
+      "created_at": "2026-06-10T16:54:26.715363+00:00",
+      "description": "Text values instead of numeric metrics"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_negative_values",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/zero_negative_values.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/zero_negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-10T16:54:26.746494+00:00",
+      "description": "Zero and negative metrics"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "table_card_draft_v1",
+      "renderer": "table_card",
+      "output_png": "generated_visual_tests/table_card_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/table_card_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Percentage share of first preferen",
+        "long_sublabel:Percentage share of firs",
+        "long_label:Total number of parliamentary seat",
+        "long_sublabel:Total number of parliame",
+        "non_numeric_value:Leading policy issue"
+      ],
+      "created_at": "2026-06-10T16:54:26.826260+00:00",
+      "description": "Maximum cards with long labels, long sublabels, text, and wide values"
+    }
+  ]
+}

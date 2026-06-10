@@ -1,0 +1,61 @@
+{
+  "visual_id": "long_labels",
+  "template_id": "table_card_draft_v1",
+  "renderer": "table_card",
+  "created_at": "2026-06-10T16:54:26.573390+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/table_card_draft_v1/data/cases.csv",
+    "case_id": "long_labels",
+    "case_description": "Long metric labels",
+    "registry_path": "instagram/visuals/tests/table_card_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/table_card_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "sublabel": "sublabel"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "rows_rendered": [
+    {
+      "label": "Total number of parliamentary seats currently held",
+      "value": "12",
+      "sublabel": "Current election"
+    },
+    {
+      "label": "Percentage share of first preference votes nationally",
+      "value": "37.4",
+      "sublabel": "National total"
+    },
+    {
+      "label": "Number of constituencies where the party finished first",
+      "value": "8",
+      "sublabel": "Count"
+    }
+  ],
+  "warnings": [
+    "long_label:Total number of parliamentary seat",
+    "long_label:Percentage share of first preferen",
+    "long_label:Number of constituencies where the"
+  ]
+}
