@@ -26,6 +26,7 @@ RENDERERS = {
     "ranking_table": "instagram.visuals.renderers.ranking_table",
     "choropleth_map": "instagram.visuals.renderers.choropleth_map",
     "point_map": "instagram.visuals.renderers.point_map",
+    "table_card": "instagram.visuals.renderers.table_card",
 }
 
 
@@ -64,17 +65,11 @@ def _render_case(
         "visual_id": case_id,
         "template": registry["template"],
         "description": case.get("description", ""),
-        "input": {
-            "mode": "local_csv",
-            "path": case["data"],
-        },
+        "input": {"mode": "local_csv", "path": case["data"]},
         "geography": case.get("geography", registry.get("geography", {})),
         "bindings": registry.get("bindings", {}),
         "filters": case.get("filters", []),
-        "grouping": {
-            "batch_enabled": False,
-            "test_case": case_id,
-        },
+        "grouping": {"batch_enabled": False, "test_case": case_id},
         "source_note": registry.get("source_note", ""),
         "attribution": registry.get("attribution", {}),
     }
@@ -121,11 +116,7 @@ def _fit_thumbnail(image: Image.Image, width: int, height: int) -> Image.Image:
     return canvas
 
 
-def build_contact_sheet(
-    manifests: list[dict[str, Any]],
-    output_root: Path,
-    columns: int = 3,
-) -> Path:
+def build_contact_sheet(manifests: list[dict[str, Any]], output_root: Path, columns: int = 3) -> Path:
     tile_width = 540
     image_height = 430
     header_height = 74
@@ -148,13 +139,7 @@ def build_contact_sheet(
         x = margin + column * (tile_width + gap)
         y = margin + row * (tile_height + gap)
 
-        draw.rounded_rectangle(
-            (x, y, x + tile_width, y + tile_height),
-            radius=18,
-            fill="#173d30",
-            outline="#f4ead7",
-            width=2,
-        )
+        draw.rounded_rectangle((x, y, x + tile_width, y + tile_height), radius=18, fill="#173d30", outline="#f4ead7", width=2)
         draw.text((x + 18, y + 12), case_id, font=title_font, fill="#f4ead7")
         warnings = manifest.get("warnings", []) or []
         warning_text = " · ".join(warnings) if warnings else "No warnings"
@@ -183,10 +168,7 @@ def run_test_pack(registry_path: str | Path, output_root: str | Path) -> dict[st
     template = load_yaml(template_path)
 
     output_root = Path(output_root)
-    manifests = [
-        _render_case(registry, template, case, output_root, registry_path)
-        for case in registry.get("cases", [])
-    ]
+    manifests = [_render_case(registry, template, case, output_root, registry_path) for case in registry.get("cases", [])]
     contact_sheet = build_contact_sheet(manifests, output_root)
 
     pack_manifest = {
@@ -203,14 +185,8 @@ def run_test_pack(registry_path: str | Path, output_root: str | Path) -> dict[st
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Render an Instagram visual variation test pack.")
-    parser.add_argument(
-        "--registry",
-        default="instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml",
-    )
-    parser.add_argument(
-        "--output-root",
-        default="generated_visual_tests/horizontal_bar_draft_v1",
-    )
+    parser.add_argument("--registry", default="instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml")
+    parser.add_argument("--output-root", default="generated_visual_tests/horizontal_bar_draft_v1")
     return parser.parse_args()
 
 
