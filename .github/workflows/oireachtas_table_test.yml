@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "silver_bill_stages"
+        default: "silver_bill_related_docs"
       mode:
         description: "Build mode"
         required: true
