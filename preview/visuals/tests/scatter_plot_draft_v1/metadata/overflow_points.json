@@ -1,0 +1,620 @@
+{
+  "visual_id": "overflow_points",
+  "template_id": "scatter_plot_draft_v1",
+  "renderer": "scatter_plot",
+  "created_at": "2026-06-11T06:22:17.065265+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "case_id": "overflow_points",
+    "case_description": "Eighty-one points; should truncate to template max",
+    "registry_path": "instagram/visuals/tests/scatter_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/scatter_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "size": "size",
+    "label": "label",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "overflow_points"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "overflow_points"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "point_count": 80,
+  "category_count": 1,
+  "x_range": {
+    "min": 0.0,
+    "max": 80.0
+  },
+  "y_range": {
+    "min": 0.0,
+    "max": 89.0
+  },
+  "size_range": {
+    "min": 0.0,
+    "max": 80.0
+  },
+  "rows_rendered": [
+    {
+      "x": 1.0,
+      "y": 10.0,
+      "size": 1.0,
+      "label": "P01",
+      "category": "Overflow"
+    },
+    {
+      "x": 2.0,
+      "y": 11.0,
+      "size": 2.0,
+      "label": "P02",
+      "category": "Overflow"
+    },
+    {
+      "x": 3.0,
+      "y": 12.0,
+      "size": 3.0,
+      "label": "P03",
+      "category": "Overflow"
+    },
+    {
+      "x": 4.0,
+      "y": 13.0,
+      "size": 4.0,
+      "label": "P04",
+      "category": "Overflow"
+    },
+    {
+      "x": 5.0,
+      "y": 14.0,
+      "size": 5.0,
+      "label": "P05",
+      "category": "Overflow"
+    },
+    {
+      "x": 6.0,
+      "y": 15.0,
+      "size": 6.0,
+      "label": "P06",
+      "category": "Overflow"
+    },
+    {
+      "x": 7.0,
+      "y": 16.0,
+      "size": 7.0,
+      "label": "P07",
+      "category": "Overflow"
+    },
+    {
+      "x": 8.0,
+      "y": 17.0,
+      "size": 8.0,
+      "label": "P08",
+      "category": "Overflow"
+    },
+    {
+      "x": 9.0,
+      "y": 18.0,
+      "size": 9.0,
+      "label": "P09",
+      "category": "Overflow"
+    },
+    {
+      "x": 10.0,
+      "y": 19.0,
+      "size": 10.0,
+      "label": "P10",
+      "category": "Overflow"
+    },
+    {
+      "x": 11.0,
+      "y": 20.0,
+      "size": 11.0,
+      "label": "P11",
+      "category": "Overflow"
+    },
+    {
+      "x": 12.0,
+      "y": 21.0,
+      "size": 12.0,
+      "label": "P12",
+      "category": "Overflow"
+    },
+    {
+      "x": 13.0,
+      "y": 22.0,
+      "size": 13.0,
+      "label": "P13",
+      "category": "Overflow"
+    },
+    {
+      "x": 14.0,
+      "y": 23.0,
+      "size": 14.0,
+      "label": "P14",
+      "category": "Overflow"
+    },
+    {
+      "x": 15.0,
+      "y": 24.0,
+      "size": 15.0,
+      "label": "P15",
+      "category": "Overflow"
+    },
+    {
+      "x": 16.0,
+      "y": 25.0,
+      "size": 16.0,
+      "label": "P16",
+      "category": "Overflow"
+    },
+    {
+      "x": 17.0,
+      "y": 26.0,
+      "size": 17.0,
+      "label": "P17",
+      "category": "Overflow"
+    },
+    {
+      "x": 18.0,
+      "y": 27.0,
+      "size": 18.0,
+      "label": "P18",
+      "category": "Overflow"
+    },
+    {
+      "x": 19.0,
+      "y": 28.0,
+      "size": 19.0,
+      "label": "P19",
+      "category": "Overflow"
+    },
+    {
+      "x": 20.0,
+      "y": 29.0,
+      "size": 20.0,
+      "label": "P20",
+      "category": "Overflow"
+    },
+    {
+      "x": 21.0,
+      "y": 30.0,
+      "size": 21.0,
+      "label": "P21",
+      "category": "Overflow"
+    },
+    {
+      "x": 22.0,
+      "y": 31.0,
+      "size": 22.0,
+      "label": "P22",
+      "category": "Overflow"
+    },
+    {
+      "x": 23.0,
+      "y": 32.0,
+      "size": 23.0,
+      "label": "P23",
+      "category": "Overflow"
+    },
+    {
+      "x": 24.0,
+      "y": 33.0,
+      "size": 24.0,
+      "label": "P24",
+      "category": "Overflow"
+    },
+    {
+      "x": 25.0,
+      "y": 34.0,
+      "size": 25.0,
+      "label": "P25",
+      "category": "Overflow"
+    },
+    {
+      "x": 26.0,
+      "y": 35.0,
+      "size": 26.0,
+      "label": "P26",
+      "category": "Overflow"
+    },
+    {
+      "x": 27.0,
+      "y": 36.0,
+      "size": 27.0,
+      "label": "P27",
+      "category": "Overflow"
+    },
+    {
+      "x": 28.0,
+      "y": 37.0,
+      "size": 28.0,
+      "label": "P28",
+      "category": "Overflow"
+    },
+    {
+      "x": 29.0,
+      "y": 38.0,
+      "size": 29.0,
+      "label": "P29",
+      "category": "Overflow"
+    },
+    {
+      "x": 30.0,
+      "y": 39.0,
+      "size": 30.0,
+      "label": "P30",
+      "category": "Overflow"
+    },
+    {
+      "x": 31.0,
+      "y": 40.0,
+      "size": 31.0,
+      "label": "P31",
+      "category": "Overflow"
+    },
+    {
+      "x": 32.0,
+      "y": 41.0,
+      "size": 32.0,
+      "label": "P32",
+      "category": "Overflow"
+    },
+    {
+      "x": 33.0,
+      "y": 42.0,
+      "size": 33.0,
+      "label": "P33",
+      "category": "Overflow"
+    },
+    {
+      "x": 34.0,
+      "y": 43.0,
+      "size": 34.0,
+      "label": "P34",
+      "category": "Overflow"
+    },
+    {
+      "x": 35.0,
+      "y": 44.0,
+      "size": 35.0,
+      "label": "P35",
+      "category": "Overflow"
+    },
+    {
+      "x": 36.0,
+      "y": 45.0,
+      "size": 36.0,
+      "label": "P36",
+      "category": "Overflow"
+    },
+    {
+      "x": 37.0,
+      "y": 46.0,
+      "size": 37.0,
+      "label": "P37",
+      "category": "Overflow"
+    },
+    {
+      "x": 38.0,
+      "y": 47.0,
+      "size": 38.0,
+      "label": "P38",
+      "category": "Overflow"
+    },
+    {
+      "x": 39.0,
+      "y": 48.0,
+      "size": 39.0,
+      "label": "P39",
+      "category": "Overflow"
+    },
+    {
+      "x": 40.0,
+      "y": 49.0,
+      "size": 40.0,
+      "label": "P40",
+      "category": "Overflow"
+    },
+    {
+      "x": 41.0,
+      "y": 50.0,
+      "size": 41.0,
+      "label": "P41",
+      "category": "Overflow"
+    },
+    {
+      "x": 42.0,
+      "y": 51.0,
+      "size": 42.0,
+      "label": "P42",
+      "category": "Overflow"
+    },
+    {
+      "x": 43.0,
+      "y": 52.0,
+      "size": 43.0,
+      "label": "P43",
+      "category": "Overflow"
+    },
+    {
+      "x": 44.0,
+      "y": 53.0,
+      "size": 44.0,
+      "label": "P44",
+      "category": "Overflow"
+    },
+    {
+      "x": 45.0,
+      "y": 54.0,
+      "size": 45.0,
+      "label": "P45",
+      "category": "Overflow"
+    },
+    {
+      "x": 46.0,
+      "y": 55.0,
+      "size": 46.0,
+      "label": "P46",
+      "category": "Overflow"
+    },
+    {
+      "x": 47.0,
+      "y": 56.0,
+      "size": 47.0,
+      "label": "P47",
+      "category": "Overflow"
+    },
+    {
+      "x": 48.0,
+      "y": 57.0,
+      "size": 48.0,
+      "label": "P48",
+      "category": "Overflow"
+    },
+    {
+      "x": 49.0,
+      "y": 58.0,
+      "size": 49.0,
+      "label": "P49",
+      "category": "Overflow"
+    },
+    {
+      "x": 50.0,
+      "y": 59.0,
+      "size": 50.0,
+      "label": "P50",
+      "category": "Overflow"
+    },
+    {
+      "x": 51.0,
+      "y": 60.0,
+      "size": 51.0,
+      "label": "P51",
+      "category": "Overflow"
+    },
+    {
+      "x": 52.0,
+      "y": 61.0,
+      "size": 52.0,
+      "label": "P52",
+      "category": "Overflow"
+    },
+    {
+      "x": 53.0,
+      "y": 62.0,
+      "size": 53.0,
+      "label": "P53",
+      "category": "Overflow"
+    },
+    {
+      "x": 54.0,
+      "y": 63.0,
+      "size": 54.0,
+      "label": "P54",
+      "category": "Overflow"
+    },
+    {
+      "x": 55.0,
+      "y": 64.0,
+      "size": 55.0,
+      "label": "P55",
+      "category": "Overflow"
+    },
+    {
+      "x": 56.0,
+      "y": 65.0,
+      "size": 56.0,
+      "label": "P56",
+      "category": "Overflow"
+    },
+    {
+      "x": 57.0,
+      "y": 66.0,
+      "size": 57.0,
+      "label": "P57",
+      "category": "Overflow"
+    },
+    {
+      "x": 58.0,
+      "y": 67.0,
+      "size": 58.0,
+      "label": "P58",
+      "category": "Overflow"
+    },
+    {
+      "x": 59.0,
+      "y": 68.0,
+      "size": 59.0,
+      "label": "P59",
+      "category": "Overflow"
+    },
+    {
+      "x": 60.0,
+      "y": 69.0,
+      "size": 60.0,
+      "label": "P60",
+      "category": "Overflow"
+    },
+    {
+      "x": 61.0,
+      "y": 70.0,
+      "size": 61.0,
+      "label": "P61",
+      "category": "Overflow"
+    },
+    {
+      "x": 62.0,
+      "y": 71.0,
+      "size": 62.0,
+      "label": "P62",
+      "category": "Overflow"
+    },
+    {
+      "x": 63.0,
+      "y": 72.0,
+      "size": 63.0,
+      "label": "P63",
+      "category": "Overflow"
+    },
+    {
+      "x": 64.0,
+      "y": 73.0,
+      "size": 64.0,
+      "label": "P64",
+      "category": "Overflow"
+    },
+    {
+      "x": 65.0,
+      "y": 74.0,
+      "size": 65.0,
+      "label": "P65",
+      "category": "Overflow"
+    },
+    {
+      "x": 66.0,
+      "y": 75.0,
+      "size": 66.0,
+      "label": "P66",
+      "category": "Overflow"
+    },
+    {
+      "x": 67.0,
+      "y": 76.0,
+      "size": 67.0,
+      "label": "P67",
+      "category": "Overflow"
+    },
+    {
+      "x": 68.0,
+      "y": 77.0,
+      "size": 68.0,
+      "label": "P68",
+      "category": "Overflow"
+    },
+    {
+      "x": 69.0,
+      "y": 78.0,
+      "size": 69.0,
+      "label": "P69",
+      "category": "Overflow"
+    },
+    {
+      "x": 70.0,
+      "y": 79.0,
+      "size": 70.0,
+      "label": "P70",
+      "category": "Overflow"
+    },
+    {
+      "x": 71.0,
+      "y": 80.0,
+      "size": 71.0,
+      "label": "P71",
+      "category": "Overflow"
+    },
+    {
+      "x": 72.0,
+      "y": 81.0,
+      "size": 72.0,
+      "label": "P72",
+      "category": "Overflow"
+    },
+    {
+      "x": 73.0,
+      "y": 82.0,
+      "size": 73.0,
+      "label": "P73",
+      "category": "Overflow"
+    },
+    {
+      "x": 74.0,
+      "y": 83.0,
+      "size": 74.0,
+      "label": "P74",
+      "category": "Overflow"
+    },
+    {
+      "x": 75.0,
+      "y": 84.0,
+      "size": 75.0,
+      "label": "P75",
+      "category": "Overflow"
+    },
+    {
+      "x": 76.0,
+      "y": 85.0,
+      "size": 76.0,
+      "label": "P76",
+      "category": "Overflow"
+    },
+    {
+      "x": 77.0,
+      "y": 86.0,
+      "size": 77.0,
+      "label": "P77",
+      "category": "Overflow"
+    },
+    {
+      "x": 78.0,
+      "y": 87.0,
+      "size": 78.0,
+      "label": "P78",
+      "category": "Overflow"
+    },
+    {
+      "x": 79.0,
+      "y": 88.0,
+      "size": 79.0,
+      "label": "P79",
+      "category": "Overflow"
+    },
+    {
+      "x": 80.0,
+      "y": 89.0,
+      "size": 80.0,
+      "label": "P80",
+      "category": "Overflow"
+    }
+  ],
+  "warnings": [
+    "truncated_points:81->80"
+  ]
+}

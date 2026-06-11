@@ -1,0 +1,184 @@
+{
+  "visual_id": "dense_points",
+  "template_id": "scatter_plot_draft_v1",
+  "renderer": "scatter_plot",
+  "created_at": "2026-06-11T06:22:16.476412+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "case_id": "dense_points",
+    "case_description": "Dense readable point cloud",
+    "registry_path": "instagram/visuals/tests/scatter_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/scatter_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "size": "size",
+    "label": "label",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "dense_points"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "dense_points"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "point_count": 18,
+  "category_count": 2,
+  "x_range": {
+    "min": 0.0,
+    "max": 78.0
+  },
+  "y_range": {
+    "min": 0.0,
+    "max": 67.0
+  },
+  "size_range": {
+    "min": 0.0,
+    "max": 20.0
+  },
+  "rows_rendered": [
+    {
+      "x": 10.0,
+      "y": 20.0,
+      "size": 3.0,
+      "label": "P01",
+      "category": "Group A"
+    },
+    {
+      "x": 14.0,
+      "y": 24.0,
+      "size": 4.0,
+      "label": "P02",
+      "category": "Group A"
+    },
+    {
+      "x": 18.0,
+      "y": 28.0,
+      "size": 5.0,
+      "label": "P03",
+      "category": "Group A"
+    },
+    {
+      "x": 22.0,
+      "y": 30.0,
+      "size": 6.0,
+      "label": "P04",
+      "category": "Group A"
+    },
+    {
+      "x": 26.0,
+      "y": 33.0,
+      "size": 7.0,
+      "label": "P05",
+      "category": "Group A"
+    },
+    {
+      "x": 30.0,
+      "y": 36.0,
+      "size": 8.0,
+      "label": "P06",
+      "category": "Group A"
+    },
+    {
+      "x": 34.0,
+      "y": 39.0,
+      "size": 9.0,
+      "label": "P07",
+      "category": "Group A"
+    },
+    {
+      "x": 38.0,
+      "y": 42.0,
+      "size": 10.0,
+      "label": "P08",
+      "category": "Group A"
+    },
+    {
+      "x": 42.0,
+      "y": 44.0,
+      "size": 11.0,
+      "label": "P09",
+      "category": "Group A"
+    },
+    {
+      "x": 46.0,
+      "y": 47.0,
+      "size": 12.0,
+      "label": "P10",
+      "category": "Group A"
+    },
+    {
+      "x": 50.0,
+      "y": 49.0,
+      "size": 13.0,
+      "label": "P11",
+      "category": "Group A"
+    },
+    {
+      "x": 54.0,
+      "y": 52.0,
+      "size": 14.0,
+      "label": "P12",
+      "category": "Group A"
+    },
+    {
+      "x": 58.0,
+      "y": 55.0,
+      "size": 15.0,
+      "label": "P13",
+      "category": "Group B"
+    },
+    {
+      "x": 62.0,
+      "y": 57.0,
+      "size": 16.0,
+      "label": "P14",
+      "category": "Group B"
+    },
+    {
+      "x": 66.0,
+      "y": 60.0,
+      "size": 17.0,
+      "label": "P15",
+      "category": "Group B"
+    },
+    {
+      "x": 70.0,
+      "y": 62.0,
+      "size": 18.0,
+      "label": "P16",
+      "category": "Group B"
+    },
+    {
+      "x": 74.0,
+      "y": 65.0,
+      "size": 19.0,
+      "label": "P17",
+      "category": "Group B"
+    },
+    {
+      "x": 78.0,
+      "y": 67.0,
+      "size": 20.0,
+      "label": "P18",
+      "category": "Group B"
+    }
+  ],
+  "warnings": []
+}

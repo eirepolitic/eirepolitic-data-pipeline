@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "overflow_points",
+  "template_id": "scatter_plot_draft_v1",
+  "renderer": "scatter_plot",
+  "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/overflow_points.png",
+  "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/overflow_points.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_points:81->80"
+  ],
+  "created_at": "2026-06-11T06:22:17.065265+00:00",
+  "description": "Eighty-one points; should truncate to template max"
+}

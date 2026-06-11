@@ -1,0 +1,173 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/scatter_plot_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/scatter_plot_draft_v1.yml",
+  "case_count": 11,
+  "contact_sheet": "generated_visual_tests/scatter_plot_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "few_points",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/few_points.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/few_points.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.260010+00:00",
+      "description": "Three-point minimal scatter"
+    },
+    {
+      "success": true,
+      "visual_id": "category_mix",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/category_mix.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/category_mix.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.346729+00:00",
+      "description": "Mixed point categories and legend"
+    },
+    {
+      "success": true,
+      "visual_id": "dense_points",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/dense_points.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/dense_points.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.476412+00:00",
+      "description": "Dense readable point cloud"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_size_range",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/wide_size_range.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/wide_size_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.561808+00:00",
+      "description": "Bubble sizes spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_xy_range",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/tight_xy_range.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/tight_xy_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.630503+00:00",
+      "description": "X and Y values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "outliers",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/outliers.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/outliers.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:22:16.701619+00:00",
+      "description": "High and low outlier positions"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:22:16.789887+00:00",
+      "description": "Negative x/y/size values and warnings"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_xy:Missing X",
+        "missing_or_invalid_xy:Missing Y",
+        "missing_or_invalid_size:Missing Size",
+        "missing_or_invalid_size:Bad Size"
+      ],
+      "created_at": "2026-06-11T06:22:16.873450+00:00",
+      "description": "Missing and invalid x/y/size values"
+    },
+    {
+      "success": true,
+      "visual_id": "long_labels",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/long_labels.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/long_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Dublin Bay South Campaign Offi",
+        "long_label:Cork North Central Regional Hu",
+        "long_label:Galway West Coastal Constituen"
+      ],
+      "created_at": "2026-06-11T06:22:16.943392+00:00",
+      "description": "Long point labels"
+    },
+    {
+      "success": true,
+      "visual_id": "overflow_points",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/overflow_points.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/overflow_points.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_points:81->80"
+      ],
+      "created_at": "2026-06-11T06:22:17.065265+00:00",
+      "description": "Eighty-one points; should truncate to template max"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "scatter_plot_draft_v1",
+      "renderer": "scatter_plot",
+      "output_png": "generated_visual_tests/scatter_plot_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/scatter_plot_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Dublin Bay South Campaign Offi",
+        "long_label:Cork North Central Regional Hu",
+        "long_label:Galway West Coastal Constituen",
+        "long_label:Affordable rental accommodatio",
+        "long_label:Emergency department waiting t"
+      ],
+      "created_at": "2026-06-11T06:22:17.158062+00:00",
+      "description": "Categories, outliers, long labels, and wide sizes"
+    }
+  ]
+}

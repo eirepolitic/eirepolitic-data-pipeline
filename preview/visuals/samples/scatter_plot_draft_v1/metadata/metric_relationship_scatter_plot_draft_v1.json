@@ -1,0 +1,105 @@
+{
+  "visual_id": "metric_relationship_scatter_plot_draft_v1",
+  "template_id": "scatter_plot_draft_v1",
+  "renderer": "scatter_plot",
+  "created_at": "2026-06-11T06:21:52.731318+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "sample_path": "instagram/visuals/samples/scatter_plot_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/scatter_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "size": "size",
+    "label": "label",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "category_mix"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "future_group_by_options": [
+      "constituency",
+      "party",
+      "candidate",
+      "county",
+      "issue_category",
+      "time_period"
+    ]
+  },
+  "source_note": "Source: realistic placeholder data for visual review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "point_count": 6,
+  "category_count": 2,
+  "x_range": {
+    "min": 0.0,
+    "max": 72.0
+  },
+  "y_range": {
+    "min": 0.0,
+    "max": 70.0
+  },
+  "size_range": {
+    "min": 0.0,
+    "max": 18.0
+  },
+  "rows_rendered": [
+    {
+      "x": 20.0,
+      "y": 35.0,
+      "size": 12.0,
+      "label": "Party A",
+      "category": "Party"
+    },
+    {
+      "x": 42.0,
+      "y": 28.0,
+      "size": 8.0,
+      "label": "Party B",
+      "category": "Party"
+    },
+    {
+      "x": 65.0,
+      "y": 52.0,
+      "size": 18.0,
+      "label": "Party C",
+      "category": "Party"
+    },
+    {
+      "x": 30.0,
+      "y": 70.0,
+      "size": 5.0,
+      "label": "Issue A",
+      "category": "Issue"
+    },
+    {
+      "x": 72.0,
+      "y": 18.0,
+      "size": 6.0,
+      "label": "Issue B",
+      "category": "Issue"
+    },
+    {
+      "x": 55.0,
+      "y": 44.0,
+      "size": 10.0,
+      "label": "Issue C",
+      "category": "Issue"
+    }
+  ],
+  "warnings": []
+}

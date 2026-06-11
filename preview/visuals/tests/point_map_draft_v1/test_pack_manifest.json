@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.505069+00:00",
+      "created_at": "2026-06-11T06:22:08.209762+00:00",
       "description": "Three-point minimal map"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.539763+00:00",
+      "created_at": "2026-06-11T06:22:08.244167+00:00",
       "description": "Dense point map"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.571674+00:00",
+      "created_at": "2026-06-11T06:22:08.276506+00:00",
       "description": "Mixed point categories and legend"
     },
     {
@@ -54,7 +54,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.601765+00:00",
+      "created_at": "2026-06-11T06:22:08.306979+00:00",
       "description": "Similar point values"
     },
     {
@@ -67,7 +67,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.632001+00:00",
+      "created_at": "2026-06-11T06:22:08.337477+00:00",
       "description": "Point values spanning several orders of magnitude"
     },
     {
@@ -80,7 +80,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T05:46:20.661549+00:00",
+      "created_at": "2026-06-11T06:22:08.367001+00:00",
       "description": "Includes zero-sized value inputs"
     },
     {
@@ -95,7 +95,7 @@
       "warnings": [
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T05:46:20.690505+00:00",
+      "created_at": "2026-06-11T06:22:08.396397+00:00",
       "description": "Includes negative values and should warn"
     },
     {
@@ -112,7 +112,7 @@
         "missing_or_invalid_coordinates:Galway",
         "missing_or_invalid_value:Limerick"
       ],
-      "created_at": "2026-06-11T05:46:20.719160+00:00",
+      "created_at": "2026-06-11T06:22:08.425514+00:00",
       "description": "Missing coordinates and values should warn"
     },
     {
@@ -129,7 +129,7 @@
         "out_of_bounds_point:Galway",
         "out_of_bounds_point:Limerick"
       ],
-      "created_at": "2026-06-11T05:46:20.749147+00:00",
+      "created_at": "2026-06-11T06:22:08.455791+00:00",
       "description": "Coordinates outside geography coordinate space should warn"
     },
     {
@@ -146,7 +146,7 @@
         "long_label:Cork North Central Regional Hu",
         "long_label:Galway West Coastal Constituen"
       ],
-      "created_at": "2026-06-11T05:46:20.779699+00:00",
+      "created_at": "2026-06-11T06:22:08.486286+00:00",
       "description": "Long labels should truncate cleanly"
     },
     {
@@ -164,7 +164,7 @@
         "long_label:Galway West Coastal Constituen",
         "long_label:South West Local Incident Repo"
       ],
-      "created_at": "2026-06-11T05:46:20.813215+00:00",
+      "created_at": "2026-06-11T06:22:08.519884+00:00",
       "description": "Mixed categories, long labels, wide values, and zero values"
     }
   ]

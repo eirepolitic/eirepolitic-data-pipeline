@@ -1,0 +1,84 @@
+{
+  "visual_id": "missing_values",
+  "template_id": "scatter_plot_draft_v1",
+  "renderer": "scatter_plot",
+  "created_at": "2026-06-11T06:22:16.873450+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv",
+    "case_id": "missing_values",
+    "case_description": "Missing and invalid x/y/size values",
+    "registry_path": "instagram/visuals/tests/scatter_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/scatter_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "x",
+    "y": "y",
+    "size": "size",
+    "label": "label",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "missing_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "missing_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "point_count": 3,
+  "category_count": 2,
+  "x_range": {
+    "min": 0.0,
+    "max": 72.0
+  },
+  "y_range": {
+    "min": 0.0,
+    "max": 70.0
+  },
+  "size_range": {
+    "min": 0.0,
+    "max": 12.0
+  },
+  "rows_rendered": [
+    {
+      "x": 20.0,
+      "y": 35.0,
+      "size": 12.0,
+      "label": "Party A",
+      "category": "Party"
+    },
+    {
+      "x": 30.0,
+      "y": 70.0,
+      "size": 1.0,
+      "label": "Missing Size",
+      "category": "Issue"
+    },
+    {
+      "x": 72.0,
+      "y": 18.0,
+      "size": 1.0,
+      "label": "Bad Size",
+      "category": "Issue"
+    }
+  ],
+  "warnings": [
+    "missing_or_invalid_xy:Missing X",
+    "missing_or_invalid_xy:Missing Y",
+    "missing_or_invalid_size:Missing Size",
+    "missing_or_invalid_size:Bad Size"
+  ]
+}
