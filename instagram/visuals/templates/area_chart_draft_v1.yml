@@ -1,0 +1,27 @@
+template_id: area_chart_draft_v1
+status: draft
+renderer: area_chart
+description: Draft dark-green filled area chart for political trend and cumulative metrics.
+params:
+  width: 1080
+  height: 860
+  max_points: 18
+  max_series: 4
+  show_markers: true
+  show_legend: true
+  value_format: integer
+palette:
+  background: "#0f2f24"
+  panel: "#173d30"
+  panel_alt: "#214a3b"
+  text: "#f4ead7"
+  muted: "#cbbf9f"
+  accent: "#d8b45f"
+  accent_2: "#9ec5a2"
+  grid: "#cbbf9f"
+  warning: "#b55b5b"
+constraints:
+  no_celtic_borders: true
+  no_full_frame_ornamentation: true
+  no_side_rails: true
+  no_built_in_corner_decorations: true
