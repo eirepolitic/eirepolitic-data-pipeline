@@ -25,6 +25,7 @@ RENDERERS = {
     "table_card": "instagram.visuals.renderers.table_card",
     "small_multiples": "instagram.visuals.renderers.small_multiples",
     "area_chart": "instagram.visuals.renderers.area_chart",
+    "scatter_plot": "instagram.visuals.renderers.scatter_plot",
 }
 
 
