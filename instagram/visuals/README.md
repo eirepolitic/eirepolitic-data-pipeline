@@ -40,6 +40,29 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `tile_map_draft_v1`
 - `sourced_image_asset_draft_v1`
 
+## Visual data mappings
+
+Raw datasets do not need to match renderer bindings directly. Use the data preparation CLI to map raw rows into chart-ready CSVs:
+
+```text
+process/instagram_prepare_visual_data.py --config <mapping.yml>
+```
+
+Supported mapping operations:
+
+- `count_by`
+- `sum_by`
+
+Current mapping configs:
+
+```text
+instagram/visuals/data_mappings/fixture_issue_counts_local.yml
+instagram/visuals/data_mappings/debate_issue_counts_s3.yml
+instagram/visuals/data_mappings/member_party_counts_s3.yml
+```
+
+The standard preview workflow runs the local fixture mapping as a regression check and uploads `generated_visual_data/` as an artifact. S3 mappings are run only by the manual S3 smoke workflow.
+
 ## S3-backed visual smoke tests
 
 The shared visual loader supports these input modes:
@@ -57,10 +80,11 @@ Manual smoke workflow:
 .github/workflows/instagram_visual_s3_smoke.yml
 ```
 
-Default sample:
+Mapped S3 samples:
 
 ```text
-instagram/visuals/samples/horizontal_bar_s3_smoke_draft_v1.sample.yml
+instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml
+instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml
 ```
 
 Run requirements:
@@ -74,7 +98,8 @@ The standard multi-visual preview workflow remains fixture-based so contact-shee
 
 ## Planned visual sequence
 
-- map real S3 dataset schemas into approved visual bindings
+- inspect real S3 schema output from the smoke workflow artifacts
+- add more mapped S3 samples for approved visuals
 - real sourced image lookup/download workflow, gated by attribution and license review
 - final approval pass to remove `draft` from visual IDs
 
