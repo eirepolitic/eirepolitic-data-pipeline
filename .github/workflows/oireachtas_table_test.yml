@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "gold_member_activity_yearly"
+        default: "gold_member_activity_monthly"
       mode:
         description: "Build mode"
         required: true
