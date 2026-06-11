@@ -55,6 +55,15 @@ jobs:
               --test-case "${TEST_CASE}"
           } 2>&1 | tee workflow_debug/media_test.log
 
+      - name: Prepare fixture visual data mapping
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p workflow_debug generated_visual_data
+          python process/instagram_prepare_visual_data.py \
+            --config "instagram/visuals/data_mappings/fixture_issue_counts_local.yml" \
+            2>&1 | tee workflow_debug/visual_data_prepare.log
+
       - name: Render draft visual samples
         shell: bash
         run: |
@@ -209,6 +218,7 @@ jobs:
           name: instagram-media-test-output
           path: |
             generated_media_tests/
+            generated_visual_data/
             generated_visuals/
             generated_visual_tests/
             workflow_debug/
