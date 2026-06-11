@@ -1,0 +1,17 @@
+mapping_id: fixture_issue_counts_local
+review_only: true
+input:
+  mode: local_csv
+  path: instagram/visuals/tests/horizontal_bar_draft_v1/data/cases.csv
+transforms:
+  - id: fixture_label_counts
+    operation: count_by
+    label_field_candidates:
+      - label
+      - category
+    output_label_field: label
+    output_value_field: value
+    fallback_label: Unknown
+    max_rows: 8
+    output_path: generated_visual_data/fixture_issue_counts_local.csv
+manifest_path: generated_visual_data/fixture_issue_counts_local.manifest.json
