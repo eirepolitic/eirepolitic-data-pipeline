@@ -1,0 +1,27 @@
+template_id: small_multiples_draft_v1
+status: draft
+renderer: small_multiples
+description: Draft dark-green small-multiples grid for comparing political trends across groups.
+params:
+  width: 1080
+  height: 860
+  max_groups: 6
+  max_points_per_group: 12
+  columns: 2
+  show_markers: true
+  value_format: integer
+palette:
+  background: "#0f2f24"
+  panel: "#173d30"
+  panel_alt: "#214a3b"
+  text: "#f4ead7"
+  muted: "#cbbf9f"
+  accent: "#d8b45f"
+  accent_2: "#9ec5a2"
+  grid: "#cbbf9f"
+  warning: "#b55b5b"
+constraints:
+  no_celtic_borders: true
+  no_full_frame_ornamentation: true
+  no_side_rails: true
+  no_built_in_corner_decorations: true
