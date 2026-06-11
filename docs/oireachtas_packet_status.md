@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** T20 — `silver_bill_related_docs`
+**Current packet:** T21 — `silver_bill_sponsors`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -45,15 +45,9 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 ### T17 — `silver_bills`
 
 - Builder: `extract/oireachtas/table_bills.py`
-- Final run: `27325455277`
-- Run number: 33
-- Result: success
-- Raw legislation rows: 10
-- Output rows: 10
-- PK: `bill_id`, unique
-- DQ: pass
+- Final run: `27325455277`; run number 33; success.
+- Raw legislation rows: 10; output rows: 10; PK `bill_id`, unique; DQ pass.
 - Final run ID: `silver_bills_20260611T051524Z`.
-- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
 - Confirmed nested shapes:
   - versions: `bill.versions[].version.{uri,showAs,date,docType,lang,formats}`;
   - stages: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
@@ -61,103 +55,106 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
   - sponsors: `bill.sponsors[].sponsor.{by,as,isPrimary}`;
   - debates: `bill.debates[].{uri,showAs,date,debateSectionId,chamber}`;
   - events: `bill.events[].event.{uri,eventURI,showAs,dates,chamber}`.
-- Review:
-  - `review/silver_bills/latest/manifest.json`
-  - `review/silver_bills/latest/sample.csv`
-  - `review/silver_bills/latest/dq.json`
 
 ### T18 — `silver_bill_versions`
 
 - Builder: `extract/oireachtas/table_bill_versions.py`
-- Final run: `27326814396`
-- Run number: 35
-- Result: success
-- Raw legislation rows: 10
-- Raw version rows: 10
-- Output rows: 10
-- Bills with versions: 10
-- PK: `bill_version_id`, unique
-- DQ: pass
+- Final run: `27326814396`; run number 35; success.
+- Raw legislation rows: 10; raw version rows: 10; output rows: 10; bills with versions: 10.
+- PK `bill_version_id`, unique; DQ pass.
 - Final run ID: `silver_bill_versions_20260611T055216Z`.
-- Format result: PDF source rows 10; XML source rows 0 because `version.formats.xml` was null in the sample payload.
+- PDF source rows: 10; XML source rows: 0 because `version.formats.xml` was null in the sample payload.
 - Source-file ID pattern: `source_file:{stable_hash(['legislation', bill_id, format_type, format_uri, format_url], length=24)}`.
-- Review:
-  - `review/silver_bill_versions/latest/manifest.json`
-  - `review/silver_bill_versions/latest/sample.csv`
-  - `review/silver_bill_versions/latest/dq.json`
+- Review: `review/silver_bill_versions/latest/{manifest.json,sample.csv,dq.json}`.
 
 ### T19 — `silver_bill_stages`
 
 - Builder: `extract/oireachtas/table_bill_stages.py`
+- Final run: `27327648268`; run number 36; success.
+- Raw legislation rows: 10; raw stage rows: 16; output rows: 16; bills with stages: 10.
+- PK `bill_stage_id`, unique; DQ pass.
+- Final run ID: `silver_bill_stages_20260611T061231Z`.
+- Stage names observed: `Committee Stage`, `First Stage`, `Report Stage`, `Second Stage`.
+- Stage outcome values observed: `Current`; blank outcomes are allowed where API returns null.
+- House names observed: `26th Seanad`, `27th Seanad`.
+- Review: `review/silver_bill_stages/latest/{manifest.json,sample.csv,dq.json}`.
+
+### T20 — `silver_bill_related_docs`
+
+- Registry added: `configs/oireachtas/tables.yml`
+- Builder: `extract/oireachtas/table_bill_related_docs.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27327648268`
-- Run number: 36
+- Final run: `27328140775`
+- Run number: 37
 - Result: success
 - Raw legislation rows: 10
-- Raw stage rows: 16
-- Output rows: 16
-- Bills with stages: 10
-- PK: `bill_stage_id`, unique
+- Raw related-doc rows: 1
+- Output rows: 1
+- Bills with related docs: 1
+- PK: `related_doc_id`, unique
 - DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Final run ID: `silver_bill_stages_20260611T061231Z`.
+- Final run ID: `silver_bill_related_docs_20260611T062419Z`.
 - Normalized columns:
-  - `bill_stage_id`
+  - `related_doc_id`
   - `bill_id`
-  - `stage_name`
-  - `stage_date`
-  - `house_uri`
-  - `house_name`
-  - `stage_outcome`
-  - `order_in_bill`
+  - `related_doc_label`
+  - `related_doc_date`
+  - `doc_type`
+  - `language`
+  - `format_pdf_uri`, `format_pdf_url`
+  - `format_xml_uri`, `format_xml_url`
+  - `source_file_id_pdf`, `source_file_id_xml`
+  - `s3_pdf_key`, `s3_xml_key`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
   - `bill_id` populated, preserving join to `silver_bills.bill_id`;
-  - `stage_name` populated;
-  - `stage_date` populated;
-  - `house_uri` populated;
-  - `house_name` populated;
-  - `order_in_bill` populated.
-- Stage names observed: `Committee Stage`, `First Stage`, `Report Stage`, `Second Stage`.
-- Stage outcome values observed: `Current`; blank outcomes are allowed where API returns null.
-- House names observed: `26th Seanad`, `27th Seanad`.
+  - related document label/date/doc type populated;
+  - at least one source format per document;
+  - source-file IDs and S3 keys populated where formats exist;
+  - source-file IDs deterministic and T09-compatible.
+- Format result:
+  - PDF source rows: 1;
+  - XML source rows: 0 because `relatedDoc.formats.xml` was null in the sample payload;
+  - null XML handled without crashing.
+- Observed doc type/language: `memo`, `eng`.
 - Review:
-  - `review/silver_bill_stages/latest/manifest.json`
-  - `review/silver_bill_stages/latest/sample.csv`
-  - `review/silver_bill_stages/latest/dq.json`
+  - `review/silver_bill_related_docs/latest/manifest.json`
+  - `review/silver_bill_related_docs/latest/sample.csv`
+  - `review/silver_bill_related_docs/latest/dq.json`
 
 ## Next packet
 
-### T20 — `silver_bill_related_docs`
+### T21 — `silver_bill_sponsors`
 
 Goal:
 
-- add a source-document packet for `bill.relatedDocs[].relatedDoc`;
-- add registry entry if not already present;
-- build one row per related document, preserving join to `silver_bills.bill_id`;
-- normalize document identity, label, date, doc type, language, XML/PDF format URIs/URLs, T09-compatible source-file IDs, S3 target keys, and `snapshot_date`;
-- support null XML/PDF formats without crashing;
+- add bill sponsor bridge from `bill.sponsors[].sponsor`;
+- add registry entry if absent;
+- build one row per bill sponsor, preserving join to `silver_bills.bill_id`;
+- normalize `bill_sponsor_id`, `bill_id`, sponsor identity/name URI fields from `sponsor.by`, sponsor role fields from `sponsor.as`, `is_primary`, `sponsor_order`, and `snapshot_date`;
+- use deterministic fallback IDs where sponsor URI is missing;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key unique, `bill_id` populated, document label/date/doc type populated where API exposes them, at least one source format per document, and deterministic source-file IDs.
+- validate row count > 0, primary key unique, `bill_id` populated, sponsor name/URI populated where API exposes them, and sponsor order populated.
 
 Expected files:
 
-- update `configs/oireachtas/tables.yml` if `silver_bill_related_docs` is absent
-- `extract/oireachtas/table_bill_related_docs.py`
+- update `configs/oireachtas/tables.yml` if `silver_bill_sponsors` is absent
+- `extract/oireachtas/table_bill_sponsors.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_related_docs`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_sponsors`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_related_docs \
+  --table silver_bill_sponsors \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -171,7 +168,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T20 — silver_bill_related_docs.
-Workflow default currently points to silver_bill_stages.
-Use bill.relatedDocs[].relatedDoc from the confirmed T17 payload.
+Start T21 — silver_bill_sponsors.
+Workflow default currently points to silver_bill_related_docs.
+Use bill.sponsors[].sponsor from the confirmed T17 payload.
 ```
