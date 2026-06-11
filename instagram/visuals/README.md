@@ -38,10 +38,13 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `slope_chart_draft_v1`
 - `donut_chart_draft_v1`
 - `tile_map_draft_v1`
+- `sourced_image_asset_draft_v1`
 
 ## Planned visual sequence
 
-- sourced internet image assets with attribution metadata
+- live S3/data integration for approved draft visuals
+- real sourced image lookup/download workflow, gated by attribution and license review
+- final approval pass to remove `draft` from visual IDs
 
 ## Preview outputs
 
