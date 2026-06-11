@@ -2,7 +2,7 @@ mapping_id: fixture_issue_counts_local
 review_only: true
 input:
   mode: local_csv
-  path: instagram/visuals/tests/horizontal_bar_draft_v1/data/cases.csv
+  path: instagram/visuals/tests/horizontal_bar_draft_v1/data/04_items.csv
 transforms:
   - id: fixture_label_counts
     operation: count_by
