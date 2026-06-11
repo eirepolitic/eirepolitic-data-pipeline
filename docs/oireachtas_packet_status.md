@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** G03 — `gold_member_activity_monthly`
+**Current packet:** C01 — `control_pipeline_runs`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -41,100 +41,118 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **T14 — `silver_division_tallies`**: run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass.
 - **T15 — `silver_member_votes`**: run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass.
 - **T16 — `silver_questions`**: run `27292008182`; 10 rows; PK `question_id`; DQ pass.
-- **T17 — `silver_bills`**: run `27325455277`; 10 rows; PK `bill_id`; DQ pass. Confirmed nested legislation shapes for versions, stages, related docs, sponsors, debates, and events.
-- **T18 — `silver_bill_versions`**: run `27326814396`; 10 rows; PK `bill_version_id`; DQ pass; PDF source rows 10, XML source rows 0.
+- **T17 — `silver_bills`**: run `27325455277`; 10 rows; PK `bill_id`; DQ pass.
+- **T18 — `silver_bill_versions`**: run `27326814396`; 10 rows; PK `bill_version_id`; DQ pass.
 - **T19 — `silver_bill_stages`**: run `27327648268`; 16 rows; PK `bill_stage_id`; DQ pass.
-- **T20 — `silver_bill_related_docs`**: run `27328140775`; 1 row; PK `related_doc_id`; DQ pass; T09-compatible source-file IDs pass.
+- **T20 — `silver_bill_related_docs`**: run `27328140775`; 1 row; PK `related_doc_id`; DQ pass.
 - **T21 — `silver_bill_sponsors`**: run `27328994935`; 36 rows; PK `bill_sponsor_id`; DQ pass.
 - **T22 — `silver_bill_debates`**: run `27356675022`; 12 rows; PK `bill_debate_id`; DQ pass.
 - **T23 — `silver_bill_events`**: run `27359680226`; 19 rows; PK `bill_event_id`; DQ pass.
 
 ## Confirmed gold packets
 
-### G01 — `gold_current_members`
+- **G01 — `gold_current_members`**: run `27362834154`; 10 rows; PK `member_code`; DQ pass.
+- **G02 — `gold_member_activity_yearly`**: run `27363058073`; 10 rows; 173 member-year rows before limit; PK `member_code`, `year`; DQ pass.
 
-- Builder: `extract/oireachtas/table_gold_current_members.py`
-- Final run: `27362834154`; run number 41; success.
-- Input latest silver rows: members 25, memberships 25, parties 25, constituencies 25, offices 77.
-- Output rows: 10, limited by workflow test default `limit=10`.
-- PK `member_code`, unique; DQ pass.
-- Final run ID: `gold_current_members_20260611T164637Z`.
-- Review: `review/gold_current_members/latest/{manifest.json,sample.csv,dq.json}`.
+### G03 — `gold_member_activity_monthly`
 
-### G02 — `gold_member_activity_yearly`
-
-- Builder: `extract/oireachtas/table_gold_member_activity_yearly.py`
+- Builder: `extract/oireachtas/table_gold_member_activity_monthly.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27363058073`
-- Run number: 42
+- Final run: `27364362461`
+- Run number: 43
 - Result: success
 - Input latest rows:
   - `gold_current_members`: 10
   - `silver_speeches`: 357
   - `silver_member_votes`: 512
-  - `silver_divisions`: 3
 - Speech metric rows: 46
 - Vote metric rows: 172
-- Division-year rows: 1
-- Member-year rows before limit: 173
+- Member-month rows before limit: 173
 - Output rows: 10, limited by workflow test default `limit=10`.
-- Year values: `2025`
-- PK: `member_code`, `year`, unique
+- Year-month values: `2025-01`
+- PK: `member_code`, `year_month`, unique
 - DQ: pass
-- Final run ID: `gold_member_activity_yearly_20260611T165033Z`.
-- Normalized columns:
-  - `member_code`
-  - `year`
-  - `speech_count`
-  - `debate_day_count`
-  - `division_count`
-  - `votes_cast_count`
-  - `vote_participation_pct`
-  - `ta_count`
-  - `nil_count`
-  - `staon_count`
-  - `speech_rank`
-  - `vote_participation_rank`
-  - `snapshot_date`
+- Final run ID: `gold_member_activity_monthly_20260611T171347Z`.
+- Review: `review/gold_member_activity_monthly/latest/{manifest.json,sample.csv,dq.json}`.
+
+### G04 — `gold_constituency_activity_yearly`
+
+- Builder: `extract/oireachtas/table_gold_constituency_activity_yearly.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27364432622`
+- Run number: 44
+- Result: success
+- Input latest rows:
+  - `gold_current_members`: 10
+  - `silver_speeches`: 357
+  - `silver_member_votes`: 512
+- Member-count rows: 10
+- Speech metric rows: 4
+- Vote metric rows: 10
+- Constituency-year rows before limit: 10
+- Output rows: 10
+- Year values: `2025`
+- PK: `constituency_name`, `year`, unique
+- DQ: pass
+- Final run ID: `gold_constituency_activity_yearly_20260611T171451Z`.
+- Review: `review/gold_constituency_activity_yearly/latest/{manifest.json,sample.csv,dq.json}`.
+
+### G05 — `gold_content_fact_pool`
+
+- Builder: `extract/oireachtas/table_gold_content_fact_pool.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27364496528`
+- Run number: 45
+- Result: success
+- Input latest rows:
+  - `gold_member_activity_yearly`: 10
+  - `gold_member_activity_monthly`: 10
+  - `gold_constituency_activity_yearly`: 10
+  - `gold_current_members`: 10
+- Candidate fact rows before limit: 60
+- Output rows: 10, limited by workflow test default `limit=10`.
+- PK: `fact_id`, unique
+- DQ: pass
+- Final run ID: `gold_content_fact_pool_20260611T171557Z`.
+- Fact type values in limited sample: `constituency_speech_yearly`.
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
-  - member code and year populated;
-  - numeric metrics populated;
-  - rank fields populated.
-- Sample leaders include Verona Murphy, Matt Carthy, Paul McAuliffe, Pearse Doherty, Louise O'Reilly, Mary Lou McDonald, Pádraig Mac Lochlainn, Richard Boyd Barrett, Hildegarde Naughton, and Paul Murphy.
-- Review:
-  - `review/gold_member_activity_yearly/latest/manifest.json`
-  - `review/gold_member_activity_yearly/latest/sample.csv`
-  - `review/gold_member_activity_yearly/latest/dq.json`
+  - required content fields populated;
+  - metric values numeric.
+- Review: `review/gold_content_fact_pool/latest/{manifest.json,sample.csv,dq.json}`.
 
 ## Next packet
 
-### G03 — `gold_member_activity_monthly`
+### C01 — `control_pipeline_runs`
 
 Goal:
 
-- add monthly member activity mart from confirmed `silver_speeches` and `silver_member_votes` inputs;
-- build one row per `member_code` + `year_month`;
-- calculate speech count, debate-day count, and votes-cast count;
+- add run-level control/audit output using table build manifests and workflow metadata where available;
+- preserve `run_id` as primary key;
+- output `run_id`, `workflow_run_id`, `table_name`, `mode`, `cadence`, `started_at_utc`, `finished_at_utc`, `status`, `input_params_json`, `raw_rows`, `output_rows`, `error_message`, and `manifest_s3_key`;
 - publish CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key uniqueness on `member_code + year_month`, member code populated, month populated, and numeric metrics populated.
+- validate row count > 0, `run_id` unique, table name/status populated, and row-count fields numeric where present.
 
 Expected files:
 
-- `extract/oireachtas/table_gold_member_activity_monthly.py`
+- `extract/oireachtas/table_control_pipeline_runs.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `gold_member_activity_monthly`
+- update `.github/workflows/oireachtas_table_test.yml` default to `control_pipeline_runs`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table gold_member_activity_monthly \
+  --table control_pipeline_runs \
   --mode test \
   --limit 25 \
   --write-review-sample
@@ -144,7 +162,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start G03 — gold_member_activity_monthly.
-Workflow default currently points to gold_member_activity_yearly.
-Use latest CSV inputs from silver_speeches and silver_member_votes, optionally gold_current_members for current-member grid.
+Start C01 — control_pipeline_runs.
+Workflow default currently points to gold_content_fact_pool.
+Use latest manifest objects from processed/oireachtas_unified/manifests/* and/or latest review manifests as inputs.
 ```
