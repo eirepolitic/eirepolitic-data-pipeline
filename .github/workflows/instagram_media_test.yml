@@ -75,6 +75,7 @@ jobs:
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/dot_plot_draft_v1.sample.yml" --output-root "generated_visuals/dot_plot_draft_v1"
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/lollipop_chart_draft_v1.sample.yml" --output-root "generated_visuals/lollipop_chart_draft_v1"
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/slope_chart_draft_v1.sample.yml" --output-root "generated_visuals/slope_chart_draft_v1"
+            python process/instagram_render_visual.py --sample "instagram/visuals/samples/donut_chart_draft_v1.sample.yml" --output-root "generated_visuals/donut_chart_draft_v1"
           } 2>&1 | tee workflow_debug/visual_preview.log
 
       - name: Render visual variation test packs
@@ -97,6 +98,7 @@ jobs:
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/dot_plot_draft_v1/cases.yml" --output-root "generated_visual_tests/dot_plot_draft_v1"
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/lollipop_chart_draft_v1"
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/slope_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/slope_chart_draft_v1"
+            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/donut_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/donut_chart_draft_v1"
           } 2>&1 | tee workflow_debug/visual_test_pack.log
 
       - name: Publish visual preview branch
@@ -105,7 +107,7 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
-          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1 area_chart_draft_v1 scatter_plot_draft_v1 dot_plot_draft_v1 lollipop_chart_draft_v1 slope_chart_draft_v1"
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1 area_chart_draft_v1 scatter_plot_draft_v1 dot_plot_draft_v1 lollipop_chart_draft_v1 slope_chart_draft_v1 donut_chart_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
           git config user.name "github-actions[bot]"
@@ -162,6 +164,7 @@ jobs:
               "dot_plot_draft_v1",
               "lollipop_chart_draft_v1",
               "slope_chart_draft_v1",
+              "donut_chart_draft_v1",
           ]
           lines = [
               "# Instagram visual preview output",
