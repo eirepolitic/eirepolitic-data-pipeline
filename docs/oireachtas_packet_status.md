@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** T23 — `silver_bill_events`
+**Current packet:** G01 — `gold_current_members`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -104,84 +104,89 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ### T22 — `silver_bill_debates`
 
-- Registry added: `configs/oireachtas/tables.yml`
 - Builder: `extract/oireachtas/table_bill_debates.py`
+- Final run: `27356675022`; run number 39; success.
+- Raw legislation rows: 10; raw debate rows: 12; output rows: 12; bills with debates: 8; debate-section rows: 12.
+- PK `bill_debate_id`, unique; DQ pass.
+- Final run ID: `silver_bill_debates_20260611T150745Z`.
+- Chamber values observed: `Seanad Éireann`.
+- Review: `review/silver_bill_debates/latest/{manifest.json,sample.csv,dq.json}`.
+
+### T23 — `silver_bill_events`
+
+- Registry added: `configs/oireachtas/tables.yml`
+- Builder: `extract/oireachtas/table_bill_events.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27356675022`
-- Run number: 39
+- Final run: `27359680226`
+- Run number: 40
 - Result: success
 - Raw legislation rows: 10
-- Raw debate rows: 12
-- Output rows: 12
-- Bills with debates: 8
-- Debate-section rows: 12
-- PK: `bill_debate_id`, unique
+- Raw event rows: 19
+- Output rows: 19
+- Bills with events: 10
+- PK: `bill_event_id`, unique
 - DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Final run ID: `silver_bill_debates_20260611T150745Z`.
+- Final run ID: `silver_bill_events_20260611T155424Z`.
 - Normalized columns:
-  - `bill_debate_id`
+  - `bill_event_id`
   - `bill_id`
-  - `debate_id`
-  - `debate_uri`
-  - `debate_date`
-  - `debate_show_as`
-  - `debate_section_id`
+  - `event_uri`
+  - `event_type_uri`
+  - `event_name`
+  - `event_date`
   - `chamber_uri`
   - `chamber_name`
-  - `debate_order`
+  - `event_order`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
   - `bill_id` populated, preserving join to `silver_bills.bill_id`;
-  - debate ID/URI/date/show-as populated;
-  - debate section ID populated;
+  - event URI/type URI/name/date populated;
   - chamber URI/name populated;
-  - debate order populated.
-- Chamber values observed: `Seanad Éireann`.
+  - event order populated.
+- Event names observed: `Admissibility for Introduction`, `Approved for Initiation`, `Bill Lapsed`, `Bill Restored`.
+- Chamber values observed: `Dáil Éireann`, `Seanad Éireann`.
 - Review:
-  - `review/silver_bill_debates/latest/manifest.json`
-  - `review/silver_bill_debates/latest/sample.csv`
-  - `review/silver_bill_debates/latest/dq.json`
+  - `review/silver_bill_events/latest/manifest.json`
+  - `review/silver_bill_events/latest/sample.csv`
+  - `review/silver_bill_events/latest/dq.json`
 
 ## Next packet
 
-### T23 — `silver_bill_events`
+### G01 — `gold_current_members`
 
 Goal:
 
-- add bill event bridge from `bill.events[].event`;
-- add registry entry if absent;
-- build one row per bill event, preserving join to `silver_bills.bill_id`;
-- normalize `bill_event_id`, `bill_id`, `event_uri`, `event_type_uri`, `event_name`, `event_date`, `chamber_uri`, `chamber_name`, `event_order`, and `snapshot_date`;
-- derive `event_date` from `event.dates[].date`, using earliest parseable date unless multiple event-date rows are required later;
-- use `event.uri` as stable identity where available, with deterministic fallback hash;
-- publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key unique, `bill_id` populated, event URI/name/date populated where API exposes them, and event order populated.
+- add the current-member roster mart using confirmed silver member tables;
+- build one row per current member from `silver_members`, `silver_member_memberships`, `silver_member_parties`, `silver_member_constituencies`, and `silver_member_offices`;
+- preserve `member_code` as the primary key;
+- output `member_code`, `full_name`, `party_name`, `constituency_name`, `house_no`, `office_name`, and `snapshot_date`;
+- use latest/current bridge rows where available;
+- publish CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
+- validate row count > 0, `member_code` unique, member names populated, and current party/constituency fields populated where silver exposes them.
 
 Expected files:
 
-- update `configs/oireachtas/tables.yml` if `silver_bill_events` is absent
-- `extract/oireachtas/table_bill_events.py`
+- update `configs/oireachtas/tables.yml` if `gold_current_members` needs a schema adjustment
+- `extract/oireachtas/table_gold_current_members.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_events`
+- update `.github/workflows/oireachtas_table_test.yml` default to `gold_current_members`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_events \
+  --table gold_current_members \
   --mode test \
   --chamber dail \
   --house-no 34 \
-  --date-start 2025-01-01 \
-  --date-end 2025-01-31 \
-  --limit 10 \
+  --limit 25 \
   --write-review-sample
 ```
 
@@ -189,7 +194,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T23 — silver_bill_events.
-Workflow default currently points to silver_bill_debates.
-Use bill.events[].event from the confirmed T17 payload.
+Start G01 — gold_current_members.
+Workflow default currently points to silver_bill_events.
+Use confirmed latest silver member tables as inputs or rebuild/fetch them consistently from the API if no local latest-table reader exists yet.
 ```
