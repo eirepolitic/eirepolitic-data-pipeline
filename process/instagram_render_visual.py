@@ -27,6 +27,7 @@ RENDERERS = {
     "area_chart": "instagram.visuals.renderers.area_chart",
     "scatter_plot": "instagram.visuals.renderers.scatter_plot",
     "dot_plot": "instagram.visuals.renderers.dot_plot",
+    "lollipop_chart": "instagram.visuals.renderers.lollipop_chart",
 }
 
 
