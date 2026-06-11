@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-10  
-**Current packet:** T17 — `silver_bills`
+**Current packet:** T18 — `silver_bill_versions`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -77,71 +77,81 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - `party_name_at_vote` and `constituency_name_at_vote` remain blank because the division payload does not expose them.
 
 ### T16 — `silver_questions`
-
-- Builder: `extract/oireachtas/table_questions.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27292008182`
-- Run number: 32
-- Result: success
-- Raw question rows: 10
-- Output rows: 10
-- PK: `question_id`, unique
-- DQ: pass
-- Endpoint: `/questions?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Confirmed API shape:
-  - wrapper: `question`;
-  - identity: `question.uri`;
-  - date/number/type: `question.date`, `question.questionNumber`, `question.questionType`;
-  - text: `question.showAs`;
-  - asker: `question.by.{memberCode,showAs,uri}`;
-  - recipient: `question.to.{showAs,roleCode,roleType,uri}`;
-  - debate section: `question.debateSection.{uri,debateSectionId,showAs}`;
-  - formats: `question.debateSection.formats.{xml,pdf}`.
-- All 10 rows were `written` questions dated 2025-01-22.
-- All question IDs, dates, numbers, texts, asker member codes/names, recipients, debate-section IDs, XML URIs and XML source-file IDs were populated.
-- XML source-file IDs use the same T09 hash formula and matched the known T09 sample IDs, including:
-  - `pq_1` → `source_file:319b4198732329ee813cf7e4`;
-  - `pq_2` → `source_file:a478282a299281cb94f781b3`;
-  - `pq_3` → `source_file:75d7aaebfb0dfe95e5245fc9`;
-  - `pq_4` → `source_file:213f2c82a61debdb4586bd48`;
-  - `pq_5` → `source_file:58dd1ddab0310b6eaaa2318e`;
-  - `pq_6` → `source_file:c99911fbbe6b272b50adb08b`.
-- The API response did not include answer text, so `answer_text` is blank for all 10 rows.
-- PDF formats were null, so PDF URI/URL/source-file fields are blank.
-- Question debate-section URIs point to `/writtens/dbsect_*`; they are stable source identifiers but are not present in the T11 oral/main debate-section test sample. A later written-question XML packet may expand section coverage and answer text extraction.
-- Final run ID: `silver_questions_20260610T165735Z`.
-- Review:
-  - `review/silver_questions/latest/manifest.json`
-  - `review/silver_questions/latest/sample.csv`
-  - `review/silver_questions/latest/dq.json`
-
-## Next packet
+- Final run `27292008182`; 10 rows; PK `question_id`; DQ pass.
+- API shape: `question` wrapper, `question.uri`, `question.date`, `question.questionNumber`, `question.questionType`, `question.showAs`, `question.by`, `question.to`, `question.debateSection`, and `question.debateSection.formats`.
+- XML source IDs align with T09; answer text and PDF fields are blank because not exposed/null in the API response.
 
 ### T17 — `silver_bills`
 
+- Builder: `extract/oireachtas/table_bills.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27325455277`
+- Run number: 33
+- Result: success
+- Raw legislation rows: 10
+- Output rows: 10
+- PK: `bill_id`, unique
+- DQ: pass
+- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
+- Confirmed API shape:
+  - wrapper: `bill`;
+  - identity: `bill.uri`;
+  - number/year: `bill.billNo`, `bill.billYear`;
+  - titles: `bill.shortTitleEn`, `bill.longTitleEn`, `bill.shortTitleGa`, `bill.longTitleGa`;
+  - origin house: `bill.originHouse.{uri,showAs}` and `bill.originHouseURI`;
+  - bill type: `bill.billType`;
+  - status: `bill.status`;
+  - method: `bill.method`;
+  - latest stage: `bill.mostRecentStage.event`;
+  - nested collections: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, and `bill.amendmentLists`.
+- All bill IDs, numbers, years, titles, origin house URIs, bill types, statuses, introduced dates, latest-event dates, and source endpoint fields were populated.
+- `bill_type_values`: `Public`.
+- `status_values`: `Current`, `Lapsed`.
+- `origin_house_values`: `Seanad Éireann` for the sample.
+- Dates are derived from all parseable dates in the bill payload:
+  - `introduced_date` = earliest collected date;
+  - `last_event_date` = latest collected date, including `lastUpdated`.
+- Confirmed nested shapes for next packets:
+  - versions: `bill.versions[].version.{uri,showAs,date,docType,lang,formats}`;
+  - stages: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
+  - related docs: `bill.relatedDocs[].relatedDoc.{uri,showAs,date,docType,lang,formats}`;
+  - sponsors: `bill.sponsors[].sponsor.{by,as,isPrimary}`;
+  - debates: `bill.debates[].{uri,showAs,date,debateSectionId,chamber}`;
+  - events: `bill.events[].event.{uri,eventURI,showAs,dates,chamber}`.
+- First sample row: Child Maintenance Bill 2026, bill 35/2026, status `Current`, introduced date `2025-01-21`, latest event date `2026-04-27`.
+- Final run ID: `silver_bills_20260611T051524Z`.
+- Review:
+  - `review/silver_bills/latest/manifest.json`
+  - `review/silver_bills/latest/sample.csv`
+  - `review/silver_bills/latest/dq.json`
+
+## Next packet
+
+### T18 — `silver_bill_versions`
+
 Goal:
 
-- build one row per bill from `/legislation`;
-- normalize bill identity, number/year, titles, origin house, bill type, status, introduction date, and latest event date;
-- preserve joins to `silver_houses` through `origin_house_uri`;
-- inspect sponsors, stages, versions, debates, related documents, and events for T18/T19;
+- build one row per bill version/document from `bill.versions[].version`;
+- normalize `bill_version_id`, `bill_id`, `version_label`, `version_date`, XML/PDF format URIs/URLs, T09-compatible source-file IDs, S3 target keys, and snapshot date;
+- support format fields under `version.formats.{pdf,xml}` and keep null formats blank;
+- preserve join to `silver_bills.bill_id`;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate primary-key uniqueness, bill number/year/title, origin house, status, and date fields.
+- validate primary-key uniqueness, bill joins, version labels/dates, and at least one source format per version.
 
 Expected files:
 
-- `extract/oireachtas/table_bills.py`
+- `extract/oireachtas/table_bill_versions.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bills`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_versions`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bills \
+  --table silver_bill_versions \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -155,7 +165,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T17 — silver_bills.
-Workflow default currently points to silver_questions.
-Use /legislation and inspect actual bill/date/event/version shapes before finalizing parsing.
+Start T18 — silver_bill_versions.
+Workflow default currently points to silver_bills.
+Use bill.versions[].version from the confirmed T17 payload; keep relatedDocs for a later source-doc packet unless the model is revised.
 ```
