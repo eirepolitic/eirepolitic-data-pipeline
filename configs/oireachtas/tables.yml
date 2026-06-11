@@ -172,6 +172,15 @@ tables:
     description: "Bill stage/progress history."
     columns: [bill_stage_id, bill_id, stage_name, stage_date, house_uri, house_name, stage_outcome, order_in_bill, snapshot_date]
 
+  silver_bill_related_docs:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["related_doc_id"]
+    description: "Bill related/source documents such as explanatory memoranda."
+    columns: [related_doc_id, bill_id, related_doc_label, related_doc_date, doc_type, language, format_pdf_uri, format_pdf_url, format_xml_uri, format_xml_url, source_file_id_pdf, source_file_id_xml, s3_pdf_key, s3_xml_key, snapshot_date]
+
   control_pipeline_runs:
     layer: control
     status: planned
