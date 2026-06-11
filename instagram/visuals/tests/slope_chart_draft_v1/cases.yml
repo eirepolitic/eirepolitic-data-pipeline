@@ -1,0 +1,111 @@
+template: instagram/visuals/templates/slope_chart_draft_v1.yml
+bindings:
+  label: label
+  period: period
+  value: value
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: rising_values
+    description: All series rise between two periods
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: rising_values
+  - id: falling_values
+    description: All series fall between two periods
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: falling_values
+  - id: mixed_changes
+    description: Mix of positive, negative, and small changes
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: mixed_changes
+  - id: 10_items
+    description: Ten items at template maximum
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: 10_items
+  - id: overflow_items
+    description: Twelve items; should truncate to template maximum
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: overflow_items
+  - id: long_labels
+    description: Long labels should truncate cleanly
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_labels
+  - id: missing_endpoint
+    description: Labels missing one of the two required periods
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_endpoint
+  - id: extra_periods
+    description: Three periods; should truncate to first two periods
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: extra_periods
+  - id: negative_values
+    description: Includes negative values and should warn
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: tight_range
+    description: Values close together
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: tight_range
+  - id: wide_range
+    description: Values spanning several orders of magnitude
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_range
+  - id: zero_change
+    description: No change between two periods
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: zero_change
+  - id: missing_values
+    description: Missing and invalid values should warn
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_values
+  - id: phone_readability_stress
+    description: Long labels, wide values, and negative ending values
+    data: instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress
