@@ -1,0 +1,63 @@
+{
+  "visual_id": "long_labels",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "created_at": "2026-06-11T15:56:14.417562+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "case_id": "long_labels",
+    "case_description": "Long labels should truncate cleanly",
+    "registry_path": "instagram/visuals/tests/donut_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/donut_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "slice_count": 4,
+  "total": 96.0,
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation mentions",
+      "value": 35.0
+    },
+    {
+      "label": "Emergency department waiting time mentions",
+      "value": 28.0
+    },
+    {
+      "label": "Public transport frequency complaints",
+      "value": 18.0
+    },
+    {
+      "label": "Cost of living pressure reports",
+      "value": 15.0
+    }
+  ],
+  "warnings": [
+    "long_label:Affordable rental accommodation me",
+    "long_label:Emergency department waiting time ",
+    "long_label:Public transport frequency complai"
+  ]
+}

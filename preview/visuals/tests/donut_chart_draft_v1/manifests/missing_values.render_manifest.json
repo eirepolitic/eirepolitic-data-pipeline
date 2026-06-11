@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "visual_id": "missing_values",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "output_png": "generated_visual_tests/donut_chart_draft_v1/png/missing_values.png",
+  "metadata_path": "generated_visual_tests/donut_chart_draft_v1/metadata/missing_values.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "missing_or_invalid_value:Party B",
+    "missing_or_invalid_value:Party C"
+  ],
+  "created_at": "2026-06-11T15:56:14.574799+00:00",
+  "description": "Missing and invalid values should warn"
+}

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "overflow_slices",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "output_png": "generated_visual_tests/donut_chart_draft_v1/png/overflow_slices.png",
+  "metadata_path": "generated_visual_tests/donut_chart_draft_v1/metadata/overflow_slices.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "aggregated_other:12->10"
+  ],
+  "created_at": "2026-06-11T15:56:14.372117+00:00",
+  "description": "Twelve slices; should aggregate to Other"
+}

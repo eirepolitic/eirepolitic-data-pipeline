@@ -1,0 +1,59 @@
+{
+  "visual_id": "04_slices",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "created_at": "2026-06-11T15:56:14.296986+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "case_id": "04_slices",
+    "case_description": "Four-slice standard donut chart",
+    "registry_path": "instagram/visuals/tests/donut_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/donut_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "04_slices"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "04_slices"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "slice_count": 4,
+  "total": 100.0,
+  "rows_rendered": [
+    {
+      "label": "Party A",
+      "value": 35.0
+    },
+    {
+      "label": "Party B",
+      "value": 28.0
+    },
+    {
+      "label": "Party C",
+      "value": 22.0
+    },
+    {
+      "label": "Others",
+      "value": 15.0
+    }
+  ],
+  "warnings": []
+}

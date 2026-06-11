@@ -1,0 +1,85 @@
+{
+  "visual_id": "overflow_slices",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "created_at": "2026-06-11T15:56:14.372117+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv",
+    "case_id": "overflow_slices",
+    "case_description": "Twelve slices; should aggregate to Other",
+    "registry_path": "instagram/visuals/tests/donut_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/donut_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "overflow_slices"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "overflow_slices"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "slice_count": 10,
+  "total": 106.0,
+  "rows_rendered": [
+    {
+      "label": "Item 01",
+      "value": 28.0
+    },
+    {
+      "label": "Item 02",
+      "value": 22.0
+    },
+    {
+      "label": "Item 03",
+      "value": 16.0
+    },
+    {
+      "label": "Item 04",
+      "value": 12.0
+    },
+    {
+      "label": "Item 05",
+      "value": 8.0
+    },
+    {
+      "label": "Item 06",
+      "value": 6.0
+    },
+    {
+      "label": "Item 07",
+      "value": 5.0
+    },
+    {
+      "label": "Item 08",
+      "value": 3.0
+    },
+    {
+      "label": "Item 09",
+      "value": 2.0
+    },
+    {
+      "label": "Other",
+      "value": 4.0
+    }
+  ],
+  "warnings": [
+    "aggregated_other:12->10"
+  ]
+}
