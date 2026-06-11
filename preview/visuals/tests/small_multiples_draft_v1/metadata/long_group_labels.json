@@ -1,0 +1,85 @@
+{
+  "visual_id": "long_group_labels",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.846215+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "long_group_labels",
+    "case_description": "Long group labels",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_group_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_group_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 2,
+  "point_count": 6,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Dublin Bay South and Inner Suburbs",
+      "x": "Jan",
+      "value": 20.0
+    },
+    {
+      "group": "Dublin Bay South and Inner Suburbs",
+      "x": "Feb",
+      "value": 24.0
+    },
+    {
+      "group": "Dublin Bay South and Inner Suburbs",
+      "x": "Mar",
+      "value": 29.0
+    },
+    {
+      "group": "Cork North Central and Surrounding Towns",
+      "x": "Jan",
+      "value": 42.0
+    },
+    {
+      "group": "Cork North Central and Surrounding Towns",
+      "x": "Feb",
+      "value": 40.0
+    },
+    {
+      "group": "Cork North Central and Surrounding Towns",
+      "x": "Mar",
+      "value": 37.0
+    }
+  ],
+  "warnings": [
+    "long_group_label:Dublin Bay South and Inner Subur",
+    "long_group_label:Dublin Bay South and Inner Subur",
+    "long_group_label:Dublin Bay South and Inner Subur",
+    "long_group_label:Cork North Central and Surroundi",
+    "long_group_label:Cork North Central and Surroundi",
+    "long_group_label:Cork North Central and Surroundi"
+  ]
+}

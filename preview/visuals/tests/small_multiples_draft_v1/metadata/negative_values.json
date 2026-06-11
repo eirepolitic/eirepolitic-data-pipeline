@@ -1,0 +1,81 @@
+{
+  "visual_id": "negative_values",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.895002+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "negative_values",
+    "case_description": "Includes negative values and should warn",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "negative_values"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "negative_values"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 2,
+  "point_count": 6,
+  "value_range": {
+    "min": -7.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Party A",
+      "x": "Jan",
+      "value": 20.0
+    },
+    {
+      "group": "Party A",
+      "x": "Feb",
+      "value": -5.0
+    },
+    {
+      "group": "Party A",
+      "x": "Mar",
+      "value": 29.0
+    },
+    {
+      "group": "Party B",
+      "x": "Jan",
+      "value": 42.0
+    },
+    {
+      "group": "Party B",
+      "x": "Feb",
+      "value": 40.0
+    },
+    {
+      "group": "Party B",
+      "x": "Mar",
+      "value": -7.0
+    }
+  ],
+  "warnings": [
+    "negative_values_present",
+    "negative_values_present"
+  ]
+}

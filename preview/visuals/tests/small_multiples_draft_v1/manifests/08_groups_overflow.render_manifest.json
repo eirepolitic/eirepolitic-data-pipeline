@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "08_groups_overflow",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "output_png": "generated_visual_tests/small_multiples_draft_v1/png/08_groups_overflow.png",
+  "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/08_groups_overflow.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_groups:8->6"
+  ],
+  "created_at": "2026-06-11T05:15:36.795458+00:00",
+  "description": "Eight groups; should truncate to template maximum"
+}

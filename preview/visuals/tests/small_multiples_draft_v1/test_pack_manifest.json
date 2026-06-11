@@ -1,0 +1,187 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/small_multiples_draft_v1.yml",
+  "case_count": 11,
+  "contact_sheet": "generated_visual_tests/small_multiples_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "02_groups",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/02_groups.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/02_groups.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T05:15:36.716563+00:00",
+      "description": "Two mini trend panels"
+    },
+    {
+      "success": true,
+      "visual_id": "04_groups",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/04_groups.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/04_groups.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T05:15:36.743382+00:00",
+      "description": "Four mini trend panels"
+    },
+    {
+      "success": true,
+      "visual_id": "06_groups",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/06_groups.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/06_groups.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T05:15:36.769657+00:00",
+      "description": "Six mini trend panels at template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "08_groups_overflow",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/08_groups_overflow.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/08_groups_overflow.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_groups:8->6"
+      ],
+      "created_at": "2026-06-11T05:15:36.795458+00:00",
+      "description": "Eight groups; should truncate to template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "dense_timeline",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/dense_timeline.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/dense_timeline.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_points:Dublin Bay South:14->12",
+        "truncated_points:Cork North Central:14->12"
+      ],
+      "created_at": "2026-06-11T05:15:36.819895+00:00",
+      "description": "Fourteen points per group; should truncate to point maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "long_group_labels",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/long_group_labels.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/long_group_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Cork North Central and Surroundi"
+      ],
+      "created_at": "2026-06-11T05:15:36.846215+00:00",
+      "description": "Long group labels"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_point:Party A",
+        "missing_or_invalid_point:Party B"
+      ],
+      "created_at": "2026-06-11T05:15:36.868606+00:00",
+      "description": "Missing and invalid observations"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T05:15:36.895002+00:00",
+      "description": "Includes negative values and should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T05:15:36.915922+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T05:15:36.940727+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Dublin Bay South and Inner Subur",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Cork North Central and Surroundi",
+        "long_group_label:Galway West and Coastal Communit",
+        "long_group_label:Galway West and Coastal Communit",
+        "long_group_label:Galway West and Coastal Communit",
+        "long_group_label:Galway West and Coastal Communit",
+        "long_group_label:Limerick City and County Metropo",
+        "long_group_label:Limerick City and County Metropo",
+        "long_group_label:Limerick City and County Metropo",
+        "long_group_label:Limerick City and County Metropo"
+      ],
+      "created_at": "2026-06-11T05:15:36.976889+00:00",
+      "description": "Six long group labels with wide values"
+    }
+  ]
+}

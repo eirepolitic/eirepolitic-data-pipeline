@@ -1,0 +1,88 @@
+{
+  "visual_id": "tight_range",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.915922+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "tight_range",
+    "case_description": "Values close together",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "tight_range"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "tight_range"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 2,
+  "point_count": 8,
+  "value_range": {
+    "min": 0.0,
+    "max": 58.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Party A",
+      "x": "Jan",
+      "value": 51.0
+    },
+    {
+      "group": "Party A",
+      "x": "Feb",
+      "value": 52.0
+    },
+    {
+      "group": "Party A",
+      "x": "Mar",
+      "value": 53.0
+    },
+    {
+      "group": "Party A",
+      "x": "Apr",
+      "value": 54.0
+    },
+    {
+      "group": "Party B",
+      "x": "Jan",
+      "value": 55.0
+    },
+    {
+      "group": "Party B",
+      "x": "Feb",
+      "value": 56.0
+    },
+    {
+      "group": "Party B",
+      "x": "Mar",
+      "value": 57.0
+    },
+    {
+      "group": "Party B",
+      "x": "Apr",
+      "value": 58.0
+    }
+  ],
+  "warnings": []
+}

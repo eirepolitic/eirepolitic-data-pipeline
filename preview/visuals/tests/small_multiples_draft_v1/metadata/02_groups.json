@@ -1,0 +1,88 @@
+{
+  "visual_id": "02_groups",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.716563+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "02_groups",
+    "case_description": "Two mini trend panels",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "02_groups"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "02_groups"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 2,
+  "point_count": 8,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Party A",
+      "x": "Jan",
+      "value": 20.0
+    },
+    {
+      "group": "Party A",
+      "x": "Feb",
+      "value": 24.0
+    },
+    {
+      "group": "Party A",
+      "x": "Mar",
+      "value": 29.0
+    },
+    {
+      "group": "Party A",
+      "x": "Apr",
+      "value": 35.0
+    },
+    {
+      "group": "Party B",
+      "x": "Jan",
+      "value": 42.0
+    },
+    {
+      "group": "Party B",
+      "x": "Feb",
+      "value": 40.0
+    },
+    {
+      "group": "Party B",
+      "x": "Mar",
+      "value": 37.0
+    },
+    {
+      "group": "Party B",
+      "x": "Apr",
+      "value": 33.0
+    }
+  ],
+  "warnings": []
+}

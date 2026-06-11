@@ -1,0 +1,110 @@
+{
+  "visual_id": "08_groups_overflow",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.795458+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "08_groups_overflow",
+    "case_description": "Eight groups; should truncate to template maximum",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "08_groups_overflow"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "08_groups_overflow"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 6,
+  "point_count": 12,
+  "value_range": {
+    "min": 0.0,
+    "max": 60.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Group 1",
+      "x": "Jan",
+      "value": 10.0
+    },
+    {
+      "group": "Group 1",
+      "x": "Feb",
+      "value": 12.0
+    },
+    {
+      "group": "Group 2",
+      "x": "Jan",
+      "value": 20.0
+    },
+    {
+      "group": "Group 2",
+      "x": "Feb",
+      "value": 18.0
+    },
+    {
+      "group": "Group 3",
+      "x": "Jan",
+      "value": 30.0
+    },
+    {
+      "group": "Group 3",
+      "x": "Feb",
+      "value": 33.0
+    },
+    {
+      "group": "Group 4",
+      "x": "Jan",
+      "value": 40.0
+    },
+    {
+      "group": "Group 4",
+      "x": "Feb",
+      "value": 38.0
+    },
+    {
+      "group": "Group 5",
+      "x": "Jan",
+      "value": 50.0
+    },
+    {
+      "group": "Group 5",
+      "x": "Feb",
+      "value": 52.0
+    },
+    {
+      "group": "Group 6",
+      "x": "Jan",
+      "value": 60.0
+    },
+    {
+      "group": "Group 6",
+      "x": "Feb",
+      "value": 58.0
+    }
+  ],
+  "warnings": [
+    "truncated_groups:8->6"
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "visual_id": "dense_timeline",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.819895+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "dense_timeline",
+    "case_description": "Fourteen points per group; should truncate to point maximum",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "dense_timeline"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "dense_timeline"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 2,
+  "point_count": 24,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Dublin Bay South",
+      "x": "W01",
+      "value": 20.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W02",
+      "value": 21.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W03",
+      "value": 22.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W04",
+      "value": 24.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W05",
+      "value": 25.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W06",
+      "value": 28.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W07",
+      "value": 30.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W08",
+      "value": 29.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W09",
+      "value": 31.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W10",
+      "value": 33.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W11",
+      "value": 35.0
+    },
+    {
+      "group": "Dublin Bay South",
+      "x": "W12",
+      "value": 36.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W01",
+      "value": 42.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W02",
+      "value": 40.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W03",
+      "value": 39.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W04",
+      "value": 37.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W05",
+      "value": 36.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W06",
+      "value": 34.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W07",
+      "value": 35.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W08",
+      "value": 33.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W09",
+      "value": 31.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W10",
+      "value": 30.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W11",
+      "value": 29.0
+    },
+    {
+      "group": "Cork North Central",
+      "x": "W12",
+      "value": 27.0
+    }
+  ],
+  "warnings": [
+    "truncated_points:Dublin Bay South:14->12",
+    "truncated_points:Cork North Central:14->12"
+  ]
+}

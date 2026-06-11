@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "visual_id": "negative_values",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "output_png": "generated_visual_tests/small_multiples_draft_v1/png/negative_values.png",
+  "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/negative_values.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "negative_values_present",
+    "negative_values_present"
+  ],
+  "created_at": "2026-06-11T05:15:36.895002+00:00",
+  "description": "Includes negative values and should warn"
+}

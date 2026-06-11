@@ -1,0 +1,168 @@
+{
+  "visual_id": "06_groups",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "created_at": "2026-06-11T05:15:36.769657+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
+    "case_id": "06_groups",
+    "case_description": "Six mini trend panels at template maximum",
+    "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
+  },
+  "bindings": {
+    "group": "group",
+    "x": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "06_groups"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "06_groups"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "group_count": 6,
+  "point_count": 24,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "group": "Party A",
+      "x": "Jan",
+      "value": 20.0
+    },
+    {
+      "group": "Party A",
+      "x": "Feb",
+      "value": 24.0
+    },
+    {
+      "group": "Party A",
+      "x": "Mar",
+      "value": 29.0
+    },
+    {
+      "group": "Party A",
+      "x": "Apr",
+      "value": 35.0
+    },
+    {
+      "group": "Party B",
+      "x": "Jan",
+      "value": 42.0
+    },
+    {
+      "group": "Party B",
+      "x": "Feb",
+      "value": 40.0
+    },
+    {
+      "group": "Party B",
+      "x": "Mar",
+      "value": 37.0
+    },
+    {
+      "group": "Party B",
+      "x": "Apr",
+      "value": 33.0
+    },
+    {
+      "group": "Party C",
+      "x": "Jan",
+      "value": 18.0
+    },
+    {
+      "group": "Party C",
+      "x": "Feb",
+      "value": 20.0
+    },
+    {
+      "group": "Party C",
+      "x": "Mar",
+      "value": 19.0
+    },
+    {
+      "group": "Party C",
+      "x": "Apr",
+      "value": 22.0
+    },
+    {
+      "group": "Party D",
+      "x": "Jan",
+      "value": 9.0
+    },
+    {
+      "group": "Party D",
+      "x": "Feb",
+      "value": 13.0
+    },
+    {
+      "group": "Party D",
+      "x": "Mar",
+      "value": 15.0
+    },
+    {
+      "group": "Party D",
+      "x": "Apr",
+      "value": 18.0
+    },
+    {
+      "group": "Party E",
+      "x": "Jan",
+      "value": 15.0
+    },
+    {
+      "group": "Party E",
+      "x": "Feb",
+      "value": 14.0
+    },
+    {
+      "group": "Party E",
+      "x": "Mar",
+      "value": 16.0
+    },
+    {
+      "group": "Party E",
+      "x": "Apr",
+      "value": 17.0
+    },
+    {
+      "group": "Others",
+      "x": "Jan",
+      "value": 12.0
+    },
+    {
+      "group": "Others",
+      "x": "Feb",
+      "value": 11.0
+    },
+    {
+      "group": "Others",
+      "x": "Mar",
+      "value": 10.0
+    },
+    {
+      "group": "Others",
+      "x": "Apr",
+      "value": 8.0
+    }
+  ],
+  "warnings": []
+}
