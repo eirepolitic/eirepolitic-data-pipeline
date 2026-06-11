@@ -15,6 +15,7 @@ from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_json, make_s3_client, put
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
+from .table_bills import TABLE_NAME as BILLS_TABLE, build_silver_bills
 from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
 from .table_debate_records import TABLE_NAME as DEBATE_RECORDS_TABLE, build_silver_debate_records
 from .table_debate_sections import TABLE_NAME as DEBATE_SECTIONS_TABLE, build_silver_debate_sections
@@ -149,6 +150,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_member_votes(**filtered, date_start=args.date_start, date_end=args.date_end)
     elif args.table == QUESTIONS_TABLE:
         result = build_silver_questions(**filtered, date_start=args.date_start, date_end=args.date_end)
+    elif args.table == BILLS_TABLE:
+        result = build_silver_bills(**filtered, date_start=args.date_start, date_end=args.date_end)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
