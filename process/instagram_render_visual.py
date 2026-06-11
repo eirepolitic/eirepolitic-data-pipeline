@@ -29,6 +29,7 @@ RENDERERS = {
     "dot_plot": "instagram.visuals.renderers.dot_plot",
     "lollipop_chart": "instagram.visuals.renderers.lollipop_chart",
     "slope_chart": "instagram.visuals.renderers.slope_chart",
+    "donut_chart": "instagram.visuals.renderers.donut_chart",
 }
 
 
