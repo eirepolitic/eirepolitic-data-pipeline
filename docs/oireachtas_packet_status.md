@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** G02 — `gold_member_activity_yearly`
+**Current packet:** G03 — `gold_member_activity_monthly`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -49,78 +49,92 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **T22 — `silver_bill_debates`**: run `27356675022`; 12 rows; PK `bill_debate_id`; DQ pass.
 - **T23 — `silver_bill_events`**: run `27359680226`; 19 rows; PK `bill_event_id`; DQ pass.
 
+## Confirmed gold packets
+
 ### G01 — `gold_current_members`
 
 - Builder: `extract/oireachtas/table_gold_current_members.py`
+- Final run: `27362834154`; run number 41; success.
+- Input latest silver rows: members 25, memberships 25, parties 25, constituencies 25, offices 77.
+- Output rows: 10, limited by workflow test default `limit=10`.
+- PK `member_code`, unique; DQ pass.
+- Final run ID: `gold_current_members_20260611T164637Z`.
+- Review: `review/gold_current_members/latest/{manifest.json,sample.csv,dq.json}`.
+
+### G02 — `gold_member_activity_yearly`
+
+- Builder: `extract/oireachtas/table_gold_member_activity_yearly.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27362834154`
-- Run number: 41
+- Final run: `27363058073`
+- Run number: 42
 - Result: success
-- Input latest silver rows:
-  - `silver_members`: 25
-  - `silver_member_memberships`: 25
-  - `silver_member_parties`: 25
-  - `silver_member_constituencies`: 25
-  - `silver_member_offices`: 77
-- Current bridge rows selected:
-  - memberships: 25
-  - parties: 25
-  - constituencies: 25
-  - office member rows: 42
+- Input latest rows:
+  - `gold_current_members`: 10
+  - `silver_speeches`: 357
+  - `silver_member_votes`: 512
+  - `silver_divisions`: 3
+- Speech metric rows: 46
+- Vote metric rows: 172
+- Division-year rows: 1
+- Member-year rows before limit: 173
 - Output rows: 10, limited by workflow test default `limit=10`.
-- PK: `member_code`, unique
+- Year values: `2025`
+- PK: `member_code`, `year`, unique
 - DQ: pass
-- Final run ID: `gold_current_members_20260611T164637Z`.
+- Final run ID: `gold_member_activity_yearly_20260611T165033Z`.
 - Normalized columns:
   - `member_code`
-  - `full_name`
-  - `party_name`
-  - `constituency_name`
-  - `house_no`
-  - `office_name`
+  - `year`
+  - `speech_count`
+  - `debate_day_count`
+  - `division_count`
+  - `votes_cast_count`
+  - `vote_participation_pct`
+  - `ta_count`
+  - `nil_count`
+  - `staon_count`
+  - `speech_rank`
+  - `vote_participation_rank`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
-  - full name populated;
-  - party name populated;
-  - constituency name populated;
-  - house number populated;
-  - `office_name` optional for members without current office records.
+  - member code and year populated;
+  - numeric metrics populated;
+  - rank fields populated.
+- Sample leaders include Verona Murphy, Matt Carthy, Paul McAuliffe, Pearse Doherty, Louise O'Reilly, Mary Lou McDonald, Pádraig Mac Lochlainn, Richard Boyd Barrett, Hildegarde Naughton, and Paul Murphy.
 - Review:
-  - `review/gold_current_members/latest/manifest.json`
-  - `review/gold_current_members/latest/sample.csv`
-  - `review/gold_current_members/latest/dq.json`
-- Sample includes current members such as Ciarán Ahern, William Aird, Catherine Ardagh, Ivana Bacik, Cathy Bennett, Grace Boland, Richard Boyd Barrett, Tom Brabazon, John Brady, and Brian Brennan.
+  - `review/gold_member_activity_yearly/latest/manifest.json`
+  - `review/gold_member_activity_yearly/latest/sample.csv`
+  - `review/gold_member_activity_yearly/latest/dq.json`
 
 ## Next packet
 
-### G02 — `gold_member_activity_yearly`
+### G03 — `gold_member_activity_monthly`
 
 Goal:
 
-- add yearly member activity mart from confirmed silver speech and vote tables plus `gold_current_members`;
-- build one row per `member_code` + year;
-- calculate speech count, debate-day count, division count, votes-cast count, vote participation percentage, Tá/Níl/Staon-style vote counts where labels exist, and deterministic ranks;
-- preserve traceable joins to `silver_speeches.speaker_member_code` and `silver_member_votes.member_code`;
+- add monthly member activity mart from confirmed `silver_speeches` and `silver_member_votes` inputs;
+- build one row per `member_code` + `year_month`;
+- calculate speech count, debate-day count, and votes-cast count;
 - publish CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key uniqueness on `member_code + year`, member_code populated, numeric metrics populated, and rank fields populated.
+- validate row count > 0, primary key uniqueness on `member_code + year_month`, member code populated, month populated, and numeric metrics populated.
 
 Expected files:
 
-- `extract/oireachtas/table_gold_member_activity_yearly.py`
+- `extract/oireachtas/table_gold_member_activity_monthly.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `gold_member_activity_yearly`
+- update `.github/workflows/oireachtas_table_test.yml` default to `gold_member_activity_monthly`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table gold_member_activity_yearly \
+  --table gold_member_activity_monthly \
   --mode test \
   --limit 25 \
   --write-review-sample
@@ -130,7 +144,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start G02 — gold_member_activity_yearly.
-Workflow default currently points to gold_current_members.
-Use latest CSV inputs from gold_current_members, silver_speeches, silver_member_votes, and silver_divisions where useful.
+Start G03 — gold_member_activity_monthly.
+Workflow default currently points to gold_member_activity_yearly.
+Use latest CSV inputs from silver_speeches and silver_member_votes, optionally gold_current_members for current-member grid.
 ```
