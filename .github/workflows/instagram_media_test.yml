@@ -69,6 +69,7 @@ jobs:
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/choropleth_map_draft_v1.sample.yml" --output-root "generated_visuals/choropleth_map_draft_v1"
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/point_map_draft_v1.sample.yml" --output-root "generated_visuals/point_map_draft_v1"
             python process/instagram_render_visual.py --sample "instagram/visuals/samples/table_card_draft_v1.sample.yml" --output-root "generated_visuals/table_card_draft_v1"
+            python process/instagram_render_visual.py --sample "instagram/visuals/samples/small_multiples_draft_v1.sample.yml" --output-root "generated_visuals/small_multiples_draft_v1"
           } 2>&1 | tee workflow_debug/visual_preview.log
 
       - name: Render visual variation test packs
@@ -85,6 +86,7 @@ jobs:
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/choropleth_map_draft_v1/cases.yml" --output-root "generated_visual_tests/choropleth_map_draft_v1"
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/point_map_draft_v1/cases.yml" --output-root "generated_visual_tests/point_map_draft_v1"
             python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/table_card_draft_v1/cases.yml" --output-root "generated_visual_tests/table_card_draft_v1"
+            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/small_multiples_draft_v1/cases.yml" --output-root "generated_visual_tests/small_multiples_draft_v1"
           } 2>&1 | tee workflow_debug/visual_test_pack.log
 
       - name: Publish visual preview branch
@@ -93,7 +95,7 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
-          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1"
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
           git config user.name "github-actions[bot]"
@@ -144,6 +146,7 @@ jobs:
               "choropleth_map_draft_v1",
               "point_map_draft_v1",
               "table_card_draft_v1",
+              "small_multiples_draft_v1",
           ]
           lines = [
               "# Instagram visual preview output",
