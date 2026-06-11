@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-06-10  
-**Current packet:** T18 — `silver_bill_versions`
+**Last updated:** 2026-06-11  
+**Current packet:** T19 — `silver_bill_stages`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -82,76 +82,79 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - XML source IDs align with T09; answer text and PDF fields are blank because not exposed/null in the API response.
 
 ### T17 — `silver_bills`
-
 - Builder: `extract/oireachtas/table_bills.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
 - Final run: `27325455277`
-- Run number: 33
-- Result: success
-- Raw legislation rows: 10
-- Output rows: 10
-- PK: `bill_id`, unique
-- DQ: pass
+- Final run ID: `silver_bills_20260611T051524Z`
+- Rows: 10; PK `bill_id`; DQ pass.
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Confirmed API shape:
-  - wrapper: `bill`;
-  - identity: `bill.uri`;
-  - number/year: `bill.billNo`, `bill.billYear`;
-  - titles: `bill.shortTitleEn`, `bill.longTitleEn`, `bill.shortTitleGa`, `bill.longTitleGa`;
-  - origin house: `bill.originHouse.{uri,showAs}` and `bill.originHouseURI`;
-  - bill type: `bill.billType`;
-  - status: `bill.status`;
-  - method: `bill.method`;
-  - latest stage: `bill.mostRecentStage.event`;
-  - nested collections: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, and `bill.amendmentLists`.
-- All bill IDs, numbers, years, titles, origin house URIs, bill types, statuses, introduced dates, latest-event dates, and source endpoint fields were populated.
-- `bill_type_values`: `Public`.
-- `status_values`: `Current`, `Lapsed`.
-- `origin_house_values`: `Seanad Éireann` for the sample.
-- Dates are derived from all parseable dates in the bill payload:
-  - `introduced_date` = earliest collected date;
-  - `last_event_date` = latest collected date, including `lastUpdated`.
-- Confirmed nested shapes for next packets:
-  - versions: `bill.versions[].version.{uri,showAs,date,docType,lang,formats}`;
-  - stages: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
-  - related docs: `bill.relatedDocs[].relatedDoc.{uri,showAs,date,docType,lang,formats}`;
-  - sponsors: `bill.sponsors[].sponsor.{by,as,isPrimary}`;
-  - debates: `bill.debates[].{uri,showAs,date,debateSectionId,chamber}`;
-  - events: `bill.events[].event.{uri,eventURI,showAs,dates,chamber}`.
-- First sample row: Child Maintenance Bill 2026, bill 35/2026, status `Current`, introduced date `2025-01-21`, latest event date `2026-04-27`.
-- Final run ID: `silver_bills_20260611T051524Z`.
+- Confirmed wrapper: `bill`; identity: `bill.uri`.
+- Confirmed nested shapes: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, `bill.amendmentLists`.
 - Review:
   - `review/silver_bills/latest/manifest.json`
   - `review/silver_bills/latest/sample.csv`
   - `review/silver_bills/latest/dq.json`
 
+### T18 — `silver_bill_versions`
+- Builder: `extract/oireachtas/table_bill_versions.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27326809702`
+- Run number: 34
+- Result: success
+- Raw legislation rows: 10
+- Bills with versions: 10
+- Output rows: 10
+- PK: `bill_version_id`, unique
+- DQ: pass
+- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
+- Source shape used:
+  - wrapper: `bill`;
+  - bill join key: `bill.uri` -> `bill_id`;
+  - versions: `bill.versions[].version`;
+  - fields: `version.uri`, `version.showAs`, `version.date`, `version.docType`, `version.lang`, `version.formats.pdf.uri`, `version.formats.xml.uri`.
+- Normalized fields:
+  - `bill_version_id`;
+  - `bill_id` preserving join to `silver_bills.bill_id`;
+  - `version_label`;
+  - `version_date`;
+  - PDF/XML format URIs and absolute URLs;
+  - T09-compatible `source_file_id_pdf` / `source_file_id_xml`;
+  - source-file S3 keys;
+  - `snapshot_date`.
+- Null XML/PDF formats are supported. In the test sample, PDF was populated for all 10 rows and XML was null for all rows.
+- Source-file IDs were marked deterministic and compatible with the T09 hashing pattern.
+- Final run ID: `silver_bill_versions_20260611T055143Z`.
+- Review:
+  - `review/silver_bill_versions/latest/manifest.json`
+  - `review/silver_bill_versions/latest/sample.csv`
+  - `review/silver_bill_versions/latest/dq.json`
+
 ## Next packet
 
-### T18 — `silver_bill_versions`
+### T19 — `silver_bill_stages`
 
 Goal:
 
-- build one row per bill version/document from `bill.versions[].version`;
-- normalize `bill_version_id`, `bill_id`, `version_label`, `version_date`, XML/PDF format URIs/URLs, T09-compatible source-file IDs, S3 target keys, and snapshot date;
-- support format fields under `version.formats.{pdf,xml}` and keep null formats blank;
+- build one row per bill stage/progress event from `bill.stages[].event`;
+- normalize `bill_stage_id`, `bill_id`, `stage_name`, `stage_date`, house URI/name, stage outcome, order within bill, and snapshot date;
 - preserve join to `silver_bills.bill_id`;
+- use confirmed T17 shape: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate primary-key uniqueness, bill joins, version labels/dates, and at least one source format per version.
+- validate row count, primary-key uniqueness, bill joins, stage labels, stage dates, and order fields.
 
 Expected files:
 
-- `extract/oireachtas/table_bill_versions.py`
+- `extract/oireachtas/table_bill_stages.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_versions`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_stages`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_versions \
+  --table silver_bill_stages \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -165,7 +168,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T18 — silver_bill_versions.
-Workflow default currently points to silver_bills.
-Use bill.versions[].version from the confirmed T17 payload; keep relatedDocs for a later source-doc packet unless the model is revised.
+Start T19 — silver_bill_stages.
+Workflow default currently points to silver_bill_versions.
+Use bill.stages[].event from the confirmed T17 payload.
 ```
