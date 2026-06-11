@@ -33,10 +33,10 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `small_multiples_draft_v1`
 - `area_chart_draft_v1`
 - `scatter_plot_draft_v1`
+- `dot_plot_draft_v1`
 
 ## Planned visual sequence
 
-- dot plot
 - lollipop chart
 - slope chart
 - donut/pie chart where useful
