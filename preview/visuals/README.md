@@ -18,6 +18,7 @@ Contact sheets:
 - lollipop_chart_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/lollipop_chart_draft_v1/contact_sheet.png
 - slope_chart_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/slope_chart_draft_v1/contact_sheet.png
 - donut_chart_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/donut_chart_draft_v1/contact_sheet.png
+- tile_map_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/tile_map_draft_v1/contact_sheet.png
 
 Sample PNGs:
 - horizontal_bar_draft_v1/top_issues_horizontal_bar_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/horizontal_bar_draft_v1/png/top_issues_horizontal_bar_draft_v1.png
@@ -35,5 +36,6 @@ Sample PNGs:
 - lollipop_chart_draft_v1/issue_volume_lollipop_chart_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/lollipop_chart_draft_v1/png/issue_volume_lollipop_chart_draft_v1.png
 - slope_chart_draft_v1/support_change_slope_chart_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/slope_chart_draft_v1/png/support_change_slope_chart_draft_v1.png
 - donut_chart_draft_v1/issue_share_donut_chart_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/donut_chart_draft_v1/png/issue_share_donut_chart_draft_v1.png
+- tile_map_draft_v1/constituency_tile_map_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/tile_map_draft_v1/png/constituency_tile_map_draft_v1.png
 
 Review only: this does not publish, schedule, or approve Instagram content.

@@ -1,0 +1,93 @@
+{
+  "visual_id": "tight_range",
+  "template_id": "tile_map_draft_v1",
+  "renderer": "tile_map",
+  "created_at": "2026-06-11T16:45:59.959364+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/tile_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/tile_map_draft_v1/data/cases.csv",
+    "case_id": "tight_range",
+    "case_description": "Values close together",
+    "registry_path": "instagram/visuals/tests/tile_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/tile_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/tile_map_draft_v1/geography/sample_tile_layout.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/tile_map_draft_v1/geography/sample_tile_layout.json",
+    "tile_count": 8,
+    "joined_tile_count": 8,
+    "missing_feature_ids": [],
+    "unmatched_data_ids": []
+  },
+  "bindings": {
+    "feature_id": "feature_id",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "tight_range"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "tight_range"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "value_range": {
+    "min": 51.0,
+    "max": 58.0
+  },
+  "rows_rendered": [
+    {
+      "case_id": "tight_range",
+      "feature_id": "C01",
+      "value": "51"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C02",
+      "value": "52"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C03",
+      "value": "53"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C04",
+      "value": "54"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C05",
+      "value": "55"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C06",
+      "value": "56"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C07",
+      "value": "57"
+    },
+    {
+      "case_id": "tight_range",
+      "feature_id": "C08",
+      "value": "58"
+    }
+  ],
+  "warnings": []
+}

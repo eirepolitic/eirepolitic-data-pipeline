@@ -1,0 +1,68 @@
+{
+  "visual_id": "single_value",
+  "template_id": "tile_map_draft_v1",
+  "renderer": "tile_map",
+  "created_at": "2026-06-11T16:46:00.099509+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/tile_map_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/tile_map_draft_v1/data/cases.csv",
+    "case_id": "single_value",
+    "case_description": "Single joined tile value",
+    "registry_path": "instagram/visuals/tests/tile_map_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/tile_map_draft_v1.yml"
+  },
+  "geography": {
+    "source": "instagram/visuals/tests/tile_map_draft_v1/geography/sample_tile_layout.json",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/tile_map_draft_v1/geography/sample_tile_layout.json",
+    "tile_count": 8,
+    "joined_tile_count": 1,
+    "missing_feature_ids": [
+      "C01",
+      "C02",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08"
+    ],
+    "unmatched_data_ids": []
+  },
+  "bindings": {
+    "feature_id": "feature_id",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "single_value"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "single_value"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "value_range": {
+    "min": 55.0,
+    "max": 55.0
+  },
+  "rows_rendered": [
+    {
+      "case_id": "single_value",
+      "feature_id": "C03",
+      "value": "55"
+    }
+  ],
+  "warnings": [
+    "no_data_features:C01,C02,C04,C05,C06,C07,C08"
+  ]
+}

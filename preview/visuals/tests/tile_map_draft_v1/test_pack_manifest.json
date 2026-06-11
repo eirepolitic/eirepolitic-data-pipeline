@@ -1,0 +1,154 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/tile_map_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/tile_map_draft_v1.yml",
+  "case_count": 10,
+  "contact_sheet": "generated_visual_tests/tile_map_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "complete_join",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/complete_join.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/complete_join.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:45:59.875723+00:00",
+      "description": "All tile IDs join to values"
+    },
+    {
+      "success": true,
+      "visual_id": "sparse_join",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/sparse_join.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/sparse_join.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "no_data_features:C02,C04,C05,C07"
+      ],
+      "created_at": "2026-06-11T16:45:59.904231+00:00",
+      "description": "Some layout tiles have no data"
+    },
+    {
+      "success": true,
+      "visual_id": "unmatched_ids",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/unmatched_ids.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/unmatched_ids.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "unmatched_data_features:C99",
+        "no_data_features:C03,C04,C05,C06,C07,C08"
+      ],
+      "created_at": "2026-06-11T16:45:59.930724+00:00",
+      "description": "Data contains feature IDs absent from layout"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:45:59.959364+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:45:59.988219+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_values",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/zero_values.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/zero_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:46:00.016691+00:00",
+      "description": "Includes zero values"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:46:00.045169+00:00",
+      "description": "Includes negative values"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value:C02",
+        "missing_or_invalid_value:C03",
+        "no_data_features:C02,C03"
+      ],
+      "created_at": "2026-06-11T16:46:00.073457+00:00",
+      "description": "Missing and invalid values should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "single_value",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/single_value.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/single_value.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "no_data_features:C01,C02,C04,C05,C06,C07,C08"
+      ],
+      "created_at": "2026-06-11T16:46:00.099509+00:00",
+      "description": "Single joined tile value"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "tile_map_draft_v1",
+      "renderer": "tile_map",
+      "output_png": "generated_visual_tests/tile_map_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/tile_map_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value:C04",
+        "unmatched_data_features:C99",
+        "no_data_features:C04"
+      ],
+      "created_at": "2026-06-11T16:46:00.128091+00:00",
+      "description": "Wide values, missing, negative, and unmatched IDs"
+    }
+  ]
+}
