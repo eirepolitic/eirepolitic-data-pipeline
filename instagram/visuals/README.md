@@ -30,10 +30,10 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `choropleth_map_draft_v1`
 - `point_map_draft_v1`
 - `table_card_draft_v1`
+- `small_multiples_draft_v1`
 
 ## Planned visual sequence
 
-- small multiples
 - area chart
 - scatter plot
 - dot plot
