@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "gold_content_fact_pool"
+        default: "control_pipeline_runs"
       mode:
         description: "Build mode"
         required: true
