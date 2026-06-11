@@ -4,11 +4,16 @@ input:
   mode: local_csv
   path: instagram/visuals/tests/horizontal_bar_draft_v1/data/04_items.csv
 transforms:
-  - id: fixture_label_counts
-    operation: count_by
+  - id: fixture_issue_speech_counts
+    operation: sum_by
     label_field_candidates:
+      - issue
       - label
       - category
+    value_field_candidates:
+      - speech_count
+      - value
+      - count
     output_label_field: label
     output_value_field: value
     fallback_label: Unknown
