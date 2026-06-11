@@ -1,0 +1,151 @@
+case_id,group,period,value
+02_groups,Party A,Jan,20
+02_groups,Party A,Feb,24
+02_groups,Party A,Mar,29
+02_groups,Party A,Apr,35
+02_groups,Party B,Jan,42
+02_groups,Party B,Feb,40
+02_groups,Party B,Mar,37
+02_groups,Party B,Apr,33
+04_groups,Party A,Jan,20
+04_groups,Party A,Feb,24
+04_groups,Party A,Mar,29
+04_groups,Party A,Apr,35
+04_groups,Party B,Jan,42
+04_groups,Party B,Feb,40
+04_groups,Party B,Mar,37
+04_groups,Party B,Apr,33
+04_groups,Party C,Jan,18
+04_groups,Party C,Feb,20
+04_groups,Party C,Mar,19
+04_groups,Party C,Apr,22
+04_groups,Others,Jan,12
+04_groups,Others,Feb,11
+04_groups,Others,Mar,10
+04_groups,Others,Apr,8
+06_groups,Party A,Jan,20
+06_groups,Party A,Feb,24
+06_groups,Party A,Mar,29
+06_groups,Party A,Apr,35
+06_groups,Party B,Jan,42
+06_groups,Party B,Feb,40
+06_groups,Party B,Mar,37
+06_groups,Party B,Apr,33
+06_groups,Party C,Jan,18
+06_groups,Party C,Feb,20
+06_groups,Party C,Mar,19
+06_groups,Party C,Apr,22
+06_groups,Party D,Jan,9
+06_groups,Party D,Feb,13
+06_groups,Party D,Mar,15
+06_groups,Party D,Apr,18
+06_groups,Party E,Jan,15
+06_groups,Party E,Feb,14
+06_groups,Party E,Mar,16
+06_groups,Party E,Apr,17
+06_groups,Others,Jan,12
+06_groups,Others,Feb,11
+06_groups,Others,Mar,10
+06_groups,Others,Apr,8
+08_groups_overflow,Group 1,Jan,10
+08_groups_overflow,Group 1,Feb,12
+08_groups_overflow,Group 2,Jan,20
+08_groups_overflow,Group 2,Feb,18
+08_groups_overflow,Group 3,Jan,30
+08_groups_overflow,Group 3,Feb,33
+08_groups_overflow,Group 4,Jan,40
+08_groups_overflow,Group 4,Feb,38
+08_groups_overflow,Group 5,Jan,50
+08_groups_overflow,Group 5,Feb,52
+08_groups_overflow,Group 6,Jan,60
+08_groups_overflow,Group 6,Feb,58
+08_groups_overflow,Group 7,Jan,70
+08_groups_overflow,Group 7,Feb,74
+08_groups_overflow,Group 8,Jan,80
+08_groups_overflow,Group 8,Feb,78
+dense_timeline,Dublin Bay South,W01,20
+dense_timeline,Dublin Bay South,W02,21
+dense_timeline,Dublin Bay South,W03,22
+dense_timeline,Dublin Bay South,W04,24
+dense_timeline,Dublin Bay South,W05,25
+dense_timeline,Dublin Bay South,W06,28
+dense_timeline,Dublin Bay South,W07,30
+dense_timeline,Dublin Bay South,W08,29
+dense_timeline,Dublin Bay South,W09,31
+dense_timeline,Dublin Bay South,W10,33
+dense_timeline,Dublin Bay South,W11,35
+dense_timeline,Dublin Bay South,W12,36
+dense_timeline,Dublin Bay South,W13,38
+dense_timeline,Dublin Bay South,W14,40
+dense_timeline,Cork North Central,W01,42
+dense_timeline,Cork North Central,W02,40
+dense_timeline,Cork North Central,W03,39
+dense_timeline,Cork North Central,W04,37
+dense_timeline,Cork North Central,W05,36
+dense_timeline,Cork North Central,W06,34
+dense_timeline,Cork North Central,W07,35
+dense_timeline,Cork North Central,W08,33
+dense_timeline,Cork North Central,W09,31
+dense_timeline,Cork North Central,W10,30
+dense_timeline,Cork North Central,W11,29
+dense_timeline,Cork North Central,W12,27
+dense_timeline,Cork North Central,W13,26
+dense_timeline,Cork North Central,W14,25
+long_group_labels,Dublin Bay South and Inner Suburbs,Jan,20
+long_group_labels,Dublin Bay South and Inner Suburbs,Feb,24
+long_group_labels,Dublin Bay South and Inner Suburbs,Mar,29
+long_group_labels,Cork North Central and Surrounding Towns,Jan,42
+long_group_labels,Cork North Central and Surrounding Towns,Feb,40
+long_group_labels,Cork North Central and Surrounding Towns,Mar,37
+missing_values,Party A,Jan,20
+missing_values,Party A,Feb,
+missing_values,Party A,Mar,29
+missing_values,Party B,Jan,42
+missing_values,Party B,Feb,unknown
+missing_values,Party B,Mar,37
+negative_values,Party A,Jan,20
+negative_values,Party A,Feb,-5
+negative_values,Party A,Mar,29
+negative_values,Party B,Jan,42
+negative_values,Party B,Feb,40
+negative_values,Party B,Mar,-7
+tight_range,Party A,Jan,51
+tight_range,Party A,Feb,52
+tight_range,Party A,Mar,53
+tight_range,Party A,Apr,54
+tight_range,Party B,Jan,55
+tight_range,Party B,Feb,56
+tight_range,Party B,Mar,57
+tight_range,Party B,Apr,58
+wide_range,Party A,2019,1
+wide_range,Party A,2020,20
+wide_range,Party A,2021,300
+wide_range,Party A,2022,5000
+wide_range,Party B,2019,72000
+wide_range,Party B,2020,14000
+wide_range,Party B,2021,900
+wide_range,Party B,2022,12
+phone_readability_stress,Dublin Bay South and Inner Suburbs,W01,1
+phone_readability_stress,Dublin Bay South and Inner Suburbs,W02,20
+phone_readability_stress,Dublin Bay South and Inner Suburbs,W03,300
+phone_readability_stress,Dublin Bay South and Inner Suburbs,W04,5000
+phone_readability_stress,Cork North Central and Surrounding Towns,W01,72000
+phone_readability_stress,Cork North Central and Surrounding Towns,W02,14000
+phone_readability_stress,Cork North Central and Surrounding Towns,W03,900
+phone_readability_stress,Cork North Central and Surrounding Towns,W04,12
+phone_readability_stress,Galway West and Coastal Communities,W01,34
+phone_readability_stress,Galway West and Coastal Communities,W02,35
+phone_readability_stress,Galway West and Coastal Communities,W03,34
+phone_readability_stress,Galway West and Coastal Communities,W04,36
+phone_readability_stress,Limerick City and County Metropolitan Area,W01,22
+phone_readability_stress,Limerick City and County Metropolitan Area,W02,24
+phone_readability_stress,Limerick City and County Metropolitan Area,W03,26
+phone_readability_stress,Limerick City and County Metropolitan Area,W04,28
+phone_readability_stress,Waterford Regional Constituency,W01,12
+phone_readability_stress,Waterford Regional Constituency,W02,11
+phone_readability_stress,Waterford Regional Constituency,W03,13
+phone_readability_stress,Waterford Regional Constituency,W04,10
+phone_readability_stress,Mayo Rural Constituency,W01,41
+phone_readability_stress,Mayo Rural Constituency,W02,39
+phone_readability_stress,Mayo Rural Constituency,W03,38
+phone_readability_stress,Mayo Rural Constituency,W04,35
