@@ -1,0 +1,108 @@
+{
+  "visual_id": "12_items",
+  "template_id": "dot_plot_draft_v1",
+  "renderer": "dot_plot",
+  "created_at": "2026-06-11T06:35:19.141454+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "case_id": "12_items",
+    "case_description": "Twelve items at template maximum",
+    "registry_path": "instagram/visuals/tests/dot_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/dot_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "12_items"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "12_items"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 12,
+  "category_count": 1,
+  "value_range": {
+    "min": 0.0,
+    "max": 91.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Item 01",
+      "value": 91.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 02",
+      "value": 84.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 03",
+      "value": 77.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 04",
+      "value": 70.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 05",
+      "value": 63.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 06",
+      "value": 56.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 07",
+      "value": 49.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 08",
+      "value": 42.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 09",
+      "value": 35.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 10",
+      "value": 28.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 11",
+      "value": 21.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Item 12",
+      "value": 14.0,
+      "category": "Issue"
+    }
+  ],
+  "warnings": []
+}

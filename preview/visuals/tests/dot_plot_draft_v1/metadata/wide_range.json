@@ -1,0 +1,73 @@
+{
+  "visual_id": "wide_range",
+  "template_id": "dot_plot_draft_v1",
+  "renderer": "dot_plot",
+  "created_at": "2026-06-11T06:35:19.281132+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "case_id": "wide_range",
+    "case_description": "Values spanning several orders of magnitude",
+    "registry_path": "instagram/visuals/tests/dot_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/dot_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "wide_range"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "wide_range"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 5,
+  "category_count": 1,
+  "value_range": {
+    "min": 0.0,
+    "max": 72000.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Social impressions",
+      "value": 72000.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Media impressions",
+      "value": 5000.0,
+      "category": "Issue"
+    },
+    {
+      "label": "National mentions",
+      "value": 300.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Regional mentions",
+      "value": 20.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Local mentions",
+      "value": 1.0,
+      "category": "Issue"
+    }
+  ],
+  "warnings": []
+}

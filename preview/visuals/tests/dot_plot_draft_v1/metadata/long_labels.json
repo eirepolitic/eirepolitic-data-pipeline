@@ -1,0 +1,72 @@
+{
+  "visual_id": "long_labels",
+  "template_id": "dot_plot_draft_v1",
+  "renderer": "dot_plot",
+  "created_at": "2026-06-11T06:35:19.205597+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/dot_plot_draft_v1/data/cases.csv",
+    "case_id": "long_labels",
+    "case_description": "Long labels should truncate cleanly",
+    "registry_path": "instagram/visuals/tests/dot_plot_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/dot_plot_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 4,
+  "category_count": 1,
+  "value_range": {
+    "min": 0.0,
+    "max": 35.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation mentions",
+      "value": 35.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Emergency department waiting time mentions",
+      "value": 28.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Public transport frequency complaints",
+      "value": 18.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Cost of living pressure reports",
+      "value": 15.0,
+      "category": "Issue"
+    }
+  ],
+  "warnings": [
+    "long_label:Affordable rental accommodation me",
+    "long_label:Emergency department waiting time ",
+    "long_label:Public transport frequency complai"
+  ]
+}

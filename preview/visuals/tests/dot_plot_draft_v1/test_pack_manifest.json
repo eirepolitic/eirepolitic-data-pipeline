@@ -1,0 +1,182 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/dot_plot_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/dot_plot_draft_v1.yml",
+  "case_count": 12,
+  "contact_sheet": "generated_visual_tests/dot_plot_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "03_items",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/03_items.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/03_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.086240+00:00",
+      "description": "Three-item minimal dot plot"
+    },
+    {
+      "success": true,
+      "visual_id": "06_items",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/06_items.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/06_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.112204+00:00",
+      "description": "Six-item standard dot plot"
+    },
+    {
+      "success": true,
+      "visual_id": "12_items",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/12_items.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/12_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.141454+00:00",
+      "description": "Twelve items at template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "overflow_items",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/overflow_items.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/overflow_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_rows:14->12"
+      ],
+      "created_at": "2026-06-11T06:35:19.170791+00:00",
+      "description": "Fourteen items; should truncate to template max"
+    },
+    {
+      "success": true,
+      "visual_id": "long_labels",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/long_labels.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/long_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai"
+      ],
+      "created_at": "2026-06-11T06:35:19.205597+00:00",
+      "description": "Long labels should truncate cleanly"
+    },
+    {
+      "success": true,
+      "visual_id": "category_mix",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/category_mix.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/category_mix.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.231882+00:00",
+      "description": "Mixed categories and legend"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.255814+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.281132+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_values",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/zero_values.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/zero_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:35:19.303944+00:00",
+      "description": "Includes zero values"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:35:19.326932+00:00",
+      "description": "Includes negative values and should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value:Party B",
+        "missing_or_invalid_value:Party C"
+      ],
+      "created_at": "2026-06-11T06:35:19.348203+00:00",
+      "description": "Missing and invalid values should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "dot_plot_draft_v1",
+      "renderer": "dot_plot",
+      "output_png": "generated_visual_tests/dot_plot_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/dot_plot_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:35:19.391544+00:00",
+      "description": "Mixed categories, long labels, wide values, zero and negative values"
+    }
+  ]
+}
