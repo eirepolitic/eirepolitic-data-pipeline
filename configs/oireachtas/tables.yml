@@ -181,6 +181,15 @@ tables:
     description: "Bill related/source documents such as explanatory memoranda."
     columns: [related_doc_id, bill_id, related_doc_label, related_doc_date, doc_type, language, format_pdf_uri, format_pdf_url, format_xml_uri, format_xml_url, source_file_id_pdf, source_file_id_xml, s3_pdf_key, s3_xml_key, snapshot_date]
 
+  silver_bill_sponsors:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["bill_sponsor_id"]
+    description: "Bill sponsor bridge from legislation sponsor payloads."
+    columns: [bill_sponsor_id, bill_id, sponsor_uri, sponsor_name, sponsor_role_uri, sponsor_role_name, is_primary, sponsor_order, snapshot_date]
+
   control_pipeline_runs:
     layer: control
     status: planned
