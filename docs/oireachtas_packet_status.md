@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** T19 — `silver_bill_stages`
+**Current packet:** T20 — `silver_bill_related_docs`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -52,18 +52,9 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Output rows: 10
 - PK: `bill_id`, unique
 - DQ: pass
-- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
 - Final run ID: `silver_bills_20260611T051524Z`.
-- Confirmed API shape:
-  - wrapper: `bill`;
-  - identity: `bill.uri`;
-  - number/year: `bill.billNo`, `bill.billYear`;
-  - titles: `bill.shortTitleEn`, `bill.longTitleEn`, `bill.shortTitleGa`, `bill.longTitleGa`;
-  - origin house: `bill.originHouse.{uri,showAs}` and `bill.originHouseURI`;
-  - bill type/status: `bill.billType`, `bill.status`;
-  - latest stage: `bill.mostRecentStage.event`;
-  - nested collections: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, `bill.amendmentLists`.
-- Confirmed nested shapes for next packets:
+- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
+- Confirmed nested shapes:
   - versions: `bill.versions[].version.{uri,showAs,date,docType,lang,formats}`;
   - stages: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
   - related docs: `bill.relatedDocs[].relatedDoc.{uri,showAs,date,docType,lang,formats}`;
@@ -78,9 +69,6 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 ### T18 — `silver_bill_versions`
 
 - Builder: `extract/oireachtas/table_bill_versions.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
 - Final run: `27326814396`
 - Run number: 35
 - Result: success
@@ -90,68 +78,86 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Bills with versions: 10
 - PK: `bill_version_id`, unique
 - DQ: pass
-- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
 - Final run ID: `silver_bill_versions_20260611T055216Z`.
+- Format result: PDF source rows 10; XML source rows 0 because `version.formats.xml` was null in the sample payload.
+- Source-file ID pattern: `source_file:{stable_hash(['legislation', bill_id, format_type, format_uri, format_url], length=24)}`.
+- Review:
+  - `review/silver_bill_versions/latest/manifest.json`
+  - `review/silver_bill_versions/latest/sample.csv`
+  - `review/silver_bill_versions/latest/dq.json`
+
+### T19 — `silver_bill_stages`
+
+- Builder: `extract/oireachtas/table_bill_stages.py`
+- CLI/workflow updates:
+  - `extract/oireachtas/build_table.py`
+  - `.github/workflows/oireachtas_table_test.yml`
+- Final run: `27327648268`
+- Run number: 36
+- Result: success
+- Raw legislation rows: 10
+- Raw stage rows: 16
+- Output rows: 16
+- Bills with stages: 10
+- PK: `bill_stage_id`, unique
+- DQ: pass
+- Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
+- Final run ID: `silver_bill_stages_20260611T061231Z`.
 - Normalized columns:
-  - `bill_version_id`
+  - `bill_stage_id`
   - `bill_id`
-  - `version_label`
-  - `version_date`
-  - `format_pdf_uri`, `format_pdf_url`
-  - `format_xml_uri`, `format_xml_url`
-  - `source_file_id_pdf`, `source_file_id_xml`
-  - `s3_pdf_key`, `s3_xml_key`
+  - `stage_name`
+  - `stage_date`
+  - `house_uri`
+  - `house_name`
+  - `stage_outcome`
+  - `order_in_bill`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
   - `bill_id` populated, preserving join to `silver_bills.bill_id`;
-  - `version_label` populated;
-  - `version_date` populated;
-  - at least one source format per version;
-  - source-file IDs and S3 keys populated where formats exist;
-  - source-file IDs deterministic and T09-compatible.
-- Format result:
-  - PDF source rows: 10;
-  - XML source rows: 0 because `version.formats.xml` was null in the sample payload;
-  - null XML handled without crashing.
-- Source-file ID pattern:
-  - `source_file:{stable_hash(['legislation', bill_id, format_type, format_uri, format_url], length=24)}`.
-- S3 target key pattern:
-  - `raw/oireachtas_unified/source_files/legislation/<bill_slug>/<source_file_id_slug>.<ext>`.
+  - `stage_name` populated;
+  - `stage_date` populated;
+  - `house_uri` populated;
+  - `house_name` populated;
+  - `order_in_bill` populated.
+- Stage names observed: `Committee Stage`, `First Stage`, `Report Stage`, `Second Stage`.
+- Stage outcome values observed: `Current`; blank outcomes are allowed where API returns null.
+- House names observed: `26th Seanad`, `27th Seanad`.
 - Review:
-  - `review/silver_bill_versions/latest/manifest.json`
-  - `review/silver_bill_versions/latest/sample.csv`
-  - `review/silver_bill_versions/latest/dq.json`
+  - `review/silver_bill_stages/latest/manifest.json`
+  - `review/silver_bill_stages/latest/sample.csv`
+  - `review/silver_bill_stages/latest/dq.json`
 
 ## Next packet
 
-### T19 — `silver_bill_stages`
+### T20 — `silver_bill_related_docs`
 
 Goal:
 
-- build one row per bill stage/progress event from `bill.stages[].event`;
-- preserve join to `silver_bills.bill_id`;
-- normalize `bill_stage_id`, `bill_id`, `stage_name`, `stage_date`, `house_uri`, `house_name`, `stage_outcome`, `order_in_bill`, and `snapshot_date`;
-- use `event.uri` as the stable stage identifier where available;
-- derive `stage_date` from `event.dates[].date`, using the first/earliest parseable date for each stage unless the model requires all stage dates separately;
-- use `event.progressStage` for `order_in_bill` where available;
+- add a source-document packet for `bill.relatedDocs[].relatedDoc`;
+- add registry entry if not already present;
+- build one row per related document, preserving join to `silver_bills.bill_id`;
+- normalize document identity, label, date, doc type, language, XML/PDF format URIs/URLs, T09-compatible source-file IDs, S3 target keys, and `snapshot_date`;
+- support null XML/PDF formats without crashing;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key unique, `bill_id` populated, stage name populated, stage date populated, and bill joins preserved.
+- validate row count > 0, primary key unique, `bill_id` populated, document label/date/doc type populated where API exposes them, at least one source format per document, and deterministic source-file IDs.
 
 Expected files:
 
-- `extract/oireachtas/table_bill_stages.py`
+- update `configs/oireachtas/tables.yml` if `silver_bill_related_docs` is absent
+- `extract/oireachtas/table_bill_related_docs.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_stages`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_related_docs`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_stages \
+  --table silver_bill_related_docs \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -165,7 +171,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T19 — silver_bill_stages.
-Workflow default currently points to silver_bill_versions.
-Use bill.stages[].event from the confirmed T17 payload.
+Start T20 — silver_bill_related_docs.
+Workflow default currently points to silver_bill_stages.
+Use bill.relatedDocs[].relatedDoc from the confirmed T17 payload.
 ```
