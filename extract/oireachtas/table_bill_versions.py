@@ -41,7 +41,7 @@ def build_silver_bill_versions(
     date_start: str | None = None,
     date_end: str | None = None,
 ) -> TableBuildResult:
-    """Fetch `/legislation`, normalize one row per `bill.versions[].version`, and write outputs."""
+    """Fetch `/legislation`, normalize bill version documents, and write outputs."""
     started_at = utc_now_iso()
     run_id = _run_id(TABLE_NAME)
     snapshot_date = started_at[:10]
@@ -66,30 +66,16 @@ def build_silver_bill_versions(
         raise RuntimeError(f"Unexpected /legislation results type: {type(results).__name__}")
 
     rows: list[dict[str, Any]] = []
-    raw_version_samples: list[dict[str, Any]] = []
-    bills_with_versions = 0
-    skipped_missing_version_wrappers = 0
+    raw_version_count = 0
+    bills_with_versions: set[str] = set()
     for item in results:
         if not isinstance(item, Mapping):
             continue
-        bill = item.get("bill") if isinstance(item.get("bill"), Mapping) else item
-        bill_id = _first_text(bill, "uri", "billUri") or _first_text(bill, "billId", "id") or f"generated:bill:{stable_hash([stable_record_hash(item)], length=24)}"
-        versions = bill.get("versions") or []
-        if not isinstance(versions, list):
-            versions = []
-        if versions:
-            bills_with_versions += 1
-        for version_index, version_item in enumerate(versions):
-            if not isinstance(version_item, Mapping):
-                skipped_missing_version_wrappers += 1
-                continue
-            version = version_item.get("version") if isinstance(version_item.get("version"), Mapping) else version_item
-            if not isinstance(version, Mapping):
-                skipped_missing_version_wrappers += 1
-                continue
-            if len(raw_version_samples) < 10:
-                raw_version_samples.append(dict(version))
-            rows.append(_normalise_version_row(bill_id=bill_id, version=version, version_index=version_index, snapshot_date=snapshot_date))
+        item_rows = _normalise_version_rows(item, snapshot_date=snapshot_date)
+        raw_version_count += _raw_version_count(item)
+        if item_rows:
+            bills_with_versions.add(str(item_rows[0].get("bill_id") or ""))
+        rows.extend(item_rows)
 
     rows = _dedupe_rows(rows, primary_key="bill_version_id")
     df = pd.DataFrame(rows, columns=schema.columns)
@@ -132,17 +118,18 @@ def build_silver_bill_versions(
         "url": summary.url,
         "status_code": summary.status_code,
         "raw_rows": len(results),
-        "bills_with_versions": bills_with_versions,
+        "raw_version_rows": raw_version_count,
         "output_rows": int(len(df)),
+        "bills_with_versions": len([bill_id for bill_id in bills_with_versions if bill_id]),
+        "pdf_source_rows": int(df["format_pdf_uri"].notna().sum()) if not df.empty else 0,
+        "xml_source_rows": int(df["format_xml_uri"].notna().sum()) if not df.empty else 0,
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
+        "source_file_ids_deterministic": dq["source_file_ids_deterministic"],
         "dq_status": dq["dq_status"],
-        "format_rows_pdf": int(df["source_file_id_pdf"].notna().sum()) if not df.empty else 0,
-        "format_rows_xml": int(df["source_file_id_xml"].notna().sum()) if not df.empty else 0,
-        "skipped_missing_version_wrappers": skipped_missing_version_wrappers,
         "raw_result_key_paths": sorted(_key_paths(first_result, max_depth=8)),
-        "raw_version_key_paths": sorted(_key_paths(raw_version_samples[0], max_depth=6)) if raw_version_samples else [],
-        "raw_version_samples": raw_version_samples,
+        "raw_result_structure": _compact_structure(first_result, max_depth=6),
+        "nested_collection_summary": _collection_summary(first_result),
         "write_errors": write_errors,
         "s3_keys": s3_keys,
     }
@@ -172,55 +159,82 @@ def build_silver_bill_versions(
     return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
 
 
-def _normalise_version_row(*, bill_id: str, version: Mapping[str, Any], version_index: int, snapshot_date: str) -> dict[str, Any]:
-    version_uri = _first_text(version, "uri", "versionUri")
-    version_label = _first_text(version, "showAs", "label", "title")
-    version_date = parse_iso_date(_first_text(version, "date", "datetime"))
-    doc_type = _first_text(version, "docType")
-    lang = _first_text(version, "lang")
-    version_identity = version_uri or stable_hash([bill_id, version_index, version_label, version_date, doc_type, lang], length=24)
-    bill_version_id = f"bill_version:{stable_hash([bill_id, version_identity], length=24)}"
+def _normalise_version_rows(item: Mapping[str, Any], *, snapshot_date: str) -> list[dict[str, Any]]:
+    bill = item.get("bill") if isinstance(item.get("bill"), Mapping) else item
+    bill_uri = _first_text(bill, "uri", "billUri")
+    bill_id = bill_uri or _first_text(bill, "billId", "id") or f"generated:bill:{stable_record_hash(bill, length=24)}"
+    versions = bill.get("versions") if isinstance(bill.get("versions"), list) else []
 
-    formats = version.get("formats") if isinstance(version.get("formats"), Mapping) else {}
-    pdf_uri = _format_uri(formats, "pdf")
-    xml_uri = _format_uri(formats, "xml")
-    pdf_url = normalize_format_url(pdf_uri) if pdf_uri else None
-    xml_url = normalize_format_url(xml_uri) if xml_uri else None
+    rows: list[dict[str, Any]] = []
+    for version_index, version_wrapper in enumerate(versions):
+        if not isinstance(version_wrapper, Mapping):
+            continue
+        version = version_wrapper.get("version") if isinstance(version_wrapper.get("version"), Mapping) else version_wrapper
+        if not isinstance(version, Mapping):
+            continue
 
-    source_file_id_pdf = _source_file_id(bill_id=bill_id, format_type="pdf", format_uri=pdf_uri, format_url=pdf_url) if pdf_uri or pdf_url else None
-    source_file_id_xml = _source_file_id(bill_id=bill_id, format_type="xml", format_uri=xml_uri, format_url=xml_url) if xml_uri or xml_url else None
-    return {
-        "bill_version_id": bill_version_id,
-        "bill_id": bill_id,
-        "version_label": version_label,
-        "version_date": version_date,
-        "format_pdf_uri": pdf_uri,
-        "format_pdf_url": pdf_url,
-        "format_xml_uri": xml_uri,
-        "format_xml_url": xml_url,
-        "source_file_id_pdf": source_file_id_pdf,
-        "source_file_id_xml": source_file_id_xml,
-        "s3_pdf_key": _target_s3_key(source_entity_type="legislation", source_entity_id=bill_id, source_file_id=source_file_id_pdf, format_type="pdf", format_url=pdf_url or pdf_uri) if source_file_id_pdf else None,
-        "s3_xml_key": _target_s3_key(source_entity_type="legislation", source_entity_id=bill_id, source_file_id=source_file_id_xml, format_type="xml", format_url=xml_url or xml_uri) if source_file_id_xml else None,
-        "snapshot_date": snapshot_date,
-    }
+        version_uri = _first_text(version, "uri", "versionUri")
+        version_label = _first_text(version, "showAs", "title", "label")
+        version_date = parse_iso_date(version.get("date"))
+        version_doc_type = _first_text(version, "docType")
+        version_lang = _first_text(version, "lang")
+        bill_version_id = version_uri or f"generated:bill_version:{stable_hash([bill_id, version_label, version_date, version_doc_type, version_lang, version_index], length=24)}"
+
+        formats = version.get("formats") if isinstance(version.get("formats"), Mapping) else {}
+        pdf_uri, pdf_url_for_hash, pdf_url = _format_locator(formats, "pdf")
+        xml_uri, xml_url_for_hash, xml_url = _format_locator(formats, "xml")
+
+        source_file_id_pdf = _source_file_id(bill_id, "pdf", pdf_uri, pdf_url_for_hash)
+        source_file_id_xml = _source_file_id(bill_id, "xml", xml_uri, xml_url_for_hash)
+        s3_pdf_key = _target_s3_key("legislation", bill_id, source_file_id_pdf, "pdf", pdf_url_for_hash or pdf_uri)
+        s3_xml_key = _target_s3_key("legislation", bill_id, source_file_id_xml, "xml", xml_url_for_hash or xml_uri)
+
+        rows.append(
+            {
+                "bill_version_id": bill_version_id,
+                "bill_id": bill_id,
+                "version_label": version_label,
+                "version_date": version_date,
+                "format_pdf_uri": pdf_uri,
+                "format_pdf_url": pdf_url,
+                "format_xml_uri": xml_uri,
+                "format_xml_url": xml_url,
+                "source_file_id_pdf": source_file_id_pdf,
+                "source_file_id_xml": source_file_id_xml,
+                "s3_pdf_key": s3_pdf_key,
+                "s3_xml_key": s3_xml_key,
+                "snapshot_date": snapshot_date,
+            }
+        )
+    return rows
 
 
-def _format_uri(formats: Mapping[str, Any], key: str) -> str | None:
-    value = formats.get(key)
-    if isinstance(value, Mapping):
-        return _first_text(value, "uri", "url", "href", "downloadUrl")
-    if isinstance(value, str):
-        text = value.strip()
-        return text or None
-    return None
+def _format_locator(formats: Mapping[str, Any], format_type: str) -> tuple[str | None, str | None, str | None]:
+    raw = formats.get(format_type) if isinstance(formats.get(format_type), Mapping) else {}
+    if not isinstance(raw, Mapping):
+        return None, None, None
+
+    format_uri = _first_text(raw, "uri", "formatUri")
+    raw_url = _first_text(raw, "url", "href", "downloadUrl", "formatUrl")
+
+    # Keep this URL value compatible with T09's source_file_id hash inputs.
+    url_for_hash = raw_url
+    if not url_for_hash and format_uri and format_uri.startswith("http"):
+        url_for_hash = format_uri
+    if not format_uri and url_for_hash and url_for_hash.startswith("http"):
+        format_uri = url_for_hash
+
+    output_url = normalize_format_url(url_for_hash or format_uri)
+    return format_uri, url_for_hash, output_url
 
 
-def _source_file_id(*, bill_id: str, format_type: str, format_uri: str | None, format_url: str | None) -> str:
+def _source_file_id(bill_id: str, format_type: str, format_uri: str | None, format_url: str | None) -> str | None:
+    if not (format_uri or format_url):
+        return None
     return f"source_file:{stable_hash(['legislation', bill_id, format_type, format_uri, format_url], length=24)}"
 
 
-def _target_s3_key(*, source_entity_type: str, source_entity_id: str, source_file_id: str | None, format_type: str | None, format_url: str | None) -> str | None:
+def _target_s3_key(source_entity_type: str, source_entity_id: str, source_file_id: str | None, format_type: str | None, format_url: str | None) -> str | None:
     if not source_file_id:
         return None
     ext = _extension(format_type, format_url)
@@ -259,6 +273,12 @@ def _infer_format_type(url: str | None) -> str | None:
     return None
 
 
+def _raw_version_count(item: Mapping[str, Any]) -> int:
+    bill = item.get("bill") if isinstance(item.get("bill"), Mapping) else item
+    versions = bill.get("versions") if isinstance(bill.get("versions"), list) else []
+    return len(versions)
+
+
 def _first_text(mapping: Mapping[str, Any], *keys: str) -> str | None:
     for key in keys:
         value = mapping.get(key)
@@ -286,37 +306,125 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     pk = schema.primary_key[0]
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
+
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = bill_id_ok = label_ok = date_ok = format_ok = source_id_ok = s3_key_ok = False
+        non_null_pk = unique_pk = bill_ok = label_ok = date_ok = source_ok = source_id_ok = s3_key_ok = deterministic_ids = False
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
-        bill_id_ok = bool(df["bill_id"].notna().all() and (df["bill_id"].astype(str).str.strip() != "").all())
+        bill_ok = bool(df["bill_id"].notna().all() and (df["bill_id"].astype(str).str.strip() != "").all())
         label_ok = bool(df["version_label"].notna().all() and (df["version_label"].astype(str).str.strip() != "").all())
         date_ok = bool(df["version_date"].notna().all() and (df["version_date"].astype(str).str.strip() != "").all())
-        format_ok = bool(((df["format_pdf_uri"].notna()) | (df["format_xml_uri"].notna()) | (df["format_pdf_url"].notna()) | (df["format_xml_url"].notna())).all())
-        source_id_ok = bool(((df["source_file_id_pdf"].notna()) | (df["source_file_id_xml"].notna())).all())
-        s3_key_ok = bool(((df["s3_pdf_key"].notna()) | (df["s3_xml_key"].notna())).all())
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, bill_id_ok, label_ok, date_ok, format_ok, source_id_ok, s3_key_ok]) else "fail"
+        source_ok = bool(
+            (
+                df["format_pdf_uri"].notna()
+                | df["format_pdf_url"].notna()
+                | df["format_xml_uri"].notna()
+                | df["format_xml_url"].notna()
+            ).all()
+        )
+        source_id_ok = bool((df["source_file_id_pdf"].notna() | df["source_file_id_xml"].notna()).all())
+        s3_key_ok = bool((df["s3_pdf_key"].notna() | df["s3_xml_key"].notna()).all())
+        deterministic_ids = _source_file_ids_match(df)
+
+    status = "pass" if all(
+        [
+            row_count > 0,
+            not missing_columns,
+            non_null_pk,
+            unique_pk,
+            bill_ok,
+            label_ok,
+            date_ok,
+            source_ok,
+            source_id_ok,
+            s3_key_ok,
+            deterministic_ids,
+        ]
+    ) else "fail"
+
     return {
         "table": TABLE_NAME,
         "dq_status": status,
         "row_count": row_count,
         "primary_key": schema.primary_key,
         "primary_key_unique": unique_pk,
+        "source_file_ids_deterministic": deterministic_ids,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "required_columns_present", "status": "pass" if not missing_columns else "fail", "missing_columns": missing_columns},
             {"check_name": "primary_key_non_null", "status": "pass" if non_null_pk else "fail"},
             {"check_name": "primary_key_unique", "status": "pass" if unique_pk else "fail"},
-            {"check_name": "bill_id_populated", "status": "pass" if bill_id_ok else "fail"},
+            {"check_name": "bill_id_populated", "status": "pass" if bill_ok else "fail"},
             {"check_name": "version_label_populated", "status": "pass" if label_ok else "fail"},
             {"check_name": "version_date_populated", "status": "pass" if date_ok else "fail"},
-            {"check_name": "at_least_one_source_format", "status": "pass" if format_ok else "fail"},
-            {"check_name": "source_file_ids_populated_when_format_present", "status": "pass" if source_id_ok else "fail"},
-            {"check_name": "source_s3_keys_populated_when_format_present", "status": "pass" if s3_key_ok else "fail"},
+            {"check_name": "at_least_one_source_format", "status": "pass" if source_ok else "fail"},
+            {"check_name": "source_file_id_populated_when_source_format_present", "status": "pass" if source_id_ok else "fail"},
+            {"check_name": "s3_key_populated_when_source_format_present", "status": "pass" if s3_key_ok else "fail"},
+            {"check_name": "source_file_ids_t09_pattern", "status": "pass" if deterministic_ids else "fail"},
         ],
     }
+
+
+def _source_file_ids_match(df: pd.DataFrame) -> bool:
+    for _, row in df.iterrows():
+        bill_id = _none_if_blank(row.get("bill_id"))
+        for format_type, id_col, uri_col, url_col in (
+            ("pdf", "source_file_id_pdf", "format_pdf_uri", "format_pdf_url"),
+            ("xml", "source_file_id_xml", "format_xml_uri", "format_xml_url"),
+        ):
+            actual = _none_if_blank(row.get(id_col))
+            uri = _none_if_blank(row.get(uri_col))
+            output_url = _none_if_blank(row.get(url_col))
+            url_for_hash = _t09_url_for_hash(uri=uri, output_url=output_url)
+            expected = _source_file_id(str(bill_id), format_type, uri, url_for_hash) if bill_id and (uri or url_for_hash) else None
+            if actual != expected:
+                return False
+    return True
+
+
+def _t09_url_for_hash(*, uri: str | None, output_url: str | None) -> str | None:
+    if uri and uri.startswith("http"):
+        return uri
+    if output_url and not uri:
+        return output_url
+    return None
+
+
+def _none_if_blank(value: Any) -> str | None:
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text if text else None
+
+
+def _compact_structure(value: Any, *, depth: int = 0, max_depth: int = 6) -> Any:
+    if depth >= max_depth:
+        return f"<{type(value).__name__}>"
+    if isinstance(value, Mapping):
+        return {str(key): _compact_structure(child, depth=depth + 1, max_depth=max_depth) for key, child in value.items()}
+    if isinstance(value, list):
+        return {"type": "list", "length": len(value), "first": _compact_structure(value[0], depth=depth + 1, max_depth=max_depth) if value else None}
+    if value is None:
+        return None
+    text = str(value)
+    return text[:200] + ("..." if len(text) > 200 else "")
+
+
+def _collection_summary(value: Any, *, prefix: str = "") -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            if isinstance(child, list):
+                first_type = type(child[0]).__name__ if child else None
+                first_keys = sorted(child[0].keys()) if child and isinstance(child[0], Mapping) else []
+                rows.append({"path": path, "length": len(child), "first_type": first_type, "first_keys": first_keys})
+            rows.extend(_collection_summary(child, prefix=path))
+    elif isinstance(value, list):
+        for child in value[:1]:
+            rows.extend(_collection_summary(child, prefix=f"{prefix}[]"))
+    return rows[:75]
 
 
 def _key_paths(value: Any, *, prefix: str = "", depth: int = 0, max_depth: int = 8) -> set[str]:
