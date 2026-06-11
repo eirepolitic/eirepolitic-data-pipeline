@@ -199,6 +199,15 @@ tables:
     description: "Bill-to-debate bridge from legislation debate references."
     columns: [bill_debate_id, bill_id, debate_id, debate_uri, debate_date, debate_show_as, debate_section_id, chamber_uri, chamber_name, debate_order, snapshot_date]
 
+  silver_bill_events:
+    layer: silver
+    status: planned
+    cadence: monthly
+    endpoint: "/legislation"
+    primary_key: ["bill_event_id"]
+    description: "Bill event bridge from legislation event payloads."
+    columns: [bill_event_id, bill_id, event_uri, event_type_uri, event_name, event_date, chamber_uri, chamber_name, event_order, snapshot_date]
+
   control_pipeline_runs:
     layer: control
     status: planned
