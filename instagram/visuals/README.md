@@ -40,9 +40,41 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `tile_map_draft_v1`
 - `sourced_image_asset_draft_v1`
 
+## S3-backed visual smoke tests
+
+The shared visual loader supports these input modes:
+
+- `inline`
+- `local_csv`
+- `s3_csv`
+- `s3_csv_first_available`
+
+S3 modes are for review-only smoke testing and future live-data bindings. They do not publish, schedule, or approve Instagram content.
+
+Manual smoke workflow:
+
+```text
+.github/workflows/instagram_visual_s3_smoke.yml
+```
+
+Default sample:
+
+```text
+instagram/visuals/samples/horizontal_bar_s3_smoke_draft_v1.sample.yml
+```
+
+Run requirements:
+
+- workflow input `enabled=true`
+- repository secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+- bucket defaults to `eirepolitic-data`
+- region defaults to `ca-central-1`
+
+The standard multi-visual preview workflow remains fixture-based so contact-sheet regression tests stay deterministic.
+
 ## Planned visual sequence
 
-- live S3/data integration for approved draft visuals
+- map real S3 dataset schemas into approved visual bindings
 - real sourced image lookup/download workflow, gated by attribution and license review
 - final approval pass to remove `draft` from visual IDs
 
