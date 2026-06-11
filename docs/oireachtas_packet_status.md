@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** T22 — `silver_bill_debates`
+**Current packet:** T23 — `silver_bill_events`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -81,7 +81,6 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ### T20 — `silver_bill_related_docs`
 
-- Registry added: `configs/oireachtas/tables.yml`
 - Builder: `extract/oireachtas/table_bill_related_docs.py`
 - Final run: `27328140775`; run number 37; success.
 - Raw legislation rows: 10; raw related-doc rows: 1; output rows: 1; bills with related docs: 1.
@@ -94,75 +93,89 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ### T21 — `silver_bill_sponsors`
 
-- Registry added: `configs/oireachtas/tables.yml`
 - Builder: `extract/oireachtas/table_bill_sponsors.py`
+- Final run: `27328994935`; run number 38; success.
+- Raw legislation rows: 10; raw sponsor rows: 36; output rows: 36; bills with sponsors: 10; primary sponsor rows: 10.
+- PK `bill_sponsor_id`, unique; DQ pass.
+- Final run ID: `silver_bill_sponsors_20260611T064401Z`.
+- `is_primary` normalized to `true`/`false`.
+- `sponsor.as` was null in the sample payload, so role fields are blank and allowed.
+- Review: `review/silver_bill_sponsors/latest/{manifest.json,sample.csv,dq.json}`.
+
+### T22 — `silver_bill_debates`
+
+- Registry added: `configs/oireachtas/tables.yml`
+- Builder: `extract/oireachtas/table_bill_debates.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27328994935`
-- Run number: 38
+- Final run: `27356675022`
+- Run number: 39
 - Result: success
 - Raw legislation rows: 10
-- Raw sponsor rows: 36
-- Output rows: 36
-- Bills with sponsors: 10
-- Primary sponsor rows: 10
-- PK: `bill_sponsor_id`, unique
+- Raw debate rows: 12
+- Output rows: 12
+- Bills with debates: 8
+- Debate-section rows: 12
+- PK: `bill_debate_id`, unique
 - DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Final run ID: `silver_bill_sponsors_20260611T064401Z`.
+- Final run ID: `silver_bill_debates_20260611T150745Z`.
 - Normalized columns:
-  - `bill_sponsor_id`
+  - `bill_debate_id`
   - `bill_id`
-  - `sponsor_uri`
-  - `sponsor_name`
-  - `sponsor_role_uri`
-  - `sponsor_role_name`
-  - `is_primary`
-  - `sponsor_order`
+  - `debate_id`
+  - `debate_uri`
+  - `debate_date`
+  - `debate_show_as`
+  - `debate_section_id`
+  - `chamber_uri`
+  - `chamber_name`
+  - `debate_order`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
   - `bill_id` populated, preserving join to `silver_bills.bill_id`;
-  - sponsor name populated;
-  - sponsor URI populated;
-  - `is_primary` normalized to `true`/`false`;
-  - sponsor order populated.
-- Role fields: `sponsor.as` was null in the sample payload, so `sponsor_role_uri` and `sponsor_role_name` are blank; this is allowed.
+  - debate ID/URI/date/show-as populated;
+  - debate section ID populated;
+  - chamber URI/name populated;
+  - debate order populated.
+- Chamber values observed: `Seanad Éireann`.
 - Review:
-  - `review/silver_bill_sponsors/latest/manifest.json`
-  - `review/silver_bill_sponsors/latest/sample.csv`
-  - `review/silver_bill_sponsors/latest/dq.json`
+  - `review/silver_bill_debates/latest/manifest.json`
+  - `review/silver_bill_debates/latest/sample.csv`
+  - `review/silver_bill_debates/latest/dq.json`
 
 ## Next packet
 
-### T22 — `silver_bill_debates`
+### T23 — `silver_bill_events`
 
 Goal:
 
-- add bill debate bridge from `bill.debates[]`;
+- add bill event bridge from `bill.events[].event`;
 - add registry entry if absent;
-- build one row per bill debate reference, preserving join to `silver_bills.bill_id`;
-- normalize `bill_debate_id`, `bill_id`, `debate_id`, `debate_uri`, `debate_date`, `debate_show_as`, `debate_section_id`, `chamber_uri`, `chamber_name`, `debate_order`, and `snapshot_date`;
-- use `debate.uri` plus `bill_id` as deterministic identity, with fallback hash if URI is missing;
+- build one row per bill event, preserving join to `silver_bills.bill_id`;
+- normalize `bill_event_id`, `bill_id`, `event_uri`, `event_type_uri`, `event_name`, `event_date`, `chamber_uri`, `chamber_name`, `event_order`, and `snapshot_date`;
+- derive `event_date` from `event.dates[].date`, using earliest parseable date unless multiple event-date rows are required later;
+- use `event.uri` as stable identity where available, with deterministic fallback hash;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key unique, `bill_id` populated, debate URI/date/show-as populated where API exposes them, and debate order populated.
+- validate row count > 0, primary key unique, `bill_id` populated, event URI/name/date populated where API exposes them, and event order populated.
 
 Expected files:
 
-- update `configs/oireachtas/tables.yml` if `silver_bill_debates` is absent
-- `extract/oireachtas/table_bill_debates.py`
+- update `configs/oireachtas/tables.yml` if `silver_bill_events` is absent
+- `extract/oireachtas/table_bill_events.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_debates`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_events`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_debates \
+  --table silver_bill_events \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -176,7 +189,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T22 — silver_bill_debates.
-Workflow default currently points to silver_bill_sponsors.
-Use bill.debates[] from the confirmed T17 payload.
+Start T23 — silver_bill_events.
+Workflow default currently points to silver_bill_debates.
+Use bill.events[].event from the confirmed T17 payload.
 ```
