@@ -1,0 +1,14 @@
+{
+  "layout_id": "sample_tile_layout_v1",
+  "description": "Synthetic constituency-style tile layout for visual QA only. Not a real electoral map.",
+  "tiles": [
+    {"feature_id": "C01", "label": "North West", "short_label": "NW", "row": 0, "col": 1},
+    {"feature_id": "C02", "label": "North East", "short_label": "NE", "row": 0, "col": 2},
+    {"feature_id": "C03", "label": "Dublin", "short_label": "DUB", "row": 1, "col": 3},
+    {"feature_id": "C04", "label": "Midlands", "short_label": "MID", "row": 1, "col": 1},
+    {"feature_id": "C05", "label": "South West", "short_label": "SW", "row": 2, "col": 0},
+    {"feature_id": "C06", "label": "South", "short_label": "S", "row": 2, "col": 1},
+    {"feature_id": "C07", "label": "South East", "short_label": "SE", "row": 2, "col": 2},
+    {"feature_id": "C08", "label": "East Central", "short_label": "EC", "row": 1, "col": 2}
+  ]
+}
