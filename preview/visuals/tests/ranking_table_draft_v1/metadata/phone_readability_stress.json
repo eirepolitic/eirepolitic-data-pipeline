@@ -2,11 +2,12 @@
   "visual_id": "phone_readability_stress",
   "template_id": "ranking_table_draft_v1",
   "renderer": "ranking_table",
-  "created_at": "2026-06-11T16:52:28.251492+00:00",
+  "created_at": "2026-06-11T17:12:47.550780+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/ranking_table_draft_v1/data/cases.csv",
+    "row_count": 65,
     "case_id": "phone_readability_stress",
     "case_description": "Long names, long sublabels, wide values, and max rows",
     "registry_path": "instagram/visuals/tests/ranking_table_draft_v1/cases.yml",

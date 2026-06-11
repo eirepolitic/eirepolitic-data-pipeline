@@ -2,11 +2,12 @@
   "visual_id": "many_segments",
   "template_id": "stacked_bar_draft_v1",
   "renderer": "stacked_bar",
-  "created_at": "2026-06-11T16:52:25.753641+00:00",
+  "created_at": "2026-06-11T17:12:45.054939+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv",
+    "row_count": 93,
     "case_id": "many_segments",
     "case_description": "Six segments; should truncate to template max",
     "registry_path": "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml",

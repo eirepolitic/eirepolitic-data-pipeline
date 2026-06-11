@@ -2,11 +2,12 @@
   "visual_id": "invalid_url",
   "template_id": "sourced_image_asset_draft_v1",
   "renderer": "sourced_image_asset",
-  "created_at": "2026-06-11T16:52:54.276700+00:00",
+  "created_at": "2026-06-11T17:13:13.508511+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "row_count": 12,
     "case_id": "invalid_url",
     "case_description": "Invalid source URL should warn",
     "registry_path": "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml",

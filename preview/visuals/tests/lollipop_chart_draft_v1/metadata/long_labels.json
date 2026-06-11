@@ -2,11 +2,12 @@
   "visual_id": "long_labels",
   "template_id": "lollipop_chart_draft_v1",
   "renderer": "lollipop_chart",
-  "created_at": "2026-06-11T16:52:46.131157+00:00",
+  "created_at": "2026-06-11T17:13:05.365537+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "row_count": 80,
     "case_id": "long_labels",
     "case_description": "Long labels should truncate cleanly",
     "registry_path": "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml",
