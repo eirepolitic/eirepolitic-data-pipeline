@@ -1,0 +1,78 @@
+{
+  "visual_id": "category_mix",
+  "template_id": "lollipop_chart_draft_v1",
+  "renderer": "lollipop_chart",
+  "created_at": "2026-06-11T06:56:12.147083+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "case_id": "category_mix",
+    "case_description": "Mixed categories and legend",
+    "registry_path": "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/lollipop_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "category_mix"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "category_mix"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 6,
+  "category_count": 3,
+  "value_range": {
+    "min": 0.0,
+    "max": 45.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Housing",
+      "value": 45.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Health",
+      "value": 38.0,
+      "category": "Issue"
+    },
+    {
+      "label": "Party A",
+      "value": 35.0,
+      "category": "Party"
+    },
+    {
+      "label": "Party B",
+      "value": 28.0,
+      "category": "Party"
+    },
+    {
+      "label": "Dublin Bay South",
+      "value": 12.0,
+      "category": "Constituency"
+    },
+    {
+      "label": "Cork North Central",
+      "value": 9.0,
+      "category": "Constituency"
+    }
+  ],
+  "warnings": []
+}

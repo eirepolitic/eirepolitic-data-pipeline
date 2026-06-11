@@ -1,0 +1,63 @@
+{
+  "visual_id": "03_items",
+  "template_id": "lollipop_chart_draft_v1",
+  "renderer": "lollipop_chart",
+  "created_at": "2026-06-11T06:56:11.984989+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "case_id": "03_items",
+    "case_description": "Three-item minimal lollipop chart",
+    "registry_path": "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/lollipop_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "03_items"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "03_items"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 3,
+  "category_count": 1,
+  "value_range": {
+    "min": 0.0,
+    "max": 35.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Party A",
+      "value": 35.0,
+      "category": "Party"
+    },
+    {
+      "label": "Party B",
+      "value": 28.0,
+      "category": "Party"
+    },
+    {
+      "label": "Party C",
+      "value": 18.0,
+      "category": "Party"
+    }
+  ],
+  "warnings": []
+}

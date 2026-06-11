@@ -1,0 +1,200 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/lollipop_chart_draft_v1.yml",
+  "case_count": 13,
+  "contact_sheet": "generated_visual_tests/lollipop_chart_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "03_items",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/03_items.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/03_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:11.984989+00:00",
+      "description": "Three-item minimal lollipop chart"
+    },
+    {
+      "success": true,
+      "visual_id": "06_items",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/06_items.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/06_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.014111+00:00",
+      "description": "Six-item standard lollipop chart"
+    },
+    {
+      "success": true,
+      "visual_id": "12_items",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/12_items.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/12_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.046817+00:00",
+      "description": "Twelve items at template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "overflow_items",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/overflow_items.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/overflow_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_rows:14->12"
+      ],
+      "created_at": "2026-06-11T06:56:12.079466+00:00",
+      "description": "Fourteen items; should truncate to template max"
+    },
+    {
+      "success": true,
+      "visual_id": "long_labels",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/long_labels.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/long_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai"
+      ],
+      "created_at": "2026-06-11T06:56:12.118121+00:00",
+      "description": "Long labels should truncate cleanly"
+    },
+    {
+      "success": true,
+      "visual_id": "category_mix",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/category_mix.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/category_mix.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.147083+00:00",
+      "description": "Mixed categories and legend"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.173532+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.201125+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_values",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/zero_values.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/zero_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T06:56:12.226221+00:00",
+      "description": "Includes zero values"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:56:12.251327+00:00",
+      "description": "Mixed positive and negative values should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "all_negative",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/all_negative.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/all_negative.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present",
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:56:12.277350+00:00",
+      "description": "All negative values should preserve zero baseline behavior"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_value:Party B",
+        "missing_or_invalid_value:Party C"
+      ],
+      "created_at": "2026-06-11T06:56:12.300957+00:00",
+      "description": "Missing and invalid values should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "lollipop_chart_draft_v1",
+      "renderer": "lollipop_chart",
+      "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T06:56:12.349400+00:00",
+      "description": "Mixed categories, long labels, wide values, zero and negative values"
+    }
+  ]
+}

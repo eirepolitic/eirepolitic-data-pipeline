@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "visual_id": "negative_values",
+  "template_id": "lollipop_chart_draft_v1",
+  "renderer": "lollipop_chart",
+  "output_png": "generated_visual_tests/lollipop_chart_draft_v1/png/negative_values.png",
+  "metadata_path": "generated_visual_tests/lollipop_chart_draft_v1/metadata/negative_values.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "negative_values_present",
+    "negative_values_present"
+  ],
+  "created_at": "2026-06-11T06:56:12.251327+00:00",
+  "description": "Mixed positive and negative values should warn"
+}

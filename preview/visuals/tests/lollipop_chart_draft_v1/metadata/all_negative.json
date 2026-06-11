@@ -1,0 +1,73 @@
+{
+  "visual_id": "all_negative",
+  "template_id": "lollipop_chart_draft_v1",
+  "renderer": "lollipop_chart",
+  "created_at": "2026-06-11T06:56:12.277350+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/lollipop_chart_draft_v1/data/cases.csv",
+    "case_id": "all_negative",
+    "case_description": "All negative values should preserve zero baseline behavior",
+    "registry_path": "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/lollipop_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value",
+    "category": "category"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "all_negative"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "all_negative"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 4,
+  "category_count": 1,
+  "value_range": {
+    "min": -31.0,
+    "max": 1.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Net approval A",
+      "value": -5.0,
+      "category": "Polling"
+    },
+    {
+      "label": "Net approval B",
+      "value": -12.0,
+      "category": "Polling"
+    },
+    {
+      "label": "Net approval C",
+      "value": -24.0,
+      "category": "Polling"
+    },
+    {
+      "label": "Net approval D",
+      "value": -31.0,
+      "category": "Polling"
+    }
+  ],
+  "warnings": [
+    "negative_values_present",
+    "negative_values_present",
+    "negative_values_present",
+    "negative_values_present"
+  ]
+}

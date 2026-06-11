@@ -15,6 +15,7 @@ Contact sheets:
 - area_chart_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/area_chart_draft_v1/contact_sheet.png
 - scatter_plot_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/scatter_plot_draft_v1/contact_sheet.png
 - dot_plot_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/dot_plot_draft_v1/contact_sheet.png
+- lollipop_chart_draft_v1: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/tests/lollipop_chart_draft_v1/contact_sheet.png
 
 Sample PNGs:
 - horizontal_bar_draft_v1/top_issues_horizontal_bar_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/horizontal_bar_draft_v1/png/top_issues_horizontal_bar_draft_v1.png
@@ -29,5 +30,6 @@ Sample PNGs:
 - area_chart_draft_v1/issue_volume_area_chart_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/area_chart_draft_v1/png/issue_volume_area_chart_draft_v1.png
 - scatter_plot_draft_v1/metric_relationship_scatter_plot_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/scatter_plot_draft_v1/png/metric_relationship_scatter_plot_draft_v1.png
 - dot_plot_draft_v1/party_support_dot_plot_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/dot_plot_draft_v1/png/party_support_dot_plot_draft_v1.png
+- lollipop_chart_draft_v1/issue_volume_lollipop_chart_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/lollipop_chart_draft_v1/png/issue_volume_lollipop_chart_draft_v1.png
 
 Review only: this does not publish, schedule, or approve Instagram content.
