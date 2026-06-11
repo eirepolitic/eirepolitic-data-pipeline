@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** T21 — `silver_bill_sponsors`
+**Current packet:** T22 — `silver_bill_debates`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -26,8 +26,8 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 ## Confirmed table packets
 
 - **T01 — `silver_houses`**: run `26847237939`; 25 rows; PK `house_uri`; DQ pass.
-- **T02 — `silver_constituencies`**: run `27069529002`; 43 Dáil 34 rows; PK `constituency_uri`; DQ pass.
-- **T03 — `silver_parties`**: run `27069711527`; 11 Dáil 34 rows; PK `party_uri`; DQ pass.
+- **T02 — `silver_constituencies`**: run `27069529002`; 43 rows; PK `constituency_uri`; DQ pass.
+- **T03 — `silver_parties`**: run `27069711527`; 11 rows; PK `party_uri`; DQ pass.
 - **T04 — `silver_members`**: run `27070132888`; 25 rows; PK `member_code`; DQ pass.
 - **T05 — `silver_member_memberships`**: run `27070298915`; 25 rows; PK `membership_id`; DQ pass.
 - **T06 — `silver_member_parties`**: run `27097902733`; 25 rows; PK `member_party_id`; DQ pass.
@@ -37,10 +37,10 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **T10 — `silver_debate_records`**: run `27098769263`; 2 rows; PK `debate_id`; DQ pass.
 - **T11 — `silver_debate_sections`**: run `27099679458`; 8 rows; PK `debate_section_id`; DQ pass.
 - **T12 — `silver_speeches`**: run `27222202849`; 357 rows; PK `speech_id`; DQ pass; speaker member-code enrichment 344/357 rows, 96.36%.
-- **T13 — `silver_divisions`**: run `27222935479`; 3 rows; PK `division_id`; DQ pass; canonical `/divisions` used.
-- **T14 — `silver_division_tallies`**: run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass; API tally values matched member-array lengths.
-- **T15 — `silver_member_votes`**: run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass; expected rows from T14 tallies: 512.
-- **T16 — `silver_questions`**: run `27292008182`; 10 rows; PK `question_id`; DQ pass; XML source IDs align with T09; answer/PDF fields blank where API omits them.
+- **T13 — `silver_divisions`**: run `27222935479`; 3 rows; PK `division_id`; DQ pass.
+- **T14 — `silver_division_tallies`**: run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass.
+- **T15 — `silver_member_votes`**: run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass.
+- **T16 — `silver_questions`**: run `27292008182`; 10 rows; PK `question_id`; DQ pass.
 
 ### T17 — `silver_bills`
 
@@ -75,7 +75,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - PK `bill_stage_id`, unique; DQ pass.
 - Final run ID: `silver_bill_stages_20260611T061231Z`.
 - Stage names observed: `Committee Stage`, `First Stage`, `Report Stage`, `Second Stage`.
-- Stage outcome values observed: `Current`; blank outcomes are allowed where API returns null.
+- Stage outcome values observed: `Current`; blank outcomes allowed where API returns null.
 - House names observed: `26th Seanad`, `27th Seanad`.
 - Review: `review/silver_bill_stages/latest/{manifest.json,sample.csv,dq.json}`.
 
@@ -83,78 +83,86 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 - Registry added: `configs/oireachtas/tables.yml`
 - Builder: `extract/oireachtas/table_bill_related_docs.py`
+- Final run: `27328140775`; run number 37; success.
+- Raw legislation rows: 10; raw related-doc rows: 1; output rows: 1; bills with related docs: 1.
+- PK `related_doc_id`, unique; DQ pass.
+- Final run ID: `silver_bill_related_docs_20260611T062419Z`.
+- PDF source rows: 1; XML source rows: 0 because `relatedDoc.formats.xml` was null.
+- T09-compatible source-file IDs: pass.
+- Observed doc type/language: `memo`, `eng`.
+- Review: `review/silver_bill_related_docs/latest/{manifest.json,sample.csv,dq.json}`.
+
+### T21 — `silver_bill_sponsors`
+
+- Registry added: `configs/oireachtas/tables.yml`
+- Builder: `extract/oireachtas/table_bill_sponsors.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27328140775`
-- Run number: 37
+- Final run: `27328994935`
+- Run number: 38
 - Result: success
 - Raw legislation rows: 10
-- Raw related-doc rows: 1
-- Output rows: 1
-- Bills with related docs: 1
-- PK: `related_doc_id`, unique
+- Raw sponsor rows: 36
+- Output rows: 36
+- Bills with sponsors: 10
+- Primary sponsor rows: 10
+- PK: `bill_sponsor_id`, unique
 - DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Final run ID: `silver_bill_related_docs_20260611T062419Z`.
+- Final run ID: `silver_bill_sponsors_20260611T064401Z`.
 - Normalized columns:
-  - `related_doc_id`
+  - `bill_sponsor_id`
   - `bill_id`
-  - `related_doc_label`
-  - `related_doc_date`
-  - `doc_type`
-  - `language`
-  - `format_pdf_uri`, `format_pdf_url`
-  - `format_xml_uri`, `format_xml_url`
-  - `source_file_id_pdf`, `source_file_id_xml`
-  - `s3_pdf_key`, `s3_xml_key`
+  - `sponsor_uri`
+  - `sponsor_name`
+  - `sponsor_role_uri`
+  - `sponsor_role_name`
+  - `is_primary`
+  - `sponsor_order`
   - `snapshot_date`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
   - `bill_id` populated, preserving join to `silver_bills.bill_id`;
-  - related document label/date/doc type populated;
-  - at least one source format per document;
-  - source-file IDs and S3 keys populated where formats exist;
-  - source-file IDs deterministic and T09-compatible.
-- Format result:
-  - PDF source rows: 1;
-  - XML source rows: 0 because `relatedDoc.formats.xml` was null in the sample payload;
-  - null XML handled without crashing.
-- Observed doc type/language: `memo`, `eng`.
+  - sponsor name populated;
+  - sponsor URI populated;
+  - `is_primary` normalized to `true`/`false`;
+  - sponsor order populated.
+- Role fields: `sponsor.as` was null in the sample payload, so `sponsor_role_uri` and `sponsor_role_name` are blank; this is allowed.
 - Review:
-  - `review/silver_bill_related_docs/latest/manifest.json`
-  - `review/silver_bill_related_docs/latest/sample.csv`
-  - `review/silver_bill_related_docs/latest/dq.json`
+  - `review/silver_bill_sponsors/latest/manifest.json`
+  - `review/silver_bill_sponsors/latest/sample.csv`
+  - `review/silver_bill_sponsors/latest/dq.json`
 
 ## Next packet
 
-### T21 — `silver_bill_sponsors`
+### T22 — `silver_bill_debates`
 
 Goal:
 
-- add bill sponsor bridge from `bill.sponsors[].sponsor`;
+- add bill debate bridge from `bill.debates[]`;
 - add registry entry if absent;
-- build one row per bill sponsor, preserving join to `silver_bills.bill_id`;
-- normalize `bill_sponsor_id`, `bill_id`, sponsor identity/name URI fields from `sponsor.by`, sponsor role fields from `sponsor.as`, `is_primary`, `sponsor_order`, and `snapshot_date`;
-- use deterministic fallback IDs where sponsor URI is missing;
+- build one row per bill debate reference, preserving join to `silver_bills.bill_id`;
+- normalize `bill_debate_id`, `bill_id`, `debate_id`, `debate_uri`, `debate_date`, `debate_show_as`, `debate_section_id`, `chamber_uri`, `chamber_name`, `debate_order`, and `snapshot_date`;
+- use `debate.uri` plus `bill_id` as deterministic identity, with fallback hash if URI is missing;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, primary key unique, `bill_id` populated, sponsor name/URI populated where API exposes them, and sponsor order populated.
+- validate row count > 0, primary key unique, `bill_id` populated, debate URI/date/show-as populated where API exposes them, and debate order populated.
 
 Expected files:
 
-- update `configs/oireachtas/tables.yml` if `silver_bill_sponsors` is absent
-- `extract/oireachtas/table_bill_sponsors.py`
+- update `configs/oireachtas/tables.yml` if `silver_bill_debates` is absent
+- `extract/oireachtas/table_bill_debates.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_sponsors`
+- update `.github/workflows/oireachtas_table_test.yml` default to `silver_bill_debates`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table silver_bill_sponsors \
+  --table silver_bill_debates \
   --mode test \
   --chamber dail \
   --house-no 34 \
@@ -168,7 +176,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start T21 — silver_bill_sponsors.
-Workflow default currently points to silver_bill_related_docs.
-Use bill.sponsors[].sponsor from the confirmed T17 payload.
+Start T22 — silver_bill_debates.
+Workflow default currently points to silver_bill_sponsors.
+Use bill.debates[] from the confirmed T17 payload.
 ```
