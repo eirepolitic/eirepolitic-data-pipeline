@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T17:13:13.348576+00:00",
+      "created_at": "2026-06-11T17:30:45.925810+00:00",
       "description": "Complete source attribution metadata"
     },
     {
@@ -30,7 +30,7 @@
       "warnings": [
         "missing_required_field:source_name"
       ],
-      "created_at": "2026-06-11T17:13:13.381680+00:00",
+      "created_at": "2026-06-11T17:30:45.955643+00:00",
       "description": "Missing source name should warn"
     },
     {
@@ -45,7 +45,7 @@
       "warnings": [
         "missing_required_field:source_url"
       ],
-      "created_at": "2026-06-11T17:13:13.413245+00:00",
+      "created_at": "2026-06-11T17:30:45.983092+00:00",
       "description": "Missing source URL should warn"
     },
     {
@@ -61,7 +61,7 @@
         "missing_required_field:license",
         "license_not_confirmed"
       ],
-      "created_at": "2026-06-11T17:13:13.445463+00:00",
+      "created_at": "2026-06-11T17:30:46.011487+00:00",
       "description": "Missing license should warn"
     },
     {
@@ -74,7 +74,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T17:13:13.476539+00:00",
+      "created_at": "2026-06-11T17:30:46.038681+00:00",
       "description": "Missing retrieval date should be displayed and warn through required attribution config"
     },
     {
@@ -89,7 +89,7 @@
       "warnings": [
         "invalid_source_url"
       ],
-      "created_at": "2026-06-11T17:13:13.508511+00:00",
+      "created_at": "2026-06-11T17:30:46.066710+00:00",
       "description": "Invalid source URL should warn"
     },
     {
@@ -104,7 +104,7 @@
       "warnings": [
         "license_not_confirmed"
       ],
-      "created_at": "2026-06-11T17:13:13.540542+00:00",
+      "created_at": "2026-06-11T17:30:46.094896+00:00",
       "description": "Unknown license should warn"
     },
     {
@@ -117,7 +117,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T17:13:13.621819+00:00",
+      "created_at": "2026-06-11T17:30:46.169603+00:00",
       "description": "Long source fields should truncate cleanly"
     },
     {
@@ -130,7 +130,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T17:13:13.653639+00:00",
+      "created_at": "2026-06-11T17:30:46.197709+00:00",
       "description": "Remote-style image represented as deterministic placeholder"
     },
     {
@@ -143,7 +143,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T17:13:13.683829+00:00",
+      "created_at": "2026-06-11T17:30:46.223811+00:00",
       "description": "Multiple rows should render first row only in placeholder wrapper"
     },
     {
@@ -159,7 +159,7 @@
         "invalid_source_url",
         "license_not_confirmed"
       ],
-      "created_at": "2026-06-11T17:13:13.728895+00:00",
+      "created_at": "2026-06-11T17:30:46.264249+00:00",
       "description": "Long metadata, invalid URL, unknown license, and missing retrieved date"
     }
   ]
