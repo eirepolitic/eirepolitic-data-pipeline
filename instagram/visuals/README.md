@@ -35,10 +35,10 @@ This contact-sheet process is the standard QA and regression-testing method for 
 - `scatter_plot_draft_v1`
 - `dot_plot_draft_v1`
 - `lollipop_chart_draft_v1`
+- `slope_chart_draft_v1`
 
 ## Planned visual sequence
 
-- slope chart
 - donut/pie chart where useful
 - constituency/geographic map variants
 - sourced internet image assets with attribution metadata
