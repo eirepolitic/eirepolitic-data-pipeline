@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `gold_member_activity_yearly`
-- `review/gold_member_activity_yearly/latest/sample.csv`
-- `review/gold_member_activity_yearly/latest/sample.md`
-- `review/gold_member_activity_yearly/latest/manifest.json`
-- `review/gold_member_activity_yearly/latest/schema.json`
-- `review/gold_member_activity_yearly/latest/dq.json`
+### `gold_member_activity_monthly`
+- `review/gold_member_activity_monthly/latest/sample.csv`
+- `review/gold_member_activity_monthly/latest/sample.md`
+- `review/gold_member_activity_monthly/latest/manifest.json`
+- `review/gold_member_activity_monthly/latest/schema.json`
+- `review/gold_member_activity_monthly/latest/dq.json`
