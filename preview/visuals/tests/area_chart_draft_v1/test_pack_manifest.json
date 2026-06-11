@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.179607+00:00",
+      "created_at": "2026-06-11T15:07:07.728605+00:00",
       "description": "One filled trend series"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.261060+00:00",
+      "created_at": "2026-06-11T15:07:07.806809+00:00",
       "description": "Two filled trend series"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.400658+00:00",
+      "created_at": "2026-06-11T15:07:07.936987+00:00",
       "description": "Four series at template maximum"
     },
     {
@@ -56,7 +56,7 @@
       "warnings": [
         "truncated_series:6->4"
       ],
-      "created_at": "2026-06-11T06:56:05.488321+00:00",
+      "created_at": "2026-06-11T15:07:08.024943+00:00",
       "description": "Six series; should truncate to template maximum"
     },
     {
@@ -71,7 +71,7 @@
       "warnings": [
         "truncated_points:Issue volume:20->18"
       ],
-      "created_at": "2026-06-11T06:56:05.560509+00:00",
+      "created_at": "2026-06-11T15:07:08.096630+00:00",
       "description": "Twenty points; should truncate to point maximum"
     },
     {
@@ -91,7 +91,7 @@
         "long_series_label:Emergency department waiting t",
         "long_series_label:Emergency department waiting t"
       ],
-      "created_at": "2026-06-11T06:56:05.641768+00:00",
+      "created_at": "2026-06-11T15:07:08.179029+00:00",
       "description": "Long series labels"
     },
     {
@@ -107,7 +107,7 @@
         "missing_or_invalid_point:Party A",
         "missing_or_invalid_point:Party B"
       ],
-      "created_at": "2026-06-11T06:56:05.714719+00:00",
+      "created_at": "2026-06-11T15:07:08.251215+00:00",
       "description": "Missing and invalid observations"
     },
     {
@@ -123,7 +123,7 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T06:56:05.794461+00:00",
+      "created_at": "2026-06-11T15:07:08.331827+00:00",
       "description": "Includes negative values and should warn"
     },
     {
@@ -136,7 +136,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.862135+00:00",
+      "created_at": "2026-06-11T15:07:08.401237+00:00",
       "description": "Values close together"
     },
     {
@@ -149,7 +149,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.928344+00:00",
+      "created_at": "2026-06-11T15:07:08.470656+00:00",
       "description": "Values spanning several orders of magnitude"
     },
     {
@@ -162,7 +162,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:05.996262+00:00",
+      "created_at": "2026-06-11T15:07:08.540628+00:00",
       "description": "Includes zero values"
     },
     {
@@ -186,7 +186,7 @@
         "long_series_label:Emergency department waiting t",
         "long_series_label:Emergency department waiting t"
       ],
-      "created_at": "2026-06-11T06:56:06.080298+00:00",
+      "created_at": "2026-06-11T15:07:08.626709+00:00",
       "description": "Long labels, two opposite trends, and wide values"
     }
   ]

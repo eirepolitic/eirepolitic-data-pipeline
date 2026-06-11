@@ -2,13 +2,13 @@
   "visual_id": "negative_values",
   "template_id": "small_multiples_draft_v1",
   "renderer": "small_multiples",
-  "created_at": "2026-06-11T06:56:03.541766+00:00",
+  "created_at": "2026-06-11T15:07:06.010388+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "case_id": "negative_values",
-    "case_description": "Includes negative values and should warn",
+    "case_description": "Negative values should warn",
     "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
     "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
   },
@@ -36,43 +36,41 @@
     "license": "",
     "notes": "Placeholder political data. Not for publication."
   },
-  "group_count": 2,
-  "point_count": 6,
-  "value_range": {
-    "min": -7.0,
-    "max": 42.0
-  },
   "rows_rendered": [
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Jan",
-      "value": 20.0
+      "value": 31.0
     },
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Feb",
-      "value": -5.0
+      "value": -4.0
     },
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Mar",
+      "value": 38.0
+    },
+    {
+      "group": "Cork",
+      "x": "Jan",
+      "value": 28.0
+    },
+    {
+      "group": "Cork",
+      "x": "Feb",
       "value": 29.0
     },
     {
-      "group": "Party B",
-      "x": "Jan",
-      "value": 42.0
-    },
-    {
-      "group": "Party B",
-      "x": "Feb",
-      "value": 40.0
-    },
-    {
-      "group": "Party B",
+      "group": "Cork",
       "x": "Mar",
-      "value": -7.0
+      "value": -8.0
     }
+  ],
+  "groups_rendered": [
+    "Dublin",
+    "Cork"
   ],
   "warnings": [
     "negative_values_present",

@@ -15,8 +15,8 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:03.343332+00:00",
-      "description": "Two mini trend panels"
+      "created_at": "2026-06-11T15:07:04.893394+00:00",
+      "description": "Two small-multiple panels"
     },
     {
       "success": true,
@@ -28,8 +28,8 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:03.372069+00:00",
-      "description": "Four mini trend panels"
+      "created_at": "2026-06-11T15:07:05.063348+00:00",
+      "description": "Four panel grid"
     },
     {
       "success": true,
@@ -41,23 +41,23 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T06:56:03.401715+00:00",
-      "description": "Six mini trend panels at template maximum"
+      "created_at": "2026-06-11T15:07:05.254978+00:00",
+      "description": "Six panel target maximum grid"
     },
     {
       "success": true,
-      "visual_id": "08_groups_overflow",
+      "visual_id": "overflow_groups",
       "template_id": "small_multiples_draft_v1",
       "renderer": "small_multiples",
-      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/08_groups_overflow.png",
-      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/08_groups_overflow.json",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/overflow_groups.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/overflow_groups.json",
       "width": 1080,
       "height": 860,
       "warnings": [
-        "truncated_groups:8->6"
+        "truncated_groups:7->6"
       ],
-      "created_at": "2026-06-11T06:56:03.430697+00:00",
-      "description": "Eight groups; should truncate to template maximum"
+      "created_at": "2026-06-11T15:07:05.436703+00:00",
+      "description": "Seven groups; should truncate to template maximum"
     },
     {
       "success": true,
@@ -69,31 +69,31 @@
       "width": 1080,
       "height": 860,
       "warnings": [
-        "truncated_points:Dublin Bay South:14->12",
-        "truncated_points:Cork North Central:14->12"
+        "truncated_points:Dublin:14->12",
+        "truncated_points:Cork:14->12"
       ],
-      "created_at": "2026-06-11T06:56:03.457917+00:00",
-      "description": "Fourteen points per group; should truncate to point maximum"
+      "created_at": "2026-06-11T15:07:05.536370+00:00",
+      "description": "Fourteen points per group; should truncate to template maximum"
     },
     {
       "success": true,
-      "visual_id": "long_group_labels",
+      "visual_id": "long_group_names",
       "template_id": "small_multiples_draft_v1",
       "renderer": "small_multiples",
-      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/long_group_labels.png",
-      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/long_group_labels.json",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/long_group_names.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/long_group_names.json",
       "width": 1080,
       "height": 860,
       "warnings": [
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Cork North Central and Surroundi"
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi"
       ],
-      "created_at": "2026-06-11T06:56:03.487538+00:00",
-      "description": "Long group labels"
+      "created_at": "2026-06-11T15:07:05.630131+00:00",
+      "description": "Long group titles"
     },
     {
       "success": true,
@@ -105,11 +105,37 @@
       "width": 1080,
       "height": 860,
       "warnings": [
-        "missing_or_invalid_point:Party A",
-        "missing_or_invalid_point:Party B"
+        "missing_or_invalid_value:Dublin",
+        "missing_or_invalid_value:Cork"
       ],
-      "created_at": "2026-06-11T06:56:03.512707+00:00",
-      "description": "Missing and invalid observations"
+      "created_at": "2026-06-11T15:07:05.719246+00:00",
+      "description": "Missing and invalid values should warn and skip points"
+    },
+    {
+      "success": true,
+      "visual_id": "flat_trends",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/flat_trends.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/flat_trends.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:07:05.809175+00:00",
+      "description": "Flat series for identical y-values"
+    },
+    {
+      "success": true,
+      "visual_id": "volatile_trends",
+      "template_id": "small_multiples_draft_v1",
+      "renderer": "small_multiples",
+      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/volatile_trends.png",
+      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/volatile_trends.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:07:05.918307+00:00",
+      "description": "Sharp up and down movement"
     },
     {
       "success": true,
@@ -124,34 +150,8 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T06:56:03.541766+00:00",
-      "description": "Includes negative values and should warn"
-    },
-    {
-      "success": true,
-      "visual_id": "tight_range",
-      "template_id": "small_multiples_draft_v1",
-      "renderer": "small_multiples",
-      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/tight_range.png",
-      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/tight_range.json",
-      "width": 1080,
-      "height": 860,
-      "warnings": [],
-      "created_at": "2026-06-11T06:56:03.565641+00:00",
-      "description": "Values close together"
-    },
-    {
-      "success": true,
-      "visual_id": "wide_range",
-      "template_id": "small_multiples_draft_v1",
-      "renderer": "small_multiples",
-      "output_png": "generated_visual_tests/small_multiples_draft_v1/png/wide_range.png",
-      "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/wide_range.json",
-      "width": 1080,
-      "height": 860,
-      "warnings": [],
-      "created_at": "2026-06-11T06:56:03.593404+00:00",
-      "description": "Values spanning several orders of magnitude"
+      "created_at": "2026-06-11T15:07:06.010388+00:00",
+      "description": "Negative values should warn"
     },
     {
       "success": true,
@@ -163,25 +163,33 @@
       "width": 1080,
       "height": 860,
       "warnings": [
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Dublin Bay South and Inner Subur",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Cork North Central and Surroundi",
-        "long_group_label:Galway West and Coastal Communit",
-        "long_group_label:Galway West and Coastal Communit",
-        "long_group_label:Galway West and Coastal Communit",
-        "long_group_label:Galway West and Coastal Communit",
-        "long_group_label:Limerick City and County Metropo",
-        "long_group_label:Limerick City and County Metropo",
-        "long_group_label:Limerick City and County Metropo",
-        "long_group_label:Limerick City and County Metropo"
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Dublin Bay South and Inner Subur",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi",
+        "long_group:Cork North Central and Surroundi"
       ],
-      "created_at": "2026-06-11T06:56:03.633341+00:00",
-      "description": "Six long group labels with wide values"
+      "created_at": "2026-06-11T15:07:06.107982+00:00",
+      "description": "Long group names and dense timelines"
     }
   ]
 }

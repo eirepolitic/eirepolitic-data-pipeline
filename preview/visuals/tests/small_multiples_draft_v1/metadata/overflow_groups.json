@@ -1,14 +1,14 @@
 {
-  "visual_id": "wide_range",
+  "visual_id": "overflow_groups",
   "template_id": "small_multiples_draft_v1",
   "renderer": "small_multiples",
-  "created_at": "2026-06-11T06:56:03.593404+00:00",
+  "created_at": "2026-06-11T15:07:05.436703+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
-    "case_id": "wide_range",
-    "case_description": "Values spanning several orders of magnitude",
+    "case_id": "overflow_groups",
+    "case_description": "Seven groups; should truncate to template maximum",
     "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
     "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
   },
@@ -21,12 +21,12 @@
     {
       "field": "case_id",
       "operator": "equals",
-      "value": "wide_range"
+      "value": "overflow_groups"
     }
   ],
   "grouping": {
     "batch_enabled": false,
-    "test_case": "wide_range"
+    "test_case": "overflow_groups"
   },
   "source_note": "Fixture data for visual variation review only",
   "attribution": {
@@ -36,53 +36,77 @@
     "license": "",
     "notes": "Placeholder political data. Not for publication."
   },
-  "group_count": 2,
-  "point_count": 8,
-  "value_range": {
-    "min": 0.0,
-    "max": 72000.0
-  },
   "rows_rendered": [
     {
-      "group": "Party A",
-      "x": "2019",
+      "group": "G01",
+      "x": "Jan",
       "value": 1.0
     },
     {
-      "group": "Party A",
-      "x": "2020",
-      "value": 20.0
+      "group": "G01",
+      "x": "Feb",
+      "value": 2.0
     },
     {
-      "group": "Party A",
-      "x": "2021",
-      "value": 300.0
+      "group": "G02",
+      "x": "Jan",
+      "value": 3.0
     },
     {
-      "group": "Party A",
-      "x": "2022",
-      "value": 5000.0
+      "group": "G02",
+      "x": "Feb",
+      "value": 4.0
     },
     {
-      "group": "Party B",
-      "x": "2019",
-      "value": 72000.0
+      "group": "G03",
+      "x": "Jan",
+      "value": 5.0
     },
     {
-      "group": "Party B",
-      "x": "2020",
-      "value": 14000.0
+      "group": "G03",
+      "x": "Feb",
+      "value": 6.0
     },
     {
-      "group": "Party B",
-      "x": "2021",
-      "value": 900.0
+      "group": "G04",
+      "x": "Jan",
+      "value": 7.0
     },
     {
-      "group": "Party B",
-      "x": "2022",
+      "group": "G04",
+      "x": "Feb",
+      "value": 8.0
+    },
+    {
+      "group": "G05",
+      "x": "Jan",
+      "value": 9.0
+    },
+    {
+      "group": "G05",
+      "x": "Feb",
+      "value": 10.0
+    },
+    {
+      "group": "G06",
+      "x": "Jan",
+      "value": 11.0
+    },
+    {
+      "group": "G06",
+      "x": "Feb",
       "value": 12.0
     }
   ],
-  "warnings": []
+  "groups_rendered": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06"
+  ],
+  "warnings": [
+    "truncated_groups:7->6"
+  ]
 }

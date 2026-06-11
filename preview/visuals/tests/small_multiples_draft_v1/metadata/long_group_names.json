@@ -1,14 +1,14 @@
 {
-  "visual_id": "08_groups_overflow",
+  "visual_id": "long_group_names",
   "template_id": "small_multiples_draft_v1",
   "renderer": "small_multiples",
-  "created_at": "2026-06-11T06:56:03.430697+00:00",
+  "created_at": "2026-06-11T15:07:05.630131+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
-    "case_id": "08_groups_overflow",
-    "case_description": "Eight groups; should truncate to template maximum",
+    "case_id": "long_group_names",
+    "case_description": "Long group titles",
     "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
     "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
   },
@@ -21,12 +21,12 @@
     {
       "field": "case_id",
       "operator": "equals",
-      "value": "08_groups_overflow"
+      "value": "long_group_names"
     }
   ],
   "grouping": {
     "batch_enabled": false,
-    "test_case": "08_groups_overflow"
+    "test_case": "long_group_names"
   },
   "source_note": "Fixture data for visual variation review only",
   "attribution": {
@@ -36,75 +36,48 @@
     "license": "",
     "notes": "Placeholder political data. Not for publication."
   },
-  "group_count": 6,
-  "point_count": 12,
-  "value_range": {
-    "min": 0.0,
-    "max": 60.0
-  },
   "rows_rendered": [
     {
-      "group": "Group 1",
+      "group": "Dublin Bay South and Inner Suburbs",
       "x": "Jan",
-      "value": 10.0
+      "value": 31.0
     },
     {
-      "group": "Group 1",
+      "group": "Dublin Bay South and Inner Suburbs",
       "x": "Feb",
-      "value": 12.0
+      "value": 34.0
     },
     {
-      "group": "Group 2",
-      "x": "Jan",
-      "value": 20.0
-    },
-    {
-      "group": "Group 2",
-      "x": "Feb",
-      "value": 18.0
-    },
-    {
-      "group": "Group 3",
-      "x": "Jan",
-      "value": 30.0
-    },
-    {
-      "group": "Group 3",
-      "x": "Feb",
-      "value": 33.0
-    },
-    {
-      "group": "Group 4",
-      "x": "Jan",
-      "value": 40.0
-    },
-    {
-      "group": "Group 4",
-      "x": "Feb",
+      "group": "Dublin Bay South and Inner Suburbs",
+      "x": "Mar",
       "value": 38.0
     },
     {
-      "group": "Group 5",
+      "group": "Cork North Central and Surrounding Towns",
       "x": "Jan",
-      "value": 50.0
+      "value": 28.0
     },
     {
-      "group": "Group 5",
+      "group": "Cork North Central and Surrounding Towns",
       "x": "Feb",
-      "value": 52.0
+      "value": 29.0
     },
     {
-      "group": "Group 6",
-      "x": "Jan",
-      "value": 60.0
-    },
-    {
-      "group": "Group 6",
-      "x": "Feb",
-      "value": 58.0
+      "group": "Cork North Central and Surrounding Towns",
+      "x": "Mar",
+      "value": 33.0
     }
   ],
+  "groups_rendered": [
+    "Dublin Bay South and Inner Suburbs",
+    "Cork North Central and Surrounding Towns"
+  ],
   "warnings": [
-    "truncated_groups:8->6"
+    "long_group:Dublin Bay South and Inner Subur",
+    "long_group:Dublin Bay South and Inner Subur",
+    "long_group:Dublin Bay South and Inner Subur",
+    "long_group:Cork North Central and Surroundi",
+    "long_group:Cork North Central and Surroundi",
+    "long_group:Cork North Central and Surroundi"
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "overflow_groups",
+  "template_id": "small_multiples_draft_v1",
+  "renderer": "small_multiples",
+  "output_png": "generated_visual_tests/small_multiples_draft_v1/png/overflow_groups.png",
+  "metadata_path": "generated_visual_tests/small_multiples_draft_v1/metadata/overflow_groups.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_groups:7->6"
+  ],
+  "created_at": "2026-06-11T15:07:05.436703+00:00",
+  "description": "Seven groups; should truncate to template maximum"
+}

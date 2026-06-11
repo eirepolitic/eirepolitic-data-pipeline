@@ -2,13 +2,13 @@
   "visual_id": "04_groups",
   "template_id": "small_multiples_draft_v1",
   "renderer": "small_multiples",
-  "created_at": "2026-06-11T06:56:03.372069+00:00",
+  "created_at": "2026-06-11T15:07:05.063348+00:00",
   "input": {
     "input_mode": "local_csv",
     "source": "instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv",
     "case_id": "04_groups",
-    "case_description": "Four mini trend panels",
+    "case_description": "Four panel grid",
     "registry_path": "instagram/visuals/tests/small_multiples_draft_v1/cases.yml",
     "template_path": "instagram/visuals/templates/small_multiples_draft_v1.yml"
   },
@@ -36,93 +36,93 @@
     "license": "",
     "notes": "Placeholder political data. Not for publication."
   },
-  "group_count": 4,
-  "point_count": 16,
-  "value_range": {
-    "min": 0.0,
-    "max": 42.0
-  },
   "rows_rendered": [
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Jan",
-      "value": 20.0
+      "value": 31.0
     },
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Feb",
-      "value": 24.0
+      "value": 34.0
     },
     {
-      "group": "Party A",
+      "group": "Dublin",
       "x": "Mar",
+      "value": 38.0
+    },
+    {
+      "group": "Dublin",
+      "x": "Apr",
+      "value": 41.0
+    },
+    {
+      "group": "Cork",
+      "x": "Jan",
+      "value": 28.0
+    },
+    {
+      "group": "Cork",
+      "x": "Feb",
       "value": 29.0
     },
     {
-      "group": "Party A",
+      "group": "Cork",
+      "x": "Mar",
+      "value": 33.0
+    },
+    {
+      "group": "Cork",
       "x": "Apr",
       "value": 35.0
     },
     {
-      "group": "Party B",
+      "group": "Galway",
       "x": "Jan",
-      "value": 42.0
-    },
-    {
-      "group": "Party B",
-      "x": "Feb",
-      "value": 40.0
-    },
-    {
-      "group": "Party B",
-      "x": "Mar",
-      "value": 37.0
-    },
-    {
-      "group": "Party B",
-      "x": "Apr",
-      "value": 33.0
-    },
-    {
-      "group": "Party C",
-      "x": "Jan",
-      "value": 18.0
-    },
-    {
-      "group": "Party C",
-      "x": "Feb",
-      "value": 20.0
-    },
-    {
-      "group": "Party C",
-      "x": "Mar",
-      "value": 19.0
-    },
-    {
-      "group": "Party C",
-      "x": "Apr",
       "value": 22.0
     },
     {
-      "group": "Others",
-      "x": "Jan",
-      "value": 12.0
-    },
-    {
-      "group": "Others",
+      "group": "Galway",
       "x": "Feb",
-      "value": 11.0
+      "value": 25.0
     },
     {
-      "group": "Others",
+      "group": "Galway",
       "x": "Mar",
-      "value": 10.0
+      "value": 26.0
     },
     {
-      "group": "Others",
+      "group": "Galway",
       "x": "Apr",
-      "value": 8.0
+      "value": 30.0
+    },
+    {
+      "group": "Limerick",
+      "x": "Jan",
+      "value": 40.0
+    },
+    {
+      "group": "Limerick",
+      "x": "Feb",
+      "value": 38.0
+    },
+    {
+      "group": "Limerick",
+      "x": "Mar",
+      "value": 36.0
+    },
+    {
+      "group": "Limerick",
+      "x": "Apr",
+      "value": 35.0
     }
+  ],
+  "groups_rendered": [
+    "Dublin",
+    "Cork",
+    "Galway",
+    "Limerick"
   ],
   "warnings": []
 }
