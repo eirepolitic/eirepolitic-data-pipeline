@@ -16,6 +16,7 @@ from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, raw_review_url, write_review_bundle
 from .schemas import DEFAULT_TABLES_CONFIG, get_table_schema, load_table_registry
 from .table_bill_related_docs import TABLE_NAME as BILL_RELATED_DOCS_TABLE, build_silver_bill_related_docs
+from .table_bill_sponsors import TABLE_NAME as BILL_SPONSORS_TABLE, build_silver_bill_sponsors
 from .table_bill_stages import TABLE_NAME as BILL_STAGES_TABLE, build_silver_bill_stages
 from .table_bill_versions import TABLE_NAME as BILL_VERSIONS_TABLE, build_silver_bill_versions
 from .table_bills import TABLE_NAME as BILLS_TABLE, build_silver_bills
@@ -161,6 +162,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_silver_bill_stages(**filtered, date_start=args.date_start, date_end=args.date_end)
     elif args.table == BILL_RELATED_DOCS_TABLE:
         result = build_silver_bill_related_docs(**filtered, date_start=args.date_start, date_end=args.date_end)
+    elif args.table == BILL_SPONSORS_TABLE:
+        result = build_silver_bill_sponsors(**filtered, date_start=args.date_start, date_end=args.date_end)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
