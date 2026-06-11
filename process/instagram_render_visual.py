@@ -30,6 +30,7 @@ RENDERERS = {
     "lollipop_chart": "instagram.visuals.renderers.lollipop_chart",
     "slope_chart": "instagram.visuals.renderers.slope_chart",
     "donut_chart": "instagram.visuals.renderers.donut_chart",
+    "tile_map": "instagram.visuals.renderers.tile_map",
 }
 
 
