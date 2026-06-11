@@ -1,0 +1,103 @@
+template: instagram/visuals/templates/donut_chart_draft_v1.yml
+bindings:
+  label: label
+  value: value
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: 02_slices
+    description: Two-slice minimal donut chart
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: 02_slices
+  - id: 04_slices
+    description: Four-slice standard donut chart
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: 04_slices
+  - id: 08_slices
+    description: Eight-slice readable donut chart
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: 08_slices
+  - id: overflow_slices
+    description: Twelve slices; should aggregate to Other
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: overflow_slices
+  - id: long_labels
+    description: Long labels should truncate cleanly
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_labels
+  - id: tight_values
+    description: Values close together
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: tight_values
+  - id: wide_values
+    description: Values spanning several orders of magnitude
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_values
+  - id: zero_values
+    description: Zero-value slices should be omitted
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: zero_values
+  - id: negative_values
+    description: Negative values should warn and be omitted
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: missing_values
+    description: Missing and invalid values should warn
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_values
+  - id: duplicate_labels
+    description: Duplicate labels should aggregate values
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: duplicate_labels
+  - id: all_zero_or_negative
+    description: No positive values should render empty-state warning
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: all_zero_or_negative
+  - id: phone_readability_stress
+    description: Long labels, wide values, missing values, zero and negative values
+    data: instagram/visuals/tests/donut_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress
