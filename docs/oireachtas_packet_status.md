@@ -15,7 +15,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - S3 bucket: `eirepolitic-data`
 - Review branch: `oireachtas-review-output`
 - Review publishing preserves existing table folders and runs after table/DQ failure when local review output exists.
-- Standard confirmed outputs: raw API/source files, partitioned CSV, partitioned Parquet, latest CSV/Parquet pointers, run manifest, review sample/schema/manifest.
+- Standard confirmed outputs: raw API/source files, partitioned CSV, partitioned Parquet, latest CSV/Parquet pointers, run manifest, review sample/schema/manifest/DQ.
 
 ## Completed foundation packets
 
@@ -25,106 +25,101 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Confirmed table packets
 
-### T01 — `silver_houses`
-- Run `26847237939`; 25 rows; PK `house_uri`; DQ pass.
-
-### T02 — `silver_constituencies`
-- Run `27069529002`; 43 Dáil 34 rows; PK `constituency_uri`; DQ pass.
-
-### T03 — `silver_parties`
-- Run `27069711527`; 11 Dáil 34 rows; PK `party_uri`; DQ pass.
-
-### T04 — `silver_members`
-- Run `27070132888`; 25 test rows; PK `member_code`; DQ pass.
-
-### T05 — `silver_member_memberships`
-- Run `27070298915`; 25 rows; PK `membership_id`; DQ pass.
-
-### T06 — `silver_member_parties`
-- Run `27097902733`; 25 rows; PK `member_party_id`; DQ pass.
-
-### T07 — `silver_member_constituencies`
-- Run `27098119595`; 25 rows; PK `member_constituency_id`; DQ pass.
-
-### T08 — `silver_member_offices`
-- Final run `27098313330`; 77 rows; PK `member_office_id`; DQ pass.
-
-### T09 — `silver_source_files`
-- Final run `27098621113`; 25 rows; PK `source_file_id`; DQ pass.
-
-### T10 — `silver_debate_records`
-- Run `27098769263`; 2 rows; PK `debate_id`; DQ pass.
-
-### T11 — `silver_debate_sections`
-- Run `27099679458`; 8 rows; PK `debate_section_id`; DQ pass.
-
-### T12 — `silver_speeches`
-- Final run `27222202849`; 357 rows; PK `speech_id`; DQ pass.
-- Speaker member-code enrichment: 344/357 rows, 96.36%.
-
-### T13 — `silver_divisions`
-- Final run `27222935479`; 3 rows; PK `division_id`; DQ pass.
-- Canonical `/divisions` used; `/votes` fallback not used.
-
-### T14 — `silver_division_tallies`
-- Final run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass.
-- API tally values matched member-array lengths for all rows.
-
-### T15 — `silver_member_votes`
-- Final run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass.
-- Expected rows from T14 tallies: 512.
-- No duplicate member vote per division.
-- `party_name_at_vote` and `constituency_name_at_vote` remain blank because the division payload does not expose them.
-
-### T16 — `silver_questions`
-- Final run `27292008182`; 10 rows; PK `question_id`; DQ pass.
-- API shape: `question` wrapper, `question.uri`, `question.date`, `question.questionNumber`, `question.questionType`, `question.showAs`, `question.by`, `question.to`, `question.debateSection`, and `question.debateSection.formats`.
-- XML source IDs align with T09; answer text and PDF fields are blank because not exposed/null in the API response.
+- **T01 — `silver_houses`**: run `26847237939`; 25 rows; PK `house_uri`; DQ pass.
+- **T02 — `silver_constituencies`**: run `27069529002`; 43 Dáil 34 rows; PK `constituency_uri`; DQ pass.
+- **T03 — `silver_parties`**: run `27069711527`; 11 Dáil 34 rows; PK `party_uri`; DQ pass.
+- **T04 — `silver_members`**: run `27070132888`; 25 rows; PK `member_code`; DQ pass.
+- **T05 — `silver_member_memberships`**: run `27070298915`; 25 rows; PK `membership_id`; DQ pass.
+- **T06 — `silver_member_parties`**: run `27097902733`; 25 rows; PK `member_party_id`; DQ pass.
+- **T07 — `silver_member_constituencies`**: run `27098119595`; 25 rows; PK `member_constituency_id`; DQ pass.
+- **T08 — `silver_member_offices`**: run `27098313330`; 77 rows; PK `member_office_id`; DQ pass.
+- **T09 — `silver_source_files`**: run `27098621113`; 25 rows; PK `source_file_id`; DQ pass.
+- **T10 — `silver_debate_records`**: run `27098769263`; 2 rows; PK `debate_id`; DQ pass.
+- **T11 — `silver_debate_sections`**: run `27099679458`; 8 rows; PK `debate_section_id`; DQ pass.
+- **T12 — `silver_speeches`**: run `27222202849`; 357 rows; PK `speech_id`; DQ pass; speaker member-code enrichment 344/357 rows, 96.36%.
+- **T13 — `silver_divisions`**: run `27222935479`; 3 rows; PK `division_id`; DQ pass; canonical `/divisions` used.
+- **T14 — `silver_division_tallies`**: run `27236879805`; 9 rows; PK `division_tally_id`; DQ pass; API tally values matched member-array lengths.
+- **T15 — `silver_member_votes`**: run `27291681684`; 512 rows; PK `member_vote_id`; DQ pass; expected rows from T14 tallies: 512.
+- **T16 — `silver_questions`**: run `27292008182`; 10 rows; PK `question_id`; DQ pass; XML source IDs align with T09; answer/PDF fields blank where API omits them.
 
 ### T17 — `silver_bills`
+
 - Builder: `extract/oireachtas/table_bills.py`
 - Final run: `27325455277`
-- Final run ID: `silver_bills_20260611T051524Z`
-- Rows: 10; PK `bill_id`; DQ pass.
+- Run number: 33
+- Result: success
+- Raw legislation rows: 10
+- Output rows: 10
+- PK: `bill_id`, unique
+- DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Confirmed wrapper: `bill`; identity: `bill.uri`.
-- Confirmed nested shapes: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, `bill.amendmentLists`.
+- Final run ID: `silver_bills_20260611T051524Z`.
+- Confirmed API shape:
+  - wrapper: `bill`;
+  - identity: `bill.uri`;
+  - number/year: `bill.billNo`, `bill.billYear`;
+  - titles: `bill.shortTitleEn`, `bill.longTitleEn`, `bill.shortTitleGa`, `bill.longTitleGa`;
+  - origin house: `bill.originHouse.{uri,showAs}` and `bill.originHouseURI`;
+  - bill type/status: `bill.billType`, `bill.status`;
+  - latest stage: `bill.mostRecentStage.event`;
+  - nested collections: `bill.versions`, `bill.stages`, `bill.events`, `bill.debates`, `bill.relatedDocs`, `bill.sponsors`, `bill.amendmentLists`.
+- Confirmed nested shapes for next packets:
+  - versions: `bill.versions[].version.{uri,showAs,date,docType,lang,formats}`;
+  - stages: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
+  - related docs: `bill.relatedDocs[].relatedDoc.{uri,showAs,date,docType,lang,formats}`;
+  - sponsors: `bill.sponsors[].sponsor.{by,as,isPrimary}`;
+  - debates: `bill.debates[].{uri,showAs,date,debateSectionId,chamber}`;
+  - events: `bill.events[].event.{uri,eventURI,showAs,dates,chamber}`.
 - Review:
   - `review/silver_bills/latest/manifest.json`
   - `review/silver_bills/latest/sample.csv`
   - `review/silver_bills/latest/dq.json`
 
 ### T18 — `silver_bill_versions`
+
 - Builder: `extract/oireachtas/table_bill_versions.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27326809702`
-- Run number: 34
+- Final run: `27326814396`
+- Run number: 35
 - Result: success
 - Raw legislation rows: 10
-- Bills with versions: 10
+- Raw version rows: 10
 - Output rows: 10
+- Bills with versions: 10
 - PK: `bill_version_id`, unique
 - DQ: pass
 - Endpoint: `/legislation?chamber=dail&house_no=34&date_start=2025-01-01&date_end=2025-01-31&limit=10`.
-- Source shape used:
-  - wrapper: `bill`;
-  - bill join key: `bill.uri` -> `bill_id`;
-  - versions: `bill.versions[].version`;
-  - fields: `version.uri`, `version.showAs`, `version.date`, `version.docType`, `version.lang`, `version.formats.pdf.uri`, `version.formats.xml.uri`.
-- Normalized fields:
-  - `bill_version_id`;
-  - `bill_id` preserving join to `silver_bills.bill_id`;
-  - `version_label`;
-  - `version_date`;
-  - PDF/XML format URIs and absolute URLs;
-  - T09-compatible `source_file_id_pdf` / `source_file_id_xml`;
-  - source-file S3 keys;
-  - `snapshot_date`.
-- Null XML/PDF formats are supported. In the test sample, PDF was populated for all 10 rows and XML was null for all rows.
-- Source-file IDs were marked deterministic and compatible with the T09 hashing pattern.
-- Final run ID: `silver_bill_versions_20260611T055143Z`.
+- Final run ID: `silver_bill_versions_20260611T055216Z`.
+- Normalized columns:
+  - `bill_version_id`
+  - `bill_id`
+  - `version_label`
+  - `version_date`
+  - `format_pdf_uri`, `format_pdf_url`
+  - `format_xml_uri`, `format_xml_url`
+  - `source_file_id_pdf`, `source_file_id_xml`
+  - `s3_pdf_key`, `s3_xml_key`
+  - `snapshot_date`
+- DQ checks passed:
+  - row count > 0;
+  - required columns present;
+  - primary key non-null and unique;
+  - `bill_id` populated, preserving join to `silver_bills.bill_id`;
+  - `version_label` populated;
+  - `version_date` populated;
+  - at least one source format per version;
+  - source-file IDs and S3 keys populated where formats exist;
+  - source-file IDs deterministic and T09-compatible.
+- Format result:
+  - PDF source rows: 10;
+  - XML source rows: 0 because `version.formats.xml` was null in the sample payload;
+  - null XML handled without crashing.
+- Source-file ID pattern:
+  - `source_file:{stable_hash(['legislation', bill_id, format_type, format_uri, format_url], length=24)}`.
+- S3 target key pattern:
+  - `raw/oireachtas_unified/source_files/legislation/<bill_slug>/<source_file_id_slug>.<ext>`.
 - Review:
   - `review/silver_bill_versions/latest/manifest.json`
   - `review/silver_bill_versions/latest/sample.csv`
@@ -137,11 +132,13 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 Goal:
 
 - build one row per bill stage/progress event from `bill.stages[].event`;
-- normalize `bill_stage_id`, `bill_id`, `stage_name`, `stage_date`, house URI/name, stage outcome, order within bill, and snapshot date;
 - preserve join to `silver_bills.bill_id`;
-- use confirmed T17 shape: `bill.stages[].event.{uri,showAs,stageURI,stageOutcome,stageCompleted,progressStage,dates,house,chamber}`;
+- normalize `bill_stage_id`, `bill_id`, `stage_name`, `stage_date`, `house_uri`, `house_name`, `stage_outcome`, `order_in_bill`, and `snapshot_date`;
+- use `event.uri` as the stable stage identifier where available;
+- derive `stage_date` from `event.dates[].date`, using the first/earliest parseable date for each stage unless the model requires all stage dates separately;
+- use `event.progressStage` for `order_in_bill` where available;
 - publish raw JSON, CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count, primary-key uniqueness, bill joins, stage labels, stage dates, and order fields.
+- validate row count > 0, primary key unique, `bill_id` populated, stage name populated, stage date populated, and bill joins preserved.
 
 Expected files:
 
