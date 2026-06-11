@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:35.358431+00:00",
+      "created_at": "2026-06-11T16:52:25.541647+00:00",
       "description": "Three categories with three segments"
     },
     {
@@ -30,7 +30,7 @@
       "warnings": [
         "truncated_categories:9->8"
       ],
-      "created_at": "2026-06-11T16:45:35.450355+00:00",
+      "created_at": "2026-06-11T16:52:25.636174+00:00",
       "description": "Nine categories; should truncate to template max"
     },
     {
@@ -45,7 +45,7 @@
       "warnings": [
         "truncated_segments:6->5"
       ],
-      "created_at": "2026-06-11T16:45:35.549790+00:00",
+      "created_at": "2026-06-11T16:52:25.753641+00:00",
       "description": "Six segments; should truncate to template max"
     },
     {
@@ -65,7 +65,7 @@
         "long_category:Cork North Central and S",
         "long_category:Cork North Central and S"
       ],
-      "created_at": "2026-06-11T16:45:35.614327+00:00",
+      "created_at": "2026-06-11T16:52:25.820715+00:00",
       "description": "Long x-axis category labels"
     },
     {
@@ -85,7 +85,7 @@
         "long_segment:Emergency department wai",
         "long_segment:Regional public transpor"
       ],
-      "created_at": "2026-06-11T16:45:35.679014+00:00",
+      "created_at": "2026-06-11T16:52:25.888316+00:00",
       "description": "Long legend segment labels"
     },
     {
@@ -98,7 +98,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:35.743597+00:00",
+      "created_at": "2026-06-11T16:52:25.955335+00:00",
       "description": "Includes zero-valued segments"
     },
     {
@@ -113,7 +113,7 @@
       "warnings": [
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T16:45:35.808605+00:00",
+      "created_at": "2026-06-11T16:52:26.023834+00:00",
       "description": "Includes negative values; should warn and clamp for stacked rendering"
     },
     {
@@ -129,7 +129,7 @@
         "missing_or_invalid_value",
         "missing_or_invalid_value"
       ],
-      "created_at": "2026-06-11T16:45:35.873798+00:00",
+      "created_at": "2026-06-11T16:52:26.090763+00:00",
       "description": "Includes missing values; should warn and skip invalid rows"
     },
     {
@@ -142,7 +142,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:35.935567+00:00",
+      "created_at": "2026-06-11T16:52:26.155172+00:00",
       "description": "Large total differences between categories"
     },
     {
@@ -174,7 +174,7 @@
         "long_category:Galway West and Coastal ",
         "long_segment:Regional public transpor"
       ],
-      "created_at": "2026-06-11T16:45:36.010323+00:00",
+      "created_at": "2026-06-11T16:52:26.232035+00:00",
       "description": "Long categories, long segments, and wide totals"
     }
   ]

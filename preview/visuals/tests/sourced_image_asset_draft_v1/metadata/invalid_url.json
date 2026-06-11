@@ -1,0 +1,68 @@
+{
+  "visual_id": "invalid_url",
+  "template_id": "sourced_image_asset_draft_v1",
+  "renderer": "sourced_image_asset",
+  "created_at": "2026-06-11T16:52:54.276700+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "case_id": "invalid_url",
+    "case_description": "Invalid source URL should warn",
+    "registry_path": "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/sourced_image_asset_draft_v1.yml"
+  },
+  "bindings": {
+    "image_ref": "image_ref",
+    "asset_kind": "asset_kind",
+    "source_name": "source_name",
+    "source_url": "source_url",
+    "license": "license",
+    "retrieved_at": "retrieved_at",
+    "alt_text": "alt_text"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "invalid_url"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "invalid_url"
+  },
+  "source_note": "Fixture metadata for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder sourced-image metadata. Not for publication."
+  },
+  "asset": {
+    "image_ref": "fixture-campaign-photo-006",
+    "asset_kind": "photo",
+    "source_name": "Fixture Image Library",
+    "source_url": "example.org/fixture/photo-006",
+    "license": "CC-BY-4.0",
+    "retrieved_at": "2026-06-11",
+    "alt_text": "Placeholder image with invalid source URL",
+    "remote_downloaded": false
+  },
+  "rows_rendered": [
+    {
+      "case_id": "invalid_url",
+      "image_ref": "fixture-campaign-photo-006",
+      "asset_kind": "photo",
+      "source_name": "Fixture Image Library",
+      "source_url": "example.org/fixture/photo-006",
+      "license": "CC-BY-4.0",
+      "retrieved_at": "2026-06-11",
+      "alt_text": "Placeholder image with invalid source URL"
+    }
+  ],
+  "warnings": [
+    "invalid_source_url"
+  ]
+}

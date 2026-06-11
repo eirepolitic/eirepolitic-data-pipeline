@@ -1,0 +1,66 @@
+{
+  "visual_id": "long_metadata",
+  "template_id": "sourced_image_asset_draft_v1",
+  "renderer": "sourced_image_asset",
+  "created_at": "2026-06-11T16:52:54.388907+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "case_id": "long_metadata",
+    "case_description": "Long source fields should truncate cleanly",
+    "registry_path": "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/sourced_image_asset_draft_v1.yml"
+  },
+  "bindings": {
+    "image_ref": "image_ref",
+    "asset_kind": "asset_kind",
+    "source_name": "source_name",
+    "source_url": "source_url",
+    "license": "license",
+    "retrieved_at": "retrieved_at",
+    "alt_text": "alt_text"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_metadata"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_metadata"
+  },
+  "source_note": "Fixture metadata for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder sourced-image metadata. Not for publication."
+  },
+  "asset": {
+    "image_ref": "fixture-campaign-photo-with-a-very-long-reference-that-should-truncate",
+    "asset_kind": "photo",
+    "source_name": "Fixture Image Library With A Very Long Name That Should Truncate Cleanly",
+    "source_url": "https://example.org/fixture/very/long/path/photo-008?with=query&and=tracking",
+    "license": "Creative Commons Attribution 4.0 International",
+    "retrieved_at": "2026-06-11",
+    "alt_text": "Very long alternative text describing a realistic placeholder political image used only for phone readability review in the contact sheet",
+    "remote_downloaded": false
+  },
+  "rows_rendered": [
+    {
+      "case_id": "long_metadata",
+      "image_ref": "fixture-campaign-photo-with-a-very-long-reference-that-should-truncate",
+      "asset_kind": "photo",
+      "source_name": "Fixture Image Library With A Very Long Name That Should Truncate Cleanly",
+      "source_url": "https://example.org/fixture/very/long/path/photo-008?with=query&and=tracking",
+      "license": "Creative Commons Attribution 4.0 International",
+      "retrieved_at": "2026-06-11",
+      "alt_text": "Very long alternative text describing a realistic placeholder political image used only for phone readability review in the contact sheet"
+    }
+  ],
+  "warnings": []
+}

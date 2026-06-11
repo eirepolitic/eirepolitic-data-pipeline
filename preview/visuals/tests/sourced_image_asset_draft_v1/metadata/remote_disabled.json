@@ -1,0 +1,66 @@
+{
+  "visual_id": "remote_disabled",
+  "template_id": "sourced_image_asset_draft_v1",
+  "renderer": "sourced_image_asset",
+  "created_at": "2026-06-11T16:52:54.420448+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv",
+    "case_id": "remote_disabled",
+    "case_description": "Remote-style image represented as deterministic placeholder",
+    "registry_path": "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/sourced_image_asset_draft_v1.yml"
+  },
+  "bindings": {
+    "image_ref": "image_ref",
+    "asset_kind": "asset_kind",
+    "source_name": "source_name",
+    "source_url": "source_url",
+    "license": "license",
+    "retrieved_at": "retrieved_at",
+    "alt_text": "alt_text"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "remote_disabled"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "remote_disabled"
+  },
+  "source_note": "Fixture metadata for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder sourced-image metadata. Not for publication."
+  },
+  "asset": {
+    "image_ref": "fixture-remote-photo-009",
+    "asset_kind": "remote_photo",
+    "source_name": "Fixture Remote Library",
+    "source_url": "https://example.org/fixture/photo-009",
+    "license": "CC-BY-4.0",
+    "retrieved_at": "2026-06-11",
+    "alt_text": "Remote-style source represented as local placeholder because CI downloads are disabled",
+    "remote_downloaded": false
+  },
+  "rows_rendered": [
+    {
+      "case_id": "remote_disabled",
+      "image_ref": "fixture-remote-photo-009",
+      "asset_kind": "remote_photo",
+      "source_name": "Fixture Remote Library",
+      "source_url": "https://example.org/fixture/photo-009",
+      "license": "CC-BY-4.0",
+      "retrieved_at": "2026-06-11",
+      "alt_text": "Remote-style source represented as local placeholder because CI downloads are disabled"
+    }
+  ],
+  "warnings": []
+}

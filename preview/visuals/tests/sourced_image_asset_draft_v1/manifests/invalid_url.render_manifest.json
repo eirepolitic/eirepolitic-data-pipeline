@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "invalid_url",
+  "template_id": "sourced_image_asset_draft_v1",
+  "renderer": "sourced_image_asset",
+  "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/invalid_url.png",
+  "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/invalid_url.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "invalid_source_url"
+  ],
+  "created_at": "2026-06-11T16:52:54.276700+00:00",
+  "description": "Invalid source URL should warn"
+}

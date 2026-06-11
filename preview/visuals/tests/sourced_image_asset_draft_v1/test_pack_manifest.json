@@ -1,0 +1,166 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/sourced_image_asset_draft_v1.yml",
+  "case_count": 11,
+  "contact_sheet": "generated_visual_tests/sourced_image_asset_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "complete_attribution",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/complete_attribution.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/complete_attribution.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:52:54.118611+00:00",
+      "description": "Complete source attribution metadata"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_source_name",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/missing_source_name.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/missing_source_name.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_required_field:source_name"
+      ],
+      "created_at": "2026-06-11T16:52:54.151250+00:00",
+      "description": "Missing source name should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_source_url",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/missing_source_url.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/missing_source_url.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_required_field:source_url"
+      ],
+      "created_at": "2026-06-11T16:52:54.182528+00:00",
+      "description": "Missing source URL should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_license",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/missing_license.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/missing_license.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_required_field:license",
+        "license_not_confirmed"
+      ],
+      "created_at": "2026-06-11T16:52:54.214387+00:00",
+      "description": "Missing license should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_retrieved_at",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/missing_retrieved_at.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/missing_retrieved_at.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:52:54.245168+00:00",
+      "description": "Missing retrieval date should be displayed and warn through required attribution config"
+    },
+    {
+      "success": true,
+      "visual_id": "invalid_url",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/invalid_url.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/invalid_url.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "invalid_source_url"
+      ],
+      "created_at": "2026-06-11T16:52:54.276700+00:00",
+      "description": "Invalid source URL should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "unknown_license",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/unknown_license.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/unknown_license.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "license_not_confirmed"
+      ],
+      "created_at": "2026-06-11T16:52:54.308463+00:00",
+      "description": "Unknown license should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "long_metadata",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/long_metadata.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/long_metadata.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:52:54.388907+00:00",
+      "description": "Long source fields should truncate cleanly"
+    },
+    {
+      "success": true,
+      "visual_id": "remote_disabled",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/remote_disabled.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/remote_disabled.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:52:54.420448+00:00",
+      "description": "Remote-style image represented as deterministic placeholder"
+    },
+    {
+      "success": true,
+      "visual_id": "multiple_rows",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/multiple_rows.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/multiple_rows.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T16:52:54.450405+00:00",
+      "description": "Multiple rows should render first row only in placeholder wrapper"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "sourced_image_asset_draft_v1",
+      "renderer": "sourced_image_asset",
+      "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "invalid_source_url",
+        "license_not_confirmed"
+      ],
+      "created_at": "2026-06-11T16:52:54.494914+00:00",
+      "description": "Long metadata, invalid URL, unknown license, and missing retrieved date"
+    }
+  ]
+}

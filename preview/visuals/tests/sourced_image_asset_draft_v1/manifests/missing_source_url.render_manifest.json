@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "missing_source_url",
+  "template_id": "sourced_image_asset_draft_v1",
+  "renderer": "sourced_image_asset",
+  "output_png": "generated_visual_tests/sourced_image_asset_draft_v1/png/missing_source_url.png",
+  "metadata_path": "generated_visual_tests/sourced_image_asset_draft_v1/metadata/missing_source_url.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "missing_required_field:source_url"
+  ],
+  "created_at": "2026-06-11T16:52:54.182528+00:00",
+  "description": "Missing source URL should warn"
+}

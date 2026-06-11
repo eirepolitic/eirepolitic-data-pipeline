@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.472190+00:00",
+      "created_at": "2026-06-11T16:52:27.859747+00:00",
       "description": "Three-row compact ranking"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.511168+00:00",
+      "created_at": "2026-06-11T16:52:27.899965+00:00",
       "description": "Eight-row target maximum ranking"
     },
     {
@@ -43,7 +43,7 @@
       "warnings": [
         "truncated_rows:10->8"
       ],
-      "created_at": "2026-06-11T16:45:37.549104+00:00",
+      "created_at": "2026-06-11T16:52:27.939131+00:00",
       "description": "Ten rows; should truncate to template max"
     },
     {
@@ -56,7 +56,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.583972+00:00",
+      "created_at": "2026-06-11T16:52:27.975179+00:00",
       "description": "Long candidate names"
     },
     {
@@ -69,7 +69,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.616997+00:00",
+      "created_at": "2026-06-11T16:52:28.009548+00:00",
       "description": "Long party or constituency sublabels"
     },
     {
@@ -82,7 +82,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.646549+00:00",
+      "created_at": "2026-06-11T16:52:28.040281+00:00",
       "description": "Percent-style values using default integer template for draft review"
     },
     {
@@ -95,7 +95,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.681783+00:00",
+      "created_at": "2026-06-11T16:52:28.076460+00:00",
       "description": "Similar values close together"
     },
     {
@@ -108,7 +108,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.713611+00:00",
+      "created_at": "2026-06-11T16:52:28.109060+00:00",
       "description": "Very wide value range"
     },
     {
@@ -121,7 +121,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.742903+00:00",
+      "created_at": "2026-06-11T16:52:28.139201+00:00",
       "description": "Includes zero values"
     },
     {
@@ -136,7 +136,7 @@
       "warnings": [
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T16:45:37.772181+00:00",
+      "created_at": "2026-06-11T16:52:28.169323+00:00",
       "description": "Includes negative values and should warn"
     },
     {
@@ -152,7 +152,7 @@
         "non_numeric_value:Health",
         "non_numeric_value:Climate"
       ],
-      "created_at": "2026-06-11T16:45:37.801413+00:00",
+      "created_at": "2026-06-11T16:52:28.199351+00:00",
       "description": "Includes non-numeric and missing values and should warn"
     },
     {
@@ -165,7 +165,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T16:45:37.850426+00:00",
+      "created_at": "2026-06-11T16:52:28.251492+00:00",
       "description": "Long names, long sublabels, wide values, and max rows"
     }
   ]
