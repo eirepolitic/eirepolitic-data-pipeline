@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-11  
-**Current packet:** C01 — `control_pipeline_runs`
+**Current packet:** C02 — `control_table_manifests`
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -53,106 +53,76 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 - **G01 — `gold_current_members`**: run `27362834154`; 10 rows; PK `member_code`; DQ pass.
 - **G02 — `gold_member_activity_yearly`**: run `27363058073`; 10 rows; 173 member-year rows before limit; PK `member_code`, `year`; DQ pass.
+- **G03 — `gold_member_activity_monthly`**: run `27364362461`; 10 rows; 173 member-month rows before limit; PK `member_code`, `year_month`; DQ pass.
+- **G04 — `gold_constituency_activity_yearly`**: run `27364432622`; 10 rows; PK `constituency_name`, `year`; DQ pass.
+- **G05 — `gold_content_fact_pool`**: run `27364496528`; 10 rows; 60 candidate facts before limit; PK `fact_id`; DQ pass.
 
-### G03 — `gold_member_activity_monthly`
+## Confirmed control packets
 
-- Builder: `extract/oireachtas/table_gold_member_activity_monthly.py`
+### C01 — `control_pipeline_runs`
+
+- Builder: `extract/oireachtas/table_control_pipeline_runs.py`
 - CLI/workflow updates:
   - `extract/oireachtas/build_table.py`
   - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27364362461`
-- Run number: 43
+- Final run: `27365125297`
+- Run number: 46
 - Result: success
-- Input latest rows:
-  - `gold_current_members`: 10
-  - `silver_speeches`: 357
-  - `silver_member_votes`: 512
-- Speech metric rows: 46
-- Vote metric rows: 172
-- Member-month rows before limit: 173
+- Manifest objects found: 40
+- Manifest objects read: 40
+- Read errors: 0
 - Output rows: 10, limited by workflow test default `limit=10`.
-- Year-month values: `2025-01`
-- PK: `member_code`, `year_month`, unique
+- PK: `run_id`, unique
 - DQ: pass
-- Final run ID: `gold_member_activity_monthly_20260611T171347Z`.
-- Review: `review/gold_member_activity_monthly/latest/{manifest.json,sample.csv,dq.json}`.
-
-### G04 — `gold_constituency_activity_yearly`
-
-- Builder: `extract/oireachtas/table_gold_constituency_activity_yearly.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27364432622`
-- Run number: 44
-- Result: success
-- Input latest rows:
-  - `gold_current_members`: 10
-  - `silver_speeches`: 357
-  - `silver_member_votes`: 512
-- Member-count rows: 10
-- Speech metric rows: 4
-- Vote metric rows: 10
-- Constituency-year rows before limit: 10
-- Output rows: 10
-- Year values: `2025`
-- PK: `constituency_name`, `year`, unique
-- DQ: pass
-- Final run ID: `gold_constituency_activity_yearly_20260611T171451Z`.
-- Review: `review/gold_constituency_activity_yearly/latest/{manifest.json,sample.csv,dq.json}`.
-
-### G05 — `gold_content_fact_pool`
-
-- Builder: `extract/oireachtas/table_gold_content_fact_pool.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- Final run: `27364496528`
-- Run number: 45
-- Result: success
-- Input latest rows:
-  - `gold_member_activity_yearly`: 10
-  - `gold_member_activity_monthly`: 10
-  - `gold_constituency_activity_yearly`: 10
-  - `gold_current_members`: 10
-- Candidate fact rows before limit: 60
-- Output rows: 10, limited by workflow test default `limit=10`.
-- PK: `fact_id`, unique
-- DQ: pass
-- Final run ID: `gold_content_fact_pool_20260611T171557Z`.
-- Fact type values in limited sample: `constituency_speech_yearly`.
+- Final run ID: `control_pipeline_runs_20260611T172643Z`.
+- Normalized columns:
+  - `run_id`
+  - `workflow_run_id`
+  - `table_name`
+  - `mode`
+  - `cadence`
+  - `started_at_utc`
+  - `finished_at_utc`
+  - `status`
+  - `input_params_json`
+  - `raw_rows`
+  - `output_rows`
+  - `error_message`
+  - `manifest_s3_key`
 - DQ checks passed:
   - row count > 0;
   - required columns present;
   - primary key non-null and unique;
-  - required content fields populated;
-  - metric values numeric.
-- Review: `review/gold_content_fact_pool/latest/{manifest.json,sample.csv,dq.json}`.
+  - table name populated;
+  - status populated;
+  - row-count fields numeric or blank.
+- Review: `review/control_pipeline_runs/latest/{manifest.json,sample.csv,dq.json}`.
 
 ## Next packet
 
-### C01 — `control_pipeline_runs`
+### C02 — `control_table_manifests`
 
 Goal:
 
-- add run-level control/audit output using table build manifests and workflow metadata where available;
-- preserve `run_id` as primary key;
-- output `run_id`, `workflow_run_id`, `table_name`, `mode`, `cadence`, `started_at_utc`, `finished_at_utc`, `status`, `input_params_json`, `raw_rows`, `output_rows`, `error_message`, and `manifest_s3_key`;
+- add latest-manifest pointer table with one row per table name;
+- derive latest run per table from S3 manifest objects;
+- preserve `table_name` as primary key;
+- output `table_name`, `latest_run_id`, `latest_snapshot_date`, `latest_parquet_key`, `latest_csv_key`, `row_count`, `column_count`, `schema_hash`, `primary_key_unique`, `dq_status`, and `updated_at_utc`;
 - publish CSV, Parquet, latest pointers, manifest, schema, DQ, and review sample;
-- validate row count > 0, `run_id` unique, table name/status populated, and row-count fields numeric where present.
+- validate row count > 0, `table_name` unique, latest run ID populated, DQ status populated, and row/column counts numeric where present.
 
 Expected files:
 
-- `extract/oireachtas/table_control_pipeline_runs.py`
+- `extract/oireachtas/table_control_table_manifests.py`
 - update `extract/oireachtas/build_table.py`
-- update `.github/workflows/oireachtas_table_test.yml` default to `control_pipeline_runs`
+- update `.github/workflows/oireachtas_table_test.yml` default to `control_table_manifests`
 - update this status file after validation
 
 Suggested test command:
 
 ```bash
 python -m extract.oireachtas.build_table \
-  --table control_pipeline_runs \
+  --table control_table_manifests \
   --mode test \
   --limit 25 \
   --write-review-sample
@@ -162,7 +132,7 @@ Handoff instruction:
 
 ```text
 Continue from main.
-Start C01 — control_pipeline_runs.
-Workflow default currently points to gold_content_fact_pool.
-Use latest manifest objects from processed/oireachtas_unified/manifests/* and/or latest review manifests as inputs.
+Start C02 — control_table_manifests.
+Workflow default currently points to control_pipeline_runs.
+Use latest manifest objects from processed/oireachtas_unified/manifests/* and select the latest run per table.
 ```
