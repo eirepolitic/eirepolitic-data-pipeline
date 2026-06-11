@@ -1,0 +1,85 @@
+{
+  "visual_id": "long_series_labels",
+  "template_id": "area_chart_draft_v1",
+  "renderer": "area_chart",
+  "created_at": "2026-06-11T05:46:26.599430+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "case_id": "long_series_labels",
+    "case_description": "Long series labels",
+    "registry_path": "instagram/visuals/tests/area_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/area_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "series": "series",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_series_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_series_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "series_count": 2,
+  "point_count": 6,
+  "value_range": {
+    "min": 0.0,
+    "max": 30.0
+  },
+  "rows_rendered": [
+    {
+      "x": "Jan",
+      "series": "Affordable rental accommodation mentions",
+      "value": 12.0
+    },
+    {
+      "x": "Feb",
+      "series": "Affordable rental accommodation mentions",
+      "value": 18.0
+    },
+    {
+      "x": "Mar",
+      "series": "Affordable rental accommodation mentions",
+      "value": 25.0
+    },
+    {
+      "x": "Jan",
+      "series": "Emergency department waiting time mentions",
+      "value": 30.0
+    },
+    {
+      "x": "Feb",
+      "series": "Emergency department waiting time mentions",
+      "value": 28.0
+    },
+    {
+      "x": "Mar",
+      "series": "Emergency department waiting time mentions",
+      "value": 26.0
+    }
+  ],
+  "warnings": [
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t"
+  ]
+}

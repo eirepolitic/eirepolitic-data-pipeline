@@ -1,0 +1,93 @@
+{
+  "visual_id": "issue_volume_area_chart_draft_v1",
+  "template_id": "area_chart_draft_v1",
+  "renderer": "area_chart",
+  "created_at": "2026-06-11T05:46:05.092023+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "sample_path": "instagram/visuals/samples/area_chart_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/area_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "series": "series",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "two_series"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "future_group_by_options": [
+      "constituency",
+      "party",
+      "candidate",
+      "county",
+      "issue_category",
+      "time_period"
+    ]
+  },
+  "source_note": "Source: realistic placeholder data for visual review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "series_count": 2,
+  "point_count": 8,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "x": "Jan",
+      "series": "Party A",
+      "value": 20.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party A",
+      "value": 24.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party A",
+      "value": 29.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party A",
+      "value": 35.0
+    },
+    {
+      "x": "Jan",
+      "series": "Party B",
+      "value": 42.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party B",
+      "value": 40.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party B",
+      "value": 37.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party B",
+      "value": 33.0
+    }
+  ],
+  "warnings": []
+}

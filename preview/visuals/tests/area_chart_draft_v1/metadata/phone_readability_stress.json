@@ -1,0 +1,109 @@
+{
+  "visual_id": "phone_readability_stress",
+  "template_id": "area_chart_draft_v1",
+  "renderer": "area_chart",
+  "created_at": "2026-06-11T05:46:27.051320+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "case_id": "phone_readability_stress",
+    "case_description": "Long labels, two opposite trends, and wide values",
+    "registry_path": "instagram/visuals/tests/area_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/area_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "series": "series",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "phone_readability_stress"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "phone_readability_stress"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "series_count": 2,
+  "point_count": 10,
+  "value_range": {
+    "min": 0.0,
+    "max": 72000.0
+  },
+  "rows_rendered": [
+    {
+      "x": "W01",
+      "series": "Affordable rental accommodation mentions",
+      "value": 1.0
+    },
+    {
+      "x": "W02",
+      "series": "Affordable rental accommodation mentions",
+      "value": 20.0
+    },
+    {
+      "x": "W03",
+      "series": "Affordable rental accommodation mentions",
+      "value": 300.0
+    },
+    {
+      "x": "W04",
+      "series": "Affordable rental accommodation mentions",
+      "value": 5000.0
+    },
+    {
+      "x": "W05",
+      "series": "Affordable rental accommodation mentions",
+      "value": 72000.0
+    },
+    {
+      "x": "W01",
+      "series": "Emergency department waiting time mentions",
+      "value": 72000.0
+    },
+    {
+      "x": "W02",
+      "series": "Emergency department waiting time mentions",
+      "value": 14000.0
+    },
+    {
+      "x": "W03",
+      "series": "Emergency department waiting time mentions",
+      "value": 900.0
+    },
+    {
+      "x": "W04",
+      "series": "Emergency department waiting time mentions",
+      "value": 12.0
+    },
+    {
+      "x": "W05",
+      "series": "Emergency department waiting time mentions",
+      "value": 1.0
+    }
+  ],
+  "warnings": [
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Affordable rental accommodatio",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t",
+    "long_series_label:Emergency department waiting t"
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "visual_id": "four_series",
+  "template_id": "area_chart_draft_v1",
+  "renderer": "area_chart",
+  "created_at": "2026-06-11T05:46:26.345394+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/area_chart_draft_v1/data/cases.csv",
+    "case_id": "four_series",
+    "case_description": "Four series at template maximum",
+    "registry_path": "instagram/visuals/tests/area_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/area_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "x": "period",
+    "series": "series",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "four_series"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "four_series"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "series_count": 4,
+  "point_count": 16,
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "x": "Jan",
+      "series": "Party A",
+      "value": 20.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party A",
+      "value": 24.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party A",
+      "value": 29.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party A",
+      "value": 35.0
+    },
+    {
+      "x": "Jan",
+      "series": "Party B",
+      "value": 42.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party B",
+      "value": 40.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party B",
+      "value": 37.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party B",
+      "value": 33.0
+    },
+    {
+      "x": "Jan",
+      "series": "Party C",
+      "value": 18.0
+    },
+    {
+      "x": "Feb",
+      "series": "Party C",
+      "value": 20.0
+    },
+    {
+      "x": "Mar",
+      "series": "Party C",
+      "value": 19.0
+    },
+    {
+      "x": "Apr",
+      "series": "Party C",
+      "value": 22.0
+    },
+    {
+      "x": "Jan",
+      "series": "Others",
+      "value": 12.0
+    },
+    {
+      "x": "Feb",
+      "series": "Others",
+      "value": 11.0
+    },
+    {
+      "x": "Mar",
+      "series": "Others",
+      "value": 10.0
+    },
+    {
+      "x": "Apr",
+      "series": "Others",
+      "value": 8.0
+    }
+  ],
+  "warnings": []
+}
