@@ -12,77 +12,77 @@ attribution:
   notes: "Placeholder political data. Not for publication."
 cases:
   - id: 02_groups
-    description: Two mini trend panels
+    description: Two small-multiple panels
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: 02_groups
   - id: 04_groups
-    description: Four mini trend panels
+    description: Four panel grid
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: 04_groups
   - id: 06_groups
-    description: Six mini trend panels at template maximum
+    description: Six panel target maximum grid
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: 06_groups
-  - id: 08_groups_overflow
-    description: Eight groups; should truncate to template maximum
+  - id: overflow_groups
+    description: Seven groups; should truncate to template maximum
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
-        value: 08_groups_overflow
+        value: overflow_groups
   - id: dense_timeline
-    description: Fourteen points per group; should truncate to point maximum
+    description: Fourteen points per group; should truncate to template maximum
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: dense_timeline
-  - id: long_group_labels
-    description: Long group labels
+  - id: long_group_names
+    description: Long group titles
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
-        value: long_group_labels
+        value: long_group_names
   - id: missing_values
-    description: Missing and invalid observations
+    description: Missing and invalid values should warn and skip points
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: missing_values
+  - id: flat_trends
+    description: Flat series for identical y-values
+    data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: flat_trends
+  - id: volatile_trends
+    description: Sharp up and down movement
+    data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: volatile_trends
   - id: negative_values
-    description: Includes negative values and should warn
+    description: Negative values should warn
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
         operator: equals
         value: negative_values
-  - id: tight_range
-    description: Values close together
-    data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
-    filters:
-      - field: case_id
-        operator: equals
-        value: tight_range
-  - id: wide_range
-    description: Values spanning several orders of magnitude
-    data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
-    filters:
-      - field: case_id
-        operator: equals
-        value: wide_range
   - id: phone_readability_stress
-    description: Six long group labels with wide values
+    description: Long group names and dense timelines
     data: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
     filters:
       - field: case_id
