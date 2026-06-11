@@ -23,6 +23,7 @@ RENDERERS = {
     "choropleth_map": "instagram.visuals.renderers.choropleth_map",
     "point_map": "instagram.visuals.renderers.point_map",
     "table_card": "instagram.visuals.renderers.table_card",
+    "small_multiples": "instagram.visuals.renderers.small_multiples",
 }
 
 
