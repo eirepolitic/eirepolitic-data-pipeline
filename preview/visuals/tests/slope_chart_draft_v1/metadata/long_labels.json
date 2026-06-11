@@ -1,0 +1,76 @@
+{
+  "visual_id": "long_labels",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "created_at": "2026-06-11T15:09:16.172844+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "case_id": "long_labels",
+    "case_description": "Long labels should truncate cleanly",
+    "registry_path": "instagram/visuals/tests/slope_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/slope_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "period": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "long_labels"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "long_labels"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 3,
+  "periods": [
+    "Start",
+    "End"
+  ],
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation mentions",
+      "start": 20.0,
+      "end": 35.0,
+      "change": 15.0
+    },
+    {
+      "label": "Emergency department waiting time mentions",
+      "start": 42.0,
+      "end": 28.0,
+      "change": -14.0
+    },
+    {
+      "label": "Public transport frequency complaints",
+      "start": 18.0,
+      "end": 19.0,
+      "change": 1.0
+    }
+  ],
+  "warnings": [
+    "long_label:Affordable rental accommodation me",
+    "long_label:Affordable rental accommodation me",
+    "long_label:Emergency department waiting time ",
+    "long_label:Emergency department waiting time ",
+    "long_label:Public transport frequency complai",
+    "long_label:Public transport frequency complai"
+  ]
+}

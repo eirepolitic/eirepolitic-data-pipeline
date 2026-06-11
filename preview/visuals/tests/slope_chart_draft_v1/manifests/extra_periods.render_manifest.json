@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "visual_id": "extra_periods",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "output_png": "generated_visual_tests/slope_chart_draft_v1/png/extra_periods.png",
+  "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/extra_periods.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "truncated_periods:3->2"
+  ],
+  "created_at": "2026-06-11T15:09:16.222752+00:00",
+  "description": "Three periods; should truncate to first two periods"
+}

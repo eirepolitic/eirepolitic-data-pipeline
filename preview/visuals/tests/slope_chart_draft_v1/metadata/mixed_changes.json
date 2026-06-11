@@ -1,0 +1,75 @@
+{
+  "visual_id": "mixed_changes",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "created_at": "2026-06-11T15:09:16.071772+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "case_id": "mixed_changes",
+    "case_description": "Mix of positive, negative, and small changes",
+    "registry_path": "instagram/visuals/tests/slope_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/slope_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "period": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "mixed_changes"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "mixed_changes"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 4,
+  "periods": [
+    "Start",
+    "End"
+  ],
+  "value_range": {
+    "min": 0.0,
+    "max": 42.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Party A",
+      "start": 20.0,
+      "end": 35.0,
+      "change": 15.0
+    },
+    {
+      "label": "Party B",
+      "start": 42.0,
+      "end": 28.0,
+      "change": -14.0
+    },
+    {
+      "label": "Others",
+      "start": 12.0,
+      "end": 8.0,
+      "change": -4.0
+    },
+    {
+      "label": "Party C",
+      "start": 18.0,
+      "end": 19.0,
+      "change": 1.0
+    }
+  ],
+  "warnings": []
+}

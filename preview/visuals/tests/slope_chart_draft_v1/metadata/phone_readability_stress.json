@@ -1,0 +1,89 @@
+{
+  "visual_id": "phone_readability_stress",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "created_at": "2026-06-11T15:09:16.394437+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "case_id": "phone_readability_stress",
+    "case_description": "Long labels, wide values, and negative ending values",
+    "registry_path": "instagram/visuals/tests/slope_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/slope_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "period": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "phone_readability_stress"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "phone_readability_stress"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 5,
+  "periods": [
+    "Start",
+    "End"
+  ],
+  "value_range": {
+    "min": -3.0,
+    "max": 72000.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Affordable rental accommodation mentions",
+      "start": 72000.0,
+      "end": 14000.0,
+      "change": -58000.0
+    },
+    {
+      "label": "Emergency department waiting time mentions",
+      "start": 5000.0,
+      "end": 12000.0,
+      "change": 7000.0
+    },
+    {
+      "label": "Public transport frequency complaints",
+      "start": 300.0,
+      "end": 20.0,
+      "change": -280.0
+    },
+    {
+      "label": "Dublin Bay South Campaign Office",
+      "start": 12.0,
+      "end": 35.0,
+      "change": 23.0
+    },
+    {
+      "label": "Cork North Central Regional Hub",
+      "start": 9.0,
+      "end": -3.0,
+      "change": -12.0
+    }
+  ],
+  "warnings": [
+    "long_label:Affordable rental accommodation me",
+    "long_label:Affordable rental accommodation me",
+    "long_label:Emergency department waiting time ",
+    "long_label:Emergency department waiting time ",
+    "long_label:Public transport frequency complai",
+    "long_label:Public transport frequency complai",
+    "negative_values_present"
+  ]
+}

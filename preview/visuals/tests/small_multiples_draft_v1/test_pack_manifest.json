@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T15:07:04.893394+00:00",
+      "created_at": "2026-06-11T15:09:04.975485+00:00",
       "description": "Two small-multiple panels"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T15:07:05.063348+00:00",
+      "created_at": "2026-06-11T15:09:05.139797+00:00",
       "description": "Four panel grid"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T15:07:05.254978+00:00",
+      "created_at": "2026-06-11T15:09:05.306861+00:00",
       "description": "Six panel target maximum grid"
     },
     {
@@ -56,7 +56,7 @@
       "warnings": [
         "truncated_groups:7->6"
       ],
-      "created_at": "2026-06-11T15:07:05.436703+00:00",
+      "created_at": "2026-06-11T15:09:05.467440+00:00",
       "description": "Seven groups; should truncate to template maximum"
     },
     {
@@ -72,7 +72,7 @@
         "truncated_points:Dublin:14->12",
         "truncated_points:Cork:14->12"
       ],
-      "created_at": "2026-06-11T15:07:05.536370+00:00",
+      "created_at": "2026-06-11T15:09:05.554564+00:00",
       "description": "Fourteen points per group; should truncate to template maximum"
     },
     {
@@ -92,7 +92,7 @@
         "long_group:Cork North Central and Surroundi",
         "long_group:Cork North Central and Surroundi"
       ],
-      "created_at": "2026-06-11T15:07:05.630131+00:00",
+      "created_at": "2026-06-11T15:09:05.638594+00:00",
       "description": "Long group titles"
     },
     {
@@ -108,7 +108,7 @@
         "missing_or_invalid_value:Dublin",
         "missing_or_invalid_value:Cork"
       ],
-      "created_at": "2026-06-11T15:07:05.719246+00:00",
+      "created_at": "2026-06-11T15:09:05.717322+00:00",
       "description": "Missing and invalid values should warn and skip points"
     },
     {
@@ -121,7 +121,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T15:07:05.809175+00:00",
+      "created_at": "2026-06-11T15:09:05.795065+00:00",
       "description": "Flat series for identical y-values"
     },
     {
@@ -134,7 +134,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-11T15:07:05.918307+00:00",
+      "created_at": "2026-06-11T15:09:05.893146+00:00",
       "description": "Sharp up and down movement"
     },
     {
@@ -150,7 +150,7 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-11T15:07:06.010388+00:00",
+      "created_at": "2026-06-11T15:09:05.973950+00:00",
       "description": "Negative values should warn"
     },
     {
@@ -188,7 +188,7 @@
         "long_group:Cork North Central and Surroundi",
         "long_group:Cork North Central and Surroundi"
       ],
-      "created_at": "2026-06-11T15:07:06.107982+00:00",
+      "created_at": "2026-06-11T15:09:06.059092+00:00",
       "description": "Long group names and dense timelines"
     }
   ]

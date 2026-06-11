@@ -1,0 +1,223 @@
+{
+  "success": true,
+  "registry": "instagram/visuals/tests/slope_chart_draft_v1/cases.yml",
+  "template": "instagram/visuals/templates/slope_chart_draft_v1.yml",
+  "case_count": 14,
+  "contact_sheet": "generated_visual_tests/slope_chart_draft_v1/contact_sheet.png",
+  "cases": [
+    {
+      "success": true,
+      "visual_id": "rising_values",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/rising_values.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/rising_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.016938+00:00",
+      "description": "All series rise between two periods"
+    },
+    {
+      "success": true,
+      "visual_id": "falling_values",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/falling_values.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/falling_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.044391+00:00",
+      "description": "All series fall between two periods"
+    },
+    {
+      "success": true,
+      "visual_id": "mixed_changes",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/mixed_changes.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/mixed_changes.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.071772+00:00",
+      "description": "Mix of positive, negative, and small changes"
+    },
+    {
+      "success": true,
+      "visual_id": "10_items",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/10_items.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/10_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.103914+00:00",
+      "description": "Ten items at template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "overflow_items",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/overflow_items.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/overflow_items.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_rows:12->10"
+      ],
+      "created_at": "2026-06-11T15:09:16.136130+00:00",
+      "description": "Twelve items; should truncate to template maximum"
+    },
+    {
+      "success": true,
+      "visual_id": "long_labels",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/long_labels.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/long_labels.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai",
+        "long_label:Public transport frequency complai"
+      ],
+      "created_at": "2026-06-11T15:09:16.172844+00:00",
+      "description": "Long labels should truncate cleanly"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_endpoint",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/missing_endpoint.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/missing_endpoint.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_endpoint:Party B",
+        "missing_endpoint:Party C"
+      ],
+      "created_at": "2026-06-11T15:09:16.197688+00:00",
+      "description": "Labels missing one of the two required periods"
+    },
+    {
+      "success": true,
+      "visual_id": "extra_periods",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/extra_periods.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/extra_periods.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "truncated_periods:3->2"
+      ],
+      "created_at": "2026-06-11T15:09:16.222752+00:00",
+      "description": "Three periods; should truncate to first two periods"
+    },
+    {
+      "success": true,
+      "visual_id": "negative_values",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/negative_values.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/negative_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "negative_values_present",
+        "negative_values_present",
+        "negative_values_present",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T15:09:16.254736+00:00",
+      "description": "Includes negative values and should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "tight_range",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/tight_range.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/tight_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.276442+00:00",
+      "description": "Values close together"
+    },
+    {
+      "success": true,
+      "visual_id": "wide_range",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/wide_range.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/wide_range.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.306148+00:00",
+      "description": "Values spanning several orders of magnitude"
+    },
+    {
+      "success": true,
+      "visual_id": "zero_change",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/zero_change.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/zero_change.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [],
+      "created_at": "2026-06-11T15:09:16.327751+00:00",
+      "description": "No change between two periods"
+    },
+    {
+      "success": true,
+      "visual_id": "missing_values",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/missing_values.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/missing_values.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "missing_or_invalid_point:Party A",
+        "missing_or_invalid_point:Party B",
+        "missing_endpoint:Party A",
+        "missing_endpoint:Party B"
+      ],
+      "created_at": "2026-06-11T15:09:16.348779+00:00",
+      "description": "Missing and invalid values should warn"
+    },
+    {
+      "success": true,
+      "visual_id": "phone_readability_stress",
+      "template_id": "slope_chart_draft_v1",
+      "renderer": "slope_chart",
+      "output_png": "generated_visual_tests/slope_chart_draft_v1/png/phone_readability_stress.png",
+      "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/phone_readability_stress.json",
+      "width": 1080,
+      "height": 860,
+      "warnings": [
+        "long_label:Affordable rental accommodation me",
+        "long_label:Affordable rental accommodation me",
+        "long_label:Emergency department waiting time ",
+        "long_label:Emergency department waiting time ",
+        "long_label:Public transport frequency complai",
+        "long_label:Public transport frequency complai",
+        "negative_values_present"
+      ],
+      "created_at": "2026-06-11T15:09:16.394437+00:00",
+      "description": "Long labels, wide values, and negative ending values"
+    }
+  ]
+}

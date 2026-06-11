@@ -1,0 +1,113 @@
+{
+  "visual_id": "overflow_items",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "created_at": "2026-06-11T15:09:16.136130+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/visuals/tests/slope_chart_draft_v1/data/cases.csv",
+    "case_id": "overflow_items",
+    "case_description": "Twelve items; should truncate to template maximum",
+    "registry_path": "instagram/visuals/tests/slope_chart_draft_v1/cases.yml",
+    "template_path": "instagram/visuals/templates/slope_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "period": "period",
+    "value": "value"
+  },
+  "filters": [
+    {
+      "field": "case_id",
+      "operator": "equals",
+      "value": "overflow_items"
+    }
+  ],
+  "grouping": {
+    "batch_enabled": false,
+    "test_case": "overflow_items"
+  },
+  "source_note": "Fixture data for visual variation review only",
+  "attribution": {
+    "source_name": "Fixture data",
+    "source_url": "",
+    "retrieved_at": "",
+    "license": "",
+    "notes": "Placeholder political data. Not for publication."
+  },
+  "item_count": 10,
+  "periods": [
+    "Start",
+    "End"
+  ],
+  "value_range": {
+    "min": 0.0,
+    "max": 90.0
+  },
+  "rows_rendered": [
+    {
+      "label": "Item 11",
+      "start": 5.0,
+      "end": 40.0,
+      "change": 35.0
+    },
+    {
+      "label": "Item 10",
+      "start": 25.0,
+      "end": 5.0,
+      "change": -20.0
+    },
+    {
+      "label": "Item 12",
+      "start": 90.0,
+      "end": 70.0,
+      "change": -20.0
+    },
+    {
+      "label": "Item 03",
+      "start": 30.0,
+      "end": 45.0,
+      "change": 15.0
+    },
+    {
+      "label": "Item 09",
+      "start": 15.0,
+      "end": 29.0,
+      "change": 14.0
+    },
+    {
+      "label": "Item 01",
+      "start": 10.0,
+      "end": 20.0,
+      "change": 10.0
+    },
+    {
+      "label": "Item 07",
+      "start": 70.0,
+      "end": 74.0,
+      "change": 4.0
+    },
+    {
+      "label": "Item 02",
+      "start": 20.0,
+      "end": 18.0,
+      "change": -2.0
+    },
+    {
+      "label": "Item 04",
+      "start": 40.0,
+      "end": 38.0,
+      "change": -2.0
+    },
+    {
+      "label": "Item 05",
+      "start": 50.0,
+      "end": 52.0,
+      "change": 2.0
+    }
+  ],
+  "warnings": [
+    "truncated_rows:12->10"
+  ]
+}

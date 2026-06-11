@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "visual_id": "long_labels",
+  "template_id": "slope_chart_draft_v1",
+  "renderer": "slope_chart",
+  "output_png": "generated_visual_tests/slope_chart_draft_v1/png/long_labels.png",
+  "metadata_path": "generated_visual_tests/slope_chart_draft_v1/metadata/long_labels.json",
+  "width": 1080,
+  "height": 860,
+  "warnings": [
+    "long_label:Affordable rental accommodation me",
+    "long_label:Affordable rental accommodation me",
+    "long_label:Emergency department waiting time ",
+    "long_label:Emergency department waiting time ",
+    "long_label:Public transport frequency complai",
+    "long_label:Public transport frequency complai"
+  ],
+  "created_at": "2026-06-11T15:09:16.172844+00:00",
+  "description": "Long labels should truncate cleanly"
+}
