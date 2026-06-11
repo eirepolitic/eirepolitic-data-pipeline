@@ -7,10 +7,6 @@ on:
         description: "Set to true to run the S3 smoke test"
         required: true
         default: "false"
-      sample:
-        description: "Visual sample YAML to render"
-        required: false
-        default: "instagram/visuals/samples/horizontal_bar_s3_smoke_draft_v1.sample.yml"
 
 concurrency:
   group: instagram-visual-s3-smoke
@@ -46,21 +42,40 @@ jobs:
             echo "AWS credentials are not available. Configure repository secrets before running this smoke test."
             exit 1
           fi
-          echo "AWS credentials detected. Continuing with review-only smoke render."
+          echo "AWS credentials detected. Continuing with review-only S3 data mapping and smoke render."
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ca-central-1
 
-      - name: Render S3-backed visual sample
+      - name: Prepare chart-ready visual CSVs from S3
         shell: bash
         run: |
           set -o pipefail
-          mkdir -p workflow_debug
-          python process/instagram_render_visual.py \
-            --sample "${{ inputs.sample }}" \
-            --output-root "generated_visuals/s3_smoke" \
-            2>&1 | tee workflow_debug/s3_visual_smoke.log
+          mkdir -p workflow_debug generated_visual_data
+          {
+            python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml"
+            python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/member_party_counts_s3.yml"
+          } 2>&1 | tee workflow_debug/s3_visual_data_prepare.log
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ca-central-1
+          INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data
+
+      - name: Render mapped S3 visual samples
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p workflow_debug generated_visuals/s3_smoke
+          {
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml" \
+              --output-root "generated_visuals/s3_smoke/debate_issues"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml" \
+              --output-root "generated_visuals/s3_smoke/member_parties"
+          } 2>&1 | tee workflow_debug/s3_visual_smoke.log
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -73,6 +88,7 @@ jobs:
         with:
           name: instagram-visual-s3-smoke-output
           path: |
+            generated_visual_data/
             generated_visuals/s3_smoke/
             workflow_debug/
           if-no-files-found: warn
