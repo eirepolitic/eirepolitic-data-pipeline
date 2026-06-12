@@ -6,7 +6,7 @@ on:
       table:
         description: "Table key to test. Use _smoke, _discovery, or a configured table."
         required: true
-        default: "control_pipeline_runs"
+        default: "control_table_manifests"
       mode:
         description: "Build mode"
         required: true
