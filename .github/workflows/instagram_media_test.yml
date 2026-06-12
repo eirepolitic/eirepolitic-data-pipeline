@@ -116,6 +116,7 @@ jobs:
               "publishes_content": False,
               "bucket": "eirepolitic-data",
               "region": "ca-central-1",
+              "preview_path": "preview/visuals/smoke/s3",
               "outputs": {
                   "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
                   "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
@@ -195,6 +196,7 @@ jobs:
               f"- Bucket: `{payload.get('bucket', '')}`",
               f"- Region: `{payload.get('region', '')}`",
               f"- Status artifact: `{status_path}`",
+              f"- Smoke preview path: `{payload.get('preview_path', 'preview/visuals/smoke/s3')}`",
               "",
               "Review-only: this does not publish, schedule, or approve Instagram content.",
               "",
@@ -209,6 +211,7 @@ jobs:
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
           PREVIEW_DIR="preview/visuals"
+          S3_SMOKE_DIR="${PREVIEW_DIR}/smoke/s3"
           VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1 area_chart_draft_v1 scatter_plot_draft_v1 dot_plot_draft_v1 lollipop_chart_draft_v1 slope_chart_draft_v1 donut_chart_draft_v1 tile_map_draft_v1 sourced_image_asset_draft_v1"
 
           rm -rf /tmp/instagram-visual-preview-worktree
@@ -242,7 +245,30 @@ jobs:
             cp "generated_visual_tests/${visual_id}/test_pack_manifest.json" "${TEST_DIR}/test_pack_manifest.json"
           done
 
-          python - "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" <<'PY'
+          mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/status"
+          if [[ -f "generated_visual_data/s3_smoke_status.json" ]]; then
+            cp "generated_visual_data/s3_smoke_status.json" "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/status/s3_smoke_status.json"
+          fi
+
+          S3_SMOKE_STATUS="missing"
+          if [[ -f "generated_visual_data/s3_smoke_status.json" ]]; then
+            S3_SMOKE_STATUS=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("generated_visual_data/s3_smoke_status.json")
+          print(json.loads(path.read_text(encoding="utf-8")).get("status", "unknown"))
+          PY
+          )
+          fi
+
+          if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
+            mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals"
+            mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data"
+            cp -R "generated_visuals/s3_smoke/." "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals/"
+            cp generated_visual_data/*s3* "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/" 2>/dev/null || true
+          fi
+
+          python - "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${S3_SMOKE_STATUS}" <<'PY'
           import sys
           from pathlib import Path
 
@@ -250,6 +276,7 @@ jobs:
           repo = sys.argv[2]
           branch = sys.argv[3]
           preview_dir = sys.argv[4]
+          s3_smoke_status = sys.argv[5]
           root = readme_path.parent
           visual_ids = [
               "horizontal_bar_draft_v1",
@@ -284,6 +311,17 @@ jobs:
               png_dir = root / "samples" / visual_id / "png"
               for png in sorted(png_dir.glob("*.png")):
                   lines.append(f"- {visual_id}/{png.name}: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/samples/{visual_id}/png/{png.name}")
+          lines += [
+              "",
+              "S3 smoke preview:",
+              f"- status: {s3_smoke_status}",
+              f"- status JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/status/s3_smoke_status.json",
+          ]
+          if s3_smoke_status == "succeeded":
+              lines += [
+                  f"- debate issue smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/debate_issues/png",
+                  f"- member party smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/member_parties/png",
+              ]
           lines += ["", "Review only: this does not publish, schedule, or approve Instagram content.", ""]
           readme_path.write_text("\n".join(lines), encoding="utf-8")
           PY
@@ -298,6 +336,15 @@ jobs:
             for visual_id in ${VISUAL_IDS}; do
               echo "- [Open ${visual_id} contact sheet](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PREVIEW_DIR}/tests/${visual_id}/contact_sheet.png)"
             done
+            echo
+            echo "## S3 smoke preview"
+            echo
+            echo "- Status: \`${S3_SMOKE_STATUS}\`"
+            echo "- Status JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/status/s3_smoke_status.json"
+            if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
+              echo "- Debate issue smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues/png"
+              echo "- Member party smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties/png"
+            fi
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload generated media tests
