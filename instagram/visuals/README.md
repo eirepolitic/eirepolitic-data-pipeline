@@ -106,9 +106,19 @@ When S3 smoke succeeds, the preview workflow also publishes the smoke-only outpu
 ```text
 branch: instagram-preview-output
 preview/visuals/smoke/s3/status/s3_smoke_status.json
+preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
+preview/visuals/smoke/s3/contact_sheet/contact_sheet.manifest.json
 preview/visuals/smoke/s3/generated_visual_data/
 preview/visuals/smoke/s3/visuals/debate_issues/
 preview/visuals/smoke/s3/visuals/member_parties/
+```
+
+Build the combined smoke contact sheet locally after generating S3 smoke renders:
+
+```text
+process/instagram_build_s3_smoke_contact_sheet.py \
+  --input-root generated_visuals/s3_smoke \
+  --output generated_visuals/s3_smoke/contact_sheet.png
 ```
 
 These smoke previews are not approved fixture contact sheets. They are live-data plumbing previews only.
