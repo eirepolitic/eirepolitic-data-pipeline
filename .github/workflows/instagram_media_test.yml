@@ -122,6 +122,8 @@ jobs:
                   "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
                   "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
                   "member_parties_visual_root": "generated_visuals/s3_smoke/member_parties",
+                  "contact_sheet": "generated_visuals/s3_smoke/contact_sheet.png",
+                  "contact_sheet_manifest": "generated_visuals/s3_smoke/contact_sheet.manifest.json",
               },
           }
           os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -147,12 +149,15 @@ jobs:
             python process/instagram_render_visual.py \
               --sample "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml" \
               --output-root "generated_visuals/s3_smoke/member_parties"
+            python process/instagram_build_s3_smoke_contact_sheet.py \
+              --input-root "generated_visuals/s3_smoke" \
+              --output "generated_visuals/s3_smoke/contact_sheet.png"
           } 2>&1 | tee workflow_debug/s3_visual_smoke.log
           smoke_exit=${PIPESTATUS[0]}
           set -e
 
           if [[ "${smoke_exit}" -eq 0 ]]; then
-            write_status "succeeded" 0 "Mapped S3 visual smoke render completed."
+            write_status "succeeded" 0 "Mapped S3 visual smoke render and contact sheet completed."
           else
             write_status "failed_non_blocking" "${smoke_exit}" "Mapped S3 visual smoke render failed; main fixture preview workflow continued."
           fi
@@ -264,8 +269,11 @@ jobs:
           if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
             mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals"
             mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data"
+            mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet"
             cp -R "generated_visuals/s3_smoke/." "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals/"
             cp generated_visual_data/*s3* "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/" 2>/dev/null || true
+            cp "generated_visuals/s3_smoke/contact_sheet.png" "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
+            cp "generated_visuals/s3_smoke/contact_sheet.manifest.json" "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.manifest.json"
           fi
 
           python - "/tmp/instagram-visual-preview-worktree/${PREVIEW_DIR}/README.md" "${GITHUB_REPOSITORY}" "${PREVIEW_BRANCH}" "${PREVIEW_DIR}" "${S3_SMOKE_STATUS}" <<'PY'
@@ -319,6 +327,7 @@ jobs:
           ]
           if s3_smoke_status == "succeeded":
               lines += [
+                  f"- smoke contact sheet: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.png",
                   f"- debate issue smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/debate_issues/png",
                   f"- member party smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/member_parties/png",
               ]
@@ -342,6 +351,7 @@ jobs:
             echo "- Status: \`${S3_SMOKE_STATUS}\`"
             echo "- Status JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/status/s3_smoke_status.json"
             if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
+              echo "- Smoke contact sheet: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
               echo "- Debate issue smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues/png"
               echo "- Member party smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties/png"
             fi
