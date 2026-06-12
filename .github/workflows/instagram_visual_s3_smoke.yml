@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       enabled:
-        description: "Set to true to run the S3 smoke test"
-        required: true
-        default: "false"
+        description: "Set to false to skip the S3 smoke test"
+        required: false
+        default: "true"
 
 concurrency:
   group: instagram-visual-s3-smoke
@@ -19,7 +19,7 @@ jobs:
   s3_visual_smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ inputs.enabled == 'true' }}
+    if: ${{ inputs.enabled != 'false' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
