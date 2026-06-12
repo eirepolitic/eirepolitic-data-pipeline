@@ -40,33 +40,19 @@ Only small review samples should be published here.
 - `review/gold_content_fact_pool/latest/schema.json`
 - `review/gold_content_fact_pool/latest/dq.json`
 
-### `silver_bill_debates`
-- `review/silver_bill_debates/latest/sample.csv`
-- `review/silver_bill_debates/latest/sample.md`
-- `review/silver_bill_debates/latest/manifest.json`
-- `review/silver_bill_debates/latest/schema.json`
-- `review/silver_bill_debates/latest/dq.json`
+### `gold_current_members`
+- `review/gold_current_members/latest/sample.csv`
+- `review/gold_current_members/latest/sample.md`
+- `review/gold_current_members/latest/manifest.json`
+- `review/gold_current_members/latest/schema.json`
+- `review/gold_current_members/latest/dq.json`
 
-### `silver_bill_events`
-- `review/silver_bill_events/latest/sample.csv`
-- `review/silver_bill_events/latest/sample.md`
-- `review/silver_bill_events/latest/manifest.json`
-- `review/silver_bill_events/latest/schema.json`
-- `review/silver_bill_events/latest/dq.json`
-
-### `silver_bill_related_docs`
-- `review/silver_bill_related_docs/latest/sample.csv`
-- `review/silver_bill_related_docs/latest/sample.md`
-- `review/silver_bill_related_docs/latest/manifest.json`
-- `review/silver_bill_related_docs/latest/schema.json`
-- `review/silver_bill_related_docs/latest/dq.json`
-
-### `silver_bill_sponsors`
-- `review/silver_bill_sponsors/latest/sample.csv`
-- `review/silver_bill_sponsors/latest/sample.md`
-- `review/silver_bill_sponsors/latest/manifest.json`
-- `review/silver_bill_sponsors/latest/schema.json`
-- `review/silver_bill_sponsors/latest/dq.json`
+### `gold_member_activity_yearly`
+- `review/gold_member_activity_yearly/latest/sample.csv`
+- `review/gold_member_activity_yearly/latest/sample.md`
+- `review/gold_member_activity_yearly/latest/manifest.json`
+- `review/gold_member_activity_yearly/latest/schema.json`
+- `review/gold_member_activity_yearly/latest/dq.json`
 
 ### `silver_bill_stages`
 - `review/silver_bill_stages/latest/sample.csv`
@@ -96,16 +82,51 @@ Only small review samples should be published here.
 - `review/silver_constituencies/latest/schema.json`
 - `review/silver_constituencies/latest/dq.json`
 
+### `silver_houses`
+- `review/silver_houses/latest/sample.csv`
+- `review/silver_houses/latest/sample.md`
+- `review/silver_houses/latest/manifest.json`
+- `review/silver_houses/latest/schema.json`
+- `review/silver_houses/latest/dq.json`
+
+### `silver_member_constituencies`
+- `review/silver_member_constituencies/latest/sample.csv`
+- `review/silver_member_constituencies/latest/sample.md`
+- `review/silver_member_constituencies/latest/manifest.json`
+- `review/silver_member_constituencies/latest/schema.json`
+- `review/silver_member_constituencies/latest/dq.json`
+
+### `silver_member_memberships`
+- `review/silver_member_memberships/latest/sample.csv`
+- `review/silver_member_memberships/latest/sample.md`
+- `review/silver_member_memberships/latest/manifest.json`
+- `review/silver_member_memberships/latest/schema.json`
+- `review/silver_member_memberships/latest/dq.json`
+
+### `silver_member_offices`
+- `review/silver_member_offices/latest/sample.csv`
+- `review/silver_member_offices/latest/sample.md`
+- `review/silver_member_offices/latest/manifest.json`
+- `review/silver_member_offices/latest/schema.json`
+- `review/silver_member_offices/latest/dq.json`
+
+### `silver_member_parties`
+- `review/silver_member_parties/latest/sample.csv`
+- `review/silver_member_parties/latest/sample.md`
+- `review/silver_member_parties/latest/manifest.json`
+- `review/silver_member_parties/latest/schema.json`
+- `review/silver_member_parties/latest/dq.json`
+
+### `silver_members`
+- `review/silver_members/latest/sample.csv`
+- `review/silver_members/latest/sample.md`
+- `review/silver_members/latest/manifest.json`
+- `review/silver_members/latest/schema.json`
+- `review/silver_members/latest/dq.json`
+
 ### `silver_parties`
 - `review/silver_parties/latest/sample.csv`
 - `review/silver_parties/latest/sample.md`
 - `review/silver_parties/latest/manifest.json`
 - `review/silver_parties/latest/schema.json`
 - `review/silver_parties/latest/dq.json`
-
-### `silver_source_files`
-- `review/silver_source_files/latest/sample.csv`
-- `review/silver_source_files/latest/sample.md`
-- `review/silver_source_files/latest/manifest.json`
-- `review/silver_source_files/latest/schema.json`
-- `review/silver_source_files/latest/dq.json`
