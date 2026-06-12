@@ -101,6 +101,18 @@ skipped_missing_aws_credentials
 failed_non_blocking
 ```
 
+When S3 smoke succeeds, the preview workflow also publishes the smoke-only outputs separately:
+
+```text
+branch: instagram-preview-output
+preview/visuals/smoke/s3/status/s3_smoke_status.json
+preview/visuals/smoke/s3/generated_visual_data/
+preview/visuals/smoke/s3/visuals/debate_issues/
+preview/visuals/smoke/s3/visuals/member_parties/
+```
+
+These smoke previews are not approved fixture contact sheets. They are live-data plumbing previews only.
+
 The S3 smoke step is non-blocking. Fixture previews and contact sheets remain deterministic even if S3 is unavailable.
 
 ## Planned visual sequence
@@ -122,6 +134,7 @@ preview/visuals/tests/<visual_id>/metadata/<case_id>.json
 preview/visuals/tests/<visual_id>/manifests/<case_id>.render_manifest.json
 preview/visuals/tests/<visual_id>/contact_sheet.png
 preview/visuals/tests/<visual_id>/test_pack_manifest.json
+preview/visuals/smoke/s3/
 ```
 
 This system is review-only. It does not publish, schedule, or approve Instagram posts.
