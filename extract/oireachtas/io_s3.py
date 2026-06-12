@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import io
 import json
-from typing import Any, Mapping, Optional
+import os
+from typing import Any, Mapping
 
 import boto3
 import pandas as pd
@@ -16,11 +17,23 @@ from .normalize import stable_json_dumps
 
 DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_REGION = "ca-central-1"
+LATEST_PREFIX = "processed/oireachtas_unified/latest/"
 
 
 def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
     """Create a boto3 S3 client."""
     return boto3.client("s3", region_name=region_name)
+
+
+def latest_publishing_enabled() -> bool:
+    """Return whether writes to unified latest pointers are enabled."""
+    value = os.getenv("OIREACHTAS_PUBLISH_LATEST", "true").strip().lower()
+    return value not in {"0", "false", "no", "off"}
+
+
+def is_unified_latest_key(key: str) -> bool:
+    """Return whether an S3 key is a unified latest pointer."""
+    return key.startswith(LATEST_PREFIX)
 
 
 def put_bytes(
@@ -31,7 +44,9 @@ def put_bytes(
     body: bytes,
     content_type: str = "application/octet-stream",
 ) -> None:
-    """Write bytes to S3."""
+    """Write bytes to S3, optionally suppressing unified latest pointer writes."""
+    if is_unified_latest_key(key) and not latest_publishing_enabled():
+        return
     s3.put_object(Bucket=bucket, Key=key, Body=body, ContentType=content_type)
 
 
