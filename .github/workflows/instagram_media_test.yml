@@ -69,50 +69,51 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p workflow_debug
-          {
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/horizontal_bar_draft_v1.sample.yml" --output-root "generated_visuals/horizontal_bar_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/vertical_bar_draft_v1.sample.yml" --output-root "generated_visuals/vertical_bar_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/line_chart_draft_v1.sample.yml" --output-root "generated_visuals/line_chart_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/stacked_bar_draft_v1.sample.yml" --output-root "generated_visuals/stacked_bar_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/ranking_table_draft_v1.sample.yml" --output-root "generated_visuals/ranking_table_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/choropleth_map_draft_v1.sample.yml" --output-root "generated_visuals/choropleth_map_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/point_map_draft_v1.sample.yml" --output-root "generated_visuals/point_map_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/table_card_draft_v1.sample.yml" --output-root "generated_visuals/table_card_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/small_multiples_draft_v1.sample.yml" --output-root "generated_visuals/small_multiples_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/area_chart_draft_v1.sample.yml" --output-root "generated_visuals/area_chart_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/scatter_plot_draft_v1.sample.yml" --output-root "generated_visuals/scatter_plot_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/dot_plot_draft_v1.sample.yml" --output-root "generated_visuals/dot_plot_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/lollipop_chart_draft_v1.sample.yml" --output-root "generated_visuals/lollipop_chart_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/slope_chart_draft_v1.sample.yml" --output-root "generated_visuals/slope_chart_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/donut_chart_draft_v1.sample.yml" --output-root "generated_visuals/donut_chart_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/tile_map_draft_v1.sample.yml" --output-root "generated_visuals/tile_map_draft_v1"
-            python process/instagram_render_visual.py --sample "instagram/visuals/samples/sourced_image_asset_draft_v1.sample.yml" --output-root "generated_visuals/sourced_image_asset_draft_v1"
-          } 2>&1 | tee workflow_debug/visual_preview.log
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1 area_chart_draft_v1 scatter_plot_draft_v1 dot_plot_draft_v1 lollipop_chart_draft_v1 slope_chart_draft_v1 donut_chart_draft_v1 tile_map_draft_v1 sourced_image_asset_draft_v1"
+          for visual_id in ${VISUAL_IDS}; do
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/${visual_id}.sample.yml" \
+              --output-root "generated_visuals/${visual_id}"
+          done 2>&1 | tee workflow_debug/visual_preview.log
 
       - name: Render visual variation test packs
         shell: bash
         run: |
           set -o pipefail
           mkdir -p workflow_debug
+          VISUAL_IDS="horizontal_bar_draft_v1 vertical_bar_draft_v1 line_chart_draft_v1 stacked_bar_draft_v1 ranking_table_draft_v1 choropleth_map_draft_v1 point_map_draft_v1 table_card_draft_v1 small_multiples_draft_v1 area_chart_draft_v1 scatter_plot_draft_v1 dot_plot_draft_v1 lollipop_chart_draft_v1 slope_chart_draft_v1 donut_chart_draft_v1 tile_map_draft_v1 sourced_image_asset_draft_v1"
+          for visual_id in ${VISUAL_IDS}; do
+            python process/instagram_render_visual_test_pack.py \
+              --registry "instagram/visuals/tests/${visual_id}/cases.yml" \
+              --output-root "generated_visual_tests/${visual_id}"
+          done 2>&1 | tee workflow_debug/visual_test_pack.log
+
+      - name: Try mapped S3 visual smoke render
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p workflow_debug generated_visual_data generated_visuals/s3_smoke
+          if [[ -z "${AWS_ACCESS_KEY_ID:-}" || -z "${AWS_SECRET_ACCESS_KEY:-}" ]]; then
+            echo "AWS credentials are not available. Skipping S3 visual smoke render." | tee workflow_debug/s3_visual_smoke_skipped.log
+            exit 0
+          fi
           {
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/horizontal_bar_draft_v1/cases.yml" --output-root "generated_visual_tests/horizontal_bar_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/vertical_bar_draft_v1/cases.yml" --output-root "generated_visual_tests/vertical_bar_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/line_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/line_chart_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/stacked_bar_draft_v1/cases.yml" --output-root "generated_visual_tests/stacked_bar_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/ranking_table_draft_v1/cases.yml" --output-root "generated_visual_tests/ranking_table_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/choropleth_map_draft_v1/cases.yml" --output-root "generated_visual_tests/choropleth_map_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/point_map_draft_v1/cases.yml" --output-root "generated_visual_tests/point_map_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/table_card_draft_v1/cases.yml" --output-root "generated_visual_tests/table_card_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/small_multiples_draft_v1/cases.yml" --output-root "generated_visual_tests/small_multiples_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/area_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/area_chart_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/scatter_plot_draft_v1/cases.yml" --output-root "generated_visual_tests/scatter_plot_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/dot_plot_draft_v1/cases.yml" --output-root "generated_visual_tests/dot_plot_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/lollipop_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/lollipop_chart_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/slope_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/slope_chart_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/donut_chart_draft_v1/cases.yml" --output-root "generated_visual_tests/donut_chart_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/tile_map_draft_v1/cases.yml" --output-root "generated_visual_tests/tile_map_draft_v1"
-            python process/instagram_render_visual_test_pack.py --registry "instagram/visuals/tests/sourced_image_asset_draft_v1/cases.yml" --output-root "generated_visual_tests/sourced_image_asset_draft_v1"
-          } 2>&1 | tee workflow_debug/visual_test_pack.log
+            echo "AWS credentials detected. Running review-only S3 visual data mapping."
+            python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml"
+            python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/member_party_counts_s3.yml"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml" \
+              --output-root "generated_visuals/s3_smoke/debate_issues"
+            python process/instagram_render_visual.py \
+              --sample "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml" \
+              --output-root "generated_visuals/s3_smoke/member_parties"
+          } 2>&1 | tee workflow_debug/s3_visual_smoke.log
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ca-central-1
+          INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data
 
       - name: Publish visual preview branch
         shell: bash
