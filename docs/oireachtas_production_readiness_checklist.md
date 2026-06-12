@@ -25,8 +25,8 @@ Approved: cut over <consumer name> from legacy Oireachtas keys to unified compat
 | Latest publishing | `mode=test` cannot overwrite `processed/oireachtas_unified/latest/*`. | done |
 | Scheduled windows | Weekly/monthly/yearly scheduled workflows use dynamic date windows. | done |
 | Compatibility outputs | Required compat CSVs exist under `processed/oireachtas_unified/compat/...`. | done for roster and member votes |
-| Side-by-side trial | Member profile metric trial writes to non-legacy output keys. | pending P04 validation |
-| Adapter comparison | Legacy inputs are compared to compatibility outputs. | pending P05 validation |
+| Side-by-side trial | Member profile metric trial writes to non-legacy output keys. | done, run `27432417013` |
+| Adapter comparison | Legacy inputs are compared to compatibility outputs. | done, run `27432358137` |
 | Consumer smoke test | Target downstream workflow runs using trial/compat keys. | pending |
 | Rollback | Consumer can be switched back to legacy environment variables or config. | documented |
 | User approval | Explicit approval exists for each consumer cutover. | pending |
@@ -57,17 +57,28 @@ processed/members/members_photo_urls.csv
 processed/constituencies/constituency_images.csv
 ```
 
+## Latest validation evidence
+
+| Check | Run | Result | Notes |
+|---|---:|---|---|
+| Member profile trial | `27432417013` | success / DQ pass | Trial rows: 10; matched legacy member codes: 10; output stays under unified compat paths. |
+| Compatibility adapter comparison | `27432358137` | success / DQ pass | Roster compat: 10 of 176 legacy members matched; vote compat: 172 matched vote member codes; row gaps are expected until production-sized unified latest outputs exist. |
+
+Review outputs:
+
+```text
+review/member_profile_metrics_trial/latest/{manifest.json,sample.csv,dq.json,report.md}
+review/compat_adapter_comparison/latest/{manifest.json,sample.csv,dq.json,report.md}
+```
+
 ## Recommended cutover order
 
-1. Build compatibility adapters.
-2. Run member profile metrics trial.
-3. Run compatibility adapter comparison.
-4. Run target consumer smoke test with environment overrides only.
-5. Review row counts, missing keys, and rendered output.
-6. Approve one consumer at a time.
-7. Repoint that consumer through config/environment variables.
-8. Keep legacy workflow active for at least one complete scheduled cycle.
-9. Roll back immediately if consumer output regresses.
+1. Run a consumer smoke test with trial/compat keys.
+2. Review row counts, missing keys, and rendered output.
+3. Approve one consumer at a time.
+4. Repoint that consumer through config/environment variables.
+5. Keep legacy workflow active for at least one complete scheduled cycle.
+6. Roll back immediately if consumer output regresses.
 
 ## Rollback
 
@@ -93,4 +104,4 @@ For Instagram rendering, restore the old S3 source keys in the workflow/spec/env
 
 ## Decision
 
-Current recommendation: **do not cut over yet**. Complete P04 and P05 validation, then run a consumer smoke test using trial keys before requesting approval.
+Current recommendation: **do not cut over yet**. Run a consumer smoke test using trial keys before requesting approval.
