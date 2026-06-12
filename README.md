@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `compat_downstream_adapters`
-- `review/compat_downstream_adapters/latest/sample.csv`
-- `review/compat_downstream_adapters/latest/sample.md`
-- `review/compat_downstream_adapters/latest/manifest.json`
-- `review/compat_downstream_adapters/latest/schema.json`
-- `review/compat_downstream_adapters/latest/dq.json`
+### `control_data_quality_results`
+- `review/control_data_quality_results/latest/sample.csv`
+- `review/control_data_quality_results/latest/sample.md`
+- `review/control_data_quality_results/latest/manifest.json`
+- `review/control_data_quality_results/latest/schema.json`
+- `review/control_data_quality_results/latest/dq.json`
