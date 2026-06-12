@@ -19,41 +19,11 @@ from .review import REVIEW_ROOT, write_review_bundle
 TABLE_NAME = "cutover_comparison_report"
 
 LEGACY_UNIFIED_PAIRS = [
-    {
-        "comparison_name": "members_current_roster",
-        "legacy_key": "raw/members/oireachtas_members_34th_dail.csv",
-        "unified_key": "processed/oireachtas_unified/latest/csv/silver_members.csv",
-        "legacy_join_column": "member_code",
-        "unified_join_column": "member_code",
-    },
-    {
-        "comparison_name": "speeches",
-        "legacy_key": "raw/debates/debate_speeches_extracted.csv",
-        "unified_key": "processed/oireachtas_unified/latest/csv/silver_speeches.csv",
-        "legacy_join_column": "speech_id",
-        "unified_join_column": "speech_id",
-    },
-    {
-        "comparison_name": "vote_divisions",
-        "legacy_key": "processed/votes/dail_vote_divisions.csv",
-        "unified_key": "processed/oireachtas_unified/latest/csv/silver_divisions.csv",
-        "legacy_join_column": "division_id",
-        "unified_join_column": "division_id",
-    },
-    {
-        "comparison_name": "member_votes",
-        "legacy_key": "processed/votes/dail_vote_member_records.csv",
-        "unified_key": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv",
-        "legacy_join_column": "member_vote_id",
-        "unified_join_column": "member_vote_id",
-    },
-    {
-        "comparison_name": "member_profile_metrics_yearly",
-        "legacy_key": "processed/members/member_profile_metrics_2025.csv",
-        "unified_key": "processed/oireachtas_unified/latest/csv/gold_member_activity_yearly.csv",
-        "legacy_join_column": "member_code",
-        "unified_join_column": "member_code",
-    },
+    {"comparison_name": "members_current_roster", "legacy_key": "raw/members/oireachtas_members_34th_dail.csv", "unified_key": "processed/oireachtas_unified/latest/csv/silver_members.csv", "legacy_join_column": "member_code", "unified_join_column": "member_code"},
+    {"comparison_name": "speeches", "legacy_key": "raw/debates/debate_speeches_extracted.csv", "unified_key": "processed/oireachtas_unified/latest/csv/silver_speeches.csv", "legacy_join_column": "speech_id", "unified_join_column": "speech_id"},
+    {"comparison_name": "vote_divisions", "legacy_key": "processed/votes/dail_vote_divisions.csv", "unified_key": "processed/oireachtas_unified/latest/csv/silver_divisions.csv", "legacy_join_column": "division_id", "unified_join_column": "division_id"},
+    {"comparison_name": "member_votes", "legacy_key": "processed/votes/dail_vote_member_records.csv", "unified_key": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv", "legacy_join_column": "member_vote_id", "unified_join_column": "member_vote_id"},
+    {"comparison_name": "member_profile_metrics_yearly", "legacy_key": "processed/members/member_profile_metrics_2025.csv", "unified_key": "processed/oireachtas_unified/latest/csv/gold_member_activity_yearly.csv", "legacy_join_column": "member_code", "unified_join_column": "member_code"},
 ]
 
 
@@ -64,25 +34,20 @@ class ComparisonResult:
     dq: dict[str, Any]
 
 
-def build_cutover_comparison_report(
-    *,
-    s3: Any,
-    bucket: str,
-    review_root: Path,
-    sample_rows: int,
-) -> ComparisonResult:
+def build_cutover_comparison_report(*, s3: Any, bucket: str, review_root: Path, sample_rows: int) -> ComparisonResult:
     started_at = utc_now_iso()
     run_id = f"{TABLE_NAME}_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     snapshot_date = started_at[:10]
-
     rows = [_compare_pair(s3, bucket=bucket, pair=pair) for pair in LEGACY_UNIFIED_PAIRS]
     df = pd.DataFrame(rows)
+
     csv_key = f"processed/oireachtas_unified/reports/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"
     manifest_key = f"processed/oireachtas_unified/reports/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/manifest.json"
     latest_csv_key = f"processed/oireachtas_unified/latest/csv/{TABLE_NAME}.csv"
     review_sample_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/sample.csv"
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
     review_schema_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/schema.json"
+    report_text = ""
 
     dq = _dq(df)
     schema = {"table": TABLE_NAME, "primary_key": ["comparison_name"], "columns": list(df.columns), "row_count": int(len(df))}
@@ -98,15 +63,9 @@ def build_cutover_comparison_report(
         "primary_key": ["comparison_name"],
         "primary_key_unique": bool(not df["comparison_name"].duplicated().any()) if "comparison_name" in df else False,
         "dq_status": dq["dq_status"],
-        "s3_keys": {
-            "csv": csv_key,
-            "latest_csv": latest_csv_key,
-            "manifest": manifest_key,
-            "review_sample": review_sample_key,
-            "review_schema": review_schema_key,
-            "review_manifest": review_manifest_key,
-        },
+        "s3_keys": {"csv": csv_key, "latest_csv": latest_csv_key, "manifest": manifest_key, "review_sample": review_sample_key, "review_schema": review_schema_key, "review_manifest": review_manifest_key, "review_report": f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/report.md"},
     }
+    report_text = _markdown_report(df, manifest)
 
     put_dataframe_csv(s3, bucket=bucket, key=csv_key, df=df)
     put_dataframe_csv(s3, bucket=bucket, key=latest_csv_key, df=df)
@@ -114,10 +73,9 @@ def build_cutover_comparison_report(
     put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=df.head(sample_rows))
     put_json(s3, bucket=bucket, key=review_schema_key, payload=schema)
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
-    put_text(s3, bucket=bucket, key=f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/report.md", text=_markdown_report(df, manifest))
+    put_text(s3, bucket=bucket, key=f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/report.md", text=report_text)
     write_review_bundle(table=TABLE_NAME, manifest=manifest, schema=schema, dq=dq, sample_rows=df.head(sample_rows).to_dict(orient="records"), root=review_root)
-    (review_root / "review" / TABLE_NAME / "latest" / "report.md").write_text(_markdown_report(df, manifest), encoding="utf-8")
-
+    (review_root / "review" / TABLE_NAME / "latest" / "report.md").write_text(report_text, encoding="utf-8")
     return ComparisonResult(rows=df.to_dict(orient="records"), manifest=manifest, dq=dq)
 
 
@@ -130,11 +88,9 @@ def _compare_pair(s3: Any, *, bucket: str, pair: dict[str, str]) -> dict[str, An
     unified_df = _read_csv(s3, bucket=bucket, key=unified_key) if unified_exists else pd.DataFrame()
     legacy_join = pair["legacy_join_column"]
     unified_join = pair["unified_join_column"]
-    legacy_key_coverage = _coverage(legacy_df, legacy_join)
-    unified_key_coverage = _coverage(unified_df, unified_join)
-    matched = ""
-    legacy_only = ""
-    unified_only = ""
+    matched: int | str = ""
+    legacy_only: int | str = ""
+    unified_only: int | str = ""
     if legacy_join in legacy_df.columns and unified_join in unified_df.columns:
         legacy_values = set(legacy_df[legacy_join].fillna("").astype(str).str.strip()) - {""}
         unified_values = set(unified_df[unified_join].fillna("").astype(str).str.strip()) - {""}
@@ -157,8 +113,8 @@ def _compare_pair(s3: Any, *, bucket: str, pair: dict[str, str]) -> dict[str, An
         "unified_columns": int(len(unified_df.columns)),
         "legacy_join_column": legacy_join,
         "unified_join_column": unified_join,
-        "legacy_join_coverage_pct": legacy_key_coverage,
-        "unified_join_coverage_pct": unified_key_coverage,
+        "legacy_join_coverage_pct": _coverage(legacy_df, legacy_join),
+        "unified_join_coverage_pct": _coverage(unified_df, unified_join),
         "matched_key_count": matched,
         "legacy_only_key_count": legacy_only,
         "unified_only_key_count": unified_only,
@@ -200,7 +156,7 @@ def _dq(df: pd.DataFrame) -> dict[str, Any]:
 
 
 def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
-    lines = [
+    return "\n".join([
         "# Oireachtas cutover comparison report",
         "",
         f"Run ID: `{manifest['run_id']}`",
@@ -208,17 +164,31 @@ def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
         "",
         "This report is review-only. It does not change downstream consumers or disable legacy pipelines.",
         "",
-        df.to_markdown(index=False),
+        _simple_markdown_table(df),
         "",
-    ]
-    return "\n".join(lines)
+    ])
+
+
+def _simple_markdown_table(df: pd.DataFrame) -> str:
+    if df.empty:
+        return "_No rows._"
+    columns = list(df.columns)
+    rows = ["| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]
+    for record in df.fillna("").astype(str).to_dict(orient="records"):
+        rows.append("| " + " | ".join(_escape_markdown_cell(record.get(column, "")) for column in columns) + " |")
+    return "\n".join(rows)
+
+
+def _escape_markdown_cell(value: str) -> str:
+    text = value.replace("|", "\\|").replace("\n", " ")
+    return text[:300]
 
 
 def main() -> int:
     bucket = os.getenv("S3_BUCKET", DEFAULT_BUCKET)
     region = os.getenv("AWS_REGION", DEFAULT_REGION)
     review_root = Path(os.getenv("REVIEW_OUTPUT_ROOT", str(REVIEW_ROOT)))
-    sample_rows = int(os.getenv("SAMPLE_ROWS", "10"))
+    sample_rows = int(os.getenv("SAMPLE_ROWS", "10") or "10")
     s3 = make_s3_client(region_name=region)
     result = build_cutover_comparison_report(s3=s3, bucket=bucket, review_root=review_root, sample_rows=sample_rows)
     print(json.dumps({"table": TABLE_NAME, "rows": len(result.rows), "dq_status": result.dq.get("dq_status"), "run_id": result.manifest.get("run_id")}, indent=2, sort_keys=True))
