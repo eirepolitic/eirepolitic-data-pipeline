@@ -1,12 +1,11 @@
 # Unified Oireachtas table registry.
 # Status values: planned, in_progress, tested, confirmed, deprecated.
-# This registry starts broad so the CLI and review workflow can validate the
-# intended model before each table builder is implemented.
+# Confirmed means the table builder has completed at least one manual validation run with DQ pass.
 
 tables:
   silver_houses:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: yearly
     endpoint: "/houses"
     primary_key: ["house_uri"]
@@ -15,7 +14,7 @@ tables:
 
   silver_constituencies:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/constituencies"
     primary_key: ["constituency_uri"]
@@ -24,7 +23,7 @@ tables:
 
   silver_parties:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/parties"
     primary_key: ["party_uri"]
@@ -33,7 +32,7 @@ tables:
 
   silver_members:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/members"
     primary_key: ["member_code"]
@@ -42,7 +41,7 @@ tables:
 
   silver_member_memberships:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/members"
     primary_key: ["membership_id"]
@@ -51,7 +50,7 @@ tables:
 
   silver_member_parties:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/members"
     primary_key: ["member_party_id"]
@@ -60,7 +59,7 @@ tables:
 
   silver_member_constituencies:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/members"
     primary_key: ["member_constituency_id"]
@@ -69,7 +68,7 @@ tables:
 
   silver_member_offices:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/members"
     primary_key: ["member_office_id"]
@@ -78,7 +77,7 @@ tables:
 
   silver_source_files:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: follows_parent
     primary_key: ["source_file_id"]
     description: "Inventory of XML/PDF/source files discovered from formats fields."
@@ -86,7 +85,7 @@ tables:
 
   silver_debate_records:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/debates"
     primary_key: ["debate_id"]
@@ -95,7 +94,7 @@ tables:
 
   silver_debate_sections:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     primary_key: ["debate_section_id"]
     description: "Debate section records parsed from API/XML."
@@ -103,7 +102,7 @@ tables:
 
   silver_speeches:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     primary_key: ["speech_id"]
     description: "Atomic speech records parsed from debate XML."
@@ -111,7 +110,7 @@ tables:
 
   silver_divisions:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/divisions"
     primary_key: ["division_id"]
@@ -120,7 +119,7 @@ tables:
 
   silver_division_tallies:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/divisions"
     primary_key: ["division_tally_id"]
@@ -129,7 +128,7 @@ tables:
 
   silver_member_votes:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/divisions"
     primary_key: ["member_vote_id"]
@@ -138,7 +137,7 @@ tables:
 
   silver_questions:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: weekly
     endpoint: "/questions"
     primary_key: ["question_id"]
@@ -147,7 +146,7 @@ tables:
 
   silver_bills:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_id"]
@@ -156,7 +155,7 @@ tables:
 
   silver_bill_versions:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_version_id"]
@@ -165,7 +164,7 @@ tables:
 
   silver_bill_stages:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_stage_id"]
@@ -174,7 +173,7 @@ tables:
 
   silver_bill_related_docs:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["related_doc_id"]
@@ -183,7 +182,7 @@ tables:
 
   silver_bill_sponsors:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_sponsor_id"]
@@ -192,7 +191,7 @@ tables:
 
   silver_bill_debates:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_debate_id"]
@@ -201,7 +200,7 @@ tables:
 
   silver_bill_events:
     layer: silver
-    status: planned
+    status: confirmed
     cadence: monthly
     endpoint: "/legislation"
     primary_key: ["bill_event_id"]
@@ -210,7 +209,7 @@ tables:
 
   control_pipeline_runs:
     layer: control
-    status: planned
+    status: confirmed
     cadence: every_run
     primary_key: ["run_id"]
     description: "Pipeline run audit log."
@@ -218,7 +217,7 @@ tables:
 
   control_table_manifests:
     layer: control
-    status: planned
+    status: confirmed
     cadence: every_run
     primary_key: ["table_name"]
     description: "Latest manifest pointer per table."
@@ -226,7 +225,7 @@ tables:
 
   control_data_quality_results:
     layer: control
-    status: planned
+    status: confirmed
     cadence: every_run
     primary_key: ["dq_result_id"]
     description: "Data-quality result records."
@@ -234,7 +233,7 @@ tables:
 
   gold_current_members:
     layer: gold
-    status: planned
+    status: confirmed
     cadence: weekly
     primary_key: ["member_code"]
     description: "Current member roster mart."
@@ -242,7 +241,7 @@ tables:
 
   gold_member_activity_yearly:
     layer: gold
-    status: planned
+    status: confirmed
     cadence: weekly_current_year
     primary_key: ["member_code", "year"]
     description: "Member annual activity metrics."
@@ -250,7 +249,7 @@ tables:
 
   gold_member_activity_monthly:
     layer: gold
-    status: planned
+    status: confirmed
     cadence: weekly_current_year
     primary_key: ["member_code", "year_month"]
     description: "Member monthly activity metrics."
@@ -258,7 +257,7 @@ tables:
 
   gold_constituency_activity_yearly:
     layer: gold
-    status: planned
+    status: confirmed
     cadence: monthly
     primary_key: ["constituency_name", "year"]
     description: "Constituency annual activity metrics."
@@ -266,7 +265,7 @@ tables:
 
   gold_content_fact_pool:
     layer: gold
-    status: planned
+    status: confirmed
     cadence: weekly
     primary_key: ["fact_id"]
     description: "Deterministic candidate fact pool for Instagram content."
