@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-12  
-**Current packet:** X02 — downstream cutover planning
+**Current packet:** P01 — latest publishing control
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -69,98 +69,78 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Confirmed workflow packets
 
-### W01 — weekly refresh workflow
+- **W01 — weekly refresh workflow**: workflow ID `294426406`; run `27396638715`; success; schedule `20 3 * * 0`.
+- **W02 — monthly refresh workflow**: workflow ID `294432002`; run `27397121321`; success; schedule `35 4 1 * *`.
+- **W03 — yearly refresh workflow**: workflow ID `294432103`; run `27397123885`; success; schedule `15 5 2 1 *`.
 
-- Workflow file: `.github/workflows/oireachtas_weekly_refresh.yml`
-- Workflow ID: `294426406`
-- Manual validation run: `27396638715`
-- Run number: 1
-- Result: success
-- Schedule: `20 3 * * 0`
-- Manual run validated the weekly table set step and review publication.
-
-### W02 — monthly refresh workflow
-
-- Workflow file: `.github/workflows/oireachtas_monthly_refresh.yml`
-- Workflow ID: `294432002`
-- Manual validation run: `27397121321`
-- Run number: 1
-- Result: success
-- Schedule: `35 4 1 * *`
-- Default manual mode: `test`
-- Scheduled mode: `incremental`
-- Monthly table set includes monthly dimensions, source files, legislation tables, constituency/content gold tables, and control tables.
-
-### W03 — yearly refresh workflow
-
-- Workflow file: `.github/workflows/oireachtas_yearly_refresh.yml`
-- Workflow ID: `294432103`
-- Manual validation run: `27397123885`
-- Run number: 1
-- Result: success
-- Schedule: `15 5 2 1 *`
-- Default manual mode: `test`
-- Scheduled mode: `full`
-- Yearly table set includes yearly dimensions, annual gold tables, and control tables.
-
-## Confirmed comparison packets
+## Confirmed comparison/planning packets
 
 ### X01 — cutover comparison report
 
 - Builder: `extract/oireachtas/cutover_comparison.py`
 - Workflow: `.github/workflows/oireachtas_cutover_comparison.yml`
 - Workflow ID: `294432488`
-- First run `27397154348` failed because `DataFrame.to_markdown` needs optional `tabulate`.
-- Patched to use dependency-free markdown rendering.
-- Final validation run: `27397256307`
-- Run number: 2
-- Result: success
-- Output rows: 5
-- PK: `comparison_name`, unique
-- DQ: pass
-- Unified outputs present: pass
-- Compared legacy to unified latest CSVs for:
-  - members current roster
-  - speeches
-  - vote divisions
-  - member votes
-  - member yearly profile/activity metrics
+- Final validation run: `27397256307`; run number 2; success.
+- Output rows: 5; PK `comparison_name`; DQ pass.
 - Review: `review/cutover_comparison_report/latest/{manifest.json,sample.csv,dq.json,report.md}`.
-- Important note: all compared unified latest outputs existed, but many unified outputs are still limited by test/default limits, so row-count differences are expected until full refresh modes are run with higher limits.
-
-## Next packet batch
+- Note: all compared unified latest outputs existed, but many unified outputs are still limited by test/default limits, so row-count differences are expected until full refresh modes are run with higher limits.
 
 ### X02 — downstream cutover planning
 
-Goal:
-
-- document exact downstream consumers that can use unified outputs;
-- identify old S3 keys and replacement unified latest keys;
-- produce a no-change cutover checklist and rollback plan;
-- do not repoint Instagram or disable legacy workflows without explicit user approval.
+- Document: `docs/oireachtas_downstream_cutover_plan.md`
+- Result: complete.
+- Identified downstream consumers and old-to-new S3 key candidates.
+- Recommendation: do not cut over yet; build compatibility adapters and run side-by-side profile metric trial first.
+- Legacy workflows and Instagram consumers were not changed.
 
 ### X03 — production run configuration review
 
-Goal:
-
-- review workflow default limits/modes and propose production-safe settings;
-- ensure scheduled workflows do not remain stuck on tiny test windows where full/incremental behavior should be broader;
-- document cost/rate-limit risks before increasing limits.
+- Document: `docs/oireachtas_production_run_config_review.md`
+- Result: complete.
+- Key finding: scheduled workflows are validated but still use fixed historic date windows; manual test runs can overwrite latest pointers with limited outputs.
+- Recommendation: add latest-publishing controls and dynamic date windows before production cutover.
 
 ### X04 — registry/status cleanup
 
+- File: `configs/oireachtas/tables.yml`
+- Result: complete.
+- Updated all validated silver, gold, and control tables from `planned` to `confirmed`.
+- Runtime table schemas and builders were not changed.
+
+## Next packet batch
+
+### P01 — latest publishing control
+
 Goal:
 
-- update registry statuses from `planned` toward tested/confirmed where appropriate;
-- optionally update the long plan document status tracker;
-- keep changes documentation-only unless user approves production cutover.
+- add a CLI/workflow control so `mode=test` writes partitioned/review outputs but does not overwrite `processed/oireachtas_unified/latest/*`;
+- preserve current latest behavior for non-test/manual production runs after explicit choice;
+- validate with a safe smoke test.
+
+### P02 — dynamic date windows
+
+Goal:
+
+- add dynamic scheduled date windows for weekly/monthly/yearly workflows;
+- remove fixed January 2025 scheduled windows where appropriate;
+- keep manual override inputs available.
+
+### P03 — downstream compatibility adapters
+
+Goal:
+
+- build compatibility CSVs under `processed/oireachtas_unified/compat/...` for member roster and member votes;
+- do not overwrite old keys;
+- enable side-by-side member-profile metric trial.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start X02 downstream cutover planning, then X03 production run configuration review, then X04 registry/status cleanup.
+Start P01 latest publishing control, then P02 dynamic date windows, then P03 downstream compatibility adapters.
 Do not repoint downstream consumers or disable old workflows without explicit user approval.
 Latest validated workflows: W02 run 27397121321, W03 run 27397123885, X01 run 27397256307.
+Documentation added: docs/oireachtas_downstream_cutover_plan.md and docs/oireachtas_production_run_config_review.md.
+Registry statuses are confirmed for all validated tables.
 ```
