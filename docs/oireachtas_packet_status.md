@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-12  
-**Current packet:** W02 — monthly refresh workflow
+**Current packet:** X02 — downstream cutover planning
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -12,6 +12,9 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Registry: `configs/oireachtas/tables.yml`
 - Manual test workflow: `.github/workflows/oireachtas_table_test.yml`
 - Weekly refresh workflow: `.github/workflows/oireachtas_weekly_refresh.yml`
+- Monthly refresh workflow: `.github/workflows/oireachtas_monthly_refresh.yml`
+- Yearly refresh workflow: `.github/workflows/oireachtas_yearly_refresh.yml`
+- Cutover comparison workflow: `.github/workflows/oireachtas_cutover_comparison.yml`
 - AWS region: `ca-central-1`
 - S3 bucket: `eirepolitic-data`
 - Review branch: `oireachtas-review-output`
@@ -60,43 +63,9 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Confirmed control packets
 
-### C01 — `control_pipeline_runs`
-
-- Builder: `extract/oireachtas/table_control_pipeline_runs.py`
-- Run: `27365125297`; run number 46; success.
-- Manifest objects found/read: 40/40; read errors 0.
-- Output rows: 10; PK `run_id`; DQ pass.
-- Review: `review/control_pipeline_runs/latest/{manifest.json,sample.csv,dq.json}`.
-
-### C02 — `control_table_manifests`
-
-- Builder: `extract/oireachtas/table_control_table_manifests.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- First validation run: `27396546367`; run number 47; success.
-- Latest W01 refresh validation also passed with run ID `control_table_manifests_20260612T053120Z`.
-- Manifest objects found/read in latest review: 60/60; read errors 0.
-- Latest table rows before limit: 31
-- Output rows: 10, limited by workflow test default `limit=10`.
-- PK: `table_name`, unique
-- DQ: pass
-- Review: `review/control_table_manifests/latest/{manifest.json,sample.csv,dq.json}`.
-
-### C03 — `control_data_quality_results`
-
-- Builder: `extract/oireachtas/table_control_data_quality_results.py`
-- CLI/workflow updates:
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-- First validation run: `27396584533`; run number 48; success.
-- Latest W01 refresh validation also passed with run ID `control_data_quality_results_20260612T053125Z`.
-- Manifest objects found in latest review: 61
-- Candidate DQ rows before limit: 244
-- Output rows: 10, limited by workflow test default `limit=10`.
-- PK: `dq_result_id`, unique
-- DQ: pass
-- Review: `review/control_data_quality_results/latest/{manifest.json,sample.csv,dq.json}`.
+- **C01 — `control_pipeline_runs`**: run `27365125297`; 10 rows; PK `run_id`; DQ pass.
+- **C02 — `control_table_manifests`**: run `27396546367`; 10 rows; PK `table_name`; DQ pass.
+- **C03 — `control_data_quality_results`**: run `27396584533`; 10 rows; PK `dq_result_id`; DQ pass.
 
 ## Confirmed workflow packets
 
@@ -107,48 +76,91 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Manual validation run: `27396638715`
 - Run number: 1
 - Result: success
-- Event: `workflow_dispatch`
 - Schedule: `20 3 * * 0`
-- Default manual mode: `test`
-- Scheduled mode: `incremental`
 - Manual run validated the weekly table set step and review publication.
-- Weekly table set includes current member/member-bridge tables, recent debate/speech/vote/question tables, current gold activity/fact tables, and control tables.
-
-## Next packet batch
 
 ### W02 — monthly refresh workflow
 
-Goal:
-
-- add `.github/workflows/oireachtas_monthly_refresh.yml`;
-- include monthly dimensions and legislation tables: constituencies, parties, bills, bill versions, bill stages, related docs, sponsors, bill debates, bill events, gold constituency yearly, content fact pool, and control tables;
-- add manual dispatch and monthly cron;
-- validate with a manual test run before trusting schedule.
+- Workflow file: `.github/workflows/oireachtas_monthly_refresh.yml`
+- Workflow ID: `294432002`
+- Manual validation run: `27397121321`
+- Run number: 1
+- Result: success
+- Schedule: `35 4 1 * *`
+- Default manual mode: `test`
+- Scheduled mode: `incremental`
+- Monthly table set includes monthly dimensions, source files, legislation tables, constituency/content gold tables, and control tables.
 
 ### W03 — yearly refresh workflow
 
-Goal:
+- Workflow file: `.github/workflows/oireachtas_yearly_refresh.yml`
+- Workflow ID: `294432103`
+- Manual validation run: `27397123885`
+- Run number: 1
+- Result: success
+- Schedule: `15 5 2 1 *`
+- Default manual mode: `test`
+- Scheduled mode: `full`
+- Yearly table set includes yearly dimensions, annual gold tables, and control tables.
 
-- add `.github/workflows/oireachtas_yearly_refresh.yml`;
-- include yearly/full-refresh dimensions and annual gold/control outputs;
-- add manual dispatch and yearly cron;
-- validate with a limited manual test run.
+## Confirmed comparison packets
 
 ### X01 — cutover comparison report
 
+- Builder: `extract/oireachtas/cutover_comparison.py`
+- Workflow: `.github/workflows/oireachtas_cutover_comparison.yml`
+- Workflow ID: `294432488`
+- First run `27397154348` failed because `DataFrame.to_markdown` needs optional `tabulate`.
+- Patched to use dependency-free markdown rendering.
+- Final validation run: `27397256307`
+- Run number: 2
+- Result: success
+- Output rows: 5
+- PK: `comparison_name`, unique
+- DQ: pass
+- Unified outputs present: pass
+- Compared legacy to unified latest CSVs for:
+  - members current roster
+  - speeches
+  - vote divisions
+  - member votes
+  - member yearly profile/activity metrics
+- Review: `review/cutover_comparison_report/latest/{manifest.json,sample.csv,dq.json,report.md}`.
+- Important note: all compared unified latest outputs existed, but many unified outputs are still limited by test/default limits, so row-count differences are expected until full refresh modes are run with higher limits.
+
+## Next packet batch
+
+### X02 — downstream cutover planning
+
 Goal:
 
-- add deterministic comparison report between old outputs and unified outputs without changing downstream consumers;
-- compare old member, speech, vote, and profile-metric outputs against unified silver/gold outputs;
-- publish small comparison report to `oireachtas-review-output`;
-- no cutover or destructive changes.
+- document exact downstream consumers that can use unified outputs;
+- identify old S3 keys and replacement unified latest keys;
+- produce a no-change cutover checklist and rollback plan;
+- do not repoint Instagram or disable legacy workflows without explicit user approval.
+
+### X03 — production run configuration review
+
+Goal:
+
+- review workflow default limits/modes and propose production-safe settings;
+- ensure scheduled workflows do not remain stuck on tiny test windows where full/incremental behavior should be broader;
+- document cost/rate-limit risks before increasing limits.
+
+### X04 — registry/status cleanup
+
+Goal:
+
+- update registry statuses from `planned` toward tested/confirmed where appropriate;
+- optionally update the long plan document status tracker;
+- keep changes documentation-only unless user approves production cutover.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start W02 monthly refresh workflow, then W03 yearly refresh workflow, then X01 cutover comparison report.
-Workflow default currently points to control_data_quality_results.
-Weekly workflow exists and manual run 27396638715 succeeded.
+Start X02 downstream cutover planning, then X03 production run configuration review, then X04 registry/status cleanup.
+Do not repoint downstream consumers or disable old workflows without explicit user approval.
+Latest validated workflows: W02 run 27397121321, W03 run 27397123885, X01 run 27397256307.
 ```
