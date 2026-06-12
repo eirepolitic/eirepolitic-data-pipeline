@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `cutover_comparison_report`
-- `review/cutover_comparison_report/latest/sample.csv`
-- `review/cutover_comparison_report/latest/sample.md`
-- `review/cutover_comparison_report/latest/manifest.json`
-- `review/cutover_comparison_report/latest/schema.json`
-- `review/cutover_comparison_report/latest/dq.json`
+### `compat_downstream_adapters`
+- `review/compat_downstream_adapters/latest/sample.csv`
+- `review/compat_downstream_adapters/latest/sample.md`
+- `review/compat_downstream_adapters/latest/manifest.json`
+- `review/compat_downstream_adapters/latest/schema.json`
+- `review/compat_downstream_adapters/latest/dq.json`
