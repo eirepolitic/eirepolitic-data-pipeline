@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.655669+00:00",
+      "created_at": "2026-06-12T05:49:55.822580+00:00",
       "description": "All series rise between two periods"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.687088+00:00",
+      "created_at": "2026-06-12T05:49:55.853776+00:00",
       "description": "All series fall between two periods"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.717834+00:00",
+      "created_at": "2026-06-12T05:49:55.884383+00:00",
       "description": "Mix of positive, negative, and small changes"
     },
     {
@@ -54,7 +54,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.754008+00:00",
+      "created_at": "2026-06-12T05:49:55.920461+00:00",
       "description": "Ten items at template maximum"
     },
     {
@@ -69,7 +69,7 @@
       "warnings": [
         "truncated_rows:12->10"
       ],
-      "created_at": "2026-06-12T05:27:22.789952+00:00",
+      "created_at": "2026-06-12T05:49:55.956389+00:00",
       "description": "Twelve items; should truncate to template maximum"
     },
     {
@@ -89,7 +89,7 @@
         "long_label:Public transport frequency complai",
         "long_label:Public transport frequency complai"
       ],
-      "created_at": "2026-06-12T05:27:22.831166+00:00",
+      "created_at": "2026-06-12T05:49:55.997364+00:00",
       "description": "Long labels should truncate cleanly"
     },
     {
@@ -105,7 +105,7 @@
         "missing_endpoint:Party B",
         "missing_endpoint:Party C"
       ],
-      "created_at": "2026-06-12T05:27:22.859166+00:00",
+      "created_at": "2026-06-12T05:49:56.025132+00:00",
       "description": "Labels missing one of the two required periods"
     },
     {
@@ -120,7 +120,7 @@
       "warnings": [
         "truncated_periods:3->2"
       ],
-      "created_at": "2026-06-12T05:27:22.885294+00:00",
+      "created_at": "2026-06-12T05:49:56.051276+00:00",
       "description": "Three periods; should truncate to first two periods"
     },
     {
@@ -138,7 +138,7 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-12T05:27:22.917850+00:00",
+      "created_at": "2026-06-12T05:49:56.083909+00:00",
       "description": "Includes negative values and should warn"
     },
     {
@@ -151,7 +151,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.943043+00:00",
+      "created_at": "2026-06-12T05:49:56.109033+00:00",
       "description": "Values close together"
     },
     {
@@ -164,7 +164,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:22.976015+00:00",
+      "created_at": "2026-06-12T05:49:56.141953+00:00",
       "description": "Values spanning several orders of magnitude"
     },
     {
@@ -177,7 +177,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:23.001278+00:00",
+      "created_at": "2026-06-12T05:49:56.167016+00:00",
       "description": "No change between two periods"
     },
     {
@@ -195,7 +195,7 @@
         "missing_endpoint:Party A",
         "missing_endpoint:Party B"
       ],
-      "created_at": "2026-06-12T05:27:23.025446+00:00",
+      "created_at": "2026-06-12T05:49:56.191232+00:00",
       "description": "Missing and invalid values should warn"
     },
     {
@@ -216,7 +216,7 @@
         "long_label:Public transport frequency complai",
         "negative_values_present"
       ],
-      "created_at": "2026-06-12T05:27:23.075977+00:00",
+      "created_at": "2026-06-12T05:49:56.241538+00:00",
       "description": "Long labels, wide values, and negative ending values"
     }
   ]

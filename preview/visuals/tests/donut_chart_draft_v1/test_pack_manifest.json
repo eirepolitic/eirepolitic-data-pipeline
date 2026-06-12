@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.695316+00:00",
+      "created_at": "2026-06-12T05:49:57.823257+00:00",
       "description": "Two-slice minimal donut chart"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.729191+00:00",
+      "created_at": "2026-06-12T05:49:57.856537+00:00",
       "description": "Four-slice standard donut chart"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.765463+00:00",
+      "created_at": "2026-06-12T05:49:57.892734+00:00",
       "description": "Eight-slice readable donut chart"
     },
     {
@@ -56,7 +56,7 @@
       "warnings": [
         "aggregated_other:12->10"
       ],
-      "created_at": "2026-06-12T05:27:24.804108+00:00",
+      "created_at": "2026-06-12T05:49:57.930823+00:00",
       "description": "Twelve slices; should aggregate to Other"
     },
     {
@@ -73,7 +73,7 @@
         "long_label:Emergency department waiting time ",
         "long_label:Public transport frequency complai"
       ],
-      "created_at": "2026-06-12T05:27:24.849421+00:00",
+      "created_at": "2026-06-12T05:49:57.975952+00:00",
       "description": "Long labels should truncate cleanly"
     },
     {
@@ -86,7 +86,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.881211+00:00",
+      "created_at": "2026-06-12T05:49:58.007592+00:00",
       "description": "Values close together"
     },
     {
@@ -99,7 +99,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.915747+00:00",
+      "created_at": "2026-06-12T05:49:58.042056+00:00",
       "description": "Values spanning several orders of magnitude"
     },
     {
@@ -112,7 +112,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:24.945216+00:00",
+      "created_at": "2026-06-12T05:49:58.071952+00:00",
       "description": "Zero-value slices should be omitted"
     },
     {
@@ -128,7 +128,7 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-12T05:27:24.974743+00:00",
+      "created_at": "2026-06-12T05:49:58.101305+00:00",
       "description": "Negative values should warn and be omitted"
     },
     {
@@ -144,7 +144,7 @@
         "missing_or_invalid_value:Party B",
         "missing_or_invalid_value:Party C"
       ],
-      "created_at": "2026-06-12T05:27:25.004442+00:00",
+      "created_at": "2026-06-12T05:49:58.130819+00:00",
       "description": "Missing and invalid values should warn"
     },
     {
@@ -157,7 +157,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:27:25.034950+00:00",
+      "created_at": "2026-06-12T05:49:58.161368+00:00",
       "description": "Duplicate labels should aggregate values"
     },
     {
@@ -173,7 +173,7 @@
         "negative_values_present",
         "empty_rows"
       ],
-      "created_at": "2026-06-12T05:27:25.057093+00:00",
+      "created_at": "2026-06-12T05:49:58.184160+00:00",
       "description": "No positive values should render empty-state warning"
     },
     {
@@ -192,7 +192,7 @@
         "negative_values_present",
         "missing_or_invalid_value:Party D"
       ],
-      "created_at": "2026-06-12T05:27:25.110604+00:00",
+      "created_at": "2026-06-12T05:49:58.238173+00:00",
       "description": "Long labels, wide values, missing values, zero and negative values"
     }
   ]
