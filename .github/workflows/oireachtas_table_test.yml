@@ -18,6 +18,15 @@ on:
           - incremental
           - full
           - backfill
+      publish_latest:
+        description: "Write processed/oireachtas_unified/latest pointers"
+        required: true
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - true
+          - false
       chamber:
         description: "Chamber"
         required: false
@@ -84,6 +93,7 @@ jobs:
           args=(
             --table "${{ inputs.table }}"
             --mode "${{ inputs.mode }}"
+            --publish-latest "${{ inputs.publish_latest }}"
             --chamber "${{ inputs.chamber }}"
             --house-no "${{ inputs.house_no }}"
             --limit "${{ inputs.limit }}"
@@ -137,6 +147,7 @@ jobs:
             echo
             echo "- Table: \`${{ inputs.table }}\`"
             echo "- Mode: \`${{ inputs.mode }}\`"
+            echo "- Publish latest: \`${{ inputs.publish_latest }}\`"
             echo "- Review branch: \`${REVIEW_BRANCH}\`"
             echo "- Manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/${{ inputs.table }}/latest/manifest.json"
             echo "- Sample CSV: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/${{ inputs.table }}/latest/sample.csv"
