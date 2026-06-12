@@ -26,6 +26,13 @@ Only small review samples should be published here.
 - `review/control_table_manifests/latest/schema.json`
 - `review/control_table_manifests/latest/dq.json`
 
+### `gold_constituency_activity_yearly`
+- `review/gold_constituency_activity_yearly/latest/sample.csv`
+- `review/gold_constituency_activity_yearly/latest/sample.md`
+- `review/gold_constituency_activity_yearly/latest/manifest.json`
+- `review/gold_constituency_activity_yearly/latest/schema.json`
+- `review/gold_constituency_activity_yearly/latest/dq.json`
+
 ### `gold_content_fact_pool`
 - `review/gold_content_fact_pool/latest/sample.csv`
 - `review/gold_content_fact_pool/latest/sample.md`
@@ -33,107 +40,72 @@ Only small review samples should be published here.
 - `review/gold_content_fact_pool/latest/schema.json`
 - `review/gold_content_fact_pool/latest/dq.json`
 
-### `gold_current_members`
-- `review/gold_current_members/latest/sample.csv`
-- `review/gold_current_members/latest/sample.md`
-- `review/gold_current_members/latest/manifest.json`
-- `review/gold_current_members/latest/schema.json`
-- `review/gold_current_members/latest/dq.json`
+### `silver_bill_debates`
+- `review/silver_bill_debates/latest/sample.csv`
+- `review/silver_bill_debates/latest/sample.md`
+- `review/silver_bill_debates/latest/manifest.json`
+- `review/silver_bill_debates/latest/schema.json`
+- `review/silver_bill_debates/latest/dq.json`
 
-### `gold_member_activity_monthly`
-- `review/gold_member_activity_monthly/latest/sample.csv`
-- `review/gold_member_activity_monthly/latest/sample.md`
-- `review/gold_member_activity_monthly/latest/manifest.json`
-- `review/gold_member_activity_monthly/latest/schema.json`
-- `review/gold_member_activity_monthly/latest/dq.json`
+### `silver_bill_events`
+- `review/silver_bill_events/latest/sample.csv`
+- `review/silver_bill_events/latest/sample.md`
+- `review/silver_bill_events/latest/manifest.json`
+- `review/silver_bill_events/latest/schema.json`
+- `review/silver_bill_events/latest/dq.json`
 
-### `gold_member_activity_yearly`
-- `review/gold_member_activity_yearly/latest/sample.csv`
-- `review/gold_member_activity_yearly/latest/sample.md`
-- `review/gold_member_activity_yearly/latest/manifest.json`
-- `review/gold_member_activity_yearly/latest/schema.json`
-- `review/gold_member_activity_yearly/latest/dq.json`
+### `silver_bill_related_docs`
+- `review/silver_bill_related_docs/latest/sample.csv`
+- `review/silver_bill_related_docs/latest/sample.md`
+- `review/silver_bill_related_docs/latest/manifest.json`
+- `review/silver_bill_related_docs/latest/schema.json`
+- `review/silver_bill_related_docs/latest/dq.json`
 
-### `silver_debate_records`
-- `review/silver_debate_records/latest/sample.csv`
-- `review/silver_debate_records/latest/sample.md`
-- `review/silver_debate_records/latest/manifest.json`
-- `review/silver_debate_records/latest/schema.json`
-- `review/silver_debate_records/latest/dq.json`
+### `silver_bill_sponsors`
+- `review/silver_bill_sponsors/latest/sample.csv`
+- `review/silver_bill_sponsors/latest/sample.md`
+- `review/silver_bill_sponsors/latest/manifest.json`
+- `review/silver_bill_sponsors/latest/schema.json`
+- `review/silver_bill_sponsors/latest/dq.json`
 
-### `silver_debate_sections`
-- `review/silver_debate_sections/latest/sample.csv`
-- `review/silver_debate_sections/latest/sample.md`
-- `review/silver_debate_sections/latest/manifest.json`
-- `review/silver_debate_sections/latest/schema.json`
-- `review/silver_debate_sections/latest/dq.json`
+### `silver_bill_stages`
+- `review/silver_bill_stages/latest/sample.csv`
+- `review/silver_bill_stages/latest/sample.md`
+- `review/silver_bill_stages/latest/manifest.json`
+- `review/silver_bill_stages/latest/schema.json`
+- `review/silver_bill_stages/latest/dq.json`
 
-### `silver_division_tallies`
-- `review/silver_division_tallies/latest/sample.csv`
-- `review/silver_division_tallies/latest/sample.md`
-- `review/silver_division_tallies/latest/manifest.json`
-- `review/silver_division_tallies/latest/schema.json`
-- `review/silver_division_tallies/latest/dq.json`
+### `silver_bill_versions`
+- `review/silver_bill_versions/latest/sample.csv`
+- `review/silver_bill_versions/latest/sample.md`
+- `review/silver_bill_versions/latest/manifest.json`
+- `review/silver_bill_versions/latest/schema.json`
+- `review/silver_bill_versions/latest/dq.json`
 
-### `silver_divisions`
-- `review/silver_divisions/latest/sample.csv`
-- `review/silver_divisions/latest/sample.md`
-- `review/silver_divisions/latest/manifest.json`
-- `review/silver_divisions/latest/schema.json`
-- `review/silver_divisions/latest/dq.json`
+### `silver_bills`
+- `review/silver_bills/latest/sample.csv`
+- `review/silver_bills/latest/sample.md`
+- `review/silver_bills/latest/manifest.json`
+- `review/silver_bills/latest/schema.json`
+- `review/silver_bills/latest/dq.json`
 
-### `silver_member_constituencies`
-- `review/silver_member_constituencies/latest/sample.csv`
-- `review/silver_member_constituencies/latest/sample.md`
-- `review/silver_member_constituencies/latest/manifest.json`
-- `review/silver_member_constituencies/latest/schema.json`
-- `review/silver_member_constituencies/latest/dq.json`
+### `silver_constituencies`
+- `review/silver_constituencies/latest/sample.csv`
+- `review/silver_constituencies/latest/sample.md`
+- `review/silver_constituencies/latest/manifest.json`
+- `review/silver_constituencies/latest/schema.json`
+- `review/silver_constituencies/latest/dq.json`
 
-### `silver_member_memberships`
-- `review/silver_member_memberships/latest/sample.csv`
-- `review/silver_member_memberships/latest/sample.md`
-- `review/silver_member_memberships/latest/manifest.json`
-- `review/silver_member_memberships/latest/schema.json`
-- `review/silver_member_memberships/latest/dq.json`
+### `silver_parties`
+- `review/silver_parties/latest/sample.csv`
+- `review/silver_parties/latest/sample.md`
+- `review/silver_parties/latest/manifest.json`
+- `review/silver_parties/latest/schema.json`
+- `review/silver_parties/latest/dq.json`
 
-### `silver_member_offices`
-- `review/silver_member_offices/latest/sample.csv`
-- `review/silver_member_offices/latest/sample.md`
-- `review/silver_member_offices/latest/manifest.json`
-- `review/silver_member_offices/latest/schema.json`
-- `review/silver_member_offices/latest/dq.json`
-
-### `silver_member_parties`
-- `review/silver_member_parties/latest/sample.csv`
-- `review/silver_member_parties/latest/sample.md`
-- `review/silver_member_parties/latest/manifest.json`
-- `review/silver_member_parties/latest/schema.json`
-- `review/silver_member_parties/latest/dq.json`
-
-### `silver_member_votes`
-- `review/silver_member_votes/latest/sample.csv`
-- `review/silver_member_votes/latest/sample.md`
-- `review/silver_member_votes/latest/manifest.json`
-- `review/silver_member_votes/latest/schema.json`
-- `review/silver_member_votes/latest/dq.json`
-
-### `silver_members`
-- `review/silver_members/latest/sample.csv`
-- `review/silver_members/latest/sample.md`
-- `review/silver_members/latest/manifest.json`
-- `review/silver_members/latest/schema.json`
-- `review/silver_members/latest/dq.json`
-
-### `silver_questions`
-- `review/silver_questions/latest/sample.csv`
-- `review/silver_questions/latest/sample.md`
-- `review/silver_questions/latest/manifest.json`
-- `review/silver_questions/latest/schema.json`
-- `review/silver_questions/latest/dq.json`
-
-### `silver_speeches`
-- `review/silver_speeches/latest/sample.csv`
-- `review/silver_speeches/latest/sample.md`
-- `review/silver_speeches/latest/manifest.json`
-- `review/silver_speeches/latest/schema.json`
-- `review/silver_speeches/latest/dq.json`
+### `silver_source_files`
+- `review/silver_source_files/latest/sample.csv`
+- `review/silver_source_files/latest/sample.md`
+- `review/silver_source_files/latest/manifest.json`
+- `review/silver_source_files/latest/schema.json`
+- `review/silver_source_files/latest/dq.json`
