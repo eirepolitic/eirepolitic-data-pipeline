@@ -23,7 +23,9 @@ from .table_bill_stages import TABLE_NAME as BILL_STAGES_TABLE, build_silver_bil
 from .table_bill_versions import TABLE_NAME as BILL_VERSIONS_TABLE, build_silver_bill_versions
 from .table_bills import TABLE_NAME as BILLS_TABLE, build_silver_bills
 from .table_constituencies import TABLE_NAME as CONSTITUENCIES_TABLE, build_silver_constituencies
+from .table_control_data_quality_results import TABLE_NAME as CONTROL_DATA_QUALITY_RESULTS_TABLE, build_control_data_quality_results
 from .table_control_pipeline_runs import TABLE_NAME as CONTROL_PIPELINE_RUNS_TABLE, build_control_pipeline_runs
+from .table_control_table_manifests import TABLE_NAME as CONTROL_TABLE_MANIFESTS_TABLE, build_control_table_manifests
 from .table_debate_records import TABLE_NAME as DEBATE_RECORDS_TABLE, build_silver_debate_records
 from .table_debate_sections import TABLE_NAME as DEBATE_SECTIONS_TABLE, build_silver_debate_sections
 from .table_division_tallies import TABLE_NAME as DIVISION_TALLIES_TABLE, build_silver_division_tallies
@@ -188,6 +190,10 @@ def run_real_table(args: argparse.Namespace) -> int:
         result = build_gold_content_fact_pool(**filtered)
     elif args.table == CONTROL_PIPELINE_RUNS_TABLE:
         result = build_control_pipeline_runs(**filtered)
+    elif args.table == CONTROL_TABLE_MANIFESTS_TABLE:
+        result = build_control_table_manifests(**filtered)
+    elif args.table == CONTROL_DATA_QUALITY_RESULTS_TABLE:
+        result = build_control_data_quality_results(**filtered)
     else:
         payload = {"status": "validated", "message": "Real table execution is not implemented for this table yet.", "table": schema.name, "mode": args.mode, "layer": schema.layer, "cadence": schema.cadence, "primary_key": schema.primary_key, "columns": schema.columns, "endpoint": schema.endpoint}
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
