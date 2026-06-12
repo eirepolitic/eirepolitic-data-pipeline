@@ -63,6 +63,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, default=25, help="API/test row limit.")
     parser.add_argument("--sample-rows", type=int, default=10, help="Rows to publish in review sample.")
     parser.add_argument("--write-review-sample", action="store_true", help="Write review sample files when supported.")
+    parser.add_argument("--publish-latest", choices=("auto", "true", "false"), default="auto", help="Control writes to processed/oireachtas_unified/latest/*. auto disables latest for mode=test and enables it otherwise.")
     parser.add_argument("--list-tables", action="store_true", help="List configured tables and exit.")
     parser.add_argument("--config", default=str(DEFAULT_TABLES_CONFIG), help="Path to table registry YAML.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable output.")
@@ -71,6 +72,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--review-root", default=str(REVIEW_ROOT), help="Local review output root.")
     parser.add_argument("--github-repository", default=os.getenv("GITHUB_REPOSITORY", "eirepolitic/eirepolitic-data-pipeline"), help="owner/repo for raw review URL generation.")
     return parser
+
+
+def _publish_latest_enabled(args: argparse.Namespace) -> bool:
+    if args.publish_latest == "true":
+        return True
+    if args.publish_latest == "false":
+        return False
+    return args.mode != "test"
+
+
+def _set_latest_env(args: argparse.Namespace) -> bool:
+    enabled = _publish_latest_enabled(args)
+    os.environ["OIREACHTAS_PUBLISH_LATEST"] = "true" if enabled else "false"
+    return enabled
 
 
 def list_tables(config_path: str, *, as_json: bool = False) -> int:
@@ -126,6 +141,7 @@ def run_real_table(args: argparse.Namespace) -> int:
     if args.mode not in {"test", "full", "incremental", "backfill"}:
         print(f"ERROR: {args.table} does not support --mode {args.mode}.", file=sys.stderr)
         return 2
+    publish_latest = _set_latest_env(args)
     schema = get_table_schema(args.table, Path(args.config))
     s3 = make_s3_client(region_name=args.aws_region)
     client = OireachtasClient(timeout_seconds=30, retries=5, backoff_seconds=2.0, sleep_seconds=0.2)
@@ -199,8 +215,10 @@ def run_real_table(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
         return 0
 
+    result.manifest["publish_latest"] = publish_latest
+    result.manifest["latest_write_policy"] = "enabled" if publish_latest else "suppressed"
     review_dir = write_review_bundle(table=result.table, manifest=result.manifest, schema=result.schema, dq=result.dq, sample_rows=result.rows, root=Path(args.review_root))
-    print(f"TABLE={result.table}\nMODE={args.mode}\nROWS={result.manifest.get('output_rows')}\nCOLUMNS={len(result.schema.get('columns', []))}\nPRIMARY_KEY={','.join(result.schema.get('primary_key', []))}\nPRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}")
+    print(f"TABLE={result.table}\nMODE={args.mode}\nROWS={result.manifest.get('output_rows')}\nCOLUMNS={len(result.schema.get('columns', []))}\nPRIMARY_KEY={','.join(result.schema.get('primary_key', []))}\nPRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}\nPUBLISH_LATEST={str(publish_latest).lower()}")
     print(f"CSV_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('csv')}\nPARQUET_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('parquet')}\nMANIFEST_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('manifest')}")
     print(f"REVIEW_LOCAL_DIR={review_dir}\nREVIEW_SAMPLE_RAW_URL={raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=result.table, filename='manifest.json')}\nDQ_STATUS={result.dq.get('dq_status')}")
     return 0 if result.dq.get("dq_status") != "fail" else 1
