@@ -61,7 +61,7 @@ instagram/visuals/data_mappings/debate_issue_counts_s3.yml
 instagram/visuals/data_mappings/member_party_counts_s3.yml
 ```
 
-The standard preview workflow runs the local fixture mapping as a regression check and uploads `generated_visual_data/` as an artifact. S3 mappings are run only by the manual S3 smoke workflow.
+The standard preview workflow runs the local fixture mapping as a regression check and uploads `generated_visual_data/` as an artifact. S3 mappings run inside a non-blocking smoke step in the dispatchable media workflow.
 
 ## S3-backed visual smoke tests
 
@@ -74,12 +74,6 @@ The shared visual loader supports these input modes:
 
 S3 modes are for review-only smoke testing and future live-data bindings. They do not publish, schedule, or approve Instagram content.
 
-Manual smoke workflow:
-
-```text
-.github/workflows/instagram_visual_s3_smoke.yml
-```
-
 Mapped S3 samples:
 
 ```text
@@ -87,18 +81,31 @@ instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml
 instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml
 ```
 
-Run requirements:
+Run requirements for live S3 rendering:
 
-- workflow input `enabled=true`
 - repository secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 - bucket defaults to `eirepolitic-data`
 - region defaults to `ca-central-1`
 
-The standard multi-visual preview workflow remains fixture-based so contact-sheet regression tests stay deterministic.
+The dispatchable media workflow always writes this summary artifact:
+
+```text
+generated_visual_data/s3_smoke_status.json
+```
+
+Expected `status` values:
+
+```text
+succeeded
+skipped_missing_aws_credentials
+failed_non_blocking
+```
+
+The S3 smoke step is non-blocking. Fixture previews and contact sheets remain deterministic even if S3 is unavailable.
 
 ## Planned visual sequence
 
-- inspect real S3 schema output from the smoke workflow artifacts
+- inspect real S3 schema output from `generated_visual_data/s3_smoke_status.json` and mapping manifests
 - add more mapped S3 samples for approved visuals
 - real sourced image lookup/download workflow, gated by attribution and license review
 - final approval pass to remove `draft` from visual IDs
