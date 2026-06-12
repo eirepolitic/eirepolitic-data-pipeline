@@ -84,6 +84,7 @@ jobs:
           cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
           git -C /tmp/oireachtas-review-worktree add .
           git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas member profile trial review output for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
           git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"
 
       - name: Write workflow summary
