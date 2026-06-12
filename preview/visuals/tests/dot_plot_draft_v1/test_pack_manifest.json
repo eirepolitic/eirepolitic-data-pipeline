@@ -15,7 +15,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.120118+00:00",
+      "created_at": "2026-06-12T06:36:52.984427+00:00",
       "description": "Three-item minimal dot plot"
     },
     {
@@ -28,7 +28,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.148153+00:00",
+      "created_at": "2026-06-12T06:36:53.009054+00:00",
       "description": "Six-item standard dot plot"
     },
     {
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.179660+00:00",
+      "created_at": "2026-06-12T06:36:53.037484+00:00",
       "description": "Twelve items at template maximum"
     },
     {
@@ -56,7 +56,7 @@
       "warnings": [
         "truncated_rows:14->12"
       ],
-      "created_at": "2026-06-12T05:49:52.211396+00:00",
+      "created_at": "2026-06-12T06:36:53.066177+00:00",
       "description": "Fourteen items; should truncate to template max"
     },
     {
@@ -73,7 +73,7 @@
         "long_label:Emergency department waiting time ",
         "long_label:Public transport frequency complai"
       ],
-      "created_at": "2026-06-12T05:49:52.249494+00:00",
+      "created_at": "2026-06-12T06:36:53.100438+00:00",
       "description": "Long labels should truncate cleanly"
     },
     {
@@ -86,7 +86,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.277700+00:00",
+      "created_at": "2026-06-12T06:36:53.125675+00:00",
       "description": "Mixed categories and legend"
     },
     {
@@ -99,7 +99,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.303532+00:00",
+      "created_at": "2026-06-12T06:36:53.148782+00:00",
       "description": "Values close together"
     },
     {
@@ -112,7 +112,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.330485+00:00",
+      "created_at": "2026-06-12T06:36:53.172883+00:00",
       "description": "Values spanning several orders of magnitude"
     },
     {
@@ -125,7 +125,7 @@
       "width": 1080,
       "height": 860,
       "warnings": [],
-      "created_at": "2026-06-12T05:49:52.355256+00:00",
+      "created_at": "2026-06-12T06:36:53.194767+00:00",
       "description": "Includes zero values"
     },
     {
@@ -141,7 +141,7 @@
         "negative_values_present",
         "negative_values_present"
       ],
-      "created_at": "2026-06-12T05:49:52.380167+00:00",
+      "created_at": "2026-06-12T06:36:53.216414+00:00",
       "description": "Includes negative values and should warn"
     },
     {
@@ -157,7 +157,7 @@
         "missing_or_invalid_value:Party B",
         "missing_or_invalid_value:Party C"
       ],
-      "created_at": "2026-06-12T05:49:52.403819+00:00",
+      "created_at": "2026-06-12T06:36:53.236470+00:00",
       "description": "Missing and invalid values should warn"
     },
     {
@@ -175,7 +175,7 @@
         "long_label:Public transport frequency complai",
         "negative_values_present"
       ],
-      "created_at": "2026-06-12T05:49:52.451031+00:00",
+      "created_at": "2026-06-12T06:36:53.279658+00:00",
       "description": "Mixed categories, long labels, wide values, zero and negative values"
     }
   ]
