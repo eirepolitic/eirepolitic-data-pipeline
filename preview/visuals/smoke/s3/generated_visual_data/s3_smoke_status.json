@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "status": "succeeded",
+  "exit_code": 0,
+  "message": "Mapped S3 visual smoke render completed.",
+  "created_at": "2026-06-12T17:20:59.353194+00:00",
+  "review_only": true,
+  "publishes_content": false,
+  "bucket": "eirepolitic-data",
+  "region": "ca-central-1",
+  "preview_path": "preview/visuals/smoke/s3",
+  "outputs": {
+    "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
+    "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
+    "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
+    "member_parties_visual_root": "generated_visuals/s3_smoke/member_parties"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "visual_id": "donut_chart_s3_member_parties_draft_v1",
+  "template_id": "donut_chart_draft_v1",
+  "renderer": "donut_chart",
+  "created_at": "2026-06-12T17:20:59.202970+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "generated_visual_data/member_party_counts_s3.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_visual_data/member_party_counts_s3.csv",
+    "row_count": 10,
+    "sample_path": "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/donut_chart_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "s3_mapping": "member_party_counts_s3"
+  },
+  "source_note": "Source: mapped S3 member party data. Review-only; not for publication.",
+  "attribution": {
+    "source_name": "Eirepolitic S3 data bucket",
+    "source_url": "s3://eirepolitic-data/raw/members/oireachtas_members_34th_dail.csv",
+    "retrieved_at": "runtime",
+    "license": "internal review only",
+    "notes": "Prepared by process/instagram_prepare_visual_data.py. Smoke-test only."
+  },
+  "slice_count": 10,
+  "total": 176.0,
+  "rows_rendered": [
+    {
+      "label": "Fianna Fáil",
+      "value": 48.0
+    },
+    {
+      "label": "Fine Gael",
+      "value": 39.0
+    },
+    {
+      "label": "Sinn Féin",
+      "value": 39.0
+    },
+    {
+      "label": "Independent",
+      "value": 16.0
+    },
+    {
+      "label": "Social Democrats",
+      "value": 12.0
+    },
+    {
+      "label": "Labour Party",
+      "value": 11.0
+    },
+    {
+      "label": "Independent Ireland",
+      "value": 4.0
+    },
+    {
+      "label": "People Before Profit-Solidarity",
+      "value": 3.0
+    },
+    {
+      "label": "Aontú",
+      "value": 2.0
+    },
+    {
+      "label": "Other",
+      "value": 2.0
+    }
+  ],
+  "warnings": []
+}
