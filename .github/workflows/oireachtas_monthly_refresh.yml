@@ -8,10 +8,13 @@ on:
         required: true
         default: "test"
         type: choice
-        options:
-          - test
-          - incremental
-          - full
+        options: [test, incremental, full]
+      publish_latest:
+        description: "Write processed/oireachtas_unified/latest pointers"
+        required: true
+        default: "auto"
+        type: choice
+        options: [auto, true, false]
       tables:
         description: "Comma-separated table list"
         required: false
@@ -85,6 +88,7 @@ jobs:
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             mode="${{ inputs.mode }}"
+            publish_latest="${{ inputs.publish_latest }}"
             tables_csv="${{ inputs.tables }}"
             chamber="${{ inputs.chamber }}"
             house_no="${{ inputs.house_no }}"
@@ -94,26 +98,28 @@ jobs:
             sample_rows="${{ inputs.sample_rows }}"
           else
             mode="incremental"
+            publish_latest="auto"
             tables_csv="${DEFAULT_TABLES}"
             chamber="dail"
             house_no="34"
-            date_start="2025-01-01"
-            date_end="2025-01-31"
-            limit="100"
+            month_start="$(date -u +%Y-%m-01)"
+            date_start="$(date -u -d "${month_start} -1 month -7 days" +%F)"
+            date_end="$(date -u -d "${month_start} -1 day" +%F)"
+            limit="250"
             sample_rows="10"
           fi
 
+          echo "Window: ${date_start} to ${date_end}; mode=${mode}; publish_latest=${publish_latest}; limit=${limit}"
           IFS=',' read -ra tables <<< "${tables_csv}"
           : > oireachtas_monthly_refresh.log
           for table in "${tables[@]}"; do
             table="$(echo "${table}" | xargs)"
-            if [[ -z "${table}" ]]; then
-              continue
-            fi
+            if [[ -z "${table}" ]]; then continue; fi
             echo "===== TABLE ${table} =====" | tee -a oireachtas_monthly_refresh.log
             args=(
               --table "${table}"
               --mode "${mode}"
+              --publish-latest "${publish_latest}"
               --chamber "${chamber}"
               --house-no "${house_no}"
               --limit "${limit}"
@@ -124,12 +130,8 @@ jobs:
               --review-root "${REVIEW_OUTPUT_ROOT}"
               --github-repository "${GITHUB_REPOSITORY}"
             )
-            if [[ -n "${date_start}" ]]; then
-              args+=(--date-start "${date_start}")
-            fi
-            if [[ -n "${date_end}" ]]; then
-              args+=(--date-end "${date_end}")
-            fi
+            if [[ -n "${date_start}" ]]; then args+=(--date-start "${date_start}"); fi
+            if [[ -n "${date_end}" ]]; then args+=(--date-end "${date_end}"); fi
             python -m extract.oireachtas.build_table "${args[@]}" 2>&1 | tee -a oireachtas_monthly_refresh.log
           done
 
@@ -138,10 +140,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then
-            echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}; skipping branch publish."
-            exit 0
-          fi
+          if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}; skipping branch publish."; exit 0; fi
           rm -rf /tmp/oireachtas-review-worktree
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -170,11 +169,7 @@ jobs:
             echo "- Review branch: \`${REVIEW_BRANCH}\`"
             echo
             echo '```text'
-            if [[ -f oireachtas_monthly_refresh.log ]]; then
-              tail -n 120 oireachtas_monthly_refresh.log
-            else
-              echo "No monthly refresh log found."
-            fi
+            if [[ -f oireachtas_monthly_refresh.log ]]; then tail -n 120 oireachtas_monthly_refresh.log; else echo "No monthly refresh log found."; fi
             echo '```'
           } >> "${GITHUB_STEP_SUMMARY}"
 
