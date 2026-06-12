@@ -1,0 +1,11 @@
+dq_result_id,run_id,table_name,check_name,status,metric_value,threshold,message,created_at_utc
+dq:b24a023fc7ce392fe9099e63,silver_speeches_20260609T165808Z,silver_speeches,dq_status_pass,pass,,pass,dq_status=pass,2026-06-12T05:29:16+00:00
+dq:070e2556f7eeba50dfb307c0,silver_speeches_20260609T165808Z,silver_speeches,manifest_status_success,pass,,success,manifest status=success,2026-06-12T05:29:16+00:00
+dq:dfdb5b7f7fb3ae5128d0f538,silver_speeches_20260609T165808Z,silver_speeches,output_rows_gt_zero,pass,357,>0,output rows from manifest,2026-06-12T05:29:16+00:00
+dq:cb2271bf5112b5f461f56060,silver_speeches_20260609T165808Z,silver_speeches,primary_key_unique,pass,true,true,primary key uniqueness from manifest,2026-06-12T05:29:16+00:00
+dq:9463ca5347f63e2e315e608a,silver_speeches_20260609T165508Z,silver_speeches,dq_status_pass,pass,,pass,dq_status=pass,2026-06-12T05:29:16+00:00
+dq:b6af01f803c456db983ce467,silver_speeches_20260609T165508Z,silver_speeches,manifest_status_success,pass,,success,manifest status=success,2026-06-12T05:29:16+00:00
+dq:82a3cb5c8ea6dd1042a03dc8,silver_speeches_20260609T165508Z,silver_speeches,output_rows_gt_zero,pass,357,>0,output rows from manifest,2026-06-12T05:29:16+00:00
+dq:e8fbd87acba55a750f222a03,silver_speeches_20260609T165508Z,silver_speeches,primary_key_unique,pass,true,true,primary key uniqueness from manifest,2026-06-12T05:29:16+00:00
+dq:ed754f16d1eee75c2a77256c,silver_source_files_20260607T164455Z,silver_source_files,dq_status_pass,pass,,pass,dq_status=pass,2026-06-12T05:29:16+00:00
+dq:dc47f5893949ebaa4ffcdc48,silver_source_files_20260607T164455Z,silver_source_files,manifest_status_success,pass,,success,manifest status=success,2026-06-12T05:29:16+00:00
