@@ -2,12 +2,13 @@
 
 | division_tally_id | division_id | vote_code | vote_label | show_as | member_count | snapshot_date |
 | --- | --- | --- | --- | --- | --- | --- |
-| division_tally:ef4a6d7587b6979a525972c7 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_164 | ta | yes | Tá | 95 | 2026-06-12 |
-| division_tally:2da38b3b29f3f168244ce866 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_164 | nil | no | Níl | 77 | 2026-06-12 |
-| division_tally:527689b635f57ce61c9f0ffd | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_164 | staon | abstain | Staon | 0 | 2026-06-12 |
-| division_tally:097f66e25e1125ce799c94a5 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_2 | ta | yes | Tá | 95 | 2026-06-12 |
-| division_tally:61cd0f4f0b4597e7112d82e3 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_2 | nil | no | Níl | 76 | 2026-06-12 |
-| division_tally:cc35fa1b57a5b19d3f99701d | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_2 | staon | abstain | Staon | 0 | 2026-06-12 |
-| division_tally:294ba4ba5c84a71b9cc894cb | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_3 | ta | yes | Tá | 97 | 2026-06-12 |
-| division_tally:9127b002773d7e9ce4cb8633 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_3 | nil | no | Níl | 72 | 2026-06-12 |
-| division_tally:dd4f933a705ff86e4fa01a97 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-01-23/vote_3 | staon | abstain | Staon | 0 | 2026-06-12 |
+| division_tally:0b771e6ec775eb009b6e51a0 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130 | ta | yes | Tá | 68 | 2026-06-14 |
+| division_tally:ffe83d640f85e5faa0c120c0 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130 | nil | no | Níl | 78 | 2026-06-14 |
+| division_tally:241d4a346710538306076456 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130 | staon | abstain | Staon | 0 | 2026-06-14 |
+| division_tally:c73822831a00adf6a80d471a | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_131 | ta | yes | Tá | 102 | 2026-06-14 |
+| division_tally:629be274a76e583f207460c6 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_131 | nil | no | Níl | 45 | 2026-06-14 |
+| division_tally:9770c1fe7118a49a5b9b1c40 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_131 | staon | abstain | Staon | 0 | 2026-06-14 |
+| division_tally:d9c79f4be1a2c14bfafe60aa | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_132 | ta | yes | Tá | 102 | 2026-06-14 |
+| division_tally:39ae9ec276f8d6dd68b52b82 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_132 | nil | no | Níl | 44 | 2026-06-14 |
+| division_tally:91764a4205c8259c746cbe74 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_132 | staon | abstain | Staon | 0 | 2026-06-14 |
+| division_tally:90f6ba45855f4c48c4f7b382 | https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_133 | ta | yes | Tá | 68 | 2026-06-14 |
