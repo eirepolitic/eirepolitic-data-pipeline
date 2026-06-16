@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-06-12  
-**Current packet:** P07 — consumer smoke test planning
+**Last updated:** 2026-06-16  
+**Current packet:** P10 — production-sized unified refresh planning
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -18,6 +18,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Compatibility adapter workflow: `.github/workflows/oireachtas_compat_adapters.yml`
 - Member profile trial workflow: `.github/workflows/oireachtas_member_profile_trial.yml`
 - Compatibility comparison workflow: `.github/workflows/oireachtas_compat_comparison.yml`
+- Instagram consumer smoke workflow: `.github/workflows/oireachtas_instagram_consumer_smoke.yml`
 - AWS region: `ca-central-1`
 - S3 bucket: `eirepolitic-data`
 - Review branch: `oireachtas-review-output`
@@ -43,113 +44,89 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Confirmed production-hardening packets
 
-### P01 — latest publishing control
+- **P01 — latest publishing control**: workflow ID `287859326`, run `27431598142`, success, `mode=test` suppressed latest writes.
+- **P02 — dynamic date windows**: weekly/monthly/yearly scheduled windows are dynamic; manual date overrides remain available.
+- **P03 — downstream compatibility adapters**: workflow ID `294866317`, run `27431601110`, success, DQ pass; compat roster/vote outputs written under `processed/oireachtas_unified/compat/...`.
+- **P04 — side-by-side member profile trial**: workflow ID `294874303`, final run `27432417013`, success, DQ pass; trial metrics written under unified compat paths.
+- **P05 — compatibility adapter comparison report**: workflow ID `294874693`, run `27432358137`, success, DQ pass; row gaps expected from limited latest outputs.
+- **P06 — production readiness checklist**: `docs/oireachtas_production_readiness_checklist.md`; complete; cutover still not approved.
 
-- Files changed:
-  - `extract/oireachtas/io_s3.py`
-  - `extract/oireachtas/build_table.py`
-  - `.github/workflows/oireachtas_table_test.yml`
-  - `.github/workflows/oireachtas_weekly_refresh.yml`
-  - `.github/workflows/oireachtas_monthly_refresh.yml`
-  - `.github/workflows/oireachtas_yearly_refresh.yml`
-- Behavior:
-  - CLI option: `--publish-latest auto|true|false`.
-  - `auto` disables latest writes for `mode=test` and enables them for non-test modes.
-  - Shared S3 IO guard suppresses writes only under `processed/oireachtas_unified/latest/` when disabled.
-- Validation: workflow ID `287859326`, run `27431598142`, success, `publish_latest=false`, `latest_write_policy=suppressed`, DQ pass.
-
-### P02 — dynamic date windows
-
-- Weekly scheduled runs use rolling UTC `35 days ago` to today.
-- Monthly scheduled runs use previous full month plus 7-day overlap.
-- Yearly scheduled runs use previous calendar year.
-- Manual workflow dispatch still accepts explicit `date_start` and `date_end` overrides.
-- Workflows remain active after YAML updates.
-
-### P03 — downstream compatibility adapters
-
-- Files changed:
-  - `extract/oireachtas/downstream_compat.py`
-  - `.github/workflows/oireachtas_compat_adapters.yml`
-- Workflow ID: `294866317`
-- Validation run: `27431601110`; success; DQ pass.
-- Outputs:
-  - `processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv`
-  - `processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv`
-- Latest validation row counts:
-  - members roster compat: 10 rows
-  - member votes compat: 512 rows
-- No legacy S3 keys were overwritten.
-
-### P04 — side-by-side member profile trial
-
-- Files changed:
-  - `extract/oireachtas/member_profile_trial_report.py`
-  - `.github/workflows/oireachtas_member_profile_trial.yml`
-- Workflow ID: `294874303`
-- First run `27432354981` built trial/report successfully but failed during review-branch publish due concurrent branch update.
-- Patched workflow publish step with `git pull --rebase` before push.
-- Final validation run: `27432417013`; run number 2; success; DQ pass.
-- Trial outputs:
-  - `processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv`
-  - `processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet`
-- Review: `review/member_profile_metrics_trial/latest/{manifest.json,sample.csv,dq.json,report.md}`.
-- Latest trial summary: legacy rows 174, trial rows 10, matched legacy member codes 10, common columns 12.
-- No legacy metric keys were overwritten.
-
-### P05 — compatibility adapter comparison report
-
-- Files changed:
-  - `extract/oireachtas/compat_comparison.py`
-  - `.github/workflows/oireachtas_compat_comparison.yml`
-- Workflow ID: `294874693`
-- Validation run: `27432358137`; run number 1; success; DQ pass.
-- Review: `review/compat_adapter_comparison/latest/{manifest.json,sample.csv,dq.json,report.md}`.
-- Latest comparison summary:
-  - roster compat: 176 legacy rows, 10 compat rows, 10 matched keys, 166 legacy-only keys.
-  - member-votes compat: 30,968 legacy rows, 512 compat rows, 172 matched member codes, 1 legacy-only member code.
-- Row gaps are expected until production-sized unified latest outputs exist.
-
-### P06 — production readiness checklist
-
-- File: `docs/oireachtas_production_readiness_checklist.md`
-- Result: complete and updated after P04/P05 validation.
-- Still not approved for cutover.
-- Remaining required gate: consumer smoke test using trial/compat keys and explicit user approval.
-
-## Next packet batch
+## Confirmed consumer smoke packets
 
 ### P07 — consumer smoke test planning
 
-Goal:
+- File: `docs/oireachtas_consumer_smoke_test_plan.md`
+- Result: complete.
+- Selected safest first test: Instagram constituency local renderer with only the members roster input overridden to the unified compat roster.
+- No production defaults changed.
 
-- identify the safest downstream consumer smoke test path using trial/compat keys;
-- prefer environment-variable overrides or a dedicated trial workflow;
-- do not change production consumer defaults.
+### P08 — Instagram consumer smoke workflow
 
-### P08 — Instagram/member-profile consumer trial workflow
-
-Goal:
-
-- run a downstream preview/render or member-profile consumer workflow against trial/compat keys;
-- write outputs to trial locations or artifacts only;
-- do not publish or overwrite production outputs.
+- Files changed:
+  - `process/instagram_render_post.py`
+  - `.github/workflows/oireachtas_instagram_consumer_smoke.yml`
+- Workflow ID: `297114820`
+- Validation run: `27636367782`; run number 1; success.
+- Artifact: `oireachtas-instagram-consumer-smoke-output`; artifact ID `7674904547`.
+- Smoke configuration:
+  - constituency `Wicklow-Wexford`
+  - member `Brian Brennan`
+  - `INSTAGRAM_MEMBERS_DATASET_KEYS=processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv`
+- Validation confirmed generated context/slides and that the compat members S3 key was used.
+- Output remained artifact-only under `generated_posts_oireachtas_compat_trial/`.
+- Existing Instagram workflows and specs were not changed.
 
 ### P09 — final cutover request package
 
+- File: `docs/oireachtas_final_cutover_request_package.md`
+- Result: complete and updated after P08 validation.
+- Still not approved for cutover.
+- Exact approval phrase required before any cutover:
+
+```text
+Approved: cut over <consumer name> from legacy Oireachtas keys to unified compatibility outputs.
+```
+
+## Current caveats
+
+- Current compat/latest outputs are still sample-sized.
+- Latest validated roster compat count: 10 rows versus 176 legacy rows.
+- Latest validated member-votes compat count: 512 rows versus 30,968 legacy rows.
+- Deterministic unified outputs still do not replace classified debate issues, photo URL indexes, member summaries, or constituency image indexes.
+
+## Next packet batch
+
+### P10 — production-sized unified refresh planning
+
 Goal:
 
-- summarize validated evidence and known row-count gaps;
-- list exact consumer-specific changes that require approval;
-- stop before applying any cutover unless the user explicitly approves.
+- define safest production-sized refresh sequence for roster/votes/gold outputs;
+- keep latest publishing explicit and controlled;
+- avoid consumer cutover.
+
+### P11 — production-sized refresh dry run
+
+Goal:
+
+- run a limited but larger non-test refresh for required consumer tables;
+- publish latest only if using intended non-test mode;
+- validate row counts and DQ.
+
+### P12 — rerun adapters, comparisons, and consumer smoke after refresh
+
+Goal:
+
+- rebuild compatibility adapters from refreshed latest outputs;
+- rerun P04/P05/P08 validation;
+- update cutover package with refreshed evidence.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P07 consumer smoke test planning, then P08 Instagram/member-profile consumer trial workflow, then P09 final cutover request package.
+Start P10 production-sized unified refresh planning, then P11 production-sized refresh dry run, then P12 rerun adapters/comparisons/consumer smoke after refresh.
 Do not repoint downstream consumers or disable old workflows without explicit user approval.
-Latest validated runs: P04 member profile trial 27432417013, P05 compat comparison 27432358137.
-Current recommendation: do not cut over yet; run consumer smoke test first.
+Latest validated run: P08 Instagram consumer smoke 27636367782.
+Current recommendation: do not cut over yet; current compat outputs are still sample-sized.
 ```
