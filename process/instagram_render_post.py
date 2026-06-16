@@ -59,6 +59,14 @@ DATASET_CANDIDATES = {
     "constituency_images": ["processed/constituencies/constituency_images.csv"],
 }
 
+DATASET_ENV_OVERRIDES = {
+    "members": "INSTAGRAM_MEMBERS_DATASET_KEYS",
+    "member_summaries": "INSTAGRAM_MEMBER_SUMMARIES_DATASET_KEYS",
+    "member_photos": "INSTAGRAM_MEMBER_PHOTOS_DATASET_KEYS",
+    "debate_issues": "INSTAGRAM_DEBATE_ISSUES_DATASET_KEYS",
+    "constituency_images": "INSTAGRAM_CONSTITUENCY_IMAGES_DATASET_KEYS",
+}
+
 TEMPLATE_BY_TYPE = {
     "constituency_overview": "slide_overview.html",
     "top_issues": "slide_top_issues.html",
@@ -94,6 +102,15 @@ class S3CSVLoader:
             return pd.read_csv(io.StringIO(text))
         self.used_keys[label] = None
         return pd.DataFrame()
+
+
+def dataset_candidates() -> Dict[str, List[str]]:
+    candidates = {label: list(keys) for label, keys in DATASET_CANDIDATES.items()}
+    for label, env_name in DATASET_ENV_OVERRIDES.items():
+        raw = os.getenv(env_name, "").strip()
+        if raw:
+            candidates[label] = [part.strip() for part in raw.split(",") if part.strip()]
+    return candidates
 
 
 def strip_accents(text: str) -> str:
@@ -147,15 +164,7 @@ def safe_int(value: Any) -> int:
 
 
 def pick_issue_column(df_debate: pd.DataFrame) -> Optional[str]:
-    for candidate in [
-        "PoliticalIssues",
-        "political_issues",
-        "issue",
-        "Issue",
-        "issue_label",
-        "category",
-        "label",
-    ]:
+    for candidate in ["PoliticalIssues", "political_issues", "issue", "Issue", "issue_label", "category", "label"]:
         if candidate in df_debate.columns:
             return candidate
     return None
@@ -191,34 +200,18 @@ def build_member_table(df_members: pd.DataFrame, df_photos: pd.DataFrame, df_sum
     if not df_photos.empty:
         photos = df_photos.copy()
         if "member_code" in photos.columns and "photo_url" in photos.columns:
-            base = base.merge(
-                photos[["member_code", "photo_url"]].drop_duplicates(subset=["member_code"]),
-                on="member_code",
-                how="left",
-            )
+            base = base.merge(photos[["member_code", "photo_url"]].drop_duplicates(subset=["member_code"]), on="member_code", how="left")
         elif "full_name" in photos.columns and "photo_url" in photos.columns:
             photos["member_key"] = photos["full_name"].map(normalize_name)
-            base = base.merge(
-                photos[["member_key", "photo_url"]].drop_duplicates(subset=["member_key"]),
-                on="member_key",
-                how="left",
-            )
+            base = base.merge(photos[["member_key", "photo_url"]].drop_duplicates(subset=["member_key"]), on="member_key", how="left")
 
     if not df_summaries.empty:
         summaries = df_summaries.copy()
         if "member_code" in summaries.columns and "background" in summaries.columns:
-            base = base.merge(
-                summaries[["member_code", "background"]].drop_duplicates(subset=["member_code"]),
-                on="member_code",
-                how="left",
-            )
+            base = base.merge(summaries[["member_code", "background"]].drop_duplicates(subset=["member_code"]), on="member_code", how="left")
         elif "full_name" in summaries.columns and "background" in summaries.columns:
             summaries["member_key"] = summaries["full_name"].map(normalize_name)
-            base = base.merge(
-                summaries[["member_key", "background"]].drop_duplicates(subset=["member_key"]),
-                on="member_key",
-                how="left",
-            )
+            base = base.merge(summaries[["member_key", "background"]].drop_duplicates(subset=["member_key"]), on="member_key", how="left")
 
     return base
 
@@ -241,13 +234,7 @@ def build_issue_records(df_debate: pd.DataFrame, member_lookup: Dict[str, Dict[s
         member = member_lookup.get(speaker_key)
         if not member:
             continue
-        records.append(
-            {
-                "member_key": speaker_key,
-                "constituency_key": member.get("constituency_key"),
-                "issue": issue,
-            }
-        )
+        records.append({"member_key": speaker_key, "constituency_key": member.get("constituency_key"), "issue": issue})
     return records
 
 
@@ -290,24 +277,18 @@ def make_issue_rows(counter: Counter, limit: int) -> Tuple[List[Dict[str, Any]],
 
 
 def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, Any]:
-    datasets = {label: loader.read_first_csv(label, keys) for label, keys in DATASET_CANDIDATES.items()}
+    datasets = {label: loader.read_first_csv(label, keys) for label, keys in dataset_candidates().items()}
 
     df_members = build_member_table(datasets["members"], datasets["member_photos"], datasets["member_summaries"])
     constituency_name = spec["data"]["constituency"]
     constituency_key = normalize_constituency(constituency_name)
 
-    member_lookup = {
-        normalize_name(row.get("full_name")): row.to_dict()
-        for _, row in df_members.iterrows()
-        if str(row.get("full_name", "")).strip()
-    }
+    member_lookup = {normalize_name(row.get("full_name")): row.to_dict() for _, row in df_members.iterrows() if str(row.get("full_name", "")).strip()}
 
     members_in_constituency = df_members[df_members["constituency_key"] == constituency_key].copy()
     if members_in_constituency.empty:
         available = sorted(set(df_members.get("constituency", pd.Series(dtype=str)).dropna().astype(str).tolist()))[:20]
-        raise RuntimeError(
-            f"No members matched constituency '{constituency_name}'. Sample available constituencies: {available}"
-        )
+        raise RuntimeError(f"No members matched constituency '{constituency_name}'. Sample available constituencies: {available}")
 
     issue_records = build_issue_records(datasets["debate_issues"], member_lookup)
     constituency_issue_counts = issue_counts_from_records(issue_records, constituency_key=constituency_key)
@@ -357,10 +338,7 @@ def build_post_context(spec: Dict[str, Any], loader: S3CSVLoader) -> Dict[str, A
         "member_key": member_key,
     }
 
-    top_issue = {
-        "label": constituency_top_issue,
-        "count": int(constituency_issue_counts.most_common(1)[0][1]) if constituency_issue_counts else 0,
-    }
+    top_issue = {"label": constituency_top_issue, "count": int(constituency_issue_counts.most_common(1)[0][1]) if constituency_issue_counts else 0}
 
     datasets_used = []
     for label, key in loader.used_keys.items():
@@ -412,12 +390,7 @@ def render_slides(spec: Dict[str, Any], context: Dict[str, Any], output_dir: Pat
     html_dir = output_dir / "html"
     html_dir.mkdir(parents=True, exist_ok=True)
 
-    env = Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        autoescape=select_autoescape(["html", "xml"]),
-        trim_blocks=True,
-        lstrip_blocks=True,
-    )
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=select_autoescape(["html", "xml"]), trim_blocks=True, lstrip_blocks=True)
 
     rendered_paths: List[Path] = []
     enabled_slides = [slide for slide in spec["slides"] if slide.get("enabled", True)]
@@ -483,14 +456,7 @@ def main() -> None:
     html_paths = render_slides(spec, context, output_dir)
 
     if not args.skip_screenshots:
-        asyncio.run(
-            screenshot_html_files(
-                html_paths=html_paths,
-                output_dir=output_dir,
-                width=int(spec["post"]["slide_size"]["width"]),
-                height=int(spec["post"]["slide_size"]["height"]),
-            )
-        )
+        asyncio.run(screenshot_html_files(html_paths=html_paths, output_dir=output_dir, width=int(spec["post"]["slide_size"]["width"]), height=int(spec["post"]["slide_size"]["height"])))
 
     print(f"Done. Output folder: {output_dir}")
     for html_path in html_paths:
