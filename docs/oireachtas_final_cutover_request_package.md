@@ -1,12 +1,12 @@
 # Oireachtas final cutover request package
 
 **Status:** request package, not approval  
-**Last updated:** 2026-06-12  
+**Last updated:** 2026-06-16  
 **No cutover is approved by this document.**
 
 ## Current recommendation
 
-Do not repoint downstream consumers yet unless the consumer smoke test passes and the user explicitly approves the exact change.
+Do not repoint downstream consumers unless the user explicitly approves the exact consumer-specific change. The first Instagram consumer smoke test has passed, but row-count gaps remain because current unified latest outputs are still sample-sized.
 
 ## Evidence completed
 
@@ -21,6 +21,7 @@ Do not repoint downstream consumers yet unless the consumer smoke test passes an
 | Production checklist | P06 checklist added in `docs/oireachtas_production_readiness_checklist.md`. |
 | Consumer smoke plan | P07 plan added in `docs/oireachtas_consumer_smoke_test_plan.md`. |
 | Consumer smoke workflow | P08 workflow added in `.github/workflows/oireachtas_instagram_consumer_smoke.yml`. |
+| Consumer smoke validation | P08 run `27636367782`: Instagram renderer completed with compat members key and uploaded artifact `oireachtas-instagram-consumer-smoke-output`. |
 
 ## Exact trial keys
 
@@ -42,6 +43,27 @@ Current unified compat outputs are based on limited latest/test outputs, not ful
 | member profile metrics | 174 | 10 | Trial output follows limited compat roster. |
 
 These gaps are expected until a production-sized unified run refreshes the latest pointers.
+
+## Consumer smoke result
+
+The first Instagram consumer smoke test used:
+
+```bash
+INSTAGRAM_MEMBERS_DATASET_KEYS=processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+```
+
+Run result:
+
+```text
+Workflow ID: 297114820
+Run ID: 27636367782
+Run number: 1
+Status: success
+Artifact: oireachtas-instagram-consumer-smoke-output
+Artifact ID: 7674904547
+```
+
+The workflow rendered `Wicklow-Wexford` / `Brian Brennan` into `generated_posts_oireachtas_compat_trial/` and validated that the compat members S3 key was used.
 
 ## Consumer-specific change that would require approval
 
@@ -106,4 +128,4 @@ MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY=processed/members/parquets/member_prof
 
 ## Stop point
 
-Stop here unless explicit approval is provided. The next safe action is to run and review the Instagram consumer smoke test artifact.
+Stop here unless explicit approval is provided. The next safe action is to run a production-sized unified refresh, then rerun adapter comparison and smoke tests before any cutover.
