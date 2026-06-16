@@ -43,6 +43,7 @@ Sample PNGs:
 S3 smoke preview:
 - status: succeeded
 - status JSON: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/status/s3_smoke_status.json
+- schema profile JSON: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.json
 - smoke contact sheet: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
 - debate issue smoke PNGs: https://github.com/eirepolitic/eirepolitic-data-pipeline/tree/instagram-preview-output/preview/visuals/smoke/s3/visuals/debate_issues/png
 - member party smoke PNGs: https://github.com/eirepolitic/eirepolitic-data-pipeline/tree/instagram-preview-output/preview/visuals/smoke/s3/visuals/member_parties/png
