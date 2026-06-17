@@ -6,7 +6,7 @@
 
 ## Current recommendation
 
-The consumer smoke test passes after a production-sized unified refresh, but downstream cutover still requires explicit user approval for each consumer. Do not repoint production workflows until that approval is recorded.
+The consumer smoke test passes after a production-sized unified refresh, and the remaining member-code mismatches are identified. Downstream cutover still requires explicit user approval for each consumer. Do not repoint production workflows until that approval is recorded.
 
 ## Evidence completed
 
@@ -27,6 +27,8 @@ The consumer smoke test passes after a production-sized unified refresh, but dow
 | Post-refresh member profile trial | P12 trial run `27661985049`: success; trial profile metrics 174 rows; 172 matched legacy member codes. |
 | Post-refresh adapter comparison | P12 comparison run `27661990358`: success; roster 174/176 matched, vote member-code coverage 173 matched and 0 legacy-only member codes. |
 | Post-refresh Instagram smoke | P12 smoke run `27661992188`: success; artifact `oireachtas-instagram-consumer-smoke-output`, artifact ID `7684743075`. |
+| Remaining mismatch review | P13 run `27662884471`: success; mismatch report published under `review/member_code_mismatch_review/latest/`. |
+| Cutover patch preparation | P15 document `docs/oireachtas_approved_cutover_patch_plan.md`; documentation only, no production patch applied. |
 
 ## Current unified compatibility keys
 
@@ -45,7 +47,18 @@ processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025
 | member votes | 30,968 | 29,805 | 173 matched member-code keys, 0 legacy-only keys, 0 compat-only keys. |
 | member profile metrics | 174 | 174 | 172 matched member codes, 2 legacy-only, 2 trial-only. |
 
-The remaining row/key gaps should be reviewed before production cutover, but they are much smaller after the production-sized refresh.
+## Remaining member-code mismatches
+
+| Dataset | Side | Member code | Name | Party | Constituency |
+|---|---|---|---|---|---|
+| roster | legacy-only | `Catherine-Connolly.D.2016-10-03` | Catherine Connolly | Independent | Galway West |
+| roster | legacy-only | `Paschal-Donohoe.S.2007-07-23` | Paschal Donohoe | Fine Gael | Dublin Central |
+| member profile metrics | legacy-only | `Catherine-Connolly.D.2016-10-03` | Catherine Connolly | Independent | Galway West |
+| member profile metrics | legacy-only | `Paschal-Donohoe.S.2007-07-23` | Paschal Donohoe | Fine Gael | Dublin Central |
+| member profile metrics | trial-only | `Daniel-Ennis.D.2026-05-25` | Daniel Ennis | Social Democrats | Dublin Central |
+| member profile metrics | trial-only | `Seán-Kyne.D.2011-03-09` | Seán Kyne | Fine Gael | Galway West |
+
+Interpretation: the mismatch pattern is consistent with source freshness/member lifecycle differences rather than a deterministic build failure. Review the output artifact before production cutover.
 
 ## Consumer smoke result after refresh
 
@@ -131,4 +144,4 @@ MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY=processed/members/parquets/member_prof
 
 ## Stop point
 
-Stop here unless explicit approval is provided. The next safe packet is a documentation-only review of the remaining 2 roster/member-profile mismatches before cutover approval.
+Stop here unless explicit approval is provided. No cutover patch has been applied.
