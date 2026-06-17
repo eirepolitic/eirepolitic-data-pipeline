@@ -2,7 +2,7 @@
 
 Review-only schema snapshot for Instagram visual smoke mappings.
 
-- Created at: `2026-06-17T16:56:47.286399+00:00`
+- Created at: `2026-06-17T16:59:46.980697+00:00`
 - Profile count: `2`
 - Range bytes per file: `262144`
 - Sample rows per file: `25`
@@ -32,7 +32,7 @@ Review-only schema snapshot for Instagram visual smoke mappings.
 ### Mapping candidate matches
 
 - Transform `issue_category_counts` / `count_by`
-  - Label matches: _none_
+  - Label matches: `PoliticalIssues`
   - Value matches: _none_
 
 ### Sample column coverage

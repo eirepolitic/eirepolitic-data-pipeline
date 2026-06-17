@@ -1,0 +1,71 @@
+{
+  "visual_id": "horizontal_bar_s3_debate_issues_draft_v1",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-06-17T16:59:54.156583+00:00",
+  "input": {
+    "input_mode": "local_csv",
+    "source": "generated_visual_data/debate_issue_counts_s3.csv",
+    "resolved_source": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_visual_data/debate_issue_counts_s3.csv",
+    "row_count": 10,
+    "sample_path": "instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml",
+    "template_path": "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {
+    "batch_enabled": false,
+    "s3_mapping": "debate_issue_counts_s3"
+  },
+  "source_note": "Source: mapped S3 debate issue data. Review-only; not for publication.",
+  "attribution": {
+    "source_name": "Eirepolitic S3 data bucket",
+    "source_url": "s3://eirepolitic-data/processed/debates/debate_speeches_classified.csv",
+    "retrieved_at": "runtime",
+    "license": "internal review only",
+    "notes": "Prepared by process/instagram_prepare_visual_data.py. Smoke-test only."
+  },
+  "rows_rendered": [
+    {
+      "label": "Unclassified",
+      "value": 17935.0,
+      "group": ""
+    },
+    {
+      "label": "Other",
+      "value": 8627.0,
+      "group": ""
+    },
+    {
+      "label": "Housing and Community Development",
+      "value": 4146.0,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 3816.0,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 3045.0,
+      "group": ""
+    },
+    {
+      "label": "Law/Crime and Family Issues",
+      "value": 2153.0,
+      "group": ""
+    },
+    {
+      "label": "International Affairs and Foreign Aid",
+      "value": 1943.0,
+      "group": ""
+    }
+  ],
+  "warnings": [
+    "truncated_rows:10->7"
+  ]
+}

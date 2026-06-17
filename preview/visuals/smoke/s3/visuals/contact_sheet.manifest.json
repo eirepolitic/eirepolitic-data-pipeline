@@ -1,0 +1,90 @@
+{
+  "success": true,
+  "created_at": "2026-06-17T17:00:00.996500+00:00",
+  "review_only": true,
+  "publishes_content": false,
+  "input_root": "generated_visuals/s3_smoke",
+  "contact_sheet": "generated_visuals/s3_smoke/contact_sheet.png",
+  "case_count": 4,
+  "cases": [
+    {
+      "visual_id": "donut_chart_s3_member_parties_draft_v1",
+      "label": "Member party counts · donut",
+      "output_png": "generated_visuals/s3_smoke/member_parties_donut_chart/png/donut_chart_s3_member_parties_draft_v1.png",
+      "warnings": [],
+      "manifest_path": "generated_visuals/s3_smoke/member_parties_donut_chart/manifests/donut_chart_s3_member_parties_draft_v1.render_manifest.json"
+    },
+    {
+      "visual_id": "horizontal_bar_s3_debate_issues_draft_v1",
+      "label": "Debate issue counts · horizontal bar",
+      "output_png": "generated_visuals/s3_smoke/debate_issues_horizontal_bar/png/horizontal_bar_s3_debate_issues_draft_v1.png",
+      "warnings": [
+        "truncated_rows:10->7"
+      ],
+      "manifest_path": "generated_visuals/s3_smoke/debate_issues_horizontal_bar/manifests/horizontal_bar_s3_debate_issues_draft_v1.render_manifest.json"
+    },
+    {
+      "visual_id": "horizontal_bar_s3_member_parties_draft_v1",
+      "label": "Member party counts · horizontal bar",
+      "output_png": "generated_visuals/s3_smoke/member_parties_horizontal_bar/png/horizontal_bar_s3_member_parties_draft_v1.png",
+      "warnings": [
+        "truncated_rows:10->7"
+      ],
+      "manifest_path": "generated_visuals/s3_smoke/member_parties_horizontal_bar/manifests/horizontal_bar_s3_member_parties_draft_v1.render_manifest.json"
+    },
+    {
+      "visual_id": "vertical_bar_s3_debate_issues_draft_v1",
+      "label": "Debate issue counts · vertical bar",
+      "output_png": "generated_visuals/s3_smoke/debate_issues_vertical_bar/png/vertical_bar_s3_debate_issues_draft_v1.png",
+      "warnings": [
+        "long_label:Housing and Community Developm",
+        "long_label:International Affairs and Fore",
+        "long_label:Labor, Employment and Immigrat",
+        "truncated_rows:10->8"
+      ],
+      "manifest_path": "generated_visuals/s3_smoke/debate_issues_vertical_bar/manifests/vertical_bar_s3_debate_issues_draft_v1.render_manifest.json"
+    }
+  ],
+  "sample_render_manifest": {
+    "success": true,
+    "sample_count": 4,
+    "results": [
+      {
+        "id": "debate_issues_horizontal_bar",
+        "sample": "instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml",
+        "output_root": "generated_visuals/s3_smoke/debate_issues_horizontal_bar",
+        "returncode": 0,
+        "stdout": "{\n  \"success\": true,\n  \"visual_id\": \"horizontal_bar_s3_debate_issues_draft_v1\",\n  \"template_id\": \"horizontal_bar_draft_v1\",\n  \"renderer\": \"horizontal_bar\",\n  \"output_png\": \"generated_visuals/s3_smoke/debate_issues_horizontal_bar/png/horizontal_bar_s3_debate_issues_draft_v1.png\",\n  \"metadata_path\": \"generated_visuals/s3_smoke/debate_issues_horizontal_bar/metadata/horizontal_bar_s3_debate_issues_draft_v1.json\",\n  \"width\": 1080,\n  \"height\": 860,\n  \"warnings\": [\n    \"truncated_rows:10->7\"\n  ],\n  \"created_at\": \"2026-06-17T16:59:57.283407+00:00\"\n}\n",
+        "stderr": "",
+        "success": true
+      },
+      {
+        "id": "debate_issues_vertical_bar",
+        "sample": "instagram/visuals/samples/vertical_bar_s3_debate_issues_draft_v1.sample.yml",
+        "output_root": "generated_visuals/s3_smoke/debate_issues_vertical_bar",
+        "returncode": 0,
+        "stdout": "{\n  \"success\": true,\n  \"visual_id\": \"vertical_bar_s3_debate_issues_draft_v1\",\n  \"template_id\": \"vertical_bar_draft_v1\",\n  \"renderer\": \"vertical_bar\",\n  \"output_png\": \"generated_visuals/s3_smoke/debate_issues_vertical_bar/png/vertical_bar_s3_debate_issues_draft_v1.png\",\n  \"metadata_path\": \"generated_visuals/s3_smoke/debate_issues_vertical_bar/metadata/vertical_bar_s3_debate_issues_draft_v1.json\",\n  \"width\": 1080,\n  \"height\": 860,\n  \"warnings\": [\n    \"long_label:Housing and Community Developm\",\n    \"long_label:International Affairs and Fore\",\n    \"long_label:Labor, Employment and Immigrat\",\n    \"truncated_rows:10->8\"\n  ],\n  \"created_at\": \"2026-06-17T16:59:58.421918+00:00\"\n}\n",
+        "stderr": "",
+        "success": true
+      },
+      {
+        "id": "member_parties_donut_chart",
+        "sample": "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml",
+        "output_root": "generated_visuals/s3_smoke/member_parties_donut_chart",
+        "returncode": 0,
+        "stdout": "{\n  \"success\": true,\n  \"visual_id\": \"donut_chart_s3_member_parties_draft_v1\",\n  \"template_id\": \"donut_chart_draft_v1\",\n  \"renderer\": \"donut_chart\",\n  \"output_png\": \"generated_visuals/s3_smoke/member_parties_donut_chart/png/donut_chart_s3_member_parties_draft_v1.png\",\n  \"metadata_path\": \"generated_visuals/s3_smoke/member_parties_donut_chart/metadata/donut_chart_s3_member_parties_draft_v1.json\",\n  \"width\": 1080,\n  \"height\": 860,\n  \"warnings\": [],\n  \"created_at\": \"2026-06-17T16:59:59.504467+00:00\"\n}\n",
+        "stderr": "",
+        "success": true
+      },
+      {
+        "id": "member_parties_horizontal_bar",
+        "sample": "instagram/visuals/samples/horizontal_bar_s3_member_parties_draft_v1.sample.yml",
+        "output_root": "generated_visuals/s3_smoke/member_parties_horizontal_bar",
+        "returncode": 0,
+        "stdout": "{\n  \"success\": true,\n  \"visual_id\": \"horizontal_bar_s3_member_parties_draft_v1\",\n  \"template_id\": \"horizontal_bar_draft_v1\",\n  \"renderer\": \"horizontal_bar\",\n  \"output_png\": \"generated_visuals/s3_smoke/member_parties_horizontal_bar/png/horizontal_bar_s3_member_parties_draft_v1.png\",\n  \"metadata_path\": \"generated_visuals/s3_smoke/member_parties_horizontal_bar/metadata/horizontal_bar_s3_member_parties_draft_v1.json\",\n  \"width\": 1080,\n  \"height\": 860,\n  \"warnings\": [\n    \"truncated_rows:10->7\"\n  ],\n  \"created_at\": \"2026-06-17T17:00:00.634809+00:00\"\n}\n",
+        "stderr": "",
+        "success": true
+      }
+    ]
+  }
+}

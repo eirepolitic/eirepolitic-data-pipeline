@@ -2,8 +2,8 @@
 
 Review-only readiness check for S3-backed Instagram visual mappings.
 
-- Created at: `2026-06-17T16:56:48.481509+00:00`
-- Overall ready: `False`
+- Created at: `2026-06-17T16:59:48.094526+00:00`
+- Overall ready: `True`
 - Profile count: `2`
 - Failure scope: readiness failures mark only the non-blocking S3 smoke status as failed.
 - Publishing: this does not publish, schedule, or approve Instagram content.
@@ -12,17 +12,13 @@ Review-only readiness check for S3-backed Instagram visual mappings.
 
 - Config: `instagram/visuals/data_mappings/debate_issue_counts_s3.yml`
 - S3 key: `processed/debates/debate_speeches_classified.csv`
-- Ready: `False`
-
-### Errors
-
-- issue_category_counts: No configured label field candidate matched the S3 schema.
+- Ready: `True`
 
 ### Transform checks
 
 | Transform | Operation | Ready | Label matches | Value matches |
 | --- | --- | --- | --- | --- |
-| `issue_category_counts` | `count_by` | `False` | _none_ | _none_ |
+| `issue_category_counts` | `count_by` | `True` | `PoliticalIssues` | _none_ |
 
 ## member_party_counts_s3
 

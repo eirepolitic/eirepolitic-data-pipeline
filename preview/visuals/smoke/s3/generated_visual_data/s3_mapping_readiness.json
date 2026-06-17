@@ -1,7 +1,7 @@
 {
-  "success": false,
-  "ready": false,
-  "created_at": "2026-06-17T16:56:48.481509+00:00",
+  "success": true,
+  "ready": true,
+  "created_at": "2026-06-17T16:59:48.094526+00:00",
   "review_only": true,
   "publishes_content": false,
   "profile_path": "generated_visual_data/s3_schema_profile.json",
@@ -11,10 +11,8 @@
       "mapping_id": "debate_issue_counts_s3",
       "config_path": "instagram/visuals/data_mappings/debate_issue_counts_s3.yml",
       "s3_key": "processed/debates/debate_speeches_classified.csv",
-      "ready": false,
-      "errors": [
-        "issue_category_counts: No configured label field candidate matched the S3 schema."
-      ],
+      "ready": true,
+      "errors": [],
       "warnings": [],
       "transform_checks": [
         {
@@ -24,19 +22,20 @@
             "label": true,
             "value": false
           },
-          "ready": false,
-          "errors": [
-            "No configured label field candidate matched the S3 schema."
-          ],
+          "ready": true,
+          "errors": [],
           "warnings": [],
           "label_candidates": [
+            "PoliticalIssues",
             "issue_category",
             "issue",
             "topic",
             "category",
             "label"
           ],
-          "label_matches": [],
+          "label_matches": [
+            "PoliticalIssues"
+          ],
           "value_candidates": [],
           "value_matches": []
         }
