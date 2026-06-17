@@ -109,6 +109,7 @@ preview/visuals/smoke/s3/status/s3_smoke_status.json
 preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
 preview/visuals/smoke/s3/contact_sheet/contact_sheet.manifest.json
 preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.json
+preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.md
 preview/visuals/smoke/s3/generated_visual_data/
 preview/visuals/smoke/s3/visuals/debate_issues/
 preview/visuals/smoke/s3/visuals/member_parties/
@@ -121,6 +122,14 @@ process/instagram_profile_s3_visual_data.py \
   --config instagram/visuals/data_mappings/debate_issue_counts_s3.yml \
   --config instagram/visuals/data_mappings/member_party_counts_s3.yml \
   --output generated_visual_data/s3_schema_profile.json
+```
+
+Build the readable Markdown summary after creating the JSON profile:
+
+```text
+process/instagram_summarize_s3_schema_profile.py \
+  --profile generated_visual_data/s3_schema_profile.json \
+  --output generated_visual_data/s3_schema_profile.md
 ```
 
 The schema profile uses S3 range reads and records:
@@ -149,7 +158,7 @@ The S3 smoke step is non-blocking. Fixture previews and contact sheets remain de
 
 ## Planned visual sequence
 
-- inspect real S3 schema output from `generated_visual_data/s3_schema_profile.json`, `generated_visual_data/s3_smoke_status.json`, and mapping manifests
+- inspect real S3 schema output from `generated_visual_data/s3_schema_profile.md`, `generated_visual_data/s3_schema_profile.json`, `generated_visual_data/s3_smoke_status.json`, and mapping manifests
 - add more mapped S3 samples for approved visuals
 - real sourced image lookup/download workflow, gated by attribution and license review
 - final approval pass to remove `draft` from visual IDs
