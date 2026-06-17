@@ -16,6 +16,13 @@ if str(REPO_ROOT) not in sys.path:
 from instagram.renderer.constants import FONT_CANDIDATES
 from instagram.visuals.renderers.common import utc_now, write_json
 
+LABELS = {
+    "horizontal_bar_s3_debate_issues_draft_v1": "Debate issue counts · horizontal bar",
+    "vertical_bar_s3_debate_issues_draft_v1": "Debate issue counts · vertical bar",
+    "donut_chart_s3_member_parties_draft_v1": "Member party counts · donut",
+    "horizontal_bar_s3_member_parties_draft_v1": "Member party counts · horizontal bar",
+}
+
 
 def _font(kind: str, size: int) -> ImageFont.ImageFont:
     key = "bold" if kind == "bold" else "regular"
@@ -41,38 +48,28 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _find_manifest(root: Path) -> dict[str, Any] | None:
-    manifest_dir = root / "manifests"
-    candidates = sorted(manifest_dir.glob("*.render_manifest.json")) if manifest_dir.exists() else []
-    if not candidates:
-        return None
-    return _load_manifest(candidates[0])
+def _find_manifests(input_root: Path) -> list[dict[str, Any]]:
+    candidates = sorted(input_root.glob("*/manifests/*.render_manifest.json"))
+    manifests = [_load_manifest(path) for path in candidates]
+    return sorted(manifests, key=lambda item: str(item.get("visual_id") or item.get("manifest_path") or ""))
 
 
 def _manifest_label(manifest: dict[str, Any], fallback: str) -> str:
     visual_id = str(manifest.get("visual_id") or fallback)
-    if visual_id == "horizontal_bar_s3_debate_issues_draft_v1":
-        return "Debate issue counts"
-    if visual_id == "donut_chart_s3_member_parties_draft_v1":
-        return "Member party counts"
-    return visual_id.replace("_", " ")
+    return LABELS.get(visual_id, visual_id.replace("_", " "))
 
 
 def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path) -> dict[str, Any]:
     input_root = Path(input_root)
     output_path = Path(output_path)
-    smoke_roots = [
-        input_root / "debate_issues",
-        input_root / "member_parties",
-    ]
-    manifests = [manifest for root in smoke_roots if (manifest := _find_manifest(root))]
+    manifests = _find_manifests(input_root)
     if not manifests:
         raise FileNotFoundError(f"No S3 smoke render manifests found under {input_root}")
 
     columns = min(2, len(manifests))
     tile_width = 640
     image_height = 520
-    header_height = 102
+    header_height = 106
     footer_height = 54
     tile_height = header_height + image_height + footer_height
     gap = 24
@@ -86,7 +83,7 @@ def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path
     draw = ImageDraw.Draw(sheet)
     title_font = _font("bold", 34)
     subtitle_font = _font("regular", 22)
-    case_font = _font("bold", 26)
+    case_font = _font("bold", 25)
     note_font = _font("regular", 18)
 
     draw.text((margin, margin), "S3 smoke visual preview", font=title_font, fill="#f4ead7")
@@ -111,9 +108,9 @@ def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path
         label = _manifest_label(manifest, visual_id)
 
         draw.rounded_rectangle((x, y, x + tile_width, y + tile_height), radius=20, fill="#173d30", outline="#f4ead7", width=2)
-        draw.text((x + 18, y + 14), label, font=case_font, fill="#f4ead7")
-        draw.text((x + 18, y + 48), visual_id, font=note_font, fill="#cbbf9f")
-        draw.text((x + 18, y + 74), warning_text[:92], font=note_font, fill="#cbbf9f")
+        draw.text((x + 18, y + 14), label[:52], font=case_font, fill="#f4ead7")
+        draw.text((x + 18, y + 49), visual_id[:72], font=note_font, fill="#cbbf9f")
+        draw.text((x + 18, y + 76), warning_text[:92], font=note_font, fill="#cbbf9f")
 
         image = Image.open(output_png).convert("RGB")
         thumb = _fit_thumbnail(image, tile_width - 28, image_height - 28)
