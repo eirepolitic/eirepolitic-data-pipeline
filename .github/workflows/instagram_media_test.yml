@@ -120,6 +120,8 @@ jobs:
               "outputs": {
                   "schema_profile": "generated_visual_data/s3_schema_profile.json",
                   "schema_profile_summary": "generated_visual_data/s3_schema_profile.md",
+                  "mapping_readiness": "generated_visual_data/s3_mapping_readiness.json",
+                  "mapping_readiness_summary": "generated_visual_data/s3_mapping_readiness.md",
                   "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
                   "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
                   "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
@@ -142,6 +144,7 @@ jobs:
 
           set +e
           {
+            set -e
             echo "AWS credentials detected. Running review-only S3 visual data mapping."
             python process/instagram_profile_s3_visual_data.py \
               --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml" \
@@ -150,6 +153,11 @@ jobs:
             python process/instagram_summarize_s3_schema_profile.py \
               --profile "generated_visual_data/s3_schema_profile.json" \
               --output "generated_visual_data/s3_schema_profile.md"
+            python process/instagram_check_s3_mapping_readiness.py \
+              --profile "generated_visual_data/s3_schema_profile.json" \
+              --output-json "generated_visual_data/s3_mapping_readiness.json" \
+              --output-markdown "generated_visual_data/s3_mapping_readiness.md" \
+              --fail-on-not-ready
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml"
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/member_party_counts_s3.yml"
             python process/instagram_render_visual.py \
@@ -166,9 +174,9 @@ jobs:
           set -e
 
           if [[ "${smoke_exit}" -eq 0 ]]; then
-            write_status "succeeded" 0 "Mapped S3 visual smoke render, schema profile, schema summary, and contact sheet completed."
+            write_status "succeeded" 0 "Mapped S3 visual smoke render, schema profile, mapping readiness, schema summary, and contact sheet completed."
           else
-            write_status "failed_non_blocking" "${smoke_exit}" "Mapped S3 visual smoke render failed; main fixture preview workflow continued."
+            write_status "failed_non_blocking" "${smoke_exit}" "Mapped S3 visual smoke render or mapping readiness check failed; main fixture preview workflow continued."
           fi
           exit 0
         env:
@@ -212,6 +220,8 @@ jobs:
               f"- Status artifact: `{status_path}`",
               f"- Schema profile artifact: `generated_visual_data/s3_schema_profile.json`",
               f"- Schema profile summary: `generated_visual_data/s3_schema_profile.md`",
+              f"- Mapping readiness artifact: `generated_visual_data/s3_mapping_readiness.json`",
+              f"- Mapping readiness summary: `generated_visual_data/s3_mapping_readiness.md`",
               f"- Smoke preview path: `{payload.get('preview_path', 'preview/visuals/smoke/s3')}`",
               "",
               "Review-only: this does not publish, schedule, or approve Instagram content.",
@@ -277,12 +287,13 @@ jobs:
           )
           fi
 
+          mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data"
+          cp generated_visual_data/*s3* "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/" 2>/dev/null || true
+
           if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
             mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals"
-            mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data"
             mkdir -p "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet"
             cp -R "generated_visuals/s3_smoke/." "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/visuals/"
-            cp generated_visual_data/*s3* "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/" 2>/dev/null || true
             cp "generated_visuals/s3_smoke/contact_sheet.png" "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
             cp "generated_visuals/s3_smoke/contact_sheet.manifest.json" "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.manifest.json"
           fi
@@ -336,10 +347,17 @@ jobs:
               f"- status: {s3_smoke_status}",
               f"- status JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/status/s3_smoke_status.json",
           ]
+          s3_data_dir = root / "smoke" / "s3" / "generated_visual_data"
+          if (s3_data_dir / "s3_mapping_readiness.md").exists():
+              lines.append(f"- mapping readiness summary: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_mapping_readiness.md")
+          if (s3_data_dir / "s3_mapping_readiness.json").exists():
+              lines.append(f"- mapping readiness JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_mapping_readiness.json")
+          if (s3_data_dir / "s3_schema_profile.md").exists():
+              lines.append(f"- schema profile summary: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.md")
+          if (s3_data_dir / "s3_schema_profile.json").exists():
+              lines.append(f"- schema profile JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.json")
           if s3_smoke_status == "succeeded":
               lines += [
-                  f"- schema profile summary: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.md",
-                  f"- schema profile JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.json",
                   f"- smoke contact sheet: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.png",
                   f"- debate issue smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/debate_issues/png",
                   f"- member party smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/member_parties/png",
@@ -363,9 +381,19 @@ jobs:
             echo
             echo "- Status: \`${S3_SMOKE_STATUS}\`"
             echo "- Status JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/status/s3_smoke_status.json"
-            if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
+            if [[ -f "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/s3_mapping_readiness.md" ]]; then
+              echo "- Mapping readiness summary: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_mapping_readiness.md"
+            fi
+            if [[ -f "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/s3_mapping_readiness.json" ]]; then
+              echo "- Mapping readiness JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_mapping_readiness.json"
+            fi
+            if [[ -f "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.md" ]]; then
               echo "- Schema profile summary: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.md"
+            fi
+            if [[ -f "/tmp/instagram-visual-preview-worktree/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.json" ]]; then
               echo "- Schema profile JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.json"
+            fi
+            if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
               echo "- Smoke contact sheet: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
               echo "- Debate issue smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues/png"
               echo "- Member party smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties/png"
