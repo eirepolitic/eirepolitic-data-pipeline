@@ -15,6 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from instagram.renderer.constants import FONT_CANDIDATES
 from instagram.visuals.renderers.common import utc_now, write_json
+from process.instagram_render_s3_smoke_samples import SMOKE_SAMPLES, run_samples
 
 LABELS = {
     "horizontal_bar_s3_debate_issues_draft_v1": "Debate issue counts · horizontal bar",
@@ -48,9 +49,19 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _canonical_output_roots(input_root: Path) -> set[Path]:
+    return {(REPO_ROOT / sample["output_root"]).resolve() for sample in SMOKE_SAMPLES if sample["output_root"].startswith(str(input_root)) or "generated_visuals/s3_smoke" in sample["output_root"]}
+
+
 def _find_manifests(input_root: Path) -> list[dict[str, Any]]:
     candidates = sorted(input_root.glob("*/manifests/*.render_manifest.json"))
     manifests = [_load_manifest(path) for path in candidates]
+
+    canonical_visual_ids = set(LABELS)
+    canonical_manifests = [manifest for manifest in manifests if str(manifest.get("visual_id") or "") in canonical_visual_ids]
+    if canonical_manifests:
+        manifests = canonical_manifests
+
     return sorted(manifests, key=lambda item: str(item.get("visual_id") or item.get("manifest_path") or ""))
 
 
@@ -59,9 +70,16 @@ def _manifest_label(manifest: dict[str, Any], fallback: str) -> str:
     return LABELS.get(visual_id, visual_id.replace("_", " "))
 
 
-def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path) -> dict[str, Any]:
+def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path, render_samples: bool = True) -> dict[str, Any]:
     input_root = Path(input_root)
     output_path = Path(output_path)
+
+    sample_render_manifest: dict[str, Any] | None = None
+    if render_samples:
+        sample_render_manifest = run_samples(SMOKE_SAMPLES)
+        sample_manifest_path = input_root / "smoke_samples.manifest.json"
+        write_json(sample_manifest_path, sample_render_manifest)
+
     manifests = _find_manifests(input_root)
     if not manifests:
         raise FileNotFoundError(f"No S3 smoke render manifests found under {input_root}")
@@ -141,6 +159,7 @@ def build_s3_smoke_contact_sheet(input_root: str | Path, output_path: str | Path
         "contact_sheet": str(output_path),
         "case_count": len(rendered_cases),
         "cases": rendered_cases,
+        "sample_render_manifest": sample_render_manifest,
     }
     manifest_path = output_path.with_suffix(".manifest.json")
     write_json(manifest_path, contact_manifest)
@@ -151,12 +170,13 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build a contact sheet for mapped S3 smoke visual renders.")
     parser.add_argument("--input-root", default="generated_visuals/s3_smoke")
     parser.add_argument("--output", default="generated_visuals/s3_smoke/contact_sheet.png")
+    parser.add_argument("--skip-render-samples", action="store_true", default=False)
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    result = build_s3_smoke_contact_sheet(args.input_root, args.output)
+    result = build_s3_smoke_contact_sheet(args.input_root, args.output, render_samples=not args.skip_render_samples)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
