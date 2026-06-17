@@ -101,16 +101,25 @@ skipped_missing_aws_credentials
 failed_non_blocking
 ```
 
-When S3 smoke succeeds, the preview workflow also publishes the smoke-only outputs separately:
+The S3 smoke step is non-blocking. Fixture previews and contact sheets remain deterministic even if S3 is unavailable or a mapping-readiness check fails.
+
+When S3 smoke has diagnostics, the preview workflow publishes S3 diagnostic outputs separately:
 
 ```text
 branch: instagram-preview-output
 preview/visuals/smoke/s3/status/s3_smoke_status.json
-preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
-preview/visuals/smoke/s3/contact_sheet/contact_sheet.manifest.json
 preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.json
 preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.md
+preview/visuals/smoke/s3/generated_visual_data/s3_mapping_readiness.json
+preview/visuals/smoke/s3/generated_visual_data/s3_mapping_readiness.md
 preview/visuals/smoke/s3/generated_visual_data/
+```
+
+When S3 smoke succeeds, it also publishes rendered smoke visuals:
+
+```text
+preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
+preview/visuals/smoke/s3/contact_sheet/contact_sheet.manifest.json
 preview/visuals/smoke/s3/visuals/debate_issues/
 preview/visuals/smoke/s3/visuals/member_parties/
 ```
@@ -130,6 +139,25 @@ Build the readable Markdown summary after creating the JSON profile:
 process/instagram_summarize_s3_schema_profile.py \
   --profile generated_visual_data/s3_schema_profile.json \
   --output generated_visual_data/s3_schema_profile.md
+```
+
+Check whether mapped S3 visual configs are ready to render:
+
+```text
+process/instagram_check_s3_mapping_readiness.py \
+  --profile generated_visual_data/s3_schema_profile.json \
+  --output-json generated_visual_data/s3_mapping_readiness.json \
+  --output-markdown generated_visual_data/s3_mapping_readiness.md \
+  --fail-on-not-ready
+```
+
+Readiness rules:
+
+```text
+count_by requires a matching label field
+sum_by requires matching label and value fields
+all checks require detected columns and sampled rows
+unknown operations are treated as label+value required and emit a warning
 ```
 
 The schema profile uses S3 range reads and records:
@@ -154,11 +182,9 @@ process/instagram_build_s3_smoke_contact_sheet.py \
 
 These smoke previews are not approved fixture contact sheets. They are live-data plumbing previews only.
 
-The S3 smoke step is non-blocking. Fixture previews and contact sheets remain deterministic even if S3 is unavailable.
-
 ## Planned visual sequence
 
-- inspect real S3 schema output from `generated_visual_data/s3_schema_profile.md`, `generated_visual_data/s3_schema_profile.json`, `generated_visual_data/s3_smoke_status.json`, and mapping manifests
+- inspect real S3 schema/readiness output from `generated_visual_data/s3_mapping_readiness.md`, `generated_visual_data/s3_schema_profile.md`, `generated_visual_data/s3_smoke_status.json`, and mapping manifests
 - add more mapped S3 samples for approved visuals
 - real sourced image lookup/download workflow, gated by attribution and license review
 - final approval pass to remove `draft` from visual IDs
