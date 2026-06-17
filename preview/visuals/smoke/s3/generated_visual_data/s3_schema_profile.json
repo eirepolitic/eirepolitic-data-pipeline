@@ -1,6 +1,6 @@
 {
   "success": true,
-  "created_at": "2026-06-17T03:04:06.629977+00:00",
+  "created_at": "2026-06-17T16:56:47.286399+00:00",
   "review_only": true,
   "publishes_content": false,
   "range_bytes": 262144,
@@ -10,7 +10,7 @@
     {
       "mapping_id": "debate_issue_counts_s3",
       "config_path": "instagram/visuals/data_mappings/debate_issue_counts_s3.yml",
-      "profiled_at": "2026-06-17T03:04:06.337522+00:00",
+      "profiled_at": "2026-06-17T16:56:47.047454+00:00",
       "review_only": true,
       "download_strategy": "s3_get_object_range_prefix_only",
       "s3": {
@@ -257,7 +257,7 @@
     {
       "mapping_id": "member_party_counts_s3",
       "config_path": "instagram/visuals/data_mappings/member_party_counts_s3.yml",
-      "profiled_at": "2026-06-17T03:04:06.629955+00:00",
+      "profiled_at": "2026-06-17T16:56:47.286373+00:00",
       "review_only": true,
       "download_strategy": "s3_get_object_range_prefix_only",
       "s3": {

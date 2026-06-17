@@ -2,7 +2,7 @@
 
 Review-only schema snapshot for Instagram visual smoke mappings.
 
-- Created at: `2026-06-17T03:04:06.629977+00:00`
+- Created at: `2026-06-17T16:56:47.286399+00:00`
 - Profile count: `2`
 - Range bytes per file: `262144`
 - Sample rows per file: `25`
