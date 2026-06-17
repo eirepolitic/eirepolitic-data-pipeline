@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-17  
-**Current packet:** P16 — approval-dependent cutover decision
+**Current packet:** P17/P18 blocked — waiting for explicit cutover approval
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
 
@@ -72,33 +72,42 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Confirmed approval-readiness packets
 
-### P13 — remaining mismatch review
+- **P13** remaining mismatch review:
+  - Workflow ID `297343766`, run `27662884471`, success, DQ pass.
+  - Review: `review/member_code_mismatch_review/latest/{manifest.json,sample.csv,dq.json,report.md}`.
+  - Roster legacy-only: Catherine Connolly, Paschal Donohoe.
+  - Member profile legacy-only: Catherine Connolly, Paschal Donohoe.
+  - Member profile trial-only: Daniel Ennis, Seán Kyne.
+- **P14** cutover approval checklist update:
+  - File: `docs/oireachtas_production_readiness_checklist.md`.
+  - All technical gates complete except explicit consumer-specific approval.
+- **P15** optional approved cutover patch preparation:
+  - File: `docs/oireachtas_approved_cutover_patch_plan.md`.
+  - Exact reversible patch plan documented for Instagram and member-profile metrics.
+  - No production cutover patch was applied.
 
-- Files changed:
-  - `extract/oireachtas/mismatch_review.py`
-  - `.github/workflows/oireachtas_mismatch_review.yml`
-- Workflow ID: `297343766`
-- Validation run: `27662884471`; run number 1; success; DQ pass.
-- Review: `review/member_code_mismatch_review/latest/{manifest.json,sample.csv,dq.json,report.md}`.
-- Remaining mismatch details:
-  - roster legacy-only: Catherine Connolly, Paschal Donohoe.
-  - member profile legacy-only: Catherine Connolly, Paschal Donohoe.
-  - member profile trial-only: Daniel Ennis, Seán Kyne.
-- Interpretation: source freshness/member lifecycle differences rather than a deterministic build failure.
+## P16 approval-dependent decision
 
-### P14 — cutover approval checklist update
+- File added: `docs/oireachtas_cutover_approval_decision.md`
+- Result: complete.
+- Latest user instruction was `Continue`, which is not an approval phrase.
+- P17 and P18 are blocked.
+- No production workflow was changed.
+- No downstream consumer was repointed.
 
-- File updated: `docs/oireachtas_production_readiness_checklist.md`
-- Result: post-refresh evidence and mismatch review evidence added.
-- Status: all technical gates complete except explicit consumer-specific approval.
+## Required approval phrases
 
-### P15 — optional approved cutover patch preparation
+Instagram:
 
-- File added: `docs/oireachtas_approved_cutover_patch_plan.md`
-- Result: exact reversible patch plan documented for:
-  - Instagram constituency renderer.
-  - Member profile metrics.
-- No production cutover patch was applied.
+```text
+Approved: cut over Instagram constituency renderer from legacy Oireachtas keys to unified compatibility outputs.
+```
+
+Member profile metrics:
+
+```text
+Approved: cut over member profile metrics from legacy Oireachtas keys to unified compatibility outputs.
+```
 
 ## Current caveats
 
@@ -108,13 +117,6 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Explicit user approval is required before any downstream cutover.
 
 ## Next packet batch
-
-### P16 — approval-dependent cutover decision
-
-Goal:
-
-- stop and request explicit consumer-specific approval before any production cutover;
-- no code changes unless approval phrase is provided.
 
 ### P17 — approved Instagram cutover patch, only if approved
 
@@ -130,13 +132,18 @@ Goal:
 - if explicitly approved, apply the documented member-profile input-key patch;
 - rerun member-profile workflow and confirm rollback instructions.
 
+### P19 — post-approval monitoring plan, only after one cutover is approved
+
+Goal:
+
+- document monitoring and rollback checks for the approved cutover;
+- keep legacy workflows active for one full scheduled cycle.
+
 Handoff instruction:
 
 ```text
 Continue from main.
-Process packets three at a time.
-Start P16 approval-dependent cutover decision.
-Do not apply P17 or P18 unless the user provides the exact explicit approval phrase for that consumer.
-Latest validated run: P13 mismatch review 27662884471.
+Do not apply P17, P18, or P19 unless the user provides the exact explicit approval phrase for that consumer.
+Latest approval decision: P16 documented in docs/oireachtas_cutover_approval_decision.md.
 All technical readiness evidence is documented, but no downstream cutover is approved yet.
 ```
