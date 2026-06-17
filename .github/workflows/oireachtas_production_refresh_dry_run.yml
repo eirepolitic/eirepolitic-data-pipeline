@@ -1,0 +1,169 @@
+name: Oireachtas Production-Sized Refresh Dry Run (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Non-test build mode"
+        required: true
+        default: "full"
+        type: choice
+        options: [full, incremental]
+      publish_latest:
+        description: "Write processed/oireachtas_unified/latest pointers"
+        required: true
+        default: "auto"
+        type: choice
+        options: [auto, true, false]
+      limit:
+        description: "Row/API limit per table"
+        required: false
+        default: "200"
+      date_start:
+        description: "Start date YYYY-MM-DD"
+        required: false
+        default: "2025-01-01"
+      date_end:
+        description: "End date YYYY-MM-DD"
+        required: false
+        default: "2025-12-31"
+      sample_rows:
+        description: "Review sample row count"
+        required: false
+        default: "10"
+
+concurrency:
+  group: oireachtas-production-refresh-dry-run
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: "ca-central-1"
+      S3_BUCKET: "eirepolitic-data"
+      REVIEW_OUTPUT_ROOT: "oireachtas_review_output"
+      REVIEW_BRANCH: "oireachtas-review-output"
+      TARGET_TABLES: "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,gold_current_members,silver_member_votes"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run targeted production-sized refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          mode="${{ inputs.mode }}"
+          publish_latest="${{ inputs.publish_latest }}"
+          limit="${{ inputs.limit }}"
+          date_start="${{ inputs.date_start }}"
+          date_end="${{ inputs.date_end }}"
+          sample_rows="${{ inputs.sample_rows }}"
+
+          if [[ "${mode}" == "test" ]]; then
+            echo "This workflow must not run in test mode."
+            exit 1
+          fi
+
+          echo "Mode=${mode}; publish_latest=${publish_latest}; limit=${limit}; window=${date_start}..${date_end}"
+          IFS=',' read -ra tables <<< "${TARGET_TABLES}"
+          : > oireachtas_production_refresh_dry_run.log
+          for table in "${tables[@]}"; do
+            table="$(echo "${table}" | xargs)"
+            if [[ -z "${table}" ]]; then continue; fi
+            echo "===== TABLE ${table} =====" | tee -a oireachtas_production_refresh_dry_run.log
+            args=(
+              --table "${table}"
+              --mode "${mode}"
+              --publish-latest "${publish_latest}"
+              --chamber "dail"
+              --house-no "34"
+              --limit "${limit}"
+              --sample-rows "${sample_rows}"
+              --write-review-sample
+              --s3-bucket "${S3_BUCKET}"
+              --aws-region "${AWS_REGION}"
+              --review-root "${REVIEW_OUTPUT_ROOT}"
+              --github-repository "${GITHUB_REPOSITORY}"
+            )
+            if [[ -n "${date_start}" ]]; then args+=(--date-start "${date_start}"); fi
+            if [[ -n "${date_end}" ]]; then args+=(--date-end "${date_end}"); fi
+            python -m extract.oireachtas.build_table "${args[@]}" 2>&1 | tee -a oireachtas_production_refresh_dry_run.log
+          done
+
+      - name: Publish review output branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then
+            echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}; skipping branch publish."
+            exit 0
+          fi
+          rm -rf /tmp/oireachtas-review-worktree
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "${REVIEW_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${REVIEW_BRANCH}:${REVIEW_BRANCH}"
+            git worktree add /tmp/oireachtas-review-worktree "${REVIEW_BRANCH}"
+          else
+            git worktree add --detach /tmp/oireachtas-review-worktree HEAD
+            git -C /tmp/oireachtas-review-worktree switch --orphan "${REVIEW_BRANCH}"
+            git -C /tmp/oireachtas-review-worktree rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p /tmp/oireachtas-review-worktree/review
+          cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
+          git -C /tmp/oireachtas-review-worktree add .
+          git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas production refresh review output for run ${GITHUB_RUN_ID}" || true
+          git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
+          git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"
+
+      - name: Write workflow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Oireachtas production-sized refresh dry run"
+            echo
+            echo "- Mode: \`${{ inputs.mode }}\`"
+            echo "- Publish latest: \`${{ inputs.publish_latest }}\`"
+            echo "- Limit: \`${{ inputs.limit }}\`"
+            echo "- Window: \`${{ inputs.date_start }}..${{ inputs.date_end }}\`"
+            echo "- Tables: \`${TARGET_TABLES}\`"
+            echo
+            echo '```text'
+            if [[ -f oireachtas_production_refresh_dry_run.log ]]; then
+              tail -n 200 oireachtas_production_refresh_dry_run.log
+            else
+              echo "No refresh log found."
+            fi
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload refresh artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-production-refresh-dry-run-output
+          path: |
+            oireachtas_review_output/**
+            oireachtas_production_refresh_dry_run.log
+          if-no-files-found: warn
