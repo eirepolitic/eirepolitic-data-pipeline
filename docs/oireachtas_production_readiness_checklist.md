@@ -29,7 +29,7 @@ Approved: cut over <consumer name> from legacy Oireachtas keys to unified compat
 | Side-by-side trial | Member profile metric trial writes to non-legacy output keys. | done, run `27661985049` |
 | Adapter comparison | Legacy inputs are compared to compatibility outputs. | done, run `27661990358` |
 | Consumer smoke test | Target downstream workflow runs using trial/compat keys. | done, run `27661992188` |
-| Mismatch review | Remaining roster/profile member-code mismatches are identified. | pending P13 validation |
+| Mismatch review | Remaining roster/profile member-code mismatches are identified. | done, run `27662884471` |
 | Rollback | Consumer can be switched back to legacy environment variables or config. | documented |
 | User approval | Explicit approval exists for each consumer cutover. | pending |
 
@@ -68,6 +68,7 @@ processed/constituencies/constituency_images.csv
 | Member profile trial | `27661985049` | success / DQ pass | Trial metrics 174 rows; 172 matched legacy member codes. |
 | Compatibility adapter comparison | `27661990358` | success / DQ pass | Roster 176 legacy vs 174 compat; votes 30,968 legacy vs 29,805 compat. |
 | Instagram consumer smoke | `27661992188` | success | Artifact-only render confirmed compat members key. |
+| Mismatch review | `27662884471` | success / DQ pass | Roster legacy-only: Catherine Connolly, Paschal Donohoe. Profile trial-only: Daniel Ennis, Seán Kyne. |
 
 Review outputs:
 
@@ -75,16 +76,16 @@ Review outputs:
 review/member_profile_metrics_trial/latest/{manifest.json,sample.csv,dq.json,report.md}
 review/compat_adapter_comparison/latest/{manifest.json,sample.csv,dq.json,report.md}
 review/compat_downstream_adapters/latest/{manifest.json,sample.csv,dq.json}
+review/member_code_mismatch_review/latest/{manifest.json,sample.csv,dq.json,report.md}
 ```
 
 ## Recommended cutover order
 
-1. Complete remaining mismatch review.
-2. Review row/key differences and rendered smoke artifact.
-3. Approve one consumer at a time using the exact approval phrase.
-4. Repoint that consumer through config/environment variables only.
-5. Keep legacy workflow active for at least one complete scheduled cycle.
-6. Roll back immediately if consumer output regresses.
+1. Review row/key differences and rendered smoke artifact.
+2. Approve one consumer at a time using the exact approval phrase.
+3. Repoint that consumer through config/environment variables only.
+4. Keep legacy workflow active for at least one complete scheduled cycle.
+5. Roll back immediately if consumer output regresses.
 
 ## Rollback
 
@@ -107,11 +108,12 @@ MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY=processed/members/parquets/member_prof
 
 ## Known caveats before approval
 
-- Roster comparison still has 2 legacy-only member codes after the refresh.
-- Member profile metrics comparison has 2 legacy-only and 2 trial-only member codes after the refresh.
+- Roster comparison has 2 legacy-only member codes after the refresh: Catherine Connolly and Paschal Donohoe.
+- Member profile metrics comparison has 2 legacy-only member codes, Catherine Connolly and Paschal Donohoe, and 2 trial-only member codes, Daniel Ennis and Seán Kyne.
+- These mismatches look like source freshness/member lifecycle differences rather than a deterministic build failure.
 - Deterministic unified outputs do not replace LLM/classified issue data such as `processed/debates/debate_speeches_classified.csv`.
 - Photo URLs, member summaries, and constituency image indexes remain outside the deterministic Oireachtas model.
 
 ## Decision
 
-Current recommendation: **do not cut over yet**. Complete P13 mismatch review and wait for explicit consumer-specific approval.
+Current recommendation: **ready for explicit consumer-specific approval review, but do not cut over automatically**.
