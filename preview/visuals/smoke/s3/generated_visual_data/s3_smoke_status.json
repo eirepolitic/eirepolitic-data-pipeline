@@ -2,8 +2,8 @@
   "success": true,
   "status": "succeeded",
   "exit_code": 0,
-  "message": "Mapped S3 visual smoke render, schema profile, and contact sheet completed.",
-  "created_at": "2026-06-16T17:38:50.415859+00:00",
+  "message": "Mapped S3 visual smoke render, schema profile, schema summary, and contact sheet completed.",
+  "created_at": "2026-06-17T02:32:58.031537+00:00",
   "review_only": true,
   "publishes_content": false,
   "bucket": "eirepolitic-data",
@@ -11,6 +11,7 @@
   "preview_path": "preview/visuals/smoke/s3",
   "outputs": {
     "schema_profile": "generated_visual_data/s3_schema_profile.json",
+    "schema_profile_summary": "generated_visual_data/s3_schema_profile.md",
     "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
     "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
     "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
