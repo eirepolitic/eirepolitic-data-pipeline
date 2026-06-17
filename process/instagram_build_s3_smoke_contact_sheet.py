@@ -24,6 +24,8 @@ LABELS = {
     "horizontal_bar_s3_member_parties_draft_v1": "Member party counts · horizontal bar",
 }
 
+CANONICAL_OUTPUT_ROOTS = {sample["output_root"] for sample in SMOKE_SAMPLES}
+
 
 def _font(kind: str, size: int) -> ImageFont.ImageFont:
     key = "bold" if kind == "bold" else "regular"
@@ -49,8 +51,9 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _canonical_output_roots(input_root: Path) -> set[Path]:
-    return {(REPO_ROOT / sample["output_root"]).resolve() for sample in SMOKE_SAMPLES if sample["output_root"].startswith(str(input_root)) or "generated_visuals/s3_smoke" in sample["output_root"]}
+def _is_canonical_manifest(manifest: dict[str, Any]) -> bool:
+    manifest_path = str(manifest.get("manifest_path") or "")
+    return any(root in manifest_path for root in CANONICAL_OUTPUT_ROOTS)
 
 
 def _find_manifests(input_root: Path) -> list[dict[str, Any]]:
@@ -58,9 +61,15 @@ def _find_manifests(input_root: Path) -> list[dict[str, Any]]:
     manifests = [_load_manifest(path) for path in candidates]
 
     canonical_visual_ids = set(LABELS)
-    canonical_manifests = [manifest for manifest in manifests if str(manifest.get("visual_id") or "") in canonical_visual_ids]
-    if canonical_manifests:
-        manifests = canonical_manifests
+    matching = [manifest for manifest in manifests if str(manifest.get("visual_id") or "") in canonical_visual_ids]
+    if matching:
+        by_visual_id: dict[str, dict[str, Any]] = {}
+        for manifest in matching:
+            visual_id = str(manifest.get("visual_id") or "")
+            existing = by_visual_id.get(visual_id)
+            if existing is None or (_is_canonical_manifest(manifest) and not _is_canonical_manifest(existing)):
+                by_visual_id[visual_id] = manifest
+        manifests = list(by_visual_id.values())
 
     return sorted(manifests, key=lambda item: str(item.get("visual_id") or item.get("manifest_path") or ""))
 
