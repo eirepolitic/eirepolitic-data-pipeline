@@ -41,12 +41,11 @@ Sample PNGs:
 - sourced_image_asset_draft_v1/sourced_image_asset_wrapper_draft_v1.png: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/samples/sourced_image_asset_draft_v1/png/sourced_image_asset_wrapper_draft_v1.png
 
 S3 smoke preview:
-- status: succeeded
+- status: failed_non_blocking
 - status JSON: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/status/s3_smoke_status.json
+- mapping readiness summary: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/generated_visual_data/s3_mapping_readiness.md
+- mapping readiness JSON: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/generated_visual_data/s3_mapping_readiness.json
 - schema profile summary: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.md
 - schema profile JSON: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/generated_visual_data/s3_schema_profile.json
-- smoke contact sheet: https://raw.githubusercontent.com/eirepolitic/eirepolitic-data-pipeline/instagram-preview-output/preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
-- debate issue smoke PNGs: https://github.com/eirepolitic/eirepolitic-data-pipeline/tree/instagram-preview-output/preview/visuals/smoke/s3/visuals/debate_issues/png
-- member party smoke PNGs: https://github.com/eirepolitic/eirepolitic-data-pipeline/tree/instagram-preview-output/preview/visuals/smoke/s3/visuals/member_parties/png
 
 Review only: this does not publish, schedule, or approve Instagram content.
