@@ -119,6 +119,7 @@ jobs:
               "preview_path": "preview/visuals/smoke/s3",
               "outputs": {
                   "schema_profile": "generated_visual_data/s3_schema_profile.json",
+                  "schema_profile_summary": "generated_visual_data/s3_schema_profile.md",
                   "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
                   "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
                   "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
@@ -146,6 +147,9 @@ jobs:
               --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml" \
               --config "instagram/visuals/data_mappings/member_party_counts_s3.yml" \
               --output "generated_visual_data/s3_schema_profile.json"
+            python process/instagram_summarize_s3_schema_profile.py \
+              --profile "generated_visual_data/s3_schema_profile.json" \
+              --output "generated_visual_data/s3_schema_profile.md"
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml"
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/member_party_counts_s3.yml"
             python process/instagram_render_visual.py \
@@ -162,7 +166,7 @@ jobs:
           set -e
 
           if [[ "${smoke_exit}" -eq 0 ]]; then
-            write_status "succeeded" 0 "Mapped S3 visual smoke render, schema profile, and contact sheet completed."
+            write_status "succeeded" 0 "Mapped S3 visual smoke render, schema profile, schema summary, and contact sheet completed."
           else
             write_status "failed_non_blocking" "${smoke_exit}" "Mapped S3 visual smoke render failed; main fixture preview workflow continued."
           fi
@@ -207,6 +211,7 @@ jobs:
               f"- Region: `{payload.get('region', '')}`",
               f"- Status artifact: `{status_path}`",
               f"- Schema profile artifact: `generated_visual_data/s3_schema_profile.json`",
+              f"- Schema profile summary: `generated_visual_data/s3_schema_profile.md`",
               f"- Smoke preview path: `{payload.get('preview_path', 'preview/visuals/smoke/s3')}`",
               "",
               "Review-only: this does not publish, schedule, or approve Instagram content.",
@@ -333,6 +338,7 @@ jobs:
           ]
           if s3_smoke_status == "succeeded":
               lines += [
+                  f"- schema profile summary: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.md",
                   f"- schema profile JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.json",
                   f"- smoke contact sheet: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.png",
                   f"- debate issue smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/debate_issues/png",
@@ -358,6 +364,7 @@ jobs:
             echo "- Status: \`${S3_SMOKE_STATUS}\`"
             echo "- Status JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/status/s3_smoke_status.json"
             if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
+              echo "- Schema profile summary: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.md"
               echo "- Schema profile JSON: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/generated_visual_data/s3_schema_profile.json"
               echo "- Smoke contact sheet: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
               echo "- Debate issue smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues/png"
