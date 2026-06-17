@@ -11,6 +11,7 @@ transforms:
   - id: issue_category_counts
     operation: count_by
     label_field_candidates:
+      - PoliticalIssues
       - issue_category
       - issue
       - topic
