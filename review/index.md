@@ -5,16 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `compat_adapter_comparison`
-- `review/compat_adapter_comparison/latest/sample.csv`
-- `review/compat_adapter_comparison/latest/sample.md`
-- `review/compat_adapter_comparison/latest/manifest.json`
-- `review/compat_adapter_comparison/latest/schema.json`
-- `review/compat_adapter_comparison/latest/dq.json`
-
-### `compat_downstream_adapters`
-- `review/compat_downstream_adapters/latest/sample.csv`
-- `review/compat_downstream_adapters/latest/sample.md`
-- `review/compat_downstream_adapters/latest/manifest.json`
-- `review/compat_downstream_adapters/latest/schema.json`
-- `review/compat_downstream_adapters/latest/dq.json`
+### `member_code_mismatch_review`
+- `review/member_code_mismatch_review/latest/sample.csv`
+- `review/member_code_mismatch_review/latest/sample.md`
+- `review/member_code_mismatch_review/latest/manifest.json`
+- `review/member_code_mismatch_review/latest/schema.json`
+- `review/member_code_mismatch_review/latest/dq.json`
