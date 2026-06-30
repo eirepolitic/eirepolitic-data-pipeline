@@ -2,7 +2,7 @@
 
 Review-only readiness check for S3-backed Instagram visual mappings.
 
-- Created at: `2026-06-17T16:59:48.094526+00:00`
+- Created at: `2026-06-30T02:24:29.464608+00:00`
 - Overall ready: `True`
 - Profile count: `2`
 - Failure scope: readiness failures mark only the non-blocking S3 smoke status as failed.

@@ -3,7 +3,7 @@
   "status": "succeeded",
   "exit_code": 0,
   "message": "Mapped S3 visual smoke render, schema profile, mapping readiness, schema summary, and contact sheet completed.",
-  "created_at": "2026-06-17T17:00:01.189940+00:00",
+  "created_at": "2026-06-30T02:24:41.847259+00:00",
   "review_only": true,
   "publishes_content": false,
   "bucket": "eirepolitic-data",
@@ -16,8 +16,11 @@
     "mapping_readiness_summary": "generated_visual_data/s3_mapping_readiness.md",
     "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
     "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
-    "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
-    "member_parties_visual_root": "generated_visuals/s3_smoke/member_parties",
+    "smoke_samples_manifest": "generated_visuals/s3_smoke/smoke_samples.manifest.json",
+    "debate_issues_horizontal_bar_root": "generated_visuals/s3_smoke/debate_issues_horizontal_bar",
+    "debate_issues_vertical_bar_root": "generated_visuals/s3_smoke/debate_issues_vertical_bar",
+    "member_parties_donut_chart_root": "generated_visuals/s3_smoke/member_parties_donut_chart",
+    "member_parties_horizontal_bar_root": "generated_visuals/s3_smoke/member_parties_horizontal_bar",
     "contact_sheet": "generated_visuals/s3_smoke/contact_sheet.png",
     "contact_sheet_manifest": "generated_visuals/s3_smoke/contact_sheet.manifest.json"
   }
