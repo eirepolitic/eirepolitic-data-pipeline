@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P29 — enrichment dependency audit
+**Current packet:** P32 — enrichment trial builder implementation
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -10,22 +10,12 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 - CLI: `python -m extract.oireachtas.build_table`
 - Registry: `configs/oireachtas/tables.yml`
-- Manual test workflow: `.github/workflows/oireachtas_table_test.yml`
-- Weekly refresh workflow: `.github/workflows/oireachtas_weekly_refresh.yml`
-- Monthly refresh workflow: `.github/workflows/oireachtas_monthly_refresh.yml`
-- Yearly refresh workflow: `.github/workflows/oireachtas_yearly_refresh.yml`
-- Production-sized refresh dry-run workflow: `.github/workflows/oireachtas_production_refresh_dry_run.yml`
-- Compatibility adapter workflow: `.github/workflows/oireachtas_compat_adapters.yml`
-- Member profile trial workflow: `.github/workflows/oireachtas_member_profile_trial.yml`
-- Compatibility comparison workflow: `.github/workflows/oireachtas_compat_comparison.yml`
-- Instagram consumer smoke workflow: `.github/workflows/oireachtas_instagram_consumer_smoke.yml`
-- Mismatch review workflow: `.github/workflows/oireachtas_mismatch_review.yml`
 - AWS region: `ca-central-1`
 - S3 bucket: `eirepolitic-data`
 - Review branch: `oireachtas-review-output`
 - Runtime rule: `mode=test` suppresses writes to `processed/oireachtas_unified/latest/*` unless explicitly overridden.
 
-## Confirmed foundation, table, gold, and control packets
+## Confirmed core packets
 
 - **F01-F03** complete.
 - **T01-T23** silver tables complete with DQ pass.
@@ -33,7 +23,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **C01-C03** control tables complete with DQ pass.
 - `configs/oireachtas/tables.yml` marks all validated silver/gold/control tables as `confirmed`.
 
-## Confirmed production-hardening and consumer packets
+## Confirmed hardening and cutover packets
 
 - **P01-P09** complete through initial cutover package.
 - **P10-P12** complete through production-sized refresh and post-refresh validation.
@@ -44,6 +34,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P19** post-cutover monitoring plan added.
 - **P20-P22** post-cutover evidence verified, comparison/mismatch rerun, docs updated.
 - **P23-P25** steady-state consumer selection, scheduled refresh review, and adapter review complete.
+- **P26-P28** next workstream selected, enrichment plan documented, review publish hardening started.
 
 ## Applied pre-production cutovers
 
@@ -78,78 +69,95 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Workflow remains artifact-only by default: `upload_preview=false`.
 - Validation: workflow ID `271160957`, run `28415050102`, success, artifact ID `7969146127`.
 
-## Post-cutover validation
+## Latest post-cutover validation
 
-- Compatibility comparison run `28414819264`: success.
-- Mismatch clean rerun `28414847238`: success, DQ pass.
+- Compatibility comparison run `28416432150`: success.
+- Mismatch review run `28416434690`: success.
 - Latest mismatch summary:
   - Roster: 176 legacy members, 174 unified members, 174 matched, 2 legacy-only, 0 unified-only.
   - Member profile metrics: 174 legacy members, 174 unified members, 174 matched, 0 legacy-only, 0 unified-only.
 
-## Confirmed P26-P28 packets
+## Confirmed P29-P31 packets
 
-### P26 — next workstream selection
+### P29 — enrichment dependency audit
 
-- File added: `docs/oireachtas_next_workstream_selection.md`
-- Decision: next workstream is enrichment replacement planning and refresh hardening.
-- Rationale: deterministic Oireachtas tables and first consumer cutovers are validated; remaining gaps are enrichment/media/classification and workflow hardening.
+- File added: `docs/oireachtas_enrichment_dependency_audit.md`
+- Audited workflows/scripts:
+  - `.github/workflows/speech_issue_classifier.yml` / `process/speech_issue_classifier.py`
+  - `.github/workflows/member_photo_urls.yml` / `process/members_photo_urls.py`
+  - `.github/workflows/members_background_summarizer.yml` / `process/members_background_summarizer.py`
+  - `.github/workflows/constituency_images_index.yml` / `process/constituency_images_indexer.py`
+- Conclusion: keep enrichment/media outputs separate from deterministic Oireachtas silver/gold tables.
 
-### P27 — enrichment replacement planning
+### P30 — classified issue replacement design
 
-- File added: `docs/oireachtas_enrichment_replacement_plan.md`
-- Remaining enrichment dependencies documented:
-  - classified debate issues
-  - member photo URLs
-  - member summaries/backgrounds
-  - constituency image indexes
-- Recommended first enrichment packet: `E01 — classified issue dependency audit`.
+- File added: `docs/oireachtas_classified_issue_replacement_design.md`
+- Designed side-by-side output:
 
-### P28 — review publish hardening patch review
+```text
+processed/oireachtas_unified/enrichment/speech_issue_labels/speech_issue_labels_2025_trial.csv
+processed/oireachtas_unified/enrichment/speech_issue_labels/parquets/speech_issue_labels_2025_trial.parquet
+```
 
-- Files changed:
-  - `.github/workflows/oireachtas_compat_comparison.yml`
-  - `.github/workflows/oireachtas_mismatch_review.yml`
+- Designed compat output:
+
+```text
+processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+```
+
+- No production classified debate key was changed.
+
+### P31 — broader review-publisher hardening
+
+- Files patched:
+  - `.github/workflows/oireachtas_weekly_refresh.yml`
+  - `.github/workflows/oireachtas_monthly_refresh.yml`
+  - `.github/workflows/oireachtas_yearly_refresh.yml`
   - `docs/oireachtas_review_publish_hardening.md`
 - Patch: review branch publish now uses pull/rebase plus 3 push attempts.
-- Validation:
-  - Compatibility comparison workflow ID `294874693`, run `28416432150`, success.
-  - Mismatch review workflow ID `297343766`, run `28416434690`, success.
+- Validated earlier on:
+  - `.github/workflows/oireachtas_compat_comparison.yml`, run `28416432150`, success.
+  - `.github/workflows/oireachtas_mismatch_review.yml`, run `28416434690`, success.
+- Weekly/monthly/yearly were not manually run after patch because they are broad refresh workflows.
 
 ## Current caveats
 
 - Roster comparison has 2 legacy-only member codes:
   - Catherine Connolly — Independent — Galway West
   - Paschal Donohoe — Fine Gael — Dublin Central
-- Member profile metrics now have 0 member-code mismatches after the cutover build.
+- Member profile metrics have 0 member-code mismatches after the cutover build.
 - Deterministic unified outputs still do not replace classified debate issues, photo URL indexes, member summaries, or constituency image indexes.
-- Review branch publish conflicts are reduced for compatibility comparison and mismatch review, but weekly/monthly/yearly publishers still use the older direct push pattern.
+- Weekly/monthly/yearly publish hardening is patched but not separately runtime-validated after patch.
 
 ## Next packet batch
 
-### P29 — enrichment dependency audit
+### P32 — enrichment trial builder implementation
 
 Goal:
 
-- inspect classified issue, photo URL, member summary, and constituency image workflows/scripts;
-- document exact input/output keys and consumers.
+- build `extract/oireachtas/enrichment_speech_issue_labels.py` as a side-by-side trial builder.
+- Do not overwrite `processed/debates/debate_speeches_classified.csv`.
 
-### P30 — classified issue replacement design
-
-Goal:
-
-- design `enrichment_speech_issue_labels` or equivalent side-by-side output without overwriting existing classified debate keys.
-
-### P31 — broader review-publisher hardening
+### P33 — enrichment trial workflow
 
 Goal:
 
-- patch weekly/monthly/yearly and other review-output publishers with the same retry/rebase pattern if needed.
+- add `.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml`.
+- Run in limited/test mode by default.
+
+### P34 — classified issue compat adapter and comparison plan
+
+Goal:
+
+- add or plan `processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv`.
+- compare coverage against legacy classified debate output before any consumer repointing.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P29 enrichment dependency audit, then P30 classified issue replacement design, then P31 broader review-publisher hardening.
+Start P32 enrichment trial builder implementation, then P33 enrichment trial workflow, then P34 classified issue compat adapter and comparison plan.
+Do not overwrite processed/debates/debate_speeches_classified.csv.
 Latest successful validations: campaign render run 28415050102, compatibility comparison run 28416432150, mismatch review run 28416434690.
 ```
