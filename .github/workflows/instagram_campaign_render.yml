@@ -10,7 +10,7 @@ on:
       spec_file:
         description: "Render spec filename inside the campaign folder"
         required: false
-        default: "render_spec_fixture.yml"
+        default: "render_spec.yml"
       limit:
         description: "Optional row limit override"
         required: false
@@ -69,7 +69,7 @@ jobs:
           PREVIEW_PUBLIC_READ="${{ inputs.preview_public_read }}"
           PREVIEW_ROOT_PREFIX="${{ inputs.preview_root_prefix }}"
           CAMPAIGN_SLUG="${CAMPAIGN_SLUG:-member_profile_batch_v1}"
-          SPEC_FILE="${SPEC_FILE:-render_spec_fixture.yml}"
+          SPEC_FILE="${SPEC_FILE:-render_spec.yml}"
           LIMIT="${LIMIT:-3}"
           UPLOAD_PREVIEW="${UPLOAD_PREVIEW:-false}"
           PREVIEW_PUBLIC_READ="${PREVIEW_PUBLIC_READ:-false}"
