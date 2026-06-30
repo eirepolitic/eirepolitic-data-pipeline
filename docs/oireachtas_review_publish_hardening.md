@@ -1,6 +1,6 @@
 # Oireachtas review publish hardening
 
-**Status:** patched and pending validation  
+**Status:** patched and validated  
 **Last updated:** 2026-06-30
 
 ## Problem
@@ -48,22 +48,25 @@ for attempt in 1 2 3; do
 done
 ```
 
+## Validation
+
+Both patched workflows were dispatched after the patch.
+
+| Workflow | Workflow ID | Run | Result |
+|---|---:|---:|---|
+| Oireachtas Compatibility Adapter Comparison (Manual) | `294874693` | `28416432150` | success |
+| Oireachtas Member Mismatch Review (Manual) | `297343766` | `28416434690` | success |
+
+Success criteria met:
+
+1. Both workflows completed successfully.
+2. Both published review output to `oireachtas-review-output`.
+3. Both uploaded artifacts successfully.
+
 ## Scope
 
 This patch targets the two workflows involved in the observed conflict. Weekly, monthly, yearly, and other review publishers should be patched next if conflicts recur there.
 
-## Validation plan
+## Recommendation
 
-Run both patched workflows:
-
-```text
-Oireachtas Compatibility Adapter Comparison (Manual)
-Oireachtas Member Mismatch Review (Manual)
-```
-
-Success criteria:
-
-1. Both workflows complete successfully.
-2. Both publish review output to `oireachtas-review-output`.
-3. Artifacts upload successfully.
-4. Latest review files remain readable.
+Keep running review-publishing workflows sequentially when possible. The retry/rebase patch reduces conflicts but does not replace good scheduling discipline.
