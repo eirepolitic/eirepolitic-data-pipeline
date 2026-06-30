@@ -11,6 +11,10 @@ on:
         description: "Debate issue/classified speeches input key"
         required: false
         default: "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+      member_photos_input_key:
+        description: "Member photo URL input key"
+        required: false
+        default: "processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv"
 
 concurrency:
   group: oireachtas-member-profile-trial
@@ -36,6 +40,7 @@ jobs:
       MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
       MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
       DEBATE_ISSUES_INPUT_KEY: ${{ inputs.debate_issues_input_key }}
+      MEMBER_PHOTOS_INPUT_KEY: ${{ inputs.member_photos_input_key }}
       MEMBER_PROFILE_METRICS_OUTPUT_CSV_KEY: "processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv"
       MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY: "processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet"
 
@@ -110,6 +115,7 @@ jobs:
             echo
             echo "- Review branch: \`${REVIEW_BRANCH}\`"
             echo "- Debate issues input: \`${DEBATE_ISSUES_INPUT_KEY}\`"
+            echo "- Member photos input: \`${MEMBER_PHOTOS_INPUT_KEY}\`"
             echo "- Manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/manifest.json"
             echo "- Sample CSV: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/sample.csv"
             echo "- Report: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/report.md"
