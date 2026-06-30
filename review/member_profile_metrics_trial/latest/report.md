@@ -1,6 +1,6 @@
 # Member profile metrics side-by-side trial
 
-Run ID: `member_profile_metrics_trial_20260617T023611Z`
+Run ID: `member_profile_metrics_trial_20260630T052053Z`
 Legacy key: `processed/members/member_profile_metrics_2025.csv`
 Trial key: `processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv`
 Trial parquet key: `processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet`
@@ -13,7 +13,7 @@ The trial output is non-destructive and does not replace legacy member profile m
 | trial_rows | pass |  | 174 | processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv |
 | legacy_member_count | info | 174 |  | distinct legacy member_code |
 | trial_member_count | pass |  | 174 | distinct trial member_code |
-| matched_member_count | pass | 174 | 172 | legacy/trial member_code overlap |
-| trial_only_member_count | info |  | 2 | member_code only in trial |
-| legacy_only_member_count | info | 2 |  | member_code only in legacy |
+| matched_member_count | pass | 174 | 174 | legacy/trial member_code overlap |
+| trial_only_member_count | info |  | 0 | member_code only in trial |
+| legacy_only_member_count | info | 0 |  | member_code only in legacy |
 | common_column_count | pass | 12 | 12 | all_distinct_vote_ids_2025,constituency,distinct_votes_participated_2025,full_name,member_code,party,photo_url,speech_count_2025,speech_rank_2025,top_issue_2025,top_issue_count_2025,vote_participation_pct_2025 |
