@@ -5,9 +5,9 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `member_code_mismatch_review`
-- `review/member_code_mismatch_review/latest/sample.csv`
-- `review/member_code_mismatch_review/latest/sample.md`
-- `review/member_code_mismatch_review/latest/manifest.json`
-- `review/member_code_mismatch_review/latest/schema.json`
-- `review/member_code_mismatch_review/latest/dq.json`
+### `enrichment_speech_issue_labels`
+- `review/enrichment_speech_issue_labels/latest/sample.csv`
+- `review/enrichment_speech_issue_labels/latest/sample.md`
+- `review/enrichment_speech_issue_labels/latest/manifest.json`
+- `review/enrichment_speech_issue_labels/latest/schema.json`
+- `review/enrichment_speech_issue_labels/latest/dq.json`
