@@ -61,6 +61,13 @@ instagram/visuals/data_mappings/debate_issue_counts_s3.yml
 instagram/visuals/data_mappings/member_party_counts_s3.yml
 ```
 
+Current live S3 mappings:
+
+```text
+debate_issue_counts_s3 -> processed/debates/debate_speeches_classified.csv -> PoliticalIssues
+member_party_counts_s3 -> raw/members/oireachtas_members_34th_dail.csv -> party
+```
+
 The standard preview workflow runs the local fixture mapping as a regression check and uploads `generated_visual_data/` as an artifact. S3 mappings run inside a non-blocking smoke step in the dispatchable media workflow.
 
 ## S3-backed visual smoke tests
@@ -74,11 +81,20 @@ The shared visual loader supports these input modes:
 
 S3 modes are for review-only smoke testing and future live-data bindings. They do not publish, schedule, or approve Instagram content.
 
-Mapped S3 samples:
+Canonical mapped S3 smoke samples:
 
 ```text
 instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml
+instagram/visuals/samples/vertical_bar_s3_debate_issues_draft_v1.sample.yml
 instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml
+instagram/visuals/samples/horizontal_bar_s3_member_parties_draft_v1.sample.yml
+```
+
+Render all canonical S3 smoke samples:
+
+```text
+process/instagram_render_s3_smoke_samples.py \
+  --manifest generated_visuals/s3_smoke/smoke_samples.manifest.json
 ```
 
 Run requirements for live S3 rendering:
@@ -120,8 +136,10 @@ When S3 smoke succeeds, it also publishes rendered smoke visuals:
 ```text
 preview/visuals/smoke/s3/contact_sheet/contact_sheet.png
 preview/visuals/smoke/s3/contact_sheet/contact_sheet.manifest.json
-preview/visuals/smoke/s3/visuals/debate_issues/
-preview/visuals/smoke/s3/visuals/member_parties/
+preview/visuals/smoke/s3/visuals/debate_issues_horizontal_bar/
+preview/visuals/smoke/s3/visuals/debate_issues_vertical_bar/
+preview/visuals/smoke/s3/visuals/member_parties_donut_chart/
+preview/visuals/smoke/s3/visuals/member_parties_horizontal_bar/
 ```
 
 Create the lightweight S3 schema profile without downloading full datasets:
@@ -179,6 +197,8 @@ process/instagram_build_s3_smoke_contact_sheet.py \
   --input-root generated_visuals/s3_smoke \
   --output generated_visuals/s3_smoke/contact_sheet.png
 ```
+
+The contact-sheet builder renders the canonical S3 smoke sample set by default and deduplicates legacy/canonical manifests by `visual_id`.
 
 These smoke previews are not approved fixture contact sheets. They are live-data plumbing previews only.
 
