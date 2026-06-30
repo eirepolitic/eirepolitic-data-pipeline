@@ -11,11 +11,11 @@ The following pre-production consumers now use unified Oireachtas compatibility 
 |---|---|---|
 | Instagram constituency renderer | cut over to unified compat roster | run `28414647932`, success |
 | Member profile metrics | cut over to unified compat roster and vote records | run `28414678714`, success |
-| Instagram campaign renderer | selected as next validation consumer | run `28415050102` dispatched |
+| Instagram campaign renderer | default now uses production render spec fed by cut-over member profile metrics | run `28415050102`, success; artifact ID `7969146127` |
 
 ## Next consumer selected
 
-The next downstream consumer is:
+The next downstream consumer selected and validated was:
 
 ```text
 Instagram Campaign Render (Manual)
@@ -50,6 +50,17 @@ The workflow remains artifact-only by default:
 ```
 
 It does not publish, schedule, or approve Instagram content.
+
+## Validation
+
+```text
+Workflow ID: 271160957
+Run ID: 28415050102
+Run number: 6
+Status: success
+Artifact: instagram-campaign-render-output
+Artifact ID: 7969146127
+```
 
 ## Monitoring baseline
 
