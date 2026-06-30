@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P23 — steady-state monitoring / next consumer selection
+**Current packet:** P26 — next workstream selection
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -58,9 +58,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Validation:
   - Workflow ID `261945698`
   - Run `28414647932`
-  - Run number 5
   - Status success
-  - Artifact `instagram-constituency-test`
   - Artifact ID `7968986389`
 
 ### Member profile metrics
@@ -80,30 +78,45 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Post-cutover validation
 
-### P20 — verify generated outputs
+- **P20** generated outputs verified:
+  - Instagram run `28414647932`: success; artifact ID `7968986389`.
+  - Member profile metrics run `28414678714`: success.
+- **P21** comparison/mismatch rerun:
+  - Compatibility comparison run `28414819264`: success.
+  - Mismatch first rerun `28414820972`: build success, review-branch publish failure due concurrent branch update.
+  - Mismatch clean rerun `28414847238`: success, DQ pass.
+- **P22** operational docs updated:
+  - `docs/oireachtas_post_cutover_validation_summary.md`
+  - `docs/oireachtas_production_readiness_checklist.md`
 
-- Instagram run `28414647932`: success; artifact `instagram-constituency-test`, artifact ID `7968986389`.
-- Member profile metrics run `28414678714`: success; no artifact expected.
+## Confirmed steady-state packets
 
-### P21 — rerun comparison after cutover
+### P23 — steady-state monitoring / next consumer selection
 
-- Compatibility comparison workflow ID `294874693`, run `28414819264`, success.
-- Sample result:
-  - Roster: 176 legacy rows vs 174 compat rows; 174 matched keys, 2 legacy-only, 0 compat-only.
-  - Member votes: 30,968 legacy rows vs 29,805 compat rows; 173 matched member-code keys, 0 legacy-only, 0 compat-only.
-- Mismatch review workflow ID `297343766`:
-  - First rerun `28414820972`: build success, review-branch publish failure due concurrent branch update.
-  - Clean rerun `28414847238`: success, DQ pass.
-- Latest mismatch summary:
-  - Roster: 176 legacy members, 174 unified members, 174 matched, 2 legacy-only, 0 unified-only.
-  - Member profile metrics: 174 legacy members, 174 unified members, 174 matched, 0 legacy-only, 0 unified-only.
+- File added/updated: `docs/oireachtas_steady_state_monitoring_and_next_consumer.md`
+- Next consumer selected: `Instagram Campaign Render (Manual)`.
+- Workflow changed: `.github/workflows/instagram_campaign_render.yml`
+- Change: default `spec_file` now uses `render_spec.yml` instead of the synthetic fixture.
+- Workflow remains artifact-only by default: `upload_preview=false`.
+- Validation:
+  - Workflow ID `271160957`
+  - Run `28415050102`
+  - Run number 6
+  - Status success
+  - Artifact `instagram-campaign-render-output`
+  - Artifact ID `7969146127`
 
-### P22 — operational docs and final status
+### P24 — scheduled refresh readiness review
 
-- Added `docs/oireachtas_post_cutover_validation_summary.md`.
-- Updated `docs/oireachtas_production_readiness_checklist.md`.
-- Updated `docs/oireachtas_final_cutover_request_package.md` previously after P17/P18.
-- Rollback remains workflow-config only and is documented in `docs/oireachtas_post_cutover_monitoring_plan.md`.
+- File added: `docs/oireachtas_scheduled_refresh_readiness_review.md`
+- Result: weekly/monthly/yearly refreshes are ready with monitoring caveats.
+- Recommendation: do not run review-publishing workflows concurrently; after any scheduled refresh, run adapters, comparison, mismatch review, and consumer validations sequentially.
+
+### P25 — optional next compatibility adapter
+
+- File added: `docs/oireachtas_next_compatibility_adapter_review.md`
+- Result: no new compatibility adapter required for the campaign renderer.
+- Reason: campaign renderer consumes `processed/members/member_profile_metrics_2025.csv`, which is already produced from unified compatibility inputs after P18.
 
 ## Current caveats
 
@@ -112,32 +125,33 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
   - Paschal Donohoe — Fine Gael — Dublin Central
 - Member profile metrics now have 0 member-code mismatches after the cutover build.
 - Deterministic unified outputs still do not replace classified debate issues, photo URL indexes, member summaries, or constituency image indexes.
+- Review branch publish conflicts can happen if multiple review-publishing workflows run concurrently. Rerun after the other publish completes.
 
 ## Next packet batch
 
-### P23 — steady-state monitoring / next consumer selection
+### P26 — next workstream selection
 
 Goal:
 
-- choose whether to monitor current cutovers only or identify the next downstream consumer for unified compat outputs.
+- choose the next workstream: enrichment replacement, scheduled refresh hardening, or additional consumer cutovers.
 
-### P24 — scheduled refresh readiness review
-
-Goal:
-
-- review whether weekly/monthly/yearly Oireachtas refresh workflows should be run manually after cutover.
-
-### P25 — optional next compatibility adapter
+### P27 — enrichment replacement planning
 
 Goal:
 
-- if another consumer needs a legacy-shaped input, add a compatibility adapter rather than repointing raw unified silver/gold tables directly.
+- map non-deterministic or enrichment-only dependencies that still use legacy outputs: classified issues, photo URLs, member summaries, constituency images.
+
+### P28 — refresh hardening patch review
+
+Goal:
+
+- decide whether to patch weekly/monthly/yearly review-branch publishing to reduce concurrent push conflicts.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P23 steady-state monitoring / next consumer selection, then P24 scheduled refresh readiness review, then P25 optional next compatibility adapter if a next consumer is known.
-Latest successful validations: Instagram cutover run 28414647932, member-profile metrics run 28414678714, comparison run 28414819264, mismatch review run 28414847238.
+Start P26 next workstream selection, then P27 enrichment replacement planning, then P28 refresh hardening patch review.
+Latest successful validations: Instagram constituency run 28414647932, member-profile metrics run 28414678714, comparison run 28414819264, mismatch review run 28414847238, campaign render run 28415050102.
 ```
