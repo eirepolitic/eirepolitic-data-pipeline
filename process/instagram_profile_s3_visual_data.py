@@ -79,7 +79,7 @@ def _normalise_row(row: dict[str, Any]) -> dict[str, str]:
     return {str(key): "" if value is None else str(value) for key, value in row.items()}
 
 
-def _profile_rows(text: str, max_rows: int) -> dict[str, Any]:
+def _profile_rows(text: str, max_rows: int, include_sampled_values: bool = False) -> dict[str, Any]:
     reader = csv.DictReader(io.StringIO(text))
     columns = list(reader.fieldnames or [])
     rows: list[dict[str, str]] = []
@@ -98,9 +98,10 @@ def _profile_rows(text: str, max_rows: int) -> dict[str, Any]:
             value = str(row.get(column, "")).strip()
             if value:
                 non_empty_counts[column] += 1
-                value_counters[column][value] += 1
-                if len(examples[column]) < 3 and value not in examples[column]:
-                    examples[column].append(value)
+                if include_sampled_values:
+                    value_counters[column][value] += 1
+                    if len(examples[column]) < 3 and value not in examples[column]:
+                        examples[column].append(value)
             else:
                 blank_counts[column] += 1
 
@@ -110,20 +111,23 @@ def _profile_rows(text: str, max_rows: int) -> dict[str, Any]:
         if values and all(_is_float(value) for value in values):
             likely_numeric.append(column)
 
-    return {
+    profile = {
         "columns": columns,
         "column_count": len(columns),
         "sample_row_count": len(rows),
         "range_may_be_truncated": not text.endswith("\n"),
         "non_empty_counts": non_empty_counts,
         "blank_counts": blank_counts,
-        "example_values": examples,
-        "top_values": {
-            column: [{"value": value, "count": count} for value, count in counter.most_common(5)]
-            for column, counter in value_counters.items()
-        },
+        "sampled_values_included": include_sampled_values,
         "likely_numeric_columns": likely_numeric,
     }
+    if include_sampled_values:
+        profile["example_values"] = examples
+        profile["top_values"] = {
+            column: [{"value": value, "count": count} for value, count in counter.most_common(5)]
+            for column, counter in value_counters.items()
+        }
+    return profile
 
 
 def _is_float(value: str) -> bool:
@@ -153,14 +157,14 @@ def _mapping_hints(config: dict[str, Any], columns: list[str]) -> dict[str, Any]
     return {"transforms": hints}
 
 
-def profile_config(config_path: str | Path, range_bytes: int, sample_rows: int) -> dict[str, Any]:
+def profile_config(config_path: str | Path, range_bytes: int, sample_rows: int, include_sampled_values: bool = False) -> dict[str, Any]:
     path = Path(config_path)
     if not path.is_absolute():
         path = REPO_ROOT / path
     config = load_yaml(path)
     input_cfg = dict(config.get("input", {}))
     text, s3_metadata = _first_available_prefix(input_cfg, range_bytes)
-    row_profile = _profile_rows(text, sample_rows)
+    row_profile = _profile_rows(text, sample_rows, include_sampled_values=include_sampled_values)
     return {
         "mapping_id": config.get("mapping_id"),
         "config_path": str(path.relative_to(REPO_ROOT)),
@@ -179,12 +183,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", default="generated_visual_data/s3_schema_profile.json")
     parser.add_argument("--range-bytes", type=int, default=DEFAULT_RANGE_BYTES)
     parser.add_argument("--sample-rows", type=int, default=DEFAULT_SAMPLE_ROWS)
+    parser.add_argument(
+        "--include-sampled-values",
+        action="store_true",
+        default=False,
+        help="Include example/top sampled values in the JSON profile. Off by default to avoid exposing raw row values.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    profiles = [profile_config(config, args.range_bytes, args.sample_rows) for config in args.config]
+    profiles = [
+        profile_config(
+            config,
+            args.range_bytes,
+            args.sample_rows,
+            include_sampled_values=args.include_sampled_values,
+        )
+        for config in args.config
+    ]
     payload = {
         "success": True,
         "created_at": utc_now(),
@@ -192,6 +210,7 @@ def main() -> None:
         "publishes_content": False,
         "range_bytes": args.range_bytes,
         "sample_rows": args.sample_rows,
+        "sampled_values_included": args.include_sampled_values,
         "profile_count": len(profiles),
         "profiles": profiles,
     }
