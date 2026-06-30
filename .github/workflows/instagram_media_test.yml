@@ -124,8 +124,11 @@ jobs:
                   "mapping_readiness_summary": "generated_visual_data/s3_mapping_readiness.md",
                   "debate_issue_counts_manifest": "generated_visual_data/debate_issue_counts_s3.manifest.json",
                   "member_party_counts_manifest": "generated_visual_data/member_party_counts_s3.manifest.json",
-                  "debate_issues_visual_root": "generated_visuals/s3_smoke/debate_issues",
-                  "member_parties_visual_root": "generated_visuals/s3_smoke/member_parties",
+                  "smoke_samples_manifest": "generated_visuals/s3_smoke/smoke_samples.manifest.json",
+                  "debate_issues_horizontal_bar_root": "generated_visuals/s3_smoke/debate_issues_horizontal_bar",
+                  "debate_issues_vertical_bar_root": "generated_visuals/s3_smoke/debate_issues_vertical_bar",
+                  "member_parties_donut_chart_root": "generated_visuals/s3_smoke/member_parties_donut_chart",
+                  "member_parties_horizontal_bar_root": "generated_visuals/s3_smoke/member_parties_horizontal_bar",
                   "contact_sheet": "generated_visuals/s3_smoke/contact_sheet.png",
                   "contact_sheet_manifest": "generated_visuals/s3_smoke/contact_sheet.manifest.json",
               },
@@ -160,12 +163,6 @@ jobs:
               --fail-on-not-ready
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/debate_issue_counts_s3.yml"
             python process/instagram_prepare_visual_data.py --config "instagram/visuals/data_mappings/member_party_counts_s3.yml"
-            python process/instagram_render_visual.py \
-              --sample "instagram/visuals/samples/horizontal_bar_s3_debate_issues_draft_v1.sample.yml" \
-              --output-root "generated_visuals/s3_smoke/debate_issues"
-            python process/instagram_render_visual.py \
-              --sample "instagram/visuals/samples/donut_chart_s3_member_parties_draft_v1.sample.yml" \
-              --output-root "generated_visuals/s3_smoke/member_parties"
             python process/instagram_build_s3_smoke_contact_sheet.py \
               --input-root "generated_visuals/s3_smoke" \
               --output "generated_visuals/s3_smoke/contact_sheet.png"
@@ -222,6 +219,7 @@ jobs:
               f"- Schema profile summary: `generated_visual_data/s3_schema_profile.md`",
               f"- Mapping readiness artifact: `generated_visual_data/s3_mapping_readiness.json`",
               f"- Mapping readiness summary: `generated_visual_data/s3_mapping_readiness.md`",
+              f"- Smoke samples manifest: `generated_visuals/s3_smoke/smoke_samples.manifest.json`",
               f"- Smoke preview path: `{payload.get('preview_path', 'preview/visuals/smoke/s3')}`",
               "",
               "Review-only: this does not publish, schedule, or approve Instagram content.",
@@ -327,6 +325,12 @@ jobs:
               "tile_map_draft_v1",
               "sourced_image_asset_draft_v1",
           ]
+          smoke_dirs = [
+              ("debate issue horizontal bar PNGs", "debate_issues_horizontal_bar"),
+              ("debate issue vertical bar PNGs", "debate_issues_vertical_bar"),
+              ("member party donut PNGs", "member_parties_donut_chart"),
+              ("member party horizontal bar PNGs", "member_parties_horizontal_bar"),
+          ]
           lines = [
               "# Instagram visual preview output",
               "",
@@ -357,11 +361,12 @@ jobs:
           if (s3_data_dir / "s3_schema_profile.json").exists():
               lines.append(f"- schema profile JSON: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/generated_visual_data/s3_schema_profile.json")
           if s3_smoke_status == "succeeded":
-              lines += [
-                  f"- smoke contact sheet: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.png",
-                  f"- debate issue smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/debate_issues/png",
-                  f"- member party smoke PNGs: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/member_parties/png",
-              ]
+              lines.append(f"- smoke contact sheet: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.png")
+              lines.append(f"- smoke contact sheet manifest: https://raw.githubusercontent.com/{repo}/{branch}/{preview_dir}/smoke/s3/contact_sheet/contact_sheet.manifest.json")
+              for label, directory in smoke_dirs:
+                  path = root / "smoke" / "s3" / "visuals" / directory / "png"
+                  if path.exists():
+                      lines.append(f"- {label}: https://github.com/{repo}/tree/{branch}/{preview_dir}/smoke/s3/visuals/{directory}/png")
           lines += ["", "Review only: this does not publish, schedule, or approve Instagram content.", ""]
           readme_path.write_text("\n".join(lines), encoding="utf-8")
           PY
@@ -395,8 +400,11 @@ jobs:
             fi
             if [[ "${S3_SMOKE_STATUS}" == "succeeded" ]]; then
               echo "- Smoke contact sheet: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.png"
-              echo "- Debate issue smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues/png"
-              echo "- Member party smoke PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties/png"
+              echo "- Smoke contact sheet manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/contact_sheet/contact_sheet.manifest.json"
+              echo "- Debate issue horizontal bar PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues_horizontal_bar/png"
+              echo "- Debate issue vertical bar PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/debate_issues_vertical_bar/png"
+              echo "- Member party donut PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties_donut_chart/png"
+              echo "- Member party horizontal bar PNGs: https://github.com/${GITHUB_REPOSITORY}/tree/${PREVIEW_BRANCH}/${S3_SMOKE_DIR}/visuals/member_parties_horizontal_bar/png"
             fi
           } >> "${GITHUB_STEP_SUMMARY}"
 
