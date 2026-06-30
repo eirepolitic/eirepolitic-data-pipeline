@@ -157,7 +157,17 @@ jobs:
           cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
           git -C /tmp/oireachtas-review-worktree add .
           git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas weekly review output for run ${GITHUB_RUN_ID}" || true
-          git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"
+          for attempt in 1 2 3; do
+            git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
+            if git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"; then
+              exit 0
+            fi
+            if [[ "${attempt}" == "3" ]]; then
+              echo "Review branch push failed after ${attempt} attempts."
+              exit 1
+            fi
+            sleep $((attempt * 5))
+          done
 
       - name: Write workflow summary
         if: always()
