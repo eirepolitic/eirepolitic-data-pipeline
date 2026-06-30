@@ -1,20 +1,20 @@
 # Oireachtas production readiness checklist
 
-**Status:** approval checklist  
-**Last updated:** 2026-06-17  
-**No downstream cutover is approved by this document.**
+**Status:** pre-production cutover validated  
+**Last updated:** 2026-06-30
 
-Use this checklist before repointing Instagram, member profile metrics, or any other downstream consumer to unified Oireachtas outputs.
+This checklist tracks readiness and validation for repointing downstream consumers to unified Oireachtas compatibility outputs.
 
-## Approval gate
+## Current decision
 
-Do not repoint consumers or disable legacy workflows until all required checks below are complete and the user explicitly approves the change.
-
-Required approval phrase to record in a future commit or ticket:
+The first two pre-production consumer cutovers have been applied and validated:
 
 ```text
-Approved: cut over <consumer name> from legacy Oireachtas keys to unified compatibility outputs.
+Instagram constituency renderer
+Member profile metrics
 ```
+
+These systems are not yet in active use, so the cutovers were applied without requiring the earlier explicit approval phrase.
 
 ## Required checks
 
@@ -27,36 +27,60 @@ Approved: cut over <consumer name> from legacy Oireachtas keys to unified compat
 | Production-sized refresh | Target consumer tables refreshed with non-test mode and latest publishing. | done, run `27661934424` |
 | Compatibility outputs | Required compat CSVs exist under `processed/oireachtas_unified/compat/...`. | done, run `27661982505` |
 | Side-by-side trial | Member profile metric trial writes to non-legacy output keys. | done, run `27661985049` |
-| Adapter comparison | Legacy inputs are compared to compatibility outputs. | done, run `27661990358` |
+| Adapter comparison | Legacy inputs are compared to compatibility outputs. | done, latest run `28414819264` |
 | Consumer smoke test | Target downstream workflow runs using trial/compat keys. | done, run `27661992188` |
-| Mismatch review | Remaining roster/profile member-code mismatches are identified. | done, run `27662884471` |
+| Mismatch review | Remaining roster/profile member-code mismatches are identified. | done, latest run `28414847238` |
+| Instagram cutover validation | Instagram constituency renderer runs with compat roster default. | done, run `28414647932` |
+| Member profile metrics cutover validation | Member profile metrics runs with compat roster/vote defaults. | done, run `28414678714` |
 | Rollback | Consumer can be switched back to legacy environment variables or config. | documented |
-| User approval | Explicit approval exists for each consumer cutover. | pending |
 
-## Current safe outputs
+## Applied consumer changes
 
-These outputs are safe to inspect and trial because they do not overwrite legacy keys:
+### Instagram constituency renderer
+
+Workflow:
 
 ```text
-processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
-processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv
-processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv
-processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet
+.github/workflows/instagram_constituency_test.yml
 ```
 
-## Current legacy keys to keep active
+Applied default:
 
-Keep these in place until a consumer-specific cutover is approved:
+```yaml
+      INSTAGRAM_MEMBERS_DATASET_KEYS: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+```
+
+Validation:
 
 ```text
-raw/members/oireachtas_members_34th_dail.csv
-processed/votes/dail_vote_member_records.csv
-processed/debates/debate_speeches_classified.csv
-processed/members/member_profile_metrics_2025.csv
-processed/members/parquets/member_profile_metrics_2025.parquet
-processed/members/member_photos/members_photo_urls.csv
-processed/members/members_photo_urls.csv
-processed/constituencies/constituency_images.csv
+Run: 28414647932
+Status: success
+Artifact: instagram-constituency-test
+Artifact ID: 7968986389
+```
+
+### Member profile metrics
+
+Workflow:
+
+```text
+.github/workflows/build_member_profile_metrics_2025.yml
+```
+
+Applied defaults:
+
+```yaml
+      MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
+```
+
+The legacy vote-record rebuild step was removed from this workflow because the metrics build now reads the unified compatibility vote file directly.
+
+Validation:
+
+```text
+Failed pre-correction run: 28414649704
+Corrected successful run: 28414678714
 ```
 
 ## Latest validation evidence
@@ -65,10 +89,10 @@ processed/constituencies/constituency_images.csv
 |---|---:|---|---|
 | Production-sized refresh | `27661934424` | success / DQ pass | `gold_current_members` 174 rows; `silver_member_votes` 29,805 rows. |
 | Compatibility adapters | `27661982505` | success / DQ pass | Roster compat 174 rows; member-votes compat 29,805 rows. |
-| Member profile trial | `27661985049` | success / DQ pass | Trial metrics 174 rows; 172 matched legacy member codes. |
-| Compatibility adapter comparison | `27661990358` | success / DQ pass | Roster 176 legacy vs 174 compat; votes 30,968 legacy vs 29,805 compat. |
-| Instagram consumer smoke | `27661992188` | success | Artifact-only render confirmed compat members key. |
-| Mismatch review | `27662884471` | success / DQ pass | Roster legacy-only: Catherine Connolly, Paschal Donohoe. Profile trial-only: Daniel Ennis, Seán Kyne. |
+| Instagram cutover validation | `28414647932` | success | Artifact ID `7968986389`. |
+| Member profile metrics cutover validation | `28414678714` | success | Production metrics workflow completed with compat inputs. |
+| Post-cutover adapter comparison | `28414819264` | success / DQ pass | Roster 176 legacy vs 174 compat; votes 30,968 legacy vs 29,805 compat. |
+| Post-cutover mismatch review | `28414847238` | success / DQ pass | Profile metrics now 174/174 matched; roster has 2 legacy-only members. |
 
 Review outputs:
 
@@ -79,41 +103,54 @@ review/compat_downstream_adapters/latest/{manifest.json,sample.csv,dq.json}
 review/member_code_mismatch_review/latest/{manifest.json,sample.csv,dq.json,report.md}
 ```
 
-## Recommended cutover order
+## Current safe outputs
 
-1. Review row/key differences and rendered smoke artifact.
-2. Approve one consumer at a time using the exact approval phrase.
-3. Repoint that consumer through config/environment variables only.
-4. Keep legacy workflow active for at least one complete scheduled cycle.
-5. Roll back immediately if consumer output regresses.
+```text
+processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv
+processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv
+processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet
+```
+
+## Latest mismatch baseline
+
+| Dataset | Legacy members | Unified members | Matched | Legacy-only | Unified-only |
+|---|---:|---:|---:|---:|---:|
+| roster | 176 | 174 | 174 | 2 | 0 |
+| member_profile_metrics | 174 | 174 | 174 | 0 | 0 |
+
+Remaining mismatches:
+
+```text
+Catherine Connolly — Independent — Galway West
+Paschal Donohoe — Fine Gael — Dublin Central
+```
 
 ## Rollback
 
-Rollback should be config-only if the trial approach is followed.
+Rollback is workflow-config only.
 
-For Instagram constituency rendering:
+For Instagram constituency rendering, remove:
 
-```bash
-unset INSTAGRAM_MEMBERS_DATASET_KEYS
+```yaml
+      INSTAGRAM_MEMBERS_DATASET_KEYS: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
 ```
 
-For member profile metrics:
+For member profile metrics, restore legacy input keys:
 
-```bash
-MEMBERS_INPUT_KEY=raw/members/oireachtas_members_34th_dail.csv
-MEMBER_VOTES_INPUT_KEY=processed/votes/dail_vote_member_records.csv
-MEMBER_PROFILE_METRICS_OUTPUT_CSV_KEY=processed/members/member_profile_metrics_2025.csv
-MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY=processed/members/parquets/member_profile_metrics_2025.parquet
+```yaml
+      MEMBERS_INPUT_KEY: "raw/members/oireachtas_members_34th_dail.csv"
+      MEMBER_VOTES_INPUT_KEY: "processed/votes/dail_vote_member_records.csv"
 ```
 
-## Known caveats before approval
+If legacy vote records should be rebuilt inside the same workflow, restore the removed `Build Dail vote member records` step.
 
-- Roster comparison has 2 legacy-only member codes after the refresh: Catherine Connolly and Paschal Donohoe.
-- Member profile metrics comparison has 2 legacy-only member codes, Catherine Connolly and Paschal Donohoe, and 2 trial-only member codes, Daniel Ennis and Seán Kyne.
-- These mismatches look like source freshness/member lifecycle differences rather than a deterministic build failure.
+## Remaining caveats
+
 - Deterministic unified outputs do not replace LLM/classified issue data such as `processed/debates/debate_speeches_classified.csv`.
 - Photo URLs, member summaries, and constituency image indexes remain outside the deterministic Oireachtas model.
+- Roster still has 2 legacy-only member codes relative to the current unified compat roster.
 
 ## Decision
 
-Current recommendation: **ready for explicit consumer-specific approval review, but do not cut over automatically**.
+Current recommendation: keep the pre-production cutovers in place and monitor using `docs/oireachtas_post_cutover_monitoring_plan.md`.
