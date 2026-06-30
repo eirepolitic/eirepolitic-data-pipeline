@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P42 — member photo consumer trial
+**Current packet:** P45 — constituency image enrichment trial builder
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -40,6 +40,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P35** weekly refresh failure investigated, patched, and safe validation passed.
 - **P36-P38** classified issue consumer trial passed, media enrichment namespace plan added, scheduled refresh monitoring status documented.
 - **P39-P41** member photo enrichment trial passed and classified issue production cutover was deferred.
+- **P42-P44** member photo consumer trial passed, constituency image enrichment design added, and full classified issue run plan added.
 
 ## Applied pre-production cutovers
 
@@ -94,15 +95,6 @@ Result:
 success; DQ pass; artifact ID 7971387010
 ```
 
-Outputs:
-
-```text
-processed/oireachtas_unified/enrichment/speech_issue_labels/speech_issue_labels_2025_trial.csv
-processed/oireachtas_unified/enrichment/speech_issue_labels/parquets/speech_issue_labels_2025_trial.parquet
-processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
-processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet
-```
-
 Consumer trial:
 
 ```text
@@ -118,10 +110,10 @@ Production cutover decision:
 Deferred because the current classified issue compat file was built from 50 trial rows, not full 47,275-row source coverage.
 ```
 
-Decision doc:
+Full run plan:
 
 ```text
-docs/oireachtas_classified_issue_cutover_decision.md
+docs/oireachtas_full_classified_issue_enrichment_run_plan.md
 ```
 
 ## Member photo enrichment status
@@ -132,13 +124,7 @@ Builder:
 extract/oireachtas/enrichment_member_photo_urls.py
 ```
 
-Workflow:
-
-```text
-.github/workflows/oireachtas_member_photo_enrichment_trial.yml
-```
-
-Workflow ID/run:
+Workflow/run:
 
 ```text
 304478490 / 28422342745
@@ -170,7 +156,46 @@ processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
 processed/oireachtas_unified/compat/media/parquets/members_photo_urls_compat.parquet
 ```
 
+Consumer trial:
+
+```text
+Workflow ID: 294874303
+Run ID: 28461617338
+Run number: 5
+Result: success
+Artifact ID: 7987802357
+```
+
+Review sample:
+
+```text
+legacy_rows: 174
+trial_rows: 174
+matched_member_count: 174
+trial_only_member_count: 0
+legacy_only_member_count: 0
+common_column_count: 12
+DQ: pass
+```
+
 No legacy photo URL key was overwritten.
+
+## Constituency image enrichment design
+
+Design doc:
+
+```text
+docs/oireachtas_constituency_image_enrichment_design.md
+```
+
+Proposed future outputs:
+
+```text
+processed/oireachtas_unified/enrichment/media/constituency_images/constituency_images_trial.csv
+processed/oireachtas_unified/enrichment/media/constituency_images/parquets/constituency_images_trial.parquet
+processed/oireachtas_unified/compat/media/constituency_images_compat.csv
+processed/oireachtas_unified/compat/media/parquets/constituency_images_compat.parquet
+```
 
 ## Scheduled refresh status
 
@@ -192,35 +217,36 @@ Weekly scheduled mode should still be monitored because manual validation used s
 - Member profile metrics have 0 member-code mismatches after the cutover build.
 - Deterministic unified outputs still do not replace member summaries or constituency image indexes.
 - Classified issue compat path is structurally valid but not production-ready until full-row build/comparison.
-- Member photo compat path is structurally valid and fully populated, but consumers have not yet been repointed to it.
+- Member photo compat path is structurally valid and consumer-validated, but production workflows are not repointed to it yet.
 - Weekly scheduled mode should still be monitored on the next schedule, even though safe/manual validation passed.
 
 ## Next packet batch
 
-### P42 — member photo consumer trial
+### P45 — constituency image enrichment trial builder
 
 Goal:
 
-- run member-profile and/or Instagram trial with `processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv` as the photo input.
+- build side-by-side `enrichment_constituency_images` output.
+- Do not overwrite legacy constituency image keys.
 
-### P43 — constituency image enrichment trial design
-
-Goal:
-
-- design side-by-side `enrichment_constituency_images` output.
-
-### P44 — full classified issue enrichment run plan
+### P46 — constituency image enrichment workflow
 
 Goal:
 
-- plan full `row_limit=0` classified issue compat build before production cutover.
+- add manual workflow for constituency image enrichment trial.
+
+### P47 — member photo production cutover decision
+
+Goal:
+
+- decide whether to repoint production member-profile metrics photo input to `processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv`.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P42 member photo consumer trial, then P43 constituency image enrichment trial design, then P44 full classified issue enrichment run plan.
-Do not overwrite legacy photo URL keys or processed/debates/debate_speeches_classified.csv.
-Latest successful validations: member photo enrichment run 28422342745, classified issue consumer trial run 28422192492, weekly validation run 28421557467.
+Start P45 constituency image enrichment trial builder, then P46 constituency image enrichment workflow, then P47 member photo production cutover decision.
+Do not overwrite legacy constituency image keys, legacy photo URL keys, or processed/debates/debate_speeches_classified.csv.
+Latest successful validations: member photo consumer trial run 28461617338, member photo enrichment run 28422342745, classified issue consumer trial run 28422192492.
 ```
