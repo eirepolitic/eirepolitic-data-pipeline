@@ -49,12 +49,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build Dail vote member records
-        run: |
-          python process/build_dail_votes_member_records.py \
-            --date-start "${{ inputs.date_start }}" \
-            --date-end "${{ inputs.date_end }}"
-
       - name: Build member profile metrics 2025
         run: |
           python process/build_member_profile_metrics_2025.py
