@@ -32,6 +32,8 @@ jobs:
       VOTES_DATE_START: ${{ inputs.date_start }}
       VOTES_DATE_END: ${{ inputs.date_end }}
       TARGET_YEAR: "2025"
+      MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
 
     steps:
       - name: Check out repo
