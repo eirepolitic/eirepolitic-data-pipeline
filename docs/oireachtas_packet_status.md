@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P39 — member photo enrichment trial builder
+**Current packet:** P42 — member photo consumer trial
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -39,6 +39,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P32-P34** classified issue enrichment trial builder/workflow/compat plan complete.
 - **P35** weekly refresh failure investigated, patched, and safe validation passed.
 - **P36-P38** classified issue consumer trial passed, media enrichment namespace plan added, scheduled refresh monitoring status documented.
+- **P39-P41** member photo enrichment trial passed and classified issue production cutover was deferred.
 
 ## Applied pre-production cutovers
 
@@ -73,7 +74,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Workflow remains artifact-only by default: `upload_preview=false`.
 - Validation: workflow ID `271160957`, run `28415050102`, success, artifact ID `7969146127`.
 
-## Classified issue enrichment trial status
+## Classified issue enrichment status
 
 Trial builder:
 
@@ -81,13 +82,7 @@ Trial builder:
 extract/oireachtas/enrichment_speech_issue_labels.py
 ```
 
-Trial workflow:
-
-```text
-.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml
-```
-
-Workflow ID/run:
+Trial workflow/run:
 
 ```text
 304470256 / 28421444809
@@ -108,84 +103,76 @@ processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.cs
 processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet
 ```
 
-No production classified-debate key was overwritten.
-
-## P36 classified issue consumer trial
-
-Workflow patched:
-
-```text
-.github/workflows/oireachtas_member_profile_trial.yml
-```
-
-Change:
-
-- Added `debate_issues_input_key` workflow input.
-- Default now uses:
-
-```text
-processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
-```
-
-Validation:
+Consumer trial:
 
 ```text
 Workflow ID: 294874303
 Run ID: 28422192492
-Run number: 4
 Result: success
-Artifact: oireachtas-member-profile-trial-output
 Artifact ID: 7971637215
 ```
 
-Review sample result:
+Production cutover decision:
 
 ```text
-legacy_rows: 174
-trial_rows: 174
-matched_member_count: 174
-trial_only_member_count: 0
-legacy_only_member_count: 0
-common_column_count: 12
-DQ: pass
+Deferred because the current classified issue compat file was built from 50 trial rows, not full 47,275-row source coverage.
 ```
 
-This validates that member-profile metrics can consume the classified issue compat file side-by-side.
-
-## P37 media enrichment namespace follow-up
-
-File added:
+Decision doc:
 
 ```text
-docs/oireachtas_media_enrichment_namespace_plan.md
+docs/oireachtas_classified_issue_cutover_decision.md
 ```
 
-Decision:
+## Member photo enrichment status
 
-- Keep photo URLs, member summaries, and constituency images out of deterministic silver/gold tables.
-- Use separate enrichment namespaces:
+Builder:
 
 ```text
-processed/oireachtas_unified/enrichment/media/member_photo_urls/
-processed/oireachtas_unified/enrichment/text/member_summaries/
-processed/oireachtas_unified/enrichment/media/constituency_images/
+extract/oireachtas/enrichment_member_photo_urls.py
 ```
 
-Recommended next implementation:
+Workflow:
 
 ```text
-enrichment_member_photo_urls
+.github/workflows/oireachtas_member_photo_enrichment_trial.yml
 ```
 
-because it is lower risk than generated summaries.
-
-## P38 scheduled refresh monitoring
-
-File added:
+Workflow ID/run:
 
 ```text
-docs/oireachtas_scheduled_refresh_monitoring_status.md
+304478490 / 28422342745
 ```
+
+Result:
+
+```text
+success; DQ pass; artifact ID 7971687268
+```
+
+Review manifest:
+
+```text
+source_key: processed/members/member_photos/members_photo_urls.csv
+source_rows: 174
+output_rows: 174
+compat_rows: 174
+photo_url_populated_count: 174
+photo_url_missing_count: 0
+```
+
+Outputs:
+
+```text
+processed/oireachtas_unified/enrichment/media/member_photo_urls/member_photo_urls_trial.csv
+processed/oireachtas_unified/enrichment/media/member_photo_urls/parquets/member_photo_urls_trial.parquet
+processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
+processed/oireachtas_unified/compat/media/parquets/members_photo_urls_compat.parquet
+```
+
+No legacy photo URL key was overwritten.
+
+## Scheduled refresh status
 
 Latest refresh state:
 
@@ -195,42 +182,7 @@ Monthly: active; latest run 27397121321 success, manual validation
 Yearly: active; latest run 27397123885 success, manual validation
 ```
 
-Next scheduled weekly run should still be monitored because manual validation used safe defaults while scheduled mode uses incremental mode.
-
-## Weekly refresh failure investigation
-
-Files added/changed:
-
-```text
-docs/oireachtas_weekly_refresh_failure_investigation.md
-extract/oireachtas/table_debate_records.py
-```
-
-Failed scheduled weekly runs:
-
-```text
-27898282130
-28314747505
-```
-
-Root cause:
-
-- `silver_debate_records` required every row to have a PDF source link.
-- Recent debate records had XML source links but no PDF links.
-
-Patch:
-
-- XML links remain required.
-- PDF links are optional and tracked via `pdf_present_count` / `pdf_missing_count`.
-
-Validation:
-
-```text
-Workflow ID: 294426406
-Run ID: 28421557467
-Result: success
-Artifact ID: 7971444843
-```
+Weekly scheduled mode should still be monitored because manual validation used safe defaults while scheduled mode uses incremental mode.
 
 ## Current caveats
 
@@ -238,38 +190,37 @@ Artifact ID: 7971444843
   - Catherine Connolly — Independent — Galway West
   - Paschal Donohoe — Fine Gael — Dublin Central
 - Member profile metrics have 0 member-code mismatches after the cutover build.
-- Deterministic unified outputs still do not replace photo URL indexes, member summaries, or constituency image indexes.
-- The classified issue compat path has passed side-by-side consumer validation but is not yet repointed in production member-profile metrics.
+- Deterministic unified outputs still do not replace member summaries or constituency image indexes.
+- Classified issue compat path is structurally valid but not production-ready until full-row build/comparison.
+- Member photo compat path is structurally valid and fully populated, but consumers have not yet been repointed to it.
 - Weekly scheduled mode should still be monitored on the next schedule, even though safe/manual validation passed.
 
 ## Next packet batch
 
-### P39 — member photo enrichment trial builder
+### P42 — member photo consumer trial
 
 Goal:
 
-- build side-by-side `enrichment_member_photo_urls` output.
-- Do not overwrite legacy photo URL keys.
+- run member-profile and/or Instagram trial with `processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv` as the photo input.
 
-### P40 — member photo enrichment workflow
-
-Goal:
-
-- add manual workflow for member photo enrichment trial.
-- use a safe row limit by default.
-
-### P41 — classified issue production cutover decision
+### P43 — constituency image enrichment trial design
 
 Goal:
 
-- decide whether to repoint production member-profile metrics `DEBATE_ISSUES_INPUT_KEY` to the classified issue compat output.
+- design side-by-side `enrichment_constituency_images` output.
+
+### P44 — full classified issue enrichment run plan
+
+Goal:
+
+- plan full `row_limit=0` classified issue compat build before production cutover.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P39 member photo enrichment trial builder, then P40 member photo enrichment workflow, then P41 classified issue production cutover decision.
+Start P42 member photo consumer trial, then P43 constituency image enrichment trial design, then P44 full classified issue enrichment run plan.
 Do not overwrite legacy photo URL keys or processed/debates/debate_speeches_classified.csv.
-Latest successful validations: classified issue consumer trial run 28422192492, enrichment trial run 28421444809, weekly validation run 28421557467.
+Latest successful validations: member photo enrichment run 28422342745, classified issue consumer trial run 28422192492, weekly validation run 28421557467.
 ```
