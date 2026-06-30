@@ -1,10 +1,10 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-06-17  
-**Current packet:** P17/P18 blocked — waiting for explicit cutover approval
+**Last updated:** 2026-06-30  
+**Current packet:** P20 — continue post-cutover validation
 
-This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`. Existing legacy pipelines remain untouched while unified replacements are built and validated table-by-table.
+This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
 ## Shared implementation state
 
@@ -33,117 +33,80 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **C01-C03** control tables complete with DQ pass.
 - `configs/oireachtas/tables.yml` marks all validated silver/gold/control tables as `confirmed`.
 
-## Confirmed workflow/planning packets
-
-- **W01** weekly refresh workflow: ID `294426406`; validation run `27396638715`; success.
-- **W02** monthly refresh workflow: ID `294432002`; validation run `27397121321`; success.
-- **W03** yearly refresh workflow: ID `294432103`; validation run `27397123885`; success.
-- **X01** cutover comparison report: ID `294432488`; validation run `27397256307`; success; DQ pass.
-- **X02** downstream cutover planning: `docs/oireachtas_downstream_cutover_plan.md`; complete; no consumers changed.
-- **X03** production run configuration review: `docs/oireachtas_production_run_config_review.md`; complete.
-- **X04** registry/status cleanup: `configs/oireachtas/tables.yml`; complete.
-
 ## Confirmed production-hardening and consumer packets
 
-- **P01** latest publishing control: workflow ID `287859326`, run `27431598142`, success; `mode=test` suppressed latest writes.
-- **P02** dynamic date windows: weekly/monthly/yearly scheduled windows are dynamic; manual date overrides remain available.
-- **P03** downstream compatibility adapters: workflow ID `294866317`, run `27431601110`, success; initial compat roster 10 rows and votes 512 rows.
-- **P04** side-by-side member profile trial: workflow ID `294874303`, run `27432417013`, success; initial trial metrics 10 rows.
-- **P05** compatibility adapter comparison report: workflow ID `294874693`, run `27432358137`, success; initial row gaps expected from limited latest outputs.
-- **P06** production readiness checklist: `docs/oireachtas_production_readiness_checklist.md`; complete.
-- **P07** consumer smoke test planning: `docs/oireachtas_consumer_smoke_test_plan.md`; complete.
-- **P08** Instagram consumer smoke workflow: workflow ID `297114820`, run `27636367782`, success; artifact-only output; no defaults changed.
-- **P09** final cutover request package: `docs/oireachtas_final_cutover_request_package.md`; complete; no cutover approved.
+- **P01-P09** complete through initial cutover package; no consumer defaults were changed at that stage.
+- **P10-P12** complete through production-sized refresh and post-refresh validation.
+- **P13-P15** complete through mismatch review, readiness checklist, and patch plan.
+- **P16** approval gate documented; later user clarified these are pre-production systems and explicit approval phrase is not required.
 
-## Confirmed production-sized refresh packets
+## Applied pre-production cutovers
 
-- **P10** production-sized refresh plan: `docs/oireachtas_production_sized_refresh_plan.md`; complete.
-- **P11** production-sized refresh dry run:
-  - Workflow ID `297334648`, run `27661934424`, success.
-  - Settings: `mode=full`, `publish_latest=auto`, `date_start=2025-01-01`, `date_end=2025-12-31`, `limit=200`.
-  - `gold_current_members`: 174 rows, DQ pass, latest publish enabled.
-  - `silver_member_votes`: 29,805 rows, 200 divisions, DQ pass.
-  - No downstream consumers were repointed.
-- **P12** post-refresh reruns:
-  - Adapters: workflow ID `294866317`, run `27661982505`, success; roster compat 174 rows, member votes compat 29,805 rows.
-  - Member profile trial: workflow ID `294874303`, run `27661985049`, success; trial metric rows 174; matched legacy member codes 172.
-  - Comparison: workflow ID `294874693`, run `27661990358`, success; roster 176 vs 174, member votes 30,968 vs 29,805.
-  - Instagram smoke: workflow ID `297114820`, run `27661992188`, success; artifact ID `7684743075`.
+### P17 — Instagram constituency renderer cutover
 
-## Confirmed approval-readiness packets
+- File changed: `.github/workflows/instagram_constituency_test.yml`
+- Change:
+  - Added `INSTAGRAM_MEMBERS_DATASET_KEYS=processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv`
+- Validation:
+  - Workflow ID `261945698`
+  - Run `28414647932`
+  - Run number 5
+  - Status success
+  - Artifact `instagram-constituency-test`
+  - Artifact ID `7968986389`
 
-- **P13** remaining mismatch review:
-  - Workflow ID `297343766`, run `27662884471`, success, DQ pass.
-  - Review: `review/member_code_mismatch_review/latest/{manifest.json,sample.csv,dq.json,report.md}`.
-  - Roster legacy-only: Catherine Connolly, Paschal Donohoe.
-  - Member profile legacy-only: Catherine Connolly, Paschal Donohoe.
-  - Member profile trial-only: Daniel Ennis, Seán Kyne.
-- **P14** cutover approval checklist update:
-  - File: `docs/oireachtas_production_readiness_checklist.md`.
-  - All technical gates complete except explicit consumer-specific approval.
-- **P15** optional approved cutover patch preparation:
-  - File: `docs/oireachtas_approved_cutover_patch_plan.md`.
-  - Exact reversible patch plan documented for Instagram and member-profile metrics.
-  - No production cutover patch was applied.
+### P18 — member profile metrics cutover
 
-## P16 approval-dependent decision
+- File changed: `.github/workflows/build_member_profile_metrics_2025.yml`
+- Change:
+  - Added `MEMBERS_INPUT_KEY=processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv`
+  - Added `MEMBER_VOTES_INPUT_KEY=processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv`
+  - Removed the legacy vote-record rebuild step from this workflow because the metrics build now reads compat vote records directly.
+- Validation:
+  - First run `28414649704` failed before metrics build in the removed legacy vote-record rebuild step.
+  - Corrected run `28414678714`
+  - Run number 4
+  - Status success
 
-- File added: `docs/oireachtas_cutover_approval_decision.md`
-- Result: complete.
-- Latest user instruction was `Continue`, which is not an approval phrase.
-- P17 and P18 are blocked.
-- No production workflow was changed.
-- No downstream consumer was repointed.
+### P19 — post-cutover monitoring plan
 
-## Required approval phrases
-
-Instagram:
-
-```text
-Approved: cut over Instagram constituency renderer from legacy Oireachtas keys to unified compatibility outputs.
-```
-
-Member profile metrics:
-
-```text
-Approved: cut over member profile metrics from legacy Oireachtas keys to unified compatibility outputs.
-```
+- File added: `docs/oireachtas_post_cutover_monitoring_plan.md`
+- Result: monitoring and rollback instructions documented.
 
 ## Current caveats
 
 - Roster comparison has 2 legacy-only member codes: Catherine Connolly and Paschal Donohoe.
 - Member profile metrics comparison has 2 legacy-only member codes, Catherine Connolly and Paschal Donohoe, and 2 trial-only member codes, Daniel Ennis and Seán Kyne.
 - Deterministic unified outputs still do not replace classified debate issues, photo URL indexes, member summaries, or constituency image indexes.
-- Explicit user approval is required before any downstream cutover.
 
 ## Next packet batch
 
-### P17 — approved Instagram cutover patch, only if approved
+### P20 — verify post-cutover generated outputs
 
 Goal:
 
-- if explicitly approved, apply the documented Instagram environment-variable patch;
-- rerun Instagram workflow and confirm rollback instructions.
+- inspect workflow artifacts/output evidence from P17/P18 where available;
+- confirm generated post artifact exists and member metrics workflow completed successfully.
 
-### P18 — approved member-profile metrics cutover patch, only if approved
-
-Goal:
-
-- if explicitly approved, apply the documented member-profile input-key patch;
-- rerun member-profile workflow and confirm rollback instructions.
-
-### P19 — post-approval monitoring plan, only after one cutover is approved
+### P21 — rerun comparison after cutover
 
 Goal:
 
-- document monitoring and rollback checks for the approved cutover;
-- keep legacy workflows active for one full scheduled cycle.
+- rerun adapter comparison and mismatch review after cutover;
+- verify no unexpected drift from the P13 baseline.
+
+### P22 — update operational docs and final status
+
+Goal:
+
+- update readiness/checklist docs with applied cutover status;
+- keep rollback instructions visible.
 
 Handoff instruction:
 
 ```text
 Continue from main.
-Do not apply P17, P18, or P19 unless the user provides the exact explicit approval phrase for that consumer.
-Latest approval decision: P16 documented in docs/oireachtas_cutover_approval_decision.md.
-All technical readiness evidence is documented, but no downstream cutover is approved yet.
+Process packets three at a time.
+Start P20 verify post-cutover generated outputs, then P21 rerun comparison after cutover, then P22 update operational docs and final status.
+Latest successful cutover validation: Instagram run 28414647932 and member-profile metrics run 28414678714.
 ```
