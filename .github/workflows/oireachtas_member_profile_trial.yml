@@ -7,6 +7,10 @@ on:
         description: "Review sample row count"
         required: false
         default: "10"
+      debate_issues_input_key:
+        description: "Debate issue/classified speeches input key"
+        required: false
+        default: "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
 
 concurrency:
   group: oireachtas-member-profile-trial
@@ -31,6 +35,7 @@ jobs:
       TARGET_YEAR: "2025"
       MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
       MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
+      DEBATE_ISSUES_INPUT_KEY: ${{ inputs.debate_issues_input_key }}
       MEMBER_PROFILE_METRICS_OUTPUT_CSV_KEY: "processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv"
       MEMBER_PROFILE_METRICS_OUTPUT_PARQUET_KEY: "processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet"
 
@@ -84,8 +89,17 @@ jobs:
           cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
           git -C /tmp/oireachtas-review-worktree add .
           git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas member profile trial review output for run ${GITHUB_RUN_ID}" || true
-          git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
-          git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"
+          for attempt in 1 2 3; do
+            git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
+            if git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"; then
+              exit 0
+            fi
+            if [[ "${attempt}" == "3" ]]; then
+              echo "Review branch push failed after ${attempt} attempts."
+              exit 1
+            fi
+            sleep $((attempt * 5))
+          done
 
       - name: Write workflow summary
         if: always()
@@ -95,6 +109,7 @@ jobs:
             echo "## Oireachtas member profile metrics trial"
             echo
             echo "- Review branch: \`${REVIEW_BRANCH}\`"
+            echo "- Debate issues input: \`${DEBATE_ISSUES_INPUT_KEY}\`"
             echo "- Manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/manifest.json"
             echo "- Sample CSV: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/sample.csv"
             echo "- Report: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${REVIEW_BRANCH}/review/member_profile_metrics_trial/latest/report.md"
