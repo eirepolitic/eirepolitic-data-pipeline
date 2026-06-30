@@ -1,6 +1,6 @@
 # Oireachtas weekly refresh failure investigation
 
-**Status:** root cause patched; safe validation run in progress  
+**Status:** root cause patched and safe validation passed  
 **Last updated:** 2026-06-30
 
 ## Failed runs investigated
@@ -99,14 +99,11 @@ A safe manual weekly validation run was dispatched after the patch:
 ```text
 Workflow ID: 294426406
 Run ID: 28421557467
+Run number: 5
 Mode: workflow_dispatch defaults
-Expected behavior: test mode, low limits, latest publishing suppressed by test mode
+Result: success
+Artifact: oireachtas-weekly-refresh-output
+Artifact ID: 7971444843
 ```
 
-Current status at documentation time:
-
-```text
-in_progress
-```
-
-The run progressed past the original quick failure point and remained active in the table-set step, indicating the immediate PDF-DQ blocker was cleared. Final run status should be checked before relying on the next scheduled weekly run.
+This validates that the weekly workflow path now completes successfully in safe/default manual mode. The next scheduled run should be monitored to confirm the same fix holds for scheduled incremental mode.
