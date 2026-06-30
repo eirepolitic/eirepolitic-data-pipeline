@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P36 — classified issue consumer trial
+**Current packet:** P39 — member photo enrichment trial builder
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -38,6 +38,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P29-P31** enrichment dependencies audited, classified issue design added, broader review-publisher hardening patched.
 - **P32-P34** classified issue enrichment trial builder/workflow/compat plan complete.
 - **P35** weekly refresh failure investigated, patched, and safe validation passed.
+- **P36-P38** classified issue consumer trial passed, media enrichment namespace plan added, scheduled refresh monitoring status documented.
 
 ## Applied pre-production cutovers
 
@@ -72,62 +73,131 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - Workflow remains artifact-only by default: `upload_preview=false`.
 - Validation: workflow ID `271160957`, run `28415050102`, success, artifact ID `7969146127`.
 
-## Latest post-cutover validation
+## Classified issue enrichment trial status
 
-- Compatibility comparison run `28416432150`: success.
-- Mismatch review run `28416434690`: success.
-- Latest mismatch summary:
-  - Roster: 176 legacy members, 174 unified members, 174 matched, 2 legacy-only, 0 unified-only.
-  - Member profile metrics: 174 legacy members, 174 unified members, 174 matched, 0 legacy-only, 0 unified-only.
+Trial builder:
 
-## P32-P34 enrichment trial status
+```text
+extract/oireachtas/enrichment_speech_issue_labels.py
+```
 
-### P32 — enrichment trial builder implementation
+Trial workflow:
 
-- File added: `extract/oireachtas/enrichment_speech_issue_labels.py`
-- Behavior:
-  - reads `processed/debates/debate_speeches_classified.csv`;
-  - writes side-by-side unified enrichment output;
-  - writes legacy-compatible classified debate output;
-  - does not call OpenAI;
-  - does not overwrite the production classified-debate key.
+```text
+.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml
+```
 
-Trial outputs:
+Workflow ID/run:
+
+```text
+304470256 / 28421444809
+```
+
+Result:
+
+```text
+success; DQ pass; artifact ID 7971387010
+```
+
+Outputs:
 
 ```text
 processed/oireachtas_unified/enrichment/speech_issue_labels/speech_issue_labels_2025_trial.csv
 processed/oireachtas_unified/enrichment/speech_issue_labels/parquets/speech_issue_labels_2025_trial.parquet
-```
-
-Compat outputs:
-
-```text
 processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
 processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet
 ```
 
-### P33 — enrichment trial workflow
+No production classified-debate key was overwritten.
 
-- File added: `.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml`
-- Workflow ID: `304470256`
-- Validation run: `28421444809`
-- Result: success
-- Artifact: `oireachtas-speech-issue-labels-enrichment-trial-output`
-- Artifact ID: `7971387010`
-- Review manifest showed:
-  - source rows: 47,275
-  - row limit: 50
-  - output rows: 50
-  - compat rows: 50
-  - DQ: pass
+## P36 classified issue consumer trial
 
-### P34 — classified issue compat adapter and comparison plan
+Workflow patched:
 
-- File added: `docs/oireachtas_classified_issue_compat_comparison_plan.md`
-- First comparison is built into trial DQ.
-- Production member-profile metrics has not been repointed to the classified issue compat file yet.
+```text
+.github/workflows/oireachtas_member_profile_trial.yml
+```
 
-## P35 weekly refresh failure investigation
+Change:
+
+- Added `debate_issues_input_key` workflow input.
+- Default now uses:
+
+```text
+processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+```
+
+Validation:
+
+```text
+Workflow ID: 294874303
+Run ID: 28422192492
+Run number: 4
+Result: success
+Artifact: oireachtas-member-profile-trial-output
+Artifact ID: 7971637215
+```
+
+Review sample result:
+
+```text
+legacy_rows: 174
+trial_rows: 174
+matched_member_count: 174
+trial_only_member_count: 0
+legacy_only_member_count: 0
+common_column_count: 12
+DQ: pass
+```
+
+This validates that member-profile metrics can consume the classified issue compat file side-by-side.
+
+## P37 media enrichment namespace follow-up
+
+File added:
+
+```text
+docs/oireachtas_media_enrichment_namespace_plan.md
+```
+
+Decision:
+
+- Keep photo URLs, member summaries, and constituency images out of deterministic silver/gold tables.
+- Use separate enrichment namespaces:
+
+```text
+processed/oireachtas_unified/enrichment/media/member_photo_urls/
+processed/oireachtas_unified/enrichment/text/member_summaries/
+processed/oireachtas_unified/enrichment/media/constituency_images/
+```
+
+Recommended next implementation:
+
+```text
+enrichment_member_photo_urls
+```
+
+because it is lower risk than generated summaries.
+
+## P38 scheduled refresh monitoring
+
+File added:
+
+```text
+docs/oireachtas_scheduled_refresh_monitoring_status.md
+```
+
+Latest refresh state:
+
+```text
+Weekly: active; latest run 28421557467 success, manual safe validation
+Monthly: active; latest run 27397121321 success, manual validation
+Yearly: active; latest run 27397123885 success, manual validation
+```
+
+Next scheduled weekly run should still be monitored because manual validation used safe defaults while scheduled mode uses incremental mode.
+
+## Weekly refresh failure investigation
 
 Files added/changed:
 
@@ -145,37 +215,22 @@ Failed scheduled weekly runs:
 
 Root cause:
 
-- The weekly run failed at `silver_debate_records`.
-- Member tables before it completed successfully.
-- `silver_debate_records` failed DQ because recent debate records had XML source links but no PDF source links.
-- Previous DQ required every row to have a PDF URI.
+- `silver_debate_records` required every row to have a PDF source link.
+- Recent debate records had XML source links but no PDF links.
 
 Patch:
 
 - XML links remain required.
-- PDF links are optional.
-- PDF coverage is now recorded through:
-
-```text
-pdf_present_count
-pdf_missing_count
-source_pdf_uri_optional
-source_file_id_pdf_consistent_when_present
-```
+- PDF links are optional and tracked via `pdf_present_count` / `pdf_missing_count`.
 
 Validation:
 
 ```text
 Workflow ID: 294426406
 Run ID: 28421557467
-Run number: 5
-Event: workflow_dispatch
 Result: success
-Artifact: oireachtas-weekly-refresh-output
 Artifact ID: 7971444843
 ```
-
-The immediate weekly blocker is resolved in safe/manual validation mode. Monitor the next scheduled weekly incremental run to confirm scheduled-mode success.
 
 ## Current caveats
 
@@ -184,35 +239,37 @@ The immediate weekly blocker is resolved in safe/manual validation mode. Monitor
   - Paschal Donohoe — Fine Gael — Dublin Central
 - Member profile metrics have 0 member-code mismatches after the cutover build.
 - Deterministic unified outputs still do not replace photo URL indexes, member summaries, or constituency image indexes.
-- The classified issue enrichment trial exists, but production consumers are not repointed to it yet.
-- Weekly scheduled mode should still be monitored on the next schedule, even though the safe/manual validation passed.
+- The classified issue compat path has passed side-by-side consumer validation but is not yet repointed in production member-profile metrics.
+- Weekly scheduled mode should still be monitored on the next schedule, even though safe/manual validation passed.
 
 ## Next packet batch
 
-### P36 — classified issue consumer trial
+### P39 — member photo enrichment trial builder
 
 Goal:
 
-- run member-profile metrics trial using `processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv` as `DEBATE_ISSUES_INPUT_KEY`.
+- build side-by-side `enrichment_member_photo_urls` output.
+- Do not overwrite legacy photo URL keys.
 
-### P37 — enrichment media/index audit follow-up
-
-Goal:
-
-- decide whether photo URL, member summary, and constituency image indexes need unified enrichment namespaces.
-
-### P38 — next scheduled refresh monitoring
+### P40 — member photo enrichment workflow
 
 Goal:
 
-- monitor the next scheduled weekly run after the `silver_debate_records` DQ patch.
+- add manual workflow for member photo enrichment trial.
+- use a safe row limit by default.
+
+### P41 — classified issue production cutover decision
+
+Goal:
+
+- decide whether to repoint production member-profile metrics `DEBATE_ISSUES_INPUT_KEY` to the classified issue compat output.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P36 classified issue consumer trial, then P37 enrichment media/index audit follow-up, then P38 next scheduled refresh monitoring.
-Do not overwrite processed/debates/debate_speeches_classified.csv.
-Latest successful validations: enrichment trial run 28421444809, weekly validation run 28421557467, compatibility comparison run 28416432150, mismatch review run 28416434690.
+Start P39 member photo enrichment trial builder, then P40 member photo enrichment workflow, then P41 classified issue production cutover decision.
+Do not overwrite legacy photo URL keys or processed/debates/debate_speeches_classified.csv.
+Latest successful validations: classified issue consumer trial run 28422192492, enrichment trial run 28421444809, weekly validation run 28421557467.
 ```
