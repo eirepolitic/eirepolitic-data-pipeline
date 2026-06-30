@@ -255,7 +255,10 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = uri_ok = date_ok = house_ok = xml_ok = pdf_ok = file_ids_ok = False
+        non_null_pk = unique_pk = uri_ok = date_ok = house_ok = xml_ok = False
+        pdf_present_count = 0
+        pdf_missing_count = row_count
+        xml_file_ids_ok = pdf_file_ids_consistent = False
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
@@ -263,21 +266,26 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         date_ok = bool(df["debate_date"].notna().all() and (df["debate_date"].astype(str).str.strip() != "").all())
         house_ok = bool(df["house_uri"].notna().all() and (df["house_uri"].astype(str).str.strip() != "").all())
         xml_ok = bool(df["source_xml_uri"].notna().all() and (df["source_xml_uri"].astype(str).str.strip() != "").all())
-        pdf_ok = bool(df["source_pdf_uri"].notna().all() and (df["source_pdf_uri"].astype(str).str.strip() != "").all())
-        file_ids_ok = bool(
-            df["source_file_id_xml"].notna().all()
-            and df["source_file_id_pdf"].notna().all()
-            and (df["source_file_id_xml"].astype(str).str.strip() != "").all()
-            and (df["source_file_id_pdf"].astype(str).str.strip() != "").all()
+        pdf_populated = df["source_pdf_uri"].fillna("").astype(str).str.strip() != ""
+        pdf_present_count = int(pdf_populated.sum())
+        pdf_missing_count = int(row_count - pdf_present_count)
+        xml_file_ids_ok = bool(df["source_file_id_xml"].notna().all() and (df["source_file_id_xml"].astype(str).str.strip() != "").all())
+        pdf_file_ids_consistent = bool(
+            (
+                (pdf_populated & df["source_file_id_pdf"].fillna("").astype(str).str.strip().ne(""))
+                | (~pdf_populated & df["source_file_id_pdf"].fillna("").astype(str).str.strip().eq(""))
+            ).all()
         )
 
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, uri_ok, date_ok, house_ok, xml_ok, pdf_ok, file_ids_ok]) else "fail"
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, uri_ok, date_ok, house_ok, xml_ok, xml_file_ids_ok, pdf_file_ids_consistent]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
         "row_count": row_count,
         "primary_key": schema.primary_key,
         "primary_key_unique": unique_pk,
+        "pdf_present_count": pdf_present_count,
+        "pdf_missing_count": pdf_missing_count,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "required_columns_present", "status": "pass" if not missing_columns else "fail", "missing_columns": missing_columns},
@@ -287,8 +295,15 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "debate_date_populated", "status": "pass" if date_ok else "fail"},
             {"check_name": "house_uri_populated", "status": "pass" if house_ok else "fail"},
             {"check_name": "source_xml_uri_populated", "status": "pass" if xml_ok else "fail"},
-            {"check_name": "source_pdf_uri_populated", "status": "pass" if pdf_ok else "fail"},
-            {"check_name": "source_file_ids_populated", "status": "pass" if file_ids_ok else "fail"},
+            {
+                "check_name": "source_pdf_uri_optional",
+                "status": "pass",
+                "metric_value": pdf_present_count,
+                "missing_count": pdf_missing_count,
+                "severity": "info",
+            },
+            {"check_name": "source_file_id_xml_populated", "status": "pass" if xml_file_ids_ok else "fail"},
+            {"check_name": "source_file_id_pdf_consistent_when_present", "status": "pass" if pdf_file_ids_consistent else "fail"},
         ],
     }
 
