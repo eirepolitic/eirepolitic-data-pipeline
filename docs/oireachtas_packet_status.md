@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-06-30  
-**Current packet:** P35 — weekly scheduled refresh validation follow-up
+**Current packet:** P36 — classified issue consumer trial
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -23,7 +23,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **C01-C03** control tables complete with DQ pass.
 - `configs/oireachtas/tables.yml` marks all validated silver/gold/control tables as `confirmed`.
 
-## Confirmed hardening, cutover, and enrichment planning packets
+## Confirmed hardening, cutover, and enrichment packets
 
 - **P01-P09** complete through initial cutover package.
 - **P10-P12** complete through production-sized refresh and post-refresh validation.
@@ -36,6 +36,8 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P23-P25** steady-state consumer selection, scheduled refresh review, and adapter review complete.
 - **P26-P28** next workstream selected, enrichment plan documented, review publish hardening started.
 - **P29-P31** enrichment dependencies audited, classified issue design added, broader review-publisher hardening patched.
+- **P32-P34** classified issue enrichment trial builder/workflow/compat plan complete.
+- **P35** weekly refresh failure investigated, patched, and safe validation passed.
 
 ## Applied pre-production cutovers
 
@@ -78,7 +80,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
   - Roster: 176 legacy members, 174 unified members, 174 matched, 2 legacy-only, 0 unified-only.
   - Member profile metrics: 174 legacy members, 174 unified members, 174 matched, 0 legacy-only, 0 unified-only.
 
-## Confirmed P32-P34 packets
+## P32-P34 enrichment trial status
 
 ### P32 — enrichment trial builder implementation
 
@@ -125,7 +127,7 @@ processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_
 - First comparison is built into trial DQ.
 - Production member-profile metrics has not been repointed to the classified issue compat file yet.
 
-## Weekly refresh failure investigation
+## P35 weekly refresh failure investigation
 
 Files added/changed:
 
@@ -163,17 +165,17 @@ source_file_id_pdf_consistent_when_present
 
 Validation:
 
-- Safe manual weekly validation run dispatched after patch:
-
 ```text
 Workflow ID: 294426406
 Run ID: 28421557467
 Run number: 5
 Event: workflow_dispatch
-Status at last check: in_progress
+Result: success
+Artifact: oireachtas-weekly-refresh-output
+Artifact ID: 7971444843
 ```
 
-The validation run progressed past the previous immediate failure point. Final completion status still needs to be checked.
+The immediate weekly blocker is resolved in safe/manual validation mode. Monitor the next scheduled weekly incremental run to confirm scheduled-mode success.
 
 ## Current caveats
 
@@ -183,17 +185,9 @@ The validation run progressed past the previous immediate failure point. Final c
 - Member profile metrics have 0 member-code mismatches after the cutover build.
 - Deterministic unified outputs still do not replace photo URL indexes, member summaries, or constituency image indexes.
 - The classified issue enrichment trial exists, but production consumers are not repointed to it yet.
-- Weekly validation run `28421557467` is still in progress at the latest check.
+- Weekly scheduled mode should still be monitored on the next schedule, even though the safe/manual validation passed.
 
 ## Next packet batch
-
-### P35 — weekly scheduled refresh validation follow-up
-
-Goal:
-
-- check final status of run `28421557467`;
-- if successful, mark weekly refresh blocker resolved;
-- if failed, patch the next failing table.
 
 ### P36 — classified issue consumer trial
 
@@ -207,12 +201,18 @@ Goal:
 
 - decide whether photo URL, member summary, and constituency image indexes need unified enrichment namespaces.
 
+### P38 — next scheduled refresh monitoring
+
+Goal:
+
+- monitor the next scheduled weekly run after the `silver_debate_records` DQ patch.
+
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start by checking workflow run 28421557467. If it passed, document weekly refresh fixed. If it failed, inspect the failed table and patch the next blocker.
+Start P36 classified issue consumer trial, then P37 enrichment media/index audit follow-up, then P38 next scheduled refresh monitoring.
 Do not overwrite processed/debates/debate_speeches_classified.csv.
-Latest successful validations: enrichment trial run 28421444809, compatibility comparison run 28416432150, mismatch review run 28416434690.
+Latest successful validations: enrichment trial run 28421444809, weekly validation run 28421557467, compatibility comparison run 28416432150, mismatch review run 28416434690.
 ```
