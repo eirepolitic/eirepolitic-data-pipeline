@@ -1,6 +1,6 @@
 # Member profile metrics side-by-side trial
 
-Run ID: `member_profile_metrics_trial_20260630T052053Z`
+Run ID: `member_profile_metrics_trial_20260630T165750Z`
 Legacy key: `processed/members/member_profile_metrics_2025.csv`
 Trial key: `processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv`
 Trial parquet key: `processed/oireachtas_unified/compat/members/parquets/member_profile_metrics_2025_trial.parquet`
