@@ -15,12 +15,6 @@ def _fmt_list(values: list[Any], limit: int = 12) -> str:
     return ", ".join(rendered)
 
 
-def _fmt_examples(values: list[Any], limit: int = 3) -> str:
-    if not values:
-        return ""
-    return "; ".join(str(value).replace("\n", " ")[:80] for value in values[:limit])
-
-
 def _profile_section(profile: dict[str, Any]) -> list[str]:
     mapping_id = str(profile.get("mapping_id") or "unknown_mapping")
     config_path = str(profile.get("config_path") or "")
@@ -40,6 +34,7 @@ def _profile_section(profile: dict[str, Any]) -> list[str]:
         f"- Content range: `{s3.get('content_range', '')}`",
         f"- Column count: `{schema.get('column_count', 0)}`",
         f"- Sample rows inspected: `{schema.get('sample_row_count', 0)}`",
+        f"- Sampled values included: `{schema.get('sampled_values_included', False)}`",
         f"- Range may be truncated: `{schema.get('range_may_be_truncated')}`",
         "",
         "### Columns",
@@ -66,26 +61,21 @@ def _profile_section(profile: dict[str, Any]) -> list[str]:
             ]
         lines.append("")
 
-    example_values = schema.get("example_values", {}) or {}
     non_empty_counts = schema.get("non_empty_counts", {}) or {}
     blank_counts = schema.get("blank_counts", {}) or {}
-    top_values = schema.get("top_values", {}) or {}
 
     lines += [
         "### Sample column coverage",
         "",
-        "| Column | Non-empty | Blank | Examples | Top sampled values |",
-        "| --- | ---: | ---: | --- | --- |",
+        "Raw sampled field values are omitted from this public preview summary by default.",
+        "",
+        "| Column | Non-empty sampled rows | Blank sampled rows |",
+        "| --- | ---: | ---: |",
     ]
     for column in columns[:60]:
-        examples = _fmt_examples(example_values.get(column, []) or [])
-        top = top_values.get(column, []) or []
-        top_text = "; ".join(f"{entry.get('value', '')} ({entry.get('count', 0)})" for entry in top[:5])
-        lines.append(
-            f"| `{column}` | {non_empty_counts.get(column, 0)} | {blank_counts.get(column, 0)} | {examples} | {top_text} |"
-        )
+        lines.append(f"| `{column}` | {non_empty_counts.get(column, 0)} | {blank_counts.get(column, 0)} |")
     if len(columns) > 60:
-        lines.append(f"| _{len(columns) - 60} more columns omitted from Markdown table_ |  |  |  |  |")
+        lines.append(f"| _{len(columns) - 60} more columns omitted from Markdown table_ |  |  |")
     lines.append("")
     return lines
 
@@ -105,7 +95,9 @@ def build_markdown(profile_path: str | Path, output_path: str | Path) -> dict[st
         f"- Profile count: `{payload.get('profile_count', len(profiles))}`",
         f"- Range bytes per file: `{payload.get('range_bytes', '')}`",
         f"- Sample rows per file: `{payload.get('sample_rows', '')}`",
+        f"- Sampled values included: `{payload.get('sampled_values_included', False)}`",
         "- Download strategy: S3 prefix range read only; full datasets are not downloaded.",
+        "- Privacy: raw sampled field values are omitted by default.",
         "- Publishing: this does not publish, schedule, or approve Instagram content.",
         "",
     ]
