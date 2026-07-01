@@ -5,16 +5,44 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `compat_downstream_adapters`
-- `review/compat_downstream_adapters/latest/sample.csv`
-- `review/compat_downstream_adapters/latest/sample.md`
-- `review/compat_downstream_adapters/latest/manifest.json`
-- `review/compat_downstream_adapters/latest/schema.json`
-- `review/compat_downstream_adapters/latest/dq.json`
+### `silver_bill_stages`
+- `review/silver_bill_stages/latest/sample.csv`
+- `review/silver_bill_stages/latest/sample.md`
+- `review/silver_bill_stages/latest/manifest.json`
+- `review/silver_bill_stages/latest/schema.json`
+- `review/silver_bill_stages/latest/dq.json`
 
-### `member_profile_metrics_trial`
-- `review/member_profile_metrics_trial/latest/sample.csv`
-- `review/member_profile_metrics_trial/latest/sample.md`
-- `review/member_profile_metrics_trial/latest/manifest.json`
-- `review/member_profile_metrics_trial/latest/schema.json`
-- `review/member_profile_metrics_trial/latest/dq.json`
+### `silver_bill_versions`
+- `review/silver_bill_versions/latest/sample.csv`
+- `review/silver_bill_versions/latest/sample.md`
+- `review/silver_bill_versions/latest/manifest.json`
+- `review/silver_bill_versions/latest/schema.json`
+- `review/silver_bill_versions/latest/dq.json`
+
+### `silver_bills`
+- `review/silver_bills/latest/sample.csv`
+- `review/silver_bills/latest/sample.md`
+- `review/silver_bills/latest/manifest.json`
+- `review/silver_bills/latest/schema.json`
+- `review/silver_bills/latest/dq.json`
+
+### `silver_constituencies`
+- `review/silver_constituencies/latest/sample.csv`
+- `review/silver_constituencies/latest/sample.md`
+- `review/silver_constituencies/latest/manifest.json`
+- `review/silver_constituencies/latest/schema.json`
+- `review/silver_constituencies/latest/dq.json`
+
+### `silver_parties`
+- `review/silver_parties/latest/sample.csv`
+- `review/silver_parties/latest/sample.md`
+- `review/silver_parties/latest/manifest.json`
+- `review/silver_parties/latest/schema.json`
+- `review/silver_parties/latest/dq.json`
+
+### `silver_source_files`
+- `review/silver_source_files/latest/sample.csv`
+- `review/silver_source_files/latest/sample.md`
+- `review/silver_source_files/latest/manifest.json`
+- `review/silver_source_files/latest/schema.json`
+- `review/silver_source_files/latest/dq.json`
