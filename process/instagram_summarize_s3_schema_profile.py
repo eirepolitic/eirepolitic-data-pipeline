@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+RAW_SAMPLE_FIELDS = {"example_values", "top_values"}
+
 
 def _fmt_list(values: list[Any], limit: int = 12) -> str:
     if not values:
@@ -13,6 +15,21 @@ def _fmt_list(values: list[Any], limit: int = 12) -> str:
     if len(values) > limit:
         rendered.append(f"… {len(values) - limit} more")
     return ", ".join(rendered)
+
+
+def _raw_sample_field_errors(payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if payload.get("sampled_values_included"):
+        errors.append("Top-level sampled_values_included is true.")
+    for profile_index, profile in enumerate(payload.get("profiles", []) or []):
+        schema = profile.get("schema", {}) or {}
+        mapping_id = profile.get("mapping_id") or f"profile_{profile_index}"
+        if schema.get("sampled_values_included"):
+            errors.append(f"{mapping_id}: schema sampled_values_included is true.")
+        for field in sorted(RAW_SAMPLE_FIELDS):
+            if field in schema:
+                errors.append(f"{mapping_id}: schema contains raw sampled field `{field}`.")
+    return errors
 
 
 def _profile_section(profile: dict[str, Any]) -> list[str]:
@@ -80,10 +97,15 @@ def _profile_section(profile: dict[str, Any]) -> list[str]:
     return lines
 
 
-def build_markdown(profile_path: str | Path, output_path: str | Path) -> dict[str, Any]:
+def build_markdown(profile_path: str | Path, output_path: str | Path, allow_sampled_values: bool = False) -> dict[str, Any]:
     profile_path = Path(profile_path)
     output_path = Path(output_path)
     payload = json.loads(profile_path.read_text(encoding="utf-8"))
+
+    raw_sample_errors = _raw_sample_field_errors(payload)
+    if raw_sample_errors and not allow_sampled_values:
+        raise ValueError("Public S3 schema summary refused sampled raw values: " + "; ".join(raw_sample_errors))
+
     profiles = payload.get("profiles", []) or []
 
     lines = [
@@ -112,6 +134,9 @@ def build_markdown(profile_path: str | Path, output_path: str | Path) -> dict[st
         "profile_path": str(profile_path),
         "output_path": str(output_path),
         "profile_count": len(profiles),
+        "raw_sample_guard_checked": True,
+        "raw_sample_guard_errors": raw_sample_errors,
+        "allow_sampled_values": allow_sampled_values,
     }
 
 
@@ -119,12 +144,18 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build a Markdown summary from an S3 schema profile JSON artifact.")
     parser.add_argument("--profile", default="generated_visual_data/s3_schema_profile.json")
     parser.add_argument("--output", default="generated_visual_data/s3_schema_profile.md")
+    parser.add_argument(
+        "--allow-sampled-values",
+        action="store_true",
+        default=False,
+        help="Allow profile JSON containing raw sampled fields. Off by default for public preview summaries.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    result = build_markdown(args.profile, args.output)
+    result = build_markdown(args.profile, args.output, allow_sampled_values=args.allow_sampled_values)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
