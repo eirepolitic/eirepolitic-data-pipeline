@@ -2,12 +2,12 @@
 
 - Status: `success`
 - DQ status: `pass`
-- Run ID: `enrichment_speech_issue_labels_20260630T050043Z`
+- Run ID: `enrichment_speech_issue_labels_20260703T212418Z`
 - Source key: `processed/debates/debate_speeches_classified.csv`
 - Source rows: `47275`
-- Row limit: `50`
-- Trial rows: `50`
-- Compat rows: `50`
+- Row limit: `0`
+- Trial rows: `47275`
+- Compat rows: `47275`
 
 ## Outputs
 
