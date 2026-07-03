@@ -5,9 +5,16 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
-### `enrichment_speech_issue_labels`
-- `review/enrichment_speech_issue_labels/latest/sample.csv`
-- `review/enrichment_speech_issue_labels/latest/sample.md`
-- `review/enrichment_speech_issue_labels/latest/manifest.json`
-- `review/enrichment_speech_issue_labels/latest/schema.json`
-- `review/enrichment_speech_issue_labels/latest/dq.json`
+### `compat_downstream_adapters`
+- `review/compat_downstream_adapters/latest/sample.csv`
+- `review/compat_downstream_adapters/latest/sample.md`
+- `review/compat_downstream_adapters/latest/manifest.json`
+- `review/compat_downstream_adapters/latest/schema.json`
+- `review/compat_downstream_adapters/latest/dq.json`
+
+### `member_profile_metrics_trial`
+- `review/member_profile_metrics_trial/latest/sample.csv`
+- `review/member_profile_metrics_trial/latest/sample.md`
+- `review/member_profile_metrics_trial/latest/manifest.json`
+- `review/member_profile_metrics_trial/latest/schema.json`
+- `review/member_profile_metrics_trial/latest/dq.json`
