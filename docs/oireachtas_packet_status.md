@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-07-03  
-**Current packet:** P51 — member summaries enrichment trial builder
+**Current packet:** P54 — full classified issue enrichment run
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -43,6 +43,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P42-P44** member photo consumer trial passed, constituency image enrichment design added, and full classified issue run plan added.
 - **P45-P47** constituency image enrichment trial passed and member photo production cutover decision documented.
 - **P48-P50** member photo production patch validated, constituency image consumer trial passed, and member summaries enrichment design added.
+- **P51-P53** member summaries enrichment trial passed and Instagram summary consumer trial passed.
 
 ## Applied pre-production cutovers
 
@@ -53,10 +54,11 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ```yaml
       INSTAGRAM_MEMBERS_DATASET_KEYS: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      INSTAGRAM_MEMBER_SUMMARIES_DATASET_KEYS: "processed/oireachtas_unified/compat/text/members_summaries_compat.csv"
       INSTAGRAM_CONSTITUENCY_IMAGES_DATASET_KEYS: "processed/oireachtas_unified/compat/media/constituency_images_compat.csv"
 ```
 
-- Latest validation: workflow ID `261945698`, run `28636453234`, success, artifact ID `8057106475`.
+- Latest validation: workflow ID `261945698`, run `28672901108`, success, artifact ID `8071309560`.
 
 ### Member profile metrics
 
@@ -140,17 +142,6 @@ Result:
 success; DQ pass; artifact ID 7971687268
 ```
 
-Review manifest:
-
-```text
-source_key: processed/members/member_photos/members_photo_urls.csv
-source_rows: 174
-output_rows: 174
-compat_rows: 174
-photo_url_populated_count: 174
-photo_url_missing_count: 0
-```
-
 Outputs:
 
 ```text
@@ -160,22 +151,11 @@ processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
 processed/oireachtas_unified/compat/media/parquets/members_photo_urls_compat.parquet
 ```
 
-Consumer trial:
+Consumer/production validations:
 
 ```text
-Workflow ID: 294874303
-Run ID: 28461617338
-Run number: 5
-Result: success
-Artifact ID: 7987802357
-```
-
-Production workflow patch:
-
-```text
-Workflow ID: 266755732
-Run ID: 28636446733
-Result: success
+Member profile trial: workflow 294874303, run 28461617338, success, artifact ID 7987802357
+Production metrics workflow: workflow 266755732, run 28636446733, success
 ```
 
 ## Constituency image enrichment status
@@ -198,17 +178,6 @@ Result:
 success; DQ pass; artifact ID 8022576293
 ```
 
-Review manifest:
-
-```text
-source_key: processed/constituencies/constituency_images.csv
-source_rows: 43
-output_rows: 43
-compat_rows: 43
-image_locator_populated_count: 43
-image_locator_missing_count: 0
-```
-
 Outputs:
 
 ```text
@@ -227,23 +196,53 @@ Result: success
 Artifact ID: 8057106475
 ```
 
-No legacy constituency image key was overwritten.
-
 ## Member summaries enrichment status
 
-Design doc:
+Builder:
 
 ```text
-docs/oireachtas_member_summaries_enrichment_design.md
+extract/oireachtas/enrichment_member_summaries.py
 ```
 
-Proposed outputs:
+Workflow/run:
+
+```text
+306762190 / 28672859337
+```
+
+Result:
+
+```text
+success; DQ pass; artifact ID 8071290965
+```
+
+Review manifest:
+
+```text
+source_key: processed/members/members_summaries.csv
+source_rows: 174
+output_rows: 174
+compat_rows: 174
+summary_text_populated_count: 174
+summary_text_missing_count: 0
+```
+
+Outputs:
 
 ```text
 processed/oireachtas_unified/enrichment/text/member_summaries/member_summaries_trial.csv
 processed/oireachtas_unified/enrichment/text/member_summaries/parquets/member_summaries_trial.parquet
 processed/oireachtas_unified/compat/text/members_summaries_compat.csv
 processed/oireachtas_unified/compat/text/parquets/members_summaries_compat.parquet
+```
+
+Consumer trial:
+
+```text
+Workflow ID: 261945698
+Run ID: 28672901108
+Result: success
+Artifact ID: 8071309560
 ```
 
 ## Scheduled refresh status
@@ -264,39 +263,38 @@ Weekly scheduled mode should still be monitored because manual validation used s
   - Catherine Connolly — Independent — Galway West
   - Paschal Donohoe — Fine Gael — Dublin Central
 - Member profile metrics have 0 member-code mismatches after the cutover build.
-- Deterministic unified outputs still do not replace member summaries.
 - Classified issue compat path is structurally valid but not production-ready until full-row build/comparison.
-- Member summaries enrichment is design-only; no builder/workflow yet.
 - Weekly scheduled mode should still be monitored on the next schedule, even though safe/manual validation passed.
+- Production Instagram publishing remains off/artifact-only unless a workflow explicitly enables upload/publish.
 
 ## Next packet batch
 
-### P51 — member summaries enrichment trial builder
+### P54 — full classified issue enrichment run
 
 Goal:
 
-- build side-by-side `enrichment_member_summaries` output.
-- Do not call OpenAI.
-- Do not overwrite legacy member summary keys.
+- run `.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml` with `row_limit=0`.
+- validate full 47,275-row classified issue compat output.
 
-### P52 — member summaries enrichment workflow
-
-Goal:
-
-- add manual workflow for member summaries enrichment trial.
-
-### P53 — member summaries consumer trial
+### P55 — classified issue full-output member-profile trial
 
 Goal:
 
-- run Instagram constituency/campaign trial with `processed/oireachtas_unified/compat/text/members_summaries_compat.csv`.
+- rerun member-profile trial against the full classified issue compat output.
+- compare speech metric columns against production metrics.
+
+### P56 — classified issue production cutover decision update
+
+Goal:
+
+- decide whether to patch production `DEBATE_ISSUES_INPUT_KEY` after the full run and comparison.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P51 member summaries enrichment trial builder, then P52 member summaries enrichment workflow, then P53 member summaries consumer trial.
-Do not overwrite legacy member summary keys, legacy constituency image keys, legacy photo URL keys, or processed/debates/debate_speeches_classified.csv.
-Latest successful validations: member-profile production run 28636446733, Instagram constituency run 28636453234, constituency image enrichment run 28547829924.
+Start P54 full classified issue enrichment run, then P55 classified issue full-output member-profile trial, then P56 classified issue production cutover decision update.
+Do not overwrite processed/debates/debate_speeches_classified.csv or legacy enrichment keys.
+Latest successful validations: member summaries enrichment run 28672859337, Instagram summary consumer run 28672901108, production metrics run 28636446733.
 ```
