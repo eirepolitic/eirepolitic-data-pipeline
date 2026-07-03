@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-07-03  
-**Current packet:** P54 — full classified issue enrichment run
+**Current packet:** P57 — final post-cutover validation sweep
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -44,6 +44,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P45-P47** constituency image enrichment trial passed and member photo production cutover decision documented.
 - **P48-P50** member photo production patch validated, constituency image consumer trial passed, and member summaries enrichment design added.
 - **P51-P53** member summaries enrichment trial passed and Instagram summary consumer trial passed.
+- **P54-P56** full classified issue enrichment passed, full member-profile trial passed, and production classified issue cutover was applied and validated.
 
 ## Applied pre-production cutovers
 
@@ -69,10 +70,11 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
       MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
       MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
       MEMBER_PHOTOS_INPUT_KEY: "processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv"
+      DEBATE_ISSUES_INPUT_KEY: "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
 ```
 
 - Legacy vote-record rebuild step removed from this workflow because the metrics build now reads compat vote records directly.
-- Latest validation: workflow ID `266755732`, run `28636446733`, success.
+- Latest validation: workflow ID `266755732`, run `28684033733`, success.
 
 ### Instagram campaign renderer
 
@@ -83,44 +85,72 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 
 ## Classified issue enrichment status
 
-Trial builder:
+Builder:
 
 ```text
 extract/oireachtas/enrichment_speech_issue_labels.py
 ```
 
-Trial workflow/run:
+Full enrichment workflow/run:
 
 ```text
-304470256 / 28421444809
+304470256 / 28683964925
 ```
 
 Result:
 
 ```text
-success; DQ pass; artifact ID 7971387010
+success; DQ pass; artifact ID 8074954501
 ```
 
-Consumer trial:
+Review manifest:
+
+```text
+source_key: processed/debates/debate_speeches_classified.csv
+source_rows: 47275
+row_limit: 0
+output_rows: 47275
+compat_rows: 47275
+DQ: pass
+```
+
+Outputs:
+
+```text
+processed/oireachtas_unified/enrichment/speech_issue_labels/speech_issue_labels_2025_trial.csv
+processed/oireachtas_unified/enrichment/speech_issue_labels/parquets/speech_issue_labels_2025_trial.parquet
+processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet
+```
+
+Full member-profile trial:
 
 ```text
 Workflow ID: 294874303
-Run ID: 28422192492
+Run ID: 28683998319
 Result: success
-Artifact ID: 7971637215
+Artifact ID: 8074963772
+```
+
+Review result:
+
+```text
+legacy_rows: 174
+trial_rows: 174
+matched_member_count: 174
+trial_only_member_count: 0
+legacy_only_member_count: 0
+common_column_count: 12
+DQ: pass
 ```
 
 Production cutover decision:
 
 ```text
-Deferred because the current classified issue compat file was built from 50 trial rows, not full 47,275-row source coverage.
+docs/oireachtas_classified_issue_cutover_decision.md
 ```
 
-Full run plan:
-
-```text
-docs/oireachtas_full_classified_issue_enrichment_run_plan.md
-```
+Decision: approved, applied, and validated.
 
 ## Member photo enrichment status
 
@@ -216,17 +246,6 @@ Result:
 success; DQ pass; artifact ID 8071290965
 ```
 
-Review manifest:
-
-```text
-source_key: processed/members/members_summaries.csv
-source_rows: 174
-output_rows: 174
-compat_rows: 174
-summary_text_populated_count: 174
-summary_text_missing_count: 0
-```
-
 Outputs:
 
 ```text
@@ -263,38 +282,36 @@ Weekly scheduled mode should still be monitored because manual validation used s
   - Catherine Connolly — Independent — Galway West
   - Paschal Donohoe — Fine Gael — Dublin Central
 - Member profile metrics have 0 member-code mismatches after the cutover build.
-- Classified issue compat path is structurally valid but not production-ready until full-row build/comparison.
 - Weekly scheduled mode should still be monitored on the next schedule, even though safe/manual validation passed.
 - Production Instagram publishing remains off/artifact-only unless a workflow explicitly enables upload/publish.
+- Legacy enrichment keys are preserved for rollback.
 
 ## Next packet batch
 
-### P54 — full classified issue enrichment run
+### P57 — final post-cutover validation sweep
 
 Goal:
 
-- run `.github/workflows/oireachtas_enrichment_speech_issue_labels_trial.yml` with `row_limit=0`.
-- validate full 47,275-row classified issue compat output.
+- rerun compatibility comparison and mismatch review after all enrichment and consumer cutovers.
 
-### P55 — classified issue full-output member-profile trial
-
-Goal:
-
-- rerun member-profile trial against the full classified issue compat output.
-- compare speech metric columns against production metrics.
-
-### P56 — classified issue production cutover decision update
+### P58 — scheduled refresh follow-up check
 
 Goal:
 
-- decide whether to patch production `DEBATE_ISSUES_INPUT_KEY` after the full run and comparison.
+- check weekly/monthly/yearly latest runs after the `silver_debate_records` DQ patch.
+
+### P59 — final handoff/readiness summary
+
+Goal:
+
+- produce final operational summary of completed unified pipeline, applied cutovers, remaining caveats, and rollback paths.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P54 full classified issue enrichment run, then P55 classified issue full-output member-profile trial, then P56 classified issue production cutover decision update.
-Do not overwrite processed/debates/debate_speeches_classified.csv or legacy enrichment keys.
-Latest successful validations: member summaries enrichment run 28672859337, Instagram summary consumer run 28672901108, production metrics run 28636446733.
+Start P57 final post-cutover validation sweep, then P58 scheduled refresh follow-up check, then P59 final handoff/readiness summary.
+Do not overwrite legacy enrichment keys.
+Latest successful validations: full classified enrichment run 28683964925, full member-profile trial run 28683998319, production metrics run 28684033733.
 ```
