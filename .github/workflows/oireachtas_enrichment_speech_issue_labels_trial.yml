@@ -6,7 +6,7 @@ on:
       row_limit:
         description: "Rows to process from existing classified debate output; 0 = all"
         required: true
-        default: "50"
+        default: "0"
       sample_rows:
         description: "Review sample row count"
         required: false
@@ -96,6 +96,7 @@ jobs:
             echo "## Oireachtas speech issue labels enrichment trial"
             echo
             echo "- Review branch: \`${REVIEW_BRANCH}\`"
+            echo "- Row limit: \`${ROW_LIMIT}\`"
             echo "- This workflow does not call OpenAI."
             echo "- This workflow does not overwrite \`processed/debates/debate_speeches_classified.csv\`."
             echo
