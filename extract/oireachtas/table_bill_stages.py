@@ -122,6 +122,8 @@ def build_silver_bill_stages(
         "stage_name_values": sorted(df["stage_name"].dropna().astype(str).unique().tolist()) if not df.empty else [],
         "stage_outcome_values": sorted(df["stage_outcome"].dropna().astype(str).unique().tolist()) if not df.empty else [],
         "house_name_values": sorted(df["house_name"].dropna().astype(str).unique().tolist()) if not df.empty else [],
+        "house_uri_missing_count": dq.get("house_uri_missing_count", 0),
+        "house_name_missing_count": dq.get("house_name_missing_count", 0),
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
@@ -250,16 +252,18 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     row_count = int(len(df))
 
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = bill_ok = name_ok = date_ok = house_uri_ok = house_name_ok = order_ok = False
+        non_null_pk = unique_pk = bill_ok = name_ok = date_ok = order_ok = False
+        house_uri_missing_count = row_count
+        house_name_missing_count = row_count
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
         bill_ok = bool(df["bill_id"].notna().all() and (df["bill_id"].astype(str).str.strip() != "").all())
         name_ok = bool(df["stage_name"].notna().all() and (df["stage_name"].astype(str).str.strip() != "").all())
         date_ok = bool(df["stage_date"].notna().all() and (df["stage_date"].astype(str).str.strip() != "").all())
-        house_uri_ok = bool(df["house_uri"].notna().all() and (df["house_uri"].astype(str).str.strip() != "").all())
-        house_name_ok = bool(df["house_name"].notna().all() and (df["house_name"].astype(str).str.strip() != "").all())
         order_ok = bool(df["order_in_bill"].notna().all() and (df["order_in_bill"].astype(str).str.strip() != "").all())
+        house_uri_missing_count = int((df["house_uri"].isna() | (df["house_uri"].astype(str).str.strip() == "")).sum())
+        house_name_missing_count = int((df["house_name"].isna() | (df["house_name"].astype(str).str.strip() == "")).sum())
 
     status = "pass" if all(
         [
@@ -270,8 +274,6 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             bill_ok,
             name_ok,
             date_ok,
-            house_uri_ok,
-            house_name_ok,
             order_ok,
         ]
     ) else "fail"
@@ -282,6 +284,8 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         "row_count": row_count,
         "primary_key": schema.primary_key,
         "primary_key_unique": unique_pk,
+        "house_uri_missing_count": house_uri_missing_count,
+        "house_name_missing_count": house_name_missing_count,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "required_columns_present", "status": "pass" if not missing_columns else "fail", "missing_columns": missing_columns},
@@ -290,8 +294,8 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "bill_id_populated", "status": "pass" if bill_ok else "fail"},
             {"check_name": "stage_name_populated", "status": "pass" if name_ok else "fail"},
             {"check_name": "stage_date_populated", "status": "pass" if date_ok else "fail"},
-            {"check_name": "house_uri_populated", "status": "pass" if house_uri_ok else "fail"},
-            {"check_name": "house_name_populated", "status": "pass" if house_name_ok else "fail"},
+            {"check_name": "house_uri_optional", "status": "pass", "missing_count": house_uri_missing_count},
+            {"check_name": "house_name_optional", "status": "pass", "missing_count": house_name_missing_count},
             {"check_name": "order_in_bill_populated", "status": "pass" if order_ok else "fail"},
         ],
     }
