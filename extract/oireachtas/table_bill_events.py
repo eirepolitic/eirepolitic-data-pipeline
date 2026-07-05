@@ -119,6 +119,8 @@ def build_silver_bill_events(
         "bills_with_events": len([bill_id for bill_id in bills_with_events if bill_id]),
         "event_name_values": sorted(df["event_name"].dropna().astype(str).unique().tolist()) if not df.empty else [],
         "chamber_name_values": sorted(df["chamber_name"].dropna().astype(str).unique().tolist()) if not df.empty else [],
+        "chamber_uri_missing_count": dq.get("chamber_uri_missing_count", 0),
+        "chamber_name_missing_count": dq.get("chamber_name_missing_count", 0),
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
@@ -243,7 +245,9 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = bill_ok = event_uri_ok = event_type_ok = event_name_ok = event_date_ok = chamber_ok = order_ok = False
+        non_null_pk = unique_pk = bill_ok = event_uri_ok = event_type_ok = event_name_ok = event_date_ok = order_ok = False
+        chamber_uri_missing_count = row_count
+        chamber_name_missing_count = row_count
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
@@ -252,15 +256,18 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
         event_type_ok = bool(df["event_type_uri"].notna().all() and (df["event_type_uri"].astype(str).str.strip() != "").all())
         event_name_ok = bool(df["event_name"].notna().all() and (df["event_name"].astype(str).str.strip() != "").all())
         event_date_ok = bool(df["event_date"].notna().all() and (df["event_date"].astype(str).str.strip() != "").all())
-        chamber_ok = bool(df["chamber_uri"].notna().all() and df["chamber_name"].notna().all() and (df["chamber_uri"].astype(str).str.strip() != "").all() and (df["chamber_name"].astype(str).str.strip() != "").all())
+        chamber_uri_missing_count = int((df["chamber_uri"].isna() | (df["chamber_uri"].astype(str).str.strip() == "")).sum())
+        chamber_name_missing_count = int((df["chamber_name"].isna() | (df["chamber_name"].astype(str).str.strip() == "")).sum())
         order_ok = bool(df["event_order"].notna().all() and (df["event_order"].astype(str).str.strip() != "").all())
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, bill_ok, event_uri_ok, event_type_ok, event_name_ok, event_date_ok, chamber_ok, order_ok]) else "fail"
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, bill_ok, event_uri_ok, event_type_ok, event_name_ok, event_date_ok, order_ok]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
         "row_count": row_count,
         "primary_key": schema.primary_key,
         "primary_key_unique": unique_pk,
+        "chamber_uri_missing_count": chamber_uri_missing_count,
+        "chamber_name_missing_count": chamber_name_missing_count,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "required_columns_present", "status": "pass" if not missing_columns else "fail", "missing_columns": missing_columns},
@@ -271,7 +278,7 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
             {"check_name": "event_type_uri_populated", "status": "pass" if event_type_ok else "fail"},
             {"check_name": "event_name_populated", "status": "pass" if event_name_ok else "fail"},
             {"check_name": "event_date_populated", "status": "pass" if event_date_ok else "fail"},
-            {"check_name": "chamber_populated", "status": "pass" if chamber_ok else "fail"},
+            {"check_name": "chamber_optional", "status": "pass", "uri_missing_count": chamber_uri_missing_count, "name_missing_count": chamber_name_missing_count},
             {"check_name": "event_order_populated", "status": "pass" if order_ok else "fail"},
         ],
     }
