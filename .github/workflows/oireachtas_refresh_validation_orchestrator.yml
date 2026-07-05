@@ -1,0 +1,197 @@
+name: Oireachtas Refresh Validation Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      refresh_type:
+        description: "Optional refresh to run before validations"
+        required: true
+        default: "none"
+        type: choice
+        options: [none, weekly, monthly, yearly]
+      run_consumers:
+        description: "Run downstream consumer validations"
+        required: true
+        default: "true"
+        type: choice
+        options: [true, false]
+
+concurrency:
+  group: oireachtas-refresh-validation-orchestrator
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  orchestrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REFRESH_TYPE: ${{ inputs.refresh_type }}
+      RUN_CONSUMERS: ${{ inputs.run_consumers }}
+      TARGET_BRANCH: ${{ github.ref_name }}
+      TARGET_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Run refresh validation sequence
+        shell: bash
+        run: |
+          set -u -o pipefail
+
+          summary_file="oireachtas_refresh_validation_orchestrator_summary.md"
+          failed=0
+          : > "${summary_file}"
+
+          {
+            echo "# Oireachtas refresh validation orchestrator"
+            echo
+            echo "- Refresh type: \`${REFRESH_TYPE}\`"
+            echo "- Run consumers: \`${RUN_CONSUMERS}\`"
+            echo "- Target branch: \`${TARGET_BRANCH}\`"
+            echo "- Target SHA: \`${TARGET_SHA}\`"
+            echo
+          } >> "${summary_file}"
+
+          wait_for_child_run_id() {
+            local workflow_file="$1"
+            local run_id=""
+            for attempt in $(seq 1 24); do
+              run_id="$(gh run list \
+                --workflow "${workflow_file}" \
+                --branch "${TARGET_BRANCH}" \
+                --event workflow_dispatch \
+                --limit 20 \
+                --json databaseId,headSha,status,createdAt \
+                --jq ".[] | select(.headSha == \"${TARGET_SHA}\") | .databaseId" | head -n 1)"
+              if [[ -n "${run_id}" ]]; then
+                echo "${run_id}"
+                return 0
+              fi
+              sleep 5
+            done
+            return 1
+          }
+
+          run_child() {
+            local label="$1"
+            local workflow_file="$2"
+            local run_id=""
+            local conclusion=""
+            local url=""
+
+            echo "Dispatching ${label}: ${workflow_file}"
+            if ! gh workflow run "${workflow_file}" --ref "${TARGET_BRANCH}"; then
+              {
+                echo "## ${label}"
+                echo
+                echo "- Workflow: \`${workflow_file}\`"
+                echo "- Dispatch: \`failed\`"
+                echo
+              } >> "${summary_file}"
+              failed=1
+              return 1
+            fi
+
+            if ! run_id="$(wait_for_child_run_id "${workflow_file}")"; then
+              {
+                echo "## ${label}"
+                echo
+                echo "- Workflow: \`${workflow_file}\`"
+                echo "- Dispatch: \`sent\`"
+                echo "- Run lookup: \`failed\`"
+                echo
+              } >> "${summary_file}"
+              failed=1
+              return 1
+            fi
+
+            echo "Watching ${label} run ${run_id}"
+            if gh run watch "${run_id}" --exit-status --interval 15; then
+              conclusion="$(gh run view "${run_id}" --json conclusion --jq '.conclusion')"
+            else
+              conclusion="$(gh run view "${run_id}" --json conclusion --jq '.conclusion')"
+            fi
+            url="$(gh run view "${run_id}" --json url --jq '.url')"
+
+            {
+              echo "## ${label}"
+              echo
+              echo "- Workflow: \`${workflow_file}\`"
+              echo "- Run ID: \`${run_id}\`"
+              echo "- Conclusion: \`${conclusion}\`"
+              echo "- URL: ${url}"
+              echo
+            } >> "${summary_file}"
+
+            if [[ "${conclusion}" != "success" ]]; then
+              failed=1
+              return 1
+            fi
+            return 0
+          }
+
+          if [[ "${REFRESH_TYPE}" == "weekly" ]]; then
+            run_child "Weekly refresh" ".github/workflows/oireachtas_weekly_refresh.yml" || true
+          elif [[ "${REFRESH_TYPE}" == "monthly" ]]; then
+            run_child "Monthly refresh" ".github/workflows/oireachtas_monthly_refresh.yml" || true
+          elif [[ "${REFRESH_TYPE}" == "yearly" ]]; then
+            run_child "Yearly refresh" ".github/workflows/oireachtas_yearly_refresh.yml" || true
+          else
+            {
+              echo "## Refresh"
+              echo
+              echo "- Refresh step: \`skipped\`"
+              echo
+            } >> "${summary_file}"
+          fi
+
+          if [[ "${failed}" == "0" ]]; then
+            run_child "Compatibility adapters" ".github/workflows/oireachtas_compat_adapters.yml" || true
+          fi
+          if [[ "${failed}" == "0" ]]; then
+            run_child "Compatibility comparison" ".github/workflows/oireachtas_compat_comparison.yml" || true
+          fi
+          if [[ "${failed}" == "0" ]]; then
+            run_child "Mismatch review" ".github/workflows/oireachtas_mismatch_review.yml" || true
+          fi
+          if [[ "${failed}" == "0" ]]; then
+            run_child "Member profile metrics" ".github/workflows/build_member_profile_metrics_2025.yml" || true
+          fi
+          if [[ "${failed}" == "0" && "${RUN_CONSUMERS}" == "true" ]]; then
+            run_child "Instagram constituency render" ".github/workflows/instagram_constituency_test.yml" || true
+          fi
+          if [[ "${failed}" == "0" && "${RUN_CONSUMERS}" == "true" ]]; then
+            run_child "Instagram campaign render" ".github/workflows/instagram_campaign_render.yml" || true
+          fi
+
+          {
+            echo "## Final status"
+            echo
+            if [[ "${failed}" == "0" ]]; then
+              echo "- Status: \`success\`"
+            else
+              echo "- Status: \`failed\`"
+            fi
+          } >> "${summary_file}"
+
+          cat "${summary_file}" >> "${GITHUB_STEP_SUMMARY}"
+          cat "${summary_file}"
+
+          if [[ "${failed}" != "0" ]]; then
+            exit 1
+          fi
+
+      - name: Upload orchestrator summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-refresh-validation-orchestrator-summary
+          path: oireachtas_refresh_validation_orchestrator_summary.md
+          if-no-files-found: warn
