@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-07-04  
-**Current packet:** P60 — monthly scheduled refresh failure investigation
+**Last updated:** 2026-07-05  
+**Current packet:** P63 — refresh validation orchestrator implementation
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -21,14 +21,8 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **T01-T23** silver tables complete with DQ pass.
 - **G01-G05** gold tables complete with DQ pass.
 - **C01-C03** control tables complete with DQ pass.
-- **P01-P09** initial publishing, dynamic windows, adapters, consumer smoke planning, and cutover package complete.
-- **P10-P18** production-sized dry run and controlled pre-production cutovers complete.
-- **P19-P25** monitoring, post-cutover validation, steady-state selection, scheduled review, adapter review complete.
-- **P26-P35** enrichment planning, review publish hardening, classified issue design, weekly refresh failure patch complete.
-- **P36-P44** classified issue consumer trial, member photo enrichment, constituency image design, classified issue full-run plan complete.
-- **P45-P53** constituency image enrichment, member photo production patch, member summaries enrichment, and Instagram consumer trials complete.
-- **P54-P56** full classified issue enrichment, full member-profile trial, and production classified issue cutover complete.
-- **P57-P59** final validation sweep, scheduled refresh follow-up, and final readiness summary complete.
+- **P01-P59** complete through final post-cutover validation, scheduled follow-up, and handoff summary.
+- **P60-P62** monthly scheduled refresh failure investigated/fixed/validated, and orchestration plan added.
 
 ## Applied controlled pre-production cutovers
 
@@ -82,80 +76,56 @@ Result: success
 Artifact ID: 8071309560
 ```
 
-### Instagram campaign renderer
+## Monthly refresh investigation and fix
 
-Workflow:
+Original failed scheduled run:
 
 ```text
-.github/workflows/instagram_campaign_render.yml
+Workflow ID: 294432002
+Run ID: 28504651002
+Event: schedule
+Result: failure
+Failed step: Run monthly table set
+Artifact ID: 8004493556
 ```
 
-Current default:
+Root causes found:
 
 ```text
-spec_file=render_spec.yml
-upload_preview=false
+silver_bill_stages: strict house_uri/house_name DQ failed on optional house metadata
+silver_bill_sponsors: strict sponsor_name/sponsor_uri DQ failed on role-only sponsors
+silver_bill_events: strict chamber DQ failed on optional chamber metadata
 ```
 
-Validation:
+Patched files:
 
 ```text
-Workflow ID: 271160957
-Run ID: 28415050102
+extract/oireachtas/table_bill_stages.py
+extract/oireachtas/table_bill_sponsors.py
+extract/oireachtas/table_bill_events.py
+```
+
+Production-like validation:
+
+```text
+Workflow ID: 294432002
+Run ID: 28726922946
+Run number: 5
 Result: success
-Artifact ID: 7969146127
+Artifact ID: 8087552815
 ```
 
-## Enrichment compatibility status
-
-### Classified issue labels
+Validation window:
 
 ```text
-Builder: extract/oireachtas/enrichment_speech_issue_labels.py
-Workflow/run: 304470256 / 28683964925
-Result: success; DQ pass; artifact ID 8074954501
-Rows: source 47275, output 47275, compat 47275
-Compat key: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+mode: incremental
+publish_latest: auto
+date_start: 2026-05-25
+date_end: 2026-06-30
+limit: 250
 ```
 
-Full member-profile trial:
-
-```text
-Workflow ID: 294874303
-Run ID: 28683998319
-Result: success
-Artifact ID: 8074963772
-```
-
-### Member photo URLs
-
-```text
-Builder: extract/oireachtas/enrichment_member_photo_urls.py
-Workflow/run: 304478490 / 28422342745
-Result: success; DQ pass; artifact ID 7971687268
-Rows: source 174, output 174, compat 174
-Compat key: processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
-```
-
-### Constituency images
-
-```text
-Builder: extract/oireachtas/enrichment_constituency_images.py
-Workflow/run: 305600627 / 28547829924
-Result: success; DQ pass; artifact ID 8022576293
-Rows: source 43, output 43, compat 43
-Compat key: processed/oireachtas_unified/compat/media/constituency_images_compat.csv
-```
-
-### Member summaries
-
-```text
-Builder: extract/oireachtas/enrichment_member_summaries.py
-Workflow/run: 306762190 / 28672859337
-Result: success; DQ pass; artifact ID 8071290965
-Rows: source 174, output 174, compat 174
-Compat key: processed/oireachtas_unified/compat/text/members_summaries_compat.csv
-```
+Safe monthly manual defaults were restored after validation.
 
 ## Final validation sweep
 
@@ -186,6 +156,15 @@ Paschal Donohoe — Fine Gael — Dublin Central
 
 These are legacy-only roster records. Current member-profile metrics have 174 matched members and no member-code mismatches.
 
+## Enrichment compatibility status
+
+```text
+Classified issue labels: 304470256 / 28683964925 / success / 47275 rows
+Member photo URLs: 304478490 / 28422342745 / success / 174 rows
+Constituency images: 305600627 / 28547829924 / success / 43 rows
+Member summaries: 306762190 / 28672859337 / success / 174 rows
+```
+
 ## Scheduled refresh status
 
 Weekly:
@@ -199,11 +178,10 @@ Result: success
 Monthly:
 
 ```text
-Latest run: 28504651002
-Event: schedule
-Result: failure
-Failed step: Run monthly table set
-Artifact ID: 8004493556
+Latest validated run: 28726922946
+Event: workflow_dispatch
+Result: success
+Latest scheduled run: 28504651002 failed before fix
 ```
 
 Yearly:
@@ -216,14 +194,16 @@ Result: success
 
 ## Current caveats
 
-- Monthly scheduled refresh run `28504651002` failed and needs investigation.
 - Next scheduled weekly run still needs observation after the debate-record DQ patch.
+- Next scheduled monthly run should be observed after the bill-stage/sponsor/event DQ patches.
 - Production Instagram publishing remains artifact-only unless a workflow explicitly enables upload/publish.
 - Legacy enrichment keys remain preserved for rollback.
 
 ## Key docs
 
 ```text
+docs/oireachtas_monthly_refresh_failure_investigation.md
+docs/oireachtas_scheduled_refresh_orchestration_plan.md
 docs/oireachtas_final_post_cutover_validation_sweep.md
 docs/oireachtas_scheduled_refresh_followup_check.md
 docs/oireachtas_final_handoff_readiness_summary.md
@@ -233,33 +213,34 @@ docs/oireachtas_member_photo_cutover_decision.md
 
 ## Next packet batch
 
-### P60 — monthly scheduled refresh failure investigation
+### P63 — refresh validation orchestrator implementation
 
 Goal:
 
-- inspect run `28504651002` artifact/log evidence.
-- identify the failed monthly table and root cause.
+- add `.github/workflows/oireachtas_refresh_validation_orchestrator.yml`.
+- start with manual-only workflow.
+- dispatch child workflows with `gh workflow run` and poll status.
 
-### P61 — monthly scheduled refresh fix/validation
-
-Goal:
-
-- patch the monthly refresh failure if needed.
-- rerun monthly refresh with production-like inputs.
-
-### P62 — scheduled refresh orchestration plan
+### P64 — orchestrator validation with refresh_type=none
 
 Goal:
 
-- design one workflow that runs refresh, adapters, comparison, mismatch review, and consumer validations in order.
+- validate current latest outputs without running a refresh.
+- run adapters, comparison, mismatch review, member profile validation, and Instagram validation.
+
+### P65 — orchestrator scheduled-readiness update
+
+Goal:
+
+- update readiness docs based on orchestrator validation.
+- decide whether to add a scheduled trigger after stable manual validation.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P60 monthly scheduled refresh failure investigation, then P61 monthly scheduled refresh fix/validation, then P62 scheduled refresh orchestration plan.
+Start P63 refresh validation orchestrator implementation, then P64 orchestrator validation with refresh_type=none, then P65 orchestrator scheduled-readiness update.
 Do not overwrite legacy enrichment keys.
-Latest successful validations: compat comparison run 28691936308, mismatch review run 28691938402, production metrics run 28684033733.
-Known blocker: monthly scheduled refresh run 28504651002 failed at Run monthly table set.
+Latest successful validations: monthly production-like validation run 28726922946, compat comparison run 28691936308, mismatch review run 28691938402.
 ```
