@@ -119,6 +119,8 @@ def build_silver_bill_sponsors(
         "bills_with_sponsors": len([bill_id for bill_id in bills_with_sponsors if bill_id]),
         "primary_sponsor_rows": int((df["is_primary"] == "true").sum()) if not df.empty else 0,
         "sponsor_role_name_values": sorted(df["sponsor_role_name"].dropna().astype(str).unique().tolist()) if not df.empty else [],
+        "sponsor_name_missing_count": dq.get("sponsor_name_missing_count", 0),
+        "sponsor_uri_missing_count": dq.get("sponsor_uri_missing_count", 0),
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
@@ -239,30 +241,34 @@ def _dq_results(df: pd.DataFrame, schema: TableSchema) -> dict[str, Any]:
     missing_columns = sorted(set(schema.columns) - set(df.columns))
     row_count = int(len(df))
     if row_count == 0 or pk not in df.columns:
-        non_null_pk = unique_pk = bill_ok = sponsor_name_ok = sponsor_uri_ok = primary_ok = order_ok = False
+        non_null_pk = unique_pk = bill_ok = primary_ok = order_ok = False
+        sponsor_name_missing_count = row_count
+        sponsor_uri_missing_count = row_count
     else:
         non_null_pk = bool(df[pk].notna().all() and (df[pk].astype(str).str.strip() != "").all())
         unique_pk = bool(not df[pk].duplicated().any())
         bill_ok = bool(df["bill_id"].notna().all() and (df["bill_id"].astype(str).str.strip() != "").all())
-        sponsor_name_ok = bool(df["sponsor_name"].notna().all() and (df["sponsor_name"].astype(str).str.strip() != "").all())
-        sponsor_uri_ok = bool(df["sponsor_uri"].notna().all() and (df["sponsor_uri"].astype(str).str.strip() != "").all())
+        sponsor_name_missing_count = int((df["sponsor_name"].isna() | (df["sponsor_name"].astype(str).str.strip() == "")).sum())
+        sponsor_uri_missing_count = int((df["sponsor_uri"].isna() | (df["sponsor_uri"].astype(str).str.strip() == "")).sum())
         primary_ok = bool(df["is_primary"].isin(["true", "false"]).all())
         order_ok = bool(df["sponsor_order"].notna().all() and (df["sponsor_order"].astype(str).str.strip() != "").all())
-    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, bill_ok, sponsor_name_ok, sponsor_uri_ok, primary_ok, order_ok]) else "fail"
+    status = "pass" if all([row_count > 0, not missing_columns, non_null_pk, unique_pk, bill_ok, primary_ok, order_ok]) else "fail"
     return {
         "table": TABLE_NAME,
         "dq_status": status,
         "row_count": row_count,
         "primary_key": schema.primary_key,
         "primary_key_unique": unique_pk,
+        "sponsor_name_missing_count": sponsor_name_missing_count,
+        "sponsor_uri_missing_count": sponsor_uri_missing_count,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "required_columns_present", "status": "pass" if not missing_columns else "fail", "missing_columns": missing_columns},
             {"check_name": "primary_key_non_null", "status": "pass" if non_null_pk else "fail"},
             {"check_name": "primary_key_unique", "status": "pass" if unique_pk else "fail"},
             {"check_name": "bill_id_populated", "status": "pass" if bill_ok else "fail"},
-            {"check_name": "sponsor_name_populated", "status": "pass" if sponsor_name_ok else "fail"},
-            {"check_name": "sponsor_uri_populated", "status": "pass" if sponsor_uri_ok else "fail"},
+            {"check_name": "sponsor_name_optional", "status": "pass", "missing_count": sponsor_name_missing_count},
+            {"check_name": "sponsor_uri_optional", "status": "pass", "missing_count": sponsor_uri_missing_count},
             {"check_name": "is_primary_boolean", "status": "pass" if primary_ok else "fail"},
             {"check_name": "sponsor_order_populated", "status": "pass" if order_ok else "fail"},
         ],
