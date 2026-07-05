@@ -5,6 +5,41 @@ Only small review samples should be published here.
 
 ## Latest outputs
 
+### `control_data_quality_results`
+- `review/control_data_quality_results/latest/sample.csv`
+- `review/control_data_quality_results/latest/sample.md`
+- `review/control_data_quality_results/latest/manifest.json`
+- `review/control_data_quality_results/latest/schema.json`
+- `review/control_data_quality_results/latest/dq.json`
+
+### `control_pipeline_runs`
+- `review/control_pipeline_runs/latest/sample.csv`
+- `review/control_pipeline_runs/latest/sample.md`
+- `review/control_pipeline_runs/latest/manifest.json`
+- `review/control_pipeline_runs/latest/schema.json`
+- `review/control_pipeline_runs/latest/dq.json`
+
+### `control_table_manifests`
+- `review/control_table_manifests/latest/sample.csv`
+- `review/control_table_manifests/latest/sample.md`
+- `review/control_table_manifests/latest/manifest.json`
+- `review/control_table_manifests/latest/schema.json`
+- `review/control_table_manifests/latest/dq.json`
+
+### `gold_constituency_activity_yearly`
+- `review/gold_constituency_activity_yearly/latest/sample.csv`
+- `review/gold_constituency_activity_yearly/latest/sample.md`
+- `review/gold_constituency_activity_yearly/latest/manifest.json`
+- `review/gold_constituency_activity_yearly/latest/schema.json`
+- `review/gold_constituency_activity_yearly/latest/dq.json`
+
+### `gold_content_fact_pool`
+- `review/gold_content_fact_pool/latest/sample.csv`
+- `review/gold_content_fact_pool/latest/sample.md`
+- `review/gold_content_fact_pool/latest/manifest.json`
+- `review/gold_content_fact_pool/latest/schema.json`
+- `review/gold_content_fact_pool/latest/dq.json`
+
 ### `silver_bill_debates`
 - `review/silver_bill_debates/latest/sample.csv`
 - `review/silver_bill_debates/latest/sample.md`
