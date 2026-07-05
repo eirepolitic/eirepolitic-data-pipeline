@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-07-05  
-**Current packet:** P63 — refresh validation orchestrator implementation
+**Current packet:** P66 — orchestrator refresh-enabled validation
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -23,6 +23,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **C01-C03** control tables complete with DQ pass.
 - **P01-P59** complete through final post-cutover validation, scheduled follow-up, and handoff summary.
 - **P60-P62** monthly scheduled refresh failure investigated/fixed/validated, and orchestration plan added.
+- **P63-P65** refresh validation orchestrator implemented, validated with `refresh_type=none`, and scheduled-readiness docs updated.
 
 ## Applied controlled pre-production cutovers
 
@@ -47,7 +48,7 @@ Latest production validation:
 
 ```text
 Workflow ID: 266755732
-Run ID: 28684033733
+Run ID: 28727335843
 Result: success
 ```
 
@@ -71,9 +72,87 @@ Latest validation:
 
 ```text
 Workflow ID: 261945698
-Run ID: 28672901108
+Run ID: 28727349094
 Result: success
-Artifact ID: 8071309560
+Artifact ID: 8087668776
+```
+
+### Instagram campaign renderer
+
+Workflow:
+
+```text
+.github/workflows/instagram_campaign_render.yml
+```
+
+Current default:
+
+```text
+spec_file=render_spec.yml
+upload_preview=false
+```
+
+Latest validation:
+
+```text
+Workflow ID: 271160957
+Run ID: 28727366673
+Result: success
+Artifact ID: 8087671962
+```
+
+## Refresh validation orchestrator
+
+Workflow:
+
+```text
+.github/workflows/oireachtas_refresh_validation_orchestrator.yml
+```
+
+Workflow ID:
+
+```text
+307332237
+```
+
+Current trigger state:
+
+```text
+workflow_dispatch only
+no schedule yet
+```
+
+Default inputs:
+
+```text
+refresh_type=none
+run_consumers=true
+```
+
+Validation:
+
+```text
+Run ID: 28727286429
+Run number: 1
+Result: success
+Artifact ID: 8087672457
+```
+
+Child runs from validation:
+
+```text
+compat adapters: 294866317 / 28727289983 / success / artifact 8087650930
+compat comparison: 294874693 / 28727303180 / success / artifact 8087654840
+mismatch review: 297343766 / 28727318126 / success / artifact 8087658973
+member profile metrics: 266755732 / 28727335843 / success
+Instagram constituency render: 261945698 / 28727349094 / success / artifact 8087668776
+Instagram campaign render: 271160957 / 28727366673 / success / artifact 8087671962
+```
+
+Decision:
+
+```text
+Manual orchestrator is validated. Scheduled trigger deferred until a refresh-enabled orchestrator run passes.
 ```
 
 ## Monthly refresh investigation and fix
@@ -87,14 +166,6 @@ Event: schedule
 Result: failure
 Failed step: Run monthly table set
 Artifact ID: 8004493556
-```
-
-Root causes found:
-
-```text
-silver_bill_stages: strict house_uri/house_name DQ failed on optional house metadata
-silver_bill_sponsors: strict sponsor_name/sponsor_uri DQ failed on role-only sponsors
-silver_bill_events: strict chamber DQ failed on optional chamber metadata
 ```
 
 Patched files:
@@ -115,16 +186,6 @@ Result: success
 Artifact ID: 8087552815
 ```
 
-Validation window:
-
-```text
-mode: incremental
-publish_latest: auto
-date_start: 2026-05-25
-date_end: 2026-06-30
-limit: 250
-```
-
 Safe monthly manual defaults were restored after validation.
 
 ## Final validation sweep
@@ -133,18 +194,18 @@ Compatibility comparison:
 
 ```text
 Workflow ID: 294874693
-Run ID: 28691936308
+Latest orchestrated run ID: 28727303180
 Result: success
-Artifact ID: 8077413255
+Artifact ID: 8087654840
 ```
 
 Mismatch review:
 
 ```text
 Workflow ID: 297343766
-Run ID: 28691938402
+Latest orchestrated run ID: 28727318126
 Result: success
-Artifact ID: 8077412883
+Artifact ID: 8087658973
 ```
 
 Known remaining roster caveat:
@@ -173,6 +234,7 @@ Weekly:
 Latest run: 28421557467
 Event: workflow_dispatch
 Result: success
+Next scheduled weekly run still needs observation after the debate-record DQ patch.
 ```
 
 Monthly:
@@ -182,6 +244,7 @@ Latest validated run: 28726922946
 Event: workflow_dispatch
 Result: success
 Latest scheduled run: 28504651002 failed before fix
+Next scheduled monthly run should be observed after the bill-stage/sponsor/event DQ patches.
 ```
 
 Yearly:
@@ -194,8 +257,9 @@ Result: success
 
 ## Current caveats
 
-- Next scheduled weekly run still needs observation after the debate-record DQ patch.
-- Next scheduled monthly run should be observed after the bill-stage/sponsor/event DQ patches.
+- Orchestrator has only been validated with `refresh_type=none`.
+- Next orchestrator validation should use a refresh-enabled run, preferably `refresh_type=monthly`.
+- Scheduled trigger is intentionally not added yet.
 - Production Instagram publishing remains artifact-only unless a workflow explicitly enables upload/publish.
 - Legacy enrichment keys remain preserved for rollback.
 
@@ -204,43 +268,41 @@ Result: success
 ```text
 docs/oireachtas_monthly_refresh_failure_investigation.md
 docs/oireachtas_scheduled_refresh_orchestration_plan.md
+docs/oireachtas_orchestrator_validation_summary.md
+docs/oireachtas_orchestrator_scheduled_readiness_update.md
 docs/oireachtas_final_post_cutover_validation_sweep.md
-docs/oireachtas_scheduled_refresh_followup_check.md
 docs/oireachtas_final_handoff_readiness_summary.md
-docs/oireachtas_classified_issue_cutover_decision.md
-docs/oireachtas_member_photo_cutover_decision.md
 ```
 
 ## Next packet batch
 
-### P63 — refresh validation orchestrator implementation
+### P66 — orchestrator refresh-enabled validation
 
 Goal:
 
-- add `.github/workflows/oireachtas_refresh_validation_orchestrator.yml`.
-- start with manual-only workflow.
-- dispatch child workflows with `gh workflow run` and poll status.
+- validate the orchestrator with a refresh step enabled.
+- Preferred: `refresh_type=monthly`, because monthly was the latest scheduled failure mode.
+- If the dispatch tool cannot pass inputs, temporarily set orchestrator default `refresh_type=monthly`, validate, then restore default to `none`.
 
-### P64 — orchestrator validation with refresh_type=none
-
-Goal:
-
-- validate current latest outputs without running a refresh.
-- run adapters, comparison, mismatch review, member profile validation, and Instagram validation.
-
-### P65 — orchestrator scheduled-readiness update
+### P67 — orchestrator schedule gate decision
 
 Goal:
 
-- update readiness docs based on orchestrator validation.
-- decide whether to add a scheduled trigger after stable manual validation.
+- decide whether to add a scheduled trigger after refresh-enabled orchestrator validation.
+- If added, start with a weekly-safe schedule after the weekly refresh window.
+
+### P68 — final scheduled-readiness handoff update
+
+Goal:
+
+- update all readiness/handoff docs with refresh-enabled orchestrator evidence and schedule decision.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P63 refresh validation orchestrator implementation, then P64 orchestrator validation with refresh_type=none, then P65 orchestrator scheduled-readiness update.
+Start P66 orchestrator refresh-enabled validation, then P67 orchestrator schedule gate decision, then P68 final scheduled-readiness handoff update.
 Do not overwrite legacy enrichment keys.
-Latest successful validations: monthly production-like validation run 28726922946, compat comparison run 28691936308, mismatch review run 28691938402.
+Latest successful validations: orchestrator run 28727286429, monthly production-like validation run 28726922946, member profile metrics run 28727335843.
 ```
