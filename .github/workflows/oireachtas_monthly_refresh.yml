@@ -6,7 +6,7 @@ on:
       mode:
         description: "Build mode for manual monthly refresh test"
         required: true
-        default: "incremental"
+        default: "test"
         type: choice
         options: [test, incremental, full]
       publish_latest:
@@ -30,15 +30,15 @@ on:
       date_start:
         description: "Start date YYYY-MM-DD"
         required: false
-        default: "2026-05-25"
+        default: "2025-01-01"
       date_end:
         description: "End date YYYY-MM-DD"
         required: false
-        default: "2026-06-30"
+        default: "2025-01-31"
       limit:
         description: "Row/API limit per table"
         required: false
-        default: "250"
+        default: "10"
       sample_rows:
         description: "Review sample row count"
         required: false
