@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-07-05  
-**Current packet:** P66 — orchestrator refresh-enabled validation
+**Last updated:** 2026-07-12 America/Vancouver  
+**Current packet:** P69 — production-input orchestrator design
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -24,8 +24,9 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P01-P59** complete through final post-cutover validation, scheduled follow-up, and handoff summary.
 - **P60-P62** monthly scheduled refresh failure investigated/fixed/validated, and orchestration plan added.
 - **P63-P65** refresh validation orchestrator implemented, validated with `refresh_type=none`, and scheduled-readiness docs updated.
+- **P66-P68** refresh-enabled orchestrator validation complete, schedule gate deferred, final scheduled-readiness handoff added.
 
-## Applied controlled pre-production cutovers
+## Current controlled pre-production cutovers
 
 ### Member profile metrics
 
@@ -44,11 +45,11 @@ MEMBER_PHOTOS_INPUT_KEY: "processed/oireachtas_unified/compat/media/members_phot
 DEBATE_ISSUES_INPUT_KEY: "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
 ```
 
-Latest production validation:
+Latest validation:
 
 ```text
 Workflow ID: 266755732
-Run ID: 28727335843
+Run ID: 29218925171
 Result: success
 ```
 
@@ -72,9 +73,9 @@ Latest validation:
 
 ```text
 Workflow ID: 261945698
-Run ID: 28727349094
+Run ID: 29218960864
 Result: success
-Artifact ID: 8087668776
+Artifact ID: 8267546600
 ```
 
 ### Instagram campaign renderer
@@ -96,9 +97,9 @@ Latest validation:
 
 ```text
 Workflow ID: 271160957
-Run ID: 28727366673
+Run ID: 29219005969
 Result: success
-Artifact ID: 8087671962
+Artifact ID: 8267555282
 ```
 
 ## Refresh validation orchestrator
@@ -119,40 +120,49 @@ Current trigger state:
 
 ```text
 workflow_dispatch only
-no schedule yet
+no schedule trigger
 ```
 
-Default inputs:
+Manual defaults restored after validation:
 
 ```text
 refresh_type=none
 run_consumers=true
 ```
 
-Validation:
+### Current-latest validation
 
 ```text
 Run ID: 28727286429
-Run number: 1
 Result: success
 Artifact ID: 8087672457
 ```
 
-Child runs from validation:
+### Refresh-enabled validation
 
 ```text
-compat adapters: 294866317 / 28727289983 / success / artifact 8087650930
-compat comparison: 294874693 / 28727303180 / success / artifact 8087654840
-mismatch review: 297343766 / 28727318126 / success / artifact 8087658973
-member profile metrics: 266755732 / 28727335843 / success
-Instagram constituency render: 261945698 / 28727349094 / success / artifact 8087668776
-Instagram campaign render: 271160957 / 28727366673 / success / artifact 8087671962
+Run ID: 29218772777
+Result: success
+Artifact ID: 8267558251
 ```
 
-Decision:
+Child runs from refresh-enabled validation:
 
 ```text
-Manual orchestrator is validated. Scheduled trigger deferred until a refresh-enabled orchestrator run passes.
+monthly refresh: 294432002 / 29218778131 / success / artifact 8267502791
+compat adapters: 294866317 / 29218841290 / success / artifact 8267509616
+compat comparison: 294874693 / 29218866832 / success / artifact 8267516514
+mismatch review: 297343766 / 29218901115 / success / artifact 8267524757
+member profile metrics: 266755732 / 29218925171 / success
+Instagram constituency render: 261945698 / 29218960864 / success / artifact 8267546600
+Instagram campaign render: 271160957 / 29219005969 / success / artifact 8267555282
+```
+
+Schedule gate decision:
+
+```text
+Do not add a scheduled orchestrator trigger yet.
+Reason: refresh-enabled validation used child workflow_dispatch defaults; production-like child refresh inputs still need explicit implementation.
 ```
 
 ## Monthly refresh investigation and fix
@@ -181,41 +191,53 @@ Production-like validation:
 ```text
 Workflow ID: 294432002
 Run ID: 28726922946
-Run number: 5
 Result: success
 Artifact ID: 8087552815
 ```
 
-Safe monthly manual defaults were restored after validation.
-
-## Final validation sweep
-
-Compatibility comparison:
+Latest orchestrated monthly validation:
 
 ```text
-Workflow ID: 294874693
-Latest orchestrated run ID: 28727303180
+Workflow ID: 294432002
+Run ID: 29218778131
 Result: success
-Artifact ID: 8087654840
+Artifact ID: 8267502791
 ```
 
-Mismatch review:
+## Scheduled refresh status
+
+Weekly:
 
 ```text
-Workflow ID: 297343766
-Latest orchestrated run ID: 28727318126
-Result: success
-Artifact ID: 8087658973
+2026-07-05 scheduled weekly: 28732507909 / success
+2026-07-12 scheduled weekly: 29182334702 / success
 ```
 
-Known remaining roster caveat:
+Monthly:
 
 ```text
-Catherine Connolly — Independent — Galway West
-Paschal Donohoe — Fine Gael — Dublin Central
+Latest scheduled monthly: 28504651002 / failure / before fix
+Latest manual monthly validation: 29218778131 / success
+Next real scheduled monthly run still needs observation.
 ```
 
-These are legacy-only roster records. Current member-profile metrics have 174 matched members and no member-code mismatches.
+Yearly:
+
+```text
+Latest yearly validation: 27397123885 / workflow_dispatch / success
+No new scheduled yearly run yet.
+```
+
+## Known caveats
+
+```text
+Scheduled orchestrator trigger is intentionally not enabled.
+Production-like child workflow inputs are not yet implemented in the orchestrator.
+Next real scheduled monthly refresh still needs observation.
+Production Instagram publishing remains artifact-only unless explicitly enabled.
+Legacy enrichment keys remain preserved for rollback.
+Known legacy-only roster caveats remain Catherine Connolly and Paschal Donohoe.
+```
 
 ## Enrichment compatibility status
 
@@ -226,83 +248,46 @@ Constituency images: 305600627 / 28547829924 / success / 43 rows
 Member summaries: 306762190 / 28672859337 / success / 174 rows
 ```
 
-## Scheduled refresh status
-
-Weekly:
-
-```text
-Latest run: 28421557467
-Event: workflow_dispatch
-Result: success
-Next scheduled weekly run still needs observation after the debate-record DQ patch.
-```
-
-Monthly:
-
-```text
-Latest validated run: 28726922946
-Event: workflow_dispatch
-Result: success
-Latest scheduled run: 28504651002 failed before fix
-Next scheduled monthly run should be observed after the bill-stage/sponsor/event DQ patches.
-```
-
-Yearly:
-
-```text
-Latest run: 27397123885
-Event: workflow_dispatch
-Result: success
-```
-
-## Current caveats
-
-- Orchestrator has only been validated with `refresh_type=none`.
-- Next orchestrator validation should use a refresh-enabled run, preferably `refresh_type=monthly`.
-- Scheduled trigger is intentionally not added yet.
-- Production Instagram publishing remains artifact-only unless a workflow explicitly enables upload/publish.
-- Legacy enrichment keys remain preserved for rollback.
-
 ## Key docs
 
 ```text
-docs/oireachtas_monthly_refresh_failure_investigation.md
-docs/oireachtas_scheduled_refresh_orchestration_plan.md
+docs/oireachtas_orchestrator_refresh_enabled_validation.md
+docs/oireachtas_orchestrator_schedule_gate_decision.md
+docs/oireachtas_final_scheduled_readiness_handoff.md
 docs/oireachtas_orchestrator_validation_summary.md
-docs/oireachtas_orchestrator_scheduled_readiness_update.md
-docs/oireachtas_final_post_cutover_validation_sweep.md
+docs/oireachtas_monthly_refresh_failure_investigation.md
 docs/oireachtas_final_handoff_readiness_summary.md
 ```
 
 ## Next packet batch
 
-### P66 — orchestrator refresh-enabled validation
+### P69 — production-input orchestrator design
 
 Goal:
 
-- validate the orchestrator with a refresh step enabled.
-- Preferred: `refresh_type=monthly`, because monthly was the latest scheduled failure mode.
-- If the dispatch tool cannot pass inputs, temporarily set orchestrator default `refresh_type=monthly`, validate, then restore default to `none`.
+- decide whether to use `workflow_call` or explicit `gh workflow run -f` inputs.
+- specify production-like input sets for weekly and monthly child refresh workflows.
 
-### P67 — orchestrator schedule gate decision
-
-Goal:
-
-- decide whether to add a scheduled trigger after refresh-enabled orchestrator validation.
-- If added, start with a weekly-safe schedule after the weekly refresh window.
-
-### P68 — final scheduled-readiness handoff update
+### P70 — production-input orchestrator implementation
 
 Goal:
 
-- update all readiness/handoff docs with refresh-enabled orchestrator evidence and schedule decision.
+- patch the orchestrator so refresh-enabled scheduled/manual runs pass explicit child inputs.
+- keep manual default safe unless intentionally changed.
+
+### P71 — production-input orchestrator validation
+
+Goal:
+
+- validate the orchestrator with production-like refresh inputs.
+- after that, reconsider the scheduled trigger.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P66 orchestrator refresh-enabled validation, then P67 orchestrator schedule gate decision, then P68 final scheduled-readiness handoff update.
+Start P69 production-input orchestrator design, then P70 production-input orchestrator implementation, then P71 production-input orchestrator validation.
 Do not overwrite legacy enrichment keys.
-Latest successful validations: orchestrator run 28727286429, monthly production-like validation run 28726922946, member profile metrics run 28727335843.
+Latest successful validations: refresh-enabled orchestrator run 29218772777, monthly child run 29218778131, member profile metrics run 29218925171.
 ```
