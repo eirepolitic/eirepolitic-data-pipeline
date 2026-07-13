@@ -2,13 +2,13 @@
 
 | constituency_name | year | member_count | speech_count | votes_cast_count | snapshot_date |
 | --- | --- | --- | --- | --- | --- |
-| Kildare North | 2025 | 5 | 0 | 930 | 2026-07-05 |
-| Dublin Bay North | 2025 | 5 | 0 | 924 | 2026-07-05 |
-| Louth | 2025 | 5 | 0 | 915 | 2026-07-05 |
-| Cavan-Monaghan | 2025 | 5 | 0 | 906 | 2026-07-05 |
-| Donegal | 2025 | 5 | 0 | 902 | 2026-07-05 |
-| Dublin West | 2025 | 5 | 0 | 902 | 2026-07-05 |
-| Longford-Westmeath | 2025 | 5 | 0 | 871 | 2026-07-05 |
-| Dublin South-West | 2025 | 5 | 0 | 869 | 2026-07-05 |
-| Mayo | 2025 | 5 | 0 | 868 | 2026-07-05 |
-| Cork South-Central | 2025 | 5 | 0 | 866 | 2026-07-05 |
+| Cork South-Central | 2026 | 2 | 267 | 62 | 2026-07-13 |
+| Wicklow | 2026 | 2 | 167 | 39 | 2026-07-13 |
+| Dublin West | 2026 | 4 | 114 | 189 | 2026-07-13 |
+| Kerry | 2026 | 5 | 91 | 221 | 2026-07-13 |
+| Donegal | 2026 | 3 | 91 | 153 | 2026-07-13 |
+| Dún Laoghaire | 2026 | 3 | 87 | 131 | 2026-07-13 |
+| Mayo | 2026 | 5 | 79 | 256 | 2026-07-13 |
+| Cork North-Central | 2026 | 3 | 75 | 138 | 2026-07-13 |
+| Wexford | 2026 | 2 | 63 | 103 | 2026-07-13 |
+| Waterford | 2026 | 3 | 62 | 162 | 2026-07-13 |
