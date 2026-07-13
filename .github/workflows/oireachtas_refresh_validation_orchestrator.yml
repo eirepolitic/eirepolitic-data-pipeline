@@ -6,7 +6,7 @@ on:
       refresh_type:
         description: "Optional refresh to run before validations"
         required: true
-        default: "monthly"
+        default: "none"
         type: choice
         options: [none, weekly, monthly, yearly]
       run_consumers:
