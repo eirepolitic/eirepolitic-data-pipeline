@@ -6,7 +6,7 @@ on:
       refresh_type:
         description: "Optional refresh to run before validations"
         required: true
-        default: "none"
+        default: "monthly"
         type: choice
         options: [none, weekly, monthly, yearly]
       run_consumers:
@@ -35,6 +35,9 @@ jobs:
       RUN_CONSUMERS: ${{ inputs.run_consumers }}
       TARGET_BRANCH: ${{ github.ref_name }}
       TARGET_SHA: ${{ github.sha }}
+      WEEKLY_TABLES: "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
+      MONTHLY_TABLES: "silver_constituencies,silver_parties,silver_source_files,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
+      YEARLY_TABLES: "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
 
     steps:
       - name: Check out repo
@@ -82,17 +85,25 @@ jobs:
           run_child() {
             local label="$1"
             local workflow_file="$2"
+            shift 2
             local run_id=""
             local conclusion=""
             local url=""
 
             echo "Dispatching ${label}: ${workflow_file}"
-            if ! gh workflow run "${workflow_file}" --ref "${TARGET_BRANCH}"; then
+            if [[ "$#" -gt 0 ]]; then
+              echo "Inputs for ${label}: $*"
+            fi
+
+            if ! gh workflow run "${workflow_file}" --ref "${TARGET_BRANCH}" "$@"; then
               {
                 echo "## ${label}"
                 echo
                 echo "- Workflow: \`${workflow_file}\`"
                 echo "- Dispatch: \`failed\`"
+                if [[ "$#" -gt 0 ]]; then
+                  echo "- Inputs: \`$*\`"
+                fi
                 echo
               } >> "${summary_file}"
               failed=1
@@ -106,6 +117,9 @@ jobs:
                 echo "- Workflow: \`${workflow_file}\`"
                 echo "- Dispatch: \`sent\`"
                 echo "- Run lookup: \`failed\`"
+                if [[ "$#" -gt 0 ]]; then
+                  echo "- Inputs: \`$*\`"
+                fi
                 echo
               } >> "${summary_file}"
               failed=1
@@ -126,6 +140,9 @@ jobs:
               echo "- Workflow: \`${workflow_file}\`"
               echo "- Run ID: \`${run_id}\`"
               echo "- Conclusion: \`${conclusion}\`"
+              if [[ "$#" -gt 0 ]]; then
+                echo "- Inputs: \`$*\`"
+              fi
               echo "- URL: ${url}"
               echo
             } >> "${summary_file}"
@@ -137,12 +154,63 @@ jobs:
             return 0
           }
 
+          run_weekly_refresh() {
+            local date_start
+            local date_end
+            date_start="$(date -u -d '35 days ago' +%F)"
+            date_end="$(date -u +%F)"
+            run_child "Weekly refresh" ".github/workflows/oireachtas_weekly_refresh.yml" \
+              -f mode=incremental \
+              -f publish_latest=auto \
+              -f "tables=${WEEKLY_TABLES}" \
+              -f chamber=dail \
+              -f house_no=34 \
+              -f "date_start=${date_start}" \
+              -f "date_end=${date_end}" \
+              -f limit=100 \
+              -f sample_rows=10 || true
+          }
+
+          run_monthly_refresh() {
+            local month_start
+            local date_start
+            local date_end
+            month_start="$(date -u +%Y-%m-01)"
+            date_start="$(date -u -d "${month_start} -1 month -7 days" +%F)"
+            date_end="$(date -u -d "${month_start} -1 day" +%F)"
+            run_child "Monthly refresh" ".github/workflows/oireachtas_monthly_refresh.yml" \
+              -f mode=incremental \
+              -f publish_latest=auto \
+              -f "tables=${MONTHLY_TABLES}" \
+              -f chamber=dail \
+              -f house_no=34 \
+              -f "date_start=${date_start}" \
+              -f "date_end=${date_end}" \
+              -f limit=250 \
+              -f sample_rows=10 || true
+          }
+
+          run_yearly_refresh() {
+            local target_year
+            target_year="$(date -u -d '1 year ago' +%Y)"
+            run_child "Yearly refresh" ".github/workflows/oireachtas_yearly_refresh.yml" \
+              -f mode=full \
+              -f publish_latest=auto \
+              -f "tables=${YEARLY_TABLES}" \
+              -f chamber=dail \
+              -f house_no=34 \
+              -f "date_start=${target_year}-01-01" \
+              -f "date_end=${target_year}-12-31" \
+              -f limit=500 \
+              -f sample_rows=10 || true
+          }
+
           if [[ "${REFRESH_TYPE}" == "weekly" ]]; then
-            run_child "Weekly refresh" ".github/workflows/oireachtas_weekly_refresh.yml" || true
+            run_weekly_refresh
           elif [[ "${REFRESH_TYPE}" == "monthly" ]]; then
-            run_child "Monthly refresh" ".github/workflows/oireachtas_monthly_refresh.yml" || true
+            run_monthly_refresh
           elif [[ "${REFRESH_TYPE}" == "yearly" ]]; then
-            run_child "Yearly refresh" ".github/workflows/oireachtas_yearly_refresh.yml" || true
+            run_yearly_refresh
           else
             {
               echo "## Refresh"
