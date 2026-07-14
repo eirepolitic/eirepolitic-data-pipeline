@@ -28,6 +28,73 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P69-P71** production-input orchestrator designed, implemented, validated, and restored to safe default.
 - **P72-P74** scheduled orchestrator trigger enabled, schedule decision documented, final production-readiness handoff added.
 
+## Pending observation packets
+
+### P75 — observe first scheduled orchestrator run
+
+Status:
+
+```text
+pending scheduled event
+```
+
+Checked latest orchestrator runs:
+
+```text
+29299431600 / workflow_dispatch / success / created 2026-07-14T01:47:13Z
+29218772777 / workflow_dispatch / success / created 2026-07-13T02:05:39Z
+28727286429 / workflow_dispatch / success / created 2026-07-05T02:44:16Z
+```
+
+No scheduled orchestrator event has occurred yet.
+
+Expected first scheduled orchestrator run:
+
+```text
+2026-07-19 06:45 UTC
+2026-07-18 23:45 America/Vancouver
+```
+
+### P76 — observe next scheduled monthly refresh after fixes
+
+Status:
+
+```text
+pending scheduled event
+```
+
+Checked latest monthly refresh runs:
+
+```text
+29299437311 / workflow_dispatch / success / created 2026-07-14T01:47:21Z
+29218778131 / workflow_dispatch / success / created 2026-07-13T02:05:46Z
+28726922946 / workflow_dispatch / success / created 2026-07-05T02:26:14Z
+28504651002 / schedule / failure / created 2026-07-01T08:36:19Z / before fix
+```
+
+No post-fix scheduled monthly event has occurred yet.
+
+Expected next scheduled monthly run:
+
+```text
+2026-08-01 04:35 UTC
+2026-07-31 21:35 America/Vancouver
+```
+
+### P77 — steady-state scheduling decision and final handoff
+
+Status:
+
+```text
+blocked pending P75 and P76 observations
+```
+
+Reason:
+
+```text
+Need first scheduled orchestrator result and next post-fix scheduled monthly result before choosing final steady-state schedule.
+```
+
 ## Current controlled pre-production cutovers
 
 ### Member profile metrics
@@ -150,13 +217,6 @@ Manual defaults:
 ```text
 refresh_type=none
 run_consumers=true
-```
-
-First expected scheduled orchestrator run:
-
-```text
-2026-07-19 06:45 UTC
-2026-07-18 23:45 America/Vancouver
 ```
 
 ### Current-output validation
@@ -289,6 +349,7 @@ Member summaries: 306762190 / 28672859337 / success / 174 rows
 ## Key docs
 
 ```text
+docs/oireachtas_pending_scheduled_observation_checkpoint.md
 docs/oireachtas_scheduled_orchestrator_trigger_decision.md
 docs/oireachtas_final_production_readiness_handoff.md
 docs/oireachtas_production_input_orchestrator_design.md
@@ -296,35 +357,19 @@ docs/oireachtas_production_input_orchestrator_validation.md
 docs/oireachtas_monthly_refresh_failure_investigation.md
 ```
 
-## Next packet batch
+## Next action
 
-### P75 — observe first scheduled orchestrator run
-
-Goal:
-
-- after the first scheduled run occurs, confirm orchestrator result and all child results.
-- expected first scheduled run: 2026-07-19 06:45 UTC / 2026-07-18 23:45 America/Vancouver.
-
-### P76 — observe next scheduled monthly refresh after fixes
-
-Goal:
-
-- confirm the next real scheduled monthly run after DQ fixes.
-- expected next monthly run: 2026-08-01 04:35 UTC / 2026-07-31 21:35 America/Vancouver.
-
-### P77 — steady-state scheduling decision and final handoff
-
-Goal:
-
-- decide whether to keep both standalone weekly refresh and scheduled orchestrator, disable standalone weekly, or change orchestrator scheduled refresh behavior.
-- update final handoff once observations are complete.
+```text
+P75 remains the next actionable packet once the first scheduled orchestrator event exists.
+Do not mark P75, P76, or P77 complete until the required scheduled events have occurred.
+```
 
 Handoff instruction:
 
 ```text
 Continue from main.
-Process packets three at a time.
-Start P75 first scheduled orchestrator observation, then P76 monthly scheduled observation if available, then P77 steady-state scheduling decision.
+Check workflow 307332237 after 2026-07-19 06:45 UTC for a schedule event.
+Check workflow 294432002 after 2026-08-01 04:35 UTC for a schedule event.
 Do not overwrite legacy enrichment keys.
 Latest successful validations: production-input orchestrator run 29299431600, monthly child run 29299437311, member profile metrics run 29299647855.
 ```
