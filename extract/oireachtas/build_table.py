@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--house-no", default="34", help="House number where applicable.")
     parser.add_argument("--date-start", help="Start date YYYY-MM-DD for fact tables.")
     parser.add_argument("--date-end", help="End date YYYY-MM-DD for fact tables.")
-    parser.add_argument("--limit", type=int, default=25, help="API/test row limit.")
+    parser.add_argument("--limit", type=int, default=25, help="API page size in production; maximum output rows only in mode=test.")
     parser.add_argument("--sample-rows", type=int, default=10, help="Rows to publish in review sample.")
     parser.add_argument("--write-review-sample", action="store_true", help="Write review sample files when supported.")
     parser.add_argument("--publish-latest", choices=("auto", "true", "false"), default="auto", help="Control writes to processed/oireachtas_unified/latest/*. auto disables latest for mode=test and enables it otherwise.")
@@ -145,7 +145,8 @@ def run_real_table(args: argparse.Namespace) -> int:
     schema = get_table_schema(args.table, Path(args.config))
     s3 = make_s3_client(region_name=args.aws_region)
     client = OireachtasClient(timeout_seconds=30, retries=5, backoff_seconds=2.0, sleep_seconds=0.2)
-    common = {"client": client, "s3": s3, "bucket": args.s3_bucket, "schema": schema, "limit": args.limit, "mode": args.mode}
+    effective_limit = args.limit if args.mode == "test" else 2_147_483_647
+    common = {"client": client, "s3": s3, "bucket": args.s3_bucket, "schema": schema, "limit": effective_limit, "mode": args.mode}
     filtered = {**common, "chamber": args.chamber, "house_no": args.house_no}
 
     if args.table == HOUSES_TABLE:
@@ -215,6 +216,8 @@ def run_real_table(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True) if args.json else payload["message"])
         return 0
 
+    result.manifest["requested_page_size"] = args.limit
+    result.manifest["effective_output_limit"] = args.limit if args.mode == "test" else None
     result.manifest["publish_latest"] = publish_latest
     result.manifest["latest_write_policy"] = "enabled" if publish_latest else "suppressed"
     review_dir = write_review_bundle(table=result.table, manifest=result.manifest, schema=result.schema, dq=result.dq, sample_rows=result.rows, root=Path(args.review_root))
