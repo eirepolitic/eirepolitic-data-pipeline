@@ -17,7 +17,10 @@ from .normalize import stable_json_dumps
 
 DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_REGION = "ca-central-1"
-LATEST_PREFIX = "processed/oireachtas_unified/latest/"
+PRODUCTION_PREFIXES = (
+    "processed/oireachtas_unified/latest/",
+    "processed/oireachtas_unified/compat/",
+)
 
 
 def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
@@ -25,15 +28,32 @@ def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
     return boto3.client("s3", region_name=region_name)
 
 
+def production_publishing_enabled() -> bool:
+    """Return whether writes to mutable unified production keys are enabled.
+
+    Publishing is deliberately default-deny. Both the repository-level switch and
+    the per-run latest flag must be enabled before mutable production objects can
+    be changed.
+    """
+    repo_switch = os.getenv("OIREACHTAS_PUBLISH_ENABLED", "false").strip().lower()
+    run_switch = os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower()
+    truthy = {"1", "true", "yes", "on"}
+    return repo_switch in truthy and run_switch in truthy
+
+
 def latest_publishing_enabled() -> bool:
-    """Return whether writes to unified latest pointers are enabled."""
-    value = os.getenv("OIREACHTAS_PUBLISH_LATEST", "true").strip().lower()
-    return value not in {"0", "false", "no", "off"}
+    """Backward-compatible alias for the production publishing guard."""
+    return production_publishing_enabled()
+
+
+def is_unified_production_key(key: str) -> bool:
+    """Return whether an S3 key is a mutable unified production output."""
+    return key.startswith(PRODUCTION_PREFIXES)
 
 
 def is_unified_latest_key(key: str) -> bool:
-    """Return whether an S3 key is a unified latest pointer."""
-    return key.startswith(LATEST_PREFIX)
+    """Backward-compatible predicate for callers and tests."""
+    return key.startswith(PRODUCTION_PREFIXES[0])
 
 
 def put_bytes(
@@ -44,8 +64,8 @@ def put_bytes(
     body: bytes,
     content_type: str = "application/octet-stream",
 ) -> None:
-    """Write bytes to S3, optionally suppressing unified latest pointer writes."""
-    if is_unified_latest_key(key) and not latest_publishing_enabled():
+    """Write bytes to S3, suppressing mutable production writes unless enabled."""
+    if is_unified_production_key(key) and not production_publishing_enabled():
         return
     s3.put_object(Bucket=bucket, Key=key, Body=body, ContentType=content_type)
 
