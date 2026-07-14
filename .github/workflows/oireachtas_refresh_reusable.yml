@@ -3,55 +3,21 @@ name: Oireachtas reusable refresh
 on:
   workflow_call:
     inputs:
-      refresh_type:
-        required: true
-        type: string
-      mode:
-        required: false
-        type: string
-        default: ""
-      tables:
-        required: false
-        type: string
-        default: ""
-      chamber:
-        required: false
-        type: string
-        default: dail
-      house_no:
-        required: false
-        type: string
-        default: "34"
-      date_start:
-        required: false
-        type: string
-        default: ""
-      date_end:
-        required: false
-        type: string
-        default: ""
-      page_size:
-        required: false
-        type: string
-        default: ""
-      sample_rows:
-        required: false
-        type: string
-        default: "10"
-      batch_id:
-        required: true
-        type: string
-      publish_candidate:
-        required: false
-        type: boolean
-        default: false
+      refresh_type: {required: true, type: string}
+      mode: {required: false, type: string, default: ""}
+      tables: {required: false, type: string, default: ""}
+      chamber: {required: false, type: string, default: dail}
+      house_no: {required: false, type: string, default: "34"}
+      date_start: {required: false, type: string, default: ""}
+      date_end: {required: false, type: string, default: ""}
+      page_size: {required: false, type: string, default: ""}
+      sample_rows: {required: false, type: string, default: "10"}
+      batch_id: {required: true, type: string}
+      publish_candidate: {required: false, type: boolean, default: false}
     outputs:
-      batch_id:
-        value: ${{ jobs.refresh.outputs.batch_id }}
-      tables:
-        value: ${{ jobs.refresh.outputs.tables }}
-      status:
-        value: ${{ jobs.refresh.outputs.status }}
+      batch_id: {value: "${{ jobs.refresh.outputs.batch_id }}"}
+      tables: {value: "${{ jobs.refresh.outputs.tables }}"}
+      status: {value: "${{ jobs.refresh.outputs.status }}"}
 
 permissions:
   contents: read
@@ -75,7 +41,7 @@ jobs:
       S3_BUCKET: eirepolitic-data
       REVIEW_OUTPUT_ROOT: oireachtas_review_output
       OIREACHTAS_BATCH_ID: ${{ inputs.batch_id }}
-      OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: ${{ inputs.publish_candidate && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
@@ -106,18 +72,11 @@ jobs:
             --sample-rows '${{ inputs.sample_rows }}' \
             --github-output "${GITHUB_OUTPUT}" \
             | tee oireachtas_refresh_inputs.json
-      - name: Validate publication intent
+      - name: Validate batch identity
         shell: bash
         run: |
           set -euo pipefail
-          if [[ '${{ inputs.publish_candidate }}' == 'true' && "${OIREACHTAS_PUBLISH_ENABLED,,}" != 'true' ]]; then
-            echo 'Candidate publishing was requested, but OIREACHTAS_PUBLISH_ENABLED is not true.' >&2
-            exit 2
-          fi
-          if [[ ! "${OIREACHTAS_BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
-            echo 'Unsafe batch ID.' >&2
-            exit 2
-          fi
+          [[ "${OIREACHTAS_BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]
       - name: Build refresh table set
         shell: bash
         env:
