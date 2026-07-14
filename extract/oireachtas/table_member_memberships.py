@@ -194,7 +194,7 @@ def _normalise_membership_row(member: Mapping[str, Any], membership: Mapping[str
     house_no = _first_text(house, "houseNo") or _first_text(membership, "houseNo", "house_no")
     house_code = _first_text(house, "houseCode", "chamberCode") or _first_text(membership, "houseCode", "chamber")
     chamber = house_code or _first_text(house, "chamber", "chamberType")
-    membership_id = membership_uri or f"generated:membership:{stable_hash([member_code, member_uri, house_uri, house_no, house_code, membership_start, membership_end])}"
+    membership_id = membership_uri or f"generated:membership:{stable_hash([member_code, member_uri, house_uri, house_no, house_code, membership_start])}"
 
     return {
         "membership_id": membership_id,

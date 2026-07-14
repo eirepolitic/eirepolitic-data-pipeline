@@ -214,7 +214,7 @@ def _normalise_constituency_row(
     membership_start = _date_start(membership)
     membership_end = _date_end(membership)
     membership_id = _first_text(membership, "uri", "membershipUri") or (
-        f"generated:membership:{stable_hash([member_code, membership_start, membership_end])}"
+        f"generated:membership:{stable_hash([member_code, membership_start])}"
     )
 
     constituency_uri = _first_text(represent, "uri", "constituencyUri")
@@ -227,7 +227,7 @@ def _normalise_constituency_row(
 
     member_constituency_id = (
         f"generated:member_constituency:"
-        f"{stable_hash([membership_id, member_code, constituency_uri, represent_start, represent_end])}"
+        f"{stable_hash([membership_id, member_code, constituency_uri, represent_start])}"
     )
 
     return {
