@@ -2,7 +2,7 @@
 
 **Branch:** `main`  
 **Last updated:** 2026-07-13 America/Vancouver  
-**Current packet:** P72 — scheduled orchestrator trigger decision
+**Current packet:** P75 — observe first scheduled orchestrator run
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -26,6 +26,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P63-P65** refresh validation orchestrator implemented, validated with `refresh_type=none`, and scheduled-readiness docs updated.
 - **P66-P68** refresh-enabled orchestrator validation complete, schedule gate deferred, final scheduled-readiness handoff added.
 - **P69-P71** production-input orchestrator designed, implemented, validated, and restored to safe default.
+- **P72-P74** scheduled orchestrator trigger enabled, schedule decision documented, final production-readiness handoff added.
 
 ## Current controlled pre-production cutovers
 
@@ -117,33 +118,48 @@ Workflow ID:
 307332237
 ```
 
+Schedule implementation commit:
+
+```text
+17e140f238b06fb1e667d42dedf22dc64ac914c7
+```
+
 Current trigger state:
 
 ```text
-workflow_dispatch only
-no schedule trigger
+workflow_dispatch
+schedule
 ```
 
-Manual defaults restored after validation:
+Current schedule:
+
+```yaml
+schedule:
+  - cron: "45 6 * * 0"
+```
+
+Scheduled behavior:
+
+```text
+refresh_type=weekly
+run_consumers=true
+```
+
+Manual defaults:
 
 ```text
 refresh_type=none
 run_consumers=true
 ```
 
-Production-input implementation commit:
+First expected scheduled orchestrator run:
 
 ```text
-e14711cb97d4c361ee3606fd0821539af0bff8c7
+2026-07-19 06:45 UTC
+2026-07-18 23:45 America/Vancouver
 ```
 
-Safe-default restore commit:
-
-```text
-5126e5a2fb31f23ea6f12e446bdf2b185e23fa71
-```
-
-### Current-latest validation
+### Current-output validation
 
 ```text
 Run ID: 28727286429
@@ -177,17 +193,6 @@ mismatch review: 297343766 / 29299619179 / success / artifact 8298060582
 member profile metrics: 266755732 / 29299647855 / success
 Instagram constituency render: 261945698 / 29299676372 / success / artifact 8298085395
 Instagram campaign render: 271160957 / 29299727612 / success / artifact 8298101606
-```
-
-Validated monthly child inputs:
-
-```text
-mode=incremental
-publish_latest=auto
-date_start=2026-05-25
-date_end=2026-06-30
-limit=250
-sample_rows=10
 ```
 
 ## Monthly refresh investigation and fix
@@ -231,11 +236,18 @@ Artifact ID: 8298023987
 
 ## Scheduled refresh status
 
-Weekly:
+Weekly standalone refresh:
 
 ```text
 2026-07-05 scheduled weekly: 28732507909 / success
 2026-07-12 scheduled weekly: 29182334702 / success
+```
+
+Weekly orchestrator:
+
+```text
+Schedule enabled: 45 6 * * 0
+First scheduled run pending observation.
 ```
 
 Monthly:
@@ -244,6 +256,7 @@ Monthly:
 Latest scheduled monthly: 28504651002 / failure / before fix
 Latest explicit-input monthly validation: 29299437311 / success
 Next real scheduled monthly run still needs observation.
+Expected next monthly scheduled run: 2026-08-01 04:35 UTC / 2026-07-31 21:35 America/Vancouver
 ```
 
 Yearly:
@@ -256,8 +269,9 @@ No new scheduled yearly run yet.
 ## Known caveats
 
 ```text
-Scheduled orchestrator trigger is not yet enabled.
+First scheduled orchestrator run needs observation.
 Next real scheduled monthly refresh still needs observation.
+Standalone weekly refresh and scheduled orchestrator are both enabled, so the first orchestrator schedule is additive.
 Production Instagram publishing remains artifact-only unless explicitly enabled.
 Legacy enrichment keys remain preserved for rollback.
 Known legacy-only roster caveats remain Catherine Connolly and Paschal Donohoe.
@@ -275,42 +289,42 @@ Member summaries: 306762190 / 28672859337 / success / 174 rows
 ## Key docs
 
 ```text
+docs/oireachtas_scheduled_orchestrator_trigger_decision.md
+docs/oireachtas_final_production_readiness_handoff.md
 docs/oireachtas_production_input_orchestrator_design.md
 docs/oireachtas_production_input_orchestrator_validation.md
-docs/oireachtas_orchestrator_refresh_enabled_validation.md
-docs/oireachtas_orchestrator_schedule_gate_decision.md
-docs/oireachtas_final_scheduled_readiness_handoff.md
 docs/oireachtas_monthly_refresh_failure_investigation.md
 ```
 
 ## Next packet batch
 
-### P72 — scheduled orchestrator trigger decision
+### P75 — observe first scheduled orchestrator run
 
 Goal:
 
-- decide whether to add a scheduled trigger now that production-input orchestration has passed.
-- safest option: weekly-only orchestrator schedule first, after existing weekly refresh window.
+- after the first scheduled run occurs, confirm orchestrator result and all child results.
+- expected first scheduled run: 2026-07-19 06:45 UTC / 2026-07-18 23:45 America/Vancouver.
 
-### P73 — scheduled orchestrator trigger implementation or deferral documentation
-
-Goal:
-
-- if enabling, patch `.github/workflows/oireachtas_refresh_validation_orchestrator.yml` with a schedule and event-aware defaults.
-- if deferring, document why no schedule was added.
-
-### P74 — final production-readiness handoff update
+### P76 — observe next scheduled monthly refresh after fixes
 
 Goal:
 
-- update final handoff docs with the schedule decision, production-input validation evidence, and remaining observation items.
+- confirm the next real scheduled monthly run after DQ fixes.
+- expected next monthly run: 2026-08-01 04:35 UTC / 2026-07-31 21:35 America/Vancouver.
+
+### P77 — steady-state scheduling decision and final handoff
+
+Goal:
+
+- decide whether to keep both standalone weekly refresh and scheduled orchestrator, disable standalone weekly, or change orchestrator scheduled refresh behavior.
+- update final handoff once observations are complete.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P72 scheduled orchestrator trigger decision, then P73 schedule implementation or deferral, then P74 final production-readiness handoff update.
+Start P75 first scheduled orchestrator observation, then P76 monthly scheduled observation if available, then P77 steady-state scheduling decision.
 Do not overwrite legacy enrichment keys.
 Latest successful validations: production-input orchestrator run 29299431600, monthly child run 29299437311, member profile metrics run 29299647855.
 ```
