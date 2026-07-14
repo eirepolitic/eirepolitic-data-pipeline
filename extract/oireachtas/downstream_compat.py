@@ -12,7 +12,17 @@ from typing import Any
 
 import pandas as pd
 
-from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_bytes, make_s3_client, put_dataframe_csv, put_json
+from .batch import current_batch_id, record_batch_table
+from .contracts import load_contract_config, validate_dataset_contract
+from .io_s3 import (
+    DEFAULT_BUCKET,
+    DEFAULT_REGION,
+    candidate_publishing_enabled,
+    get_bytes,
+    make_s3_client,
+    put_dataframe_csv,
+    put_json,
+)
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, write_review_bundle
 
@@ -50,7 +60,12 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
 
     summary_df = pd.DataFrame(summary_rows)
     dq = _dq(summary_df)
-    schema = {"table": TABLE_NAME, "primary_key": ["adapter_name"], "columns": list(summary_df.columns), "row_count": int(len(summary_df))}
+    schema = {
+        "table": TABLE_NAME,
+        "primary_key": ["adapter_name"],
+        "columns": list(summary_df.columns),
+        "row_count": int(len(summary_df)),
+    }
     manifest_key = f"processed/oireachtas_unified/compat/manifests/{TABLE_NAME}/run_id={run_id}.json"
     review_sample_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/sample.csv"
     review_schema_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/schema.json"
@@ -67,6 +82,7 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
         "primary_key": ["adapter_name"],
         "primary_key_unique": bool(not summary_df["adapter_name"].duplicated().any()),
         "dq_status": dq["dq_status"],
+        "batch_id": current_batch_id(),
         "s3_keys": {
             "members_compat_csv": OUTPUT_MEMBERS_COMPAT,
             "member_votes_compat_csv": OUTPUT_MEMBER_VOTES_COMPAT,
@@ -81,7 +97,54 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
     put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=summary_df.head(sample_rows))
     put_json(s3, bucket=bucket, key=review_schema_key, payload=schema)
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
-    write_review_bundle(table=TABLE_NAME, manifest=manifest, schema=schema, dq=dq, sample_rows=summary_df.head(sample_rows).to_dict(orient="records"), root=review_root)
+
+    if candidate_publishing_enabled() and current_batch_id():
+        contracts, _ = load_contract_config()
+        contract_results = [
+            validate_dataset_contract(s3, bucket=bucket, contract=contracts["members_compat"]),
+            validate_dataset_contract(s3, bucket=bucket, contract=contracts["member_votes_compat"]),
+        ]
+        manifest["contract_results"] = contract_results
+        if any(result["status"] != "pass" for result in contract_results):
+            dq["dq_status"] = "fail"
+            dq["checks"].append(
+                {
+                    "check_name": "downstream_contracts",
+                    "status": "fail",
+                    "results": contract_results,
+                }
+            )
+            manifest["status"] = "failed"
+            manifest["dq_status"] = "fail"
+        else:
+            dq["checks"].append(
+                {
+                    "check_name": "downstream_contracts",
+                    "status": "pass",
+                    "results": contract_results,
+                }
+            )
+        put_json(s3, bucket=bucket, key=manifest_key, payload=manifest)
+        record_batch_table(
+            s3,
+            bucket=bucket,
+            batch_id=current_batch_id() or "",
+            table=TABLE_NAME,
+            manifest=manifest,
+            schema=schema,
+            dq=dq,
+            candidate_keys=[OUTPUT_MEMBERS_COMPAT, OUTPUT_MEMBER_VOTES_COMPAT],
+        )
+
+    write_review_bundle(
+        table=TABLE_NAME,
+        manifest=manifest,
+        schema=schema,
+        dq=dq,
+        sample_rows=summary_df.head(sample_rows).to_dict(orient="records"),
+        root=review_root,
+        sample_limit=sample_rows,
+    )
     return CompatResult(rows=summary_df.to_dict(orient="records"), manifest=manifest, schema=schema, dq=dq)
 
 
