@@ -9,7 +9,7 @@ on:
       - .github/workflows/oireachtas_batch4_live_candidate.yml
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: oireachtas-batch4-live-candidate
@@ -22,6 +22,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'true'
@@ -31,6 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: repair/oireachtas-production-hardening
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -42,12 +44,38 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       - name: Capture production pointer before candidate build
+        id: before
+        shell: bash
+        run: |
+          set +e
+          OIREACHTAS_PUBLISH_ENABLED=false OIREACHTAS_PUBLISH_LATEST=false \
+            python process/oireachtas_batch_control.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status \
+            > pointer-before.json 2> pointer-before.err
+          status=$?
+          echo "status=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Persist early diagnostic
+        if: steps.before.outputs.status != '0'
         shell: bash
         run: |
           set -euo pipefail
-          OIREACHTAS_PUBLISH_ENABLED=false OIREACHTAS_PUBLISH_LATEST=false \
-            python process/oireachtas_batch_control.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status \
-            > pointer-before.json
+          {
+            echo '# Oireachtas Batch 4 live candidate diagnostic'
+            echo
+            echo "- Run ID: ${GITHUB_RUN_ID}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Pointer status exit code: ${{ steps.before.outputs.status }}"
+            echo
+            echo '```text'
+            tail -n 120 pointer-before.err
+            echo '```'
+          } > docs/oireachtas_batch4_live_candidate_diagnostic.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/oireachtas_batch4_live_candidate_diagnostic.md
+          git commit -m "Record Oireachtas Batch 4 live diagnostic ${GITHUB_RUN_ID}"
+          git push origin HEAD:repair/oireachtas-production-hardening
+          exit 1
       - name: Build complete member candidate
         shell: bash
         run: |
@@ -106,7 +134,9 @@ jobs:
             candidate-build.log
             batch-manifest.json
             pointer-before.json
+            pointer-before.err
             pointer-after.json
             artifacts/oireachtas-batch4-live/**
-          if-no-files-found: error
+            docs/oireachtas_batch4_live_candidate_diagnostic.md
+          if-no-files-found: warn
           retention-days: 90
