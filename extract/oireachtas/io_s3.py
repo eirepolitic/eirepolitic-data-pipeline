@@ -13,6 +13,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .batch import batch_key_for_production_key, current_batch_id, resolve_production_key
 from .merge import merge_for_policy
 from .normalize import stable_json_dumps
 from .schemas import get_table_schema
@@ -52,9 +53,15 @@ def is_unified_latest_key(key: str) -> bool:
 
 
 def put_bytes(s3: Any, *, bucket: str, key: str, body: bytes, content_type: str = "application/octet-stream") -> None:
-    if is_unified_production_key(key) and not production_publishing_enabled():
-        return
-    s3.put_object(Bucket=bucket, Key=key, Body=body, ContentType=content_type)
+    target_key = key
+    if is_unified_production_key(key):
+        if not production_publishing_enabled():
+            return
+        batch_id = current_batch_id()
+        if not batch_id:
+            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every enabled mutable production write")
+        target_key = batch_key_for_production_key(key, batch_id)
+    s3.put_object(Bucket=bucket, Key=target_key, Body=body, ContentType=content_type)
 
 
 def get_bytes(s3: Any, *, bucket: str, key: str) -> bytes:
@@ -89,11 +96,7 @@ def put_dataframe_parquet(s3: Any, *, bucket: str, key: str, df: pd.DataFrame, c
 
 
 def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.DataFrame, file_format: str) -> pd.DataFrame:
-    """Merge mutable latest data according to the table registry.
-
-    Immutable run-scoped objects are returned unchanged. The publishing guard is
-    checked before any read, so validation runs never depend on production state.
-    """
+    """Merge candidate data against the currently promoted immutable batch."""
     table_name = _latest_table_name(key)
     if not table_name or not production_publishing_enabled():
         return incoming.copy()
@@ -101,13 +104,14 @@ def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.Da
     schema = get_table_schema(table_name)
     if policy.write_strategy in {"snapshot_replace", "rebuild"}:
         return incoming.copy()
-    existing = _read_existing_dataframe(s3, bucket=bucket, key=key, file_format=file_format)
+    existing = _read_current_dataframe(s3, bucket=bucket, logical_key=key, file_format=file_format)
     return merge_for_policy(existing, incoming, primary_key=schema.primary_key, policy=policy)
 
 
-def _read_existing_dataframe(s3: Any, *, bucket: str, key: str, file_format: str) -> pd.DataFrame:
+def _read_current_dataframe(s3: Any, *, bucket: str, logical_key: str, file_format: str) -> pd.DataFrame:
     try:
-        body = get_bytes(s3, bucket=bucket, key=key)
+        resolved_key = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
+        body = get_bytes(s3, bucket=bucket, key=resolved_key)
     except Exception:
         return pd.DataFrame()
     if not body:
