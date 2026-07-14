@@ -83,10 +83,11 @@ def validate_dataset_contract(
         }
 
     missing_columns = sorted(set(contract.required_columns) - set(df.columns))
+    missing_pk_columns = sorted(set(contract.primary_key) - set(df.columns))
     row_count = int(len(df))
     duplicate_count = 0
     blank_pk_rows = 0
-    if contract.primary_key and not missing_columns:
+    if contract.primary_key and not missing_pk_columns:
         duplicate_count = int(df.duplicated(subset=list(contract.primary_key), keep=False).sum())
         blank_mask = pd.Series(False, index=df.index)
         for column in contract.primary_key:
@@ -98,7 +99,6 @@ def validate_dataset_contract(
         modified_date = last_modified.astimezone(timezone.utc).date()
         age_days = (as_of - modified_date).days
     else:
-        modified_date = None
         age_days = None
     fresh = age_days is not None and age_days <= contract.maximum_age_days
     errors: list[str] = []
@@ -106,6 +106,8 @@ def validate_dataset_contract(
         errors.append(f"row_count {row_count} below minimum {contract.minimum_rows}")
     if missing_columns:
         errors.append(f"missing required columns: {missing_columns}")
+    if missing_pk_columns:
+        errors.append(f"missing primary-key columns: {missing_pk_columns}")
     if duplicate_count:
         errors.append(f"duplicate primary-key rows: {duplicate_count}")
     if blank_pk_rows:
@@ -121,6 +123,7 @@ def validate_dataset_contract(
         "row_count": row_count,
         "columns": list(df.columns),
         "missing_columns": missing_columns,
+        "missing_primary_key_columns": missing_pk_columns,
         "duplicate_primary_key_rows": duplicate_count,
         "blank_primary_key_rows": blank_pk_rows,
         "last_modified_utc": last_modified.astimezone(timezone.utc).isoformat() if last_modified else None,
