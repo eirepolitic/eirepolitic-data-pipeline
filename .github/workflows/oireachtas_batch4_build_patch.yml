@@ -1,6 +1,7 @@
 name: Oireachtas Batch 4 build integration patch
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - repair/oireachtas-production-hardening
