@@ -2,6 +2,12 @@ name: Oireachtas Batch 2 source patch
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - process/apply_oireachtas_batch2_patch.py
+      - .github/workflows/oireachtas_batch2_apply.yml
 
 permissions:
   contents: write
