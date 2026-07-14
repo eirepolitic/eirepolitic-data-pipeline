@@ -1,7 +1,7 @@
 # Oireachtas Batch 3 test diagnostic
 
-- Run ID: 29311484095
-- Commit: 0789c86f51d793ff317866ba1e227468cf7e2cce
+- Run ID: 29311589162
+- Commit: eaca6c2c24124efe941b54f03d054bd2369c73eb
 - Exit code: 1
 
 ```text
@@ -33,16 +33,16 @@ Traceback (most recent call last):
   File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/tests/test_oireachtas_write_semantics.py", line 72, in test_temporal_integrity_rejects_invalid_and_future_current_rows
     result = temporal_integrity(frame, policy=policy, as_of=date(2026, 7, 13))
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/extract/oireachtas/merge.py", line 39, in temporal_integrity
-    invalid_ranges = sum(1 for start, end in zip(starts, ends) if start and end and start > end)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/extract/oireachtas/merge.py", line 39, in <genexpr>
-    invalid_ranges = sum(1 for start, end in zip(starts, ends) if start and end and start > end)
-                                                                                    ^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/extract/oireachtas/merge.py", line 43, in temporal_integrity
+    invalid_ranges = sum(
+                     ^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/extract/oireachtas/merge.py", line 46, in <genexpr>
+    if start is not None and end is not None and start > end
+                                                 ^^^^^^^^^^^
 TypeError: '>' not supported between instances of 'str' and 'float'
 
 ----------------------------------------------------------------------
-Ran 20 tests in 0.061s
+Ran 20 tests in 0.047s
 
 FAILED (errors=1, expected failures=1)
 ```
