@@ -15,6 +15,8 @@ on:
         default: "true"
         type: choice
         options: [true, false]
+  schedule:
+    - cron: "45 6 * * 0"
 
 concurrency:
   group: oireachtas-refresh-validation-orchestrator
@@ -31,8 +33,8 @@ jobs:
 
     env:
       GH_TOKEN: ${{ github.token }}
-      REFRESH_TYPE: ${{ inputs.refresh_type }}
-      RUN_CONSUMERS: ${{ inputs.run_consumers }}
+      REFRESH_TYPE: ${{ github.event_name == 'schedule' && 'weekly' || inputs.refresh_type || 'none' }}
+      RUN_CONSUMERS: ${{ github.event_name == 'schedule' && 'true' || inputs.run_consumers || 'true' }}
       TARGET_BRANCH: ${{ github.ref_name }}
       TARGET_SHA: ${{ github.sha }}
       WEEKLY_TABLES: "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
