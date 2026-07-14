@@ -2,13 +2,13 @@
 
 | dq_result_id | run_id | table_name | check_name | status | metric_value | threshold | message | created_at_utc |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| dq:e3c7718c8e1c29c98ef4135f | silver_speeches_20260712T061432Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-13T02:07:07+00:00 |
-| dq:7ca5e500cd137190d4e8543e | silver_speeches_20260712T061432Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-13T02:07:07+00:00 |
-| dq:f021c6582dfaa2ce3d0a616c | silver_speeches_20260712T061432Z | silver_speeches | output_rows_gt_zero | pass | 3430 | >0 | output rows from manifest | 2026-07-13T02:07:07+00:00 |
-| dq:ffd0526a6ed9c0c8d08797b2 | silver_speeches_20260712T061432Z | silver_speeches | primary_key_unique | pass | true | true | primary key uniqueness from manifest | 2026-07-13T02:07:07+00:00 |
-| dq:d99df1ac4c0a82577c204824 | silver_speeches_20260705T065227Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-13T02:07:07+00:00 |
-| dq:cb8ea197afb9cdd2422c873f | silver_speeches_20260705T065227Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-13T02:07:07+00:00 |
-| dq:f0b5399d6df71f0f7a9f62c4 | silver_speeches_20260705T065227Z | silver_speeches | output_rows_gt_zero | pass | 3457 | >0 | output rows from manifest | 2026-07-13T02:07:07+00:00 |
-| dq:0e667605cd7fd257804c5351 | silver_speeches_20260705T065227Z | silver_speeches | primary_key_unique | pass | true | true | primary key uniqueness from manifest | 2026-07-13T02:07:07+00:00 |
-| dq:2e93bfbf2bbe0ee3cafd1cd9 | silver_speeches_20260630T050358Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-13T02:07:07+00:00 |
-| dq:39730cff4334fce7957979f3 | silver_speeches_20260630T050358Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-13T02:07:07+00:00 |
+| dq:e3c7718c8e1c29c98ef4135f | silver_speeches_20260712T061432Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-14T01:49:18+00:00 |
+| dq:7ca5e500cd137190d4e8543e | silver_speeches_20260712T061432Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-14T01:49:18+00:00 |
+| dq:f021c6582dfaa2ce3d0a616c | silver_speeches_20260712T061432Z | silver_speeches | output_rows_gt_zero | pass | 3430 | >0 | output rows from manifest | 2026-07-14T01:49:18+00:00 |
+| dq:ffd0526a6ed9c0c8d08797b2 | silver_speeches_20260712T061432Z | silver_speeches | primary_key_unique | pass | true | true | primary key uniqueness from manifest | 2026-07-14T01:49:18+00:00 |
+| dq:d99df1ac4c0a82577c204824 | silver_speeches_20260705T065227Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-14T01:49:18+00:00 |
+| dq:cb8ea197afb9cdd2422c873f | silver_speeches_20260705T065227Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-14T01:49:18+00:00 |
+| dq:f0b5399d6df71f0f7a9f62c4 | silver_speeches_20260705T065227Z | silver_speeches | output_rows_gt_zero | pass | 3457 | >0 | output rows from manifest | 2026-07-14T01:49:18+00:00 |
+| dq:0e667605cd7fd257804c5351 | silver_speeches_20260705T065227Z | silver_speeches | primary_key_unique | pass | true | true | primary key uniqueness from manifest | 2026-07-14T01:49:18+00:00 |
+| dq:2e93bfbf2bbe0ee3cafd1cd9 | silver_speeches_20260630T050358Z | silver_speeches | dq_status_pass | pass |  | pass | dq_status=pass | 2026-07-14T01:49:18+00:00 |
+| dq:39730cff4334fce7957979f3 | silver_speeches_20260630T050358Z | silver_speeches | manifest_status_success | pass |  | success | manifest status=success | 2026-07-14T01:49:18+00:00 |
