@@ -27,6 +27,7 @@ PRODUCTION_PREFIXES = (
     "processed/oireachtas_unified/compat/",
 )
 _LATEST_TABLE_PATTERN = re.compile(r"^processed/oireachtas_unified/latest/(?:csv|parquet)/([^/.]+)\.(?:csv|parquet)$")
+_TRUTHY = {"1", "true", "yes", "on"}
 
 
 def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
@@ -34,14 +35,25 @@ def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
 
 
 def production_publishing_enabled() -> bool:
+    """Return whether the mutable production pointer may be changed."""
     repo_switch = os.getenv("OIREACHTAS_PUBLISH_ENABLED", "false").strip().lower()
     run_switch = os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower()
-    truthy = {"1", "true", "yes", "on"}
-    return repo_switch in truthy and run_switch in truthy
+    return repo_switch in _TRUTHY and run_switch in _TRUTHY
+
+
+def candidate_publishing_enabled() -> bool:
+    """Return whether immutable candidate objects may be written.
+
+    Candidate writes require an explicit per-run switch and validated batch ID,
+    but do not require the mutable production-promotion switch.
+    """
+    run_switch = os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower()
+    return run_switch in _TRUTHY and current_batch_id() is not None
 
 
 def latest_publishing_enabled() -> bool:
-    return production_publishing_enabled()
+    """Backward-compatible alias for candidate publishing intent."""
+    return candidate_publishing_enabled()
 
 
 def is_unified_production_key(key: str) -> bool:
@@ -52,20 +64,40 @@ def is_unified_latest_key(key: str) -> bool:
     return key.startswith(PRODUCTION_PREFIXES[0])
 
 
+def resolve_read_key(s3: Any, *, bucket: str, key: str) -> str:
+    """Resolve a logical unified key to the active candidate or production batch.
+
+    Candidate reads are strict: when a batch ID is present, a logical key maps to
+    that batch and never silently falls back to another generation. With no batch
+    ID, a production pointer is preferred; legacy direct objects remain readable
+    during migration when no pointer exists.
+    """
+    if not is_unified_production_key(key):
+        return key
+    batch_id = current_batch_id()
+    if batch_id:
+        return batch_key_for_production_key(key, batch_id)
+    try:
+        return resolve_production_key(s3, bucket=bucket, production_key=key)
+    except Exception:
+        return key
+
+
 def put_bytes(s3: Any, *, bucket: str, key: str, body: bytes, content_type: str = "application/octet-stream") -> None:
     target_key = key
     if is_unified_production_key(key):
-        if not production_publishing_enabled():
+        if not candidate_publishing_enabled():
             return
         batch_id = current_batch_id()
         if not batch_id:
-            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every enabled mutable production write")
+            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every candidate write")
         target_key = batch_key_for_production_key(key, batch_id)
     s3.put_object(Bucket=bucket, Key=target_key, Body=body, ContentType=content_type)
 
 
 def get_bytes(s3: Any, *, bucket: str, key: str) -> bytes:
-    obj = s3.get_object(Bucket=bucket, Key=key)
+    resolved_key = resolve_read_key(s3, bucket=bucket, key=key)
+    obj = s3.get_object(Bucket=bucket, Key=resolved_key)
     return obj["Body"].read()
 
 
@@ -98,7 +130,7 @@ def put_dataframe_parquet(s3: Any, *, bucket: str, key: str, df: pd.DataFrame, c
 def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.DataFrame, file_format: str) -> pd.DataFrame:
     """Merge candidate data against the currently promoted immutable batch."""
     table_name = _latest_table_name(key)
-    if not table_name or not production_publishing_enabled():
+    if not table_name or not candidate_publishing_enabled():
         return incoming.copy()
     policy = get_write_policy(table_name)
     schema = get_table_schema(table_name)
@@ -109,11 +141,18 @@ def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.Da
 
 
 def _read_current_dataframe(s3: Any, *, bucket: str, logical_key: str, file_format: str) -> pd.DataFrame:
+    """Read the promoted production generation, never the in-progress candidate."""
     try:
         resolved_key = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
-        body = get_bytes(s3, bucket=bucket, key=resolved_key)
+        obj = s3.get_object(Bucket=bucket, Key=resolved_key)
+        body = obj["Body"].read()
     except Exception:
-        return pd.DataFrame()
+        # Migration fallback before the first production pointer exists.
+        try:
+            obj = s3.get_object(Bucket=bucket, Key=logical_key)
+            body = obj["Body"].read()
+        except Exception:
+            return pd.DataFrame()
     if not body:
         return pd.DataFrame()
     if file_format == "csv":
@@ -128,7 +167,8 @@ def _latest_table_name(key: str) -> str | None:
 
 def object_exists(s3: Any, *, bucket: str, key: str) -> bool:
     try:
-        s3.head_object(Bucket=bucket, Key=key)
+        resolved_key = resolve_read_key(s3, bucket=bucket, key=key)
+        s3.head_object(Bucket=bucket, Key=resolved_key)
         return True
     except Exception:
         return False
