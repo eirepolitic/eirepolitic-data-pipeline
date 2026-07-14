@@ -34,24 +34,24 @@ def temporal_integrity(df: pd.DataFrame, *, policy: WritePolicy, as_of: date | N
     if not start_col or start_col not in df.columns:
         return {"status": "pass", "errors": [], "future_current_rows": 0, "invalid_ranges": 0}
 
-    starts = df[start_col].map(_normalized_iso_date)
+    starts = [_normalized_iso_date(value) for value in df[start_col].tolist()]
     ends = (
-        df[end_col].map(_normalized_iso_date)
+        [_normalized_iso_date(value) for value in df[end_col].tolist()]
         if end_col and end_col in df.columns
-        else pd.Series([None] * len(df), dtype=object)
+        else [None] * len(df)
     )
     invalid_ranges = sum(
         1
-        for start, end in zip(starts.tolist(), ends.tolist())
+        for start, end in zip(starts, ends)
         if start is not None and end is not None and start > end
     )
 
     future_current_rows = 0
     if current_col and current_col in df.columns:
-        current_mask = df[current_col].fillna(False).astype(bool)
+        current_mask = df[current_col].fillna(False).astype(bool).tolist()
         future_current_rows = sum(
             1
-            for is_current, start in zip(current_mask.tolist(), starts.tolist())
+            for is_current, start in zip(current_mask, starts)
             if is_current and start is not None and start > as_of.isoformat()
         )
 
