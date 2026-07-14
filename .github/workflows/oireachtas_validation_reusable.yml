@@ -32,7 +32,7 @@ jobs:
       REVIEW_OUTPUT_ROOT: oireachtas_review_output
       OIREACHTAS_BATCH_ID: ${{ inputs.batch_id }}
       OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,11 +45,38 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Run compatibility and mismatch validation
+      - name: Stage fresh enrichment contracts into candidate batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_stage_downstream_contracts.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            | tee oireachtas_enrichment_staging.json
+      - name: Build candidate compatibility adapters
         shell: bash
         run: |
           set -euo pipefail
           python -m extract.oireachtas.downstream_compat | tee oireachtas_compat_adapters.log
+      - name: Validate candidate downstream contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_validate_downstream_contracts.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --contract members_compat \
+            --contract member_votes_compat \
+            --contract member_photo_urls \
+            --contract member_summaries \
+            --contract constituency_images \
+            --contract debate_issue_labels \
+            --output oireachtas_downstream_contracts.json
+      - name: Run strict compatibility and mismatch validation
+        shell: bash
+        run: |
+          set -euo pipefail
           python -m extract.oireachtas.compat_comparison | tee oireachtas_compat_comparison.log
           python -m extract.oireachtas.mismatch_review | tee oireachtas_mismatch_review.log
       - name: Record result
@@ -66,6 +93,8 @@ jobs:
           name: oireachtas-validation-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             oireachtas_review_output/**
+            oireachtas_enrichment_staging.json
+            oireachtas_downstream_contracts.json
             oireachtas_compat_adapters.log
             oireachtas_compat_comparison.log
             oireachtas_mismatch_review.log
