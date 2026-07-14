@@ -230,8 +230,8 @@ def run_real_table(args: argparse.Namespace) -> int:
     result.manifest["latest_write_policy"] = "batch_candidate" if publish_latest else "suppressed"
     if publish_latest and batch_id:
         candidate_keys = [
-            str(result.manifest.get("latest_csv_key") or ""),
-            str(result.manifest.get("latest_parquet_key") or ""),
+            str(result.s3_keys.get("latest_csv") or ""),
+            str(result.s3_keys.get("latest_parquet") or ""),
         ]
         record_batch_table(
             s3,
