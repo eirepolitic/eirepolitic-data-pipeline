@@ -15,29 +15,29 @@ datasets:
 
   member_photo_urls:
     logical_key: processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
-    required_columns: [member_code]
+    required_columns: [member_code, full_name, photo_url]
     primary_key: [member_code]
-    minimum_rows: 1
+    minimum_rows: 150
     maximum_age_days: 45
 
   member_summaries:
     logical_key: processed/oireachtas_unified/compat/text/members_summaries_compat.csv
-    required_columns: [member_code]
+    required_columns: [member_code, full_name, background]
     primary_key: [member_code]
-    minimum_rows: 1
+    minimum_rows: 150
     maximum_age_days: 45
 
   constituency_images:
     logical_key: processed/oireachtas_unified/compat/media/constituency_images_compat.csv
-    required_columns: [constituency]
-    primary_key: [constituency]
+    required_columns: [filename, s3_key, url]
+    primary_key: [filename]
     minimum_rows: 1
     maximum_age_days: 45
 
   debate_issue_labels:
     logical_key: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
-    required_columns: [member_name]
-    primary_key: []
+    required_columns: [speech_id, Speaker Name, PoliticalIssues]
+    primary_key: [speech_id]
     minimum_rows: 1
     maximum_age_days: 45
 
