@@ -79,6 +79,37 @@ jobs:
           set -euo pipefail
           python -m extract.oireachtas.compat_comparison | tee oireachtas_compat_comparison.log
           python -m extract.oireachtas.mismatch_review | tee oireachtas_mismatch_review.log
+      - name: Build year-aware member metrics
+        if: inputs.run_consumers
+        shell: bash
+        run: |
+          set -euo pipefail
+          export TARGET_YEAR="$(date -u -d '1 year ago' +%Y)"
+          python process/build_member_profile_metrics.py | tee member_profile_metrics.json
+          echo "TARGET_YEAR=${TARGET_YEAR}" >> "${GITHUB_ENV}"
+      - name: Run candidate-only Instagram HTML smoke test
+        if: inputs.run_consumers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_consumer_smoke.py \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --target-year "${TARGET_YEAR}" \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --output consumer_smoke \
+            | tee oireachtas_consumer_smoke.log
+      - name: Reassemble final candidate manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false \
+            python process/oireachtas_reassemble_candidate.py \
+              --batch-id "${OIREACHTAS_BATCH_ID}" \
+              --bucket "${S3_BUCKET}" \
+              --region "${AWS_REGION}" \
+              --require compat_downstream_adapters \
+              | tee oireachtas_final_batch_manifest.json
       - name: Record result
         id: result
         if: always()
@@ -98,5 +129,9 @@ jobs:
             oireachtas_compat_adapters.log
             oireachtas_compat_comparison.log
             oireachtas_mismatch_review.log
+            member_profile_metrics.json
+            oireachtas_consumer_smoke.log
+            consumer_smoke/**
+            oireachtas_final_batch_manifest.json
           if-no-files-found: warn
           retention-days: 90
