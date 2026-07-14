@@ -2,6 +2,11 @@ name: Oireachtas Batch 4 manifest diagnostic
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - .github/workflows/oireachtas_batch4_manifest_diagnostic.yml
 
 permissions:
   contents: write
