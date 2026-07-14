@@ -1,0 +1,54 @@
+datasets:
+  members_compat:
+    logical_key: processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+    required_columns: [member_code, full_name, constituency, party, house_no, source, snapshot_date]
+    primary_key: [member_code]
+    minimum_rows: 150
+    maximum_age_days: 14
+
+  member_votes_compat:
+    logical_key: processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv
+    required_columns: [memberCode, member_name, unique_vote_id, date, vote, party, constituency, source, snapshot_date]
+    primary_key: [memberCode, unique_vote_id]
+    minimum_rows: 1
+    maximum_age_days: 45
+
+  member_photo_urls:
+    logical_key: processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
+    required_columns: [member_code]
+    primary_key: [member_code]
+    minimum_rows: 1
+    maximum_age_days: 45
+
+  member_summaries:
+    logical_key: processed/oireachtas_unified/compat/text/members_summaries_compat.csv
+    required_columns: [member_code]
+    primary_key: [member_code]
+    minimum_rows: 1
+    maximum_age_days: 45
+
+  constituency_images:
+    logical_key: processed/oireachtas_unified/compat/media/constituency_images_compat.csv
+    required_columns: [constituency]
+    primary_key: [constituency]
+    minimum_rows: 1
+    maximum_age_days: 45
+
+  debate_issue_labels:
+    logical_key: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+    required_columns: [member_name]
+    primary_key: []
+    minimum_rows: 1
+    maximum_age_days: 45
+
+comparison_thresholds:
+  members_roster_compat:
+    max_legacy_only_keys: 0
+    max_compat_only_keys: 0
+    max_row_delta_pct: 2.0
+    minimum_compat_join_coverage_pct: 100.0
+  member_votes_compat:
+    max_legacy_only_keys: 0
+    max_compat_only_keys: 0
+    max_row_delta_pct: 5.0
+    minimum_compat_join_coverage_pct: 99.0
