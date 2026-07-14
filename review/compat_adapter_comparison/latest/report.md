@@ -1,6 +1,6 @@
 # Compatibility adapter comparison
 
-Run ID: `compat_adapter_comparison_20260713T020838Z`
+Run ID: `compat_adapter_comparison_20260714T015125Z`
 
 This report compares legacy downstream inputs with non-destructive unified compatibility outputs.
 
