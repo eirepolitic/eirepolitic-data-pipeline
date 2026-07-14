@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any, Sequence
 
+from .batch import current_batch_id, record_batch_table, validate_batch_id
 from .client import OireachtasClient
 from .discovery import DISCOVERY_TABLE, discovery_dq, discovery_schema, run_endpoint_discovery
 from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_json, make_s3_client, put_json
@@ -63,7 +64,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, default=25, help="API page size in production; maximum output rows only in mode=test.")
     parser.add_argument("--sample-rows", type=int, default=10, help="Rows to publish in review sample.")
     parser.add_argument("--write-review-sample", action="store_true", help="Write review sample files when supported.")
-    parser.add_argument("--publish-latest", choices=("auto", "true", "false"), default="auto", help="Control writes to processed/oireachtas_unified/latest/*. auto disables latest for mode=test and enables it otherwise.")
+    parser.add_argument("--publish-latest", choices=("auto", "true", "false"), default="auto", help="Write candidate production objects into an immutable batch. auto disables publishing for mode=test.")
+    parser.add_argument("--batch-id", default=os.getenv("OIREACHTAS_BATCH_ID", ""), help="Required immutable batch identifier when publishing is enabled.")
     parser.add_argument("--list-tables", action="store_true", help="List configured tables and exit.")
     parser.add_argument("--config", default=str(DEFAULT_TABLES_CONFIG), help="Path to table registry YAML.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable output.")
@@ -142,6 +144,11 @@ def run_real_table(args: argparse.Namespace) -> int:
         print(f"ERROR: {args.table} does not support --mode {args.mode}.", file=sys.stderr)
         return 2
     publish_latest = _set_latest_env(args)
+    batch_id = validate_batch_id(args.batch_id) if args.batch_id else None
+    if publish_latest and not batch_id:
+        raise ValueError("--batch-id is required when candidate publishing is enabled")
+    if batch_id:
+        os.environ["OIREACHTAS_BATCH_ID"] = batch_id
     schema = get_table_schema(args.table, Path(args.config))
     s3 = make_s3_client(region_name=args.aws_region)
     client = OireachtasClient(timeout_seconds=30, retries=5, backoff_seconds=2.0, sleep_seconds=0.2)
@@ -219,9 +226,28 @@ def run_real_table(args: argparse.Namespace) -> int:
     result.manifest["requested_page_size"] = args.limit
     result.manifest["effective_output_limit"] = args.limit if args.mode == "test" else None
     result.manifest["publish_latest"] = publish_latest
-    result.manifest["latest_write_policy"] = "enabled" if publish_latest else "suppressed"
-    review_dir = write_review_bundle(table=result.table, manifest=result.manifest, schema=result.schema, dq=result.dq, sample_rows=result.rows, root=Path(args.review_root))
-    print(f"TABLE={result.table}\nMODE={args.mode}\nROWS={result.manifest.get('output_rows')}\nCOLUMNS={len(result.schema.get('columns', []))}\nPRIMARY_KEY={','.join(result.schema.get('primary_key', []))}\nPRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}\nPUBLISH_LATEST={str(publish_latest).lower()}")
+    result.manifest["batch_id"] = batch_id
+    result.manifest["latest_write_policy"] = "batch_candidate" if publish_latest else "suppressed"
+    if publish_latest and batch_id:
+        candidate_keys = [
+            str(result.manifest.get("latest_csv_key") or ""),
+            str(result.manifest.get("latest_parquet_key") or ""),
+        ]
+        record_batch_table(
+            s3,
+            bucket=args.s3_bucket,
+            batch_id=batch_id,
+            table=result.table,
+            manifest=result.manifest,
+            schema=result.schema,
+            dq=result.dq,
+            candidate_keys=[key for key in candidate_keys if key],
+        )
+    review_dir = write_review_bundle(
+        table=result.table, manifest=result.manifest, schema=result.schema, dq=result.dq,
+        sample_rows=result.rows, root=Path(args.review_root), sample_limit=args.sample_rows
+    )
+    print(f"TABLE={result.table}\nMODE={args.mode}\nROWS={result.manifest.get('output_rows')}\nCOLUMNS={len(result.schema.get('columns', []))}\nPRIMARY_KEY={','.join(result.schema.get('primary_key', []))}\nPRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}\nPUBLISH_LATEST={str(publish_latest).lower()}\nBATCH_ID={batch_id or ""}")
     print(f"CSV_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('csv')}\nPARQUET_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('parquet')}\nMANIFEST_KEY=s3://{args.s3_bucket}/{result.s3_keys.get('manifest')}")
     print(f"REVIEW_LOCAL_DIR={review_dir}\nREVIEW_SAMPLE_RAW_URL={raw_review_url(repo=args.github_repository, branch=REVIEW_BRANCH, table=result.table, filename='manifest.json')}\nDQ_STATUS={result.dq.get('dq_status')}")
     return 0 if result.dq.get("dq_status") != "fail" else 1
