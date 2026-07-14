@@ -1,8 +1,8 @@
 # Oireachtas Unified Build Packet Status
 
 **Branch:** `main`  
-**Last updated:** 2026-07-12 America/Vancouver  
-**Current packet:** P69 — production-input orchestrator design
+**Last updated:** 2026-07-13 America/Vancouver  
+**Current packet:** P72 — scheduled orchestrator trigger decision
 
 This is the compact operational handoff for `docs/oireachtas_unified_data_model_plan.md`. Continue from `main`.
 
@@ -25,6 +25,7 @@ This is the compact operational handoff for `docs/oireachtas_unified_data_model_
 - **P60-P62** monthly scheduled refresh failure investigated/fixed/validated, and orchestration plan added.
 - **P63-P65** refresh validation orchestrator implemented, validated with `refresh_type=none`, and scheduled-readiness docs updated.
 - **P66-P68** refresh-enabled orchestrator validation complete, schedule gate deferred, final scheduled-readiness handoff added.
+- **P69-P71** production-input orchestrator designed, implemented, validated, and restored to safe default.
 
 ## Current controlled pre-production cutovers
 
@@ -49,7 +50,7 @@ Latest validation:
 
 ```text
 Workflow ID: 266755732
-Run ID: 29218925171
+Run ID: 29299647855
 Result: success
 ```
 
@@ -73,9 +74,9 @@ Latest validation:
 
 ```text
 Workflow ID: 261945698
-Run ID: 29218960864
+Run ID: 29299676372
 Result: success
-Artifact ID: 8267546600
+Artifact ID: 8298085395
 ```
 
 ### Instagram campaign renderer
@@ -97,9 +98,9 @@ Latest validation:
 
 ```text
 Workflow ID: 271160957
-Run ID: 29219005969
+Run ID: 29299727612
 Result: success
-Artifact ID: 8267555282
+Artifact ID: 8298101606
 ```
 
 ## Refresh validation orchestrator
@@ -130,6 +131,18 @@ refresh_type=none
 run_consumers=true
 ```
 
+Production-input implementation commit:
+
+```text
+e14711cb97d4c361ee3606fd0821539af0bff8c7
+```
+
+Safe-default restore commit:
+
+```text
+5126e5a2fb31f23ea6f12e446bdf2b185e23fa71
+```
+
 ### Current-latest validation
 
 ```text
@@ -138,7 +151,7 @@ Result: success
 Artifact ID: 8087672457
 ```
 
-### Refresh-enabled validation
+### Refresh-enabled validation using child defaults
 
 ```text
 Run ID: 29218772777
@@ -146,23 +159,35 @@ Result: success
 Artifact ID: 8267558251
 ```
 
-Child runs from refresh-enabled validation:
+### Production-input refresh validation
 
 ```text
-monthly refresh: 294432002 / 29218778131 / success / artifact 8267502791
-compat adapters: 294866317 / 29218841290 / success / artifact 8267509616
-compat comparison: 294874693 / 29218866832 / success / artifact 8267516514
-mismatch review: 297343766 / 29218901115 / success / artifact 8267524757
-member profile metrics: 266755732 / 29218925171 / success
-Instagram constituency render: 261945698 / 29218960864 / success / artifact 8267546600
-Instagram campaign render: 271160957 / 29219005969 / success / artifact 8267555282
+Run ID: 29299431600
+Result: success
+Artifact ID: 8298102893
 ```
 
-Schedule gate decision:
+Child runs from production-input validation:
 
 ```text
-Do not add a scheduled orchestrator trigger yet.
-Reason: refresh-enabled validation used child workflow_dispatch defaults; production-like child refresh inputs still need explicit implementation.
+monthly refresh: 294432002 / 29299437311 / success / artifact 8298023987
+compat adapters: 294866317 / 29299539592 / success / artifact 8298034081
+compat comparison: 294874693 / 29299580373 / success / artifact 8298049611
+mismatch review: 297343766 / 29299619179 / success / artifact 8298060582
+member profile metrics: 266755732 / 29299647855 / success
+Instagram constituency render: 261945698 / 29299676372 / success / artifact 8298085395
+Instagram campaign render: 271160957 / 29299727612 / success / artifact 8298101606
+```
+
+Validated monthly child inputs:
+
+```text
+mode=incremental
+publish_latest=auto
+date_start=2026-05-25
+date_end=2026-06-30
+limit=250
+sample_rows=10
 ```
 
 ## Monthly refresh investigation and fix
@@ -195,13 +220,13 @@ Result: success
 Artifact ID: 8087552815
 ```
 
-Latest orchestrated monthly validation:
+Latest explicit production-input orchestrated monthly validation:
 
 ```text
 Workflow ID: 294432002
-Run ID: 29218778131
+Run ID: 29299437311
 Result: success
-Artifact ID: 8267502791
+Artifact ID: 8298023987
 ```
 
 ## Scheduled refresh status
@@ -217,7 +242,7 @@ Monthly:
 
 ```text
 Latest scheduled monthly: 28504651002 / failure / before fix
-Latest manual monthly validation: 29218778131 / success
+Latest explicit-input monthly validation: 29299437311 / success
 Next real scheduled monthly run still needs observation.
 ```
 
@@ -231,8 +256,7 @@ No new scheduled yearly run yet.
 ## Known caveats
 
 ```text
-Scheduled orchestrator trigger is intentionally not enabled.
-Production-like child workflow inputs are not yet implemented in the orchestrator.
+Scheduled orchestrator trigger is not yet enabled.
 Next real scheduled monthly refresh still needs observation.
 Production Instagram publishing remains artifact-only unless explicitly enabled.
 Legacy enrichment keys remain preserved for rollback.
@@ -251,43 +275,42 @@ Member summaries: 306762190 / 28672859337 / success / 174 rows
 ## Key docs
 
 ```text
+docs/oireachtas_production_input_orchestrator_design.md
+docs/oireachtas_production_input_orchestrator_validation.md
 docs/oireachtas_orchestrator_refresh_enabled_validation.md
 docs/oireachtas_orchestrator_schedule_gate_decision.md
 docs/oireachtas_final_scheduled_readiness_handoff.md
-docs/oireachtas_orchestrator_validation_summary.md
 docs/oireachtas_monthly_refresh_failure_investigation.md
-docs/oireachtas_final_handoff_readiness_summary.md
 ```
 
 ## Next packet batch
 
-### P69 — production-input orchestrator design
+### P72 — scheduled orchestrator trigger decision
 
 Goal:
 
-- decide whether to use `workflow_call` or explicit `gh workflow run -f` inputs.
-- specify production-like input sets for weekly and monthly child refresh workflows.
+- decide whether to add a scheduled trigger now that production-input orchestration has passed.
+- safest option: weekly-only orchestrator schedule first, after existing weekly refresh window.
 
-### P70 — production-input orchestrator implementation
-
-Goal:
-
-- patch the orchestrator so refresh-enabled scheduled/manual runs pass explicit child inputs.
-- keep manual default safe unless intentionally changed.
-
-### P71 — production-input orchestrator validation
+### P73 — scheduled orchestrator trigger implementation or deferral documentation
 
 Goal:
 
-- validate the orchestrator with production-like refresh inputs.
-- after that, reconsider the scheduled trigger.
+- if enabling, patch `.github/workflows/oireachtas_refresh_validation_orchestrator.yml` with a schedule and event-aware defaults.
+- if deferring, document why no schedule was added.
+
+### P74 — final production-readiness handoff update
+
+Goal:
+
+- update final handoff docs with the schedule decision, production-input validation evidence, and remaining observation items.
 
 Handoff instruction:
 
 ```text
 Continue from main.
 Process packets three at a time.
-Start P69 production-input orchestrator design, then P70 production-input orchestrator implementation, then P71 production-input orchestrator validation.
+Start P72 scheduled orchestrator trigger decision, then P73 schedule implementation or deferral, then P74 final production-readiness handoff update.
 Do not overwrite legacy enrichment keys.
-Latest successful validations: refresh-enabled orchestrator run 29218772777, monthly child run 29218778131, member profile metrics run 29218925171.
+Latest successful validations: production-input orchestrator run 29299431600, monthly child run 29299437311, member profile metrics run 29299647855.
 ```
