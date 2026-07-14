@@ -34,25 +34,20 @@ def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
     return boto3.client("s3", region_name=region_name)
 
 
+def _candidate_write_requested() -> bool:
+    return os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower() in _TRUTHY
+
+
 def production_publishing_enabled() -> bool:
-    """Return whether the mutable production pointer may be changed."""
     repo_switch = os.getenv("OIREACHTAS_PUBLISH_ENABLED", "false").strip().lower()
-    run_switch = os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower()
-    return repo_switch in _TRUTHY and run_switch in _TRUTHY
+    return repo_switch in _TRUTHY and _candidate_write_requested()
 
 
 def candidate_publishing_enabled() -> bool:
-    """Return whether immutable candidate objects may be written.
-
-    Candidate writes require an explicit per-run switch and validated batch ID,
-    but do not require the mutable production-promotion switch.
-    """
-    run_switch = os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower()
-    return run_switch in _TRUTHY and current_batch_id() is not None
+    return _candidate_write_requested() and current_batch_id() is not None
 
 
 def latest_publishing_enabled() -> bool:
-    """Backward-compatible alias for candidate publishing intent."""
     return candidate_publishing_enabled()
 
 
@@ -65,13 +60,6 @@ def is_unified_latest_key(key: str) -> bool:
 
 
 def resolve_read_key(s3: Any, *, bucket: str, key: str) -> str:
-    """Resolve a logical unified key to the active candidate or production batch.
-
-    Candidate reads are strict: when a batch ID is present, a logical key maps to
-    that batch and never silently falls back to another generation. With no batch
-    ID, a production pointer is preferred; legacy direct objects remain readable
-    during migration when no pointer exists.
-    """
     if not is_unified_production_key(key):
         return key
     batch_id = current_batch_id()
@@ -86,11 +74,11 @@ def resolve_read_key(s3: Any, *, bucket: str, key: str) -> str:
 def put_bytes(s3: Any, *, bucket: str, key: str, body: bytes, content_type: str = "application/octet-stream") -> None:
     target_key = key
     if is_unified_production_key(key):
-        if not candidate_publishing_enabled():
+        if not _candidate_write_requested():
             return
         batch_id = current_batch_id()
         if not batch_id:
-            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every candidate write")
+            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every requested candidate write")
         target_key = batch_key_for_production_key(key, batch_id)
     s3.put_object(Bucket=bucket, Key=target_key, Body=body, ContentType=content_type)
 
@@ -128,7 +116,6 @@ def put_dataframe_parquet(s3: Any, *, bucket: str, key: str, df: pd.DataFrame, c
 
 
 def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.DataFrame, file_format: str) -> pd.DataFrame:
-    """Merge candidate data against the currently promoted immutable batch."""
     table_name = _latest_table_name(key)
     if not table_name or not candidate_publishing_enabled():
         return incoming.copy()
@@ -141,13 +128,11 @@ def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.Da
 
 
 def _read_current_dataframe(s3: Any, *, bucket: str, logical_key: str, file_format: str) -> pd.DataFrame:
-    """Read the promoted production generation, never the in-progress candidate."""
     try:
         resolved_key = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
         obj = s3.get_object(Bucket=bucket, Key=resolved_key)
         body = obj["Body"].read()
     except Exception:
-        # Migration fallback before the first production pointer exists.
         try:
             obj = s3.get_object(Bucket=bucket, Key=logical_key)
             body = obj["Body"].read()
