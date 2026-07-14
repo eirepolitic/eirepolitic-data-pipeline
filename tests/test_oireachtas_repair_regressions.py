@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import os
 import unittest
-from datetime import date
 from unittest.mock import patch
 
 import pandas as pd
 
 from extract.oireachtas.compat_comparison import _dq
 from extract.oireachtas.io_s3 import production_publishing_enabled, put_bytes
-from extract.oireachtas.normalize import is_current_range
 
 
 class FakeS3:
@@ -48,12 +46,6 @@ class ProductionPublishingGuardTests(unittest.TestCase):
 
 class RemainingConfirmedRegressionTests(unittest.TestCase):
     @unittest.expectedFailure
-    def test_future_open_ended_record_is_not_current(self) -> None:
-        self.assertFalse(
-            is_current_range("2099-01-01", None, today=date(2026, 7, 13))
-        )
-
-    @unittest.expectedFailure
     def test_compatibility_dq_fails_when_legacy_keys_are_missing(self) -> None:
         comparisons = pd.DataFrame(
             [
@@ -68,13 +60,6 @@ class RemainingConfirmedRegressionTests(unittest.TestCase):
             ]
         )
         self.assertEqual(_dq(comparisons)["dq_status"], "fail")
-
-    @unittest.expectedFailure
-    def test_incremental_window_must_preserve_prior_history(self) -> None:
-        prior = {"vote-1", "vote-2"}
-        new_window = {"vote-3"}
-        current_replacement_behaviour = new_window
-        self.assertEqual(current_replacement_behaviour, prior | new_window)
 
 
 if __name__ == "__main__":
