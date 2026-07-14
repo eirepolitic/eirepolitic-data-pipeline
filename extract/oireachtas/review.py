@@ -19,6 +19,11 @@ MAX_LIST_ITEMS = 100
 MAX_TEXT_LENGTH = 20_000
 
 
+def table_review_dir(table: str, *, root: Path = REVIEW_ROOT) -> Path:
+    """Return the compatibility latest review directory for a table."""
+    return root / table / "latest"
+
+
 def write_review_bundle(
     *,
     table: str,
@@ -35,7 +40,7 @@ def write_review_bundle(
     )
     table_root = root / table
     run_dir = table_root / "runs" / run_id
-    latest_dir = table_root / "latest"
+    latest_dir = table_review_dir(table, root=root)
     rows = [dict(row) for row in sample_rows][: max(1, min(int(sample_limit), MAX_SAMPLE_ROWS))]
 
     _write_bundle(run_dir, manifest=manifest, schema=schema, dq=dq, rows=rows)
@@ -73,7 +78,6 @@ def _write_bundle(
 
 
 def raw_review_url(*, repo: str, branch: str, table: str, filename: str = "report.md") -> str:
-    """Return a raw GitHub URL for a latest review file."""
     return f"https://raw.githubusercontent.com/{repo}/{branch}/review/{table}/latest/{filename}"
 
 
