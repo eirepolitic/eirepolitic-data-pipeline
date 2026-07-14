@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from extract.oireachtas.compat_comparison import _dq
+from extract.oireachtas.contracts import ComparisonThreshold, comparison_status
 from extract.oireachtas.io_s3 import production_publishing_enabled, put_bytes
 
 
@@ -44,18 +45,32 @@ class ProductionPublishingGuardTests(unittest.TestCase):
         self.assertIn("run_id=1", str(s3.calls[0]["Key"]))
 
 
-class RemainingConfirmedRegressionTests(unittest.TestCase):
-    @unittest.expectedFailure
-    def test_compatibility_dq_fails_when_legacy_keys_are_missing(self) -> None:
+class CompatibilityRegressionTests(unittest.TestCase):
+    def test_compatibility_fails_when_legacy_member_keys_are_missing(self) -> None:
+        row = {
+            "legacy_rows": 176,
+            "compat_rows": 98,
+            "legacy_only_key_count": 78,
+            "compat_only_key_count": 0,
+            "compat_join_coverage_pct": 100.0,
+        }
+        threshold = ComparisonThreshold(
+            name="members_roster_compat",
+            max_legacy_only_keys=0,
+            max_compat_only_keys=0,
+            max_row_delta_pct=2.0,
+            minimum_compat_join_coverage_pct=100.0,
+        )
+        status, reasons = comparison_status(row, threshold)
+        self.assertEqual(status, "fail")
+        self.assertTrue(any("legacy-only keys 78" in reason for reason in reasons))
+
         comparisons = pd.DataFrame(
             [
                 {
                     "comparison_name": "members_roster_compat",
-                    "status": "pass",
-                    "legacy_rows": 176,
-                    "compat_rows": 98,
-                    "legacy_only_key_count": 78,
-                    "compat_only_key_count": 0,
+                    "status": status,
+                    "failure_reasons": "; ".join(reasons),
                 }
             ]
         )
