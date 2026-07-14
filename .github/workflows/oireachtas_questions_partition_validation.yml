@@ -1,0 +1,109 @@
+name: Oireachtas questions partition validation
+
+on:
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - .github/workflows/oireachtas_questions_partition_validation.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-questions-partition-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_BATCH_ID: questions-validation-${{ github.run_id }}-${{ github.run_attempt }}
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Capture production pointer
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status > pointer-before.json
+      - name: Build partitioned questions candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.build_table \
+            --table silver_questions \
+            --mode incremental \
+            --publish-latest true \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --chamber dail \
+            --house-no 34 \
+            --date-start "$(date -u -d '35 days ago' +%F)" \
+            --date-end "$(date -u +%F)" \
+            --limit 100 \
+            --sample-rows 10 \
+            --write-review-sample \
+            --s3-bucket "${S3_BUCKET}" \
+            --aws-region "${AWS_REGION}" \
+            --review-root oireachtas_questions_review \
+            --github-repository "${GITHUB_REPOSITORY}" \
+            | tee questions-build.log
+      - name: Assert partition completeness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifests = sorted(Path('oireachtas_questions_review/silver_questions/runs').glob('*/manifest.json'))
+          assert len(manifests) == 1, manifests
+          manifest = json.loads(manifests[0].read_text())
+          assert manifest['dq_status'] == 'pass', manifest
+          assert manifest['output_rows'] > 10000, manifest['output_rows']
+          pagination = manifest['pagination']
+          assert pagination['complete'] is True, pagination
+          assert pagination['partitioned'] is True, pagination
+          assert pagination['partition_count'] > 1, pagination
+          print(json.dumps({
+              'output_rows': manifest['output_rows'],
+              'partition_count': pagination['partition_count'],
+              'fetched_count': pagination['fetched_count'],
+          }, indent=2))
+          PY
+      - name: Verify production pointer unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status > pointer-after.json
+          cmp pointer-before.json pointer-after.json
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-questions-partition-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            questions-build.log
+            pointer-before.json
+            pointer-after.json
+            oireachtas_questions_review/**
+          if-no-files-found: error
+          retention-days: 90
