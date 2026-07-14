@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Iterable
+from typing import Any, Iterable
 
 import pandas as pd
 
@@ -21,12 +21,11 @@ def merge_for_policy(existing: pd.DataFrame, incoming: pd.DataFrame, *, primary_
     missing = [column for column in primary_key if column not in combined.columns]
     if missing:
         raise ValueError(f"Missing primary-key columns for {policy.table}: {missing}")
-    # Incoming rows win because they are concatenated last.
     return combined.drop_duplicates(subset=primary_key, keep="last").reset_index(drop=True)
 
 
 def temporal_integrity(df: pd.DataFrame, *, policy: WritePolicy, as_of: date | None = None) -> dict[str, object]:
-    """Validate temporal bounds and current-record cardinality."""
+    """Validate temporal bounds and future current-state flags."""
     as_of = as_of or date.today()
     start_col = policy.valid_from_column
     end_col = policy.valid_to_column
@@ -34,13 +33,28 @@ def temporal_integrity(df: pd.DataFrame, *, policy: WritePolicy, as_of: date | N
     errors: list[str] = []
     if not start_col or start_col not in df.columns:
         return {"status": "pass", "errors": [], "future_current_rows": 0, "invalid_ranges": 0}
-    starts = df[start_col].map(parse_iso_date)
-    ends = df[end_col].map(parse_iso_date) if end_col and end_col in df.columns else pd.Series([None] * len(df))
-    invalid_ranges = sum(1 for start, end in zip(starts, ends) if start and end and start > end)
+
+    starts = df[start_col].map(_normalized_iso_date)
+    ends = (
+        df[end_col].map(_normalized_iso_date)
+        if end_col and end_col in df.columns
+        else pd.Series([None] * len(df), dtype=object)
+    )
+    invalid_ranges = sum(
+        1
+        for start, end in zip(starts.tolist(), ends.tolist())
+        if start is not None and end is not None and start > end
+    )
+
     future_current_rows = 0
     if current_col and current_col in df.columns:
         current_mask = df[current_col].fillna(False).astype(bool)
-        future_current_rows = sum(1 for is_current, start in zip(current_mask, starts) if is_current and start and start > as_of.isoformat())
+        future_current_rows = sum(
+            1
+            for is_current, start in zip(current_mask.tolist(), starts.tolist())
+            if is_current and start is not None and start > as_of.isoformat()
+        )
+
     if invalid_ranges:
         errors.append(f"{invalid_ranges} rows have valid_from after valid_to")
     if future_current_rows:
@@ -58,7 +72,12 @@ def foreign_key_integrity(child: pd.DataFrame, parent: pd.DataFrame, *, policy: 
     missing_child = [column for column in policy.columns if column not in child.columns]
     missing_parent = [column for column in policy.referenced_columns if column not in parent.columns]
     if missing_child or missing_parent:
-        return {"status": "fail", "orphan_count": None, "missing_child_columns": missing_child, "missing_parent_columns": missing_parent}
+        return {
+            "status": "fail",
+            "orphan_count": None,
+            "missing_child_columns": missing_child,
+            "missing_parent_columns": missing_parent,
+        }
     left = child[list(policy.columns)].copy()
     if policy.nullable:
         left = left.dropna(how="any")
@@ -75,11 +94,12 @@ def overlap_count(df: pd.DataFrame, *, entity_columns: Iterable[str], start_colu
     if df.empty:
         return 0
     count = 0
-    for _, group in df.groupby(entity_columns, dropna=False):
-        ranges = []
+    group_key: str | list[str] = entity_columns[0] if len(entity_columns) == 1 else entity_columns
+    for _, group in df.groupby(group_key, dropna=False):
+        ranges: list[tuple[str, str]] = []
         for _, row in group.iterrows():
-            start = parse_iso_date(row.get(start_column))
-            end = parse_iso_date(row.get(end_column)) or "9999-12-31"
+            start = _normalized_iso_date(row.get(start_column))
+            end = _normalized_iso_date(row.get(end_column)) or "9999-12-31"
             if start:
                 ranges.append((start, end))
         ranges.sort()
@@ -87,3 +107,15 @@ def overlap_count(df: pd.DataFrame, *, entity_columns: Iterable[str], start_colu
             if current[0] <= previous[1]:
                 count += 1
     return count
+
+
+def _normalized_iso_date(value: Any) -> str | None:
+    """Return an ISO date or None for pandas/JSON missing values."""
+    if value is None:
+        return None
+    try:
+        if bool(pd.isna(value)):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return parse_iso_date(value)
