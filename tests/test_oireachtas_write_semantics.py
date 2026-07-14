@@ -6,8 +6,12 @@ from datetime import date
 import pandas as pd
 
 from extract.oireachtas.merge import foreign_key_integrity, merge_for_policy, overlap_count, temporal_integrity
-from extract.oireachtas.normalize import is_current_range, stable_hash
+from extract.oireachtas.normalize import is_current_range
 from extract.oireachtas.schemas import load_table_registry
+from extract.oireachtas.table_member_constituencies import _normalise_constituency_row
+from extract.oireachtas.table_member_memberships import _normalise_membership_row
+from extract.oireachtas.table_member_offices import _normalise_office_row
+from extract.oireachtas.table_member_parties import _normalise_party_row
 from extract.oireachtas.write_policies import ForeignKeyPolicy, WritePolicy, load_write_policies, validate_policy_coverage
 
 
@@ -85,9 +89,44 @@ class TemporalAndIntegrityTests(unittest.TestCase):
         ])
         self.assertEqual(overlap_count(frame, entity_columns=["member_code"], start_column="start", end_column="end"), 1)
 
-    def test_fallback_membership_identity_does_not_depend_on_end_date(self) -> None:
-        base = ["m1", "/member/m1", "/house/dail/34", "34", "dail", "2025-01-01"]
-        self.assertEqual(stable_hash(base), stable_hash(base))
+
+class StableHistoryIdentityTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.member = {"memberCode": "m1", "uri": "/member/m1"}
+        self.open_membership = {
+            "house": {"uri": "/house/dail/34", "houseNo": "34", "houseCode": "dail"},
+            "dateRange": {"start": "2025-01-01"},
+        }
+        self.closed_membership = {
+            **self.open_membership,
+            "dateRange": {"start": "2025-01-01", "end": "2026-01-01"},
+        }
+
+    def test_membership_id_ignores_later_end_date(self) -> None:
+        open_row = _normalise_membership_row(self.member, self.open_membership, snapshot_date="2026-01-01")
+        closed_row = _normalise_membership_row(self.member, self.closed_membership, snapshot_date="2026-01-02")
+        self.assertEqual(open_row["membership_id"], closed_row["membership_id"])
+
+    def test_party_id_ignores_later_end_date(self) -> None:
+        open_party = {"showAs": "Example Party", "dateRange": {"start": "2025-01-01"}}
+        closed_party = {"showAs": "Example Party", "dateRange": {"start": "2025-01-01", "end": "2026-01-01"}}
+        open_row = _normalise_party_row(self.member, self.open_membership, open_party, snapshot_date="2026-01-01")
+        closed_row = _normalise_party_row(self.member, self.closed_membership, closed_party, snapshot_date="2026-01-02")
+        self.assertEqual(open_row["member_party_id"], closed_row["member_party_id"])
+
+    def test_constituency_id_ignores_later_end_date(self) -> None:
+        open_representation = {"showAs": "Example", "dateRange": {"start": "2025-01-01"}}
+        closed_representation = {"showAs": "Example", "dateRange": {"start": "2025-01-01", "end": "2026-01-01"}}
+        open_row = _normalise_constituency_row(self.member, self.open_membership, open_representation, snapshot_date="2026-01-01")
+        closed_row = _normalise_constituency_row(self.member, self.closed_membership, closed_representation, snapshot_date="2026-01-02")
+        self.assertEqual(open_row["member_constituency_id"], closed_row["member_constituency_id"])
+
+    def test_office_id_ignores_later_end_date(self) -> None:
+        open_office = {"showAs": "Minister", "dateRange": {"start": "2025-01-01"}}
+        closed_office = {"showAs": "Minister", "dateRange": {"start": "2025-01-01", "end": "2026-01-01"}}
+        open_row = _normalise_office_row(self.member, self.open_membership, open_office, snapshot_date="2026-01-01")
+        closed_row = _normalise_office_row(self.member, self.closed_membership, closed_office, snapshot_date="2026-01-02")
+        self.assertEqual(open_row["member_office_id"], closed_row["member_office_id"])
 
 
 if __name__ == "__main__":
