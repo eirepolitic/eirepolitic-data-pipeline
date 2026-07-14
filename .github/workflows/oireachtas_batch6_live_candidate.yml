@@ -1,6 +1,7 @@
 name: Oireachtas Batch 6 live candidate validation
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - repair/oireachtas-production-hardening
