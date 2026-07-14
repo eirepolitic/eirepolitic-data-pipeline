@@ -1,0 +1,207 @@
+name: Oireachtas reusable refresh
+
+on:
+  workflow_call:
+    inputs:
+      refresh_type:
+        required: true
+        type: string
+      mode:
+        required: false
+        type: string
+        default: ""
+      tables:
+        required: false
+        type: string
+        default: ""
+      chamber:
+        required: false
+        type: string
+        default: dail
+      house_no:
+        required: false
+        type: string
+        default: "34"
+      date_start:
+        required: false
+        type: string
+        default: ""
+      date_end:
+        required: false
+        type: string
+        default: ""
+      page_size:
+        required: false
+        type: string
+        default: ""
+      sample_rows:
+        required: false
+        type: string
+        default: "10"
+      batch_id:
+        required: true
+        type: string
+      publish_candidate:
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      batch_id:
+        value: ${{ jobs.refresh.outputs.batch_id }}
+      tables:
+        value: ${{ jobs.refresh.outputs.tables }}
+      status:
+        value: ${{ jobs.refresh.outputs.status }}
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    concurrency:
+      group: oireachtas-production-refresh
+      cancel-in-progress: false
+    outputs:
+      batch_id: ${{ steps.result.outputs.batch_id }}
+      tables: ${{ steps.inputs.outputs.tables }}
+      status: ${{ steps.result.outputs.status }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      REVIEW_OUTPUT_ROOT: oireachtas_review_output
+      OIREACHTAS_BATCH_ID: ${{ inputs.batch_id }}
+      OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_PUBLISH_LATEST: ${{ inputs.publish_candidate && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Normalize and validate refresh inputs
+        id: inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_refresh_inputs.py \
+            --refresh-type '${{ inputs.refresh_type }}' \
+            --mode '${{ inputs.mode }}' \
+            --tables '${{ inputs.tables }}' \
+            --chamber '${{ inputs.chamber }}' \
+            --house-no '${{ inputs.house_no }}' \
+            --date-start '${{ inputs.date_start }}' \
+            --date-end '${{ inputs.date_end }}' \
+            --page-size '${{ inputs.page_size }}' \
+            --sample-rows '${{ inputs.sample_rows }}' \
+            --github-output "${GITHUB_OUTPUT}" \
+            | tee oireachtas_refresh_inputs.json
+      - name: Validate publication intent
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ '${{ inputs.publish_candidate }}' == 'true' && "${OIREACHTAS_PUBLISH_ENABLED,,}" != 'true' ]]; then
+            echo 'Candidate publishing was requested, but OIREACHTAS_PUBLISH_ENABLED is not true.' >&2
+            exit 2
+          fi
+          if [[ ! "${OIREACHTAS_BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+            echo 'Unsafe batch ID.' >&2
+            exit 2
+          fi
+      - name: Build refresh table set
+        shell: bash
+        env:
+          MODE: ${{ steps.inputs.outputs.mode }}
+          TABLES: ${{ steps.inputs.outputs.tables }}
+          CHAMBER: ${{ steps.inputs.outputs.chamber }}
+          HOUSE_NO: ${{ steps.inputs.outputs.house_no }}
+          DATE_START: ${{ steps.inputs.outputs.date_start }}
+          DATE_END: ${{ steps.inputs.outputs.date_end }}
+          PAGE_SIZE: ${{ steps.inputs.outputs.page_size }}
+          SAMPLE_ROWS: ${{ steps.inputs.outputs.sample_rows }}
+        run: |
+          set -euo pipefail
+          : > oireachtas_refresh.log
+          IFS=',' read -ra table_list <<< "${TABLES}"
+          for table in "${table_list[@]}"; do
+            table="${table//[[:space:]]/}"
+            [[ -n "${table}" ]]
+            echo "===== TABLE ${table} =====" | tee -a oireachtas_refresh.log
+            python -m extract.oireachtas.build_table \
+              --table "${table}" \
+              --mode "${MODE}" \
+              --publish-latest '${{ inputs.publish_candidate && 'true' || 'false' }}' \
+              --batch-id "${OIREACHTAS_BATCH_ID}" \
+              --chamber "${CHAMBER}" \
+              --house-no "${HOUSE_NO}" \
+              --date-start "${DATE_START}" \
+              --date-end "${DATE_END}" \
+              --limit "${PAGE_SIZE}" \
+              --sample-rows "${SAMPLE_ROWS}" \
+              --write-review-sample \
+              --s3-bucket "${S3_BUCKET}" \
+              --aws-region "${AWS_REGION}" \
+              --review-root "${REVIEW_OUTPUT_ROOT}" \
+              --github-repository "${GITHUB_REPOSITORY}" \
+              2>&1 | tee -a oireachtas_refresh.log
+          done
+      - name: Assemble candidate batch manifest
+        if: inputs.publish_candidate
+        shell: bash
+        env:
+          TABLES: ${{ steps.inputs.outputs.tables }}
+        run: |
+          set -euo pipefail
+          args=(--bucket "${S3_BUCKET}" --region "${AWS_REGION}" assemble --batch-id "${OIREACHTAS_BATCH_ID}")
+          IFS=',' read -ra table_list <<< "${TABLES}"
+          for table in "${table_list[@]}"; do
+            table="${table//[[:space:]]/}"
+            args+=(--required-table "${table}")
+          done
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas_batch_manifest.json
+      - name: Record workflow result
+        id: result
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "batch_id=${OIREACHTAS_BATCH_ID}" >> "${GITHUB_OUTPUT}"
+          echo "status=${{ job.status }}" >> "${GITHUB_OUTPUT}"
+      - name: Write workflow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Oireachtas reusable refresh'
+            echo
+            echo "- Refresh type: `${{ inputs.refresh_type }}`"
+            echo "- Batch ID: `${OIREACHTAS_BATCH_ID}`"
+            echo "- Candidate publishing: `${{ inputs.publish_candidate }}`"
+            echo "- Tables: `${{ steps.inputs.outputs.table_count || 'unknown' }}`"
+            echo
+            echo '```text'
+            [[ -f oireachtas_refresh.log ]] && tail -n 120 oireachtas_refresh.log || echo 'No refresh log.'
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+      - name: Upload refresh evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-${{ inputs.refresh_type }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_review_output/**
+            oireachtas_refresh.log
+            oireachtas_refresh_inputs.json
+            oireachtas_batch_manifest.json
+          if-no-files-found: warn
+          retention-days: 90
