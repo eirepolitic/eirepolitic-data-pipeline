@@ -4,264 +4,120 @@ on:
   workflow_dispatch:
     inputs:
       refresh_type:
-        description: "Optional refresh to run before validations"
+        description: Optional refresh before validation
         required: true
-        default: "none"
+        default: none
         type: choice
         options: [none, weekly, monthly, yearly]
-      run_consumers:
-        description: "Run downstream consumer validations"
+      publish_candidate:
+        description: Write an immutable candidate batch
         required: true
-        default: "true"
-        type: choice
-        options: [true, false]
+        default: false
+        type: boolean
+      run_consumers:
+        description: Reserved for downstream consumer validation
+        required: true
+        default: false
+        type: boolean
   schedule:
-    - cron: "45 6 * * 0"
-
-concurrency:
-  group: oireachtas-refresh-validation-orchestrator
-  cancel-in-progress: false
+    - cron: '45 6 * * 0'
 
 permissions:
-  actions: write
   contents: read
 
+concurrency:
+  group: oireachtas-production-orchestrator
+  cancel-in-progress: false
+
 jobs:
-  orchestrate:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-
-    env:
-      GH_TOKEN: ${{ github.token }}
-      REFRESH_TYPE: ${{ github.event_name == 'schedule' && 'weekly' || inputs.refresh_type || 'none' }}
-      RUN_CONSUMERS: ${{ github.event_name == 'schedule' && 'true' || inputs.run_consumers || 'true' }}
-      TARGET_BRANCH: ${{ github.ref_name }}
-      TARGET_SHA: ${{ github.sha }}
-      WEEKLY_TABLES: "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
-      MONTHLY_TABLES: "silver_constituencies,silver_parties,silver_source_files,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
-      YEARLY_TABLES: "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
-
+    timeout-minutes: 5
+    outputs:
+      refresh_type: ${{ steps.values.outputs.refresh_type }}
+      publish_candidate: ${{ steps.values.outputs.publish_candidate }}
+      run_consumers: ${{ steps.values.outputs.run_consumers }}
+      batch_id: ${{ steps.values.outputs.batch_id }}
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
+      - name: Resolve orchestration inputs
+        id: values
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_REFRESH_TYPE: ${{ inputs.refresh_type }}
+          INPUT_PUBLISH_CANDIDATE: ${{ inputs.publish_candidate }}
+          INPUT_RUN_CONSUMERS: ${{ inputs.run_consumers }}
+        run: |
+          set -euo pipefail
+          if [[ "${EVENT_NAME}" == 'schedule' ]]; then
+            refresh_type='weekly'
+            publish_candidate='false'
+            run_consumers='false'
+          else
+            refresh_type="${INPUT_REFRESH_TYPE:-none}"
+            publish_candidate="${INPUT_PUBLISH_CANDIDATE:-false}"
+            run_consumers="${INPUT_RUN_CONSUMERS:-false}"
+          fi
+          case "${refresh_type}" in none|weekly|monthly|yearly) ;; *) echo 'Invalid refresh type' >&2; exit 2 ;; esac
+          batch_id="orchestrator-${refresh_type}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "refresh_type=${refresh_type}" >> "${GITHUB_OUTPUT}"
+          echo "publish_candidate=${publish_candidate}" >> "${GITHUB_OUTPUT}"
+          echo "run_consumers=${run_consumers}" >> "${GITHUB_OUTPUT}"
+          echo "batch_id=${batch_id}" >> "${GITHUB_OUTPUT}"
+          {
+            echo '## Oireachtas orchestration plan'
+            echo
+            echo "- Refresh type: `${refresh_type}`"
+            echo "- Batch ID: `${batch_id}`"
+            echo "- Candidate publishing: `${publish_candidate}`"
+            echo "- Consumer validation requested: `${run_consumers}`"
+          } >> "${GITHUB_STEP_SUMMARY}"
 
-      - name: Run refresh validation sequence
+  refresh:
+    needs: prepare
+    if: needs.prepare.outputs.refresh_type != 'none'
+    uses: ./.github/workflows/oireachtas_refresh_reusable.yml
+    with:
+      refresh_type: ${{ needs.prepare.outputs.refresh_type }}
+      mode: ""
+      tables: ""
+      chamber: dail
+      house_no: "34"
+      date_start: ""
+      date_end: ""
+      page_size: ""
+      sample_rows: "10"
+      batch_id: ${{ needs.prepare.outputs.batch_id }}
+      publish_candidate: ${{ needs.prepare.outputs.publish_candidate == 'true' }}
+    secrets: inherit
+
+  validation:
+    needs: [prepare, refresh]
+    if: always() && needs.prepare.result == 'success' && (needs.refresh.result == 'success' || needs.refresh.result == 'skipped')
+    uses: ./.github/workflows/oireachtas_validation_reusable.yml
+    with:
+      batch_id: ${{ needs.prepare.outputs.batch_id }}
+      run_consumers: ${{ needs.prepare.outputs.run_consumers == 'true' }}
+    secrets: inherit
+
+  summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [prepare, refresh, validation]
+    if: always()
+    steps:
+      - name: Write orchestration result
         shell: bash
         run: |
-          set -u -o pipefail
-
-          summary_file="oireachtas_refresh_validation_orchestrator_summary.md"
-          failed=0
-          : > "${summary_file}"
-
+          set -euo pipefail
           {
-            echo "# Oireachtas refresh validation orchestrator"
+            echo '## Oireachtas orchestration result'
             echo
-            echo "- Refresh type: \`${REFRESH_TYPE}\`"
-            echo "- Run consumers: \`${RUN_CONSUMERS}\`"
-            echo "- Target branch: \`${TARGET_BRANCH}\`"
-            echo "- Target SHA: \`${TARGET_SHA}\`"
-            echo
-          } >> "${summary_file}"
-
-          wait_for_child_run_id() {
-            local workflow_file="$1"
-            local run_id=""
-            for attempt in $(seq 1 24); do
-              run_id="$(gh run list \
-                --workflow "${workflow_file}" \
-                --branch "${TARGET_BRANCH}" \
-                --event workflow_dispatch \
-                --limit 20 \
-                --json databaseId,headSha,status,createdAt \
-                --jq ".[] | select(.headSha == \"${TARGET_SHA}\") | .databaseId" | head -n 1)"
-              if [[ -n "${run_id}" ]]; then
-                echo "${run_id}"
-                return 0
-              fi
-              sleep 5
-            done
-            return 1
-          }
-
-          run_child() {
-            local label="$1"
-            local workflow_file="$2"
-            shift 2
-            local run_id=""
-            local conclusion=""
-            local url=""
-
-            echo "Dispatching ${label}: ${workflow_file}"
-            if [[ "$#" -gt 0 ]]; then
-              echo "Inputs for ${label}: $*"
-            fi
-
-            if ! gh workflow run "${workflow_file}" --ref "${TARGET_BRANCH}" "$@"; then
-              {
-                echo "## ${label}"
-                echo
-                echo "- Workflow: \`${workflow_file}\`"
-                echo "- Dispatch: \`failed\`"
-                if [[ "$#" -gt 0 ]]; then
-                  echo "- Inputs: \`$*\`"
-                fi
-                echo
-              } >> "${summary_file}"
-              failed=1
-              return 1
-            fi
-
-            if ! run_id="$(wait_for_child_run_id "${workflow_file}")"; then
-              {
-                echo "## ${label}"
-                echo
-                echo "- Workflow: \`${workflow_file}\`"
-                echo "- Dispatch: \`sent\`"
-                echo "- Run lookup: \`failed\`"
-                if [[ "$#" -gt 0 ]]; then
-                  echo "- Inputs: \`$*\`"
-                fi
-                echo
-              } >> "${summary_file}"
-              failed=1
-              return 1
-            fi
-
-            echo "Watching ${label} run ${run_id}"
-            if gh run watch "${run_id}" --exit-status --interval 15; then
-              conclusion="$(gh run view "${run_id}" --json conclusion --jq '.conclusion')"
-            else
-              conclusion="$(gh run view "${run_id}" --json conclusion --jq '.conclusion')"
-            fi
-            url="$(gh run view "${run_id}" --json url --jq '.url')"
-
-            {
-              echo "## ${label}"
-              echo
-              echo "- Workflow: \`${workflow_file}\`"
-              echo "- Run ID: \`${run_id}\`"
-              echo "- Conclusion: \`${conclusion}\`"
-              if [[ "$#" -gt 0 ]]; then
-                echo "- Inputs: \`$*\`"
-              fi
-              echo "- URL: ${url}"
-              echo
-            } >> "${summary_file}"
-
-            if [[ "${conclusion}" != "success" ]]; then
-              failed=1
-              return 1
-            fi
-            return 0
-          }
-
-          run_weekly_refresh() {
-            local date_start
-            local date_end
-            date_start="$(date -u -d '35 days ago' +%F)"
-            date_end="$(date -u +%F)"
-            run_child "Weekly refresh" ".github/workflows/oireachtas_weekly_refresh.yml" \
-              -f mode=incremental \
-              -f publish_latest=auto \
-              -f "tables=${WEEKLY_TABLES}" \
-              -f chamber=dail \
-              -f house_no=34 \
-              -f "date_start=${date_start}" \
-              -f "date_end=${date_end}" \
-              -f limit=100 \
-              -f sample_rows=10 || true
-          }
-
-          run_monthly_refresh() {
-            local month_start
-            local date_start
-            local date_end
-            month_start="$(date -u +%Y-%m-01)"
-            date_start="$(date -u -d "${month_start} -1 month -7 days" +%F)"
-            date_end="$(date -u -d "${month_start} -1 day" +%F)"
-            run_child "Monthly refresh" ".github/workflows/oireachtas_monthly_refresh.yml" \
-              -f mode=incremental \
-              -f publish_latest=auto \
-              -f "tables=${MONTHLY_TABLES}" \
-              -f chamber=dail \
-              -f house_no=34 \
-              -f "date_start=${date_start}" \
-              -f "date_end=${date_end}" \
-              -f limit=250 \
-              -f sample_rows=10 || true
-          }
-
-          run_yearly_refresh() {
-            local target_year
-            target_year="$(date -u -d '1 year ago' +%Y)"
-            run_child "Yearly refresh" ".github/workflows/oireachtas_yearly_refresh.yml" \
-              -f mode=full \
-              -f publish_latest=auto \
-              -f "tables=${YEARLY_TABLES}" \
-              -f chamber=dail \
-              -f house_no=34 \
-              -f "date_start=${target_year}-01-01" \
-              -f "date_end=${target_year}-12-31" \
-              -f limit=500 \
-              -f sample_rows=10 || true
-          }
-
-          if [[ "${REFRESH_TYPE}" == "weekly" ]]; then
-            run_weekly_refresh
-          elif [[ "${REFRESH_TYPE}" == "monthly" ]]; then
-            run_monthly_refresh
-          elif [[ "${REFRESH_TYPE}" == "yearly" ]]; then
-            run_yearly_refresh
-          else
-            {
-              echo "## Refresh"
-              echo
-              echo "- Refresh step: \`skipped\`"
-              echo
-            } >> "${summary_file}"
-          fi
-
-          if [[ "${failed}" == "0" ]]; then
-            run_child "Compatibility adapters" ".github/workflows/oireachtas_compat_adapters.yml" || true
-          fi
-          if [[ "${failed}" == "0" ]]; then
-            run_child "Compatibility comparison" ".github/workflows/oireachtas_compat_comparison.yml" || true
-          fi
-          if [[ "${failed}" == "0" ]]; then
-            run_child "Mismatch review" ".github/workflows/oireachtas_mismatch_review.yml" || true
-          fi
-          if [[ "${failed}" == "0" ]]; then
-            run_child "Member profile metrics" ".github/workflows/build_member_profile_metrics_2025.yml" || true
-          fi
-          if [[ "${failed}" == "0" && "${RUN_CONSUMERS}" == "true" ]]; then
-            run_child "Instagram constituency render" ".github/workflows/instagram_constituency_test.yml" || true
-          fi
-          if [[ "${failed}" == "0" && "${RUN_CONSUMERS}" == "true" ]]; then
-            run_child "Instagram campaign render" ".github/workflows/instagram_campaign_render.yml" || true
-          fi
-
-          {
-            echo "## Final status"
-            echo
-            if [[ "${failed}" == "0" ]]; then
-              echo "- Status: \`success\`"
-            else
-              echo "- Status: \`failed\`"
-            fi
-          } >> "${summary_file}"
-
-          cat "${summary_file}" >> "${GITHUB_STEP_SUMMARY}"
-          cat "${summary_file}"
-
-          if [[ "${failed}" != "0" ]]; then
-            exit 1
-          fi
-
-      - name: Upload orchestrator summary
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-refresh-validation-orchestrator-summary
-          path: oireachtas_refresh_validation_orchestrator_summary.md
-          if-no-files-found: warn
+            echo "- Batch ID: `${{ needs.prepare.outputs.batch_id || 'unavailable' }}`"
+            echo "- Prepare: `${{ needs.prepare.result }}`"
+            echo "- Refresh: `${{ needs.refresh.result }}`"
+            echo "- Validation: `${{ needs.validation.result }}`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+          if [[ '${{ needs.prepare.result }}' != 'success' ]]; then exit 1; fi
+          if [[ '${{ needs.refresh.result }}' != 'success' && '${{ needs.refresh.result }}' != 'skipped' ]]; then exit 1; fi
+          if [[ '${{ needs.validation.result }}' != 'success' ]]; then exit 1; fi

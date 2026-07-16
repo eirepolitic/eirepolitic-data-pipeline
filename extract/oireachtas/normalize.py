@@ -45,25 +45,18 @@ def normalize_name(value: Any) -> str:
 
 
 def parse_iso_date(value: Any) -> Optional[str]:
-    """Parse common API date/datetime values into YYYY-MM-DD.
-
-    Returns None when the value cannot be parsed. Keeps date handling simple at
-    this layer so CSV and Parquet writers can choose their own dtypes later.
-    """
+    """Parse common API date/datetime values into YYYY-MM-DD."""
     text = safe_text(value)
     if not text:
         return None
-
     match = re.match(r"^(\d{4}-\d{2}-\d{2})", text)
     if match:
         return match.group(1)
-
     for fmt in ("%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y"):
         try:
             return datetime.strptime(text, fmt).date().isoformat()
         except ValueError:
             continue
-
     return None
 
 
@@ -101,16 +94,22 @@ def normalize_format_url(uri: Any, *, data_base_url: str = _DATA_BASE_URL) -> Op
 
 
 def is_current_range(start: Any = None, end: Any = None, *, today: Optional[date] = None) -> bool:
-    """Return whether a date range appears current today.
+    """Return whether today falls inside an inclusive date range.
 
-    Missing end date means current/open-ended. Missing or unparsable start does
-    not prevent current=true if end is open/future.
+    A missing boundary is open-ended. An unparsable supplied boundary is invalid
+    rather than silently current. Future-start records are never current.
     """
     current_day = today or date.today()
+    start_text = safe_text(start)
+    end_text = safe_text(end)
+    start_iso = parse_iso_date(start)
     end_iso = parse_iso_date(end)
-    if not end_iso:
-        return True
-    try:
-        return datetime.strptime(end_iso, "%Y-%m-%d").date() >= current_day
-    except ValueError:
+    if start_text and not start_iso:
         return False
+    if end_text and not end_iso:
+        return False
+    if start_iso and datetime.strptime(start_iso, "%Y-%m-%d").date() > current_day:
+        return False
+    if end_iso and datetime.strptime(end_iso, "%Y-%m-%d").date() < current_day:
+        return False
+    return True

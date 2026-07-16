@@ -62,7 +62,7 @@ def build_gold_content_fact_pool(
     if not df.empty:
         df = df.drop_duplicates(subset=["fact_id"], keep="first")
         df = df.sort_values(["period_start", "fact_type", "metric_value", "entity_id"], ascending=[False, True, False, True])
-        df = df.head(max(1, limit)).copy()
+        df = df.copy()
 
     csv_key = f"processed/oireachtas_unified/gold_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"
     parquet_key = f"processed/oireachtas_unified/gold/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/part-00000.parquet"

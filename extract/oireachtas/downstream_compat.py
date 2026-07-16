@@ -12,13 +12,23 @@ from typing import Any
 
 import pandas as pd
 
-from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_bytes, make_s3_client, put_dataframe_csv, put_json
+from .batch import current_batch_id, record_batch_table
+from .contracts import load_contract_config, validate_dataset_contract
+from .io_s3 import (
+    DEFAULT_BUCKET,
+    DEFAULT_REGION,
+    candidate_publishing_enabled,
+    get_bytes,
+    make_s3_client,
+    put_dataframe_csv,
+    put_json,
+)
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, write_review_bundle
 
 TABLE_NAME = "compat_downstream_adapters"
 
-SOURCE_CURRENT_MEMBERS = "processed/oireachtas_unified/latest/csv/gold_current_members.csv"
+SOURCE_CURRENT_MEMBERS = "processed/oireachtas_unified/latest/csv/silver_members.csv"
 SOURCE_MEMBER_VOTES = "processed/oireachtas_unified/latest/csv/silver_member_votes.csv"
 OUTPUT_MEMBERS_COMPAT = "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
 OUTPUT_MEMBER_VOTES_COMPAT = "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
@@ -50,7 +60,12 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
 
     summary_df = pd.DataFrame(summary_rows)
     dq = _dq(summary_df)
-    schema = {"table": TABLE_NAME, "primary_key": ["adapter_name"], "columns": list(summary_df.columns), "row_count": int(len(summary_df))}
+    schema = {
+        "table": TABLE_NAME,
+        "primary_key": ["adapter_name"],
+        "columns": list(summary_df.columns),
+        "row_count": int(len(summary_df)),
+    }
     manifest_key = f"processed/oireachtas_unified/compat/manifests/{TABLE_NAME}/run_id={run_id}.json"
     review_sample_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/sample.csv"
     review_schema_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/schema.json"
@@ -67,6 +82,7 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
         "primary_key": ["adapter_name"],
         "primary_key_unique": bool(not summary_df["adapter_name"].duplicated().any()),
         "dq_status": dq["dq_status"],
+        "batch_id": current_batch_id(),
         "s3_keys": {
             "members_compat_csv": OUTPUT_MEMBERS_COMPAT,
             "member_votes_compat_csv": OUTPUT_MEMBER_VOTES_COMPAT,
@@ -81,7 +97,54 @@ def build_downstream_compat_adapters(*, s3: Any, bucket: str, review_root: Path,
     put_dataframe_csv(s3, bucket=bucket, key=review_sample_key, df=summary_df.head(sample_rows))
     put_json(s3, bucket=bucket, key=review_schema_key, payload=schema)
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
-    write_review_bundle(table=TABLE_NAME, manifest=manifest, schema=schema, dq=dq, sample_rows=summary_df.head(sample_rows).to_dict(orient="records"), root=review_root)
+
+    if candidate_publishing_enabled() and current_batch_id():
+        contracts, _ = load_contract_config()
+        contract_results = [
+            validate_dataset_contract(s3, bucket=bucket, contract=contracts["members_compat"]),
+            validate_dataset_contract(s3, bucket=bucket, contract=contracts["member_votes_compat"]),
+        ]
+        manifest["contract_results"] = contract_results
+        if any(result["status"] != "pass" for result in contract_results):
+            dq["dq_status"] = "fail"
+            dq["checks"].append(
+                {
+                    "check_name": "downstream_contracts",
+                    "status": "fail",
+                    "results": contract_results,
+                }
+            )
+            manifest["status"] = "failed"
+            manifest["dq_status"] = "fail"
+        else:
+            dq["checks"].append(
+                {
+                    "check_name": "downstream_contracts",
+                    "status": "pass",
+                    "results": contract_results,
+                }
+            )
+        put_json(s3, bucket=bucket, key=manifest_key, payload=manifest)
+        record_batch_table(
+            s3,
+            bucket=bucket,
+            batch_id=current_batch_id() or "",
+            table=TABLE_NAME,
+            manifest=manifest,
+            schema=schema,
+            dq=dq,
+            candidate_keys=[OUTPUT_MEMBERS_COMPAT, OUTPUT_MEMBER_VOTES_COMPAT],
+        )
+
+    write_review_bundle(
+        table=TABLE_NAME,
+        manifest=manifest,
+        schema=schema,
+        dq=dq,
+        sample_rows=summary_df.head(sample_rows).to_dict(orient="records"),
+        root=review_root,
+        sample_limit=sample_rows,
+    )
     return CompatResult(rows=summary_df.to_dict(orient="records"), manifest=manifest, schema=schema, dq=dq)
 
 
@@ -94,9 +157,9 @@ def _build_members_compat(df: pd.DataFrame) -> pd.DataFrame:
     output = pd.DataFrame()
     output["member_code"] = _col(df, "member_code")
     output["full_name"] = _col(df, "full_name")
-    output["constituency"] = _col(df, "constituency_name")
-    output["party"] = _col(df, "party_name")
-    output["house_no"] = _col(df, "house_no")
+    output["constituency"] = _first_col(df, "constituency_name", "latest_constituency_name")
+    output["party"] = _first_col(df, "party_name", "latest_party_name")
+    output["house_no"] = _first_col(df, "house_no", "latest_house_no")
     output["source"] = "oireachtas_unified"
     output["snapshot_date"] = _col(df, "snapshot_date")
     return output.sort_values(by=["full_name", "member_code"], kind="stable")
@@ -119,6 +182,13 @@ def _build_member_votes_compat(df: pd.DataFrame) -> pd.DataFrame:
 def _col(df: pd.DataFrame, name: str) -> pd.Series:
     if name in df.columns:
         return df[name].fillna("").astype(str)
+    return pd.Series([""] * len(df), dtype="object")
+
+
+def _first_col(df: pd.DataFrame, *names: str) -> pd.Series:
+    for name in names:
+        if name in df.columns:
+            return _col(df, name)
     return pd.Series([""] * len(df), dtype="object")
 
 

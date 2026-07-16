@@ -66,7 +66,7 @@ def build_gold_member_activity_monthly(
         metrics[column] = pd.to_numeric(metrics.get(column), errors="coerce").fillna(0).astype(int)
     metrics["snapshot_date"] = snapshot_date
 
-    df = metrics.reindex(columns=schema.columns).sort_values(["year_month", "speech_count", "votes_cast_count", "member_code"], ascending=[True, False, False, True]).head(max(1, limit)).copy()
+    df = metrics.reindex(columns=schema.columns).sort_values(["year_month", "speech_count", "votes_cast_count", "member_code"], ascending=[True, False, False, True]).copy()
     df = _dedupe_rows(df, primary_keys=schema.primary_key)
 
     csv_key = f"processed/oireachtas_unified/gold_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"

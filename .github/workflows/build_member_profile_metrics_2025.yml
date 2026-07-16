@@ -1,56 +1,72 @@
-name: Build Member Profile Metrics 2025 (Manual)
+name: Build Member Profile Metrics
 
 on:
   workflow_dispatch:
     inputs:
-      date_start:
-        description: "Vote API start date"
+      target_year:
+        description: Calendar year for metrics
         required: true
-        default: "2025-01-01"
-      date_end:
-        description: "Vote API end date"
-        required: true
-        default: "2025-12-31"
-
-concurrency:
-  group: build-member-profile-metrics-2025
-  cancel-in-progress: false
+        default: "2025"
+        type: string
+      batch_id:
+        description: Optional immutable Oireachtas candidate batch ID
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
+
+concurrency:
+  group: build-member-profile-metrics-${{ inputs.target_year }}
+  cancel-in-progress: false
 
 jobs:
   build_metrics:
     runs-on: ubuntu-latest
     timeout-minutes: 90
-
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET: "eirepolitic-data"
-      VOTES_DATE_START: ${{ inputs.date_start }}
-      VOTES_DATE_END: ${{ inputs.date_end }}
-      TARGET_YEAR: "2025"
-      MEMBERS_INPUT_KEY: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
-      MEMBER_VOTES_INPUT_KEY: "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
-      MEMBER_PHOTOS_INPUT_KEY: "processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv"
-      DEBATE_ISSUES_INPUT_KEY: "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
-
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      TARGET_YEAR: ${{ inputs.target_year }}
+      OIREACHTAS_BATCH_ID: ${{ inputs.batch_id }}
+      MEMBERS_INPUT_KEY: processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+      MEMBER_VOTES_INPUT_KEY: processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv
+      MEMBER_PHOTOS_INPUT_KEY: processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
+      DEBATE_ISSUES_INPUT_KEY: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
+          python-version: '3.12'
+          cache: pip
+      - name: Validate inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${TARGET_YEAR}" =~ ^[0-9]{4}$ ]]
+          if [[ -n "${OIREACHTAS_BATCH_ID}" ]]; then
+            [[ "${OIREACHTAS_BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]
+          fi
       - name: Install dependencies
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Build member profile metrics 2025
+          python -m pip install -r requirements.txt
+      - name: Build member profile metrics
+        shell: bash
         run: |
-          python process/build_member_profile_metrics_2025.py
+          set -euo pipefail
+          python process/build_member_profile_metrics.py | tee member_profile_metrics.json
+      - name: Upload metrics evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: member-profile-metrics-${{ inputs.target_year }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: member_profile_metrics.json
+          if-no-files-found: warn
+          retention-days: 90

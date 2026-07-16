@@ -59,7 +59,7 @@ def build_control_table_manifests(
     rows = [_manifest_to_row(payload, key=key, registry=registry, updated_at_utc=started_at) for key, payload in latest_by_table.values()]
     df = pd.DataFrame(rows, columns=schema.columns)
     if not df.empty:
-        df = df.sort_values(["table_name"]).head(max(1, limit)).copy()
+        df = df.sort_values(["table_name"]).copy()
 
     csv_key = f"processed/oireachtas_unified/control_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"
     parquet_key = f"processed/oireachtas_unified/control/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/part-00000.parquet"

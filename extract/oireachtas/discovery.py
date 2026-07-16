@@ -71,7 +71,7 @@ def run_endpoint_discovery(*, limit: int = 5, client: Optional[OireachtasClient]
     for spec in DISCOVERY_ENDPOINTS:
         params = dict(spec["params"])
         params["limit"] = min(int(params.get("limit", limit)), limit)
-        summary = client.get_json_summary(spec["endpoint"], params=params)
+        summary = client.get_json_summary(spec["endpoint"], params=params, paginate=False)
         payload = summary.payload or {}
         results = payload.get("results") if isinstance(payload, dict) else None
         results_list = results if isinstance(results, list) else []

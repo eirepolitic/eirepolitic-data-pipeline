@@ -12,6 +12,7 @@ from typing import Any
 
 import pandas as pd
 
+from .contracts import comparison_status, load_contract_config
 from .io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, get_bytes, make_s3_client, put_dataframe_csv, put_json, put_text
 from .normalize import utc_now_iso
 from .review import REVIEW_ROOT, write_review_bundle
@@ -48,7 +49,8 @@ def build_compat_comparison(*, s3: Any, bucket: str, review_root: Path, sample_r
     started_at = utc_now_iso()
     run_id = f"{TABLE_NAME}_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     snapshot_date = started_at[:10]
-    rows = [_compare_one(s3=s3, bucket=bucket, config=config) for config in COMPARISONS]
+    _, thresholds = load_contract_config()
+    rows = [_compare_one(s3=s3, bucket=bucket, config=config, thresholds=thresholds) for config in COMPARISONS]
     df = pd.DataFrame(rows)
     dq = _dq(df)
     schema = {"table": TABLE_NAME, "primary_key": ["comparison_name"], "columns": list(df.columns), "row_count": int(len(df))}
@@ -83,12 +85,19 @@ def build_compat_comparison(*, s3: Any, bucket: str, review_root: Path, sample_r
     put_json(s3, bucket=bucket, key=review_schema_key, payload=schema)
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
     put_text(s3, bucket=bucket, key=report_key, text=report)
-    write_review_bundle(table=TABLE_NAME, manifest=manifest, schema=schema, dq=dq, sample_rows=df.head(sample_rows).to_dict(orient="records"), root=review_root)
-    (review_root / "review" / TABLE_NAME / "latest" / "report.md").write_text(report, encoding="utf-8")
+    write_review_bundle(
+        table=TABLE_NAME,
+        manifest=manifest,
+        schema=schema,
+        dq=dq,
+        sample_rows=df.head(sample_rows).to_dict(orient="records"),
+        root=review_root,
+        sample_limit=sample_rows,
+    )
     return CompatComparisonResult(rows=df.to_dict(orient="records"), manifest=manifest, schema=schema, dq=dq)
 
 
-def _compare_one(*, s3: Any, bucket: str, config: dict[str, str]) -> dict[str, Any]:
+def _compare_one(*, s3: Any, bucket: str, config: dict[str, str], thresholds: dict[str, Any]) -> dict[str, Any]:
     legacy_df = _read_csv(s3, bucket=bucket, key=config["legacy_key"])
     compat_df = _read_csv(s3, bucket=bucket, key=config["compat_key"])
     legacy_col = config["legacy_join_column"]
@@ -96,9 +105,8 @@ def _compare_one(*, s3: Any, bucket: str, config: dict[str, str]) -> dict[str, A
     legacy_keys = _keys(legacy_df, legacy_col)
     compat_keys = _keys(compat_df, compat_col)
     matched = legacy_keys & compat_keys
-    return {
+    row: dict[str, Any] = {
         "comparison_name": config["comparison_name"],
-        "status": "pass" if len(compat_df) > 0 and len(compat_keys) > 0 else "fail",
         "legacy_key": config["legacy_key"],
         "compat_key": config["compat_key"],
         "legacy_rows": int(len(legacy_df)),
@@ -107,12 +115,27 @@ def _compare_one(*, s3: Any, bucket: str, config: dict[str, str]) -> dict[str, A
         "compat_columns": int(len(compat_df.columns)),
         "legacy_join_column": legacy_col,
         "compat_join_column": compat_col,
-        "legacy_join_coverage_pct": _coverage_pct(legacy_df, legacy_col),
-        "compat_join_coverage_pct": _coverage_pct(compat_df, compat_col),
+        "legacy_join_coverage_pct": _coverage_number(legacy_df, legacy_col),
+        "compat_join_coverage_pct": _coverage_number(compat_df, compat_col),
         "matched_key_count": int(len(matched)),
         "legacy_only_key_count": int(len(legacy_keys - compat_keys)),
         "compat_only_key_count": int(len(compat_keys - legacy_keys)),
     }
+    threshold = thresholds.get(config["comparison_name"])
+    if threshold is None:
+        row["status"] = "fail"
+        row["failure_reasons"] = "missing comparison threshold"
+        row["row_delta_pct"] = round(abs(len(compat_df) - len(legacy_df)) / max(len(legacy_df), 1) * 100.0, 2)
+        return row
+    status, errors = comparison_status(row, threshold)
+    row["status"] = status
+    row["failure_reasons"] = "; ".join(errors)
+    row["row_delta_pct"] = round(abs(len(compat_df) - len(legacy_df)) / max(len(legacy_df), 1) * 100.0, 2)
+    row["max_legacy_only_keys"] = threshold.max_legacy_only_keys
+    row["max_compat_only_keys"] = threshold.max_compat_only_keys
+    row["max_row_delta_pct"] = threshold.max_row_delta_pct
+    row["minimum_compat_join_coverage_pct"] = threshold.minimum_compat_join_coverage_pct
+    return row
 
 
 def _read_csv(s3: Any, *, bucket: str, key: str) -> pd.DataFrame:
@@ -126,17 +149,22 @@ def _keys(df: pd.DataFrame, column: str) -> set[str]:
     return set(df[column].fillna("").astype(str).str.strip()) - {""}
 
 
-def _coverage_pct(df: pd.DataFrame, column: str) -> str:
+def _coverage_number(df: pd.DataFrame, column: str) -> float:
     if len(df) == 0 or column not in df.columns:
-        return ""
+        return 0.0
     covered = df[column].fillna("").astype(str).str.strip().ne("").sum()
-    return f"{covered / len(df) * 100:.2f}"
+    return round(covered / len(df) * 100.0, 2)
 
 
 def _dq(df: pd.DataFrame) -> dict[str, Any]:
     row_count = int(len(df))
     pk_unique = bool("comparison_name" in df.columns and not df["comparison_name"].duplicated().any())
     failing = df[df["status"].eq("fail")]["comparison_name"].tolist() if "status" in df.columns else ["missing_status"]
+    reasons = (
+        df.loc[df["status"].eq("fail"), ["comparison_name", "failure_reasons"]].to_dict(orient="records")
+        if {"status", "comparison_name", "failure_reasons"}.issubset(df.columns)
+        else []
+    )
     dq_status = "pass" if row_count > 0 and pk_unique and not failing else "fail"
     return {
         "table": TABLE_NAME,
@@ -144,10 +172,11 @@ def _dq(df: pd.DataFrame) -> dict[str, Any]:
         "row_count": row_count,
         "primary_key": ["comparison_name"],
         "primary_key_unique": pk_unique,
+        "failing_comparisons": reasons,
         "checks": [
             {"check_name": "row_count_gt_zero", "status": "pass" if row_count > 0 else "fail", "metric_value": row_count},
             {"check_name": "primary_key_unique", "status": "pass" if pk_unique else "fail"},
-            {"check_name": "no_failed_comparisons", "status": "pass" if not failing else "fail", "failing_comparisons": failing},
+            {"check_name": "no_failed_comparisons", "status": "pass" if not failing else "fail", "failing_comparisons": reasons},
         ],
     }
 
@@ -158,7 +187,7 @@ def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
         "",
         f"Run ID: `{manifest['run_id']}`",
         "",
-        "This report compares legacy downstream inputs with non-destructive unified compatibility outputs.",
+        "Strict configured thresholds are applied to missing keys, row divergence, and join coverage.",
         "",
         _simple_markdown_table(df),
         "",
@@ -180,7 +209,13 @@ def main() -> int:
     sample_rows = int(os.getenv("SAMPLE_ROWS", "10") or "10")
     s3 = make_s3_client(region_name=region)
     result = build_compat_comparison(s3=s3, bucket=bucket, review_root=review_root, sample_rows=sample_rows)
-    print(json.dumps({"table": TABLE_NAME, "rows": len(result.rows), "dq_status": result.dq.get("dq_status"), "run_id": result.manifest.get("run_id")}, indent=2, sort_keys=True))
+    print(json.dumps({
+        "table": TABLE_NAME,
+        "rows": result.rows,
+        "dq": result.dq,
+        "dq_status": result.dq.get("dq_status"),
+        "run_id": result.manifest.get("run_id"),
+    }, indent=2, sort_keys=True))
     return 0 if result.dq.get("dq_status") != "fail" else 1
 
 

@@ -127,7 +127,7 @@ def build_gold_current_members(
     elif not current_memberships.empty:
         roster = roster[roster["member_code"].isin(set(current_memberships["member_code"].dropna().astype(str)))].copy()
 
-    df = roster.reindex(columns=schema.columns).head(max(1, limit)).copy()
+    df = roster.reindex(columns=schema.columns).copy()
     df = _dedupe_rows(df, primary_key="member_code")
 
     csv_key = f"processed/oireachtas_unified/gold_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"

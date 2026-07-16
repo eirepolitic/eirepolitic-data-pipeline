@@ -11,6 +11,7 @@ import pandas as pd
 from .client import OireachtasClient
 from .io_s3 import put_dataframe_csv, put_dataframe_parquet, put_json
 from .normalize import normalize_format_url, parse_iso_date, stable_hash, stable_record_hash, utc_now_iso
+from .partitioned_fetch import get_date_partitioned_json_summary
 from .schemas import TableSchema
 
 TABLE_NAME = "silver_questions"
@@ -54,7 +55,7 @@ def build_silver_questions(
         "limit": max(1, min(limit, 200)),
     }
 
-    summary = client.get_json_summary(endpoint, params=params)
+    summary = get_date_partitioned_json_summary(client, endpoint, params=params)
     if not summary.ok or not summary.payload:
         raise RuntimeError(f"Failed to fetch {endpoint}: {summary.error or summary.status_code}")
 
@@ -114,6 +115,7 @@ def build_silver_questions(
         "url": summary.url,
         "status_code": summary.status_code,
         "raw_rows": len(results),
+        "pagination": dict(summary.pagination or {}),
         "output_rows": int(len(df)),
         "question_type_values": sorted(df["question_type"].dropna().astype(str).unique().tolist()) if not df.empty else [],
         "answer_text_rows": int(df["answer_text"].notna().sum()) if not df.empty else 0,

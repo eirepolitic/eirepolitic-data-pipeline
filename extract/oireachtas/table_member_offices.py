@@ -173,15 +173,15 @@ def _unwrap(entry: Mapping[str, Any], *keys: str) -> Mapping[str, Any]:
 
 def _normalise_office_row(member: Mapping[str, Any], membership: Mapping[str, Any], office: Mapping[str, Any], *, snapshot_date: str) -> dict[str, Any]:
     member_code = _first_text(member, "memberCode", "code", "id")
-    membership_id = _first_text(membership, "uri", "membershipUri") or f"generated:membership:{stable_hash([member_code, _date_start(membership), _date_end(membership)])}"
+    membership_id = _first_text(membership, "uri", "membershipUri") or f"generated:membership:{stable_hash([member_code, _date_start(membership)])}"
     office_uri = _first_text(office, "uri", "officeUri")
     office_name = _office_name(office)
     office_start = _date_start(office)
     office_end = _date_end(office)
     if not office_uri:
-        office_uri = f"generated:office:{stable_hash([office_name, office_start, office_end])}"
+        office_uri = f"generated:office:{stable_hash([office_name])}"
     return {
-        "member_office_id": f"generated:member_office:{stable_hash([membership_id, member_code, office_uri, office_start, office_end])}",
+        "member_office_id": f"generated:member_office:{stable_hash([membership_id, member_code, office_uri, office_start])}",
         "membership_id": membership_id,
         "member_code": member_code,
         "office_uri": office_uri,

@@ -60,7 +60,7 @@ def build_control_pipeline_runs(
     df = pd.DataFrame(rows, columns=schema.columns)
     if not df.empty:
         df = df.drop_duplicates(subset=["run_id"], keep="last")
-        df = df.sort_values(["started_at_utc", "table_name", "run_id"], ascending=[False, True, True]).head(max(1, limit)).copy()
+        df = df.sort_values(["started_at_utc", "table_name", "run_id"], ascending=[False, True, True]).copy()
 
     csv_key = f"processed/oireachtas_unified/control_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"
     parquet_key = f"processed/oireachtas_unified/control/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/part-00000.parquet"

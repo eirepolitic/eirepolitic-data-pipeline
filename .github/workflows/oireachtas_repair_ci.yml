@@ -1,0 +1,68 @@
+name: Oireachtas repair CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'extract/oireachtas/**'
+      - 'process/oireachtas_*.py'
+      - 'configs/oireachtas/**'
+      - 'tests/test_oireachtas_*.py'
+      - '.github/workflows/oireachtas_*.yml'
+  push:
+    branches:
+      - 'repair/oireachtas-production-hardening'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-repair-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install validation dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Compile Python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall extract/oireachtas process tests
+      - name: Validate YAML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          paths = [Path('configs/oireachtas/tables.yml'), *Path('.github/workflows').glob('oireachtas_*.yml')]
+          for path in paths:
+              with path.open(encoding='utf-8') as handle:
+                  yaml.safe_load(handle)
+              print(f'validated {path}')
+          PY
+      - name: Validate table registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.build_table --list-tables --json >/tmp/oireachtas_tables.json
+          test -s /tmp/oireachtas_tables.json
+      - name: Run Oireachtas tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_oireachtas_*.py' -v

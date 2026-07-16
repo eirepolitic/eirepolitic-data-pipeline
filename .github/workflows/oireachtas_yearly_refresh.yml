@@ -4,191 +4,64 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Build mode for manual yearly refresh test"
+        description: Build mode
         required: true
-        default: "test"
+        default: test
         type: choice
         options: [test, full, backfill]
-      publish_latest:
-        description: "Write processed/oireachtas_unified/latest pointers"
+      publish_candidate:
+        description: Write immutable candidate batch objects
         required: true
-        default: "auto"
-        type: choice
-        options: [auto, true, false]
+        default: false
+        type: boolean
       tables:
-        description: "Comma-separated table list"
+        description: Optional comma-separated table list
         required: false
-        default: "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
+        default: ""
+        type: string
       chamber:
-        description: "Chamber"
         required: false
-        default: "dail"
+        default: dail
+        type: string
       house_no:
-        description: "House number"
         required: false
         default: "34"
+        type: string
       date_start:
-        description: "Start date YYYY-MM-DD"
+        description: Optional YYYY-MM-DD; defaults to previous calendar year
         required: false
-        default: "2025-01-01"
+        default: ""
+        type: string
       date_end:
-        description: "End date YYYY-MM-DD"
+        description: Optional YYYY-MM-DD
         required: false
-        default: "2025-01-31"
-      limit:
-        description: "Row/API limit per table"
+        default: ""
+        type: string
+      page_size:
         required: false
-        default: "10"
+        default: "200"
+        type: string
       sample_rows:
-        description: "Review sample row count"
         required: false
         default: "10"
-  schedule:
-    - cron: "15 5 2 1 *"
-
-concurrency:
-  group: oireachtas-yearly-refresh
-  cancel-in-progress: false
+        type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  yearly_refresh:
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: "ca-central-1"
-      S3_BUCKET: "eirepolitic-data"
-      REVIEW_OUTPUT_ROOT: "oireachtas_review_output"
-      REVIEW_BRANCH: "oireachtas-review-output"
-      DEFAULT_TABLES: "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results"
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run yearly table set
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            mode="${{ inputs.mode }}"
-            publish_latest="${{ inputs.publish_latest }}"
-            tables_csv="${{ inputs.tables }}"
-            chamber="${{ inputs.chamber }}"
-            house_no="${{ inputs.house_no }}"
-            date_start="${{ inputs.date_start }}"
-            date_end="${{ inputs.date_end }}"
-            limit="${{ inputs.limit }}"
-            sample_rows="${{ inputs.sample_rows }}"
-          else
-            mode="full"
-            publish_latest="auto"
-            tables_csv="${DEFAULT_TABLES}"
-            chamber="dail"
-            house_no="34"
-            target_year="$(date -u -d '1 year ago' +%Y)"
-            date_start="${target_year}-01-01"
-            date_end="${target_year}-12-31"
-            limit="500"
-            sample_rows="10"
-          fi
-
-          echo "Window: ${date_start} to ${date_end}; mode=${mode}; publish_latest=${publish_latest}; limit=${limit}"
-          IFS=',' read -ra tables <<< "${tables_csv}"
-          : > oireachtas_yearly_refresh.log
-          for table in "${tables[@]}"; do
-            table="$(echo "${table}" | xargs)"
-            if [[ -z "${table}" ]]; then continue; fi
-            echo "===== TABLE ${table} =====" | tee -a oireachtas_yearly_refresh.log
-            args=(
-              --table "${table}"
-              --mode "${mode}"
-              --publish-latest "${publish_latest}"
-              --chamber "${chamber}"
-              --house-no "${house_no}"
-              --limit "${limit}"
-              --sample-rows "${sample_rows}"
-              --write-review-sample
-              --s3-bucket "${S3_BUCKET}"
-              --aws-region "${AWS_REGION}"
-              --review-root "${REVIEW_OUTPUT_ROOT}"
-              --github-repository "${GITHUB_REPOSITORY}"
-            )
-            if [[ -n "${date_start}" ]]; then args+=(--date-start "${date_start}"); fi
-            if [[ -n "${date_end}" ]]; then args+=(--date-end "${date_end}"); fi
-            python -m extract.oireachtas.build_table "${args[@]}" 2>&1 | tee -a oireachtas_yearly_refresh.log
-          done
-
-      - name: Publish review output branch
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ ! -d "${REVIEW_OUTPUT_ROOT}" ]]; then echo "No review output directory found: ${REVIEW_OUTPUT_ROOT}; skipping branch publish."; exit 0; fi
-          rm -rf /tmp/oireachtas-review-worktree
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git ls-remote --exit-code --heads origin "${REVIEW_BRANCH}" >/dev/null 2>&1; then
-            git fetch origin "${REVIEW_BRANCH}:${REVIEW_BRANCH}"
-            git worktree add /tmp/oireachtas-review-worktree "${REVIEW_BRANCH}"
-          else
-            git worktree add --detach /tmp/oireachtas-review-worktree HEAD
-            git -C /tmp/oireachtas-review-worktree switch --orphan "${REVIEW_BRANCH}"
-            git -C /tmp/oireachtas-review-worktree rm -rf . >/dev/null 2>&1 || true
-          fi
-          mkdir -p /tmp/oireachtas-review-worktree/review
-          cp -R "${REVIEW_OUTPUT_ROOT}/." /tmp/oireachtas-review-worktree/
-          git -C /tmp/oireachtas-review-worktree add .
-          git -C /tmp/oireachtas-review-worktree commit -m "Update Oireachtas yearly review output for run ${GITHUB_RUN_ID}" || true
-          for attempt in 1 2 3; do
-            git -C /tmp/oireachtas-review-worktree pull --rebase origin "${REVIEW_BRANCH}" || true
-            if git -C /tmp/oireachtas-review-worktree push origin "${REVIEW_BRANCH}"; then
-              exit 0
-            fi
-            if [[ "${attempt}" == "3" ]]; then
-              echo "Review branch push failed after ${attempt} attempts."
-              exit 1
-            fi
-            sleep $((attempt * 5))
-          done
-
-      - name: Write workflow summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## Oireachtas yearly refresh"
-            echo
-            echo "- Event: \`${{ github.event_name }}\`"
-            echo "- Review branch: \`${REVIEW_BRANCH}\`"
-            echo
-            echo '```text'
-            if [[ -f oireachtas_yearly_refresh.log ]]; then tail -n 120 oireachtas_yearly_refresh.log; else echo "No yearly refresh log found."; fi
-            echo '```'
-          } >> "${GITHUB_STEP_SUMMARY}"
-
-      - name: Upload refresh artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-yearly-refresh-output
-          path: |
-            oireachtas_review_output/**
-            oireachtas_yearly_refresh.log
-          if-no-files-found: warn
+  refresh:
+    uses: ./.github/workflows/oireachtas_refresh_reusable.yml
+    with:
+      refresh_type: yearly
+      mode: ${{ inputs.mode }}
+      tables: ${{ inputs.tables }}
+      chamber: ${{ inputs.chamber }}
+      house_no: ${{ inputs.house_no }}
+      date_start: ${{ inputs.date_start }}
+      date_end: ${{ inputs.date_end }}
+      page_size: ${{ inputs.page_size }}
+      sample_rows: ${{ inputs.sample_rows }}
+      batch_id: manual-yearly-${{ github.run_id }}-${{ github.run_attempt }}
+      publish_candidate: ${{ inputs.publish_candidate }}
+    secrets: inherit

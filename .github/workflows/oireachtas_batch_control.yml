@@ -1,0 +1,98 @@
+name: Oireachtas batch control
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Operation to perform
+        required: true
+        type: choice
+        options:
+          - status
+          - assemble
+          - promote
+          - rollback
+          - rollback-previous
+        default: status
+      batch_id:
+        description: Required for assemble, promote, and rollback; use legacy_direct for first-cutover rollback
+        required: false
+        type: string
+      required_tables:
+        description: Optional comma-separated required tables for assemble
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-production-promotion
+  cancel-in-progress: false
+
+jobs:
+  control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_PUBLISH_LATEST: ${{ (inputs.operation == 'promote' || inputs.operation == 'rollback' || inputs.operation == 'rollback-previous') && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Validate inputs
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+          BATCH_ID: ${{ inputs.batch_id }}
+        run: |
+          set -euo pipefail
+          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ && -z "${BATCH_ID}" ]]; then
+            echo 'batch_id is required for this operation' >&2
+            exit 2
+          fi
+          if [[ -n "${BATCH_ID}" && ! "${BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+            echo 'batch_id contains unsafe characters' >&2
+            exit 2
+          fi
+      - name: Run batch control
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+          BATCH_ID: ${{ inputs.batch_id }}
+          REQUIRED_TABLES: ${{ inputs.required_tables }}
+        run: |
+          set -euo pipefail
+          args=(--bucket "${S3_BUCKET}" --region "${AWS_REGION}" "${OPERATION}")
+          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ ]]; then
+            args+=(--batch-id "${BATCH_ID}")
+          fi
+          if [[ "${OPERATION}" == 'assemble' && -n "${REQUIRED_TABLES}" ]]; then
+            IFS=',' read -ra tables <<< "${REQUIRED_TABLES}"
+            for table in "${tables[@]}"; do
+              table="${table//[[:space:]]/}"
+              [[ -n "${table}" ]] && args+=(--required-table "${table}")
+            done
+          fi
+          python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas-batch-control.json
+      - name: Upload control evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-batch-control-${{ inputs.operation }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: oireachtas-batch-control.json
+          if-no-files-found: warn
+          retention-days: 90

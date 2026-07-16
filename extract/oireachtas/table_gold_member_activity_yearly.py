@@ -74,7 +74,7 @@ def build_gold_member_activity_yearly(
     metrics["vote_participation_rank"] = _rank_by_year(metrics, value_col="vote_participation_pct", tie_col="votes_cast_count")
     metrics["snapshot_date"] = snapshot_date
 
-    df = metrics.reindex(columns=schema.columns).sort_values(["year", "speech_rank", "member_code"]).head(max(1, limit)).copy()
+    df = metrics.reindex(columns=schema.columns).sort_values(["year", "speech_rank", "member_code"]).copy()
     df = _dedupe_rows(df, primary_keys=schema.primary_key)
 
     csv_key = f"processed/oireachtas_unified/gold_csv/{TABLE_NAME}/snapshot_date={snapshot_date}/run_id={run_id}/{TABLE_NAME}.csv"

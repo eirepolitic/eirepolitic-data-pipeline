@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 from typing import Any, Mapping
 
 import boto3
@@ -12,112 +13,147 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .batch import batch_key_for_production_key, current_batch_id, resolve_production_key
+from .merge import merge_for_policy
 from .normalize import stable_json_dumps
+from .schemas import get_table_schema
+from .write_policies import get_write_policy
 
 
 DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_REGION = "ca-central-1"
-LATEST_PREFIX = "processed/oireachtas_unified/latest/"
+PRODUCTION_PREFIXES = (
+    "processed/oireachtas_unified/latest/",
+    "processed/oireachtas_unified/compat/",
+)
+_LATEST_TABLE_PATTERN = re.compile(r"^processed/oireachtas_unified/latest/(?:csv|parquet)/([^/.]+)\.(?:csv|parquet)$")
+_TRUTHY = {"1", "true", "yes", "on"}
 
 
 def make_s3_client(*, region_name: str = DEFAULT_REGION) -> Any:
-    """Create a boto3 S3 client."""
     return boto3.client("s3", region_name=region_name)
 
 
+def _candidate_write_requested() -> bool:
+    return os.getenv("OIREACHTAS_PUBLISH_LATEST", "false").strip().lower() in _TRUTHY
+
+
+def production_publishing_enabled() -> bool:
+    repo_switch = os.getenv("OIREACHTAS_PUBLISH_ENABLED", "false").strip().lower()
+    return repo_switch in _TRUTHY and _candidate_write_requested()
+
+
+def candidate_publishing_enabled() -> bool:
+    return _candidate_write_requested() and current_batch_id() is not None
+
+
 def latest_publishing_enabled() -> bool:
-    """Return whether writes to unified latest pointers are enabled."""
-    value = os.getenv("OIREACHTAS_PUBLISH_LATEST", "true").strip().lower()
-    return value not in {"0", "false", "no", "off"}
+    return candidate_publishing_enabled()
+
+
+def is_unified_production_key(key: str) -> bool:
+    return key.startswith(PRODUCTION_PREFIXES)
 
 
 def is_unified_latest_key(key: str) -> bool:
-    """Return whether an S3 key is a unified latest pointer."""
-    return key.startswith(LATEST_PREFIX)
+    return key.startswith(PRODUCTION_PREFIXES[0])
 
 
-def put_bytes(
-    s3: Any,
-    *,
-    bucket: str,
-    key: str,
-    body: bytes,
-    content_type: str = "application/octet-stream",
-) -> None:
-    """Write bytes to S3, optionally suppressing unified latest pointer writes."""
-    if is_unified_latest_key(key) and not latest_publishing_enabled():
-        return
-    s3.put_object(Bucket=bucket, Key=key, Body=body, ContentType=content_type)
+def resolve_read_key(s3: Any, *, bucket: str, key: str) -> str:
+    if not is_unified_production_key(key):
+        return key
+    batch_id = current_batch_id()
+    if batch_id:
+        return batch_key_for_production_key(key, batch_id)
+    try:
+        return resolve_production_key(s3, bucket=bucket, production_key=key)
+    except Exception:
+        return key
+
+
+def put_bytes(s3: Any, *, bucket: str, key: str, body: bytes, content_type: str = "application/octet-stream") -> None:
+    target_key = key
+    if is_unified_production_key(key):
+        if not _candidate_write_requested():
+            return
+        batch_id = current_batch_id()
+        if not batch_id:
+            raise RuntimeError("OIREACHTAS_BATCH_ID is required for every requested candidate write")
+        target_key = batch_key_for_production_key(key, batch_id)
+    s3.put_object(Bucket=bucket, Key=target_key, Body=body, ContentType=content_type)
 
 
 def get_bytes(s3: Any, *, bucket: str, key: str) -> bytes:
-    """Read bytes from S3."""
-    obj = s3.get_object(Bucket=bucket, Key=key)
+    resolved_key = resolve_read_key(s3, bucket=bucket, key=key)
+    obj = s3.get_object(Bucket=bucket, Key=resolved_key)
     return obj["Body"].read()
 
 
-def put_json(
-    s3: Any,
-    *,
-    bucket: str,
-    key: str,
-    payload: Mapping[str, Any],
-) -> None:
-    """Write deterministic UTF-8 JSON to S3."""
-    body = stable_json_dumps(payload).encode("utf-8")
-    put_bytes(s3, bucket=bucket, key=key, body=body, content_type="application/json")
+def put_json(s3: Any, *, bucket: str, key: str, payload: Mapping[str, Any]) -> None:
+    put_bytes(s3, bucket=bucket, key=key, body=stable_json_dumps(payload).encode("utf-8"), content_type="application/json")
 
 
 def get_json(s3: Any, *, bucket: str, key: str) -> Any:
-    """Read JSON from S3."""
     return json.loads(get_bytes(s3, bucket=bucket, key=key).decode("utf-8"))
 
 
-def put_text(
-    s3: Any,
-    *,
-    bucket: str,
-    key: str,
-    text: str,
-    content_type: str = "text/plain; charset=utf-8",
-) -> None:
-    """Write UTF-8 text to S3."""
+def put_text(s3: Any, *, bucket: str, key: str, text: str, content_type: str = "text/plain; charset=utf-8") -> None:
     put_bytes(s3, bucket=bucket, key=key, body=text.encode("utf-8"), content_type=content_type)
 
 
-def put_dataframe_csv(
-    s3: Any,
-    *,
-    bucket: str,
-    key: str,
-    df: pd.DataFrame,
-    include_bom: bool = False,
-) -> None:
-    """Write a DataFrame as CSV to S3."""
+def put_dataframe_csv(s3: Any, *, bucket: str, key: str, df: pd.DataFrame, include_bom: bool = False) -> None:
+    prepared = _prepare_latest_dataframe(s3, bucket=bucket, key=key, incoming=df, file_format="csv")
     encoding = "utf-8-sig" if include_bom else "utf-8"
-    body = df.to_csv(index=False).encode(encoding)
-    put_bytes(s3, bucket=bucket, key=key, body=body, content_type="text/csv")
+    put_bytes(s3, bucket=bucket, key=key, body=prepared.to_csv(index=False).encode(encoding), content_type="text/csv")
 
 
-def put_dataframe_parquet(
-    s3: Any,
-    *,
-    bucket: str,
-    key: str,
-    df: pd.DataFrame,
-    compression: str = "snappy",
-) -> None:
-    """Write a DataFrame as Parquet to S3 using pyarrow."""
-    table = pa.Table.from_pandas(df, preserve_index=False)
+def put_dataframe_parquet(s3: Any, *, bucket: str, key: str, df: pd.DataFrame, compression: str = "snappy") -> None:
+    prepared = _prepare_latest_dataframe(s3, bucket=bucket, key=key, incoming=df, file_format="parquet")
+    table = pa.Table.from_pandas(prepared, preserve_index=False)
     buffer = io.BytesIO()
     pq.write_table(table, buffer, compression=compression)
     put_bytes(s3, bucket=bucket, key=key, body=buffer.getvalue(), content_type="application/x-parquet")
 
 
-def object_exists(s3: Any, *, bucket: str, key: str) -> bool:
-    """Return whether an object exists in S3."""
+def _prepare_latest_dataframe(s3: Any, *, bucket: str, key: str, incoming: pd.DataFrame, file_format: str) -> pd.DataFrame:
+    table_name = _latest_table_name(key)
+    if not table_name or not candidate_publishing_enabled():
+        return incoming.copy()
+    policy = get_write_policy(table_name)
+    schema = get_table_schema(table_name)
+    if policy.write_strategy in {"snapshot_replace", "rebuild"}:
+        return incoming.copy()
+    existing = _read_current_dataframe(s3, bucket=bucket, logical_key=key, file_format=file_format)
+    return merge_for_policy(existing, incoming, primary_key=schema.primary_key, policy=policy)
+
+
+def _read_current_dataframe(s3: Any, *, bucket: str, logical_key: str, file_format: str) -> pd.DataFrame:
     try:
-        s3.head_object(Bucket=bucket, Key=key)
+        resolved_key = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
+        obj = s3.get_object(Bucket=bucket, Key=resolved_key)
+        body = obj["Body"].read()
+    except Exception:
+        try:
+            obj = s3.get_object(Bucket=bucket, Key=logical_key)
+            body = obj["Body"].read()
+        except Exception:
+            return pd.DataFrame()
+    if not body:
+        return pd.DataFrame()
+    if file_format == "csv":
+        return pd.read_csv(io.BytesIO(body), dtype=object)
+    return pq.read_table(io.BytesIO(body)).to_pandas()
+
+
+def _latest_table_name(key: str) -> str | None:
+    match = _LATEST_TABLE_PATTERN.match(key)
+    return match.group(1) if match else None
+
+
+def object_exists(s3: Any, *, bucket: str, key: str) -> bool:
+    try:
+        resolved_key = resolve_read_key(s3, bucket=bucket, key=key)
+        s3.head_object(Bucket=bucket, Key=resolved_key)
         return True
     except Exception:
         return False

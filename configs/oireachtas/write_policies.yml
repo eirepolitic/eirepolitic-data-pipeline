@@ -1,0 +1,112 @@
+# Write and relationship policies for the unified Oireachtas table registry.
+# snapshot_replace: complete authoritative snapshot replaces prior current state.
+# upsert: incoming window is merged with retained history by primary key.
+# append: incoming audit rows are appended and deduplicated by primary key.
+# rebuild: derived table is rebuilt from complete validated inputs.
+
+tables:
+  silver_houses: {write_strategy: snapshot_replace}
+  silver_constituencies: {write_strategy: snapshot_replace}
+  silver_parties: {write_strategy: snapshot_replace}
+  silver_members: {write_strategy: snapshot_replace}
+
+  silver_member_memberships:
+    write_strategy: upsert
+    valid_from_column: membership_start
+    valid_to_column: membership_end
+    current_column: is_current
+    foreign_keys:
+      - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
+      - {columns: [house_uri], references: silver_houses, referenced_columns: [house_uri]}
+
+  silver_member_parties:
+    write_strategy: upsert
+    valid_from_column: party_start
+    valid_to_column: party_end
+    current_column: is_current
+    foreign_keys:
+      - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
+      - {columns: [membership_id], references: silver_member_memberships, referenced_columns: [membership_id]}
+
+  silver_member_constituencies:
+    write_strategy: upsert
+    valid_from_column: represent_start
+    valid_to_column: represent_end
+    current_column: is_current
+    foreign_keys:
+      - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
+      - {columns: [membership_id], references: silver_member_memberships, referenced_columns: [membership_id]}
+
+  silver_member_offices:
+    write_strategy: upsert
+    valid_from_column: office_start
+    valid_to_column: office_end
+    current_column: is_current
+    foreign_keys:
+      - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
+      - {columns: [membership_id], references: silver_member_memberships, referenced_columns: [membership_id]}
+
+  silver_source_files: {write_strategy: upsert}
+  silver_debate_records: {write_strategy: upsert}
+  silver_debate_sections:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [debate_id], references: silver_debate_records, referenced_columns: [debate_id]}
+  silver_speeches:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [debate_id], references: silver_debate_records, referenced_columns: [debate_id]}
+      - {columns: [debate_section_id], references: silver_debate_sections, referenced_columns: [debate_section_id], nullable: true}
+      - {columns: [speaker_member_code], references: silver_members, referenced_columns: [member_code], nullable: true}
+  silver_divisions:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [debate_id], references: silver_debate_records, referenced_columns: [debate_id], nullable: true}
+  silver_division_tallies:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [division_id], references: silver_divisions, referenced_columns: [division_id]}
+  silver_member_votes:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [division_id], references: silver_divisions, referenced_columns: [division_id]}
+      - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
+  silver_questions:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [asked_by_member_code], references: silver_members, referenced_columns: [member_code], nullable: true}
+  silver_bills: {write_strategy: upsert}
+  silver_bill_versions:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+  silver_bill_stages:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+  silver_bill_related_docs:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+  silver_bill_sponsors:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+  silver_bill_debates:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+  silver_bill_events:
+    write_strategy: upsert
+    foreign_keys:
+      - {columns: [bill_id], references: silver_bills, referenced_columns: [bill_id]}
+
+  control_pipeline_runs: {write_strategy: append}
+  control_table_manifests: {write_strategy: snapshot_replace}
+  control_data_quality_results: {write_strategy: append}
+
+  gold_current_members: {write_strategy: rebuild}
+  gold_member_activity_yearly: {write_strategy: rebuild}
+  gold_member_activity_monthly: {write_strategy: rebuild}
+  gold_constituency_activity_yearly: {write_strategy: rebuild}
+  gold_content_fact_pool: {write_strategy: rebuild}
