@@ -40,6 +40,11 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+      - name: Rebuild patched candidate adapters
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.downstream_compat > /tmp/adapters.out 2> /tmp/adapters.err
       - name: Capture strict comparison and mismatch output
         id: checks
         shell: bash
@@ -63,6 +68,13 @@ jobs:
             echo "- Batch ID: ${OIREACHTAS_BATCH_ID}"
             echo "- Comparison exit code: ${{ steps.checks.outputs.comparison_status }}"
             echo "- Mismatch exit code: ${{ steps.checks.outputs.mismatch_status }}"
+            echo
+            echo '## Adapter output'
+            echo
+            echo '```text'
+            cat /tmp/adapters.out
+            cat /tmp/adapters.err
+            echo '```'
             echo
             echo '## Comparison output'
             echo
