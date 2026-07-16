@@ -5,8 +5,7 @@ on:
     inputs:
       batch_id:
         description: Validated immutable candidate batch ID
-        required: false
-        default: batch6-validation-29519369155-1
+        required: true
         type: string
       required_tables:
         description: Optional comma-separated required tables; existing manifest requirements are always preserved
