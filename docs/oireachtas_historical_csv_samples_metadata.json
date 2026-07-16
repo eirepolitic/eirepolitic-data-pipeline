@@ -1,0 +1,95 @@
+[
+  {
+    "columns": [
+      "member_code",
+      "member_uri",
+      "full_name",
+      "first_name",
+      "last_name",
+      "display_name",
+      "gender",
+      "member_key",
+      "is_current_member",
+      "latest_party_name",
+      "latest_constituency_name",
+      "latest_house_no",
+      "source_endpoint",
+      "snapshot_date",
+      "source_hash"
+    ],
+    "label": "Members",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_members.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_members/csv/silver_members.csv",
+    "rows": 176
+  },
+  {
+    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
+    "label": "Members",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_members.csv"
+  },
+  {
+    "columns": [
+      "speech_id",
+      "debate_id",
+      "debate_section_id",
+      "debate_date",
+      "speech_order",
+      "speaker_ref",
+      "speaker_name",
+      "speaker_member_code",
+      "speaker_match_method",
+      "speaker_match_confidence",
+      "speech_text",
+      "speech_text_hash",
+      "word_count",
+      "char_count",
+      "language",
+      "source_file_id",
+      "xml_source_key",
+      "snapshot_date"
+    ],
+    "label": "Speeches",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_speeches.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_speeches/csv/silver_speeches.csv",
+    "rows": 5689
+  },
+  {
+    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
+    "label": "Speeches",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_speeches.csv"
+  },
+  {
+    "columns": [
+      "member_vote_id",
+      "division_id",
+      "vote_id",
+      "division_date",
+      "member_code",
+      "member_name",
+      "vote_code",
+      "vote_label",
+      "party_name_at_vote",
+      "constituency_name_at_vote",
+      "snapshot_date"
+    ],
+    "label": "Member votes",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_member_votes/csv/silver_member_votes.csv",
+    "rows": 8973
+  },
+  {
+    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
+    "label": "Member votes",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv"
+  },
+  {
+    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.",
+    "label": "Bills",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_bills.csv"
+  },
+  {
+    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.",
+    "label": "Bill stages",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_bill_stages.csv"
+  }
+]
