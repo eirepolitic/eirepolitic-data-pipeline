@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import unittest
-from datetime import date
 from pathlib import Path
 
 from process.oireachtas_refresh_inputs import normalize
@@ -35,6 +34,15 @@ class RefreshInputTests(unittest.TestCase):
         payload = normalize(self.args(date_start="", date_end=""))
         self.assertEqual(payload["date_start"], "2026-06-09")
         self.assertEqual(payload["date_end"], "2026-07-14")
+
+    def test_weekly_builds_constituency_gold_before_content_fact_pool(self) -> None:
+        payload = normalize(self.args(tables="", date_start="", date_end=""))
+        tables = str(payload["tables"]).split(",")
+        self.assertIn("gold_constituency_activity_yearly", tables)
+        self.assertLess(
+            tables.index("gold_constituency_activity_yearly"),
+            tables.index("gold_content_fact_pool"),
+        )
 
     def test_monthly_default_window_includes_seven_day_overlap(self) -> None:
         payload = normalize(
