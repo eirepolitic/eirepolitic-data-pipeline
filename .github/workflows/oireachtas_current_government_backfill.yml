@@ -1,0 +1,95 @@
+name: Oireachtas current-government complete backfill
+
+on:
+  push:
+    branches:
+      - backfill/oireachtas-current-government
+    paths:
+      - .github/workflows/oireachtas_current_government_backfill.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-current-government-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    uses: ./.github/workflows/oireachtas_refresh_reusable.yml
+    with:
+      refresh_type: yearly
+      mode: backfill
+      tables: >-
+        silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,silver_source_files,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results
+      chamber: dail
+      house_no: "34"
+      date_start: "2024-11-29"
+      date_end: "2026-07-16"
+      page_size: "200"
+      sample_rows: "10"
+      batch_id: current-government-backfill-20260716-1
+      publish_candidate: true
+    secrets: inherit
+
+  validate:
+    needs: backfill
+    uses: ./.github/workflows/oireachtas_validation_reusable.yml
+    with:
+      batch_id: current-government-backfill-20260716-1
+      run_consumers: true
+    secrets: inherit
+
+  final-check:
+    needs: [backfill, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_BATCH_ID: current-government-backfill-20260716-1
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Reassemble and verify all registered tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_reassemble_candidate.py \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            | tee final-candidate-manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('final-candidate-manifest.json').read_text())
+          required = payload.get('required_tables') or []
+          assert payload.get('status') == 'validated', payload
+          assert len(required) >= 31, len(required)
+          assert not payload.get('missing_tables'), payload.get('missing_tables')
+          assert not payload.get('failed_tables'), payload.get('failed_tables')
+          assert not payload.get('missing_objects'), payload.get('missing_objects')
+          print(json.dumps({'status': payload.get('status'), 'required_table_count': len(required)}, indent=2))
+          PY
+      - name: Upload final evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-current-government-backfill-final-${{ github.run_id }}-${{ github.run_attempt }}
+          path: final-candidate-manifest.json
+          retention-days: 365
