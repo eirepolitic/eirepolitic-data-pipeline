@@ -7,18 +7,19 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-# Support direct execution as `python process/oireachtas_batch_control.py`.
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from extract.oireachtas.batch import (
+    LEGACY_DIRECT_TARGET,
     PRODUCTION_POINTER_KEY,
     PREVIOUS_POINTER_KEY,
     assemble_batch_manifest,
     promote_batch,
     read_json_if_exists,
     rollback_batch,
+    rollback_previous,
     validate_batch_id,
 )
 from extract.oireachtas.io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, make_s3_client, production_publishing_enabled
@@ -38,8 +39,13 @@ def parser() -> argparse.ArgumentParser:
     promote.add_argument("--batch-id", required=True)
 
     rollback = sub.add_parser("rollback")
-    rollback.add_argument("--batch-id", required=True)
+    rollback.add_argument(
+        "--batch-id",
+        required=True,
+        help=f"Validated batch ID or {LEGACY_DIRECT_TARGET!r} for legacy direct objects.",
+    )
 
+    sub.add_parser("rollback-previous")
     sub.add_parser("status")
     return root
 
@@ -60,7 +66,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0 if payload.get("status") == "validated" else 1
 
-    if args.command in {"promote", "rollback"}:
+    if args.command in {"promote", "rollback", "rollback-previous"}:
         if not production_publishing_enabled():
             raise RuntimeError(
                 "Batch pointer updates require both OIREACHTAS_PUBLISH_ENABLED=true "
@@ -74,11 +80,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 actor=actor,
                 workflow_run_id=workflow_run_id,
             )
-        else:
+        elif args.command == "rollback":
+            target = str(args.batch_id).strip()
             payload = rollback_batch(
                 s3,
                 bucket=args.bucket,
-                target_batch_id=validate_batch_id(args.batch_id),
+                target_batch_id=target if target == LEGACY_DIRECT_TARGET else validate_batch_id(target),
+                actor=actor,
+                workflow_run_id=workflow_run_id,
+            )
+        else:
+            payload = rollback_previous(
+                s3,
+                bucket=args.bucket,
                 actor=actor,
                 workflow_run_id=workflow_run_id,
             )
