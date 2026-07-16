@@ -12,6 +12,11 @@ on:
         required: false
         default: ""
         type: string
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - .github/workflows/oireachtas_release_readiness.yml
 
 permissions:
   contents: read
@@ -22,6 +27,7 @@ concurrency:
 
 jobs:
   verify:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -92,7 +98,6 @@ jobs:
 
           production = pointers.get('production')
           previous = pointers.get('previous')
-          rollback_target = None
           if production:
               rollback_target = production.get('batch_id') if production.get('mode', 'batch') == 'batch' else 'legacy_direct'
           else:
