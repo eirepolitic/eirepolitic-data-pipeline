@@ -1,0 +1,98 @@
+name: Oireachtas approved release promotion
+
+on:
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - .github/workflows/oireachtas_approved_promotion.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-production-promotion
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+      APPROVED_BATCH_ID: batch6-validation-29519369155-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/oireachtas-production-hardening
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Confirm approved candidate remains validated
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_reassemble_candidate.py \
+            --batch-id "${APPROVED_BATCH_ID}" \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            | tee candidate-before-promotion.json
+      - name: Promote approved candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            promote --batch-id "${APPROVED_BATCH_ID}" \
+            | tee promotion-result.json
+      - name: Verify live pointer and rollback target
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            status | tee pointer-after-promotion.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          expected = 'batch6-validation-29519369155-1'
+          status = json.loads(Path('pointer-after-promotion.json').read_text())
+          production = status.get('production') or {}
+          previous = status.get('previous') or {}
+          assert production.get('mode') == 'batch', production
+          assert production.get('batch_id') == expected, production
+          assert previous.get('mode') in {'legacy_direct', 'batch'}, previous
+          print(json.dumps({
+              'production_batch_id': production.get('batch_id'),
+              'production_mode': production.get('mode'),
+              'rollback_mode': previous.get('mode'),
+              'rollback_batch_id': previous.get('batch_id'),
+          }, indent=2, sort_keys=True))
+          PY
+      - name: Upload promotion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-approved-promotion-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            candidate-before-promotion.json
+            promotion-result.json
+            pointer-after-promotion.json
+          if-no-files-found: warn
+          retention-days: 365
