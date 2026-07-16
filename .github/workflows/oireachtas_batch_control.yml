@@ -13,10 +13,11 @@ on:
           - promote
           - rollback
           - rollback-previous
-        default: status
+        default: promote
       batch_id:
         description: Required for assemble, promote, and rollback; use legacy_direct for first-cutover rollback
         required: false
+        default: batch6-validation-29519369155-1
         type: string
       required_tables:
         description: Optional comma-separated required tables for assemble
