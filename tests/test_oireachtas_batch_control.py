@@ -7,14 +7,16 @@ import unittest
 from unittest.mock import patch
 
 from extract.oireachtas.batch import (
+    LEGACY_DIRECT_MODE,
     PRODUCTION_POINTER_KEY,
     PREVIOUS_POINTER_KEY,
     assemble_batch_manifest,
     batch_entry_key,
     batch_key_for_production_key,
-    batch_manifest_key,
     promote_batch,
+    resolve_production_key,
     rollback_batch,
+    rollback_previous,
 )
 from extract.oireachtas.io_s3 import put_bytes
 
@@ -46,13 +48,9 @@ class FakeS3:
         return {"ContentLength": len(self.objects[Key]), "ETag": '"etag"', "VersionId": "v1"}
 
     def get_paginator(self, name: str) -> FakePaginator:
-        self.assert_name(name)
-        return FakePaginator(self)
-
-    @staticmethod
-    def assert_name(name: str) -> None:
         if name != "list_objects_v2":
             raise AssertionError(name)
+        return FakePaginator(self)
 
 
 def put_json(s3: FakeS3, key: str, payload: dict) -> None:
@@ -129,6 +127,16 @@ class AtomicPromotionTests(unittest.TestCase):
             },
         )
 
+    def validated_batch(self, batch_id: str) -> None:
+        self.add_entry(batch_id, "silver_members")
+        result = assemble_batch_manifest(
+            self.s3,
+            bucket="bucket",
+            batch_id=batch_id,
+            required_tables=["silver_members"],
+        )
+        self.assertEqual(result["status"], "validated")
+
     def test_failed_batch_cannot_move_production_pointer(self) -> None:
         self.add_entry("bad-batch", "silver_members", status="failed")
         manifest = assemble_batch_manifest(
@@ -143,28 +151,31 @@ class AtomicPromotionTests(unittest.TestCase):
         self.assertNotIn(PRODUCTION_POINTER_KEY, self.s3.objects)
 
     def test_validated_batch_promotes_with_one_pointer_write(self) -> None:
-        self.add_entry("good-batch", "silver_members")
-        manifest = assemble_batch_manifest(
-            self.s3,
-            bucket="bucket",
-            batch_id="good-batch",
-            required_tables=["silver_members"],
-        )
-        self.assertEqual(manifest["status"], "validated")
+        self.validated_batch("good-batch")
         pointer = promote_batch(self.s3, bucket="bucket", batch_id="good-batch", actor="tester", workflow_run_id="1")
         self.assertEqual(pointer["batch_id"], "good-batch")
+        self.assertEqual(pointer["mode"], "batch")
         stored = json.loads(self.s3.objects[PRODUCTION_POINTER_KEY])
         self.assertEqual(stored["batch_id"], "good-batch")
 
+    def test_first_promotion_records_legacy_direct_as_previous(self) -> None:
+        self.validated_batch("first-batch")
+        promote_batch(self.s3, bucket="bucket", batch_id="first-batch")
+        previous = json.loads(self.s3.objects[PREVIOUS_POINTER_KEY])
+        self.assertEqual(previous["mode"], LEGACY_DIRECT_MODE)
+
+    def test_first_cutover_can_rollback_to_legacy_direct_objects(self) -> None:
+        self.validated_batch("first-batch")
+        promote_batch(self.s3, bucket="bucket", batch_id="first-batch")
+        pointer = rollback_previous(self.s3, bucket="bucket", actor="tester", workflow_run_id="2")
+        self.assertEqual(pointer["mode"], LEGACY_DIRECT_MODE)
+        self.assertEqual(pointer["operation"], "rollback")
+        logical = "processed/oireachtas_unified/latest/csv/silver_members.csv"
+        self.assertEqual(resolve_production_key(self.s3, bucket="bucket", production_key=logical), logical)
+
     def test_rollback_restores_validated_prior_batch(self) -> None:
         for batch_id in ("batch-a", "batch-b"):
-            self.add_entry(batch_id, "silver_members")
-            assemble_batch_manifest(
-                self.s3,
-                bucket="bucket",
-                batch_id=batch_id,
-                required_tables=["silver_members"],
-            )
+            self.validated_batch(batch_id)
         promote_batch(self.s3, bucket="bucket", batch_id="batch-a")
         promote_batch(self.s3, bucket="bucket", batch_id="batch-b")
         pointer = rollback_batch(self.s3, bucket="bucket", target_batch_id="batch-a")
