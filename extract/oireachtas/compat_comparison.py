@@ -209,7 +209,13 @@ def main() -> int:
     sample_rows = int(os.getenv("SAMPLE_ROWS", "10") or "10")
     s3 = make_s3_client(region_name=region)
     result = build_compat_comparison(s3=s3, bucket=bucket, review_root=review_root, sample_rows=sample_rows)
-    print(json.dumps({"table": TABLE_NAME, "rows": len(result.rows), "dq_status": result.dq.get("dq_status"), "run_id": result.manifest.get("run_id")}, indent=2, sort_keys=True))
+    print(json.dumps({
+        "table": TABLE_NAME,
+        "rows": result.rows,
+        "dq": result.dq,
+        "dq_status": result.dq.get("dq_status"),
+        "run_id": result.manifest.get("run_id"),
+    }, indent=2, sort_keys=True))
     return 0 if result.dq.get("dq_status") != "fail" else 1
 
 
