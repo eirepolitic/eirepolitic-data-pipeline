@@ -1,0 +1,85 @@
+name: Oireachtas Batch 6 compatibility diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - repair/oireachtas-production-hardening
+    paths:
+      - .github/workflows/oireachtas_batch6_compat_diagnostic.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      REVIEW_OUTPUT_ROOT: compat_diagnostic_review
+      OIREACHTAS_BATCH_ID: batch6-validation-29518530422-1
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/oireachtas-production-hardening
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Capture strict comparison and mismatch output
+        id: checks
+        shell: bash
+        run: |
+          set +e
+          python -m extract.oireachtas.compat_comparison > /tmp/comparison.out 2> /tmp/comparison.err
+          comparison_status=$?
+          python -m extract.oireachtas.mismatch_review > /tmp/mismatch.out 2> /tmp/mismatch.err
+          mismatch_status=$?
+          echo "comparison_status=${comparison_status}" >> "${GITHUB_OUTPUT}"
+          echo "mismatch_status=${mismatch_status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Commit sanitized diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '# Oireachtas Batch 6 compatibility diagnostic'
+            echo
+            echo "- Run ID: ${GITHUB_RUN_ID}"
+            echo "- Batch ID: ${OIREACHTAS_BATCH_ID}"
+            echo "- Comparison exit code: ${{ steps.checks.outputs.comparison_status }}"
+            echo "- Mismatch exit code: ${{ steps.checks.outputs.mismatch_status }}"
+            echo
+            echo '## Comparison output'
+            echo
+            echo '```text'
+            cat /tmp/comparison.out
+            cat /tmp/comparison.err
+            echo '```'
+            echo
+            echo '## Mismatch output'
+            echo
+            echo '```text'
+            cat /tmp/mismatch.out
+            cat /tmp/mismatch.err
+            echo '```'
+          } > docs/oireachtas_batch6_compat_diagnostic.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/oireachtas_batch6_compat_diagnostic.md
+          git commit -m "Record Oireachtas Batch 6 compatibility diagnostic ${GITHUB_RUN_ID}"
+          git push origin HEAD:repair/oireachtas-production-hardening
