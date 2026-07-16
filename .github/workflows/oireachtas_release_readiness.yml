@@ -1,0 +1,137 @@
+name: Oireachtas release readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_id:
+        description: Validated immutable candidate batch ID
+        required: true
+        type: string
+      required_tables:
+        description: Optional comma-separated required tables; existing manifest requirements are always preserved
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-release-readiness
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+      BATCH_ID: ${{ inputs.batch_id }}
+      EXTRA_REQUIRED_TABLES: ${{ inputs.required_tables }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Validate batch identifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]
+      - name: Capture production and previous pointers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status \
+            | tee pointer-status.json
+      - name: Reassemble candidate while preserving requirements
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--batch-id "${BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}")
+          if [[ -n "${EXTRA_REQUIRED_TABLES}" ]]; then
+            IFS=',' read -ra tables <<< "${EXTRA_REQUIRED_TABLES}"
+            for table in "${tables[@]}"; do
+              table="${table//[[:space:]]/}"
+              [[ -n "${table}" ]] && args+=(--require "${table}")
+            done
+          fi
+          python process/oireachtas_reassemble_candidate.py "${args[@]}" \
+            | tee release-candidate-manifest.json
+      - name: Validate release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('release-candidate-manifest.json').read_text())
+          pointers = json.loads(Path('pointer-status.json').read_text())
+          assert manifest['status'] == 'validated', manifest
+          validation = manifest['validation']
+          assert validation['missing_tables'] == [], validation
+          assert validation['failed_tables'] == [], validation
+          assert validation['missing_objects'] == [], validation
+          assert validation['duplicate_tables'] == [], validation
+          assert manifest['table_count'] >= len(manifest['required_tables']) > 0, manifest
+
+          production = pointers.get('production')
+          previous = pointers.get('previous')
+          rollback_target = None
+          if production:
+              rollback_target = production.get('batch_id') if production.get('mode', 'batch') == 'batch' else 'legacy_direct'
+          else:
+              rollback_target = 'legacy_direct'
+
+          result = {
+              'status': 'ready_for_explicit_approval',
+              'batch_id': manifest['batch_id'],
+              'table_count': manifest['table_count'],
+              'required_table_count': len(manifest['required_tables']),
+              'rollback_target': rollback_target,
+              'production_pointer_present': production is not None,
+              'previous_pointer_present': previous is not None,
+              'promotion_performed': False,
+          }
+          Path('release-readiness.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+      - name: Write summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "${GITHUB_STEP_SUMMARY}"
+          import json
+          from pathlib import Path
+          result = json.loads(Path('release-readiness.json').read_text())
+          print('## Oireachtas release readiness')
+          print()
+          for key, value in result.items():
+              print(f'- {key}: `{value}`')
+          PY
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-release-readiness-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            pointer-status.json
+            release-candidate-manifest.json
+            release-readiness.json
+          if-no-files-found: warn
+          retention-days: 180
