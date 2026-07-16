@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import re
-from datetime import datetime, timezone
 from typing import Any, Iterable, Mapping
 
 from .normalize import stable_json_dumps, utc_now_iso
@@ -15,6 +14,9 @@ BATCH_ROOT = "processed/oireachtas_unified/batches"
 POINTER_ROOT = "processed/oireachtas_unified/pointers"
 PRODUCTION_POINTER_KEY = f"{POINTER_ROOT}/production.json"
 PREVIOUS_POINTER_KEY = f"{POINTER_ROOT}/previous.json"
+BATCH_POINTER_MODE = "batch"
+LEGACY_DIRECT_MODE = "legacy_direct"
+LEGACY_DIRECT_TARGET = "legacy_direct"
 _BATCH_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _LATEST_PATTERN = re.compile(
     r"^processed/oireachtas_unified/latest/(?P<format>csv|parquet)/(?P<table>[^/]+)\.(?P<extension>csv|parquet)$"
@@ -77,6 +79,11 @@ def resolve_production_key(s3: Any, *, bucket: str, production_key: str) -> str:
     pointer = read_json_if_exists(s3, bucket=bucket, key=PRODUCTION_POINTER_KEY)
     if not pointer:
         raise FileNotFoundError(f"Production pointer does not exist: s3://{bucket}/{PRODUCTION_POINTER_KEY}")
+    mode = str(pointer.get("mode") or BATCH_POINTER_MODE)
+    if mode == LEGACY_DIRECT_MODE:
+        return production_key
+    if mode != BATCH_POINTER_MODE:
+        raise ValueError(f"Unsupported production pointer mode: {mode!r}")
     batch_id = validate_batch_id(str(pointer.get("batch_id") or ""))
     return batch_key_for_production_key(production_key, batch_id)
 
@@ -190,14 +197,23 @@ def promote_batch(
             "superseded_at_utc": utc_now_iso(),
             "superseded_by_batch_id": batch_id,
         }
-        _put_json_direct(s3, bucket=bucket, key=PREVIOUS_POINTER_KEY, payload=previous)
+    else:
+        previous = {
+            "mode": LEGACY_DIRECT_MODE,
+            "captured_at_utc": utc_now_iso(),
+            "superseded_at_utc": utc_now_iso(),
+            "superseded_by_batch_id": batch_id,
+        }
+    _put_json_direct(s3, bucket=bucket, key=PREVIOUS_POINTER_KEY, payload=previous)
     pointer = {
+        "mode": BATCH_POINTER_MODE,
         "batch_id": batch_id,
         "manifest_key": batch_manifest_key(batch_id),
         "promoted_at_utc": utc_now_iso(),
         "promoted_by": actor,
         "workflow_run_id": workflow_run_id,
-        "previous_batch_id": current.get("batch_id") if current else None,
+        "previous_mode": str(previous.get("mode") or BATCH_POINTER_MODE),
+        "previous_batch_id": previous.get("batch_id"),
     }
     _put_json_direct(s3, bucket=bucket, key=PRODUCTION_POINTER_KEY, payload=pointer)
     return pointer
@@ -211,12 +227,32 @@ def rollback_batch(
     actor: str = "",
     workflow_run_id: str = "",
 ) -> dict[str, Any]:
-    """Rollback by promoting an earlier validated immutable batch."""
+    """Rollback to an earlier batch or to legacy direct objects."""
+    target = str(target_batch_id or "").strip()
     current = read_json_if_exists(s3, bucket=bucket, key=PRODUCTION_POINTER_KEY)
+    if target == LEGACY_DIRECT_TARGET:
+        if current:
+            previous = {
+                **current,
+                "superseded_at_utc": utc_now_iso(),
+                "superseded_by_mode": LEGACY_DIRECT_MODE,
+            }
+            _put_json_direct(s3, bucket=bucket, key=PREVIOUS_POINTER_KEY, payload=previous)
+        pointer = {
+            "mode": LEGACY_DIRECT_MODE,
+            "operation": "rollback",
+            "rolled_back_from_batch_id": current.get("batch_id") if current else None,
+            "rolled_back_at_utc": utc_now_iso(),
+            "promoted_by": actor,
+            "workflow_run_id": workflow_run_id,
+        }
+        _put_json_direct(s3, bucket=bucket, key=PRODUCTION_POINTER_KEY, payload=pointer)
+        return pointer
+
     pointer = promote_batch(
         s3,
         bucket=bucket,
-        batch_id=target_batch_id,
+        batch_id=validate_batch_id(target),
         actor=actor,
         workflow_run_id=workflow_run_id,
     )
@@ -225,6 +261,26 @@ def rollback_batch(
     pointer["rolled_back_at_utc"] = utc_now_iso()
     _put_json_direct(s3, bucket=bucket, key=PRODUCTION_POINTER_KEY, payload=pointer)
     return pointer
+
+
+def rollback_previous(
+    s3: Any,
+    *,
+    bucket: str,
+    actor: str = "",
+    workflow_run_id: str = "",
+) -> dict[str, Any]:
+    """Rollback to the target recorded in the previous pointer."""
+    previous = read_json_required(s3, bucket=bucket, key=PREVIOUS_POINTER_KEY)
+    mode = str(previous.get("mode") or BATCH_POINTER_MODE)
+    target = LEGACY_DIRECT_TARGET if mode == LEGACY_DIRECT_MODE else validate_batch_id(str(previous.get("batch_id") or ""))
+    return rollback_batch(
+        s3,
+        bucket=bucket,
+        target_batch_id=target,
+        actor=actor,
+        workflow_run_id=workflow_run_id,
+    )
 
 
 def list_batch_entries(s3: Any, *, bucket: str, batch_id: str) -> list[dict[str, Any]]:
