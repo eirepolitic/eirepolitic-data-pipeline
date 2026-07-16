@@ -1,6 +1,7 @@
 name: Oireachtas Batch 6 live refresh diagnostic
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - repair/oireachtas-production-hardening
