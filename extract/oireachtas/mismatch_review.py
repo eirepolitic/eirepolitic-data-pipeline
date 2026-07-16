@@ -20,8 +20,6 @@ TABLE_NAME = "member_code_mismatch_review"
 
 LEGACY_ROSTER_KEY = "raw/members/oireachtas_members_34th_dail.csv"
 COMPAT_ROSTER_KEY = "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
-LEGACY_PROFILE_KEY = "processed/members/member_profile_metrics_2025.csv"
-TRIAL_PROFILE_KEY = "processed/oireachtas_unified/compat/members/member_profile_metrics_2025_trial.csv"
 
 DATASETS = [
     {
@@ -29,12 +27,6 @@ DATASETS = [
         "legacy_key": LEGACY_ROSTER_KEY,
         "unified_key": COMPAT_ROSTER_KEY,
         "unified_label": "compat",
-    },
-    {
-        "dataset_name": "member_profile_metrics",
-        "legacy_key": LEGACY_PROFILE_KEY,
-        "unified_key": TRIAL_PROFILE_KEY,
-        "unified_label": "trial",
     },
 ]
 
@@ -138,7 +130,6 @@ def build_mismatch_review(*, s3: Any, bucket: str, review_root: Path, sample_row
     put_json(s3, bucket=bucket, key=review_manifest_key, payload=manifest)
     put_text(s3, bucket=bucket, key=report_key, text=report)
     write_review_bundle(table=TABLE_NAME, manifest=manifest, schema=schema, dq=dq, sample_rows=detail_df.head(sample_rows).to_dict(orient="records"), root=review_root)
-    (review_root / "review" / TABLE_NAME / "latest" / "report.md").write_text(report, encoding="utf-8")
     return MismatchReviewResult(rows=detail_df.to_dict(orient="records"), manifest=manifest, schema=schema, dq=dq)
 
 
@@ -174,41 +165,29 @@ def _coalesce(row: pd.Series, *columns: str) -> str:
     return ""
 
 
-def _detail_rows(
-    *,
-    dataset_name: str,
-    side: str,
-    keys: set[str],
-    primary_lookup: dict[str, dict[str, str]],
-    secondary_lookup: dict[str, dict[str, str]],
-    primary_key_label: str,
-    secondary_key_label: str,
-) -> list[dict[str, Any]]:
+def _detail_rows(*, dataset_name: str, side: str, keys: set[str], primary_lookup: dict[str, dict[str, str]], secondary_lookup: dict[str, dict[str, str]], primary_key_label: str, secondary_key_label: str) -> list[dict[str, Any]]:
     rows = []
     for member_code in sorted(keys):
         primary = primary_lookup.get(member_code, {})
-        rows.append(
-            {
-                "review_id": f"{dataset_name}:{side}:{member_code}",
-                "dataset_name": dataset_name,
-                "side": side,
-                "member_code": member_code,
-                "full_name": primary.get("full_name", ""),
-                "party": primary.get("party", ""),
-                "constituency": primary.get("constituency", ""),
-                "source_hint": primary.get("source_hint", ""),
-                primary_key_label: "present",
-                secondary_key_label: "missing",
-                "other_side_present": member_code in secondary_lookup,
-            }
-        )
+        rows.append({
+            "review_id": f"{dataset_name}:{side}:{member_code}",
+            "dataset_name": dataset_name,
+            "side": side,
+            "member_code": member_code,
+            "full_name": primary.get("full_name", ""),
+            "party": primary.get("party", ""),
+            "constituency": primary.get("constituency", ""),
+            "source_hint": primary.get("source_hint", ""),
+            primary_key_label: "present",
+            secondary_key_label: "missing",
+            "other_side_present": member_code in secondary_lookup,
+        })
     return rows
 
 
 def _dq(df: pd.DataFrame, summaries: list[dict[str, Any]]) -> dict[str, Any]:
     row_count = int(len(df))
     pk_unique = bool("review_id" in df.columns and not df["review_id"].duplicated().any()) if row_count else True
-    # This is a review table; mismatches are informational, not a DQ failure.
     status = "pass" if pk_unique else "fail"
     return {
         "table": TABLE_NAME,
@@ -226,12 +205,12 @@ def _dq(df: pd.DataFrame, summaries: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
     summary_df = pd.DataFrame(manifest.get("summary", []))
-    lines = [
+    return "\n".join([
         "# Member-code mismatch review",
         "",
         f"Run ID: `{manifest['run_id']}`",
         "",
-        "This is a review-only report. Remaining mismatches are not treated as a pipeline failure by themselves.",
+        "This report covers the current roster compatibility contract. Year-specific metrics are validated separately by the generic metrics consumer smoke test.",
         "",
         "## Summary",
         "",
@@ -241,8 +220,7 @@ def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
         "",
         _simple_markdown_table(df),
         "",
-    ]
-    return "\n".join(lines)
+    ])
 
 
 def _simple_markdown_table(df: pd.DataFrame) -> str:
