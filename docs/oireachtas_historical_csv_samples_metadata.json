@@ -23,11 +23,6 @@
     "rows": 176
   },
   {
-    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
-    "label": "Members",
-    "logical_key": "processed/oireachtas_unified/latest/csv/silver_members.csv"
-  },
-  {
     "columns": [
       "speech_id",
       "debate_id",
@@ -54,11 +49,6 @@
     "rows": 5689
   },
   {
-    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
-    "label": "Speeches",
-    "logical_key": "processed/oireachtas_unified/latest/csv/silver_speeches.csv"
-  },
-  {
     "columns": [
       "member_vote_id",
       "division_id",
@@ -78,18 +68,77 @@
     "rows": 8973
   },
   {
-    "error": "ImportError: `Import tabulate` failed.  Use pip or conda to install the tabulate package.",
-    "label": "Member votes",
-    "logical_key": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv"
+    "columns": [
+      "question_id",
+      "question_uri",
+      "question_date",
+      "question_no",
+      "question_type",
+      "question_text",
+      "answer_text",
+      "asked_by_member_code",
+      "asked_by_name",
+      "to_minister_or_department",
+      "debate_section_id",
+      "source_xml_uri",
+      "source_xml_url",
+      "source_pdf_uri",
+      "source_pdf_url",
+      "source_file_id_xml",
+      "source_file_id_pdf",
+      "snapshot_date",
+      "source_hash"
+    ],
+    "label": "Questions",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_questions.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_questions/csv/silver_questions.csv",
+    "rows": 8082
   },
   {
-    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.",
-    "label": "Bills",
-    "logical_key": "processed/oireachtas_unified/latest/csv/silver_bills.csv"
+    "columns": [
+      "division_id",
+      "vote_id",
+      "division_date",
+      "chamber",
+      "house_uri",
+      "house_no",
+      "committee_code",
+      "subject",
+      "outcome",
+      "debate_id",
+      "debate_section_id",
+      "debate_show_as",
+      "api_result_hash",
+      "snapshot_date"
+    ],
+    "label": "Divisions",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_divisions.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_divisions/csv/silver_divisions.csv",
+    "rows": 61
   },
   {
-    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.",
-    "label": "Bill stages",
-    "logical_key": "processed/oireachtas_unified/latest/csv/silver_bill_stages.csv"
+    "columns": [
+      "debate_id",
+      "debate_uri",
+      "context_date",
+      "debate_date",
+      "chamber",
+      "house_uri",
+      "house_no",
+      "house_code",
+      "show_as",
+      "source_xml_uri",
+      "source_xml_url",
+      "source_pdf_uri",
+      "source_pdf_url",
+      "source_file_id_xml",
+      "source_file_id_pdf",
+      "api_result_hash",
+      "snapshot_date"
+    ],
+    "label": "Debate records",
+    "logical_key": "processed/oireachtas_unified/latest/csv/silver_debate_records.csv",
+    "resolved_key": "processed/oireachtas_unified/batches/batch6-validation-29519369155-1/tables/silver_debate_records/csv/silver_debate_records.csv",
+    "rows": 18
   }
 ]
