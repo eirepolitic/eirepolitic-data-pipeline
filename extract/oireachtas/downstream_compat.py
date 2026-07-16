@@ -28,7 +28,7 @@ from .review import REVIEW_ROOT, write_review_bundle
 
 TABLE_NAME = "compat_downstream_adapters"
 
-SOURCE_CURRENT_MEMBERS = "processed/oireachtas_unified/latest/csv/gold_current_members.csv"
+SOURCE_CURRENT_MEMBERS = "processed/oireachtas_unified/latest/csv/silver_members.csv"
 SOURCE_MEMBER_VOTES = "processed/oireachtas_unified/latest/csv/silver_member_votes.csv"
 OUTPUT_MEMBERS_COMPAT = "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
 OUTPUT_MEMBER_VOTES_COMPAT = "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv"
@@ -157,9 +157,9 @@ def _build_members_compat(df: pd.DataFrame) -> pd.DataFrame:
     output = pd.DataFrame()
     output["member_code"] = _col(df, "member_code")
     output["full_name"] = _col(df, "full_name")
-    output["constituency"] = _col(df, "constituency_name")
-    output["party"] = _col(df, "party_name")
-    output["house_no"] = _col(df, "house_no")
+    output["constituency"] = _first_col(df, "constituency_name", "latest_constituency_name")
+    output["party"] = _first_col(df, "party_name", "latest_party_name")
+    output["house_no"] = _first_col(df, "house_no", "latest_house_no")
     output["source"] = "oireachtas_unified"
     output["snapshot_date"] = _col(df, "snapshot_date")
     return output.sort_values(by=["full_name", "member_code"], kind="stable")
@@ -182,6 +182,13 @@ def _build_member_votes_compat(df: pd.DataFrame) -> pd.DataFrame:
 def _col(df: pd.DataFrame, name: str) -> pd.Series:
     if name in df.columns:
         return df[name].fillna("").astype(str)
+    return pd.Series([""] * len(df), dtype="object")
+
+
+def _first_col(df: pd.DataFrame, *names: str) -> pd.Series:
+    for name in names:
+        if name in df.columns:
+            return _col(df, name)
     return pd.Series([""] * len(df), dtype="object")
 
 
