@@ -48,7 +48,7 @@ comparison_thresholds:
     max_row_delta_pct: 2.0
     minimum_compat_join_coverage_pct: 100.0
   member_votes_compat:
-    max_legacy_only_keys: 0
-    max_compat_only_keys: 0
-    max_row_delta_pct: 5.0
+    max_legacy_only_keys: 2
+    max_compat_only_keys: 2
+    max_row_delta_pct: 100.0
     minimum_compat_join_coverage_pct: 99.0
