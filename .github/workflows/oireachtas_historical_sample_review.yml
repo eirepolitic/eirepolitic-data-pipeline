@@ -58,11 +58,12 @@ jobs:
           s3 = boto3.client('s3', region_name=region)
 
           datasets = [
-              ('Members', 'processed/oireachtas_unified/latest/csv/silver_members.csv', 8),
-              ('Speeches', 'processed/oireachtas_unified/latest/csv/silver_speeches.csv', 8),
-              ('Member votes', 'processed/oireachtas_unified/latest/csv/silver_member_votes.csv', 8),
-              ('Bills', 'processed/oireachtas_unified/latest/csv/silver_bills.csv', 8),
-              ('Bill stages', 'processed/oireachtas_unified/latest/csv/silver_bill_stages.csv', 8),
+              ('Members', 'processed/oireachtas_unified/latest/csv/silver_members.csv', 6),
+              ('Speeches', 'processed/oireachtas_unified/latest/csv/silver_speeches.csv', 6),
+              ('Member votes', 'processed/oireachtas_unified/latest/csv/silver_member_votes.csv', 6),
+              ('Questions', 'processed/oireachtas_unified/latest/csv/silver_questions.csv', 6),
+              ('Divisions', 'processed/oireachtas_unified/latest/csv/silver_divisions.csv', 6),
+              ('Debate records', 'processed/oireachtas_unified/latest/csv/silver_debate_records.csv', 6),
           ]
 
           sections = ['# Oireachtas historical CSV samples', '']
@@ -72,12 +73,8 @@ jobs:
                   resolved = resolve_read_key(s3, bucket=bucket, key=logical_key)
                   obj = s3.get_object(Bucket=bucket, Key=resolved)
                   df = pd.read_csv(io.BytesIO(obj['Body'].read()), dtype=str, keep_default_na=False)
-                  if df.empty:
-                      sample = df
-                  else:
-                      # Prefer a spread across the file rather than only the newest rows.
-                      indexes = sorted(set(round(i * (len(df) - 1) / max(count - 1, 1)) for i in range(min(count, len(df)))))
-                      sample = df.iloc[indexes].copy()
+                  indexes = [] if df.empty else sorted(set(round(i * (len(df) - 1) / max(count - 1, 1)) for i in range(min(count, len(df)))))
+                  sample = df.iloc[indexes].copy() if indexes else df
                   metadata.append({'label': label, 'logical_key': logical_key, 'resolved_key': resolved, 'rows': len(df), 'columns': list(df.columns)})
                   sections.extend([
                       f'## {label}',
@@ -86,7 +83,9 @@ jobs:
                       f'- Columns: `{len(df.columns)}`',
                       f'- Logical output: `{logical_key}`',
                       '',
-                      sample.to_markdown(index=False),
+                      '```csv',
+                      sample.to_csv(index=False).rstrip(),
+                      '```',
                       '',
                   ])
               except Exception as exc:
@@ -103,5 +102,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/oireachtas_historical_csv_samples.md docs/oireachtas_historical_csv_samples_metadata.json
-          git commit -m "Record read-only Oireachtas historical CSV samples"
+          git commit -m "Refresh read-only Oireachtas historical CSV samples"
           git push origin HEAD:review/oireachtas-historical-samples
