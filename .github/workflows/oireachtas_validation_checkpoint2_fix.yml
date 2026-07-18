@@ -23,30 +23,21 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import re
           from pathlib import Path
+
           path = Path('process/oireachtas_validate_reference_members.py')
           text = path.read_text(encoding='utf-8')
-          pattern = re.compile(
-              r'        selected = select_current\(bridge, value_col, start_col, end_col\)\n'
-              r'        merged = members_df\[\["member_code", member_col\]\]\.merge\(selected, on="member_code", how="left", suffixes=\("_member", "_bridge"\)\)\n'
-              r'        left = merged\[f"\{member_col\}_member"\]\.fillna\(""\)\.astype\(str\)\.map\(normalize_text\)\n'
-              r'        right = merged\[f"\{value_col\}_bridge"\]\.fillna\(""\)\.astype\(str\)\.map\(normalize_text\)\n'
-              r'        evaluated = \(left != ""\) \| \(right != ""\)\n'
-              r'        invalid = merged\[evaluated & \(left != right\)\]\n'
-          )
-          replacement = '''        member_side = members_df[["member_code", member_col]].rename(columns={member_col: "__member_value"})
-        bridge_side = select_current(bridge, value_col, start_col, end_col).rename(columns={value_col: "__bridge_value"})
-        merged = member_side.merge(bridge_side, on="member_code", how="left")
-        left = merged["__member_value"].fillna("").astype(str).map(normalize_text)
-        right = merged["__bridge_value"].fillna("").astype(str).map(normalize_text)
-        evaluated = (left != "") | (right != "")
-        invalid = merged[evaluated & (left != right)]
-'''
-          updated, count = pattern.subn(replacement, text, count=1)
-          if count != 1:
-              raise SystemExit(f'expected one replacement, got {count}')
-          path.write_text(updated, encoding='utf-8')
+          replacements = {
+              '        selected = select_current(bridge, value_col, start_col, end_col)\n': '        member_side = members_df[["member_code", member_col]].rename(columns={member_col: "__member_value"})\n        bridge_side = select_current(bridge, value_col, start_col, end_col).rename(columns={value_col: "__bridge_value"})\n',
+              '        merged = members_df[["member_code", member_col]].merge(selected, on="member_code", how="left", suffixes=("_member", "_bridge"))\n': '        merged = member_side.merge(bridge_side, on="member_code", how="left")\n',
+              '        left = merged[f"{member_col}_member"].fillna("").astype(str).map(normalize_text)\n': '        left = merged["__member_value"].fillna("").astype(str).map(normalize_text)\n',
+              '        right = merged[f"{value_col}_bridge"].fillna("").astype(str).map(normalize_text)\n': '        right = merged["__bridge_value"].fillna("").astype(str).map(normalize_text)\n',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing target line: {old!r}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
           PY
       - name: Commit fix
         shell: bash
