@@ -4,12 +4,17 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 import unicodedata
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Iterable
 
 import pandas as pd
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 from process.oireachtas_validate_table import DEFAULT_EXPECTATIONS, ValidationResult, load_expectations
 
@@ -67,7 +72,11 @@ def validate_external_registry(expectations: dict[str, Any], registry_tables: se
     rules = expectations.get("table_rules") or {}
     groups = expectations.get("external_groups") or {}
     results: list[ValidationResult] = []
-    grouped_tables = {table for tables in groups.values() for table in tables}
+    memberships: dict[str, int] = {table: 0 for table in registry_tables}
+    for tables in groups.values():
+        for table in tables:
+            if table in memberships:
+                memberships[table] += 1
     for table in sorted(registry_tables):
         strategy = str((rules.get(table) or {}).get("external_strategy") or "")
         results.append(
@@ -79,13 +88,14 @@ def validate_external_registry(expectations: dict[str, Any], registry_tables: se
                 status="pass" if strategy else "fail",
             )
         )
+        group_count = memberships.get(table, 0)
         results.append(
             ValidationResult(
                 table=table,
                 test_name="external_group_registered",
                 expected_result="table appears in exactly one external validation group",
-                actual_result="registered" if table in grouped_tables else "missing",
-                status="pass" if table in grouped_tables else "fail",
+                actual_result=str(group_count),
+                status="pass" if group_count == 1 else "fail",
             )
         )
     return results
