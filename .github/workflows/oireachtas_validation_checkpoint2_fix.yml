@@ -1,0 +1,56 @@
+name: Fix Oireachtas checkpoint 2 validator
+
+on:
+  push:
+    branches:
+      - validation/oireachtas-reality-checks
+    paths:
+      - .github/workflows/oireachtas_validation_checkpoint2_fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: validation/oireachtas-reality-checks
+          fetch-depth: 0
+      - name: Apply narrow comparison fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('process/oireachtas_validate_reference_members.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''        selected = select_current(bridge, value_col, start_col, end_col)
+          merged = members_df[["member_code", member_col]].merge(selected, on="member_code", how="left", suffixes=("_member", "_bridge"))
+          left = merged[f"{member_col}_member"].fillna("").astype(str).map(normalize_text)
+          right = merged[f"{value_col}_bridge"].fillna("").astype(str).map(normalize_text)
+          evaluated = (left != "") | (right != "")
+          invalid = merged[evaluated & (left != right)]
+          '''
+          new = '''        member_side = members_df[["member_code", member_col]].rename(columns={member_col: "__member_value"})
+          bridge_side = select_current(bridge, value_col, start_col, end_col).rename(columns={value_col: "__bridge_value"})
+          merged = member_side.merge(bridge_side, on="member_code", how="left")
+          left = merged["__member_value"].fillna("").astype(str).map(normalize_text)
+          right = merged["__bridge_value"].fillna("").astype(str).map(normalize_text)
+          evaluated = (left != "") | (right != "")
+          invalid = merged[evaluated & (left != right)]
+          '''
+          if old not in text:
+              raise SystemExit('target block not found')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+      - name: Commit fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add process/oireachtas_validate_reference_members.py
+          git commit -m 'Fix checkpoint 2 member bridge comparison'
+          git push origin HEAD:validation/oireachtas-reality-checks
