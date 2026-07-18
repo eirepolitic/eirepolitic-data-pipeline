@@ -12,6 +12,7 @@ common:
 
 external_groups:
   houses: [silver_houses]
+  reference: [silver_constituencies, silver_parties]
   members: [silver_members, silver_member_memberships, silver_member_parties, silver_member_constituencies, silver_member_offices]
   debates: [silver_debate_records, silver_debate_sections, silver_speeches]
   divisions: [silver_divisions, silver_division_tallies, silver_member_votes]
