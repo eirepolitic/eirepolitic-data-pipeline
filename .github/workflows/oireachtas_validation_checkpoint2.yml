@@ -41,21 +41,31 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       - name: Run checkpoint 2 validation
+        id: validation
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
+          mkdir -p oireachtas_validation_output/checkpoint2
           python process/oireachtas_validate_reference_members.py \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
             --sample-count 5 \
             --output-dir oireachtas_validation_output/checkpoint2 \
-            | tee checkpoint2_console.json
-      - name: Commit validation report
+            > checkpoint2_console.log 2>&1
+          status=$?
+          cat checkpoint2_console.log
+          echo "exit_status=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Commit validation report and diagnostics
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p docs/oireachtas_validation/checkpoint2
-          cp oireachtas_validation_output/checkpoint2/* docs/oireachtas_validation/checkpoint2/
+          cp checkpoint2_console.log docs/oireachtas_validation/checkpoint2/console.log
+          if compgen -G 'oireachtas_validation_output/checkpoint2/*' > /dev/null; then
+            cp oireachtas_validation_output/checkpoint2/* docs/oireachtas_validation/checkpoint2/
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/oireachtas_validation/checkpoint2
@@ -65,6 +75,11 @@ jobs:
             git commit -m 'Record Oireachtas checkpoint 2 validation results'
             git push origin HEAD:validation/oireachtas-reality-checks
           fi
+      - name: Enforce successful execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.validation.outputs.exit_status }}' = '0'
       - name: Upload validation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,6 +87,6 @@ jobs:
           name: oireachtas-validation-checkpoint2-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             oireachtas_validation_output/checkpoint2/**
-            checkpoint2_console.json
+            checkpoint2_console.log
           if-no-files-found: warn
           retention-days: 365
