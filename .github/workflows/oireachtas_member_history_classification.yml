@@ -1,0 +1,75 @@
+name: Oireachtas member history classification
+
+on:
+  push:
+    branches:
+      - validation/oireachtas-reality-checks
+    paths:
+      - process/oireachtas_classify_member_history.py
+      - .github/workflows/oireachtas_member_history_classification.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: validation/oireachtas-reality-checks
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Classify current history rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_classify_member_history.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --output-dir oireachtas_validation_output/checkpoint2_classification \
+            | tee classification_console.json
+      - name: Commit classification report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/oireachtas_validation/checkpoint2_classification
+          cp oireachtas_validation_output/checkpoint2_classification/* docs/oireachtas_validation/checkpoint2_classification/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/oireachtas_validation/checkpoint2_classification
+          if git diff --cached --quiet; then
+            echo 'No report changes.'
+          else
+            git commit -m 'Record member history classification results'
+            git push origin HEAD:validation/oireachtas-reality-checks
+          fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-member-history-classification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_validation_output/checkpoint2_classification/**
+            classification_console.json
+          if-no-files-found: warn
+          retention-days: 365
