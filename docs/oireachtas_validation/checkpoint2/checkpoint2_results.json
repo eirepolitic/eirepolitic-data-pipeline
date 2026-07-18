@@ -1,0 +1,1412 @@
+[
+  {
+    "table": "silver_houses",
+    "test_name": "schema_exact",
+    "expected_result": "[\"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "date_parse:date_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "date_parse:date_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "68",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "68",
+    "actual_result": "68",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "schema_exact",
+    "expected_result": "[\"constituency_uri\", \"constituency_code\", \"constituency_name\", \"show_as\", \"house_uri\", \"house_no\", \"chamber\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"constituency_uri\", \"constituency_code\", \"constituency_name\", \"show_as\", \"house_uri\", \"house_no\", \"chamber\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "date_parse:date_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "date_parse:date_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "43",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "43",
+    "actual_result": "43",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"constituency_uri\", \"constituency_code\", \"constituency_name\", \"show_as\", \"house_uri\", \"house_no\", \"chamber\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"constituency_uri\", \"constituency_code\", \"constituency_name\", \"show_as\", \"house_uri\", \"house_no\", \"chamber\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "schema_exact",
+    "expected_result": "[\"party_uri\", \"party_code\", \"party_name\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"party_uri\", \"party_code\", \"party_name\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "date_parse:date_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "date_parse:date_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "11",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "11",
+    "actual_result": "11",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"party_uri\", \"party_code\", \"party_name\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"party_uri\", \"party_code\", \"party_name\", \"show_as\", \"date_start\", \"date_end\", \"is_current\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_code\", \"member_uri\", \"full_name\", \"first_name\", \"last_name\", \"display_name\", \"gender\", \"member_key\", \"is_current_member\", \"latest_party_name\", \"latest_constituency_name\", \"latest_house_no\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"member_code\", \"member_uri\", \"full_name\", \"first_name\", \"last_name\", \"display_name\", \"gender\", \"member_key\", \"is_current_member\", \"latest_party_name\", \"latest_constituency_name\", \"latest_house_no\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "176",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_code\", \"member_uri\", \"full_name\", \"first_name\", \"last_name\", \"display_name\", \"gender\", \"member_key\", \"is_current_member\", \"latest_party_name\", \"latest_constituency_name\", \"latest_house_no\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"member_code\", \"member_uri\", \"full_name\", \"first_name\", \"last_name\", \"display_name\", \"gender\", \"member_key\", \"is_current_member\", \"latest_party_name\", \"latest_constituency_name\", \"latest_house_no\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "schema_exact",
+    "expected_result": "[\"membership_id\", \"member_code\", \"member_uri\", \"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"membership_start\", \"membership_end\", \"is_current\", \"source_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"membership_id\", \"member_code\", \"member_uri\", \"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"membership_start\", \"membership_end\", \"is_current\", \"source_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "date_parse:membership_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "date_parse:membership_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "176",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"membership_id\", \"member_code\", \"member_uri\", \"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"membership_start\", \"membership_end\", \"is_current\", \"source_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"membership_id\", \"member_code\", \"member_uri\", \"house_uri\", \"house_no\", \"house_code\", \"chamber\", \"membership_start\", \"membership_end\", \"is_current\", \"source_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_party_id\", \"membership_id\", \"member_code\", \"party_uri\", \"party_name\", \"party_start\", \"party_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_party_id\", \"membership_id\", \"member_code\", \"party_uri\", \"party_name\", \"party_start\", \"party_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "date_parse:party_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "date_parse:party_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "280",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "280",
+    "actual_result": "280",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_party_id\", \"membership_id\", \"member_code\", \"party_uri\", \"party_name\", \"party_start\", \"party_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_party_id\", \"membership_id\", \"member_code\", \"party_uri\", \"party_name\", \"party_start\", \"party_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_constituency_id\", \"membership_id\", \"member_code\", \"constituency_uri\", \"constituency_name\", \"represent_start\", \"represent_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_constituency_id\", \"membership_id\", \"member_code\", \"constituency_uri\", \"constituency_name\", \"represent_start\", \"represent_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "date_parse:represent_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "date_parse:represent_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "276",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "276",
+    "actual_result": "276",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_constituency_id\", \"membership_id\", \"member_code\", \"constituency_uri\", \"constituency_name\", \"represent_start\", \"represent_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_constituency_id\", \"membership_id\", \"member_code\", \"constituency_uri\", \"constituency_name\", \"represent_start\", \"represent_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_office_id\", \"membership_id\", \"member_code\", \"office_uri\", \"office_name\", \"office_start\", \"office_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_office_id\", \"membership_id\", \"member_code\", \"office_uri\", \"office_name\", \"office_start\", \"office_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "date_parse:office_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "date_parse:office_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "123",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "123",
+    "actual_result": "123",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_office_id\", \"membership_id\", \"member_code\", \"office_uri\", \"office_name\", \"office_start\", \"office_end\", \"is_current\", \"snapshot_date\"]",
+    "actual_result": "[\"member_office_id\", \"membership_id\", \"member_code\", \"office_uri\", \"office_name\", \"office_start\", \"office_end\", \"is_current\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "date_range_order",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "membership_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "membership_house",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_party_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_party_membership",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_constituency_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_constituency_membership",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_office_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_office_membership",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "at_most_one_current_row_per_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "at_most_one_current_row_per_member",
+    "expected_result": "0",
+    "actual_result": "98",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"Aidan-Farrelly.D.2024-11-29\":2,\"Aisling-Dempsey.D.2024-11-29\":2,\"Alan-Dillon.D.2020-02-08\":2,\"Alan-Kelly.S.2007-07-23\":2,\"Albert-Dolan.D.2024-11-29\":2,\"Ann-Graves.D.2024-11-29\":2,\"Barry-Heneghan.D.2024-11-29\":2,\"Brian-Brennan.D.2024-11-29\":2,\"Cathal-Crowe.D.2020-02-08\":2,\"Catherine-Ardagh.S.2016-04-25\":2}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "at_most_one_current_row_per_member",
+    "expected_result": "0",
+    "actual_result": "98",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"Aidan-Farrelly.D.2024-11-29\":2,\"Aisling-Dempsey.D.2024-11-29\":2,\"Alan-Dillon.D.2020-02-08\":2,\"Alan-Kelly.S.2007-07-23\":2,\"Albert-Dolan.D.2024-11-29\":2,\"Ann-Graves.D.2024-11-29\":2,\"Barry-Heneghan.D.2024-11-29\":2,\"Brian-Brennan.D.2024-11-29\":2,\"Cathal-Crowe.D.2020-02-08\":2,\"Catherine-Ardagh.S.2016-04-25\":2}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "at_most_one_current_row_per_member",
+    "expected_result": "0",
+    "actual_result": "26",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"Alan-Dillon.D.2020-02-08\":2,\"Catherine-Ardagh.S.2016-04-25\":2,\"Colm-Brophy.D.2016-10-03\":2,\"Dara-Calleary.D.2007-06-14\":4,\"Darragh-O'Brien.D.2007-06-14\":2,\"Emer-Higgins.D.2020-02-08\":2,\"Frank-Feighan.S.2002-09-12\":2,\"Helen-McEntee.D.2013-03-27\":2,\"Jack-Chambers.D.2016-10-03\":2,\"James-Browne.D.2016-10-03\":2}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "latest_party_matches_bridge",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "latest_constituency_matches_bridge",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "latest_house_matches_membership",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "current_flag_matches_membership",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "68",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/2",
+    "details": "{}"
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/26",
+    "details": "{}"
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/1928",
+    "details": "{}"
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/7",
+    "details": "{}"
+  },
+  {
+    "table": "silver_houses",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/houses?limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/18",
+    "details": "{}"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "43",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
+    "details": "{}"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow-Wexford",
+    "details": "{}"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dún-Laoghaire",
+    "details": "{}"
+  },
+  {
+    "table": "silver_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Louth",
+    "details": "{}"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "11",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+    "details": "{}"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+    "details": "{}"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+    "details": "{}"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aontú",
+    "details": "{}"
+  },
+  {
+    "table": "silver_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+    "details": "{}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "Robert-Troy.D.2011-03-09",
+    "details": "{}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "Pádraig-O'Sullivan.D.2019-11-29",
+    "details": "{}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "Liam-Quaide.D.2024-11-29",
+    "details": "{}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "Darragh-O'Brien.D.2007-06-14",
+    "details": "{}"
+  },
+  {
+    "table": "silver_members",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "Conor-D-McGuinness.D.2024-11-29",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/member/id/Brendan-Smith.D.1992-12-14/house/dail/34",
+    "details": "{\"membership_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/member/id/Christopher-O'Sullivan.D.2020-02-08/house/dail/34",
+    "details": "{\"membership_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/member/id/Thomas-Byrne.D.2007-06-14/house/dail/34",
+    "details": "{\"membership_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/member/id/Maeve-O'Connell.D.2024-11-29/house/dail/34",
+    "details": "{\"membership_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_memberships",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/member/id/Robert-Troy.D.2011-03-09/house/dail/34",
+    "details": "{\"membership_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "178",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_party:cf76c01f1bd520be",
+    "details": "{\"party_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_party:337fb14911713f89",
+    "details": "{\"party_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_party:490ddb3b9259375c",
+    "details": "{\"party_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_party:d7441dba5fd70487",
+    "details": "{\"party_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_parties",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_party:ce20e03578118f22",
+    "details": "{\"party_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "176",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_constituency:7f308817fd7b4116",
+    "details": "{\"represent_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_constituency:d179706178052c45",
+    "details": "{\"represent_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_constituency:85006a837d95990e",
+    "details": "{\"represent_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_constituency:146e2114fa04f088",
+    "details": "{\"represent_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_constituencies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_constituency:2998363e9d8c0728",
+    "details": "{\"represent_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "77",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_office:bab9f7efe5aa8c7f",
+    "details": "{\"office_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_office:d3f41b6ffa45c513",
+    "details": "{\"office_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_office:1d4b76b663e7567a",
+    "details": "{\"office_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_office:77b2715436c127eb",
+    "details": "{\"office_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  },
+  {
+    "table": "silver_member_offices",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0",
+    "sample_record_id": "generated:member_office:0027feca877a8dab",
+    "details": "{\"office_end\": {\"live\": \"\", \"official\": \"nan\"}}"
+  }
+]

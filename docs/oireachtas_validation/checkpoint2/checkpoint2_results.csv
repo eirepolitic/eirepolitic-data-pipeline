@@ -1,0 +1,142 @@
+table,test_name,expected_result,actual_result,status,source_url_or_api_request,sample_record_id,details
+silver_houses,schema_exact,"[""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_houses,primary_key_non_null,0,0,pass,,,
+silver_houses,primary_key_unique,0,0,pass,,,
+silver_houses,date_parse:date_start,0,0,pass,,,
+silver_houses,date_parse:date_end,0,0,pass,,,
+silver_houses,date_parse:snapshot_date,0,0,pass,,,
+silver_houses,row_count_positive,> 0,68,pass,,,
+silver_houses,csv_parquet_row_count_equal,68,68,pass,,,
+silver_houses,csv_parquet_columns_equal,"[""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_houses,date_range_order,0,0,pass,,,[]
+silver_constituencies,schema_exact,"[""constituency_uri"", ""constituency_code"", ""constituency_name"", ""show_as"", ""house_uri"", ""house_no"", ""chamber"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""constituency_uri"", ""constituency_code"", ""constituency_name"", ""show_as"", ""house_uri"", ""house_no"", ""chamber"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_constituencies,primary_key_non_null,0,0,pass,,,
+silver_constituencies,primary_key_unique,0,0,pass,,,
+silver_constituencies,date_parse:date_start,0,0,pass,,,
+silver_constituencies,date_parse:date_end,0,0,pass,,,
+silver_constituencies,date_parse:snapshot_date,0,0,pass,,,
+silver_constituencies,row_count_positive,> 0,43,pass,,,
+silver_constituencies,csv_parquet_row_count_equal,43,43,pass,,,
+silver_constituencies,csv_parquet_columns_equal,"[""constituency_uri"", ""constituency_code"", ""constituency_name"", ""show_as"", ""house_uri"", ""house_no"", ""chamber"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""constituency_uri"", ""constituency_code"", ""constituency_name"", ""show_as"", ""house_uri"", ""house_no"", ""chamber"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_constituencies,date_range_order,0,0,pass,,,[]
+silver_parties,schema_exact,"[""party_uri"", ""party_code"", ""party_name"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""party_uri"", ""party_code"", ""party_name"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_parties,primary_key_non_null,0,0,pass,,,
+silver_parties,primary_key_unique,0,0,pass,,,
+silver_parties,date_parse:date_start,0,0,pass,,,
+silver_parties,date_parse:date_end,0,0,pass,,,
+silver_parties,date_parse:snapshot_date,0,0,pass,,,
+silver_parties,row_count_positive,> 0,11,pass,,,
+silver_parties,csv_parquet_row_count_equal,11,11,pass,,,
+silver_parties,csv_parquet_columns_equal,"[""party_uri"", ""party_code"", ""party_name"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""party_uri"", ""party_code"", ""party_name"", ""show_as"", ""date_start"", ""date_end"", ""is_current"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_parties,date_range_order,0,0,pass,,,[]
+silver_members,schema_exact,"[""member_code"", ""member_uri"", ""full_name"", ""first_name"", ""last_name"", ""display_name"", ""gender"", ""member_key"", ""is_current_member"", ""latest_party_name"", ""latest_constituency_name"", ""latest_house_no"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""member_code"", ""member_uri"", ""full_name"", ""first_name"", ""last_name"", ""display_name"", ""gender"", ""member_key"", ""is_current_member"", ""latest_party_name"", ""latest_constituency_name"", ""latest_house_no"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_members,primary_key_non_null,0,0,pass,,,
+silver_members,primary_key_unique,0,0,pass,,,
+silver_members,date_parse:snapshot_date,0,0,pass,,,
+silver_members,row_count_positive,> 0,176,pass,,,
+silver_members,csv_parquet_row_count_equal,176,176,pass,,,
+silver_members,csv_parquet_columns_equal,"[""member_code"", ""member_uri"", ""full_name"", ""first_name"", ""last_name"", ""display_name"", ""gender"", ""member_key"", ""is_current_member"", ""latest_party_name"", ""latest_constituency_name"", ""latest_house_no"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]","[""member_code"", ""member_uri"", ""full_name"", ""first_name"", ""last_name"", ""display_name"", ""gender"", ""member_key"", ""is_current_member"", ""latest_party_name"", ""latest_constituency_name"", ""latest_house_no"", ""source_endpoint"", ""snapshot_date"", ""source_hash""]",pass,,,
+silver_member_memberships,schema_exact,"[""membership_id"", ""member_code"", ""member_uri"", ""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""membership_start"", ""membership_end"", ""is_current"", ""source_hash"", ""snapshot_date""]","[""membership_id"", ""member_code"", ""member_uri"", ""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""membership_start"", ""membership_end"", ""is_current"", ""source_hash"", ""snapshot_date""]",pass,,,
+silver_member_memberships,primary_key_non_null,0,0,pass,,,
+silver_member_memberships,primary_key_unique,0,0,pass,,,
+silver_member_memberships,date_parse:membership_start,0,0,pass,,,
+silver_member_memberships,date_parse:membership_end,0,0,pass,,,
+silver_member_memberships,date_parse:snapshot_date,0,0,pass,,,
+silver_member_memberships,row_count_positive,> 0,176,pass,,,
+silver_member_memberships,csv_parquet_row_count_equal,176,176,pass,,,
+silver_member_memberships,csv_parquet_columns_equal,"[""membership_id"", ""member_code"", ""member_uri"", ""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""membership_start"", ""membership_end"", ""is_current"", ""source_hash"", ""snapshot_date""]","[""membership_id"", ""member_code"", ""member_uri"", ""house_uri"", ""house_no"", ""house_code"", ""chamber"", ""membership_start"", ""membership_end"", ""is_current"", ""source_hash"", ""snapshot_date""]",pass,,,
+silver_member_memberships,date_range_order,0,0,pass,,,[]
+silver_member_parties,schema_exact,"[""member_party_id"", ""membership_id"", ""member_code"", ""party_uri"", ""party_name"", ""party_start"", ""party_end"", ""is_current"", ""snapshot_date""]","[""member_party_id"", ""membership_id"", ""member_code"", ""party_uri"", ""party_name"", ""party_start"", ""party_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_parties,primary_key_non_null,0,0,pass,,,
+silver_member_parties,primary_key_unique,0,0,pass,,,
+silver_member_parties,date_parse:party_start,0,0,pass,,,
+silver_member_parties,date_parse:party_end,0,0,pass,,,
+silver_member_parties,date_parse:snapshot_date,0,0,pass,,,
+silver_member_parties,row_count_positive,> 0,280,pass,,,
+silver_member_parties,csv_parquet_row_count_equal,280,280,pass,,,
+silver_member_parties,csv_parquet_columns_equal,"[""member_party_id"", ""membership_id"", ""member_code"", ""party_uri"", ""party_name"", ""party_start"", ""party_end"", ""is_current"", ""snapshot_date""]","[""member_party_id"", ""membership_id"", ""member_code"", ""party_uri"", ""party_name"", ""party_start"", ""party_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_parties,date_range_order,0,0,pass,,,[]
+silver_member_constituencies,schema_exact,"[""member_constituency_id"", ""membership_id"", ""member_code"", ""constituency_uri"", ""constituency_name"", ""represent_start"", ""represent_end"", ""is_current"", ""snapshot_date""]","[""member_constituency_id"", ""membership_id"", ""member_code"", ""constituency_uri"", ""constituency_name"", ""represent_start"", ""represent_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_constituencies,primary_key_non_null,0,0,pass,,,
+silver_member_constituencies,primary_key_unique,0,0,pass,,,
+silver_member_constituencies,date_parse:represent_start,0,0,pass,,,
+silver_member_constituencies,date_parse:represent_end,0,0,pass,,,
+silver_member_constituencies,date_parse:snapshot_date,0,0,pass,,,
+silver_member_constituencies,row_count_positive,> 0,276,pass,,,
+silver_member_constituencies,csv_parquet_row_count_equal,276,276,pass,,,
+silver_member_constituencies,csv_parquet_columns_equal,"[""member_constituency_id"", ""membership_id"", ""member_code"", ""constituency_uri"", ""constituency_name"", ""represent_start"", ""represent_end"", ""is_current"", ""snapshot_date""]","[""member_constituency_id"", ""membership_id"", ""member_code"", ""constituency_uri"", ""constituency_name"", ""represent_start"", ""represent_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_constituencies,date_range_order,0,0,pass,,,[]
+silver_member_offices,schema_exact,"[""member_office_id"", ""membership_id"", ""member_code"", ""office_uri"", ""office_name"", ""office_start"", ""office_end"", ""is_current"", ""snapshot_date""]","[""member_office_id"", ""membership_id"", ""member_code"", ""office_uri"", ""office_name"", ""office_start"", ""office_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_offices,primary_key_non_null,0,0,pass,,,
+silver_member_offices,primary_key_unique,0,0,pass,,,
+silver_member_offices,date_parse:office_start,0,0,pass,,,
+silver_member_offices,date_parse:office_end,0,0,pass,,,
+silver_member_offices,date_parse:snapshot_date,0,0,pass,,,
+silver_member_offices,row_count_positive,> 0,123,pass,,,
+silver_member_offices,csv_parquet_row_count_equal,123,123,pass,,,
+silver_member_offices,csv_parquet_columns_equal,"[""member_office_id"", ""membership_id"", ""member_code"", ""office_uri"", ""office_name"", ""office_start"", ""office_end"", ""is_current"", ""snapshot_date""]","[""member_office_id"", ""membership_id"", ""member_code"", ""office_uri"", ""office_name"", ""office_start"", ""office_end"", ""is_current"", ""snapshot_date""]",pass,,,
+silver_member_offices,date_range_order,0,0,pass,,,[]
+cross_table,membership_member,0,0,pass,,,[]
+cross_table,membership_house,0,0,pass,,,[]
+cross_table,member_party_member,0,0,pass,,,[]
+cross_table,member_party_membership,0,0,pass,,,[]
+cross_table,member_constituency_member,0,0,pass,,,[]
+cross_table,member_constituency_membership,0,0,pass,,,[]
+cross_table,member_office_member,0,0,pass,,,[]
+cross_table,member_office_membership,0,0,pass,,,[]
+silver_member_memberships,at_most_one_current_row_per_member,0,0,pass,,,{}
+silver_member_parties,at_most_one_current_row_per_member,0,98,fail,,,"{""Aidan-Farrelly.D.2024-11-29"":2,""Aisling-Dempsey.D.2024-11-29"":2,""Alan-Dillon.D.2020-02-08"":2,""Alan-Kelly.S.2007-07-23"":2,""Albert-Dolan.D.2024-11-29"":2,""Ann-Graves.D.2024-11-29"":2,""Barry-Heneghan.D.2024-11-29"":2,""Brian-Brennan.D.2024-11-29"":2,""Cathal-Crowe.D.2020-02-08"":2,""Catherine-Ardagh.S.2016-04-25"":2}"
+silver_member_constituencies,at_most_one_current_row_per_member,0,98,fail,,,"{""Aidan-Farrelly.D.2024-11-29"":2,""Aisling-Dempsey.D.2024-11-29"":2,""Alan-Dillon.D.2020-02-08"":2,""Alan-Kelly.S.2007-07-23"":2,""Albert-Dolan.D.2024-11-29"":2,""Ann-Graves.D.2024-11-29"":2,""Barry-Heneghan.D.2024-11-29"":2,""Brian-Brennan.D.2024-11-29"":2,""Cathal-Crowe.D.2020-02-08"":2,""Catherine-Ardagh.S.2016-04-25"":2}"
+silver_member_offices,at_most_one_current_row_per_member,0,26,fail,,,"{""Alan-Dillon.D.2020-02-08"":2,""Catherine-Ardagh.S.2016-04-25"":2,""Colm-Brophy.D.2016-10-03"":2,""Dara-Calleary.D.2007-06-14"":4,""Darragh-O'Brien.D.2007-06-14"":2,""Emer-Higgins.D.2020-02-08"":2,""Frank-Feighan.S.2002-09-12"":2,""Helen-McEntee.D.2013-03-27"":2,""Jack-Chambers.D.2016-10-03"":2,""James-Browne.D.2016-10-03"":2}"
+silver_members,latest_party_matches_bridge,0,0,pass,,,[]
+silver_members,latest_constituency_matches_bridge,0,0,pass,,,[]
+silver_members,latest_house_matches_membership,0,0,pass,,,[]
+silver_members,current_flag_matches_membership,0,0,pass,,,[]
+silver_houses,official_api_key_overlap,> 0,68,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,,
+silver_houses,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/seanad/2,{}
+silver_houses,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/26,{}
+silver_houses,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/seanad/1928,{}
+silver_houses,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/7,{}
+silver_houses,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/houses?limit=200&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/18,{}
+silver_constituencies,official_api_key_overlap,> 0,43,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_constituencies,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West,{}
+silver_constituencies,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow-Wexford,{}
+silver_constituencies,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo,{}
+silver_constituencies,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dún-Laoghaire,{}
+silver_constituencies,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/constituencies?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Louth,{}
+silver_parties,official_api_key_overlap,> 0,11,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_parties,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent,{}
+silver_parties,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity,{}
+silver_parties,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats,{}
+silver_parties,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aontú,{}
+silver_parties,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/parties?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party,{}
+silver_members,official_api_key_overlap,> 0,176,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_members,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,Robert-Troy.D.2011-03-09,{}
+silver_members,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,Pádraig-O'Sullivan.D.2019-11-29,{}
+silver_members,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,Liam-Quaide.D.2024-11-29,{}
+silver_members,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,Darragh-O'Brien.D.2007-06-14,{}
+silver_members,official_api_sample_match,all selected stable fields equal,match,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,Conor-D-McGuinness.D.2024-11-29,{}
+silver_member_memberships,official_api_key_overlap,> 0,176,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_member_memberships,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/member/id/Brendan-Smith.D.1992-12-14/house/dail/34,"{""membership_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_memberships,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/member/id/Christopher-O'Sullivan.D.2020-02-08/house/dail/34,"{""membership_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_memberships,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/member/id/Thomas-Byrne.D.2007-06-14/house/dail/34,"{""membership_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_memberships,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/member/id/Maeve-O'Connell.D.2024-11-29/house/dail/34,"{""membership_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_memberships,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,https://data.oireachtas.ie/ie/oireachtas/member/id/Robert-Troy.D.2011-03-09/house/dail/34,"{""membership_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_parties,official_api_key_overlap,> 0,178,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_member_parties,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_party:cf76c01f1bd520be,"{""party_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_parties,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_party:337fb14911713f89,"{""party_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_parties,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_party:490ddb3b9259375c,"{""party_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_parties,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_party:d7441dba5fd70487,"{""party_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_parties,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_party:ce20e03578118f22,"{""party_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_constituencies,official_api_key_overlap,> 0,176,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_member_constituencies,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_constituency:7f308817fd7b4116,"{""represent_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_constituencies,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_constituency:d179706178052c45,"{""represent_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_constituencies,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_constituency:85006a837d95990e,"{""represent_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_constituencies,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_constituency:146e2114fa04f088,"{""represent_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_constituencies,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_constituency:2998363e9d8c0728,"{""represent_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_offices,official_api_key_overlap,> 0,77,pass,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,,
+silver_member_offices,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_office:bab9f7efe5aa8c7f,"{""office_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_offices,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_office:d3f41b6ffa45c513,"{""office_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_offices,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_office:1d4b76b663e7567a,"{""office_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_offices,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_office:77b2715436c127eb,"{""office_end"": {""live"": """", ""official"": ""nan""}}"
+silver_member_offices,official_api_sample_match,all selected stable fields equal,mismatch,fail,https://api.oireachtas.ie/v1/members?limit=200&chamber=dail&house_no=34&skip=0,generated:member_office:0027feca877a8dab,"{""office_end"": {""live"": """", ""official"": ""nan""}}"
