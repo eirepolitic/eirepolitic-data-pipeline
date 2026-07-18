@@ -13,6 +13,7 @@ import yaml
 from botocore.exceptions import ClientError
 
 from instagram.renderer.constants import DEFAULT_BUCKET, DEFAULT_REGION
+from instagram.visuals.s3_resolver import get_object as get_resolved_s3_object
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -49,28 +50,31 @@ def load_palette(template: dict[str, Any]) -> dict[str, str]:
 
 
 def _read_csv_text(text: str) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
     reader = csv.DictReader(io.StringIO(text))
-    rows.extend(dict(row) for row in reader)
-    return rows
+    return [dict(row) for row in reader]
 
 
 def _s3_client(region: str):
     return boto3.client("s3", region_name=region)
 
 
-def _read_s3_csv(input_cfg: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def _s3_settings(input_cfg: dict[str, Any]) -> tuple[str, str, bool]:
     bucket = str(input_cfg.get("bucket") or os.getenv("INSTAGRAM_VISUAL_S3_BUCKET") or DEFAULT_BUCKET)
     region = str(input_cfg.get("region") or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or DEFAULT_REGION)
+    required = bool(input_cfg.get("required", True))
+    return bucket, region, required
+
+
+def _read_s3_csv(input_cfg: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    bucket, region, required = _s3_settings(input_cfg)
     key = str(input_cfg.get("key", "")).strip()
     if not key:
         raise ValueError("S3 visual input requires input.key")
 
-    required = bool(input_cfg.get("required", True))
     source_uri = f"s3://{bucket}/{key}"
     client = _s3_client(region)
     try:
-        obj = client.get_object(Bucket=bucket, Key=key)
+        obj, resolution = get_resolved_s3_object(client, bucket=bucket, key=key)
     except ClientError as exc:
         code = exc.response.get("Error", {}).get("Code", "")
         if not required and code in {"404", "NoSuchKey", "NotFound"}:
@@ -92,6 +96,8 @@ def _read_s3_csv(input_cfg: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[
         "bucket": bucket,
         "region": region,
         "key": key,
+        "resolved_key": resolution.get("resolved_key"),
+        "resolution": resolution,
         "row_count": len(rows),
         "missing": False,
     }
@@ -101,29 +107,34 @@ def _read_s3_csv_first_available(input_cfg: dict[str, Any]) -> tuple[list[dict[s
     keys = [str(key).strip() for key in input_cfg.get("keys", []) if str(key).strip()]
     if not keys:
         raise ValueError("S3 visual input mode s3_csv_first_available requires input.keys")
-    bucket = str(input_cfg.get("bucket") or os.getenv("INSTAGRAM_VISUAL_S3_BUCKET") or DEFAULT_BUCKET)
-    region = str(input_cfg.get("region") or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or DEFAULT_REGION)
-    required = bool(input_cfg.get("required", True))
+    bucket, region, required = _s3_settings(input_cfg)
     client = _s3_client(region)
 
-    checked: list[str] = []
+    checked: list[dict[str, Any]] = []
     for key in keys:
-        checked.append(f"s3://{bucket}/{key}")
         try:
-            obj = client.get_object(Bucket=bucket, Key=key)
+            obj, resolution = get_resolved_s3_object(client, bucket=bucket, key=key)
         except ClientError as exc:
             code = exc.response.get("Error", {}).get("Code", "")
+            checked.append({"logical_key": key, "available": False, "error_code": code})
             if code in {"404", "NoSuchKey", "NotFound"}:
                 continue
             raise
         text = obj["Body"].read().decode("utf-8-sig", errors="replace")
         rows = _read_csv_text(text)
+        checked.append({
+            "logical_key": key,
+            "resolved_key": resolution.get("resolved_key"),
+            "available": True,
+        })
         return rows, {
             "input_mode": "s3_csv_first_available",
             "source": f"s3://{bucket}/{key}",
             "bucket": bucket,
             "region": region,
             "key": key,
+            "resolved_key": resolution.get("resolved_key"),
+            "resolution": resolution,
             "checked": checked,
             "row_count": len(rows),
             "missing": False,
@@ -146,16 +157,12 @@ def rows_from_sample(sample: dict[str, Any]) -> tuple[list[dict[str, Any]], dict
     input_cfg = sample.get("input", {}) or {}
     mode = str(input_cfg.get("mode", "inline"))
     if mode == "inline":
-        return list(input_cfg.get("rows", []) or []), {
-            "input_mode": "inline",
-            "source": "inline",
-        }
+        rows = list(input_cfg.get("rows", []) or [])
+        return rows, {"input_mode": "inline", "source": "inline", "row_count": len(rows)}
     if mode == "local_csv":
         csv_path = resolve_repo_path(str(input_cfg["path"]))
-        rows: list[dict[str, Any]] = []
         with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
-            reader = csv.DictReader(handle)
-            rows.extend(dict(row) for row in reader)
+            rows = [dict(row) for row in csv.DictReader(handle)]
         return rows, {
             "input_mode": "local_csv",
             "source": str(input_cfg["path"]),
