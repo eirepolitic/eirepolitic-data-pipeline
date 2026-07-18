@@ -2,7 +2,7 @@
 
 Review-only schema snapshot for Instagram visual smoke mappings.
 
-- Created at: `2026-06-30T05:21:48.449591+00:00`
+- Created at: `2026-07-18T22:12:22.089653+00:00`
 - Profile count: `2`
 - Range bytes per file: `262144`
 - Sample rows per file: `25`
@@ -14,11 +14,11 @@ Review-only schema snapshot for Instagram visual smoke mappings.
 ## debate_issue_counts_s3
 
 - Config: `instagram/visuals/data_mappings/debate_issue_counts_s3.yml`
-- S3 key: `processed/debates/debate_speeches_classified.csv`
+- S3 key: `processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv`
 - Bucket: `eirepolitic-data`
 - Region: `ca-central-1`
-- Last modified: `2026-03-28T17:53:52+00:00`
-- Content range: `bytes 0-262143/61391799`
+- Last modified: `2026-07-16T20:25:53+00:00`
+- Content range: `bytes 0-262143/61391796`
 - Column count: `8`
 - Sample rows inspected: `25`
 - Sampled values included: `False`
@@ -56,23 +56,23 @@ Raw sampled field values are omitted from this public preview summary by default
 ## member_party_counts_s3
 
 - Config: `instagram/visuals/data_mappings/member_party_counts_s3.yml`
-- S3 key: `raw/members/oireachtas_members_34th_dail.csv`
+- S3 key: `processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv`
 - Bucket: `eirepolitic-data`
 - Region: `ca-central-1`
-- Last modified: `2026-06-01T15:37:47+00:00`
-- Content range: `bytes 0-28963/28964`
-- Column count: `8`
+- Last modified: `2026-07-16T20:25:58+00:00`
+- Content range: `bytes 0-18034/18035`
+- Column count: `7`
 - Sample rows inspected: `25`
 - Sampled values included: `False`
 - Range may be truncated: `False`
 
 ### Columns
 
-`full_name`, `first_name`, `last_name`, `constituency`, `party`, `gender`, `member_code`, `uri`
+`member_code`, `full_name`, `constituency`, `party`, `house_no`, `source`, `snapshot_date`
 
 ### Likely numeric columns
 
-_none_
+`house_no`
 
 ### Mapping candidate matches
 
@@ -86,11 +86,10 @@ Raw sampled field values are omitted from this public preview summary by default
 
 | Column | Non-empty sampled rows | Blank sampled rows |
 | --- | ---: | ---: |
+| `member_code` | 25 | 0 |
 | `full_name` | 25 | 0 |
-| `first_name` | 25 | 0 |
-| `last_name` | 25 | 0 |
 | `constituency` | 25 | 0 |
 | `party` | 25 | 0 |
-| `gender` | 0 | 25 |
-| `member_code` | 25 | 0 |
-| `uri` | 25 | 0 |
+| `house_no` | 25 | 0 |
+| `source` | 25 | 0 |
+| `snapshot_date` | 25 | 0 |

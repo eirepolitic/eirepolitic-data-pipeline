@@ -1,6 +1,6 @@
 {
   "success": true,
-  "created_at": "2026-06-30T05:21:48.449591+00:00",
+  "created_at": "2026-07-18T22:12:22.089653+00:00",
   "review_only": true,
   "publishes_content": false,
   "range_bytes": 262144,
@@ -11,21 +11,33 @@
     {
       "mapping_id": "debate_issue_counts_s3",
       "config_path": "instagram/visuals/data_mappings/debate_issue_counts_s3.yml",
-      "profiled_at": "2026-06-30T05:21:47.978522+00:00",
+      "profiled_at": "2026-07-18T22:12:21.778523+00:00",
       "review_only": true,
       "download_strategy": "s3_get_object_range_prefix_only",
       "s3": {
         "bucket": "eirepolitic-data",
         "region": "ca-central-1",
-        "key": "processed/debates/debate_speeches_classified.csv",
+        "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+        "resolution": {
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+          "resolution_mode": "batch_pointer",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "batch_id": "current-government-backfill-20260716-1",
+          "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+          "promoted_at_utc": "2026-07-18T19:07:00+00:00"
+        },
         "range_bytes_requested": 262144,
         "content_length": 262144,
-        "content_range": "bytes 0-262143/61391799",
-        "etag": "\"b3df69f012f5c9839a0bfb62545cc56d\"",
-        "last_modified": "2026-03-28T17:53:52+00:00",
+        "content_range": "bytes 0-262143/61391796",
+        "etag": "\"034a04cdeee78d7270bc683067aa761c\"",
+        "last_modified": "2026-07-16T20:25:53+00:00",
         "checked": [
           {
-            "key": "processed/debates/debate_speeches_classified.csv",
+            "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
             "available": true
           }
         ]
@@ -94,61 +106,72 @@
     {
       "mapping_id": "member_party_counts_s3",
       "config_path": "instagram/visuals/data_mappings/member_party_counts_s3.yml",
-      "profiled_at": "2026-06-30T05:21:48.449572+00:00",
+      "profiled_at": "2026-07-18T22:12:22.089629+00:00",
       "review_only": true,
       "download_strategy": "s3_get_object_range_prefix_only",
       "s3": {
         "bucket": "eirepolitic-data",
         "region": "ca-central-1",
-        "key": "raw/members/oireachtas_members_34th_dail.csv",
+        "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "resolution": {
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolution_mode": "batch_pointer",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "batch_id": "current-government-backfill-20260716-1",
+          "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+          "promoted_at_utc": "2026-07-18T19:07:00+00:00"
+        },
         "range_bytes_requested": 262144,
-        "content_length": 28964,
-        "content_range": "bytes 0-28963/28964",
-        "etag": "\"976573a4f3cdf0302bbcc8aa0a52eca4\"",
-        "last_modified": "2026-06-01T15:37:47+00:00",
+        "content_length": 18035,
+        "content_range": "bytes 0-18034/18035",
+        "etag": "\"418ff8d8fe9737de75c9a5ed507e1c1f\"",
+        "last_modified": "2026-07-16T20:25:58+00:00",
         "checked": [
           {
-            "key": "raw/members/oireachtas_members_34th_dail.csv",
+            "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
             "available": true
           }
         ]
       },
       "schema": {
         "columns": [
+          "member_code",
           "full_name",
-          "first_name",
-          "last_name",
           "constituency",
           "party",
-          "gender",
-          "member_code",
-          "uri"
+          "house_no",
+          "source",
+          "snapshot_date"
         ],
-        "column_count": 8,
+        "column_count": 7,
         "sample_row_count": 25,
         "range_may_be_truncated": false,
         "non_empty_counts": {
+          "member_code": 25,
           "full_name": 25,
-          "first_name": 25,
-          "last_name": 25,
           "constituency": 25,
           "party": 25,
-          "gender": 0,
-          "member_code": 25,
-          "uri": 25
+          "house_no": 25,
+          "source": 25,
+          "snapshot_date": 25
         },
         "blank_counts": {
+          "member_code": 0,
           "full_name": 0,
-          "first_name": 0,
-          "last_name": 0,
           "constituency": 0,
           "party": 0,
-          "gender": 25,
-          "member_code": 0,
-          "uri": 0
+          "house_no": 0,
+          "source": 0,
+          "snapshot_date": 0
         },
         "sampled_values_included": false,
-        "likely_numeric_columns": []
+        "likely_numeric_columns": [
+          "house_no"
+        ]
       },
       "mapping_hints": {
         "transforms": [

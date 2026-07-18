@@ -1,7 +1,7 @@
 {
   "success": true,
   "ready": true,
-  "created_at": "2026-06-30T05:21:49.524498+00:00",
+  "created_at": "2026-07-18T22:12:23.158445+00:00",
   "review_only": true,
   "publishes_content": false,
   "profile_path": "generated_visual_data/s3_schema_profile.json",
@@ -10,7 +10,7 @@
     {
       "mapping_id": "debate_issue_counts_s3",
       "config_path": "instagram/visuals/data_mappings/debate_issue_counts_s3.yml",
-      "s3_key": "processed/debates/debate_speeches_classified.csv",
+      "s3_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
       "ready": true,
       "errors": [],
       "warnings": [],
@@ -44,7 +44,7 @@
     {
       "mapping_id": "member_party_counts_s3",
       "config_path": "instagram/visuals/data_mappings/member_party_counts_s3.yml",
-      "s3_key": "raw/members/oireachtas_members_34th_dail.csv",
+      "s3_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
       "ready": true,
       "errors": [],
       "warnings": [],
