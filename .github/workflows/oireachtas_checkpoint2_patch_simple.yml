@@ -1,0 +1,61 @@
+name: Apply checkpoint 2 comparison patch
+
+on:
+  push:
+    branches:
+      - validation/oireachtas-reality-checks
+    paths:
+      - .github/workflows/oireachtas_checkpoint2_patch_simple.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: validation/oireachtas-reality-checks
+          fetch-depth: 0
+      - name: Patch comparison field names
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("process/oireachtas_validate_reference_members.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              '        selected = select_current(bridge, value_col, start_col, end_col)\n',
+              '        member_side = members_df[["member_code", member_col]].rename(columns={member_col: "__member_value"})\n        bridge_side = select_current(bridge, value_col, start_col, end_col).rename(columns={value_col: "__bridge_value"})\n',
+              1,
+          )
+          text = text.replace(
+              '        merged = members_df[["member_code", member_col]].merge(selected, on="member_code", how="left", suffixes=("_member", "_bridge"))\n',
+              '        merged = member_side.merge(bridge_side, on="member_code", how="left")\n',
+              1,
+          )
+          text = text.replace(
+              '        left = merged[f"{member_col}_member"].fillna("").astype(str).map(normalize_text)\n',
+              '        left = merged["__member_value"].fillna("").astype(str).map(normalize_text)\n',
+              1,
+          )
+          text = text.replace(
+              '        right = merged[f"{value_col}_bridge"].fillna("").astype(str).map(normalize_text)\n',
+              '        right = merged["__bridge_value"].fillna("").astype(str).map(normalize_text)\n',
+              1,
+          )
+          if '__member_value' not in text or '__bridge_value' not in text:
+              raise SystemExit('patch was not applied')
+          path.write_text(text, encoding="utf-8")
+          PY
+      - name: Commit patched validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add process/oireachtas_validate_reference_members.py
+          git commit -m 'Fix checkpoint 2 member bridge comparison'
+          git push origin HEAD:validation/oireachtas-reality-checks
