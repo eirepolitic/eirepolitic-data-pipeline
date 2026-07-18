@@ -237,10 +237,11 @@ def validate_member_latest(live: dict[str, pd.DataFrame]) -> list[ValidationResu
         ("latest_house_matches_membership", "latest_house_no", live["silver_member_memberships"], "house_no", "membership_start", "membership_end"),
     ]
     for test, member_col, bridge, value_col, start_col, end_col in mappings:
-        selected = select_current(bridge, value_col, start_col, end_col)
-        merged = members_df[["member_code", member_col]].merge(selected, on="member_code", how="left", suffixes=("_member", "_bridge"))
-        left = merged[f"{member_col}_member"].fillna("").astype(str).map(normalize_text)
-        right = merged[f"{value_col}_bridge"].fillna("").astype(str).map(normalize_text)
+        member_side = members_df[["member_code", member_col]].rename(columns={member_col: "__member_value"})
+        bridge_side = select_current(bridge, value_col, start_col, end_col).rename(columns={value_col: "__bridge_value"})
+        merged = member_side.merge(bridge_side, on="member_code", how="left")
+        left = merged["__member_value"].fillna("").astype(str).map(normalize_text)
+        right = merged["__bridge_value"].fillna("").astype(str).map(normalize_text)
         evaluated = (left != "") | (right != "")
         invalid = merged[evaluated & (left != right)]
         output.append(result("silver_members", test, 0, len(invalid), invalid.empty, details=invalid.head(10).to_json(orient="records")))
