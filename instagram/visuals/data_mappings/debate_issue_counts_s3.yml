@@ -6,6 +6,7 @@ input:
   region: ca-central-1
   required: true
   keys:
+    - processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
     - processed/debates/debate_speeches_classified.csv
 transforms:
   - id: issue_category_counts
