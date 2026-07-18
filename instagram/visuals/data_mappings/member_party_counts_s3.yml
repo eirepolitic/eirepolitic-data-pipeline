@@ -6,6 +6,7 @@ input:
   region: ca-central-1
   required: true
   keys:
+    - processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
     - raw/members/oireachtas_members_34th_dail.csv
 transforms:
   - id: party_counts
