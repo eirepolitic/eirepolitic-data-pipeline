@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from instagram.renderer.constants import DEFAULT_BUCKET, DEFAULT_REGION
 from instagram.visuals.renderers.common import load_yaml, utc_now, write_json
+from instagram.visuals.s3_resolver import get_object as get_resolved_s3_object
 
 DEFAULT_RANGE_BYTES = 262_144
 DEFAULT_SAMPLE_ROWS = 25
@@ -35,16 +36,21 @@ def _candidate_keys(input_cfg: dict[str, Any]) -> list[str]:
 
 
 def _read_s3_prefix(bucket: str, region: str, key: str, range_bytes: int) -> tuple[str, dict[str, Any]]:
-    response = _s3_client(region).get_object(
-        Bucket=bucket,
-        Key=key,
-        Range=f"bytes=0-{max(range_bytes - 1, 0)}",
+    client = _s3_client(region)
+    response, resolution = get_resolved_s3_object(
+        client,
+        bucket=bucket,
+        key=key,
+        byte_range=f"bytes=0-{max(range_bytes - 1, 0)}",
     )
     body = response["Body"].read().decode("utf-8-sig", errors="replace")
     metadata = {
         "bucket": bucket,
         "region": region,
         "key": key,
+        "logical_key": resolution.get("logical_key", key),
+        "resolved_key": resolution.get("resolved_key", key),
+        "resolution": resolution,
         "range_bytes_requested": range_bytes,
         "content_length": response.get("ContentLength"),
         "content_range": response.get("ContentRange"),
@@ -63,11 +69,17 @@ def _first_available_prefix(input_cfg: dict[str, Any], range_bytes: int) -> tupl
     for key in _candidate_keys(input_cfg):
         try:
             text, metadata = _read_s3_prefix(bucket, region, key, range_bytes)
-            metadata["checked"] = checked + [{"key": key, "available": True}]
+            metadata["checked"] = checked + [
+                {
+                    "logical_key": key,
+                    "resolved_key": metadata.get("resolved_key"),
+                    "available": True,
+                }
+            ]
             return text, metadata
         except ClientError as error:
             code = error.response.get("Error", {}).get("Code", "Unknown")
-            checked.append({"key": key, "available": False, "error_code": code})
+            checked.append({"logical_key": key, "available": False, "error_code": code})
             last_error = code
             if code not in {"NoSuchKey", "404", "NotFound"}:
                 raise
