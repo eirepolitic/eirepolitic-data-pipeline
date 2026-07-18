@@ -1,0 +1,1402 @@
+[
+  {
+    "table": "silver_source_files",
+    "test_name": "schema_exact",
+    "expected_result": "[\"source_file_id\", \"source_entity_type\", \"source_entity_id\", \"format_type\", \"format_uri\", \"format_url\", \"s3_key\", \"content_type\", \"download_status\", \"downloaded_at_utc\", \"byte_size\", \"etag_or_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"source_file_id\", \"source_entity_type\", \"source_entity_id\", \"format_type\", \"format_uri\", \"format_url\", \"s3_key\", \"content_type\", \"download_status\", \"downloaded_at_utc\", \"byte_size\", \"etag_or_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "date_parse:downloaded_at_utc",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "3477",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "3477",
+    "actual_result": "3477",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"source_file_id\", \"source_entity_type\", \"source_entity_id\", \"format_type\", \"format_uri\", \"format_url\", \"s3_key\", \"content_type\", \"download_status\", \"downloaded_at_utc\", \"byte_size\", \"etag_or_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"source_file_id\", \"source_entity_type\", \"source_entity_id\", \"format_type\", \"format_uri\", \"format_url\", \"s3_key\", \"content_type\", \"download_status\", \"downloaded_at_utc\", \"byte_size\", \"etag_or_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "schema_exact",
+    "expected_result": "[\"debate_id\", \"debate_uri\", \"context_date\", \"debate_date\", \"chamber\", \"house_uri\", \"house_no\", \"house_code\", \"show_as\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"api_result_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"debate_id\", \"debate_uri\", \"context_date\", \"debate_date\", \"chamber\", \"house_uri\", \"house_no\", \"house_code\", \"show_as\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"api_result_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "date_parse:context_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "date_parse:debate_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2024-12-18",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "164",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "164",
+    "actual_result": "164",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"debate_id\", \"debate_uri\", \"context_date\", \"debate_date\", \"chamber\", \"house_uri\", \"house_no\", \"house_code\", \"show_as\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"api_result_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"debate_id\", \"debate_uri\", \"context_date\", \"debate_date\", \"chamber\", \"house_uri\", \"house_no\", \"house_code\", \"show_as\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"api_result_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "schema_exact",
+    "expected_result": "[\"debate_section_id\", \"debate_id\", \"section_eid\", \"section_uri\", \"section_order\", \"heading\", \"show_as\", \"parent_section_id\", \"snapshot_date\"]",
+    "actual_result": "[\"debate_section_id\", \"debate_id\", \"section_eid\", \"section_uri\", \"section_order\", \"heading\", \"show_as\", \"parent_section_id\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "5001",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "5001",
+    "actual_result": "5001",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"debate_section_id\", \"debate_id\", \"section_eid\", \"section_uri\", \"section_order\", \"heading\", \"show_as\", \"parent_section_id\", \"snapshot_date\"]",
+    "actual_result": "[\"debate_section_id\", \"debate_id\", \"section_eid\", \"section_uri\", \"section_order\", \"heading\", \"show_as\", \"parent_section_id\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "schema_exact",
+    "expected_result": "[\"speech_id\", \"debate_id\", \"debate_section_id\", \"debate_date\", \"speech_order\", \"speaker_ref\", \"speaker_name\", \"speaker_member_code\", \"speaker_match_method\", \"speaker_match_confidence\", \"speech_text\", \"speech_text_hash\", \"word_count\", \"char_count\", \"language\", \"source_file_id\", \"xml_source_key\", \"snapshot_date\"]",
+    "actual_result": "[\"speech_id\", \"debate_id\", \"debate_section_id\", \"debate_date\", \"speech_order\", \"speaker_ref\", \"speaker_name\", \"speaker_member_code\", \"speaker_match_method\", \"speaker_match_confidence\", \"speech_text\", \"speech_text_hash\", \"word_count\", \"char_count\", \"language\", \"source_file_id\", \"xml_source_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "date_parse:debate_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2024-12-18",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "66083",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "66083",
+    "actual_result": "66083",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"speech_id\", \"debate_id\", \"debate_section_id\", \"debate_date\", \"speech_order\", \"speaker_ref\", \"speaker_name\", \"speaker_member_code\", \"speaker_match_method\", \"speaker_match_confidence\", \"speech_text\", \"speech_text_hash\", \"word_count\", \"char_count\", \"language\", \"source_file_id\", \"xml_source_key\", \"snapshot_date\"]",
+    "actual_result": "[\"speech_id\", \"debate_id\", \"debate_section_id\", \"debate_date\", \"speech_order\", \"speaker_ref\", \"speaker_name\", \"speaker_member_code\", \"speaker_match_method\", \"speaker_match_confidence\", \"speech_text\", \"speech_text_hash\", \"word_count\", \"char_count\", \"language\", \"source_file_id\", \"xml_source_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "schema_exact",
+    "expected_result": "[\"division_id\", \"vote_id\", \"division_date\", \"chamber\", \"house_uri\", \"house_no\", \"committee_code\", \"subject\", \"outcome\", \"debate_id\", \"debate_section_id\", \"debate_show_as\", \"api_result_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"division_id\", \"vote_id\", \"division_date\", \"chamber\", \"house_uri\", \"house_no\", \"committee_code\", \"subject\", \"outcome\", \"debate_id\", \"debate_section_id\", \"debate_show_as\", \"api_result_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "date_parse:division_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2024-12-18",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "398",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "398",
+    "actual_result": "398",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"division_id\", \"vote_id\", \"division_date\", \"chamber\", \"house_uri\", \"house_no\", \"committee_code\", \"subject\", \"outcome\", \"debate_id\", \"debate_section_id\", \"debate_show_as\", \"api_result_hash\", \"snapshot_date\"]",
+    "actual_result": "[\"division_id\", \"vote_id\", \"division_date\", \"chamber\", \"house_uri\", \"house_no\", \"committee_code\", \"subject\", \"outcome\", \"debate_id\", \"debate_section_id\", \"debate_show_as\", \"api_result_hash\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "schema_exact",
+    "expected_result": "[\"division_tally_id\", \"division_id\", \"vote_code\", \"vote_label\", \"show_as\", \"member_count\", \"snapshot_date\"]",
+    "actual_result": "[\"division_tally_id\", \"division_id\", \"vote_code\", \"vote_label\", \"show_as\", \"member_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "1194",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "1194",
+    "actual_result": "1194",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"division_tally_id\", \"division_id\", \"vote_code\", \"vote_label\", \"show_as\", \"member_count\", \"snapshot_date\"]",
+    "actual_result": "[\"division_tally_id\", \"division_id\", \"vote_code\", \"vote_label\", \"show_as\", \"member_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_vote_id\", \"division_id\", \"vote_id\", \"division_date\", \"member_code\", \"member_name\", \"vote_code\", \"vote_label\", \"party_name_at_vote\", \"constituency_name_at_vote\", \"snapshot_date\"]",
+    "actual_result": "[\"member_vote_id\", \"division_id\", \"vote_id\", \"division_date\", \"member_code\", \"member_name\", \"vote_code\", \"vote_label\", \"party_name_at_vote\", \"constituency_name_at_vote\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "date_parse:division_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2024-12-18",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "58868",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "58868",
+    "actual_result": "58868",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_vote_id\", \"division_id\", \"vote_id\", \"division_date\", \"member_code\", \"member_name\", \"vote_code\", \"vote_label\", \"party_name_at_vote\", \"constituency_name_at_vote\", \"snapshot_date\"]",
+    "actual_result": "[\"member_vote_id\", \"division_id\", \"vote_id\", \"division_date\", \"member_code\", \"member_name\", \"vote_code\", \"vote_label\", \"party_name_at_vote\", \"constituency_name_at_vote\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "schema_exact",
+    "expected_result": "[\"question_id\", \"question_uri\", \"question_date\", \"question_no\", \"question_type\", \"question_text\", \"answer_text\", \"asked_by_member_code\", \"asked_by_name\", \"to_minister_or_department\", \"debate_section_id\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"question_id\", \"question_uri\", \"question_date\", \"question_no\", \"question_type\", \"question_text\", \"answer_text\", \"asked_by_member_code\", \"asked_by_name\", \"to_minister_or_department\", \"debate_section_id\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "date_parse:question_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2025-01-22",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "115830",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "115830",
+    "actual_result": "115830",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"question_id\", \"question_uri\", \"question_date\", \"question_no\", \"question_type\", \"question_text\", \"answer_text\", \"asked_by_member_code\", \"asked_by_name\", \"to_minister_or_department\", \"debate_section_id\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"question_id\", \"question_uri\", \"question_date\", \"question_no\", \"question_type\", \"question_text\", \"answer_text\", \"asked_by_member_code\", \"asked_by_name\", \"to_minister_or_department\", \"debate_section_id\", \"source_xml_uri\", \"source_xml_url\", \"source_pdf_uri\", \"source_pdf_url\", \"source_file_id_xml\", \"source_file_id_pdf\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "cross_table",
+    "test_name": "debate_section_debate",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "speech_debate",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "speech_section",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "speech_member",
+    "expected_result": "0",
+    "actual_result": "1",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"speech_id\":\"speech:4ee771a33a97bc5f938f99f2\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2025-12-02\\/debate\\/main\",\"debate_section_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2025-12-02\\/debate\\/dbsect_3\",\"debate_date\":\"2025-12-02\",\"speech_order\":\"3\",\"speaker_ref\":\"#MarkDaly\",\"speaker_name\":\"An Cathaoirleach\",\"speaker_member_code\":\"Mark-Daly.S.2007-07-23\",\"speaker_match_method\":\"xml_tlc_person_href\",\"speaker_match_confidence\":\"1.0\",\"speech_text\":\"A Uachtar\\u00e1n Zelenskyy, a Cheann Comhairle agus a dhaoine uaisle, President Zelenskyy, Ceann Comhairle and distinguished guests, on behalf of Members of both Houses and on my own behalf, I thank you for being here today at the heart of our democracy, and for the address delivered to this joint sitting of D\\u00e1il \\u00c9ireann and Seanad \\u00c9ireann. In 2022, when I had the privilege of giving the closing remarks to your online address to these Houses, I said that as we sat here in Dublin, missiles and bombs were descending on the innocent women, children and men of Ukraine. I could not have imagined that three years, seven months and 26 days later, Russia\\u2019s war of aggression would be continuing to visit unspeakable atrocities on the people of Ukraine. A month after that address I travelled to Ukraine with the then Ceann Comhairle. When we met with you in your office I wondered how you remained so calm amid all the chaos. There we witnessed first-hand the harrowing consequences of Russia\\u2019s war. In Bucha we saw the mass graves of those killed by the Russian army. In Irpin on the outskirts of Kiev we met with those citizens who had turned soldiers and who had stopped the Russian army and turned them back. Mr. President, during your inauguration speech in 2019, you told your officials not to put your picture on the walls of their offices but to put pictures of their children on the walls of their offices and to look at them each time they made a decision. This, a chairde, cuts to the core of our Irish and European values, values that promise freedom, integrity and equality. There are children in Ukraine who have never known a day's safety, never known a day's peace, whose parents go to sleep in often freezing temperatures without power or heat, wondering if they will be awakened by air raid sirens. They continue to endure that terrible reality. There is no explanation that you can give a child for what is happening in Ukraine. That is not because they are too young to understand; it is because what is happening is wrong and cannot be justified. In the 21st century, in a world facing many challenges, we cannot accept the devastation that has been put upon innocent children and their families, some of whom are here today, who had to flee their homes and their livelihoods and journey thousands of kilometres into the unknown. We must resist aggression at every turn. Our guiding star must be international law and rules-based order, with respect for sovereign nations. It is the only way we can ensure a stable and just Europe, a Europe that rose from the ashes of conflict in pursuit of a peaceful future. There must be peace; it must be a lasting peace. We on this island have known violence and struggle, a violence that devastated our communities, but we now know peace. Ireland and Europe have stood with and will continue to stand with Ukraine, and we hope Ukraine finds a just peace in the near future. As Cathaoirleach of Seanad \\u00c9ireann, and on behalf of the Members of Seanad \\u00c9ireann and D\\u00e1il \\u00c9ireann, I thank you for being here today, Mr. President, and I thank all those who made it possible. A Uachtar\\u00e1in, thank you for addressing the Houses of the Oireachtas. Go raibh m\\u00edle maith agat. Slava Ukraini.\",\"speech_text_hash\":\"a8baa991356be2598c1eb78a\",\"word_count\":\"571\",\"char_count\":\"3233\",\"language\":\"en\",\"source_file_id\":\"source_file:462f7c5d40ee3297cdad6379\",\"xml_source_key\":\"raw\\/oireachtas_unified\\/source_files\\/debate\\/data.oireachtas.ie-akn-ie-debateRecord-dail-2025-12-02-debate-main\\/source_file-462f7c5d40ee3297cdad6379.xml\",\"snapshot_date\":\"2026-07-16\"}]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "tally_division",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_vote_division",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "member_vote_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "question_member",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "section_order_unique_per_debate",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "speech_order_unique_per_debate",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "one_vote_per_member_per_division",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "division_tallies_equal_member_vote_counts",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "word_count_recomputed",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "char_count_recomputed",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "text_hash_recomputed",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "164",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-22/debate/main",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-14/debate/main",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/main",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-13/debate/main",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_records",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-15/debate/main",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "5001",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_30",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-17/debate/dbsect_40",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-27/debate/dbsect_12",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-18/debate/dbsect_16",
+    "details": "{}"
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-18/debate/dbsect_12",
+    "details": "{}"
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "398",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-06-24/vote_90",
+    "details": "{}"
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-11-26/vote_179",
+    "details": "{}"
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-02-17/vote_32",
+    "details": "{}"
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-02-05/vote_5",
+    "details": "{}"
+  },
+  {
+    "table": "silver_divisions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-05-14/vote_58",
+    "details": "{}"
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "1194",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "division_tally:7201ccfb841a77e91d3fcc06",
+    "details": "{\"member_count\": {\"live\": \"0\", \"official\": \"\"}}"
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "division_tally:40d24d87be8c00094ca2cd0d",
+    "details": "{\"member_count\": {\"live\": \"0\", \"official\": \"\"}}"
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "division_tally:8eaed3419aee37f2fb5f5924",
+    "details": "{}"
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "division_tally:7f108f7fd992f443ef2d4309",
+    "details": "{\"member_count\": {\"live\": \"0\", \"official\": \"\"}}"
+  },
+  {
+    "table": "silver_division_tallies",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "mismatch",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "division_tally:b94d4ddb18cb92ad06d6a9cd",
+    "details": "{\"member_count\": {\"live\": \"0\", \"official\": \"\"}}"
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "115830",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-05-27/pq_378",
+    "details": "{}"
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-09-17/pq_103",
+    "details": "{}"
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-04-02/pq_215",
+    "details": "{}"
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/question/2026-02-17/pq_571",
+    "details": "{}"
+  },
+  {
+    "table": "silver_questions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2024-12-18&date_end=2025-02-27&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-07-29/pq_2656",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "58868",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-04-02/vote_39|Shay-Brennan.D.2024-11-29|ta",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-21/vote_90|Denise-Mitchell.D.2016-10-03|nil",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-02-25/vote_53|Kevin-Boxer-Moran.D.2016-10-03|ta",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-04-08/vote_42|Louise-O'Reilly.D.2016-10-03|nil",
+    "details": "{}"
+  },
+  {
+    "table": "silver_member_votes",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/divisions?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&date_start=2024-12-18&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2025-02-12/vote_11|James-O'Connor.D.2020-02-08|ta",
+    "details": "{}"
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "official_xml_contains_speech_text",
+    "expected_result": "text prefix present",
+    "actual_result": "As I recall, there was nothing at the last European Council meeting but that would be a matter for a",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-22/debate/mul@/main.xml",
+    "sample_record_id": "speech:f5bd66a952c93c54895ea146",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_xml_contains_section_heading",
+    "expected_result": "heading present",
+    "actual_result": "Post European Council Meeting: Statements",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-22/debate/mul@/main.xml",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-22/debate/dbsect_13",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "official_xml_contains_speech_text",
+    "expected_result": "text prefix present",
+    "actual_result": "As the Minister of State knows well, County Wexford is experiencing a mental health crisis due to th",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-14/debate/mul@/main.xml",
+    "sample_record_id": "speech:4107ed6afbe9be7e3fbea428",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_xml_contains_section_heading",
+    "expected_result": "heading present",
+    "actual_result": "Saincheisteanna Tráthúla - Topical Issue Debate",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-14/debate/mul@/main.xml",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-14/debate/dbsect_3",
+    "details": ""
+  },
+  {
+    "table": "silver_speeches",
+    "test_name": "official_xml_contains_speech_text",
+    "expected_result": "text prefix present",
+    "actual_result": "Deputy Doherty, can you take your seat, please?",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/mul@/main.xml",
+    "sample_record_id": "speech:3e48951922ddfa9712d692cb",
+    "details": ""
+  },
+  {
+    "table": "silver_debate_sections",
+    "test_name": "official_xml_contains_section_heading",
+    "expected_result": "heading present",
+    "actual_result": "Industrial Disputes",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/mul@/main.xml",
+    "sample_record_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/dbsect_16",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-02/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:5e36e4e14d48e7f1dc3d9f1b",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-02/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:5e36e4e14d48e7f1dc3d9f1b",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_content_type",
+    "expected_result": "application/xml",
+    "actual_result": "application/xml",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-02/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:5e36e4e14d48e7f1dc3d9f1b",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-21/debate/mul@/dbsect_45.xml",
+    "sample_record_id": "source_file:b0ba1dcb8c69fc195418f452",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-21/debate/mul@/dbsect_45.xml",
+    "sample_record_id": "source_file:b0ba1dcb8c69fc195418f452",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_content_type",
+    "expected_result": "application/xml",
+    "actual_result": "application/xml",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-21/debate/mul@/dbsect_45.xml",
+    "sample_record_id": "source_file:b0ba1dcb8c69fc195418f452",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/39/seanad/6/amendment/creamList/eng/b3925d-dcl-atoa.pdf",
+    "sample_record_id": "source_file:ee5a3908380dfba570820ca3",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/39/seanad/6/amendment/creamList/eng/b3925d-dcl-atoa.pdf",
+    "sample_record_id": "source_file:ee5a3908380dfba570820ca3",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_content_type",
+    "expected_result": "application/pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/39/seanad/6/amendment/creamList/eng/b3925d-dcl-atoa.pdf",
+    "sample_record_id": "source_file:ee5a3908380dfba570820ca3",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:ef0aa7b2e14c7bdd0f777637",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:ef0aa7b2e14c7bdd0f777637",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_content_type",
+    "expected_result": "application/xml",
+    "actual_result": "application/xml",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/mul@/dbsect_15.xml",
+    "sample_record_id": "source_file:ef0aa7b2e14c7bdd0f777637",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-23/debate/mul@/dbsect_30.xml",
+    "sample_record_id": "source_file:9e855e10896437ef695206bf",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-23/debate/mul@/dbsect_30.xml",
+    "sample_record_id": "source_file:9e855e10896437ef695206bf",
+    "details": ""
+  },
+  {
+    "table": "silver_source_files",
+    "test_name": "official_source_content_type",
+    "expected_result": "application/xml",
+    "actual_result": "application/xml",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-23/debate/mul@/dbsect_30.xml",
+    "sample_record_id": "source_file:9e855e10896437ef695206bf",
+    "details": ""
+  }
+]
