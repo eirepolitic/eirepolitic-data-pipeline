@@ -1,0 +1,216 @@
+version: 1
+historical_start: "2024-11-29"
+logical_prefix: "processed/oireachtas_unified/latest/csv"
+
+common:
+  required_checks:
+    - schema_exact
+    - primary_key_non_null
+    - primary_key_unique
+    - csv_parquet_row_count_equal
+    - snapshot_date_valid
+
+external_groups:
+  houses: [silver_houses]
+  members: [silver_members, silver_member_memberships, silver_member_parties, silver_member_constituencies, silver_member_offices]
+  debates: [silver_debate_records, silver_debate_sections, silver_speeches]
+  divisions: [silver_divisions, silver_division_tallies, silver_member_votes]
+  questions: [silver_questions]
+  legislation: [silver_bills, silver_bill_versions, silver_bill_stages, silver_bill_related_docs, silver_bill_sponsors, silver_bill_debates, silver_bill_events]
+  source_files: [silver_source_files]
+  derived: [gold_current_members, gold_member_activity_yearly, gold_member_activity_monthly, gold_constituency_activity_yearly, gold_content_fact_pool]
+  control: [control_pipeline_runs, control_table_manifests, control_data_quality_results]
+
+relationships:
+  - name: membership_member
+    child_table: silver_member_memberships
+    child_columns: [member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+  - name: membership_house
+    child_table: silver_member_memberships
+    child_columns: [house_uri]
+    parent_table: silver_houses
+    parent_columns: [house_uri]
+  - name: member_party_member
+    child_table: silver_member_parties
+    child_columns: [member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+  - name: member_constituency_member
+    child_table: silver_member_constituencies
+    child_columns: [member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+  - name: member_office_member
+    child_table: silver_member_offices
+    child_columns: [member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+  - name: debate_section_debate
+    child_table: silver_debate_sections
+    child_columns: [debate_id]
+    parent_table: silver_debate_records
+    parent_columns: [debate_id]
+  - name: speech_debate
+    child_table: silver_speeches
+    child_columns: [debate_id]
+    parent_table: silver_debate_records
+    parent_columns: [debate_id]
+  - name: speech_section
+    child_table: silver_speeches
+    child_columns: [debate_section_id]
+    parent_table: silver_debate_sections
+    parent_columns: [debate_section_id]
+  - name: tally_division
+    child_table: silver_division_tallies
+    child_columns: [division_id]
+    parent_table: silver_divisions
+    parent_columns: [division_id]
+  - name: member_vote_division
+    child_table: silver_member_votes
+    child_columns: [division_id]
+    parent_table: silver_divisions
+    parent_columns: [division_id]
+  - name: member_vote_member
+    child_table: silver_member_votes
+    child_columns: [member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+  - name: question_member
+    child_table: silver_questions
+    child_columns: [asked_by_member_code]
+    parent_table: silver_members
+    parent_columns: [member_code]
+    allow_blank: true
+  - name: bill_version_bill
+    child_table: silver_bill_versions
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+  - name: bill_stage_bill
+    child_table: silver_bill_stages
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+  - name: bill_related_doc_bill
+    child_table: silver_bill_related_docs
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+  - name: bill_sponsor_bill
+    child_table: silver_bill_sponsors
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+  - name: bill_debate_bill
+    child_table: silver_bill_debates
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+  - name: bill_event_bill
+    child_table: silver_bill_events
+    child_columns: [bill_id]
+    parent_table: silver_bills
+    parent_columns: [bill_id]
+
+table_rules:
+  silver_houses:
+    date_columns: [date_start, date_end, snapshot_date]
+    external_strategy: api_entity
+  silver_constituencies:
+    date_columns: [date_start, date_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_parties:
+    date_columns: [date_start, date_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_members:
+    date_columns: [snapshot_date]
+    external_strategy: api_entity
+  silver_member_memberships:
+    date_columns: [membership_start, membership_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_member_parties:
+    date_columns: [party_start, party_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_member_constituencies:
+    date_columns: [represent_start, represent_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_member_offices:
+    date_columns: [office_start, office_end, snapshot_date]
+    external_strategy: member_profile_reference
+  silver_source_files:
+    date_columns: [downloaded_at_utc, snapshot_date]
+    external_strategy: source_url_head
+  silver_debate_records:
+    date_columns: [context_date, debate_date, snapshot_date]
+    coverage_column: debate_date
+    external_strategy: api_entity
+  silver_debate_sections:
+    date_columns: [snapshot_date]
+    external_strategy: debate_xml
+  silver_speeches:
+    date_columns: [debate_date, snapshot_date]
+    coverage_column: debate_date
+    external_strategy: debate_xml
+  silver_divisions:
+    date_columns: [division_date, snapshot_date]
+    coverage_column: division_date
+    external_strategy: api_entity
+  silver_division_tallies:
+    date_columns: [snapshot_date]
+    external_strategy: division_page
+  silver_member_votes:
+    date_columns: [division_date, snapshot_date]
+    coverage_column: division_date
+    external_strategy: division_page
+  silver_questions:
+    date_columns: [question_date, snapshot_date]
+    coverage_column: question_date
+    external_strategy: api_entity
+  silver_bills:
+    date_columns: [introduced_date, last_event_date, snapshot_date]
+    coverage_column: introduced_date
+    external_strategy: api_entity
+  silver_bill_versions:
+    date_columns: [version_date, snapshot_date]
+    external_strategy: bill_page
+  silver_bill_stages:
+    date_columns: [stage_date, snapshot_date]
+    external_strategy: bill_page
+  silver_bill_related_docs:
+    date_columns: [related_doc_date, snapshot_date]
+    external_strategy: bill_page
+  silver_bill_sponsors:
+    date_columns: [snapshot_date]
+    external_strategy: bill_page
+  silver_bill_debates:
+    date_columns: [debate_date, snapshot_date]
+    external_strategy: bill_page
+  silver_bill_events:
+    date_columns: [event_date, snapshot_date]
+    external_strategy: bill_page
+  control_pipeline_runs:
+    date_columns: [started_at_utc, finished_at_utc]
+    external_strategy: github_actions
+  control_table_manifests:
+    date_columns: [latest_snapshot_date, updated_at_utc]
+    external_strategy: s3_object
+  control_data_quality_results:
+    date_columns: [created_at_utc]
+    external_strategy: recompute
+  gold_current_members:
+    date_columns: [snapshot_date]
+    external_strategy: official_roster
+  gold_member_activity_yearly:
+    date_columns: [snapshot_date]
+    external_strategy: recompute
+  gold_member_activity_monthly:
+    date_columns: [snapshot_date]
+    external_strategy: recompute
+  gold_constituency_activity_yearly:
+    date_columns: [snapshot_date]
+    external_strategy: recompute
+  gold_content_fact_pool:
+    date_columns: [period_start, period_end, snapshot_date]
+    external_strategy: source_trace
