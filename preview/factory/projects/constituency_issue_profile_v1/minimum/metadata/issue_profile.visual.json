@@ -2,7 +2,7 @@
   "visual_id": "constituency_issue_profile_minimum",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-07-19T20:53:24.146407+00:00",
+  "created_at": "2026-07-19T20:54:24.244392+00:00",
   "input": {
     "scenario": "minimum",
     "synthetic": true
@@ -14,7 +14,7 @@
   "filters": [],
   "grouping": {
     "grain": "constituency",
-    "key": "tipperary-north"
+    "key": "dublin-bay-south"
   },
   "source_note": "Synthetic validation context",
   "attribution": {
@@ -22,17 +22,15 @@
   },
   "rows_rendered": [
     {
-      "label": "Environment",
-      "value": 2.0,
+      "label": "Health",
+      "value": 1.0,
       "group": ""
     },
     {
-      "label": "State and Local Government Administration",
+      "label": "Justice",
       "value": 1.0,
       "group": ""
     }
   ],
-  "warnings": [
-    "long_label:State and Local Government Administrat"
-  ]
+  "warnings": []
 }

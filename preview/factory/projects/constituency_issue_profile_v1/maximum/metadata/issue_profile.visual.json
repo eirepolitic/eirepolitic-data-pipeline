@@ -2,7 +2,7 @@
   "visual_id": "constituency_issue_profile_maximum",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-07-19T20:53:24.543272+00:00",
+  "created_at": "2026-07-19T20:54:24.505028+00:00",
   "input": {
     "scenario": "maximum",
     "synthetic": true
@@ -14,7 +14,7 @@
   "filters": [],
   "grouping": {
     "grain": "constituency",
-    "key": "dublin-south-central"
+    "key": "dublin-bay-south"
   },
   "source_note": "Synthetic validation context",
   "attribution": {
@@ -22,43 +22,30 @@
   },
   "rows_rendered": [
     {
-      "label": "Civil Rights, Minority Issues and Civil Liberties",
-      "value": 423.0,
+      "label": "Transport",
+      "value": 3.0,
       "group": ""
     },
     {
-      "label": "State and Local Government Administration",
-      "value": 416.0,
+      "label": "Education",
+      "value": 2.0,
       "group": ""
     },
     {
-      "label": "International Affairs and Foreign Aid",
-      "value": 415.0,
+      "label": "Housing",
+      "value": 1.0,
       "group": ""
     },
     {
-      "label": "Banking/Finance and Domestic Commerce",
-      "value": 303.0,
+      "label": "Justice",
+      "value": 1.0,
       "group": ""
     },
     {
-      "label": "Housing and Community Development",
-      "value": 249.0,
-      "group": ""
-    },
-    {
-      "label": "Labor, Employment and Immigration",
-      "value": 241.0,
-      "group": ""
-    },
-    {
-      "label": "Public Lands and Water Management",
-      "value": 236.0,
+      "label": "Health",
+      "value": 1.0,
       "group": ""
     }
   ],
-  "warnings": [
-    "long_label:Civil Rights, Minority Issues and Civi",
-    "long_label:State and Local Government Administrat"
-  ]
+  "warnings": []
 }
