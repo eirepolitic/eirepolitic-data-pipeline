@@ -1,23 +1,47 @@
 {
   "scenario": "real_example",
-  "constituency": "Dublin Bay South",
+  "constituency": "Kildare North",
   "synthetic": false,
   "no_publication": true,
   "source_fields": {
-    "constituency": "Dublin Bay South",
-    "issue_rows": "Dublin Bay South"
+    "constituency": "Kildare North",
+    "issue_rows": "Kildare North"
   },
   "member_names": [
-    "Ciara Doyle"
+    "Aidan Farrelly",
+    "James Lawless",
+    "Joe Neville",
+    "Naoise Ó Cearúil",
+    "Réada Cronin"
   ],
   "issue_rows": [
     {
-      "label": "Health",
-      "value": 1
+      "label": "Education",
+      "value": 145
     },
     {
-      "label": "Justice",
-      "value": 1
+      "label": "Housing and Community Development",
+      "value": 107
+    },
+    {
+      "label": "Health",
+      "value": 69
+    },
+    {
+      "label": "Transportation",
+      "value": 43
+    },
+    {
+      "label": "Law/Crime and Family Issues",
+      "value": 41
+    },
+    {
+      "label": "Labor, Employment and Immigration",
+      "value": 36
+    },
+    {
+      "label": "Social Welfare",
+      "value": 33
     }
   ],
   "slides": [
@@ -34,6 +58,6 @@
     "width": 1080,
     "height": 860,
     "warnings": [],
-    "created_at": "2026-07-19T20:52:25.620722+00:00"
+    "created_at": "2026-07-19T20:53:24.942562+00:00"
   }
 }

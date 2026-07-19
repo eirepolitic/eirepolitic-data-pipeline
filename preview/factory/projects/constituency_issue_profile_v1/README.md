@@ -1,7 +1,7 @@
 # Constituency issue profile validation
 
-Data source: `local`
-Workflow run: `29703290714`
+Data source: `s3`
+Workflow run: `29703335986`
 Review state: `needs_review`
 Publishing approval: `false`
 
