@@ -1,6 +1,11 @@
 name: Oireachtas validation fixes candidate
 
 on:
+  push:
+    branches:
+      - fix/oireachtas-validation-findings
+    paths:
+      - .github/workflows/oireachtas_validation_fixes_candidate.yml
   workflow_dispatch:
 
 permissions:
