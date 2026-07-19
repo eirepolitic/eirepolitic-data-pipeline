@@ -42,6 +42,10 @@ KNOWN_FINDINGS: dict[str, dict[str, Any]] = {
         "classification": "refresh_required",
         "finding": "A small number of July 16 debate links/titles changed in the current official response; historical ID drift is also present.",
     },
+    "control_table_manifests": {
+        "classification": "refresh_required",
+        "finding": "Stored row counts are stale for six tables: control DQ results, bill debates, three member-history tables, and source files.",
+    },
     "silver_division_tallies": {
         "classification": "pass_with_warning",
         "finding": "Official API sometimes omits zero tallies; stored zero values reconcile to individual vote rows.",
@@ -182,7 +186,7 @@ def write_reports(scorecard: list[dict[str, Any]], checkpoint_summaries: dict[st
         "",
         "## Recommended disposition",
         "",
-        "1. Run a current refresh to capture the identified July 14–16 proceedings and legislation additions.",
+        "1. Run a current refresh to capture the identified July 14–16 proceedings and legislation additions, then rebuild control manifests.",
         "2. Repair member-party and member-constituency business-key deduplication before the next history refresh.",
         "3. Retain the zero-tally, joint-sitting speaker, and fact numeric-format items as documented warnings.",
         "4. Re-run all checkpoints after repairs and refresh, then compare this scorecard to the new result.",
