@@ -1,0 +1,44 @@
+validation_version: 1
+project_id: constituency_issue_profile_v1
+review_only: true
+publishing_allowed: false
+scenarios:
+  minimum:
+    synthetic: true
+    no_publication: true
+    selection:
+      constituency: lowest combined issue-count and speech-count complexity
+      issue_rows: two smallest non-empty issue values
+  maximum:
+    synthetic: true
+    no_publication: true
+    selection:
+      constituency: longest constituency label
+      issue_labels: seven distinct longest issue labels
+      issue_values: seven largest available issue values
+  real_example:
+    synthetic: false
+    no_publication: true
+    selection:
+      constituency: median combined layout complexity
+      issue_rows: top seven internally consistent issue counts
+required_outputs:
+  - minimum/01_cover.png
+  - minimum/02_issue_profile.png
+  - maximum/01_cover.png
+  - maximum/02_issue_profile.png
+  - real_example/01_cover.png
+  - real_example/02_issue_profile.png
+  - contact_sheets/cover.png
+  - contact_sheets/issue_profile.png
+  - project_validation_manifest.json
+acceptance:
+  - all catalogue and project validation passes
+  - all six complete slides render successfully
+  - no missing layout bindings
+  - no renderer row truncation
+  - maximum labels are distinct
+  - real-example rows come from one constituency
+  - source and join manifests are present
+  - synthetic outputs are marked no_publication
+  - explicit human factual and visual approval remains required
