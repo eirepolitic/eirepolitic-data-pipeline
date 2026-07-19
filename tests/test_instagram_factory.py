@@ -82,6 +82,11 @@ class InstagramFactoryConstituencyPilotTest(TestCase):
         self.assertTrue(scenarios["maximum"]["synthetic"])
         self.assertFalse(scenarios["real_example"]["synthetic"])
         self.assertTrue(all(scenario["no_publication"] for scenario in scenarios.values()))
+        self.assertLessEqual(len(scenarios["minimum"]["issue_rows"]), 2)
+        self.assertLessEqual(len(scenarios["maximum"]["issue_rows"]), 7)
+        maximum_labels = [row["label"] for row in scenarios["maximum"]["issue_rows"]]
+        self.assertEqual(len(maximum_labels), len(set(maximum_labels)))
+        self.assertLessEqual(len(scenarios["real_example"]["issue_rows"]), 7)
 
     def test_local_complete_slide_render(self) -> None:
         with TemporaryDirectory() as temp_dir:
