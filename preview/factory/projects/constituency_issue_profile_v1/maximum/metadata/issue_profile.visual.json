@@ -2,7 +2,7 @@
   "visual_id": "constituency_issue_profile_maximum",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-07-19T20:46:47.670879+00:00",
+  "created_at": "2026-07-19T20:47:32.218926+00:00",
   "input": {
     "scenario": "maximum",
     "synthetic": true
@@ -14,7 +14,7 @@
   "filters": [],
   "grouping": {
     "grain": "constituency",
-    "key": "dublin-bay-south"
+    "key": "dublin-south-central"
   },
   "source_note": "Synthetic validation context",
   "attribution": {
@@ -22,30 +22,50 @@
   },
   "rows_rendered": [
     {
-      "label": "Transport",
-      "value": 3.0,
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 423.0,
       "group": ""
     },
     {
-      "label": "Education",
-      "value": 2.0,
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 416.0,
       "group": ""
     },
     {
-      "label": "Housing",
-      "value": 1.0,
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 415.0,
       "group": ""
     },
     {
-      "label": "Justice",
-      "value": 1.0,
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 303.0,
       "group": ""
     },
     {
-      "label": "Health",
-      "value": 1.0,
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 249.0,
+      "group": ""
+    },
+    {
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 241.0,
+      "group": ""
+    },
+    {
+      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "value": 236.0,
       "group": ""
     }
   ],
-  "warnings": []
+  "warnings": [
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "long_label:Civil Rights, Minority Issues and Civi",
+    "truncated_rows:8->7"
+  ]
 }
