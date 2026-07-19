@@ -1,0 +1,332 @@
+[
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "schema_exact",
+    "expected_result": "[\"run_id\", \"workflow_run_id\", \"table_name\", \"mode\", \"cadence\", \"started_at_utc\", \"finished_at_utc\", \"status\", \"input_params_json\", \"raw_rows\", \"output_rows\", \"error_message\", \"manifest_s3_key\"]",
+    "actual_result": "[\"run_id\", \"workflow_run_id\", \"table_name\", \"mode\", \"cadence\", \"started_at_utc\", \"finished_at_utc\", \"status\", \"input_params_json\", \"raw_rows\", \"output_rows\", \"error_message\", \"manifest_s3_key\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "date_parse:started_at_utc",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "date_parse:finished_at_utc",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "427",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "427",
+    "actual_result": "427",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"run_id\", \"workflow_run_id\", \"table_name\", \"mode\", \"cadence\", \"started_at_utc\", \"finished_at_utc\", \"status\", \"input_params_json\", \"raw_rows\", \"output_rows\", \"error_message\", \"manifest_s3_key\"]",
+    "actual_result": "[\"run_id\", \"workflow_run_id\", \"table_name\", \"mode\", \"cadence\", \"started_at_utc\", \"finished_at_utc\", \"status\", \"input_params_json\", \"raw_rows\", \"output_rows\", \"error_message\", \"manifest_s3_key\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "schema_exact",
+    "expected_result": "[\"table_name\", \"latest_run_id\", \"latest_snapshot_date\", \"latest_parquet_key\", \"latest_csv_key\", \"row_count\", \"column_count\", \"schema_hash\", \"primary_key_unique\", \"dq_status\", \"updated_at_utc\"]",
+    "actual_result": "[\"table_name\", \"latest_run_id\", \"latest_snapshot_date\", \"latest_parquet_key\", \"latest_csv_key\", \"row_count\", \"column_count\", \"schema_hash\", \"primary_key_unique\", \"dq_status\", \"updated_at_utc\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "date_parse:latest_snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "date_parse:updated_at_utc",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "31",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "31",
+    "actual_result": "31",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"table_name\", \"latest_run_id\", \"latest_snapshot_date\", \"latest_parquet_key\", \"latest_csv_key\", \"row_count\", \"column_count\", \"schema_hash\", \"primary_key_unique\", \"dq_status\", \"updated_at_utc\"]",
+    "actual_result": "[\"table_name\", \"latest_run_id\", \"latest_snapshot_date\", \"latest_parquet_key\", \"latest_csv_key\", \"row_count\", \"column_count\", \"schema_hash\", \"primary_key_unique\", \"dq_status\", \"updated_at_utc\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "schema_exact",
+    "expected_result": "[\"dq_result_id\", \"run_id\", \"table_name\", \"check_name\", \"status\", \"metric_value\", \"threshold\", \"message\", \"created_at_utc\"]",
+    "actual_result": "[\"dq_result_id\", \"run_id\", \"table_name\", \"check_name\", \"status\", \"metric_value\", \"threshold\", \"message\", \"created_at_utc\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "date_parse:created_at_utc",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "1716",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "1716",
+    "actual_result": "1716",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"dq_result_id\", \"run_id\", \"table_name\", \"check_name\", \"status\", \"metric_value\", \"threshold\", \"message\", \"created_at_utc\"]",
+    "actual_result": "[\"dq_result_id\", \"run_id\", \"table_name\", \"check_name\", \"status\", \"metric_value\", \"threshold\", \"message\", \"created_at_utc\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "every_manifest_reference_exists",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "rows_recompute_from_referenced_manifest",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "started_not_after_finished",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "successful_runs_have_no_error_message",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "referenced_csv_and_parquet_objects_exist",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "manifest_row_counts_equal_actual_objects",
+    "expected_result": "0",
+    "actual_result": "12",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"table\": \"control_data_quality_results\", \"expected\": 1592, \"actual_csv\": 1716}, {\"table\": \"control_data_quality_results\", \"expected\": 1592, \"actual_parquet\": 1716}, {\"table\": \"silver_bill_debates\", \"expected\": 1170, \"actual_csv\": 1215}, {\"table\": \"silver_bill_debates\", \"expected\": 1170, \"actual_parquet\": 1215}, {\"table\": \"silver_member_constituencies\", \"expected\": 176, \"actual_csv\": 276}, {\"table\": \"silver_member_constituencies\", \"expected\": 176, \"actual_parquet\": 276}, {\"table\": \"silver_member_offices\", \"expected\": 77, \"actual_csv\": 123}, {\"table\": \"silver_member_offices\", \"expected\": 77, \"actual_parquet\": 123}, {\"table\": \"silver_member_parties\", \"expected\": 178, \"actual_csv\": 280}, {\"table\": \"silver_member_parties\", \"expected\": 178, \"actual_parquet\": 280}, {\"table\": \"silver_source_files\", \"expected\": 3452, \"actual_csv\": 3477}, {\"table\": \"silver_source_files\", \"expected\": 3452, \"actual_parquet\": 3477}]"
+  },
+  {
+    "table": "control_table_manifests",
+    "test_name": "schema_hash_and_column_count_recompute",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "every_dq_run_has_manifest",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_data_quality_results",
+    "test_name": "dq_rows_recompute_from_manifest",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "control_pipeline_runs",
+    "test_name": "github_workflow_run_spot_check",
+    "expected_result": "nonblank IDs resolve, or no IDs recorded",
+    "actual_result": "no workflow_run_id values recorded",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  }
+]

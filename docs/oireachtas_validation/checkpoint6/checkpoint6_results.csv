@@ -1,0 +1,34 @@
+table,test_name,expected_result,actual_result,status,source_url_or_api_request,sample_record_id,details
+control_pipeline_runs,schema_exact,"[""run_id"", ""workflow_run_id"", ""table_name"", ""mode"", ""cadence"", ""started_at_utc"", ""finished_at_utc"", ""status"", ""input_params_json"", ""raw_rows"", ""output_rows"", ""error_message"", ""manifest_s3_key""]","[""run_id"", ""workflow_run_id"", ""table_name"", ""mode"", ""cadence"", ""started_at_utc"", ""finished_at_utc"", ""status"", ""input_params_json"", ""raw_rows"", ""output_rows"", ""error_message"", ""manifest_s3_key""]",pass,,,
+control_pipeline_runs,primary_key_non_null,0,0,pass,,,
+control_pipeline_runs,primary_key_unique,0,0,pass,,,
+control_pipeline_runs,date_parse:started_at_utc,0,0,pass,,,
+control_pipeline_runs,date_parse:finished_at_utc,0,0,pass,,,
+control_pipeline_runs,row_count_positive,> 0,427,pass,,,
+control_pipeline_runs,csv_parquet_row_count_equal,427,427,pass,,,
+control_pipeline_runs,csv_parquet_columns_equal,"[""run_id"", ""workflow_run_id"", ""table_name"", ""mode"", ""cadence"", ""started_at_utc"", ""finished_at_utc"", ""status"", ""input_params_json"", ""raw_rows"", ""output_rows"", ""error_message"", ""manifest_s3_key""]","[""run_id"", ""workflow_run_id"", ""table_name"", ""mode"", ""cadence"", ""started_at_utc"", ""finished_at_utc"", ""status"", ""input_params_json"", ""raw_rows"", ""output_rows"", ""error_message"", ""manifest_s3_key""]",pass,,,
+control_table_manifests,schema_exact,"[""table_name"", ""latest_run_id"", ""latest_snapshot_date"", ""latest_parquet_key"", ""latest_csv_key"", ""row_count"", ""column_count"", ""schema_hash"", ""primary_key_unique"", ""dq_status"", ""updated_at_utc""]","[""table_name"", ""latest_run_id"", ""latest_snapshot_date"", ""latest_parquet_key"", ""latest_csv_key"", ""row_count"", ""column_count"", ""schema_hash"", ""primary_key_unique"", ""dq_status"", ""updated_at_utc""]",pass,,,
+control_table_manifests,primary_key_non_null,0,0,pass,,,
+control_table_manifests,primary_key_unique,0,0,pass,,,
+control_table_manifests,date_parse:latest_snapshot_date,0,0,pass,,,
+control_table_manifests,date_parse:updated_at_utc,0,0,pass,,,
+control_table_manifests,row_count_positive,> 0,31,pass,,,
+control_table_manifests,csv_parquet_row_count_equal,31,31,pass,,,
+control_table_manifests,csv_parquet_columns_equal,"[""table_name"", ""latest_run_id"", ""latest_snapshot_date"", ""latest_parquet_key"", ""latest_csv_key"", ""row_count"", ""column_count"", ""schema_hash"", ""primary_key_unique"", ""dq_status"", ""updated_at_utc""]","[""table_name"", ""latest_run_id"", ""latest_snapshot_date"", ""latest_parquet_key"", ""latest_csv_key"", ""row_count"", ""column_count"", ""schema_hash"", ""primary_key_unique"", ""dq_status"", ""updated_at_utc""]",pass,,,
+control_data_quality_results,schema_exact,"[""dq_result_id"", ""run_id"", ""table_name"", ""check_name"", ""status"", ""metric_value"", ""threshold"", ""message"", ""created_at_utc""]","[""dq_result_id"", ""run_id"", ""table_name"", ""check_name"", ""status"", ""metric_value"", ""threshold"", ""message"", ""created_at_utc""]",pass,,,
+control_data_quality_results,primary_key_non_null,0,0,pass,,,
+control_data_quality_results,primary_key_unique,0,0,pass,,,
+control_data_quality_results,date_parse:created_at_utc,0,0,pass,,,
+control_data_quality_results,row_count_positive,> 0,1716,pass,,,
+control_data_quality_results,csv_parquet_row_count_equal,1716,1716,pass,,,
+control_data_quality_results,csv_parquet_columns_equal,"[""dq_result_id"", ""run_id"", ""table_name"", ""check_name"", ""status"", ""metric_value"", ""threshold"", ""message"", ""created_at_utc""]","[""dq_result_id"", ""run_id"", ""table_name"", ""check_name"", ""status"", ""metric_value"", ""threshold"", ""message"", ""created_at_utc""]",pass,,,
+control_pipeline_runs,every_manifest_reference_exists,0,0,pass,,,[]
+control_pipeline_runs,rows_recompute_from_referenced_manifest,0,0,pass,,,[]
+control_pipeline_runs,started_not_after_finished,0,0,pass,,,[]
+control_pipeline_runs,successful_runs_have_no_error_message,0,0,pass,,,[]
+control_table_manifests,referenced_csv_and_parquet_objects_exist,0,0,pass,,,[]
+control_table_manifests,manifest_row_counts_equal_actual_objects,0,12,fail,,,"[{""table"": ""control_data_quality_results"", ""expected"": 1592, ""actual_csv"": 1716}, {""table"": ""control_data_quality_results"", ""expected"": 1592, ""actual_parquet"": 1716}, {""table"": ""silver_bill_debates"", ""expected"": 1170, ""actual_csv"": 1215}, {""table"": ""silver_bill_debates"", ""expected"": 1170, ""actual_parquet"": 1215}, {""table"": ""silver_member_constituencies"", ""expected"": 176, ""actual_csv"": 276}, {""table"": ""silver_member_constituencies"", ""expected"": 176, ""actual_parquet"": 276}, {""table"": ""silver_member_offices"", ""expected"": 77, ""actual_csv"": 123}, {""table"": ""silver_member_offices"", ""expected"": 77, ""actual_parquet"": 123}, {""table"": ""silver_member_parties"", ""expected"": 178, ""actual_csv"": 280}, {""table"": ""silver_member_parties"", ""expected"": 178, ""actual_parquet"": 280}, {""table"": ""silver_source_files"", ""expected"": 3452, ""actual_csv"": 3477}, {""table"": ""silver_source_files"", ""expected"": 3452, ""actual_parquet"": 3477}]"
+control_table_manifests,schema_hash_and_column_count_recompute,0,0,pass,,,[]
+control_data_quality_results,every_dq_run_has_manifest,0,0,pass,,,[]
+control_data_quality_results,dq_rows_recompute_from_manifest,0,0,pass,,,[]
+control_pipeline_runs,github_workflow_run_spot_check,"nonblank IDs resolve, or no IDs recorded",no workflow_run_id values recorded,pass,,,
