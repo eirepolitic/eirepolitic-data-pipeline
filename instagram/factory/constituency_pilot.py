@@ -176,26 +176,46 @@ def build_scenarios(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     target = median(complexity_values)
     real_source = min(records, key=lambda row: (abs(_complexity(row) - target), row["constituency"]))
 
+    minimum_rows = sorted(
+        minimum_source["issue_rows"],
+        key=lambda row: (int(row["value"]), len(row["label"]), row["label"]),
+    )[:2]
+    real_rows = list(real_source["issue_rows"][:7])
+
     longest_constituency = max(records, key=lambda row: (len(row["constituency"]), row["constituency"]))
     all_issue_rows = [
         {
             "label": issue["label"],
-            "value": issue["value"],
+            "value": int(issue["value"]),
             "originating_constituency": record["constituency"],
         }
         for record in records
         for issue in record["issue_rows"]
     ]
-    longest_labels = sorted(all_issue_rows, key=lambda row: (-len(row["label"]), -int(row["value"]), row["label"]))[:8]
-    largest_values = sorted(all_issue_rows, key=lambda row: (-int(row["value"]), -len(row["label"]), row["label"]))
-    synthetic_rows: list[dict[str, Any]] = []
-    for index, label_row in enumerate(longest_labels):
-        value_row = largest_values[index % len(largest_values)]
-        synthetic_rows.append({"label": label_row["label"], "value": value_row["value"]})
+    distinct_long_labels: list[dict[str, Any]] = []
+    seen_labels: set[str] = set()
+    for row in sorted(
+        all_issue_rows,
+        key=lambda item: (-len(item["label"]), -item["value"], item["label"]),
+    ):
+        if row["label"] in seen_labels:
+            continue
+        seen_labels.add(row["label"])
+        distinct_long_labels.append(row)
+        if len(distinct_long_labels) == 7:
+            break
+    largest_values = sorted(all_issue_rows, key=lambda row: (-row["value"], row["label"]))[:7]
+    synthetic_rows = [
+        {"label": label_row["label"], "value": value_row["value"]}
+        for label_row, value_row in zip(distinct_long_labels, largest_values)
+    ]
 
     return {
         "minimum": {
             **minimum_source,
+            "issue_rows": minimum_rows,
+            "issue_count": len(minimum_rows),
+            "speech_count": sum(int(row["value"]) for row in minimum_rows),
             "scenario": "minimum",
             "synthetic": True,
             "no_publication": True,
@@ -214,16 +234,22 @@ def build_scenarios(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             "no_publication": True,
             "source_fields": {
                 "constituency": longest_constituency["constituency"],
-                "issue_labels": [row["originating_constituency"] for row in longest_labels],
-                "issue_values": [row["originating_constituency"] for row in largest_values[: len(synthetic_rows)]],
+                "issue_labels": [row["originating_constituency"] for row in distinct_long_labels],
+                "issue_values": [row["originating_constituency"] for row in largest_values],
             },
         },
         "real_example": {
             **real_source,
+            "issue_rows": real_rows,
+            "issue_count": len(real_rows),
+            "speech_count": sum(int(row["value"]) for row in real_rows),
             "scenario": "real_example",
             "synthetic": False,
             "no_publication": True,
-            "source_fields": {"constituency": real_source["constituency"], "issue_rows": real_source["constituency"]},
+            "source_fields": {
+                "constituency": real_source["constituency"],
+                "issue_rows": real_source["constituency"],
+            },
         },
     }
 
