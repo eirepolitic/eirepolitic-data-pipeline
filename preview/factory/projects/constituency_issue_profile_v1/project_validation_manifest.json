@@ -1,0 +1,181 @@
+{
+  "success": true,
+  "created_at": "2026-07-19T20:46:48.350076+00:00",
+  "project_id": "constituency_issue_profile_v1",
+  "project_version": 1,
+  "data_source": "local",
+  "source_manifest": {
+    "mode": "local",
+    "members": "tests/fixtures/instagram/members.csv",
+    "speeches": "tests/fixtures/instagram/debate_issues.csv"
+  },
+  "join_manifest": {
+    "member_name_field": "full_name",
+    "constituency_field": "constituency",
+    "speaker_field": "Speaker Name",
+    "issue_field": "issue",
+    "member_rows": 3,
+    "speech_rows": 8,
+    "matched_speeches": 8,
+    "unmatched_speeches": 0,
+    "ignored_empty_issue": 0,
+    "constituency_count": 2
+  },
+  "scenario_manifests": {
+    "minimum": {
+      "scenario": "minimum",
+      "constituency": "Dublin Bay South",
+      "synthetic": true,
+      "no_publication": true,
+      "source_fields": {
+        "constituency": "Dublin Bay South",
+        "issue_rows": "Dublin Bay South"
+      },
+      "member_names": [
+        "Ciara Doyle"
+      ],
+      "issue_rows": [
+        {
+          "label": "Health",
+          "value": 1
+        },
+        {
+          "label": "Justice",
+          "value": 1
+        }
+      ],
+      "slides": [
+        "minimum/01_cover.png",
+        "minimum/02_issue_profile.png"
+      ],
+      "visual_manifest": {
+        "success": true,
+        "visual_id": "constituency_issue_profile_minimum",
+        "template_id": "horizontal_bar_draft_v1",
+        "renderer": "horizontal_bar",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/minimum/assets/issue_profile.png",
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/minimum/metadata/issue_profile.visual.json",
+        "width": 1080,
+        "height": 860,
+        "warnings": [],
+        "created_at": "2026-07-19T20:46:47.376365+00:00"
+      }
+    },
+    "maximum": {
+      "scenario": "maximum",
+      "constituency": "Dublin Bay South",
+      "synthetic": true,
+      "no_publication": true,
+      "source_fields": {
+        "constituency": "Dublin Bay South",
+        "issue_labels": [
+          "Wicklow-Wexford",
+          "Wicklow-Wexford",
+          "Wicklow-Wexford",
+          "Dublin Bay South",
+          "Dublin Bay South"
+        ],
+        "issue_values": [
+          "Wicklow-Wexford",
+          "Wicklow-Wexford",
+          "Wicklow-Wexford",
+          "Dublin Bay South",
+          "Dublin Bay South"
+        ]
+      },
+      "member_names": [
+        "Ciara Doyle"
+      ],
+      "issue_rows": [
+        {
+          "label": "Transport",
+          "value": 3
+        },
+        {
+          "label": "Education",
+          "value": 2
+        },
+        {
+          "label": "Housing",
+          "value": 1
+        },
+        {
+          "label": "Justice",
+          "value": 1
+        },
+        {
+          "label": "Health",
+          "value": 1
+        }
+      ],
+      "slides": [
+        "maximum/01_cover.png",
+        "maximum/02_issue_profile.png"
+      ],
+      "visual_manifest": {
+        "success": true,
+        "visual_id": "constituency_issue_profile_maximum",
+        "template_id": "horizontal_bar_draft_v1",
+        "renderer": "horizontal_bar",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/maximum/assets/issue_profile.png",
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/maximum/metadata/issue_profile.visual.json",
+        "width": 1080,
+        "height": 860,
+        "warnings": [],
+        "created_at": "2026-07-19T20:46:47.670879+00:00"
+      }
+    },
+    "real_example": {
+      "scenario": "real_example",
+      "constituency": "Dublin Bay South",
+      "synthetic": false,
+      "no_publication": true,
+      "source_fields": {
+        "constituency": "Dublin Bay South",
+        "issue_rows": "Dublin Bay South"
+      },
+      "member_names": [
+        "Ciara Doyle"
+      ],
+      "issue_rows": [
+        {
+          "label": "Health",
+          "value": 1
+        },
+        {
+          "label": "Justice",
+          "value": 1
+        }
+      ],
+      "slides": [
+        "real_example/01_cover.png",
+        "real_example/02_issue_profile.png"
+      ],
+      "visual_manifest": {
+        "success": true,
+        "visual_id": "constituency_issue_profile_real_example",
+        "template_id": "horizontal_bar_draft_v1",
+        "renderer": "horizontal_bar",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/real_example/assets/issue_profile.png",
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_tests/constituency_issue_profile_v1/real_example/metadata/issue_profile.visual.json",
+        "width": 1080,
+        "height": 860,
+        "warnings": [],
+        "created_at": "2026-07-19T20:46:47.954433+00:00"
+      }
+    }
+  },
+  "slide_contact_sheets": {
+    "cover": "contact_sheets/cover.png",
+    "issue_profile": "contact_sheets/issue_profile.png"
+  },
+  "warnings": [
+    "granularity.source_metric constituency_issue_counts remains draft",
+    "slides[1].post_type_id title_text_media_v1 remains draft",
+    "slides[2].post_type_id title_text_media_v1 remains draft",
+    "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+    "slides[2].visual metric constituency_issue_counts remains draft"
+  ],
+  "review_state": "needs_review",
+  "approved": false
+}

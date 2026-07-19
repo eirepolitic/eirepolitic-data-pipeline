@@ -1,0 +1,36 @@
+{
+  "visual_id": "constituency_issue_profile_real_example",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-07-19T20:46:47.954433+00:00",
+  "input": {
+    "scenario": "real_example",
+    "synthetic": false
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {
+    "grain": "constituency",
+    "key": "dublin-bay-south"
+  },
+  "source_note": "Joined Oireachtas member and classified debate data",
+  "attribution": {
+    "source": "Houses of the Oireachtas / Eirepolitic classification"
+  },
+  "rows_rendered": [
+    {
+      "label": "Health",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Justice",
+      "value": 1.0,
+      "group": ""
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,51 @@
+{
+  "visual_id": "constituency_issue_profile_maximum",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-07-19T20:46:47.670879+00:00",
+  "input": {
+    "scenario": "maximum",
+    "synthetic": true
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {
+    "grain": "constituency",
+    "key": "dublin-bay-south"
+  },
+  "source_note": "Synthetic validation context",
+  "attribution": {
+    "source": "Houses of the Oireachtas / Eirepolitic classification"
+  },
+  "rows_rendered": [
+    {
+      "label": "Transport",
+      "value": 3.0,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 2.0,
+      "group": ""
+    },
+    {
+      "label": "Housing",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Justice",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 1.0,
+      "group": ""
+    }
+  ],
+  "warnings": []
+}
