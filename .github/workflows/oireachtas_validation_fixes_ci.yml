@@ -6,7 +6,12 @@ on:
       - fix/oireachtas-validation-findings
     paths:
       - extract/oireachtas/history_dedupe.py
+      - extract/oireachtas/merge.py
+      - extract/oireachtas/write_policies.py
+      - configs/oireachtas/write_policies.yml
       - tests/test_oireachtas_history_dedupe.py
+      - tests/test_oireachtas_business_key_merge.py
+      - tests/test_oireachtas_repair_regressions.py
       - .github/workflows/oireachtas_validation_fixes_ci.yml
   workflow_dispatch:
 
@@ -33,4 +38,18 @@ jobs:
         run: |
           python -m unittest \
             tests.test_oireachtas_history_dedupe \
+            tests.test_oireachtas_business_key_merge \
             tests.test_oireachtas_repair_regressions
+      - name: Validate configured business keys
+        run: |
+          python - <<'PY'
+          from extract.oireachtas.write_policies import load_write_policies
+          policies = load_write_policies()
+          assert policies['silver_member_parties'].business_key_columns == (
+              'member_code', 'party_uri', 'party_start', 'party_end'
+          )
+          assert policies['silver_member_constituencies'].business_key_columns == (
+              'member_code', 'constituency_uri', 'represent_start', 'represent_end'
+          )
+          print('Business-key policies validated.')
+          PY
