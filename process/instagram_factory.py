@@ -11,7 +11,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from instagram.factory.catalogues import CatalogueValidationError, list_options, load_catalogues, validate_catalogues
-from instagram.factory.constituency_pilot import render_project_tests
 from instagram.factory.project import validate_project
 
 
@@ -44,6 +43,8 @@ def _validate_project(args: argparse.Namespace) -> int:
 
 def _render_tests(args: argparse.Namespace) -> int:
     try:
+        from instagram.factory.constituency_pilot import render_project_tests
+
         report = render_project_tests(
             args.project,
             data_source=args.data_source,
