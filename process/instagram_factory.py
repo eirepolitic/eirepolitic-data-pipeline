@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from instagram.factory.catalogues import CatalogueValidationError, list_options, load_catalogues, validate_catalogues
+from instagram.factory.constituency_pilot import render_project_tests
 from instagram.factory.project import validate_project
 
 
@@ -41,8 +42,22 @@ def _validate_project(args: argparse.Namespace) -> int:
     return 0 if report["success"] else 1
 
 
+def _render_tests(args: argparse.Namespace) -> int:
+    try:
+        report = render_project_tests(
+            args.project,
+            data_source=args.data_source,
+            output_root=args.output_root,
+        )
+        _print(report)
+        return 0
+    except Exception as exc:
+        _print({"success": False, "errors": [str(exc)]})
+        return 1
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate and inspect Instagram Content Factory configuration.")
+    parser = argparse.ArgumentParser(description="Validate and run Instagram Content Factory projects.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     validate_catalogues_parser = subparsers.add_parser(
@@ -62,6 +77,15 @@ def parse_args() -> argparse.Namespace:
     project_parser = subparsers.add_parser("validate-project", help="Validate one project.yml specification.")
     project_parser.add_argument("--project", required=True, help="Repository-relative or absolute project.yml path.")
     project_parser.set_defaults(handler=_validate_project)
+
+    render_parser = subparsers.add_parser(
+        "render-tests",
+        help="Render minimum, maximum, and real-example complete-slide tests for a supported pilot project.",
+    )
+    render_parser.add_argument("--project", required=True, help="Repository-relative or absolute project.yml path.")
+    render_parser.add_argument("--data-source", choices=["local", "s3"], default="local")
+    render_parser.add_argument("--output-root", help="Optional output directory override.")
+    render_parser.set_defaults(handler=_render_tests)
 
     return parser.parse_args()
 
