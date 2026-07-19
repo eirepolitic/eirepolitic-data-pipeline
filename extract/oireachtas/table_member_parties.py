@@ -10,6 +10,7 @@ import pandas as pd
 
 from .client import OireachtasClient
 from .io_s3 import put_dataframe_csv, put_dataframe_parquet, put_json
+from .history_dedupe import dedupe_history_rows
 from .normalize import is_current_range, parse_iso_date, stable_hash, stable_record_hash, utc_now_iso
 from .schemas import TableSchema
 
@@ -65,7 +66,12 @@ def build_silver_member_parties(
                 for party in _iter_parties(membership):
                     rows.append(_normalise_party_row(member, membership, party, snapshot_date=snapshot_date))
 
-    rows = _dedupe_rows(rows, primary_key="member_party_id")
+    dedupe = dedupe_history_rows(
+        rows,
+        business_key=("member_code", "party_uri", "party_start", "party_end"),
+        compared_fields=("membership_id", "party_name", "is_current"),
+    )
+    rows = dedupe.rows
     df = pd.DataFrame(rows, columns=schema.columns)
 
     raw_key = f"raw/oireachtas_unified/api/members/snapshot_date={snapshot_date}/run_id={run_id}/page-00000.json"
@@ -79,6 +85,16 @@ def build_silver_member_parties(
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
 
     dq = _dq_results(df, schema)
+    conflict_count = len(dedupe.conflicting_keys)
+    dq["checks"].append({
+        "check_name": "business_key_unique",
+        "status": "pass" if conflict_count == 0 else "fail",
+        "metric_value": conflict_count,
+        "threshold": 0,
+        "conflicting_keys": dedupe.conflicting_keys[:20],
+    })
+    if conflict_count:
+        dq["dq_status"] = "fail"
     write_errors: list[str] = []
     schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     s3_keys = {
@@ -106,6 +122,8 @@ def build_silver_member_parties(
         "status_code": summary.status_code,
         "raw_rows": len(results),
         "output_rows": int(len(df)),
+        "duplicate_business_rows_removed": dedupe.duplicate_rows_removed,
+        "conflicting_business_keys": dedupe.conflicting_keys,
         "primary_key": schema.primary_key,
         "primary_key_unique": dq["primary_key_unique"],
         "dq_status": dq["dq_status"],
