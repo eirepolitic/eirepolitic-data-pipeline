@@ -1,0 +1,75 @@
+name: Instagram Content Factory constituency pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_source:
+        description: Data source for the real example
+        required: true
+        type: choice
+        options: [local, s3]
+        default: s3
+  push:
+    branches:
+      - feature/instagram-content-factory-phase2-constituency
+    paths:
+      - "instagram/catalogues/**"
+      - "instagram/factory/**"
+      - "instagram/projects/constituency_issue_profile_v1/**"
+      - "instagram/visuals/data_mappings/constituency_issue_counts.yml"
+      - "process/instagram_factory.py"
+      - "tests/test_instagram_factory.py"
+      - ".github/workflows/instagram_factory_constituency_pilot.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-factory-constituency-pilot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-and-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data
+      DATA_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.data_source || 'local' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+
+      - name: Validate catalogues and project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project \
+            --project instagram/projects/constituency_issue_profile_v1/project.yml
+
+      - name: Run Content Factory tests
+        run: python -m unittest tests.test_instagram_factory -v
+
+      - name: Render complete-slide validation set
+        run: |
+          python process/instagram_factory.py render-tests \
+            --project instagram/projects/constituency_issue_profile_v1/project.yml \
+            --data-source "$DATA_SOURCE"
+
+      - name: Upload validation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: constituency-issue-profile-validation-${{ env.DATA_SOURCE }}
+          path: generated_factory_tests/constituency_issue_profile_v1/
+          if-no-files-found: error
