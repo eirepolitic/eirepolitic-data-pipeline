@@ -1146,6 +1146,16 @@ Responsibilities:
 
 ### Phase 1 — catalogues and project schema
 
+**Status: completed (2026-07-19) on `feature/instagram-content-factory-phase1`.**
+
+Implemented:
+
+- post, visual, and metric catalogues
+- deterministic catalogue validation and option listing
+- first reusable project specification template
+- deterministic project validation with catalogue compatibility checks
+- focused unit tests and GitHub Actions validation
+
 Build:
 
 - `instagram/catalogues/post_types.yml`
@@ -1236,16 +1246,18 @@ These require separate design and approval.
 
 ## 18. Immediate next development tasks
 
+Phase 1 is complete. The next milestone is Phase 2 complete-slide testing.
+
 Recommended order for the next chat instance:
 
 1. Read this file and the architecture/system docs.
 2. Inspect current live repo state; do not assume this plan is perfectly current.
-3. Create the post/visual/metric catalogues from existing layouts, visual templates, and validated data mappings.
-4. Add catalogue validation and a command to list menu options.
-5. Define the first `instagram/projects/_template/project.yml` schema.
-6. Implement project validation.
-7. Choose one simple pilot project, preferably constituency or member grain with two slides.
-8. Implement min/max/real complete-slide testing for the pilot.
+3. Inspect the completed catalogues, validators, and project template; do not duplicate them.
+4. Choose one simple pilot project, preferably constituency or member grain with two slides.
+5. Implement the min/max/real scenario builder for the pilot.
+6. Integrate standalone visual assets into complete post-layout slots.
+7. Render complete-slide test sets and contact sheets.
+8. Add factual real-example validation manifests.
 9. Review and refine before building batch mode.
 10. Add S3 project storage only after the pilot test flow is approved.
 

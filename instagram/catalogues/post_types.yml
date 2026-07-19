@@ -1,0 +1,122 @@
+catalogue_version: 1
+post_types:
+  - post_type_id: big_media_title_v1
+    display_name: Big media with title
+    description: Large title, reusable media slot, and source footer.
+    status: draft
+    layout_path: instagram/templates/layouts/big_media_title_v1.json
+    supported_aspect_ratios: ["4:5"]
+    supported_slot_types: [text, image, visual]
+    required_variables: [slide_title, main_media, footer_text]
+    optional_variables: []
+    text_limits:
+      slide_title: {max_lines: 2}
+      footer_text: {max_lines: 2}
+    slots:
+      main_media:
+        type: visual_or_image
+        width: 920
+        height: 850
+        fit: contain
+    fallback_rules:
+      missing_media: fail
+      missing_footer_text: fail
+    example_preview: null
+    version: 1
+
+  - post_type_id: title_text_media_v1
+    display_name: Title, text, and media
+    description: Title and explanatory text above a reusable media slot.
+    status: draft
+    layout_path: instagram/templates/layouts/title_text_media_v1.json
+    supported_aspect_ratios: ["4:5"]
+    supported_slot_types: [text, image, visual]
+    required_variables: [slide_title, body_text, main_media, footer_text]
+    optional_variables: []
+    text_limits:
+      slide_title: {max_lines: 2}
+      body_text: {max_lines: 4}
+      footer_text: {max_lines: 2}
+    slots:
+      main_media:
+        type: visual_or_image
+        width: 928
+        height: 760
+        fit: contain
+    fallback_rules:
+      missing_media: fail
+      missing_body_text: fail
+    example_preview: null
+    version: 1
+
+  - post_type_id: profile_card_main_v1
+    display_name: Centred member profile card
+    description: Centred member profile layout with photo and deterministic metrics.
+    status: draft
+    layout_path: instagram/templates/layouts/profile_card_main_v1.json
+    supported_aspect_ratios: ["4:5"]
+    supported_slot_types: [text, image]
+    required_variables:
+      - member_photo
+      - member_name
+      - constituency
+      - party
+      - top_issue
+      - vote_participation
+      - speech_rank
+      - footer_text
+    optional_variables: []
+    text_limits:
+      member_name: {max_lines: 2}
+      constituency: {max_lines: 2}
+      party: {max_lines: 1}
+      top_issue: {max_lines: 2}
+      footer_text: {max_lines: 1}
+    slots:
+      member_photo:
+        type: image
+        width: 500
+        height: 520
+        fit: cover
+    fallback_rules:
+      missing_member_photo: allow_placeholder
+      missing_required_metric: fail
+    example_preview: null
+    version: 1
+
+  - post_type_id: profile_card_v1
+    display_name: Member profile card
+    description: Member profile layout with photo, identity fields, and deterministic metrics.
+    status: draft
+    layout_path: instagram/templates/layouts/profile_card_v1.json
+    supported_aspect_ratios: ["4:5"]
+    supported_slot_types: [text, image]
+    required_variables:
+      - member_photo
+      - member_name
+      - constituency
+      - party
+      - top_issue
+      - vote_participation
+      - speech_rank
+      - speech_count_text
+      - footer_text
+    optional_variables: []
+    text_limits:
+      member_name: {max_lines: 2}
+      constituency: {max_lines: 2}
+      party: {max_lines: 1}
+      top_issue: {max_lines: 2}
+      speech_count_text: {max_lines: 1}
+      footer_text: {max_lines: 2}
+    slots:
+      member_photo:
+        type: image
+        width: 380
+        height: 460
+        fit: cover
+    fallback_rules:
+      missing_member_photo: allow_placeholder
+      missing_required_metric: fail
+    example_preview: null
+    version: 1
