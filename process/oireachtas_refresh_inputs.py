@@ -15,10 +15,15 @@ if str(_REPO_ROOT) not in sys.path:
 from extract.oireachtas.schemas import load_table_registry
 
 
+CONTROL_TAIL = (
+    "control_pipeline_runs",
+    "control_data_quality_results",
+    "control_table_manifests",
+)
 DEFAULT_TABLES = {
-    "weekly": "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results",
-    "monthly": "silver_constituencies,silver_parties,silver_source_files,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results",
-    "yearly": "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_table_manifests,control_data_quality_results",
+    "weekly": "silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_data_quality_results,control_table_manifests",
+    "monthly": "silver_constituencies,silver_parties,silver_source_files,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_data_quality_results,control_table_manifests",
+    "yearly": "silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_bills,silver_bill_versions,silver_bill_stages,gold_current_members,gold_member_activity_yearly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_data_quality_results,control_table_manifests",
 }
 DEFAULT_MODES = {"weekly": "incremental", "monthly": "incremental", "yearly": "full"}
 DEFAULT_PAGE_SIZES = {"weekly": 100, "monthly": 200, "yearly": 200}
@@ -78,6 +83,7 @@ def normalize(args: argparse.Namespace) -> dict[str, object]:
         raise ValueError(f"duplicate tables are not allowed: {duplicates}")
     if unknown:
         raise ValueError(f"unknown tables: {unknown}")
+    requested = _order_control_tables_last(requested)
 
     return {
         "refresh_type": refresh_type,
@@ -91,6 +97,13 @@ def normalize(args: argparse.Namespace) -> dict[str, object]:
         "sample_rows": sample_rows,
         "table_count": len(requested),
     }
+
+
+def _order_control_tables_last(requested: list[str]) -> list[str]:
+    controls = set(CONTROL_TAIL)
+    ordered = [table for table in requested if table not in controls]
+    ordered.extend(table for table in CONTROL_TAIL if table in requested)
+    return ordered
 
 
 def _default_window(refresh_type: str, as_of: date) -> tuple[date, date]:
