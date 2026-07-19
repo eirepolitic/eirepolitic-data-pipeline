@@ -7,7 +7,6 @@ on:
     paths:
       - process/oireachtas_validation_scorecard.py
       - .github/workflows/oireachtas_validation_checkpoint7.yml
-      - docs/oireachtas_validation/**
   workflow_dispatch:
 
 permissions:
@@ -75,18 +74,19 @@ jobs:
           assert summary['all_primary_keys_pass'] is True, summary
           assert summary['all_csv_parquet_pass'] is True, summary
           assert all(summary['checkpoint_summaries_present'].values()), summary
+          assert 'review_required' not in summary['classification_counts'], summary
           print(json.dumps(summary, indent=2, sort_keys=True))
           PY
       - name: Commit final scorecard
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p docs/oireachtas_validation/final
-          cp oireachtas_validation_output/final/* docs/oireachtas_validation/final/
-          cp final_scorecard_console.log docs/oireachtas_validation/final/console.log
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git pull --rebase origin validation/oireachtas-reality-checks
+          mkdir -p docs/oireachtas_validation/final
+          cp oireachtas_validation_output/final/* docs/oireachtas_validation/final/
+          cp final_scorecard_console.log docs/oireachtas_validation/final/console.log
           git add docs/oireachtas_validation/final
           if git diff --cached --quiet; then
             echo 'No scorecard changes.'
