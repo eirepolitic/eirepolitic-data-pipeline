@@ -6,6 +6,7 @@ on:
       - fix/oireachtas-validation-findings
     paths:
       - .github/workflows/oireachtas_apply_history_builder_fix_v2.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -25,5 +26,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add extract/oireachtas/table_member_parties.py extract/oireachtas/table_member_constituencies.py
-          git commit -m 'Deduplicate member history builders by business key'
+          git commit -m 'Refine member history conflict comparison'
           git push origin HEAD:fix/oireachtas-validation-findings
