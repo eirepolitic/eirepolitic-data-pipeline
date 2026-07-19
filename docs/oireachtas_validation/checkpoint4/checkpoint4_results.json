@@ -1,0 +1,1452 @@
+[
+  {
+    "table": "silver_bills",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_id\", \"bill_uri\", \"bill_no\", \"bill_year\", \"title\", \"short_title\", \"origin_house_uri\", \"origin_house_name\", \"bill_type\", \"status\", \"introduced_date\", \"last_event_date\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"bill_id\", \"bill_uri\", \"bill_no\", \"bill_year\", \"title\", \"short_title\", \"origin_house_uri\", \"origin_house_name\", \"bill_type\", \"status\", \"introduced_date\", \"last_event_date\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "date_parse:introduced_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "date_parse:last_event_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "historical_coverage",
+    "expected_result": "minimum valid date is not before requested start 2024-11-29; gaps require source review",
+    "actual_result": "2014-03-11",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "Event tables are checked against official sitting/event dates in later checkpoints."
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "404",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "404",
+    "actual_result": "404",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_id\", \"bill_uri\", \"bill_no\", \"bill_year\", \"title\", \"short_title\", \"origin_house_uri\", \"origin_house_name\", \"bill_type\", \"status\", \"introduced_date\", \"last_event_date\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "actual_result": "[\"bill_id\", \"bill_uri\", \"bill_no\", \"bill_year\", \"title\", \"short_title\", \"origin_house_uri\", \"origin_house_name\", \"bill_type\", \"status\", \"introduced_date\", \"last_event_date\", \"source_endpoint\", \"snapshot_date\", \"source_hash\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_version_id\", \"bill_id\", \"version_label\", \"version_date\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_version_id\", \"bill_id\", \"version_label\", \"version_date\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "date_parse:version_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "506",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "506",
+    "actual_result": "506",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_version_id\", \"bill_id\", \"version_label\", \"version_date\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_version_id\", \"bill_id\", \"version_label\", \"version_date\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_stage_id\", \"bill_id\", \"stage_name\", \"stage_date\", \"house_uri\", \"house_name\", \"stage_outcome\", \"order_in_bill\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_stage_id\", \"bill_id\", \"stage_name\", \"stage_date\", \"house_uri\", \"house_name\", \"stage_outcome\", \"order_in_bill\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "date_parse:stage_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "1358",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "1358",
+    "actual_result": "1358",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_stage_id\", \"bill_id\", \"stage_name\", \"stage_date\", \"house_uri\", \"house_name\", \"stage_outcome\", \"order_in_bill\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_stage_id\", \"bill_id\", \"stage_name\", \"stage_date\", \"house_uri\", \"house_name\", \"stage_outcome\", \"order_in_bill\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "schema_exact",
+    "expected_result": "[\"related_doc_id\", \"bill_id\", \"related_doc_label\", \"related_doc_date\", \"doc_type\", \"language\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "actual_result": "[\"related_doc_id\", \"bill_id\", \"related_doc_label\", \"related_doc_date\", \"doc_type\", \"language\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "date_parse:related_doc_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "345",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "345",
+    "actual_result": "345",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"related_doc_id\", \"bill_id\", \"related_doc_label\", \"related_doc_date\", \"doc_type\", \"language\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "actual_result": "[\"related_doc_id\", \"bill_id\", \"related_doc_label\", \"related_doc_date\", \"doc_type\", \"language\", \"format_pdf_uri\", \"format_pdf_url\", \"format_xml_uri\", \"format_xml_url\", \"source_file_id_pdf\", \"source_file_id_xml\", \"s3_pdf_key\", \"s3_xml_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_sponsor_id\", \"bill_id\", \"sponsor_uri\", \"sponsor_name\", \"sponsor_role_uri\", \"sponsor_role_name\", \"is_primary\", \"sponsor_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_sponsor_id\", \"bill_id\", \"sponsor_uri\", \"sponsor_name\", \"sponsor_role_uri\", \"sponsor_role_name\", \"is_primary\", \"sponsor_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "1211",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "1211",
+    "actual_result": "1211",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_sponsor_id\", \"bill_id\", \"sponsor_uri\", \"sponsor_name\", \"sponsor_role_uri\", \"sponsor_role_name\", \"is_primary\", \"sponsor_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_sponsor_id\", \"bill_id\", \"sponsor_uri\", \"sponsor_name\", \"sponsor_role_uri\", \"sponsor_role_name\", \"is_primary\", \"sponsor_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_debate_id\", \"bill_id\", \"debate_id\", \"debate_uri\", \"debate_date\", \"debate_show_as\", \"debate_section_id\", \"chamber_uri\", \"chamber_name\", \"debate_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_debate_id\", \"bill_id\", \"debate_id\", \"debate_uri\", \"debate_date\", \"debate_show_as\", \"debate_section_id\", \"chamber_uri\", \"chamber_name\", \"debate_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "date_parse:debate_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "1215",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "1215",
+    "actual_result": "1215",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_debate_id\", \"bill_id\", \"debate_id\", \"debate_uri\", \"debate_date\", \"debate_show_as\", \"debate_section_id\", \"chamber_uri\", \"chamber_name\", \"debate_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_debate_id\", \"bill_id\", \"debate_id\", \"debate_uri\", \"debate_date\", \"debate_show_as\", \"debate_section_id\", \"chamber_uri\", \"chamber_name\", \"debate_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "schema_exact",
+    "expected_result": "[\"bill_event_id\", \"bill_id\", \"event_uri\", \"event_type_uri\", \"event_name\", \"event_date\", \"chamber_uri\", \"chamber_name\", \"event_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_event_id\", \"bill_id\", \"event_uri\", \"event_type_uri\", \"event_name\", \"event_date\", \"chamber_uri\", \"chamber_name\", \"event_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "date_parse:event_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "692",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "692",
+    "actual_result": "692",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"bill_event_id\", \"bill_id\", \"event_uri\", \"event_type_uri\", \"event_name\", \"event_date\", \"chamber_uri\", \"chamber_name\", \"event_order\", \"snapshot_date\"]",
+    "actual_result": "[\"bill_event_id\", \"bill_id\", \"event_uri\", \"event_type_uri\", \"event_name\", \"event_date\", \"chamber_uri\", \"chamber_name\", \"event_order\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_versions_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_stages_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_related_docs_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_sponsors_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_debates_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "silver_bill_events_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "bill_origin_house",
+    "expected_result": "0",
+    "actual_result": "404",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/80\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/80\",\"bill_no\":\"80\",\"bill_year\":\"2026\",\"title\":\"Defence (Amendment) (No. 2) Bill 2026\",\"short_title\":\"Defence (Amendment) (No. 2) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-10\",\"last_event_date\":\"2026-07-10\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"7e2c68a67c5f121c\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/79\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/79\",\"bill_no\":\"79\",\"bill_year\":\"2026\",\"title\":\"Adult Safeguarding Strategy Bill 2026\",\"short_title\":\"Adult Safeguarding Strategy Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"origin_house_name\":\"Seanad \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-25\",\"last_event_date\":\"2026-07-09\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"f70867f8dd2542eb\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/78\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/78\",\"bill_no\":\"78\",\"bill_year\":\"2026\",\"title\":\"Prevention of Energy Wastage Bill 2026\",\"short_title\":\"Prevention of Energy Wastage Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-05-21\",\"last_event_date\":\"2026-07-03\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"d07c207ba477993f\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/77\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/77\",\"bill_no\":\"77\",\"bill_year\":\"2026\",\"title\":\"Protection of Children (Online Age Verification) Bill 2026\",\"short_title\":\"Protection of Children (Online Age Verification) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"origin_house_name\":\"Seanad \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-07-02\",\"last_event_date\":\"2026-07-09\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"75e78a79387d0472\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/76\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/76\",\"bill_no\":\"76\",\"bill_year\":\"2026\",\"title\":\"Strategic Lawsuits against Public Participation Bill 2026\",\"short_title\":\"Strategic Lawsuits against Public Participation Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-07-01\",\"last_event_date\":\"2026-07-01\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"df154619b7ec3352\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"bill_no\":\"75\",\"bill_year\":\"2026\",\"title\":\"Planning and Development (Amendment) Bill 2026\",\"short_title\":\"Planning and Development (Amendment) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-26\",\"last_event_date\":\"2026-07-16\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"f06d9c4be2cfacc2\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\",\"bill_no\":\"74\",\"bill_year\":\"2026\",\"title\":\"Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026\",\"short_title\":\"Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-26\",\"last_event_date\":\"2026-07-16\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"8a49ccc901e626d4\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/73\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/73\",\"bill_no\":\"73\",\"bill_year\":\"2026\",\"title\":\"Anti-Shrinkflation Bill 2026\",\"short_title\":\"Anti-Shrinkflation Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-10\",\"last_event_date\":\"2026-06-24\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"f41ff4c42dfdd42b\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/72\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/72\",\"bill_no\":\"72\",\"bill_year\":\"2026\",\"title\":\"Development (Strategic Gas Reserve) Bill 2026\",\"short_title\":\"Development (Strategic Gas Reserve) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-19\",\"last_event_date\":\"2026-07-16\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"2c06370ea636e6f3\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"bill_no\":\"71\",\"bill_year\":\"2026\",\"title\":\"Postal and Telecommunications Services (Amendment) Bill 2026\",\"short_title\":\"Postal and Telecommunications Services (Amendment) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-19\",\"last_event_date\":\"2026-07-16\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"5acff42253a8d975\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/70\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/70\",\"bill_no\":\"70\",\"bill_year\":\"2026\",\"title\":\"Dublin Airport (Passenger Capacity) Bill 2026\",\"short_title\":\"Dublin Airport (Passenger Capacity) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-19\",\"last_event_date\":\"2026-07-09\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"55d32e16223a6a95\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"bill_no\":\"69\",\"bill_year\":\"2026\",\"title\":\"Regulation of Artificial Intelligence Bill 2026\",\"short_title\":\"Regulation of Artificial Intelligence Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-19\",\"last_event_date\":\"2026-07-16\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"99ac222517f0c3ce\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/68\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/68\",\"bill_no\":\"68\",\"bill_year\":\"2026\",\"title\":\"Electricity Regulation (Amendment) (No. 2) Bill 2026\",\"short_title\":\"Electricity Regulation (Amendment) (No. 2) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-03\",\"last_event_date\":\"2026-06-18\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"7b9119958bc97947\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/67\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/67\",\"bill_no\":\"67\",\"bill_year\":\"2026\",\"title\":\"Health (Amendment) Bill 2026\",\"short_title\":\"Health (Amendment) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2025-07-31\",\"last_event_date\":\"2026-06-18\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"8e367d996b8b80d1\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/66\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/66\",\"bill_no\":\"66\",\"bill_year\":\"2026\",\"title\":\"School Meals Nutritional Standards Bill 2026\",\"short_title\":\"School Meals Nutritional Standards Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-15\",\"last_event_date\":\"2026-06-17\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"775bb22ae54db9bb\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/65\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/65\",\"bill_no\":\"65\",\"bill_year\":\"2026\",\"title\":\"Planning for Constitutional Change Bill 2026\",\"short_title\":\"Planning for Constitutional Change Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Defeated\",\"introduced_date\":\"2026-06-03\",\"last_event_date\":\"2026-07-09\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"78c685c4f73d8f5e\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/64\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/64\",\"bill_no\":\"64\",\"bill_year\":\"2026\",\"title\":\"Forestry (Critical Infrastructure) (Amendment) Bill 2026\",\"short_title\":\"Forestry (Critical Infrastructure) (Amendment) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-09\",\"last_event_date\":\"2026-06-17\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"9228c56af9d4c252\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/63\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/63\",\"bill_no\":\"63\",\"bill_year\":\"2026\",\"title\":\"Defence (Amendment) Bill 2026\",\"short_title\":\"Defence (Amendment) Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-16\",\"last_event_date\":\"2026-07-09\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"2d4c9b9f4b84b4ad\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"bill_no\":\"62\",\"bill_year\":\"2026\",\"title\":\"Domestic Violence Judgments Register Bill 2026\",\"short_title\":\"Domestic Violence Judgments Register Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"origin_house_name\":\"Seanad \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-06-15\",\"last_event_date\":\"2026-07-15\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"104b0528ad04dbd9\"},{\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/61\",\"bill_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/61\",\"bill_no\":\"61\",\"bill_year\":\"2026\",\"title\":\"Prohibition of Sulky-Racing Bill 2026\",\"short_title\":\"Prohibition of Sulky-Racing Bill 2026\",\"origin_house_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"origin_house_name\":\"D\\u00e1il \\u00c9ireann\",\"bill_type\":\"Public\",\"status\":\"Current\",\"introduced_date\":\"2026-05-14\",\"last_event_date\":\"2026-06-11\",\"source_endpoint\":\"\\/legislation\",\"snapshot_date\":\"2026-07-16\",\"source_hash\":\"b3145c4edf7b2c7e\"}]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "bill_stage_house",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "bill_debate_debate",
+    "expected_result": "0",
+    "actual_result": "796",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"bill_debate_id\":\"bill_debate:8ea8ceba1621ebed0eadf9f7\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_18\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:90be6ad8e349ee1623b98346\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:a7b999daae49e58462c836e3\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_date\":\"2026-07-01\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:ff4516db74095350a9aa27a8\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_date\":\"2026-06-25\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_15\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:858ba185c7f1396a02b02a3c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Order for Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:68495295fbfa4d4f4d103403\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:38cef2ad869a2acd5fd8c560\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/60\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_date\":\"2026-06-10\",\"debate_show_as\":\"Electoral (Amendment) (Voting Age) Bill 2026: First Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:759eb577cba1018d18083eca\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_29\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:7738bbcb4b89b2148c0c314c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_date\":\"2026-06-23\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:9a2a867dc72b0ec40f5e29bd\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_date\":\"2026-06-18\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c3f650e92272b70304040f50\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"5\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:6d2bb9f3710476c2c12f5586\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/57\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_17\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:8e9fc5c41bb9427fdd86a6b6\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/57\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_foreign_affairs_and_trade\\/2026-06-25\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_foreign_affairs_and_trade\\/2026-06-25\\/debate\\/main\",\"debate_date\":\"2026-06-25\",\"debate_show_as\":\"Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Foreign Affairs and Trade\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c98efac06f38d04416d6148d\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/57\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_foreign_affairs_and_trade\\/2026-06-23\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_foreign_affairs_and_trade\\/2026-06-23\\/debate\\/main\",\"debate_date\":\"2026-06-23\",\"debate_show_as\":\"Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Foreign Affairs and Trade\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:f4cd8de203f47454359ffbd1\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/53\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-30\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-30\\/debate\\/main\",\"debate_date\":\"2026-06-30\",\"debate_show_as\":\"Guardianship of Infants and Child Care (Amendment) Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_24\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:3ed2969f0bf8d3f48f5aead0\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/53\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-24\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-24\\/debate\\/main\",\"debate_date\":\"2026-06-24\",\"debate_show_as\":\"Guardianship of Infants and Child Care (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_9\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:de17488c820378ccc779c46c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/53\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_justice_home_affairs_and_migration\\/2026-06-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_justice_home_affairs_and_migration\\/2026-06-09\\/debate\\/main\",\"debate_date\":\"2026-06-09\",\"debate_show_as\":\"Guardianship of Infants (Amendment) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Justice, Home Affairs and Migration\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:bc45648113ab855038303a03\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/1\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-02\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-02\\/debate\\/main\",\"debate_date\":\"2026-07-02\",\"debate_show_as\":\"Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Report and Final Stages\",\"debate_section_id\":\"dbsect_16\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:bee7ef75f6158ac8f5b199c3\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/1\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_date\":\"2026-06-25\",\"debate_show_as\":\"Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:9a90db330ef4bf352bb425a4\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/1\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-24\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-24\\/debate\\/main\",\"debate_date\":\"2026-06-24\",\"debate_show_as\":\"Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_12\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"}]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "bill_debate_section",
+    "expected_result": "0",
+    "actual_result": "1215",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"bill_debate_id\":\"bill_debate:8ea8ceba1621ebed0eadf9f7\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_18\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:76d7cd261d21299558fc6589\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_39\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c494262c57dd569f3e4c1755\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-02\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-02\\/debate\\/main\",\"debate_date\":\"2026-07-02\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_34\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:b85a7084330b5dcca441f877\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_37\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:5a96cf84a1f5fb989290d63f\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_14\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:456c29aa5914ff028c5512c0\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-07\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-07\\/debate\\/main\",\"debate_date\":\"2026-07-07\",\"debate_show_as\":\"Postal and Telecommunications Services (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_17\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:90be6ad8e349ee1623b98346\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:a7b999daae49e58462c836e3\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_date\":\"2026-07-01\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:2d93bbedf2dbb715829c6274\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-30\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-30\\/debate\\/main\",\"debate_date\":\"2026-06-30\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_41\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:ff7bb623c529a1fae626fc1c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-24\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-24\\/debate\\/main\",\"debate_date\":\"2026-06-24\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_21\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:ff4516db74095350a9aa27a8\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_date\":\"2026-06-25\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_15\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:858ba185c7f1396a02b02a3c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Order for Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:68495295fbfa4d4f4d103403\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:38cef2ad869a2acd5fd8c560\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/60\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_date\":\"2026-06-10\",\"debate_show_as\":\"Electoral (Amendment) (Voting Age) Bill 2026: First Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:759eb577cba1018d18083eca\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_29\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:31552fcf02c9348656d4fca0\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Report and Final Stages\",\"debate_section_id\":\"dbsect_26\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:7738bbcb4b89b2148c0c314c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_date\":\"2026-06-23\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:9a2a867dc72b0ec40f5e29bd\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_date\":\"2026-06-18\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c3f650e92272b70304040f50\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"5\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:fc69b05733edb576fecbc08b\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-11\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-11\\/debate\\/main\",\"debate_date\":\"2026-06-11\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_32\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"6\",\"snapshot_date\":\"2026-07-14\"}]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "bill_event_chamber",
+    "expected_result": "0",
+    "actual_result": "634",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/80\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/80\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/80\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-06-10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/79\\/approved-for-initiation\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/79\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/79\\/approved-for-initiation\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/approved-for-initiation\",\"event_name\":\"Approved for Initiation\",\"event_date\":\"2026-06-25\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/78\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/78\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/78\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-05-21\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/77\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/77\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/77\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-07-02\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/76\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/76\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/76\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-07-01\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-26\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-26\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/73\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/73\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/73\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-06-10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/72\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/72\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/72\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/70\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/70\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/70\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/68\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/68\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/68\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-06-03\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/67\\/approved-for-initiation\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/67\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/67\\/approved-for-initiation\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/approved-for-initiation\",\"event_name\":\"Approved for Initiation\",\"event_date\":\"2025-07-31\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/66\\/approved-for-initiation\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/66\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/66\\/approved-for-initiation\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/approved-for-initiation\",\"event_name\":\"Approved for Initiation\",\"event_date\":\"2026-06-15\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/65\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/65\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/65\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-06-03\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/64\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/64\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/64\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-06-09\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/63\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/63\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/63\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-16\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\\/published\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\\/published\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/published\",\"event_name\":\"Published\",\"event_date\":\"2026-06-15\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"},{\"bill_event_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/61\\/admissibility-for-introduction\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/61\",\"event_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/61\\/admissibility-for-introduction\",\"event_type_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/bill-event\\/admissibility-for-introduction\",\"event_name\":\"Admissibility for Introduction\",\"event_date\":\"2026-05-14\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"event_order\":\"1\",\"snapshot_date\":\"2026-07-16\"}]"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "introduced_date_not_after_last_event_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "order_in_bill_unique_per_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "sponsor_order_unique_per_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "debate_order_unique_per_bill",
+    "expected_result": "0",
+    "actual_result": "90",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"bill_debate_id\":\"bill_debate:8ea8ceba1621ebed0eadf9f7\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_18\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:76d7cd261d21299558fc6589\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_39\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c494262c57dd569f3e4c1755\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/75\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-02\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-02\\/debate\\/main\",\"debate_date\":\"2026-07-02\",\"debate_show_as\":\"Planning and Development (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_34\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:b85a7084330b5dcca441f877\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/74\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_37\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:5a96cf84a1f5fb989290d63f\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_14\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:456c29aa5914ff028c5512c0\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/71\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-07\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-07\\/debate\\/main\",\"debate_date\":\"2026-07-07\",\"debate_show_as\":\"Postal and Telecommunications Services (Amendment) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_17\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:90be6ad8e349ee1623b98346\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_19\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:a7b999daae49e58462c836e3\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-01\\/debate\\/main\",\"debate_date\":\"2026-07-01\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:2d93bbedf2dbb715829c6274\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-30\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-30\\/debate\\/main\",\"debate_date\":\"2026-06-30\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_41\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:ff7bb623c529a1fae626fc1c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/69\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-24\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-24\\/debate\\/main\",\"debate_date\":\"2026-06-24\",\"debate_show_as\":\"Regulation of Artificial Intelligence Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_21\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:ff4516db74095350a9aa27a8\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-25\\/debate\\/main\",\"debate_date\":\"2026-06-25\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Committee and Remaining Stages\",\"debate_section_id\":\"dbsect_15\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:858ba185c7f1396a02b02a3c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Order for Second Stage\",\"debate_section_id\":\"dbsect_10\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:68495295fbfa4d4f4d103403\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/62\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Domestic Violence Judgments Register Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:38cef2ad869a2acd5fd8c560\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/60\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-06-10\\/debate\\/main\",\"debate_date\":\"2026-06-10\",\"debate_show_as\":\"Electoral (Amendment) (Voting Age) Bill 2026: First Stage\",\"debate_section_id\":\"dbsect_11\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:759eb577cba1018d18083eca\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/seanad\\/2026-07-09\\/debate\\/main\",\"debate_date\":\"2026-07-09\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_29\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/seanad\",\"chamber_name\":\"Seanad \\u00c9ireann\",\"debate_order\":\"1\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:31552fcf02c9348656d4fca0\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-07-08\\/debate\\/main\",\"debate_date\":\"2026-07-08\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Report and Final Stages\",\"debate_section_id\":\"dbsect_26\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"2\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:7738bbcb4b89b2148c0c314c\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-23\\/debate\\/main\",\"debate_date\":\"2026-06-23\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"3\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:9a2a867dc72b0ec40f5e29bd\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-18\\/debate\\/main\",\"debate_date\":\"2026-06-18\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"4\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:c3f650e92272b70304040f50\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/select_committee_on_housing_local_government_and_heritage\\/2026-06-16\\/debate\\/main\",\"debate_date\":\"2026-06-16\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage\",\"debate_section_id\":\"dbsect_2\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/committee\",\"chamber_name\":\"Select Committee on Housing, Local Government and Heritage\",\"debate_order\":\"5\",\"snapshot_date\":\"2026-07-14\"},{\"bill_debate_id\":\"bill_debate:fc69b05733edb576fecbc08b\",\"bill_id\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2026\\/58\",\"debate_id\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-11\\/debate\\/main\",\"debate_uri\":\"https:\\/\\/data.oireachtas.ie\\/akn\\/ie\\/debateRecord\\/dail\\/2026-06-11\\/debate\\/main\",\"debate_date\":\"2026-06-11\",\"debate_show_as\":\"Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage\",\"debate_section_id\":\"dbsect_32\",\"chamber_uri\":\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/def\\/house\\/dail\",\"chamber_name\":\"D\\u00e1il \\u00c9ireann\",\"debate_order\":\"6\",\"snapshot_date\":\"2026-07-14\"}]"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "event_order_unique_per_bill",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "at_most_one_primary_sponsor_per_bill",
+    "expected_result": "0",
+    "actual_result": "2",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2016\\/31\":2,\"https:\\/\\/data.oireachtas.ie\\/ie\\/oireachtas\\/bill\\/2025\\/4\":2}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "document_source_file_ids_resolve",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": []}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "document_source_file_ids_resolve",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": []}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "version_date_within_bill_lifecycle",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "stage_date_within_bill_lifecycle",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "related_doc_date_within_bill_lifecycle",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "debate_date_within_bill_lifecycle",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "event_date_within_bill_lifecycle",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "404",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 1248}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2007/33\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/15\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/22\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/26\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/27\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/28\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/39\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/40\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/52\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/53\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/58\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/59\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/62\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/67\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/70\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/77\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/7",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/128",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/24",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/74",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bills",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "506",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 2701}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"https://data.oireachtas.ie/ie/oireachtas/act/2012/C31/mul/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/10/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/10/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/11/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/11/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/12/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/13/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/13/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/14/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/14/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/15/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/15/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/16/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/16/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/17/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/17/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/18/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/18/gle/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/19/eng/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/act/2014/19/gle/enacted\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/9/eng/initiated",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/16/eng/initiated",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/44/eng/ver_a",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/67/eng/ver_b",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69/eng/initiated",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "1358",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 6165}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33/stage/dail/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44/stage/seanad/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2007/33/stage/seanad/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/dail/2\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/dail/3\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/dail/4\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/dail/5\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/oireachtas/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/seanad/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/seanad/2\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/seanad/3\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/seanad/4\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/stage/seanad/5\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38/stage/dail/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38/stage/dail/2\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/15/stage/dail/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/15/stage/dail/2\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/22/stage/seanad/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/26/stage/dail/1\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/27/stage/dail/1\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1/stage/dail/None",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/37/stage/oireachtas/enacted",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/28/stage/dail/1",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/stage/dail/2",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_stages",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/84/stage/seanad/4",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "345",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 1167}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/22/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/26/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/27/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/39/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/40/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/52/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/58/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/62/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/77/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/100/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/102/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/114/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/116/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/119/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/14/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/19/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/22/eng/memo\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2012/24/eng/memo\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/21/eng/memo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/34/eng/memo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/90/eng/memo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/6/eng/memo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/39/eng/memo",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "1211",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 1876}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"bill_sponsor:003f74283f89ca199d407536\", \"bill_sponsor:00475b98be3ca57e402babfd\", \"bill_sponsor:004d5724fa8a06bcebe14eb5\", \"bill_sponsor:005538ba7af3067a2f99fd4c\", \"bill_sponsor:00d0812d07a9faf3cf919ae8\", \"bill_sponsor:01109d4a6b685966fc887450\", \"bill_sponsor:01194f3fc6ba94e6bf788d1b\", \"bill_sponsor:011cc2bc322e739be66578bb\", \"bill_sponsor:013e3a5090ee0b7729660484\", \"bill_sponsor:01560514e31313a0425211cd\", \"bill_sponsor:0160718f7f5047810e00e1f2\", \"bill_sponsor:017421732fac933fb0e44d69\", \"bill_sponsor:0191de16e4660b14b01a6ae6\", \"bill_sponsor:01e4450eaf3170ffa4272306\", \"bill_sponsor:01f0f6876b381dfa6bfa542b\", \"bill_sponsor:021a622e8e2f577cdffabf51\", \"bill_sponsor:022322374a1163f5cb6e7401\", \"bill_sponsor:0249978804770b27e32231a9\", \"bill_sponsor:029d6151e90d16540752f57d\", \"bill_sponsor:02a60c53a3449a9618c3c6f8\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_sponsor:65f42df70f32828e6d92fb9e",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_sponsor:5813573220fc70949e0ee47b",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_sponsor:67ddf7bfa69a9be6b5b00d52",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_sponsor:6c3638c976318fd8a4449902",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_sponsors",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_sponsor:4cd9daaa8cc6b81ea0a0f78c",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "1165",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 50, \"missing_from_live\": 5933}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"bill_debate:00095d3a3bf5956fa7904338\", \"bill_debate:001dd0f52b047880c4d610e7\", \"bill_debate:001ff3e92075c599ae2e834f\", \"bill_debate:0021d2f6ae33732b6695eb71\", \"bill_debate:002261a2f94aa43b0271cc02\", \"bill_debate:0025c7474a706e61df3a1b02\", \"bill_debate:00293bd6263754d95c4b49db\", \"bill_debate:0029dbf44f25e32bf4dc5e6c\", \"bill_debate:002e6d4896e7ac3186dd2f1b\", \"bill_debate:003627723d57f9d9ecbcd6ed\", \"bill_debate:00386b1934e36481503bf2e2\", \"bill_debate:00477b61e5aa77ea0058da1e\", \"bill_debate:004c9d321475c5e46d6419ef\", \"bill_debate:0050040dadfb4c95c2f920f9\", \"bill_debate:005288c51ced199ab1b718f2\", \"bill_debate:005a6a01ea4f38f53925e019\", \"bill_debate:0069498dd7b57ccdbddc633b\", \"bill_debate:00705ba9533a7aea556075ff\", \"bill_debate:00766e9953d77df2db58a444\", \"bill_debate:007868cbe9e39b5227594339\"], \"extra_samples\": [\"bill_debate:1b2293e1de3bc1642a098e8c\", \"bill_debate:1e89bebceba18904d92f589d\", \"bill_debate:2283cce7f34a099acf35aad2\", \"bill_debate:2d93bbedf2dbb715829c6274\", \"bill_debate:2dce6b7058eaa556d565fa36\", \"bill_debate:31552fcf02c9348656d4fca0\", \"bill_debate:38cef2ad869a2acd5fd8c560\", \"bill_debate:3be27c379638fa3b33c24a76\", \"bill_debate:3ed2969f0bf8d3f48f5aead0\", \"bill_debate:44f91e09360cf60a7f88d096\", \"bill_debate:456c29aa5914ff028c5512c0\", \"bill_debate:47e7b9a1edcd04befcdddeec\", \"bill_debate:517ed952964420938fc1e6ea\", \"bill_debate:5675139f4a7f653f92cddab7\", \"bill_debate:5a96cf84a1f5fb989290d63f\", \"bill_debate:61cb0ac959fb7ffdcf7a899c\", \"bill_debate:62df6f21440eef336cc2e20a\", \"bill_debate:68495295fbfa4d4f4d103403\", \"bill_debate:6d2bb9f3710476c2c12f5586\", \"bill_debate:759eb577cba1018d18083eca\"]}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_debate:28425bc270ed46981e08efd3",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_debate:c1220219dfe03213a2495768",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_debate:3e52600778a5aac4c37ca33a",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_debate:ab53ba1543d52a98709c5d9c",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_debates",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "bill_debate:d67dbf8faf8c869c3cf0bf66",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_key_overlap",
+    "expected_result": "> 0",
+    "actual_result": "692",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_key_delta",
+    "expected_result": "0 missing from live and 0 extra in live",
+    "actual_result": "{\"extra_in_live\": 0, \"missing_from_live\": 2558}",
+    "status": "fail",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [\"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33/bill-restored\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2005/33/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44/bill-restored\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2006/44/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2007/33/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2007/33/bill-restored\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2007/33/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/enacted\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2008/36/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38/bill-restored\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2010/38/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/15/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/15/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/22/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/22/published\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/26/bill-lapsed\", \"https://data.oireachtas.ie/ie/oireachtas/bill/2011/26/published\"], \"extra_samples\": []}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/approved-for-initiation",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/16/admissibility-for-introduction",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2021/48/admissibility-for-introduction",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/61/published",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_events",
+    "test_name": "official_api_sample_match",
+    "expected_result": "all selected stable fields equal",
+    "actual_result": "match",
+    "status": "pass",
+    "source_url_or_api_request": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/89/bill-lapsed",
+    "details": "{}"
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated/b4523s.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated/b4523s.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_content_type",
+    "expected_result": "pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated/b4523s.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/45/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated/b3126d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated/b3126d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_content_type",
+    "expected_result": "pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated/b3126d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/31/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated/b8317d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated/b8317d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_content_type",
+    "expected_result": "pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated/b8317d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2017/83/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_document_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo/b8325d-memo.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_document_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo/b8325d-memo.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_related_docs",
+    "test_name": "official_document_content_type",
+    "expected_result": "pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo/b8325d-memo.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/83/eng/memo",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_host",
+    "expected_result": "official Oireachtas host",
+    "actual_result": "data.oireachtas.ie",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated/b5223d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_url_responds",
+    "expected_result": "HTTP 2xx/3xx",
+    "actual_result": "200",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated/b5223d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated",
+    "details": ""
+  },
+  {
+    "table": "silver_bill_versions",
+    "test_name": "official_document_content_type",
+    "expected_result": "pdf",
+    "actual_result": "application/pdf",
+    "status": "pass",
+    "source_url_or_api_request": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated/b5223d.pdf",
+    "sample_record_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2023/52/eng/initiated",
+    "details": ""
+  }
+]
