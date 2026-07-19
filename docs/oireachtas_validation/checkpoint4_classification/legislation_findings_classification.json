@@ -1,0 +1,740 @@
+{
+  "official_source": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2014-03-11&date_end=2026-07-16&limit=200&skip=0",
+  "comparable_scope": {
+    "silver_bills": {
+      "live_rows": 404,
+      "official_rows_for_live_bills": 404,
+      "shared_keys": 404,
+      "missing_from_live": 0,
+      "extra_in_live": 0,
+      "missing_samples": [],
+      "extra_samples": []
+    },
+    "silver_bill_versions": {
+      "live_rows": 506,
+      "official_rows_for_live_bills": 507,
+      "shared_keys": 506,
+      "missing_from_live": 1,
+      "extra_in_live": 0,
+      "missing_samples": [
+        "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1/eng/ver_c"
+      ],
+      "extra_samples": []
+    },
+    "silver_bill_stages": {
+      "live_rows": 1358,
+      "official_rows_for_live_bills": 1358,
+      "shared_keys": 1358,
+      "missing_from_live": 0,
+      "extra_in_live": 0,
+      "missing_samples": [],
+      "extra_samples": []
+    },
+    "silver_bill_related_docs": {
+      "live_rows": 345,
+      "official_rows_for_live_bills": 345,
+      "shared_keys": 345,
+      "missing_from_live": 0,
+      "extra_in_live": 0,
+      "missing_samples": [],
+      "extra_samples": []
+    },
+    "silver_bill_sponsors": {
+      "live_rows": 1211,
+      "official_rows_for_live_bills": 1211,
+      "shared_keys": 1211,
+      "missing_from_live": 0,
+      "extra_in_live": 0,
+      "missing_samples": [],
+      "extra_samples": []
+    },
+    "silver_bill_debates": {
+      "live_rows": 1215,
+      "official_rows_for_live_bills": 1171,
+      "shared_keys": 1165,
+      "missing_from_live": 6,
+      "extra_in_live": 50,
+      "missing_samples": [
+        "bill_debate:0df12d857ffb8380a63911fb",
+        "bill_debate:12b29968a8645411b47348e0",
+        "bill_debate:41c4785723be81fe29c1d965",
+        "bill_debate:78c93a2946e9a254bcd172b8",
+        "bill_debate:8f460a17265857584ee41beb",
+        "bill_debate:bb0c2f4aedb81e8e1a53334d"
+      ],
+      "extra_samples": [
+        "bill_debate:1b2293e1de3bc1642a098e8c",
+        "bill_debate:1e89bebceba18904d92f589d",
+        "bill_debate:2283cce7f34a099acf35aad2",
+        "bill_debate:2d93bbedf2dbb715829c6274",
+        "bill_debate:2dce6b7058eaa556d565fa36",
+        "bill_debate:31552fcf02c9348656d4fca0",
+        "bill_debate:38cef2ad869a2acd5fd8c560",
+        "bill_debate:3be27c379638fa3b33c24a76",
+        "bill_debate:3ed2969f0bf8d3f48f5aead0",
+        "bill_debate:44f91e09360cf60a7f88d096",
+        "bill_debate:456c29aa5914ff028c5512c0",
+        "bill_debate:47e7b9a1edcd04befcdddeec",
+        "bill_debate:517ed952964420938fc1e6ea",
+        "bill_debate:5675139f4a7f653f92cddab7",
+        "bill_debate:5a96cf84a1f5fb989290d63f",
+        "bill_debate:61cb0ac959fb7ffdcf7a899c",
+        "bill_debate:62df6f21440eef336cc2e20a",
+        "bill_debate:68495295fbfa4d4f4d103403",
+        "bill_debate:6d2bb9f3710476c2c12f5586",
+        "bill_debate:759eb577cba1018d18083eca"
+      ]
+    },
+    "silver_bill_events": {
+      "live_rows": 692,
+      "official_rows_for_live_bills": 692,
+      "shared_keys": 692,
+      "missing_from_live": 0,
+      "extra_in_live": 0,
+      "missing_samples": [],
+      "extra_samples": []
+    }
+  },
+  "chamber_model": {
+    "silver_bills": {
+      "column": "origin_house_uri",
+      "known_chamber_keys": [
+        "dail",
+        "dail & seanad",
+        "oireachtas",
+        "seanad"
+      ],
+      "invalid_rows": 0,
+      "invalid_samples": [],
+      "direct_uri_join_is_valid": false,
+      "classification": "definition URI must be normalized to chamber key before joining to house-instance URIs"
+    },
+    "silver_bill_stages": {
+      "column": "house_uri",
+      "known_chamber_keys": [
+        "dail",
+        "dail & seanad",
+        "oireachtas",
+        "seanad"
+      ],
+      "invalid_rows": 1319,
+      "invalid_samples": [
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80/stage/dail/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80",
+          "stage_name": "First Stage",
+          "stage_date": "2026-06-10",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80/stage/dail/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-09",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "Current",
+          "order_in_bill": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/79/stage/seanad/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/79",
+          "stage_name": "First Stage",
+          "stage_date": "2026-06-25",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/79/stage/seanad/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/79",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-08",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "Current",
+          "order_in_bill": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/78/stage/dail/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/78",
+          "stage_name": "First Stage",
+          "stage_date": "2026-05-21",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/78/stage/dail/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/78",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-02",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "Current",
+          "order_in_bill": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77/stage/seanad/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77",
+          "stage_name": "First Stage",
+          "stage_date": "2026-07-02",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77/stage/seanad/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-02",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77/stage/seanad/3",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/77",
+          "stage_name": "Committee Stage",
+          "stage_date": "2026-07-08",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "Current",
+          "order_in_bill": "3",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76",
+          "stage_name": "First Stage",
+          "stage_date": "2026-07-01",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/dail/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "First Stage",
+          "stage_date": "2026-06-26",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/dail/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-02",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/dail/3",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Committee Stage",
+          "stage_date": "2026-07-02",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "3",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/dail/4",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Report Stage",
+          "stage_date": "2026-07-08",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "4",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/dail/5",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Fifth Stage",
+          "stage_date": "2026-07-08",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "5",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/seanad/2",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Second Stage",
+          "stage_date": "2026-07-08",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "6",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/seanad/3",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Committee Stage",
+          "stage_date": "2026-07-14",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "7",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/seanad/4",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Report Stage",
+          "stage_date": "2026-07-14",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "8",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75/stage/seanad/5",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+          "stage_name": "Fifth Stage",
+          "stage_date": "2026-07-14",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/27",
+          "house_name": "27th Seanad",
+          "stage_outcome": "",
+          "order_in_bill": "9",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_stage_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74/stage/dail/1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74",
+          "stage_name": "First Stage",
+          "stage_date": "2026-06-26",
+          "house_uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34",
+          "house_name": "34th Dáil",
+          "stage_outcome": "",
+          "order_in_bill": "1",
+          "snapshot_date": "2026-07-16"
+        }
+      ],
+      "direct_uri_join_is_valid": false,
+      "classification": "definition URI must be normalized to chamber key before joining to house-instance URIs"
+    },
+    "silver_bill_debates": {
+      "column": "chamber_uri",
+      "known_chamber_keys": [
+        "dail",
+        "dail & seanad",
+        "oireachtas",
+        "seanad"
+      ],
+      "invalid_rows": 56,
+      "invalid_samples": [
+        {
+          "bill_debate_id": "bill_debate:7738bbcb4b89b2148c0c314c",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-23/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-23/debate/main",
+          "debate_date": "2026-06-23",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "3",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:9a2a867dc72b0ec40f5e29bd",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-18/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-18/debate/main",
+          "debate_date": "2026-06-18",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:c3f650e92272b70304040f50",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-16/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-16/debate/main",
+          "debate_date": "2026-06-16",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "5",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:8e9fc5c41bb9427fdd86a6b6",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-25/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-25/debate/main",
+          "debate_date": "2026-06-25",
+          "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Foreign Affairs and Trade",
+          "debate_order": "3",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:c98efac06f38d04416d6148d",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-23/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-23/debate/main",
+          "debate_date": "2026-06-23",
+          "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Foreign Affairs and Trade",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:de17488c820378ccc779c46c",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-06-09/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-06-09/debate/main",
+          "debate_date": "2026-06-09",
+          "debate_show_as": "Guardianship of Infants (Amendment) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Justice, Home Affairs and Migration",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:62df6f21440eef336cc2e20a",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-05-19/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-05-19/debate/main",
+          "debate_date": "2026-05-19",
+          "debate_show_as": "Criminal Law and Civil Law (Miscellaneous Provisions) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Justice, Home Affairs and Migration",
+          "debate_order": "6",
+          "snapshot_date": "2026-07-14"
+        },
+        {
+          "bill_debate_id": "bill_debate:a6161b6d7103157a41d01710",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-23/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-23/debate/main",
+          "debate_date": "2026-06-23",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:ab24d6d5f88e3d19fca023e3",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-18/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-18/debate/main",
+          "debate_date": "2026-06-18",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "5",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:9cb3d0da2d2984c161da50f1",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-16/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_housing_local_government_and_heritage/2026-06-16/debate/main",
+          "debate_date": "2026-06-16",
+          "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Housing, Local Government and Heritage",
+          "debate_order": "6",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:7b31b4476d9a473fb9bb339f",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-25/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-25/debate/main",
+          "debate_date": "2026-06-25",
+          "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Foreign Affairs and Trade",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:24592317221c5f06c2b8f7e6",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-23/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_foreign_affairs_and_trade/2026-06-23/debate/main",
+          "debate_date": "2026-06-23",
+          "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Foreign Affairs and Trade",
+          "debate_order": "5",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:c7a5540705dd81a716c7261e",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-06-09/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-06-09/debate/main",
+          "debate_date": "2026-06-09",
+          "debate_show_as": "Guardianship of Infants (Amendment) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Justice, Home Affairs and Migration",
+          "debate_order": "5",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:412081381180070ca9766e27",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/52",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_transport/2026-06-24/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_transport/2026-06-24/debate/main",
+          "debate_date": "2026-06-24",
+          "debate_show_as": "Dublin Transport Authority (Amendment) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_5",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Transport",
+          "debate_order": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:bd135d266e1dfe3a27827b9d",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/48",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_finance_public_expenditure_public_service_reform_and_digitalisation_and_taoiseach/2026-05-27/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_finance_public_expenditure_public_service_reform_and_digitalisation_and_taoiseach/2026-05-27/debate/main",
+          "debate_date": "2026-05-27",
+          "debate_show_as": "National Treasury Management Agency (Miscellaneous Provisions) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Finance, Public Expenditure, Public Service Reform and Digitalisation, and Taoiseach",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:9c8e536278c900e9c5a18da9",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/42",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_enterprise_tourism_and_employment/2026-07-01/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_enterprise_tourism_and_employment/2026-07-01/debate/main",
+          "debate_date": "2026-07-01",
+          "debate_show_as": "Industrial Development (Amendment) and Miscellaneous Provisions Bill 2026: Committee Stage (Resumed)",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Enterprise, Tourism and Employment",
+          "debate_order": "1",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:327deab8a06c19103a3d0b9f",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/42",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_enterprise_tourism_and_employment/2026-06-10/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_enterprise_tourism_and_employment/2026-06-10/debate/main",
+          "debate_date": "2026-06-10",
+          "debate_show_as": "Industrial Development (Amendment) and Miscellaneous Provisions Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_3",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Enterprise, Tourism and Employment",
+          "debate_order": "2",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:3699c4d911125e015707c37b",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/37",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_infrastructure_and_national_development_plan_delivery/2026-04-22/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_infrastructure_and_national_development_plan_delivery/2026-04-22/debate/main",
+          "debate_date": "2026-04-22",
+          "debate_show_as": "Critical Infrastructure Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Infrastructure and National Development Plan Delivery",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:e14b90a8185497d13049da6e",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/28",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-04-14/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_justice_home_affairs_and_migration/2026-04-14/debate/main",
+          "debate_date": "2026-04-14",
+          "debate_show_as": "International Co-operation (Omagh Bombing Inquiry) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Justice, Home Affairs and Migration",
+          "debate_order": "5",
+          "snapshot_date": "2026-07-16"
+        },
+        {
+          "bill_debate_id": "bill_debate:dfd0004ba2299e200bde6cfb",
+          "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/20",
+          "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_disability_matters/2026-03-19/debate/main",
+          "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/select_committee_on_disability_matters/2026-03-19/debate/main",
+          "debate_date": "2026-03-19",
+          "debate_show_as": "Assisted Decision-Making (Capacity) (Amendment) Bill 2026: Committee Stage",
+          "debate_section_id": "dbsect_2",
+          "chamber_uri": "https://data.oireachtas.ie/ie/oireachtas/def/committee",
+          "chamber_name": "Select Committee on Disability Matters",
+          "debate_order": "4",
+          "snapshot_date": "2026-07-16"
+        }
+      ],
+      "direct_uri_join_is_valid": false,
+      "classification": "definition URI must be normalized to chamber key before joining to house-instance URIs"
+    },
+    "silver_bill_events": {
+      "column": "chamber_uri",
+      "known_chamber_keys": [
+        "dail",
+        "dail & seanad",
+        "oireachtas",
+        "seanad"
+      ],
+      "invalid_rows": 0,
+      "invalid_samples": [],
+      "direct_uri_join_is_valid": false,
+      "classification": "definition URI must be normalized to chamber key before joining to house-instance URIs"
+    }
+  },
+  "debate_links": {
+    "live_bill_debate_rows": 1215,
+    "comparable_current_dail_rows": 419,
+    "out_of_scope_rows": 796,
+    "missing_comparable_debates": 0,
+    "missing_comparable_sections_by_debate_and_eid": 0,
+    "missing_debate_samples": [],
+    "missing_section_samples": [],
+    "classification": "bill debate links include Seanad and older proceedings; section links use local section_eid, not debate_section_id primary keys"
+  },
+  "sponsor_model": {
+    "bills_with_multiple_primary_sponsors": 2,
+    "details": [
+      {
+        "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2016/31",
+        "live_primary_sponsors": [
+          {
+            "sponsor_name": "Joan Collins",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Joan-Collins.D.2011-03-09",
+            "sponsor_role_name": "",
+            "sponsor_order": "15"
+          },
+          {
+            "sponsor_name": "Gerry Adams",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Gerry-Adams.D.2011-03-09",
+            "sponsor_role_name": "",
+            "sponsor_order": "27"
+          }
+        ],
+        "official_primary_sponsors": [
+          {
+            "sponsor_name": "Joan Collins",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Joan-Collins.D.2011-03-09",
+            "sponsor_role_name": NaN,
+            "sponsor_order": "15"
+          },
+          {
+            "sponsor_name": "Gerry Adams",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Gerry-Adams.D.2011-03-09",
+            "sponsor_role_name": NaN,
+            "sponsor_order": "27"
+          }
+        ],
+        "matches_official_count": true
+      },
+      {
+        "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/4",
+        "live_primary_sponsors": [
+          {
+            "sponsor_name": "Paul Murphy",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10",
+            "sponsor_role_name": "",
+            "sponsor_order": "1"
+          },
+          {
+            "sponsor_name": "Paul Murphy",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10",
+            "sponsor_role_name": "",
+            "sponsor_order": "4"
+          }
+        ],
+        "official_primary_sponsors": [
+          {
+            "sponsor_name": "Paul Murphy",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10",
+            "sponsor_role_name": NaN,
+            "sponsor_order": "1"
+          },
+          {
+            "sponsor_name": "Paul Murphy",
+            "sponsor_uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10",
+            "sponsor_role_name": NaN,
+            "sponsor_order": "4"
+          }
+        ],
+        "matches_official_count": true
+      }
+    ],
+    "classification": "multiple primary sponsors are allowed when the official source lists co-sponsors"
+  },
+  "debate_identity": {
+    "live_rows": 1215,
+    "official_rows_for_live_bills": 1171,
+    "id_missing_from_live": 6,
+    "id_extra_in_live": 50,
+    "business_rows_missing_from_live": 3,
+    "business_rows_extra_in_live": 2,
+    "id_drift_explained_by_same_business_row": 3,
+    "live_only_business_samples": [
+      "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63|https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main|dbsect_35|Defence (Amendment) (No. 2) Bill 2026: First Stage|2026-07-09|https://data.oireachtas.ie/ie/oireachtas/def/house/dail",
+      "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74|https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-16/debate/main|dbsect_25|Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage|2026-07-16|https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+    ],
+    "official_only_business_samples": [
+      "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14|https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/main|dbsect_46|Waste Management (Single Household Waste Collection Service) Bill 2026: Second Stage [Private Members]|2026-07-16|https://data.oireachtas.ie/ie/oireachtas/def/house/dail",
+      "https://data.oireachtas.ie/ie/oireachtas/bill/2026/72|https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-16/debate/main|dbsect_26|Development (Strategic Gas Reserve) Bill 2026: Committee and Remaining Stages|2026-07-16|https://data.oireachtas.ie/ie/oireachtas/def/house/seanad",
+      "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74|https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-16/debate/main|dbsect_25|Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second and Subsequent Stages|2026-07-16|https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+    ]
+  },
+  "historical_scope": {
+    "historical_start": "2024-11-29",
+    "bills_introduced_before_start": 239,
+    "older_bills_with_event_on_or_after_start": 239,
+    "older_bills_with_last_event_before_start": 0,
+    "older_inactive_samples": [],
+    "classification": "bill introduction date is not a valid lower-bound coverage test; older bills can remain active or be updated in the validation window"
+  }
+}
