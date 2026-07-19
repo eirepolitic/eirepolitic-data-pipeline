@@ -1,0 +1,92 @@
+name: Oireachtas validation checkpoint 5
+
+on:
+  push:
+    branches:
+      - validation/oireachtas-reality-checks
+    paths:
+      - process/oireachtas_validate_gold.py
+      - .github/workflows/oireachtas_validation_checkpoint5.yml
+      - configs/oireachtas/validation_expectations.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: validation/oireachtas-reality-checks
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Run checkpoint 5 validation
+        id: validation
+        shell: bash
+        run: |
+          set +e
+          mkdir -p oireachtas_validation_output/checkpoint5
+          python process/oireachtas_validate_gold.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --output-dir oireachtas_validation_output/checkpoint5 \
+            > checkpoint5_console.log 2>&1
+          status=$?
+          cat checkpoint5_console.log
+          echo "exit_status=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Commit validation report and diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/oireachtas_validation/checkpoint5
+          cp checkpoint5_console.log docs/oireachtas_validation/checkpoint5/console.log
+          if compgen -G 'oireachtas_validation_output/checkpoint5/*' > /dev/null; then
+            cp oireachtas_validation_output/checkpoint5/* docs/oireachtas_validation/checkpoint5/
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin validation/oireachtas-reality-checks
+          git add docs/oireachtas_validation/checkpoint5
+          if git diff --cached --quiet; then
+            echo 'No report changes.'
+          else
+            git commit -m 'Record Oireachtas checkpoint 5 validation results'
+            git push origin HEAD:validation/oireachtas-reality-checks
+          fi
+      - name: Enforce successful execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.validation.outputs.exit_status }}' = '0'
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-validation-checkpoint5-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_validation_output/checkpoint5/**
+            checkpoint5_console.log
+          if-no-files-found: warn
+          retention-days: 365
