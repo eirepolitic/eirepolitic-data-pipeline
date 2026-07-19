@@ -2,7 +2,7 @@
   "visual_id": "constituency_issue_profile_minimum",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-07-19T20:47:31.811532+00:00",
+  "created_at": "2026-07-19T20:50:40.234577+00:00",
   "input": {
     "scenario": "minimum",
     "synthetic": true
@@ -14,7 +14,7 @@
   "filters": [],
   "grouping": {
     "grain": "constituency",
-    "key": "tipperary-north"
+    "key": "dublin-bay-south"
   },
   "source_note": "Synthetic validation context",
   "attribution": {
@@ -22,44 +22,15 @@
   },
   "rows_rendered": [
     {
-      "label": "Law/Crime and Family Issues",
-      "value": 41.0,
-      "group": ""
-    },
-    {
-      "label": "Housing and Community Development",
-      "value": 39.0,
-      "group": ""
-    },
-    {
       "label": "Health",
-      "value": 30.0,
+      "value": 1.0,
       "group": ""
     },
     {
-      "label": "Labor, Employment and Immigration",
-      "value": 22.0,
-      "group": ""
-    },
-    {
-      "label": "Government Operations",
-      "value": 19.0,
-      "group": ""
-    },
-    {
-      "label": "Education",
-      "value": 18.0,
-      "group": ""
-    },
-    {
-      "label": "Transportation",
-      "value": 14.0,
+      "label": "Justice",
+      "value": 1.0,
       "group": ""
     }
   ],
-  "warnings": [
-    "long_label:Civil Rights, Minority Issues and Civi",
-    "long_label:State and Local Government Administrat",
-    "truncated_rows:20->7"
-  ]
+  "warnings": []
 }
