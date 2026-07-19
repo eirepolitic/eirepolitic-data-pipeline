@@ -58,6 +58,34 @@ KNOWN_FINDINGS: dict[str, dict[str, Any]] = {
         "classification": "pass_with_warning",
         "finding": "Some zero metrics serialize as 0.0 rather than 0; all numeric source reconciliations pass.",
     },
+    "silver_bill_sponsors": {
+        "classification": "pass_with_warning",
+        "finding": "The live sponsor rows exactly match the official payload; the source itself contains multiple primary sponsors, including one repeated sponsor on bill 2025/4.",
+    },
+    "silver_bills": {
+        "classification": "pass",
+        "finding": "All 404 live bill IDs match the same-scope official API; older introduction dates are valid because those bills had activity after the historical start.",
+    },
+    "silver_bill_stages": {
+        "classification": "pass",
+        "finding": "All 1,358 stages match the official API; chamber-instance URIs require normalized joins rather than direct comparison with house-definition URIs.",
+    },
+    "silver_bill_related_docs": {
+        "classification": "pass",
+        "finding": "All 345 related-document rows match the same-scope official API and sampled official links respond correctly.",
+    },
+    "silver_bill_events": {
+        "classification": "pass",
+        "finding": "All 692 event rows match the same-scope official API; chamber URIs require normalized joins.",
+    },
+    "silver_member_memberships": {
+        "classification": "pass",
+        "finding": "All 176 membership rows and member/house links pass; first-pass external mismatches were blank-versus-NaN comparison artifacts.",
+    },
+    "silver_member_offices": {
+        "classification": "pass",
+        "finding": "All office relationships resolve; 26 members legitimately hold multiple distinct current roles, with no duplicate business rows.",
+    },
 }
 
 CHECKPOINT_PATHS = {
@@ -188,7 +216,7 @@ def write_reports(scorecard: list[dict[str, Any]], checkpoint_summaries: dict[st
         "",
         "1. Run a current refresh to capture the identified July 14–16 proceedings and legislation additions, then rebuild control manifests.",
         "2. Repair member-party and member-constituency business-key deduplication before the next history refresh.",
-        "3. Retain the zero-tally, joint-sitting speaker, and fact numeric-format items as documented warnings.",
+        "3. Retain the zero-tally, joint-sitting speaker, official sponsor-source quirk, and fact numeric-format items as documented warnings.",
         "4. Re-run all checkpoints after repairs and refresh, then compare this scorecard to the new result.",
     ])
     (output_dir / "final_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
