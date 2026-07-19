@@ -24,6 +24,7 @@ tables:
     valid_from_column: party_start
     valid_to_column: party_end
     current_column: is_current
+    business_key_columns: [member_code, party_uri, party_start, party_end]
     foreign_keys:
       - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
       - {columns: [membership_id], references: silver_member_memberships, referenced_columns: [membership_id]}
@@ -33,6 +34,7 @@ tables:
     valid_from_column: represent_start
     valid_to_column: represent_end
     current_column: is_current
+    business_key_columns: [member_code, constituency_uri, represent_start, represent_end]
     foreign_keys:
       - {columns: [member_code], references: silver_members, referenced_columns: [member_code]}
       - {columns: [membership_id], references: silver_member_memberships, referenced_columns: [membership_id]}
