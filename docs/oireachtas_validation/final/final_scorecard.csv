@@ -8,12 +8,12 @@ gold_current_members,174,pass,pass,pass,[],0,pass,No unresolved finding recorded
 gold_member_activity_monthly,3363,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 gold_member_activity_yearly,531,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_bill_debates,1215,pass,pass,pass,[],2,refresh_required,A small number of July 16 debate links/titles changed in the current official response; historical ID drift is also present.
-silver_bill_events,692,pass,pass,pass,[],1,review_required,The original checkpoint recorded 1 failed check(s); inspect the checkpoint report.
-silver_bill_related_docs,345,pass,pass,pass,[],1,review_required,The original checkpoint recorded 1 failed check(s); inspect the checkpoint report.
-silver_bill_sponsors,1211,pass,pass,pass,[],2,review_required,The original checkpoint recorded 2 failed check(s); inspect the checkpoint report.
-silver_bill_stages,1358,pass,pass,pass,[],1,review_required,The original checkpoint recorded 1 failed check(s); inspect the checkpoint report.
+silver_bill_events,692,pass,pass,pass,[],1,pass,All 692 event rows match the same-scope official API; chamber URIs require normalized joins.
+silver_bill_related_docs,345,pass,pass,pass,[],1,pass,All 345 related-document rows match the same-scope official API and sampled official links respond correctly.
+silver_bill_sponsors,1211,pass,pass,pass,[],2,pass_with_warning,"The live sponsor rows exactly match the official payload; the source itself contains multiple primary sponsors, including one repeated sponsor on bill 2025/4."
+silver_bill_stages,1358,pass,pass,pass,[],1,pass,"All 1,358 stages match the official API; chamber-instance URIs require normalized joins rather than direct comparison with house-definition URIs."
 silver_bill_versions,506,pass,pass,pass,[],1,refresh_required,"One newer official bill version is absent: bill 2026/1, English version C."
-silver_bills,404,pass,pass,pass,[],2,review_required,The original checkpoint recorded 2 failed check(s); inspect the checkpoint report.
+silver_bills,404,pass,pass,pass,[],2,pass,All 404 live bill IDs match the same-scope official API; older introduction dates are valid because those bills had activity after the historical start.
 silver_constituencies,43,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_debate_records,164,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_debate_sections,5001,pass,pass,pass,[],0,refresh_required,7 official sections added for 2026-07-16 after the live snapshot.
@@ -21,8 +21,8 @@ silver_division_tallies,1194,pass,pass,pass,[],4,pass_with_warning,Official API 
 silver_divisions,398,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_houses,68,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_member_constituencies,276,pass,pass,pass,[],6,repair_required,196 duplicate business rows across 98 members; no conflicting current constituency values.
-silver_member_memberships,176,pass,pass,pass,[],5,review_required,The original checkpoint recorded 5 failed check(s); inspect the checkpoint report.
-silver_member_offices,123,pass,pass,pass,[],6,review_required,The original checkpoint recorded 6 failed check(s); inspect the checkpoint report.
+silver_member_memberships,176,pass,pass,pass,[],5,pass,All 176 membership rows and member/house links pass; first-pass external mismatches were blank-versus-NaN comparison artifacts.
+silver_member_offices,123,pass,pass,pass,[],6,pass,"All office relationships resolve; 26 members legitimately hold multiple distinct current roles, with no duplicate business rows."
 silver_member_parties,280,pass,pass,pass,[],6,repair_required,196 duplicate business rows across 98 members; no conflicting current party values.
 silver_member_votes,58868,pass,pass,pass,[],0,pass,No unresolved finding recorded.
 silver_members,176,pass,pass,pass,[],0,pass,No unresolved finding recorded.
