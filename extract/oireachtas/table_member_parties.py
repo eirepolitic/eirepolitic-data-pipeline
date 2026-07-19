@@ -69,7 +69,7 @@ def build_silver_member_parties(
     dedupe = dedupe_history_rows(
         rows,
         business_key=("member_code", "party_uri", "party_start", "party_end"),
-        compared_fields=("membership_id", "party_name", "is_current"),
+        compared_fields=("party_name", "is_current"),
     )
     rows = dedupe.rows
     df = pd.DataFrame(rows, columns=schema.columns)

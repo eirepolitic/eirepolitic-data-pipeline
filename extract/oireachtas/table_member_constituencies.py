@@ -76,7 +76,7 @@ def build_silver_member_constituencies(
     dedupe = dedupe_history_rows(
         rows,
         business_key=("member_code", "constituency_uri", "represent_start", "represent_end"),
-        compared_fields=("membership_id", "constituency_name", "is_current"),
+        compared_fields=("constituency_name", "is_current"),
     )
     rows = dedupe.rows
     df = pd.DataFrame(rows, columns=schema.columns)
