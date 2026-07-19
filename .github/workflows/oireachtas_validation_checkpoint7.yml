@@ -1,0 +1,111 @@
+name: Oireachtas validation checkpoint 7
+
+on:
+  push:
+    branches:
+      - validation/oireachtas-reality-checks
+    paths:
+      - process/oireachtas_validation_scorecard.py
+      - .github/workflows/oireachtas_validation_checkpoint7.yml
+      - docs/oireachtas_validation/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oireachtas-validation-checkpoint7
+  cancel-in-progress: true
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: validation/oireachtas-reality-checks
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Build final 31-table scorecard
+        id: scorecard
+        shell: bash
+        run: |
+          set +e
+          mkdir -p oireachtas_validation_output/final
+          python process/oireachtas_validation_scorecard.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --output-dir oireachtas_validation_output/final \
+            > final_scorecard_console.log 2>&1
+          status=$?
+          cat final_scorecard_console.log
+          echo "exit_status=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Verify final report contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          scorecard = json.loads(Path('oireachtas_validation_output/final/final_scorecard.json').read_text())
+          summary = json.loads(Path('oireachtas_validation_output/final/final_summary.json').read_text())
+          assert len(scorecard) == 31, len(scorecard)
+          assert summary['table_count'] == 31, summary
+          assert summary['all_live_files_readable'] is True, summary
+          assert summary['all_schemas_pass'] is True, summary
+          assert summary['all_primary_keys_pass'] is True, summary
+          assert summary['all_csv_parquet_pass'] is True, summary
+          assert all(summary['checkpoint_summaries_present'].values()), summary
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+      - name: Commit final scorecard
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/oireachtas_validation/final
+          cp oireachtas_validation_output/final/* docs/oireachtas_validation/final/
+          cp final_scorecard_console.log docs/oireachtas_validation/final/console.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin validation/oireachtas-reality-checks
+          git add docs/oireachtas_validation/final
+          if git diff --cached --quiet; then
+            echo 'No scorecard changes.'
+          else
+            git commit -m 'Record final Oireachtas validation scorecard'
+            git push origin HEAD:validation/oireachtas-reality-checks
+          fi
+      - name: Enforce successful execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.scorecard.outputs.exit_status }}' = '0'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-validation-final-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_validation_output/final/**
+            final_scorecard_console.log
+          if-no-files-found: warn
+          retention-days: 365
