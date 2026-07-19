@@ -1,4 +1,4 @@
-name: Apply Instagram Content Factory Phase 2 quality patch
+name: Finalize Instagram Content Factory Phase 2 quality patch
 
 on:
   push:
@@ -9,149 +9,31 @@ permissions:
   contents: write
 
 jobs:
-  patch:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feature/instagram-content-factory-phase2-constituency
 
-      - name: Patch scenario selection and canonical region
+      - name: Align catalogue and remove temporary workflow
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          pilot = Path("instagram/factory/constituency_pilot.py")
-          text = pilot.read_text(encoding="utf-8")
-          replacement = '''def build_scenarios(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-              minimum_source = min(
-                  records,
-                  key=lambda row: (row["issue_count"], row["speech_count"], len(row["constituency"]), row["constituency"]),
-              )
-              complexity_values = sorted(_complexity(record) for record in records)
-              target = median(complexity_values)
-              real_source = min(records, key=lambda row: (abs(_complexity(row) - target), row["constituency"]))
-
-              minimum_rows = sorted(
-                  minimum_source["issue_rows"],
-                  key=lambda row: (int(row["value"]), len(row["label"]), row["label"]),
-              )[:2]
-              real_rows = list(real_source["issue_rows"][:7])
-
-              longest_constituency = max(records, key=lambda row: (len(row["constituency"]), row["constituency"]))
-              all_issue_rows = [
-                  {
-                      "label": issue["label"],
-                      "value": int(issue["value"]),
-                      "originating_constituency": record["constituency"],
-                  }
-                  for record in records
-                  for issue in record["issue_rows"]
-              ]
-              distinct_long_labels: list[dict[str, Any]] = []
-              seen_labels: set[str] = set()
-              for row in sorted(
-                  all_issue_rows,
-                  key=lambda item: (-len(item["label"]), -item["value"], item["label"]),
-              ):
-                  if row["label"] in seen_labels:
-                      continue
-                  seen_labels.add(row["label"])
-                  distinct_long_labels.append(row)
-                  if len(distinct_long_labels) == 7:
-                      break
-              largest_values = sorted(all_issue_rows, key=lambda row: (-row["value"], row["label"]))[:7]
-              synthetic_rows = [
-                  {"label": label_row["label"], "value": value_row["value"]}
-                  for label_row, value_row in zip(distinct_long_labels, largest_values)
-              ]
-
-              return {
-                  "minimum": {
-                      **minimum_source,
-                      "issue_rows": minimum_rows,
-                      "issue_count": len(minimum_rows),
-                      "speech_count": sum(int(row["value"]) for row in minimum_rows),
-                      "scenario": "minimum",
-                      "synthetic": True,
-                      "no_publication": True,
-                      "source_fields": {
-                          "constituency": minimum_source["constituency"],
-                          "issue_rows": minimum_source["constituency"],
-                      },
-                  },
-                  "maximum": {
-                      **longest_constituency,
-                      "issue_rows": synthetic_rows,
-                      "issue_count": len(synthetic_rows),
-                      "speech_count": sum(int(row["value"]) for row in synthetic_rows),
-                      "scenario": "maximum",
-                      "synthetic": True,
-                      "no_publication": True,
-                      "source_fields": {
-                          "constituency": longest_constituency["constituency"],
-                          "issue_labels": [row["originating_constituency"] for row in distinct_long_labels],
-                          "issue_values": [row["originating_constituency"] for row in largest_values],
-                      },
-                  },
-                  "real_example": {
-                      **real_source,
-                      "issue_rows": real_rows,
-                      "issue_count": len(real_rows),
-                      "speech_count": sum(int(row["value"]) for row in real_rows),
-                      "scenario": "real_example",
-                      "synthetic": False,
-                      "no_publication": True,
-                      "source_fields": {
-                          "constituency": real_source["constituency"],
-                          "issue_rows": real_source["constituency"],
-                      },
-                  },
-              }
-
-
-          def write_cover_asset'''
-          patched, count = re.subn(
-              r'def build_scenarios\(records: list\[dict\[str, Any\]\]\) -> dict\[str, dict\[str, Any\]\]:.*?\n\ndef write_cover_asset',
-              replacement,
-              text,
-              count=1,
-              flags=re.S,
-          )
-          if count != 1:
-              raise SystemExit(f"Expected one build_scenarios block, replaced {count}")
-          pilot.write_text(patched, encoding="utf-8")
-
-          project = Path("instagram/projects/constituency_issue_profile_v1/project.yml")
-          project_text = project.read_text(encoding="utf-8")
-          if "item_limit: 8" not in project_text:
-              raise SystemExit("Project item_limit marker not found")
-          project.write_text(project_text.replace("item_limit: 8", "item_limit: 7", 1), encoding="utf-8")
-
-          visual_catalogue = Path("instagram/catalogues/visual_types.yml")
-          visual_text = visual_catalogue.read_text(encoding="utf-8")
+          path = Path("instagram/catalogues/visual_types.yml")
+          text = path.read_text(encoding="utf-8")
           marker = "recommended_item_count: {min: 2, max: 8}"
-          if marker not in visual_text:
-              raise SystemExit("Horizontal bar recommended count marker not found")
-          visual_catalogue.write_text(visual_text.replace(marker, "recommended_item_count: {min: 2, max: 7}", 1), encoding="utf-8")
-
-          workflow = Path(".github/workflows/instagram_factory_constituency_pilot.yml")
-          workflow_text = workflow.read_text(encoding="utf-8")
-          old = '      AWS_REGION: ${{ secrets.AWS_REGION }}\n      INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data'
-          new = '      AWS_REGION: ca-central-1\n      AWS_DEFAULT_REGION: ca-central-1\n      INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data'
-          if old not in workflow_text:
-              raise SystemExit("Workflow region marker not found")
-          workflow.write_text(workflow_text.replace(old, new, 1), encoding="utf-8")
+          if marker not in text:
+              raise SystemExit("Horizontal bar catalogue marker not found")
+          path.write_text(text.replace(marker, "recommended_item_count: {min: 2, max: 7}", 1), encoding="utf-8")
           PY
+          git rm .github/workflows/instagram_factory_phase2_quality_patch.yml
 
-      - name: Commit quality patch
+      - name: Commit final quality alignment
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/factory/constituency_pilot.py \
-            instagram/projects/constituency_issue_profile_v1/project.yml \
-            instagram/catalogues/visual_types.yml \
-            .github/workflows/instagram_factory_constituency_pilot.yml
-          git commit -m "fix(instagram): tighten constituency test scenarios"
+          git add instagram/catalogues/visual_types.yml
+          git commit -m "fix(instagram): align horizontal bar catalogue limit"
           git push origin HEAD:feature/instagram-content-factory-phase2-constituency
