@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# One-time canonical milestone updater. The workflow removes this file after success.
 path = Path("instagram/CONTENT_FACTORY_PLAN.md")
 text = path.read_text(encoding="utf-8")
 marker = "### Phase 2 — complete-slide test generator\n\nBuild:"
