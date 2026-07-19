@@ -21,7 +21,13 @@ def merge_for_policy(existing: pd.DataFrame, incoming: pd.DataFrame, *, primary_
     missing = [column for column in primary_key if column not in combined.columns]
     if missing:
         raise ValueError(f"Missing primary-key columns for {policy.table}: {missing}")
-    return combined.drop_duplicates(subset=primary_key, keep="last").reset_index(drop=True)
+    merged = combined.drop_duplicates(subset=primary_key, keep="last")
+    if policy.business_key_columns:
+        missing_business = [column for column in policy.business_key_columns if column not in merged.columns]
+        if missing_business:
+            raise ValueError(f"Missing business-key columns for {policy.table}: {missing_business}")
+        merged = merged.drop_duplicates(subset=list(policy.business_key_columns), keep="last")
+    return merged.reset_index(drop=True)
 
 
 def temporal_integrity(df: pd.DataFrame, *, policy: WritePolicy, as_of: date | None = None) -> dict[str, object]:
