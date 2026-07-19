@@ -1173,6 +1173,23 @@ Acceptance:
 
 ### Phase 2 — complete-slide test generator
 
+**Status: constituency pilot implemented and technically validated (2026-07-19).**
+
+Validated pilot:
+
+- project: `instagram/projects/constituency_issue_profile_v1/project.yml`
+- grain: constituency
+- slides: cover and classified issue profile
+- minimum, maximum, and real-example complete-slide renders
+- per-scenario and per-slide contact sheets
+- local fixture and live S3 execution
+- production-pointer resolution and join-coverage manifests
+- assistant-visible preview publication
+- final live validation run: `29703335986`
+- preview root: `instagram-preview-output/preview/factory/projects/constituency_issue_profile_v1/`
+
+This validates the Phase 2 architecture for one pilot. A generic multi-project scenario builder remains future work. Human factual and visual approval is still required before batch generation.
+
 Build:
 
 - min/max/real scenario builder
