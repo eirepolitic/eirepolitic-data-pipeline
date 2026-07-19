@@ -27,8 +27,8 @@ slides:
       body_text: "A constituency-level view of parliamentary issues raised by its current TDs."
       footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
     media:
+      main_media: constituency_cover
       type: generated_constituency_card
-      binding: constituency_cover
     accessibility:
       alt_text_template: "Cover slide for {{ constituency }} parliamentary issue profile."
     fallback_behavior:
