@@ -1,0 +1,21 @@
+{
+  "table_count": 31,
+  "classification_counts": {
+    "pass": 14,
+    "review_required": 7,
+    "refresh_required": 5,
+    "pass_with_warning": 3,
+    "repair_required": 2
+  },
+  "all_live_files_readable": true,
+  "all_schemas_pass": true,
+  "all_primary_keys_pass": true,
+  "all_csv_parquet_pass": true,
+  "checkpoint_summaries_present": {
+    "checkpoint2": true,
+    "checkpoint3": true,
+    "checkpoint4": true,
+    "checkpoint5": true,
+    "checkpoint6": true
+  }
+}
