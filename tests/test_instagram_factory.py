@@ -88,6 +88,52 @@ class InstagramFactoryConstituencyPilotTest(TestCase):
         self.assertEqual(len(maximum_labels), len(set(maximum_labels)))
         self.assertLessEqual(len(scenarios["real_example"]["issue_rows"]), 7)
 
+    def test_synthetic_name_and_result_extremes_are_selected_independently(self) -> None:
+        records = [
+            {
+                "constituency": "Mayo",
+                "constituency_key": "mayo",
+                "member_names": ["A"],
+                "member_count": 1,
+                "issue_rows": [{"label": "Housing", "value": 5}],
+                "issue_count": 1,
+                "speech_count": 5,
+                "max_issue_label_length": 7,
+            },
+            {
+                "constituency": "Dublin Bay North",
+                "constituency_key": "dublin-bay-north",
+                "member_names": ["B"],
+                "member_count": 1,
+                "issue_rows": [{"label": "Health", "value": 1}],
+                "issue_count": 1,
+                "speech_count": 1,
+                "max_issue_label_length": 6,
+            },
+            {
+                "constituency": "Limerick City",
+                "constituency_key": "limerick-city",
+                "member_names": ["C"],
+                "member_count": 1,
+                "issue_rows": [
+                    {"label": "Housing", "value": 20},
+                    {"label": "Transport", "value": 10},
+                ],
+                "issue_count": 2,
+                "speech_count": 30,
+                "max_issue_label_length": 9,
+            },
+        ]
+
+        scenarios = build_scenarios(records)
+
+        self.assertEqual(scenarios["minimum"]["display_constituency"], "Mayo")
+        self.assertEqual(scenarios["minimum"]["result_constituency"], "Dublin Bay North")
+        self.assertEqual(scenarios["minimum"]["issue_rows"], [{"label": "Health", "value": 1}])
+        self.assertEqual(scenarios["maximum"]["display_constituency"], "Dublin Bay North")
+        self.assertEqual(scenarios["maximum"]["result_constituency"], "Limerick City")
+        self.assertEqual(scenarios["maximum"]["result_speech_count"], 30)
+
     def test_local_complete_slide_render(self) -> None:
         with TemporaryDirectory() as temp_dir:
             manifest = render_project_tests(

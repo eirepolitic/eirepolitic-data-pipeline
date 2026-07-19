@@ -167,92 +167,92 @@ def _complexity(record: dict[str, Any]) -> int:
     )
 
 
+def _bounded_issue_rows(record: dict[str, Any]) -> list[dict[str, Any]]:
+    return [dict(row) for row in record["issue_rows"][:7]]
+
+
+def _synthetic_scenario(
+    *,
+    scenario: str,
+    display_record: dict[str, Any],
+    result_record: dict[str, Any],
+) -> dict[str, Any]:
+    rows = _bounded_issue_rows(result_record)
+    return {
+        "constituency": display_record["constituency"],
+        "constituency_key": display_record["constituency_key"],
+        "display_constituency": display_record["constituency"],
+        "display_constituency_key": display_record["constituency_key"],
+        "result_constituency": result_record["constituency"],
+        "result_constituency_key": result_record["constituency_key"],
+        "member_names": list(result_record.get("member_names", [])),
+        "member_count": result_record.get("member_count", 0),
+        "issue_rows": rows,
+        "issue_count": len(rows),
+        "speech_count": sum(int(row["value"]) for row in rows),
+        "result_issue_count": result_record["issue_count"],
+        "result_speech_count": result_record["speech_count"],
+        "max_issue_label_length": max(len(row["label"]) for row in rows),
+        "scenario": scenario,
+        "synthetic": True,
+        "no_publication": True,
+        "source_fields": {
+            "display_constituency": display_record["constituency"],
+            "result_constituency": result_record["constituency"],
+            "issue_rows": result_record["constituency"],
+        },
+    }
+
+
 def build_scenarios(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    minimum_source = min(
+    shortest_name = min(records, key=lambda row: (len(row["constituency"]), row["constituency"]))
+    longest_name = max(records, key=lambda row: (len(row["constituency"]), row["constituency"]))
+    smallest_results = min(
         records,
-        key=lambda row: (row["issue_count"], row["speech_count"], len(row["constituency"]), row["constituency"]),
+        key=lambda row: (row["speech_count"], row["issue_count"], row["constituency"]),
     )
+    biggest_results = max(
+        records,
+        key=lambda row: (row["speech_count"], row["issue_count"], row["constituency"]),
+    )
+
     complexity_values = sorted(_complexity(record) for record in records)
     target = median(complexity_values)
     real_source = min(records, key=lambda row: (abs(_complexity(row) - target), row["constituency"]))
-
-    minimum_rows = sorted(
-        minimum_source["issue_rows"],
-        key=lambda row: (int(row["value"]), len(row["label"]), row["label"]),
-    )[:2]
-    real_rows = list(real_source["issue_rows"][:7])
-
-    longest_constituency = max(records, key=lambda row: (len(row["constituency"]), row["constituency"]))
-    all_issue_rows = [
-        {
-            "label": issue["label"],
-            "value": int(issue["value"]),
-            "originating_constituency": record["constituency"],
-        }
-        for record in records
-        for issue in record["issue_rows"]
-    ]
-    distinct_long_labels: list[dict[str, Any]] = []
-    seen_labels: set[str] = set()
-    for row in sorted(
-        all_issue_rows,
-        key=lambda item: (-len(item["label"]), -item["value"], item["label"]),
-    ):
-        if row["label"] in seen_labels:
-            continue
-        seen_labels.add(row["label"])
-        distinct_long_labels.append(row)
-        if len(distinct_long_labels) == 7:
-            break
-    largest_values = sorted(all_issue_rows, key=lambda row: (-row["value"], row["label"]))[:7]
-    synthetic_rows = [
-        {"label": label_row["label"], "value": value_row["value"]}
-        for label_row, value_row in zip(distinct_long_labels, largest_values)
-    ]
+    real_rows = _bounded_issue_rows(real_source)
 
     return {
-        "minimum": {
-            **minimum_source,
-            "issue_rows": minimum_rows,
-            "issue_count": len(minimum_rows),
-            "speech_count": sum(int(row["value"]) for row in minimum_rows),
-            "scenario": "minimum",
-            "synthetic": True,
-            "no_publication": True,
-            "source_fields": {
-                "constituency": minimum_source["constituency"],
-                "issue_rows": minimum_source["constituency"],
-            },
-        },
-        "maximum": {
-            **longest_constituency,
-            "issue_rows": synthetic_rows,
-            "issue_count": len(synthetic_rows),
-            "speech_count": sum(int(row["value"]) for row in synthetic_rows),
-            "scenario": "maximum",
-            "synthetic": True,
-            "no_publication": True,
-            "source_fields": {
-                "constituency": longest_constituency["constituency"],
-                "issue_labels": [row["originating_constituency"] for row in distinct_long_labels],
-                "issue_values": [row["originating_constituency"] for row in largest_values],
-            },
-        },
+        "minimum": _synthetic_scenario(
+            scenario="minimum",
+            display_record=shortest_name,
+            result_record=smallest_results,
+        ),
+        "maximum": _synthetic_scenario(
+            scenario="maximum",
+            display_record=longest_name,
+            result_record=biggest_results,
+        ),
         "real_example": {
             **real_source,
+            "display_constituency": real_source["constituency"],
+            "display_constituency_key": real_source["constituency_key"],
+            "result_constituency": real_source["constituency"],
+            "result_constituency_key": real_source["constituency_key"],
             "issue_rows": real_rows,
             "issue_count": len(real_rows),
             "speech_count": sum(int(row["value"]) for row in real_rows),
+            "result_issue_count": real_source["issue_count"],
+            "result_speech_count": real_source["speech_count"],
             "scenario": "real_example",
             "synthetic": False,
             "no_publication": True,
             "source_fields": {
-                "constituency": real_source["constituency"],
+                "display_constituency": real_source["constituency"],
+                "result_constituency": real_source["constituency"],
                 "issue_rows": real_source["constituency"],
             },
         },
     }
-
 
 def write_cover_asset(path: Path, scenario: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -268,9 +268,13 @@ def write_cover_asset(path: Path, scenario: dict[str, Any]) -> None:
     draw.rounded_rectangle((70, 70, width - 70, height - 70), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
     title = scenario["constituency"]
     draw.multiline_text((width // 2, 285), title, font=title_font, fill="#f4ead7", anchor="mm", align="center", spacing=12)
-    detail = f"{scenario.get('member_count', 0)} current members · {scenario.get('speech_count', 0)} classified speeches"
+    if scenario["synthetic"]:
+        detail = f"Results source: {scenario['result_constituency']}"
+        marker = f"SYNTHETIC {scenario['scenario'].upper()} TEST"
+    else:
+        detail = f"{scenario.get('member_count', 0)} current members · {scenario.get('result_speech_count', 0)} classified speeches"
+        marker = "REAL DATA EXAMPLE"
     draw.text((width // 2, 560), detail, font=body_font, fill="#cbbf9f", anchor="mm")
-    marker = "SYNTHETIC TEST" if scenario["synthetic"] else "REAL DATA EXAMPLE"
     draw.text((width // 2, 680), marker, font=body_font, fill="#d8b45f", anchor="mm")
     image.save(path, format="PNG")
 
@@ -281,8 +285,12 @@ def render_visual(path: Path, metadata_path: Path, manifest_path: Path, scenario
         "visual_id": f"constituency_issue_profile_{scenario['scenario']}",
         "bindings": {"label": "label", "value": "value"},
         "filters": [],
-        "grouping": {"grain": "constituency", "key": scenario["constituency_key"]},
-        "source_note": "Synthetic validation context" if scenario["synthetic"] else "Joined Oireachtas member and classified debate data",
+        "grouping": {"grain": "constituency", "key": scenario["result_constituency_key"]},
+        "source_note": (
+            f"Synthetic validation context using results from {scenario['result_constituency']}"
+            if scenario["synthetic"]
+            else "Joined Oireachtas member and classified debate data"
+        ),
         "attribution": {"source": "Houses of the Oireachtas / Eirepolitic classification"},
     }
     return horizontal_bar.render(
@@ -375,6 +383,10 @@ def render_project_tests(
         scenario_manifest = {
             "scenario": scenario_name,
             "constituency": scenario["constituency"],
+            "display_constituency": scenario["display_constituency"],
+            "result_constituency": scenario["result_constituency"],
+            "result_issue_count": scenario["result_issue_count"],
+            "result_speech_count": scenario["result_speech_count"],
             "synthetic": scenario["synthetic"],
             "no_publication": scenario["no_publication"],
             "source_fields": scenario["source_fields"],

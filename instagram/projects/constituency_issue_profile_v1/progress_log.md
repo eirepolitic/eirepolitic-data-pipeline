@@ -31,3 +31,5 @@
 ## Current status
 
 Technical pilot validation is complete. Visual quality and factual interpretation require explicit human review before any approval or batch-generation work.
+
+- 2026-07-19: Corrected synthetic scenario selection: shortest/longest constituency names now independently pair with smallest/largest constituency result sets; provenance is explicit in manifests and covers.

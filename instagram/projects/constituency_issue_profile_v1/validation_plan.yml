@@ -7,15 +7,16 @@ scenarios:
     synthetic: true
     no_publication: true
     selection:
-      constituency: lowest combined issue-count and speech-count complexity
-      issue_rows: two smallest non-empty issue values
+      display_constituency: shortest constituency name
+      result_constituency: smallest total classified-speech result set
+      issue_rows: up to seven top issue rows from the result constituency
   maximum:
     synthetic: true
     no_publication: true
     selection:
-      constituency: longest constituency label
-      issue_labels: seven distinct longest issue labels
-      issue_values: seven largest available issue values
+      display_constituency: longest constituency name
+      result_constituency: largest total classified-speech result set
+      issue_rows: up to seven top issue rows from the result constituency
   real_example:
     synthetic: false
     no_publication: true
@@ -37,7 +38,10 @@ acceptance:
   - all six complete slides render successfully
   - no missing layout bindings
   - no renderer row truncation
-  - maximum labels are distinct
+  - minimum display constituency is the shortest available name
+  - maximum display constituency is the longest available name
+  - minimum results come from the smallest constituency result set
+  - maximum results come from the largest constituency result set
   - real-example rows come from one constituency
   - source and join manifests are present
   - synthetic outputs are marked no_publication
