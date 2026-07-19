@@ -1,0 +1,27 @@
+name: Update Instagram Phase 2 plan
+
+on:
+  push:
+    branches:
+      - feature/instagram-content-factory-phase2-constituency
+    paths:
+      - process/update_instagram_phase2_plan.py
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-phase2-constituency
+      - run: python process/update_instagram_phase2_plan.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm process/update_instagram_phase2_plan.py .github/workflows/instagram_factory_phase2_plan_update.yml
+          git add instagram/CONTENT_FACTORY_PLAN.md
+          git commit -m "docs(instagram): record validated constituency phase 2 pilot"
+          git push origin HEAD:feature/instagram-content-factory-phase2-constituency
