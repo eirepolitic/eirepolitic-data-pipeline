@@ -9,7 +9,7 @@ visual_types:
     required_bindings: [label, value]
     optional_bindings: [group]
     supported_data_shapes: [category_value]
-    recommended_item_count: {min: 2, max: 8}
+    recommended_item_count: {min: 2, max: 7}
     supported_slot_fit: contain
     known_limitations: [Long labels require wrapping, Overflow rows are truncated]
     test_contact_sheet: instagram/visuals/tests/horizontal_bar_draft_v1/contact_sheet.png
