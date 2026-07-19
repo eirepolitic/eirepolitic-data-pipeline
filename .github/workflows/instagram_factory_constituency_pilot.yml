@@ -16,13 +16,14 @@ on:
       - "instagram/catalogues/**"
       - "instagram/factory/**"
       - "instagram/projects/constituency_issue_profile_v1/**"
+      - "instagram/renderer/__init__.py"
       - "instagram/visuals/data_mappings/constituency_issue_counts.yml"
       - "process/instagram_factory.py"
       - "tests/test_instagram_factory.py"
       - ".github/workflows/instagram_factory_constituency_pilot.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: instagram-factory-constituency-pilot-${{ github.ref }}
@@ -41,8 +42,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-content-factory-phase2-constituency
 
       - uses: actions/setup-python@v5
         with:
@@ -55,20 +54,7 @@ jobs:
           pip install pyyaml pillow matplotlib boto3 requests
 
       - name: Validate catalogues
-        run: |
-          set +e
-          python process/instagram_factory.py validate-catalogues 2>&1 | tee catalogue_validation.log
-          code=${PIPESTATUS[0]}
-          if [ "$code" -ne 0 ]; then
-            mkdir -p instagram/diagnostics
-            cp catalogue_validation.log instagram/diagnostics/phase2_catalogue_validation.log
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add instagram/diagnostics/phase2_catalogue_validation.log
-            git commit -m "diagnostic(instagram): capture phase 2 catalogue failure"
-            git push origin HEAD:feature/instagram-content-factory-phase2-constituency
-          fi
-          exit "$code"
+        run: python process/instagram_factory.py validate-catalogues
 
       - name: Validate constituency project
         run: >-
