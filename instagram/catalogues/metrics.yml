@@ -23,6 +23,32 @@ metrics:
     external_verification: internal_source_check
     version: 1
 
+  - metric_id: constituency_issue_counts
+    display_name: Constituency debate issue counts
+    description: Count classified debate speeches by issue for the current members representing each constituency.
+    status: draft
+    source_logical_keys:
+      - processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+      - processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+      - raw/members/oireachtas_members_34th_dail.csv
+      - processed/debates/debate_speeches_classified.csv
+    layer: compat
+    grain: constituency
+    measure_fields: [value]
+    dimension_fields: [constituency, label]
+    period_fields: []
+    mapping_config: instagram/visuals/data_mappings/constituency_issue_counts.yml
+    freshness_expectation: weekly
+    source_note: Houses of the Oireachtas member and debate data with separately reviewed Eirepolitic issue classification.
+    validation_rules:
+      required_output_fields: [constituency, label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+      require_member_speaker_match_manifest: true
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
   - metric_id: member_party_counts
     display_name: Current member counts by party
     description: Count current Dáil members by party using the active unified-model compatibility output.
