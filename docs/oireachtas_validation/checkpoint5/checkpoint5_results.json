@@ -1,0 +1,502 @@
+[
+  {
+    "table": "gold_current_members",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_code\", \"full_name\", \"party_name\", \"constituency_name\", \"house_no\", \"office_name\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"full_name\", \"party_name\", \"constituency_name\", \"house_no\", \"office_name\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "174",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "174",
+    "actual_result": "174",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_code\", \"full_name\", \"party_name\", \"constituency_name\", \"house_no\", \"office_name\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"full_name\", \"party_name\", \"constituency_name\", \"house_no\", \"office_name\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_code\", \"year\", \"speech_count\", \"debate_day_count\", \"division_count\", \"votes_cast_count\", \"vote_participation_pct\", \"ta_count\", \"nil_count\", \"staon_count\", \"speech_rank\", \"vote_participation_rank\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"year\", \"speech_count\", \"debate_day_count\", \"division_count\", \"votes_cast_count\", \"vote_participation_pct\", \"ta_count\", \"nil_count\", \"staon_count\", \"speech_rank\", \"vote_participation_rank\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "531",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "531",
+    "actual_result": "531",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_code\", \"year\", \"speech_count\", \"debate_day_count\", \"division_count\", \"votes_cast_count\", \"vote_participation_pct\", \"ta_count\", \"nil_count\", \"staon_count\", \"speech_rank\", \"vote_participation_rank\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"year\", \"speech_count\", \"debate_day_count\", \"division_count\", \"votes_cast_count\", \"vote_participation_pct\", \"ta_count\", \"nil_count\", \"staon_count\", \"speech_rank\", \"vote_participation_rank\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "schema_exact",
+    "expected_result": "[\"member_code\", \"year_month\", \"speech_count\", \"debate_day_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"year_month\", \"speech_count\", \"debate_day_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "3363",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "3363",
+    "actual_result": "3363",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"member_code\", \"year_month\", \"speech_count\", \"debate_day_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "actual_result": "[\"member_code\", \"year_month\", \"speech_count\", \"debate_day_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "schema_exact",
+    "expected_result": "[\"constituency_name\", \"year\", \"member_count\", \"speech_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "actual_result": "[\"constituency_name\", \"year\", \"member_count\", \"speech_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "129",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "129",
+    "actual_result": "129",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"constituency_name\", \"year\", \"member_count\", \"speech_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "actual_result": "[\"constituency_name\", \"year\", \"member_count\", \"speech_count\", \"votes_cast_count\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "schema_exact",
+    "expected_result": "[\"fact_id\", \"fact_type\", \"entity_type\", \"entity_id\", \"period_start\", \"period_end\", \"headline\", \"metric_name\", \"metric_value\", \"source_table\", \"source_key\", \"snapshot_date\"]",
+    "actual_result": "[\"fact_id\", \"fact_type\", \"entity_type\", \"entity_id\", \"period_start\", \"period_end\", \"headline\", \"metric_name\", \"metric_value\", \"source_table\", \"source_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "primary_key_non_null",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "primary_key_unique",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "date_parse:period_start",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "date_parse:period_end",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "date_parse:snapshot_date",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "row_count_positive",
+    "expected_result": "> 0",
+    "actual_result": "8046",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "csv_parquet_row_count_equal",
+    "expected_result": "8046",
+    "actual_result": "8046",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "csv_parquet_columns_equal",
+    "expected_result": "[\"fact_id\", \"fact_type\", \"entity_type\", \"entity_id\", \"period_start\", \"period_end\", \"headline\", \"metric_name\", \"metric_value\", \"source_table\", \"source_key\", \"snapshot_date\"]",
+    "actual_result": "[\"fact_id\", \"fact_type\", \"entity_type\", \"entity_id\", \"period_start\", \"period_end\", \"headline\", \"metric_name\", \"metric_value\", \"source_table\", \"source_key\", \"snapshot_date\"]",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "recomputed_row_count",
+    "expected_result": "174",
+    "actual_result": "174",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_current_members",
+    "test_name": "recomputed_rows_equal",
+    "expected_result": "exact equality excluding snapshot_date",
+    "actual_result": "equal",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "recomputed_row_count",
+    "expected_result": "531",
+    "actual_result": "531",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_yearly",
+    "test_name": "recomputed_rows_equal",
+    "expected_result": "exact equality excluding snapshot_date",
+    "actual_result": "equal",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "recomputed_row_count",
+    "expected_result": "3363",
+    "actual_result": "3363",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_member_activity_monthly",
+    "test_name": "recomputed_rows_equal",
+    "expected_result": "exact equality excluding snapshot_date",
+    "actual_result": "equal",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "recomputed_row_count",
+    "expected_result": "129",
+    "actual_result": "129",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_constituency_activity_yearly",
+    "test_name": "recomputed_rows_equal",
+    "expected_result": "exact equality excluding snapshot_date",
+    "actual_result": "equal",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "recomputed_row_count",
+    "expected_result": "8046",
+    "actual_result": "8046",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": ""
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "recomputed_rows_equal",
+    "expected_result": "exact equality excluding snapshot_date",
+    "actual_result": "different",
+    "status": "fail",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[{\"key\": {\"fact_id\": \"fact:052f4eb36dd7e5be3813b71a\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:1204e234044a3ed09191202b\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:191903993537a99faf369d29\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:19de113104a678469b712b8a\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:4a30cdfd89a7935eed5b6a18\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:697fd3fdec90a9e7bb7dc36b\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:6b7c147a1a241d61d349c8ed\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:6ebf006cb75b6e8ca2257bef\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:74009b2067bc40eb52b574e8\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:8502da86583356b4d5edf54d\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:905bdba46c26d442af3d4338\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:a970f5a0ec939c5b05555816\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:e1d67e467c2b50b0d385a9b6\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:e936170dbda13f119252b12d\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:f0c8654e18926a1eb08b6b91\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}, {\"key\": {\"fact_id\": \"fact:f902b53b70c3dc3ffe214aea\"}, \"merge\": \"both\", \"differences\": {\"metric_value\": {\"live\": \"0.0\", \"rebuilt\": \"0\"}}}]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "monthly_speech_sum_equals_yearly",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "cross_table",
+    "test_name": "monthly_vote_sum_equals_yearly",
+    "expected_result": "0",
+    "actual_result": "0",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "[]"
+  },
+  {
+    "table": "gold_content_fact_pool",
+    "test_name": "every_fact_resolves_to_equal_source_metric",
+    "expected_result": "0 missing and 0 mismatched",
+    "actual_result": "{\"mismatched\": 0, \"missing\": 0}",
+    "status": "pass",
+    "source_url_or_api_request": "",
+    "sample_record_id": "",
+    "details": "{\"missing_samples\": [], \"mismatch_samples\": []}"
+  }
+]
