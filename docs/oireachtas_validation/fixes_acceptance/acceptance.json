@@ -1,6 +1,6 @@
 {
-  "batch_id": "validation-fixes-20260719-1",
-  "status": "fail",
+  "batch_id": "validation-fixes-20260719-3",
+  "status": "pass",
   "checks": [
     {
       "check": "batch_manifest_validated",
@@ -92,53 +92,12 @@
     },
     {
       "check": "control_manifest_counts_and_schemas_match_candidate",
-      "status": "fail",
+      "status": "pass",
       "details": {
         "row_count": 31,
         "missing_tables": [],
-        "failure_count": 4,
-        "failure_samples": [
-          {
-            "table": "silver_bill_debates",
-            "differences": {
-              "row_count": {
-                "stored": 1172,
-                "actual_csv": 1222,
-                "actual_parquet": 1222
-              }
-            }
-          },
-          {
-            "table": "silver_member_offices",
-            "differences": {
-              "row_count": {
-                "stored": 77,
-                "actual_csv": 123,
-                "actual_parquet": 123
-              }
-            }
-          },
-          {
-            "table": "silver_source_files",
-            "differences": {
-              "row_count": {
-                "stored": 3455,
-                "actual_csv": 3480,
-                "actual_parquet": 3480
-              }
-            }
-          },
-          {
-            "table": "silver_speeches",
-            "differences": {
-              "row_count": {
-                "stored": 66137,
-                "actual_csv": 66147,
-                "actual_parquet": 66147
-              }
-            }
-          }
-        ]
+        "failure_count": 0,
+        "failure_samples": []
       }
     }
   ]
