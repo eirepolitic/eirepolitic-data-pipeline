@@ -138,13 +138,13 @@ class InstagramFactoryConstituencyPilotTest(TestCase):
                 workflow_run_id="test-run",
             )
             self.assertEqual(first["run_id"], second["run_id"])
-            self.assertEqual(first["status"], "succeeded")
-            self.assertGreater(first["item_count_succeeded"], 0)
-            self.assertEqual(first["item_count_failed"], 0)
+            self.assertEqual(first["state"], "succeeded")
+            self.assertGreater(first["succeeded_item_count"], 0)
+            self.assertEqual(first["failed_item_count"], 0)
             self.assertFalse(first["approved"])
             self.assertFalse(first["publishing_allowed"])
-            run_root = Path(temp_dir) / first["project_id"] / "runs" / first["run_id"]
+            run_root = Path(first["output_root"])
             self.assertTrue((run_root / "run_manifest.json").is_file())
             self.assertTrue((run_root / "review/review_state.json").is_file())
-            for item in first["items"]:
+            for item in first["items"].values():
                 self.assertTrue((run_root / item["manifest"]).is_file())
