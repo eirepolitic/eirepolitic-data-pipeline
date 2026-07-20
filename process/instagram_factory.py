@@ -109,6 +109,17 @@ def _regenerate(args: argparse.Namespace) -> int:
     return 0
 
 
+@_guard
+def _check_readiness(args: argparse.Namespace) -> int:
+    from instagram.factory.recurring import evaluate_readiness, load_latest_manifest
+    report = evaluate_readiness(
+        data_source=args.data_source,
+        latest_manifest=load_latest_manifest(args.latest_manifest),
+    )
+    _print(report)
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate and run Instagram Content Factory projects.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -159,6 +170,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--reason", required=True)
     p.add_argument("--data-source", choices=["local", "s3"], default="s3")
     p.set_defaults(handler=_regenerate)
+
+    p = subparsers.add_parser("check-readiness")
+    p.add_argument("--data-source", choices=["local", "s3"], default="s3")
+    p.add_argument("--latest-manifest")
+    p.set_defaults(handler=_check_readiness)
 
     return parser.parse_args()
 
