@@ -1,0 +1,74 @@
+name: Oireachtas validation fixes CI
+
+on:
+  push:
+    branches:
+      - fix/oireachtas-validation-findings
+    paths:
+      - extract/oireachtas/history_dedupe.py
+      - extract/oireachtas/merge.py
+      - extract/oireachtas/write_policies.py
+      - extract/oireachtas/table_member_parties.py
+      - extract/oireachtas/table_member_constituencies.py
+      - extract/oireachtas/table_control_table_manifests.py
+      - configs/oireachtas/write_policies.yml
+      - process/oireachtas_refresh_inputs.py
+      - tests/test_oireachtas_history_dedupe.py
+      - tests/test_oireachtas_business_key_merge.py
+      - tests/test_oireachtas_refresh_order.py
+      - tests/test_oireachtas_control_manifest_counts.py
+      - tests/test_oireachtas_repair_regressions.py
+      - .github/workflows/oireachtas_validation_fixes_ci.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/oireachtas-validation-findings
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Run repair regression tests
+        run: |
+          python -m unittest \
+            tests.test_oireachtas_history_dedupe \
+            tests.test_oireachtas_business_key_merge \
+            tests.test_oireachtas_refresh_order \
+            tests.test_oireachtas_control_manifest_counts \
+            tests.test_oireachtas_repair_regressions
+      - name: Compile repaired modules
+        run: |
+          python -m py_compile \
+            extract/oireachtas/history_dedupe.py \
+            extract/oireachtas/merge.py \
+            extract/oireachtas/write_policies.py \
+            extract/oireachtas/table_member_parties.py \
+            extract/oireachtas/table_member_constituencies.py \
+            extract/oireachtas/table_control_table_manifests.py \
+            process/oireachtas_refresh_inputs.py \
+            process/oireachtas_verify_validation_fixes.py
+      - name: Validate configured business keys
+        run: |
+          python - <<'PY'
+          from extract.oireachtas.write_policies import load_write_policies
+          policies = load_write_policies()
+          assert policies['silver_member_parties'].business_key_columns == (
+              'member_code', 'party_uri', 'party_start', 'party_end'
+          )
+          assert policies['silver_member_constituencies'].business_key_columns == (
+              'member_code', 'constituency_uri', 'represent_start', 'represent_end'
+          )
+          print('Business-key policies validated.')
+          PY

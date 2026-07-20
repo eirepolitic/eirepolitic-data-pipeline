@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import Any
 import pandas as pd
 
 from .client import OireachtasClient
-from .io_s3 import get_json, put_dataframe_csv, put_dataframe_parquet, put_json
+from .io_s3 import get_bytes, get_json, put_dataframe_csv, put_dataframe_parquet, put_json
 from .normalize import stable_hash, utc_now_iso
 from .schemas import DEFAULT_TABLES_CONFIG, TableSchema, load_table_registry
 
@@ -57,6 +58,7 @@ def build_control_table_manifests(
 
     latest_by_table = _latest_by_table(payloads)
     rows = [_manifest_to_row(payload, key=key, registry=registry, updated_at_utc=started_at) for key, payload in latest_by_table.values()]
+    read_errors.extend(_populate_actual_candidate_row_counts(s3, bucket=bucket, rows=rows))
     df = pd.DataFrame(rows, columns=schema.columns)
     if not df.empty:
         df = df.sort_values(["table_name"]).copy()
@@ -71,6 +73,26 @@ def build_control_table_manifests(
     review_manifest_key = f"processed/oireachtas_unified/review/{TABLE_NAME}/latest/manifest.json"
 
     dq = _dq_results(df, schema)
+    if read_errors:
+        dq["dq_status"] = "fail"
+        dq["checks"].append(
+            {
+                "check_name": "candidate_object_row_counts_readable",
+                "status": "fail",
+                "metric_value": len(read_errors),
+                "threshold": 0,
+                "errors": read_errors[:25],
+            }
+        )
+    else:
+        dq["checks"].append(
+            {
+                "check_name": "candidate_object_row_counts_readable",
+                "status": "pass",
+                "metric_value": 0,
+                "threshold": 0,
+            }
+        )
     write_errors: list[str] = []
     schema_payload = {"table": TABLE_NAME, "primary_key": schema.primary_key, "columns": schema.columns, "row_count": int(len(df))}
     s3_keys = {
@@ -127,6 +149,45 @@ def build_control_table_manifests(
 
     sample_df = df.head(10)
     return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
+
+
+def _populate_actual_candidate_row_counts(s3: Any, *, bucket: str, rows: list[dict[str, str]]) -> list[str]:
+    """Replace manifest output counts with actual candidate object counts.
+
+    The control-manifest table cannot read its own candidate object before it has been
+    written. Its final row count is deterministic: one row per table represented in
+    ``rows``. All other tables are read from their merged candidate CSV/Parquet pair.
+    """
+    errors: list[str] = []
+    self_row_count = len(rows)
+    for row in rows:
+        table_name = str(row.get("table_name") or "")
+        if table_name == TABLE_NAME:
+            row["row_count"] = str(self_row_count)
+            continue
+        try:
+            actual = _actual_candidate_counts(
+                s3,
+                bucket=bucket,
+                csv_key=str(row.get("latest_csv_key") or ""),
+                parquet_key=str(row.get("latest_parquet_key") or ""),
+            )
+            row["row_count"] = str(actual["row_count"])
+        except Exception as exc:
+            errors.append(f"{table_name}: candidate row count: {type(exc).__name__}: {exc}")
+    return errors
+
+
+def _actual_candidate_counts(s3: Any, *, bucket: str, csv_key: str, parquet_key: str) -> dict[str, int]:
+    if not csv_key or not parquet_key:
+        raise ValueError("both candidate CSV and Parquet keys are required")
+    csv_body = get_bytes(s3, bucket=bucket, key=csv_key)
+    parquet_body = get_bytes(s3, bucket=bucket, key=parquet_key)
+    csv_rows = len(pd.read_csv(io.BytesIO(csv_body), dtype=str, keep_default_na=False))
+    parquet_rows = len(pd.read_parquet(io.BytesIO(parquet_body)))
+    if csv_rows != parquet_rows:
+        raise ValueError(f"CSV/Parquet row mismatch: csv={csv_rows}, parquet={parquet_rows}")
+    return {"row_count": csv_rows, "csv_rows": csv_rows, "parquet_rows": parquet_rows}
 
 
 def _list_manifest_keys(s3: Any, *, bucket: str, prefix: str) -> list[str]:

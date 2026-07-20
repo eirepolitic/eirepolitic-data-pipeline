@@ -28,6 +28,7 @@ class WritePolicy:
     valid_from_column: str | None = None
     valid_to_column: str | None = None
     current_column: str | None = None
+    business_key_columns: tuple[str, ...] = field(default_factory=tuple)
     foreign_keys: tuple[ForeignKeyPolicy, ...] = field(default_factory=tuple)
 
 
@@ -63,6 +64,7 @@ def load_write_policies(path: Path | str = DEFAULT_POLICY_CONFIG) -> dict[str, W
             valid_from_column=_optional_text(raw.get("valid_from_column")),
             valid_to_column=_optional_text(raw.get("valid_to_column")),
             current_column=_optional_text(raw.get("current_column")),
+            business_key_columns=_as_tuple(raw.get("business_key_columns")),
             foreign_keys=tuple(foreign_keys),
         )
     return policies

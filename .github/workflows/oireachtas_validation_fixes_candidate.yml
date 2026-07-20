@@ -1,0 +1,47 @@
+name: Oireachtas validation fixes candidate
+
+on:
+  push:
+    branches:
+      - fix/oireachtas-validation-findings
+    paths:
+      - .github/workflows/oireachtas_validation_fixes_candidate.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    uses: ./.github/workflows/oireachtas_refresh_reusable.yml
+    with:
+      refresh_type: yearly
+      mode: backfill
+      tables: silver_houses,silver_constituencies,silver_parties,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,silver_source_files,silver_debate_records,silver_debate_sections,silver_speeches,silver_divisions,silver_division_tallies,silver_member_votes,silver_questions,silver_bills,silver_bill_versions,silver_bill_stages,silver_bill_related_docs,silver_bill_sponsors,silver_bill_debates,silver_bill_events,gold_current_members,gold_member_activity_yearly,gold_member_activity_monthly,gold_constituency_activity_yearly,gold_content_fact_pool,control_pipeline_runs,control_data_quality_results,control_table_manifests
+      chamber: dail
+      house_no: '34'
+      date_start: '2024-11-29'
+      date_end: '2026-07-19'
+      page_size: '200'
+      sample_rows: '10'
+      batch_id: validation-fixes-20260719-3
+      publish_candidate: true
+    secrets: inherit
+
+  validate:
+    needs: refresh
+    uses: ./.github/workflows/oireachtas_validation_reusable.yml
+    with:
+      batch_id: validation-fixes-20260719-3
+      run_consumers: true
+    secrets: inherit
+
+  final-check:
+    needs: [refresh, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm candidate workflow success
+        run: |
+          test '${{ needs.refresh.result }}' = 'success'
+          test '${{ needs.validate.result }}' = 'success'
+          echo 'Candidate validation-fixes-20260719-3 completed successfully.'

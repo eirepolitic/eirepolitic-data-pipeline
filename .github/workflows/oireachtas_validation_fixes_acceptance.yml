@@ -1,0 +1,85 @@
+name: Oireachtas validation fixes acceptance
+
+on:
+  push:
+    branches:
+      - fix/oireachtas-validation-findings
+    paths:
+      - process/oireachtas_verify_validation_fixes.py
+      - .github/workflows/oireachtas_validation_fixes_acceptance.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/oireachtas-validation-findings
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Run candidate acceptance checks
+        id: acceptance
+        shell: bash
+        run: |
+          set +e
+          mkdir -p oireachtas_validation_output/fixes_acceptance
+          python process/oireachtas_verify_validation_fixes.py \
+            --batch-id validation-fixes-20260719-3 \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --date-end 2026-07-19 \
+            --output-dir oireachtas_validation_output/fixes_acceptance \
+            > fixes_acceptance_console.log 2>&1
+          status=$?
+          cat fixes_acceptance_console.log
+          echo "exit_status=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Commit acceptance evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin fix/oireachtas-validation-findings
+          mkdir -p docs/oireachtas_validation/fixes_acceptance
+          cp oireachtas_validation_output/fixes_acceptance/* docs/oireachtas_validation/fixes_acceptance/
+          cp fixes_acceptance_console.log docs/oireachtas_validation/fixes_acceptance/console.log
+          git add docs/oireachtas_validation/fixes_acceptance
+          if git diff --cached --quiet; then
+            echo 'No acceptance changes.'
+          else
+            git commit -m 'Record repaired candidate acceptance results'
+            git push origin HEAD:fix/oireachtas-validation-findings
+          fi
+      - name: Enforce acceptance
+        run: test '${{ steps.acceptance.outputs.exit_status }}' = '0'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-validation-fixes-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_validation_output/fixes_acceptance/**
+            fixes_acceptance_console.log
+          if-no-files-found: warn
+          retention-days: 365
