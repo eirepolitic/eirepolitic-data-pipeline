@@ -30,7 +30,8 @@ def generate_project_batch(
     workflow_run_id: str | None = None,
 ) -> dict[str, Any]:
     project = load_project(project_path)
-    validation = validate_project(project=project, catalogues=load_catalogues())
+    catalogues = load_catalogues()
+    validation = validate_project(project=project, catalogues=catalogues)
     if not validation["success"]:
         raise ValueError("Invalid project:\n" + "\n".join(validation["errors"]))
 
@@ -73,10 +74,7 @@ def generate_project_batch(
             asset_result = adapter.render_assets(item_dir, context, project)
             visual_manifest = asset_result.get("visual_manifest")
             for slide in sorted(project["slides"], key=lambda value: value["order"]):
-                post_type = next(
-                    entry for entry in load_catalogues()["post_types"]["post_types"]
-                    if entry["post_type_id"] == slide["post_type_id"]
-                )
+                post_type = catalogues.post_types[slide["post_type_id"]]
                 layout_path = str(post_type["layout_path"])
                 if layout_path not in template_cache:
                     template_cache[layout_path] = json.loads((REPO_ROOT / layout_path).read_text(encoding="utf-8"))
