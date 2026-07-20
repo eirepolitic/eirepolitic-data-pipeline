@@ -25,10 +25,21 @@ Both slides use the existing `title_text_media_v1` layout. The issue chart reuse
 
 The minimum and maximum outputs are accepted as automated QA fixtures. No further aesthetic polishing is required unless they expose a rendering defect. Visual refinement and approval will focus on the real-data example.
 
+The reusable constituency design is approved as the Phase 3 batch baseline. Approval does not approve individual generated posts for publication; every generated item remains `unreviewed`, `approved: false`, and `publishing_allowed: false`.
+
+## Batch policy
+
+- Generate one deterministic two-slide post set for every constituency returned by the active production dataset.
+- Preserve a stable run ID derived from project version, source batch ID, and Git commit.
+- Write run, item, slide, visual, and review-state manifests.
+- Store each run under the existing project S3 prefix.
+- Isolate item failures and retain partial results.
+- Do not publish, schedule, or mark generated posts approved automatically.
+
 ## Data policy
 
 Resolve unified compatibility keys through the production pointer, retain legacy fallback keys, and record join coverage in the project manifest.
 
 ## Scope boundary
 
-This implementation validates one constituency pilot. It does not yet provide a generic scenario builder for every project/grain and does not enable batch generation.
+Phase 3 currently implements deterministic batch generation for this constituency project. Generic multi-project batch generation and targeted regeneration remain separate work.
