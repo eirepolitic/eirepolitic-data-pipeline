@@ -70,12 +70,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RUN_ID=$(python - <<'PY'
+          readarray -t VALUES < <(python - <<'PY'
           import json
-          print(json.load(open('batch-result.json', encoding='utf-8'))['run_id'])
+          report = json.load(open('batch-result.json', encoding='utf-8'))
+          print(report['run_id'])
+          print(report['output_root'])
           PY
           )
-          RUN_ROOT="$OUTPUT_ROOT/$PROJECT_ID/runs/$RUN_ID"
+          RUN_ID="${VALUES[0]}"
+          RUN_ROOT="${VALUES[1]}"
           test -f "$RUN_ROOT/run_manifest.json"
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
           echo "run_root=$RUN_ROOT" >> "$GITHUB_OUTPUT"
