@@ -53,7 +53,7 @@ def _validate_project(args: argparse.Namespace) -> int:
 
 @_guard
 def _render_tests(args: argparse.Namespace) -> int:
-    from instagram.factory.constituency_pilot import render_project_tests
+    from instagram.factory.generic_tests import render_project_tests
     report = render_project_tests(args.project, data_source=args.data_source, output_root=args.output_root)
     _print(report)
     return 0
@@ -100,8 +100,8 @@ def _mark_review(args: argparse.Namespace) -> int:
 
 @_guard
 def _regenerate(args: argparse.Namespace) -> int:
-    from instagram.factory.regeneration import regenerate_selected
-    report = regenerate_selected(
+    from instagram.factory.generic_regeneration import regenerate_project_items
+    report = regenerate_project_items(
         args.project,
         args.source_run_root,
         args.destination_run_root,
