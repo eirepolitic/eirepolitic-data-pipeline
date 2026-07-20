@@ -11,6 +11,36 @@ It replaces the original informal plan and should be read together with:
 
 The intended user experience is conversational: a GPT with repository, GitHub, AWS, S3, workflow, and rendering access should be able to help define a post concept, test it, generate a full batch, return previews, accept feedback, selectively repair outputs, and preserve an auditable project record.
 
+
+## Implementation correction — generic factory core (2026-07-20)
+
+The factory is grain-agnostic. Constituency is the first production project and adapter, not the factory architecture.
+
+Implemented generic core capabilities:
+
+- project-driven grain, key fields, label field, ordering, slides, output prefix, review policy, and schedule policy
+- registered project adapters for data loading, item context, min/max/real scenario construction, asset generation, and slide-media selection
+- generic complete-slide test rendering
+- generic batch generation and manifests
+- generic targeted regeneration with immutable source-run preservation
+- generic recurring readiness and duplicate-batch prevention
+- generic review state, review index, and ready-for-posting gate
+- project-driven GitHub Actions workflows for recurring generation and review/regeneration operations
+- regression proof using both the constituency production adapter and an independent national-grain test adapter
+
+Project-specific code is limited to adapters and project specifications. Adding member, party, county, committee, issue, time-period, national, or composite projects should add or reuse an adapter and metric mapping without changing the generic orchestrator.
+
+Remaining gaps against the desired end state:
+
+- only the constituency production adapter is currently implemented; other real production grains still need adapters/projects
+- adapter registration is Python-based rather than dynamically loaded from configuration
+- the mapping layer still lacks several planned transforms, joins, period operations, pivots, and normalized metrics
+- review output is a static HTML index rather than a richer interactive dashboard
+- direct preview-link publication is not yet fully generalized across all project workflows
+- reviewer notification is not selected or implemented
+- text-generation/provenance and licensed media-sourcing subsystems remain future work
+- automatic publishing, social scheduling, automatic approval, and autonomous content suggestions remain explicitly disabled
+
 ---
 
 ## 1. Desired end state
@@ -1279,20 +1309,18 @@ These require separate design and approval.
 
 ## 18. Immediate next development tasks
 
-Phases 1 and 2 are complete for the constituency pilot. Phase 3 batch generation and S3 storage are implemented and live-validated for that project.
+The generic factory core is implemented and validated. Constituency remains the first production adapter/project only.
 
-Recommended order for the next chat instance:
+Recommended next tasks:
 
-1. Read this file and the architecture/system docs.
-2. Inspect current live repo state and the latest constituency batch manifest.
-3. Review generated constituency items without changing unaffected outputs.
-4. Implement Phase 4 review-state commands and targeted regeneration.
-5. Add per-item/per-slide review status transitions.
-6. Preserve immutable prior runs during selective regeneration.
-7. Build a review index or equivalent navigable output.
-8. Generalize batch orchestration only after the constituency review loop is validated.
+1. Build the next real production adapter and project for a different grain, preferably `member` or `party`, without changing the generic orchestrator.
+2. Move adapter registration from a hard-coded Python dictionary to a validated plugin/configuration mechanism.
+3. Generalize preview publication and direct review links for every project workflow.
+4. Expand the mapping layer with `average_by`, `percentage_by`, `distinct_count_by`, ranking, date-period, join, pivot, rolling-window, and normalized-metric operations.
+5. Add reviewer notification after a new draft run is generated.
+6. Improve the static review index only after the second production grain validates the generic review loop.
 
-Do not enable automatic publishing, scheduling, or approval.
+Do not enable automatic publishing, social scheduling, automatic approval, or automatic recurring cadence.
 
 ---
 
