@@ -1,0 +1,86 @@
+project_id: party_issue_profile_v1
+version: 1
+status: draft
+purpose: Show the parliamentary issue profile for each current party using classified debate speeches from its current TDs.
+
+factory:
+  adapter: party_issue_profile_v1
+
+granularity:
+  grain: party
+  key_fields: [party_key]
+  label_field: party
+  source_metric: party_issue_counts
+  selector:
+    mode: all_complete
+  ordering:
+    field: party
+    direction: ascending
+
+period:
+  mode: latest_available
+  field: null
+
+slides:
+  - slide_id: cover
+    order: 1
+    post_type_id: title_text_media_v1
+    text:
+      slide_title: "{{ party }}"
+      body_text: "A party-level view of parliamentary issues raised by its current TDs."
+      footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
+    media:
+      main_media: cover
+      type: generated_card
+    accessibility:
+      alt_text_template: "Cover slide for the {{ party }} parliamentary issue profile."
+    fallback_behavior:
+      missing_optional_text: omit
+      missing_media: generate_placeholder
+
+  - slide_id: issue_profile
+    order: 2
+    post_type_id: title_text_media_v1
+    text:
+      slide_title: "Issues raised by {{ party }} TDs"
+      body_text: "Classified debate speeches grouped by political issue. Counts describe recorded speeches, not party policy positions."
+      footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
+    visual:
+      visual_type_id: horizontal_bar_draft_v1
+      metric_id: party_issue_counts
+      bindings:
+        label: label
+        value: value
+      filters:
+        party: "{{ party }}"
+      grouping: {}
+      sort:
+        field: value
+        direction: descending
+      item_limit: 7
+      empty_data_behavior: fail
+    accessibility:
+      alt_text_template: "Horizontal bar chart of classified parliamentary issues raised by current {{ party }} TDs."
+    fallback_behavior:
+      missing_optional_text: omit
+      missing_visual: fail
+
+validation:
+  scenarios: [minimum, maximum, real_example]
+  real_example_selector:
+    mode: median_complexity
+  require_explicit_approval: true
+
+output:
+  local_root: generated_factory_tests/party_issue_profile_v1
+  s3_prefix: processed/instagram_factory/projects/party_issue_profile_v1
+  preview_branch: instagram-preview-output
+
+review:
+  require_all_items_reviewed: true
+  allow_targeted_regeneration: true
+
+schedule:
+  enabled: false
+  cadence: null
+  trigger: manual
