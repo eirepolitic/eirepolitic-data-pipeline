@@ -33,12 +33,13 @@ jobs:
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
-      - name: Run factory tests
-        run: >-
-          python -m unittest
-          tests.test_instagram_factory
-          tests.test_instagram_factory_phase4
-          tests.test_instagram_factory_phase5
-          tests.test_instagram_factory_phase6
-          tests.test_instagram_factory_generic_core
-          -v
+      - name: Test base factory
+        run: python -m unittest tests.test_instagram_factory -v
+      - name: Test review and regeneration
+        run: python -m unittest tests.test_instagram_factory_phase4 -v
+      - name: Test recurring readiness
+        run: python -m unittest tests.test_instagram_factory_phase5 -v
+      - name: Test review index and ready gate
+        run: python -m unittest tests.test_instagram_factory_phase6 -v
+      - name: Test generic core with non-constituency grain
+        run: python -m unittest tests.test_instagram_factory_generic_core -v
