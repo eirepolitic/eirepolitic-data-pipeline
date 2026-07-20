@@ -190,7 +190,7 @@ For every visual type the system supports:
 - metadata and manifests
 - preview branch publication
 
-This testing is visual-level only. Complete-slide min/max/real testing remains to be built.
+Complete-slide minimum, maximum, and real-example testing is now integrated through the generic adapter-driven project renderer.
 
 ### 3.4 Live S3 smoke tests — built and validated
 
@@ -244,7 +244,7 @@ Still needed:
 - rolling windows
 - per-capita/normalized metrics where appropriate
 
-### 3.6 Post layout renderer — built but not integrated into the new orchestrator
+### 3.6 Post layout renderer — integrated into the generic orchestrator
 
 Existing components:
 
@@ -275,7 +275,7 @@ Still needed:
 - complete-slide stress generation
 - complete-post project orchestration
 
-### 3.7 Campaign/batch structure — partially built
+### 3.7 Campaign/batch structure — generic project runs built
 
 Existing campaign folder pattern:
 
@@ -293,7 +293,7 @@ instagram/campaigns/<campaign_id>/
 
 Existing campaign renderer can batch some post layouts, but it does not yet provide the full conversational factory described here.
 
-### 3.8 Review workflows — built for visuals, partial for complete posts
+### 3.8 Review workflows — built for complete posts
 
 Existing review capabilities:
 
@@ -1218,7 +1218,7 @@ Validated pilot:
 - final live validation run: `29703335986`
 - preview root: `instagram-preview-output/preview/factory/projects/constituency_issue_profile_v1/`
 
-This validates the Phase 2 architecture for one pilot. A generic multi-project scenario builder remains future work. Human factual and visual approval is still required before batch generation.
+The scenario/rendering architecture is now generic and adapter-driven. The constituency project is the first production adapter, and an independent national-grain adapter test confirms the core is not tied to constituency fields. Human factual and visual approval remains required before batch generation.
 
 Build:
 
@@ -1257,7 +1257,7 @@ Validation evidence:
 - S3 project root: `s3://eirepolitic-data/processed/instagram_factory/projects/constituency_issue_profile_v1/`
 - all catalogue, project, unit-test, render, S3-upload, artifact, and review-state gates passed
 
-This validates Phase 3 for one constituency project. Generic multi-project batch orchestration and review UI remain future work.
+The batch orchestrator is now generic and project-driven. Constituency is the first live production adapter; additional production grains require adapters and project specifications, not orchestrator changes. The current review index is static HTML.
 
 Acceptance:
 
@@ -1266,6 +1266,8 @@ Acceptance:
 - partial failures are isolated and documented
 
 ### Phase 4 — review state and targeted regeneration
+
+**Status: completed in the generic core (2026-07-20).**
 
 Build:
 
@@ -1279,6 +1281,10 @@ Acceptance:
 - one bad item/slide can be fixed without regenerating the batch
 
 ### Phase 5 — recurring generation
+
+**Status: partially completed; manual operation selected (2026-07-20).**
+
+Implemented: project-driven readiness, production-batch resolution, duplicate prevention, and manual recurring draft generation. Generic latest-complete-period logic and reviewer notification remain outstanding. Automatic cadence is intentionally disabled.
 
 Build:
 
