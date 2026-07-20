@@ -2,6 +2,11 @@ name: Update Instagram Content Factory generic-core plan status
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-generic-core
+    paths:
+      - ".github/workflows/instagram_factory_generic_plan_update.yml"
 
 permissions:
   contents: write
