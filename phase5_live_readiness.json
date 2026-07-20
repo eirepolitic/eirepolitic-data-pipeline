@@ -1,0 +1,78 @@
+{
+  "data_source": "s3",
+  "duplicate_source_batch": true,
+  "expected_item_count": 43,
+  "join_manifest": {
+    "constituency_count": 43,
+    "constituency_field": "constituency",
+    "ignored_empty_issue": 17935,
+    "issue_field": "PoliticalIssues",
+    "matched_speeches": 29233,
+    "member_name_field": "full_name",
+    "member_rows": 176,
+    "speaker_field": "Speaker Name",
+    "speech_rows": 47275,
+    "unmatched_speeches": 107
+  },
+  "previous_source_batch_id": "current-government-backfill-20260716-1",
+  "ready": false,
+  "reasons": [
+    "source batch current-government-backfill-20260716-1 has already been generated"
+  ],
+  "source_batch_id": "current-government-backfill-20260716-1",
+  "source_manifest": {
+    "members": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "current-government-backfill-20260716-1",
+        "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-07-18T19:07:00+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "row_count": 176,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+    },
+    "mode": "s3",
+    "speeches": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "current-government-backfill-20260716-1",
+        "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-07-18T19:07:00+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+      "row_count": 47275,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+    }
+  }
+}
