@@ -1,0 +1,145 @@
+{
+  "batch_id": "validation-fixes-20260719-1",
+  "status": "fail",
+  "checks": [
+    {
+      "check": "batch_manifest_validated",
+      "status": "pass",
+      "details": {
+        "status": "validated",
+        "table_count": 32,
+        "validation": {
+          "duplicate_tables": [],
+          "failed_tables": [],
+          "missing_objects": [],
+          "missing_tables": []
+        }
+      }
+    },
+    {
+      "check": "member_party_business_keys_unique",
+      "status": "pass",
+      "details": {
+        "duplicate_rows": 0
+      }
+    },
+    {
+      "check": "member_constituency_business_keys_unique",
+      "status": "pass",
+      "details": {
+        "duplicate_rows": 0
+      }
+    },
+    {
+      "check": "current_party_values_unchanged",
+      "status": "pass",
+      "details": {
+        "difference_count": 0,
+        "samples": []
+      }
+    },
+    {
+      "check": "current_constituency_values_unchanged",
+      "status": "pass",
+      "details": {
+        "difference_count": 0,
+        "samples": []
+      }
+    },
+    {
+      "check": "recent_official_debate_sections_present",
+      "status": "pass",
+      "details": {
+        "official_rows": 106,
+        "candidate_rows": 5008,
+        "missing_count": 0,
+        "missing_samples": [],
+        "source": "https://api.oireachtas.ie/v1/debates?chamber_id=%2Fie%2Foireachtas%2Fhouse%2Fdail%2F34&lang=en&date_start=2026-07-14&date_end=2026-07-19&limit=200&skip=0"
+      }
+    },
+    {
+      "check": "recent_official_questions_present",
+      "status": "pass",
+      "details": {
+        "official_rows": 2032,
+        "candidate_rows": 117042,
+        "missing_count": 0,
+        "missing_samples": [],
+        "source": "https://api.oireachtas.ie/v1/questions?chamber=dail&house_no=34&date_start=2026-07-14&date_end=2026-07-19&limit=200&skip=0"
+      }
+    },
+    {
+      "check": "official_bill_versions_present",
+      "status": "pass",
+      "details": {
+        "official_rows": 508,
+        "candidate_rows": 508,
+        "missing_count": 0,
+        "missing_samples": [],
+        "source": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2024-11-29&date_end=2026-07-19&limit=200&skip=0"
+      }
+    },
+    {
+      "check": "official_bill_debate_business_rows_present",
+      "status": "pass",
+      "details": {
+        "official_rows_for_candidate_bills": 1172,
+        "candidate_rows": 1222,
+        "missing_business_rows": 0,
+        "missing_samples": [],
+        "source": "https://api.oireachtas.ie/v1/legislation?chamber=dail&house_no=34&date_start=2024-11-29&date_end=2026-07-19&limit=200&skip=0"
+      }
+    },
+    {
+      "check": "control_manifest_counts_and_schemas_match_candidate",
+      "status": "fail",
+      "details": {
+        "row_count": 31,
+        "missing_tables": [],
+        "failure_count": 4,
+        "failure_samples": [
+          {
+            "table": "silver_bill_debates",
+            "differences": {
+              "row_count": {
+                "stored": 1172,
+                "actual_csv": 1222,
+                "actual_parquet": 1222
+              }
+            }
+          },
+          {
+            "table": "silver_member_offices",
+            "differences": {
+              "row_count": {
+                "stored": 77,
+                "actual_csv": 123,
+                "actual_parquet": 123
+              }
+            }
+          },
+          {
+            "table": "silver_source_files",
+            "differences": {
+              "row_count": {
+                "stored": 3455,
+                "actual_csv": 3480,
+                "actual_parquet": 3480
+              }
+            }
+          },
+          {
+            "table": "silver_speeches",
+            "differences": {
+              "row_count": {
+                "stored": 66137,
+                "actual_csv": 66147,
+                "actual_parquet": 66147
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
