@@ -1,0 +1,32 @@
+name: Update Instagram Content Factory Phase 3 plan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-phase3-batch
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Update canonical plan
+        run: python process/update_phase3_content_factory_plan.py
+      - name: Remove temporary updater
+        run: |
+          rm process/update_phase3_content_factory_plan.py
+          rm .github/workflows/instagram_factory_phase2_plan_update.yml
+      - name: Commit plan update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs(instagram): mark constituency Phase 3 live-validated"
+          git push origin HEAD:feature/instagram-content-factory-phase3-batch
