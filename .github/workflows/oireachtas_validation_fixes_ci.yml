@@ -10,11 +10,13 @@ on:
       - extract/oireachtas/write_policies.py
       - extract/oireachtas/table_member_parties.py
       - extract/oireachtas/table_member_constituencies.py
+      - extract/oireachtas/table_control_table_manifests.py
       - configs/oireachtas/write_policies.yml
       - process/oireachtas_refresh_inputs.py
       - tests/test_oireachtas_history_dedupe.py
       - tests/test_oireachtas_business_key_merge.py
       - tests/test_oireachtas_refresh_order.py
+      - tests/test_oireachtas_control_manifest_counts.py
       - tests/test_oireachtas_repair_regressions.py
       - .github/workflows/oireachtas_validation_fixes_ci.yml
   workflow_dispatch:
@@ -44,6 +46,7 @@ jobs:
             tests.test_oireachtas_history_dedupe \
             tests.test_oireachtas_business_key_merge \
             tests.test_oireachtas_refresh_order \
+            tests.test_oireachtas_control_manifest_counts \
             tests.test_oireachtas_repair_regressions
       - name: Compile repaired modules
         run: |
@@ -53,7 +56,9 @@ jobs:
             extract/oireachtas/write_policies.py \
             extract/oireachtas/table_member_parties.py \
             extract/oireachtas/table_member_constituencies.py \
-            process/oireachtas_refresh_inputs.py
+            extract/oireachtas/table_control_table_manifests.py \
+            process/oireachtas_refresh_inputs.py \
+            process/oireachtas_verify_validation_fixes.py
       - name: Validate configured business keys
         run: |
           python - <<'PY'
