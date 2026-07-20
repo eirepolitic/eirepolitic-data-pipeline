@@ -1,11 +1,14 @@
 project_id: constituency_issue_profile_v1
 version: 1
 status: draft
-purpose: Show the parliamentary issue profile for each constituency using classified debate speeches from its current members.
+purpose: Show the parliamentary issue profile for each configured grain item using its project adapter and classified debate data.
+
+factory:
+  adapter: constituency_issue_profile_v1
 
 granularity:
   grain: constituency
-  key_fields: [constituency]
+  key_fields: [constituency_key]
   label_field: constituency
   source_metric: constituency_issue_counts
   selector:
@@ -27,8 +30,8 @@ slides:
       body_text: "A constituency-level view of parliamentary issues raised by its current TDs."
       footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
     media:
-      main_media: constituency_cover
-      type: generated_constituency_card
+      main_media: cover
+      type: generated_card
     accessibility:
       alt_text_template: "Cover slide for {{ constituency }} parliamentary issue profile."
     fallback_behavior:
