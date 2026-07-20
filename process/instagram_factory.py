@@ -120,6 +120,26 @@ def _check_readiness(args: argparse.Namespace) -> int:
     return 0
 
 
+@_guard
+def _build_review_index(args: argparse.Namespace) -> int:
+    from instagram.factory.review_index import build_review_index
+    report = build_review_index(args.run_root)
+    _print(report)
+    return 0
+
+
+@_guard
+def _mark_ready(args: argparse.Namespace) -> int:
+    from instagram.factory.ready import mark_ready_for_posting
+    report = mark_ready_for_posting(
+        args.run_root,
+        reviewer=args.reviewer,
+        note=args.note,
+    )
+    _print(report)
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate and run Instagram Content Factory projects.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -175,6 +195,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--data-source", choices=["local", "s3"], default="s3")
     p.add_argument("--latest-manifest")
     p.set_defaults(handler=_check_readiness)
+
+    p = subparsers.add_parser("build-review-index")
+    p.add_argument("--run-root", required=True)
+    p.set_defaults(handler=_build_review_index)
+
+    p = subparsers.add_parser("mark-ready")
+    p.add_argument("--run-root", required=True)
+    p.add_argument("--reviewer", default="human")
+    p.add_argument("--note")
+    p.set_defaults(handler=_mark_ready)
 
     return parser.parse_args()
 
