@@ -36,10 +36,14 @@ The reusable constituency design is approved as the Phase 3 batch baseline. Appr
 - Isolate item failures and retain partial results.
 - Do not publish, schedule, or mark generated posts approved automatically.
 
+## Recurring-generation cadence — 2026-07-20
+
+Recurring readiness checks remain manual. The workflow may be started explicitly when a new draft check is wanted, but no cron or automatic schedule will be configured. Duplicate-batch prevention and all review-only safeguards remain active.
+
 ## Data policy
 
 Resolve unified compatibility keys through the production pointer, retain legacy fallback keys, and record join coverage in the project manifest.
 
 ## Scope boundary
 
-Phase 3 currently implements deterministic batch generation for this constituency project. Generic multi-project batch generation and targeted regeneration remain separate work.
+Phases 1–5 are implemented for this constituency project. Generic multi-project orchestration remains future work. Automatic publishing, scheduling, approval, and recurring cadence remain disabled.
