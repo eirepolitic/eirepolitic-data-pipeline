@@ -1,0 +1,53 @@
+validation_version: 1
+project_id: constituency_issue_profile_v1
+review_only: true
+publishing_allowed: false
+scenarios:
+  minimum:
+    synthetic: true
+    no_publication: true
+    review_purpose: automated layout and regression QA only
+    selection:
+      display_constituency: shortest constituency name
+      result_constituency: smallest total classified-speech result set
+      issue_rows: up to seven top issue rows from the result constituency
+  maximum:
+    synthetic: true
+    no_publication: true
+    review_purpose: automated layout and regression QA only
+    selection:
+      display_constituency: longest constituency name
+      result_constituency: largest total classified-speech result set
+      issue_rows: up to seven top issue rows from the result constituency
+  real_example:
+    synthetic: false
+    no_publication: true
+    review_purpose: human factual and visual approval candidate
+    selection:
+      constituency: median combined layout complexity
+      issue_rows: top seven internally consistent issue counts
+required_outputs:
+  - minimum/01_cover.png
+  - minimum/02_issue_profile.png
+  - maximum/01_cover.png
+  - maximum/02_issue_profile.png
+  - real_example/01_cover.png
+  - real_example/02_issue_profile.png
+  - contact_sheets/cover.png
+  - contact_sheets/issue_profile.png
+  - project_validation_manifest.json
+acceptance:
+  - all catalogue and project validation passes
+  - all six complete slides render successfully
+  - no missing layout bindings
+  - no renderer row truncation
+  - minimum display constituency is the shortest available name
+  - maximum display constituency is the longest available name
+  - minimum results come from the smallest constituency result set
+  - maximum results come from the largest constituency result set
+  - synthetic scenarios have no clipping, overflow, or missing provenance
+  - synthetic scenarios do not require aesthetic approval
+  - real-example rows come from one constituency
+  - source and join manifests are present
+  - synthetic outputs are marked no_publication
+  - explicit human factual and visual approval remains required for the real example
