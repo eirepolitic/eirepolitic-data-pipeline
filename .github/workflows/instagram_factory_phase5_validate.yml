@@ -18,6 +18,13 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      BUCKET: eirepolitic-data
+      PROJECT_PREFIX: processed/instagram_factory/projects/constituency_issue_profile_v1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,3 +46,17 @@ jobs:
           tests.test_instagram_factory_phase4
           tests.test_instagram_factory_phase5
           -v
+      - name: Check live recurring readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PROJECT_PREFIX/latest.json" latest.json --only-show-errors || true
+          ARGS=(python process/instagram_factory.py check-readiness --data-source s3)
+          if [ -f latest.json ]; then ARGS+=(--latest-manifest latest.json); fi
+          "${ARGS[@]}" | tee live-readiness.json
+      - name: Upload readiness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-phase5-readiness-${{ github.run_id }}
+          path: live-readiness.json
+          if-no-files-found: error
