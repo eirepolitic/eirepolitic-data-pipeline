@@ -1,0 +1,44 @@
+name: Instagram Content Factory generic core validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-generic-core
+    paths:
+      - "instagram/factory/**"
+      - "instagram/projects/**/project.yml"
+      - "process/instagram_factory.py"
+      - "tests/test_instagram_factory*.py"
+      - ".github/workflows/instagram_factory_generic_validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+      - name: Validate catalogues and reference project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
+      - name: Run factory tests
+        run: >-
+          python -m unittest
+          tests.test_instagram_factory
+          tests.test_instagram_factory_phase4
+          tests.test_instagram_factory_phase5
+          tests.test_instagram_factory_phase6
+          tests.test_instagram_factory_generic_core
+          -v
