@@ -6,7 +6,10 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from extract.oireachtas.table_control_table_manifests import _actual_candidate_counts
+from extract.oireachtas.table_control_table_manifests import (
+    _actual_candidate_counts,
+    _populate_actual_candidate_row_counts,
+)
 
 
 class ControlManifestCountTests(unittest.TestCase):
@@ -47,6 +50,38 @@ class ControlManifestCountTests(unittest.TestCase):
                     csv_key="sample.csv",
                     parquet_key="sample.parquet",
                 )
+
+    def test_self_row_uses_final_manifest_row_count_without_reading_itself(self) -> None:
+        rows = [
+            {
+                "table_name": "silver_members",
+                "latest_csv_key": "members.csv",
+                "latest_parquet_key": "members.parquet",
+                "row_count": "old",
+            },
+            {
+                "table_name": "control_table_manifests",
+                "latest_csv_key": "control.csv",
+                "latest_parquet_key": "control.parquet",
+                "row_count": "old",
+            },
+        ]
+
+        with patch(
+            "extract.oireachtas.table_control_table_manifests._actual_candidate_counts",
+            return_value={"row_count": 174, "csv_rows": 174, "parquet_rows": 174},
+        ) as count_mock:
+            errors = _populate_actual_candidate_row_counts(object(), bucket="bucket", rows=rows)
+
+        self.assertEqual(errors, [])
+        self.assertEqual(rows[0]["row_count"], "174")
+        self.assertEqual(rows[1]["row_count"], "2")
+        count_mock.assert_called_once_with(
+            object(),
+            bucket="bucket",
+            csv_key="members.csv",
+            parquet_key="members.parquet",
+        )
 
 
 if __name__ == "__main__":
