@@ -28,7 +28,8 @@ def regenerate_project_items(
     data_source: str = "s3",
 ) -> dict[str, Any]:
     project = load_project(project_path)
-    validation = validate_project(project=project, catalogues=load_catalogues())
+    catalogues = load_catalogues()
+    validation = validate_project(project=project, catalogues=catalogues)
     if not validation["success"]:
         raise ValueError("Invalid project:\n" + "\n".join(validation["errors"]))
 
@@ -56,8 +57,6 @@ def regenerate_project_items(
     if unknown:
         raise ValueError(f"Unknown slide IDs: {unknown}")
 
-    catalogues = load_catalogues()
-    post_types = {entry["post_type_id"]: entry for entry in catalogues["post_types"]["post_types"]}
     template_cache: dict[str, dict[str, Any]] = {}
     regenerated: list[dict[str, Any]] = []
 
@@ -74,7 +73,7 @@ def regenerate_project_items(
 
         for slide_id in selected_slide_ids:
             slide = slides_by_id[slide_id]
-            post_type = post_types[slide["post_type_id"]]
+            post_type = catalogues.post_types[slide["post_type_id"]]
             layout_path = str(post_type["layout_path"])
             if layout_path not in template_cache:
                 template_cache[layout_path] = json.loads((REPO_ROOT / layout_path).read_text(encoding="utf-8"))
