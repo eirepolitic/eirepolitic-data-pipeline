@@ -47,43 +47,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
+
       - name: Validate catalogues and project
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
+
       - name: Run Content Factory tests
-        id: tests
-        shell: bash
-        run: |
-          set +e
-          python -m unittest tests.test_instagram_factory tests.test_instagram_factory_batch -v 2>&1 | tee phase3_test_output.log
-          status=${PIPESTATUS[0]}
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit "$status"
-      - name: Commit temporary traceback
-        if: failure() && steps.tests.outputs.status != '0'
-        shell: bash
-        run: |
-          mkdir -p diagnostics
-          cp phase3_test_output.log diagnostics/instagram_factory_phase3_test_output.log
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/instagram_factory_phase3_test_output.log
-          git commit -m "chore(instagram): capture current Phase 3 traceback" || true
-          git push origin HEAD:feature/instagram-content-factory-phase3-batch
+        run: python -m unittest tests.test_instagram_factory tests.test_instagram_factory_batch -v
+
       - name: Render complete-slide validation set
         run: >-
           python process/instagram_factory.py render-tests
           --project "$PROJECT_PATH"
           --data-source "$DATA_SOURCE"
+
       - name: Generate local draft batch
         if: env.DATA_SOURCE == 'local'
         run: >-
@@ -92,6 +80,7 @@ jobs:
           --data-source local
           --git-sha "$GITHUB_SHA"
           --workflow-run-id "$GITHUB_RUN_ID"
+
       - name: Generate and upload live S3 draft batch
         if: env.DATA_SOURCE == 's3'
         run: >-
@@ -102,6 +91,7 @@ jobs:
           --workflow-run-id "$GITHUB_RUN_ID"
           --s3-bucket "$INSTAGRAM_VISUAL_S3_BUCKET"
           --s3-prefix "$S3_PROJECT_PREFIX"
+
       - name: Resolve generated run directory
         id: batch
         shell: bash
@@ -112,6 +102,42 @@ jobs:
           RUN_ID=$(basename "$RUN_DIR")
           echo "run_dir=$RUN_DIR" >> "$GITHUB_OUTPUT"
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publish batch review sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREVIEW_BRANCH="instagram-preview-output"
+          PROJECT_DIR="preview/factory/batches/constituency_issue_profile_v1/${{ steps.batch.outputs.run_id }}"
+          RUN_DIR="${{ steps.batch.outputs.run_dir }}"
+          WORKTREE="/tmp/instagram-factory-batch-preview"
+
+          rm -rf "$WORKTREE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$PREVIEW_BRANCH:$PREVIEW_BRANCH"
+          git worktree add "$WORKTREE" "$PREVIEW_BRANCH"
+          rm -rf "$WORKTREE/$PROJECT_DIR"
+          mkdir -p "$WORKTREE/$PROJECT_DIR/review"
+          cp "$RUN_DIR/run_manifest.json" "$WORKTREE/$PROJECT_DIR/run_manifest.json"
+          cp "$RUN_DIR/review/review_state.json" "$WORKTREE/$PROJECT_DIR/review/review_state.json"
+          cp "$RUN_DIR/review/batch_sample_issue_profiles.png" "$WORKTREE/$PROJECT_DIR/review/batch_sample_issue_profiles.png"
+          git -C "$WORKTREE" add "$PROJECT_DIR"
+          git -C "$WORKTREE" commit -m "Publish constituency batch review sample ${{ steps.batch.outputs.run_id }}" || true
+          git -C "$WORKTREE" push origin "$PREVIEW_BRANCH"
+
+          {
+            echo "## Constituency draft batch"
+            echo
+            echo "- Run ID: \`${{ steps.batch.outputs.run_id }}\`"
+            echo "- Data source: \`$DATA_SOURCE\`"
+            echo "- Review sample: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/review/batch_sample_issue_profiles.png"
+            echo "- Run manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/run_manifest.json"
+            if [ "$DATA_SOURCE" = "s3" ]; then
+              echo "- S3 prefix: \`s3://${INSTAGRAM_VISUAL_S3_BUCKET}/${S3_PROJECT_PREFIX}/runs/${{ steps.batch.outputs.run_id }}\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload draft batch artifact
         uses: actions/upload-artifact@v4
         with:
