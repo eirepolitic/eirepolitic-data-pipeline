@@ -11,6 +11,13 @@ from .constituency_pilot import (
     render_visual,
     write_cover_asset,
 )
+from .party_adapter import (
+    build_party_context,
+    build_party_scenarios,
+    load_party_records,
+    party_media_for_slide,
+    render_party_assets,
+)
 
 
 @dataclass(frozen=True)
@@ -84,7 +91,15 @@ ADAPTERS: dict[str, FactoryAdapter] = {
         build_scenarios=_constituency_scenarios,
         render_assets=_constituency_assets,
         media_for_slide=_constituency_media,
-    )
+    ),
+    "party_issue_profile_v1": FactoryAdapter(
+        adapter_id="party_issue_profile_v1",
+        load_records=load_party_records,
+        build_context=build_party_context,
+        build_scenarios=build_party_scenarios,
+        render_assets=render_party_assets,
+        media_for_slide=party_media_for_slide,
+    ),
 }
 
 
