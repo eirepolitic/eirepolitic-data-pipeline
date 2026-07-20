@@ -58,17 +58,7 @@ def build_control_table_manifests(
 
     latest_by_table = _latest_by_table(payloads)
     rows = [_manifest_to_row(payload, key=key, registry=registry, updated_at_utc=started_at) for key, payload in latest_by_table.values()]
-    for row in rows:
-        try:
-            actual = _actual_candidate_counts(
-                s3,
-                bucket=bucket,
-                csv_key=str(row.get("latest_csv_key") or ""),
-                parquet_key=str(row.get("latest_parquet_key") or ""),
-            )
-            row["row_count"] = str(actual["row_count"])
-        except Exception as exc:
-            read_errors.append(f"{row.get('table_name')}: candidate row count: {type(exc).__name__}: {exc}")
+    read_errors.extend(_populate_actual_candidate_row_counts(s3, bucket=bucket, rows=rows))
     df = pd.DataFrame(rows, columns=schema.columns)
     if not df.empty:
         df = df.sort_values(["table_name"]).copy()
@@ -159,6 +149,33 @@ def build_control_table_manifests(
 
     sample_df = df.head(10)
     return TableBuildResult(table=TABLE_NAME, rows=sample_df.to_dict(orient="records"), manifest=manifest, schema=schema_payload, dq=dq, s3_keys=s3_keys)
+
+
+def _populate_actual_candidate_row_counts(s3: Any, *, bucket: str, rows: list[dict[str, str]]) -> list[str]:
+    """Replace manifest output counts with actual candidate object counts.
+
+    The control-manifest table cannot read its own candidate object before it has been
+    written. Its final row count is deterministic: one row per table represented in
+    ``rows``. All other tables are read from their merged candidate CSV/Parquet pair.
+    """
+    errors: list[str] = []
+    self_row_count = len(rows)
+    for row in rows:
+        table_name = str(row.get("table_name") or "")
+        if table_name == TABLE_NAME:
+            row["row_count"] = str(self_row_count)
+            continue
+        try:
+            actual = _actual_candidate_counts(
+                s3,
+                bucket=bucket,
+                csv_key=str(row.get("latest_csv_key") or ""),
+                parquet_key=str(row.get("latest_parquet_key") or ""),
+            )
+            row["row_count"] = str(actual["row_count"])
+        except Exception as exc:
+            errors.append(f"{table_name}: candidate row count: {type(exc).__name__}: {exc}")
+    return errors
 
 
 def _actual_candidate_counts(s3: Any, *, bucket: str, csv_key: str, parquet_key: str) -> dict[str, int]:
