@@ -44,7 +44,7 @@ jobs:
           set +e
           mkdir -p oireachtas_validation_output/fixes_acceptance
           python process/oireachtas_verify_validation_fixes.py \
-            --batch-id validation-fixes-20260719-1 \
+            --batch-id validation-fixes-20260719-3 \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
             --date-end 2026-07-19 \
