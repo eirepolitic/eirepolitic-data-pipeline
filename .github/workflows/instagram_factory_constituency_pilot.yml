@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       data_source:
-        description: Data source for the real example
+        description: Data source for validation and draft batch generation
         required: true
         type: choice
         options: [local, s3]
@@ -12,27 +12,28 @@ on:
   push:
     branches:
       - feature/instagram-content-factory-phase2-constituency
+      - feature/instagram-content-factory-phase3-batch
     paths:
       - "instagram/catalogues/**"
       - "instagram/factory/**"
       - "instagram/projects/constituency_issue_profile_v1/**"
-      - "instagram/renderer/__init__.py"
-      - "instagram/visuals/data_mappings/constituency_issue_counts.yml"
+      - "instagram/renderer/**"
+      - "instagram/visuals/**"
       - "process/instagram_factory.py"
-      - "tests/test_instagram_factory.py"
+      - "tests/test_instagram_factory*.py"
       - ".github/workflows/instagram_factory_constituency_pilot.yml"
 
 permissions:
   contents: write
 
 concurrency:
-  group: instagram-factory-constituency-pilot-${{ github.ref }}
+  group: instagram-factory-constituency-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  validate-and-render:
+  validate-render-and-batch:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -40,6 +41,9 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data
       DATA_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.data_source || 'local' }}
+      PROJECT_PATH: instagram/projects/constituency_issue_profile_v1/project.yml
+      BATCH_ROOT: generated_factory_batches/constituency_issue_profile_v1
+      S3_PROJECT_PREFIX: processed/instagram_factory/projects/constituency_issue_profile_v1
 
     steps:
       - uses: actions/checkout@v4
@@ -54,108 +58,89 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
 
-      - name: Validate catalogues
-        run: python process/instagram_factory.py validate-catalogues
-
-      - name: Validate constituency project
-        run: >-
-          python process/instagram_factory.py validate-project
-          --project instagram/projects/constituency_issue_profile_v1/project.yml
+      - name: Validate catalogues and project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
 
       - name: Run Content Factory tests
-        run: python -m unittest tests.test_instagram_factory -v
+        run: python -m unittest tests.test_instagram_factory tests.test_instagram_factory_batch -v
 
       - name: Render complete-slide validation set
-        run: |
-          python process/instagram_factory.py render-tests \
-            --project instagram/projects/constituency_issue_profile_v1/project.yml \
-            --data-source "$DATA_SOURCE"
+        run: >-
+          python process/instagram_factory.py render-tests
+          --project "$PROJECT_PATH"
+          --data-source "$DATA_SOURCE"
 
-      - name: Publish project preview branch
+      - name: Generate local draft batch
+        if: env.DATA_SOURCE == 'local'
+        run: >-
+          python process/instagram_factory.py generate-batch
+          --project "$PROJECT_PATH"
+          --data-source local
+          --git-sha "$GITHUB_SHA"
+          --workflow-run-id "$GITHUB_RUN_ID"
+
+      - name: Generate and upload live S3 draft batch
+        if: env.DATA_SOURCE == 's3'
+        run: >-
+          python process/instagram_factory.py generate-batch
+          --project "$PROJECT_PATH"
+          --data-source s3
+          --git-sha "$GITHUB_SHA"
+          --workflow-run-id "$GITHUB_RUN_ID"
+          --s3-bucket "$INSTAGRAM_VISUAL_S3_BUCKET"
+          --s3-prefix "$S3_PROJECT_PREFIX"
+
+      - name: Resolve generated run directory
+        id: batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUN_DIR=$(find "$BATCH_ROOT" -mindepth 1 -maxdepth 1 -type d | sort | head -n 1)
+          test -n "$RUN_DIR"
+          RUN_ID=$(basename "$RUN_DIR")
+          echo "run_dir=$RUN_DIR" >> "$GITHUB_OUTPUT"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publish batch review sample
         shell: bash
         run: |
           set -euo pipefail
           PREVIEW_BRANCH="instagram-preview-output"
-          PROJECT_DIR="preview/factory/projects/constituency_issue_profile_v1"
-          SOURCE_DIR="generated_factory_tests/constituency_issue_profile_v1"
-          WORKTREE="/tmp/instagram-factory-preview-worktree"
+          PROJECT_DIR="preview/factory/batches/constituency_issue_profile_v1/${{ steps.batch.outputs.run_id }}"
+          RUN_DIR="${{ steps.batch.outputs.run_dir }}"
+          WORKTREE="/tmp/instagram-factory-batch-preview"
 
           rm -rf "$WORKTREE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          if git ls-remote --exit-code --heads origin "$PREVIEW_BRANCH" >/dev/null 2>&1; then
-            git fetch origin "$PREVIEW_BRANCH:$PREVIEW_BRANCH"
-            git worktree add "$WORKTREE" "$PREVIEW_BRANCH"
-          else
-            git worktree add --detach "$WORKTREE" HEAD
-            git -C "$WORKTREE" switch --orphan "$PREVIEW_BRANCH"
-            git -C "$WORKTREE" rm -rf . >/dev/null 2>&1 || true
-          fi
-
+          git fetch origin "$PREVIEW_BRANCH:$PREVIEW_BRANCH"
+          git worktree add "$WORKTREE" "$PREVIEW_BRANCH"
           rm -rf "$WORKTREE/$PROJECT_DIR"
-          mkdir -p "$WORKTREE/$PROJECT_DIR"
-          cp -R "$SOURCE_DIR/." "$WORKTREE/$PROJECT_DIR/"
-
-          python - "$WORKTREE/$PROJECT_DIR/README.md" "$GITHUB_REPOSITORY" "$PREVIEW_BRANCH" "$PROJECT_DIR" "$DATA_SOURCE" "$GITHUB_RUN_ID" <<'PY'
-          from pathlib import Path
-          import sys
-
-          output, repo, branch, project_dir, data_source, run_id = sys.argv[1:7]
-          lines = [
-              "# Constituency issue profile validation",
-              "",
-              f"Data source: `{data_source}`",
-              f"Workflow run: `{run_id}`",
-              "Review state: `needs_review`",
-              "Publishing approval: `false`",
-              "",
-              "## Scenario contact sheets",
-          ]
-          for scenario in ("minimum", "maximum", "real_example"):
-              lines.append(
-                  f"- {scenario}: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/{scenario}/contact_sheet.png"
-              )
-          lines += ["", "## Slide contact sheets"]
-          for slide_id in ("cover", "issue_profile"):
-              lines.append(
-                  f"- {slide_id}: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/contact_sheets/{slide_id}.png"
-              )
-          lines += [
-              "",
-              "## Manifests",
-              f"- project: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/project_validation_manifest.json",
-              f"- minimum: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/minimum/scenario_manifest.json",
-              f"- maximum: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/maximum/scenario_manifest.json",
-              f"- real example: https://raw.githubusercontent.com/{repo}/{branch}/{project_dir}/real_example/scenario_manifest.json",
-              "",
-              "Synthetic minimum and maximum outputs are non-publication test artifacts. The real example also requires explicit factual and visual approval.",
-              "",
-          ]
-          Path(output).write_text("\n".join(lines), encoding="utf-8")
-          PY
-
+          mkdir -p "$WORKTREE/$PROJECT_DIR/review"
+          cp "$RUN_DIR/run_manifest.json" "$WORKTREE/$PROJECT_DIR/run_manifest.json"
+          cp "$RUN_DIR/review/review_state.json" "$WORKTREE/$PROJECT_DIR/review/review_state.json"
+          cp "$RUN_DIR/review/batch_sample_issue_profiles.png" "$WORKTREE/$PROJECT_DIR/review/batch_sample_issue_profiles.png"
           git -C "$WORKTREE" add "$PROJECT_DIR"
-          git -C "$WORKTREE" commit -m "Update constituency factory preview for run $GITHUB_RUN_ID" || true
+          git -C "$WORKTREE" commit -m "Publish constituency batch review sample ${{ steps.batch.outputs.run_id }}" || true
           git -C "$WORKTREE" push origin "$PREVIEW_BRANCH"
 
           {
-            echo "## Constituency Content Factory preview"
+            echo "## Constituency draft batch"
             echo
+            echo "- Run ID: \`${{ steps.batch.outputs.run_id }}\`"
             echo "- Data source: \`$DATA_SOURCE\`"
-            echo "- Scenario contact sheets:"
-            echo "  - minimum: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/minimum/contact_sheet.png"
-            echo "  - maximum: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/maximum/contact_sheet.png"
-            echo "  - real example: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/real_example/contact_sheet.png"
-            echo "- Slide contact sheets:"
-            echo "  - cover: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/contact_sheets/cover.png"
-            echo "  - issue profile: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/contact_sheets/issue_profile.png"
-            echo "- Project manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/project_validation_manifest.json"
+            echo "- Review sample: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/review/batch_sample_issue_profiles.png"
+            echo "- Run manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/run_manifest.json"
+            if [ "$DATA_SOURCE" = "s3" ]; then
+              echo "- S3 prefix: \`s3://${INSTAGRAM_VISUAL_S3_BUCKET}/${S3_PROJECT_PREFIX}/runs/${{ steps.batch.outputs.run_id }}\`"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload validation artifact
+      - name: Upload draft batch artifact
         uses: actions/upload-artifact@v4
         with:
-          name: constituency-issue-profile-validation-${{ env.DATA_SOURCE }}
-          path: generated_factory_tests/constituency_issue_profile_v1/
+          name: constituency-draft-batch-${{ steps.batch.outputs.run_id }}
+          path: ${{ steps.batch.outputs.run_dir }}/
           if-no-files-found: error
