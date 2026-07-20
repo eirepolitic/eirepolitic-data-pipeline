@@ -15,9 +15,15 @@ Both slides use the existing `title_text_media_v1` layout. The issue chart reuse
 
 ## Scenario policy
 
-- Minimum and maximum are synthetic layout tests and cannot be published.
+- Minimum and maximum are synthetic layout and regression tests and cannot be published.
+- Synthetic scenarios only need to render correctly without clipping, overflow, missing bindings, or invalid provenance; they are not visual-design approval candidates.
 - The real example is internally consistent actual data selected by median complexity.
+- Human visual and factual review applies to the real example.
 - All scenarios remain `no_publication` until explicit approval.
+
+## Review decision — 2026-07-19
+
+The minimum and maximum outputs are accepted as automated QA fixtures. No further aesthetic polishing is required unless they expose a rendering defect. Visual refinement and approval will focus on the real-data example.
 
 ## Data policy
 
