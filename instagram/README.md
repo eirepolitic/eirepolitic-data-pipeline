@@ -1,320 +1,317 @@
-# Instagram systems
+# Instagram Infographic Template Test Pipeline
 
-This folder contains several related but distinct Instagram subsystems. Start here to identify the correct path before changing code.
+This folder now supports three render paths for Instagram infographic visuals:
 
-## Start here
+- `bannerbear`: external template API path
+- `placid`: external template API path
+- `local_html`: existing repo-local HTML/CSS mock renderer
 
-- **Complete architecture:** `instagram/ARCHITECTURE.md`
-- **Standalone visual system:** `instagram/visuals/SYSTEM.md`
-- **Visual quick start:** `instagram/visuals/README.md`
+Scope:
+- visuals only
+- no caption generation
+- no social copy
+- no publishing automation
+- no LLM-generated visual design
 
-The current repository is review-first. It generates and validates visual/post assets, but it does not contain an approved automated Instagram publishing path.
+## Chosen test paths
 
-## System map
-
-| Subsystem | Primary paths | Purpose | Status |
-| --- | --- | --- | --- |
-| Standalone visual generation | `instagram/visuals/`, `process/instagram_render_visual*.py` | Reusable charts, maps, tables, and image assets | Active and validated |
-| Post layout renderer | `instagram/renderer/`, `instagram/templates/`, `process/instagram_render_post.py` | Complete Instagram post and carousel frames | Active |
-| Campaign renderer | `instagram/campaigns/`, `process/instagram_render_campaign.py` | Batch/campaign orchestration around post layouts | Active/specialized |
-| External template tests | `instagram/mappings/`, `instagram/specs/`, `process/instagram_template_pipeline.py` | Bannerbear, Placid, and local HTML experiments | Experimental/optional |
-| Legacy media generators | `instagram/media_generators/`, `process/instagram_generate_media.py` | Earlier chart/table generator tests | Regression only |
-| Option 5 AI image tests | `process/instagram_option5_*`, `instagram/OPTION5_*` | AI-assisted image generation/editing experiments | Separate manual-review path |
-| Preview publishing | `.github/workflows/instagram_media_test.yml`, `instagram-preview-output` | Publish review artifacts and diagnostics | Active and validated |
-| Production publishing | Not implemented as an approved path | Scheduling and posting to Instagram | Out of scope |
-
-## Core architectural rule
-
-The standalone visual layer and the post layout layer are separate.
-
-```text
-standalone visual PNG
-  -> inserted into post layout
-  -> complete Instagram post/carousel
-```
-
-Standalone visuals should contain only the visual itself. Titles, subtitles, branding, source/footer text, overlays, and decorative elements belong to the post layout layer.
-
-## Repository map
-
-```text
-instagram/
-  README.md                 This landing page
-  ARCHITECTURE.md           Complete Instagram architecture
-  visuals/                  Standalone visual generation system
-    README.md               Visual quick start
-    SYSTEM.md               Detailed visual implementation reference
-    templates/              Visual style, dimensions, and limits
-    samples/                Data bindings and provenance
-    renderers/              Python visual renderers
-    tests/                  Stress cases and fixture data
-    data_mappings/          Raw-data normalization for visuals
-  renderer/                 Complete post/carousel rendering engine
-  templates/                Post layouts, palettes, HTML/CSS assets
-  campaigns/                Campaign briefs, specs, fixtures, and logs
-  media_generators/         Legacy generator-specific implementations
-  mappings/                 External template provider field mappings
-  specs/                    Post/provider test specs
-```
-
-Supporting scripts live under `process/`, and manual validation workflows live under `.github/workflows/`.
-
-## Where do I make this change?
-
-| I want to... | Correct location |
-| --- | --- |
-| Add a reusable chart, map, table, or visual asset | `instagram/visuals/` |
-| Change a standalone visual's dimensions, palette, or limits | `instagram/visuals/templates/` |
-| Add or change deterministic visual stress cases | `instagram/visuals/tests/` |
-| Add raw-data normalization for visuals | `instagram/visuals/data_mappings/` and `process/instagram_prepare_visual_data.py` |
-| Add a complete post layout | `instagram/templates/layouts/` and the post renderer |
-| Change full-post text, branding, or media placement | `instagram/renderer/` or `instagram/templates/` |
-| Add campaign/batch orchestration | `instagram/campaigns/` and `process/instagram_render_campaign.py` |
-| Test Bannerbear or Placid | `instagram/mappings/`, `instagram/specs/`, and `process/instagram_template_pipeline.py` |
-| Maintain an older media generator | `instagram/media_generators/` |
-| Add a new reusable visual type | Do **not** use `instagram/media_generators/`; use `instagram/visuals/` |
-| Work on AI image experiments | Option 5 files and workflows, with separate review |
-| Add publishing or scheduling | Create a separately approved subsystem; do not attach it to review workflows |
-
-## Standalone visual generation
-
-Canonical documentation:
-
-```text
-instagram/visuals/SYSTEM.md
-```
-
-The visual system currently supports 17 draft renderer families:
-
-- horizontal bar
-- vertical bar
-- line chart
-- area chart
-- stacked bar
-- ranking table
-- donut chart
-- scatter plot
-- dot plot
-- lollipop chart
-- slope chart
-- table card
-- small multiples
-- point map
-- choropleth map
-- tile map
-- sourced image asset
-
-It produces:
-
-- PNG assets
-- metadata JSON
-- render manifests
-- variation test packs
-- contact sheets
-- local and S3-backed review outputs
-
-Current canonical validation workflow:
-
-```text
-.github/workflows/instagram_media_test.yml
-```
-
-This workflow renders all fixture samples/test packs, performs mapping regression checks, optionally runs live S3 smoke tests, publishes preview outputs, and uploads a complete Actions artifact.
-
-## Post rendering
-
-Primary implementation:
-
-```text
-instagram/renderer/
-instagram/templates/
-process/instagram_render_post.py
-```
-
-This layer is responsible for complete post composition, including:
-
-- titles and subtitles
-- branding
-- account name
-- source/footer text
-- image placement
-- slide layout
-- overlays and decorative elements
-
-Current JSON layouts:
-
-```text
-instagram/templates/layouts/big_media_title_v1.json
-instagram/templates/layouts/profile_card_main_v1.json
-instagram/templates/layouts/profile_card_v1.json
-instagram/templates/layouts/title_text_media_v1.json
-```
-
-## Campaign rendering
-
-Primary paths:
-
-```text
-instagram/campaigns/
-process/instagram_render_campaign.py
-.github/workflows/instagram_campaign_render.yml
-```
-
-Campaign folders organize briefs, decisions, data sources, fixtures, render specs, media plans, progress logs, and review notes.
-
-Campaign logic should reuse approved post templates and standalone visual assets instead of duplicating rendering code.
-
-## External template provider tests
-
-The repository includes an older but still useful provider-test pipeline for:
+The repo now supports **two concrete external-template tests**:
 
 - Bannerbear
 - Placid
-- local HTML fallback
 
-Primary paths:
+Why these were chosen:
 
-```text
-instagram/mappings/
-instagram/specs/
-process/instagram_template_pipeline.py
-.github/workflows/instagram_template_test.yml
-```
+- the repo already had a working constituency post context builder and a manual Instagram workflow
+- the repo already follows a strong pattern of explicit YAML config plus Python runner plus GitHub Actions
+- both Bannerbear and Placid are template-driven image APIs built around dynamic fields/layers, which fits this repo's explicit data-binding style
+- the manual work we cannot do yet is limited to creating templates and supplying template IDs / API keys
+- everything else can be built now: data prep, field mapping, workflow entry point, request payloads, fallback rendering, and docs
 
-Use this path to evaluate external template services. Do not use it to register new standalone chart renderers.
-
-## Legacy media generators
-
-Primary paths:
+## Current repo structure for the template tests
 
 ```text
-instagram/media_generators/
-process/instagram_generate_media.py
+instagram/
+  README.md
+  mappings/
+    bannerbear_constituency_basic.yml
+    placid_constituency_basic.yml
+  specs/
+    bannerbear_constituency_test.yml
+    placid_constituency_test.yml
+    constituency_test_post.yml
+  templates/
+    components.html
+    slide_glossary.html
+    slide_member_profile.html
+    slide_methodology.html
+    slide_overview.html
+    slide_top_issues.html
+    styles.css
+process/
+  instagram_render_post.py
+  instagram_template_pipeline.py
+.github/workflows/
+  instagram_constituency_test.yml
+  instagram_template_test.yml
 ```
 
-Current legacy generators include:
+## What was already in the repo and is now reused
 
-- horizontal bar chart
-- ranking table
+The pipeline reuses the existing S3-backed dataset loading pattern and constituency carousel context builder.
 
-They remain in the primary media test workflow for regression coverage. New visual types belong under `instagram/visuals/`.
+Primary inputs:
 
-## Option 5 AI image experiments
+- `raw/members/oireachtas_members_34th_dail.csv`
+- `processed/members/members_summaries.csv`
+- `processed/members/member_photos/members_photo_urls.csv`
+- `processed/members/members_photo_urls.csv` fallback
+- `processed/debates/debate_speeches_classified.csv`
+- `processed/constituencies/constituency_images.csv`
 
-Specialized references:
+## Template test architecture
+
+`process/instagram_template_pipeline.py` does this:
+
+1. Loads the YAML post spec.
+2. Builds the same constituency/member context already used by the local renderer.
+3. Enriches the context with explicit computed text fields for template binding.
+4. Loads the provider-specific mapping file.
+5. Builds one request payload per enabled slide.
+6. Tries to render via Bannerbear or Placid.
+7. If provider credentials or template IDs are missing, falls back to `local_html` unless disabled.
+8. Writes render status, request payloads, responses, context JSON, and generated images into a deterministic post folder.
+
+## Output convention
 
 ```text
-instagram/OPTION5_LLM_IMAGE_TEST.md
-instagram/OPTION5_MEMBER_PROFILE_AI_EDIT.md
+generated_posts/<post_slug>/
+  post_context.json
+  render_status.json
+  png/
+    01_overview.png
+    02_member_profile.png
+    03_top_issues.png
+    04_glossary.png
+  bannerbear/
+    requests/
+    responses/
+  placid/
+    requests/
+    responses/
+  html/
+    ... only when fallback local_html is used
 ```
 
-Related scripts/workflows:
+## Chosen first test asset
 
-```text
-process/instagram_option5_generate_images.py
-process/instagram_option5_prepare_constituency_cover_test.py
-process/instagram_option5_build_review_sheet.py
-.github/workflows/instagram_option5_constituency_cover_ai.yml
-.github/workflows/instagram_option5_member_profile_ai.yml
+The default first test asset is a **constituency-based slide set** using real repo data.
+
+Default setup:
+
+- constituency: `Dublin Bay South`
+- automatic member selection unless overridden
+- slides:
+  - `overview`
+  - `member_profile`
+  - `top_issues`
+  - `glossary`
+
+## Test specs
+
+Two provider-specific specs are now included:
+
+- `instagram/specs/bannerbear_constituency_test.yml`
+- `instagram/specs/placid_constituency_test.yml`
+
+Both control:
+
+- output slug and dimensions
+- provider selection
+- fallback behavior
+- template mapping file
+- constituency and optional member override
+- enabled slides
+- theme metadata and glossary text
+
+## Explicit template mapping
+
+Provider mapping files:
+
+- `instagram/mappings/bannerbear_constituency_basic.yml`
+- `instagram/mappings/placid_constituency_basic.yml`
+
+They define, per slide key:
+
+- which external template ID to use
+- which placeholder or layer names must exist in that template
+- which context field populates each placeholder or layer
+- whether it is text or image
+- any transform to apply
+
+### Shared layer / placeholder names expected by the current tests
+
+`overview`
+- `headline`
+- `constituency_name`
+- `td_count`
+- `party_count`
+- `top_issue`
+- `vote_participation`
+- `speech_rank`
+- `constituency_map`
+- `footer_note`
+- `account_name`
+
+`member_profile`
+- `headline`
+- `member_name`
+- `party_name`
+- `constituency_name`
+- `member_top_issue`
+- `member_vote_participation`
+- `member_speech_rank`
+- `member_background`
+- `member_photo`
+- `footer_note`
+- `account_name`
+
+`top_issues`
+- `headline`
+- `constituency_name`
+- `issue_summary`
+- `issue_note`
+- `footer_note`
+- `account_name`
+
+`glossary`
+- `headline`
+- `issues_glossary`
+- `vote_participation_glossary`
+- `speech_rank_glossary`
+- `footer_note`
+- `account_name`
+
+## Local run
+
+Install dependencies:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python -m playwright install chromium
 ```
 
-These experiments have different sourcing, likeness, attribution, and review requirements from deterministic chart rendering.
+Set AWS environment variables.
 
-## Data and S3
+### Run the Bannerbear test with fallback enabled
 
-The standalone visual loader supports:
-
-- inline rows
-- local CSV
-- one S3 CSV
-- first available S3 CSV from candidate keys
-
-Current validated live mappings:
-
-| Dataset | Source | Validated field |
-| --- | --- | --- |
-| Debate issue counts | `processed/debates/debate_speeches_classified.csv` | `PoliticalIssues` |
-| Member party counts | `raw/members/oireachtas_members_34th_dail.csv` | `party` |
-
-The S3 schema profiler uses byte-range reads for discovery. Public schema diagnostics omit sampled raw values by default and include a guard that refuses unsafe profiles.
-
-## Review workflow
-
-The current visual review lifecycle is:
-
-```text
-fixture sample
-  -> variation stress pack
-  -> individual PNGs
-  -> metadata/manifests
-  -> contact sheet
-  -> preview branch
-  -> human review
-  -> live S3 smoke test
-  -> explicit approval
+```bash
+python process/instagram_template_pipeline.py \
+  --spec instagram/specs/bannerbear_constituency_test.yml
 ```
 
-Current preview branch:
+### Run the Placid test with fallback enabled
 
-```text
-instagram-preview-output
+```bash
+python process/instagram_template_pipeline.py \
+  --spec instagram/specs/placid_constituency_test.yml
 ```
 
-Preview outputs are review artifacts. They do not represent automatic content approval or publication.
+### Force the local mock renderer
 
-## Approval and publishing boundary
-
-The following are intentionally not automated:
-
-- final visual approval
-- removal of `draft` identifiers
-- Instagram scheduling
-- Instagram posting
-- image licensing approval
-- real sourced-image acquisition
-
-The expected promotion sequence is:
-
-```text
-fixture validation
-  -> contact-sheet review
-  -> corrections
-  -> live-data smoke validation
-  -> explicit approval
-  -> remove draft identifiers
-  -> post/campaign integration
-  -> separately approved publishing design
+```bash
+python process/instagram_template_pipeline.py \
+  --spec instagram/specs/bannerbear_constituency_test.yml \
+  --provider local_html
 ```
 
-## Documentation hierarchy
+### Override the constituency or member
 
-Read in this order:
-
-1. `instagram/README.md` — navigation and subsystem routing
-2. `instagram/ARCHITECTURE.md` — full architecture, boundaries, workflows, and technical debt
-3. `instagram/visuals/SYSTEM.md` — detailed standalone visual implementation
-4. `instagram/visuals/README.md` — operational quick start
-5. Specialized campaign, Option 5, provider-test, and generator documentation as needed
-
-Additional references:
-
-```text
-instagram/OPTION2_PYTHON_DETERMINISTIC_RENDERER.md
-instagram/OPTION5_LLM_IMAGE_TEST.md
-instagram/OPTION5_MEMBER_PROFILE_AI_EDIT.md
-instagram/campaigns/*/*.md
-instagram/media_generators/*/LIMITS.md
+```bash
+python process/instagram_template_pipeline.py \
+  --spec instagram/specs/bannerbear_constituency_test.yml \
+  --constituency "Wicklow-Wexford" \
+  --member-name "Jennifer Whitmore"
 ```
 
-## Current recommendation
+## GitHub Actions run
 
-For new visual development:
+Use the workflow:
 
-1. Work under `instagram/visuals/`.
-2. Keep fixture tests deterministic.
-3. Run `.github/workflows/instagram_media_test.yml`.
-4. Inspect contact sheets and warnings.
-5. Add live S3 mappings only after fixture stability.
-6. Treat outputs as review-only.
-7. Keep `draft` identifiers until explicit approval.
-8. Integrate approved visual PNGs into the post/campaign layer rather than duplicating visual logic.
+- **Generate Instagram Template Test Post (Manual)**
+
+Inputs:
+
+- `constituency`
+- `member_name`
+- `provider_suite`
+
+`provider_suite` values:
+
+- `bannerbear`
+- `placid`
+- `both`
+- `local_html`
+
+The workflow will:
+
+1. install dependencies
+2. run the requested provider suite
+3. fall back to local HTML if the chosen external provider is not fully configured yet
+4. upload the generated post folder as an artifact
+
+## Secrets expected for the Bannerbear path
+
+- `BANNERBEAR_API_KEY`
+- `BANNERBEAR_TEMPLATE_UID_OVERVIEW`
+- `BANNERBEAR_TEMPLATE_UID_MEMBER_PROFILE`
+- `BANNERBEAR_TEMPLATE_UID_TOP_ISSUES`
+- `BANNERBEAR_TEMPLATE_UID_GLOSSARY`
+
+## Secrets expected for the Placid path
+
+- `PLACID_API_TOKEN`
+- `PLACID_TEMPLATE_UUID_OVERVIEW`
+- `PLACID_TEMPLATE_UUID_MEMBER_PROFILE`
+- `PLACID_TEMPLATE_UUID_TOP_ISSUES`
+- `PLACID_TEMPLATE_UUID_GLOSSARY`
+
+If these are absent, the pipeline still produces a mock output via `local_html` unless fallback is disabled.
+
+## What is already autonomous vs manual
+
+Already built in-repo:
+
+- data fetching and normalization from existing S3 datasets
+- provider-specific post spec formats for external-template tests
+- explicit placeholder and layer mapping configs
+- Bannerbear request payload generation
+- Placid request payload generation
+- Bannerbear API render adapter
+- Placid API render adapter
+- local fallback renderer
+- manual GitHub Actions entry point for one or both providers
+- deterministic artifact output structure
+
+Still manual later:
+
+- creating the actual Bannerbear templates
+- creating the actual Placid templates
+- ensuring layer names match the mapping files
+- copying the template IDs
+- adding API keys and template IDs as GitHub secrets
+
+## Current design tradeoff for the first external-template tests
+
+The `top_issues` slide is intentionally mapped as a multiline ranked issue list instead of a dynamic bar chart.
+
+That keeps the first external-template tests:
+
+- explicit
+- low-friction
+- easy to bind
+- easy to inspect for text overflow
+- easy to recreate visually in Bannerbear or Placid
+
+The existing local HTML renderer still keeps the richer bar-chart mock path available for comparison.
