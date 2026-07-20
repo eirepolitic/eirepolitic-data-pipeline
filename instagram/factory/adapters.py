@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from .constituency_pilot import (
     build_constituency_records,
+    build_scenarios,
     load_source_rows,
     render_visual,
     write_cover_asset,
@@ -17,6 +18,7 @@ class FactoryAdapter:
     adapter_id: str
     load_records: Callable[[str], tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]]
     build_context: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]]
+    build_scenarios: Callable[[list[dict[str, Any]], dict[str, Any]], dict[str, dict[str, Any]]]
     render_assets: Callable[[Path, dict[str, Any], dict[str, Any]], dict[str, Any]]
     media_for_slide: Callable[[dict[str, Any], dict[str, Path]], Path]
 
@@ -36,10 +38,14 @@ def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> di
         "item_key": record["constituency_key"],
         "issue_rows": rows,
         "issue_count": len(rows),
-        "scenario": "batch_item",
-        "synthetic": False,
+        "scenario": record.get("scenario", "batch_item"),
+        "synthetic": bool(record.get("synthetic", False)),
         "no_publication": True,
     }
+
+
+def _constituency_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return build_scenarios(records)
 
 
 def _constituency_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
@@ -68,6 +74,7 @@ ADAPTERS: dict[str, FactoryAdapter] = {
         adapter_id="constituency_issue_profile_v1",
         load_records=_constituency_load_records,
         build_context=_constituency_context,
+        build_scenarios=_constituency_scenarios,
         render_assets=_constituency_assets,
         media_for_slide=_constituency_media,
     )
