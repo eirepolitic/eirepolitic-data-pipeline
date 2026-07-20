@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -48,19 +50,17 @@ def stable_run_id(project_id: str, project_version: int, batch_id: str, git_sha:
 
 
 def _batch_id(source_manifest: dict[str, Any]) -> str:
-    if source_manifest.get("mode") == "local":
-        return "local-fixture"
     for source_name in ("members", "speeches"):
-        source = source_manifest.get(source_name)
+        source = source_manifest.get(source_name, {})
         if not isinstance(source, dict):
             continue
-        resolution = source.get("resolution")
+        resolution = source.get("resolution", {})
         if not isinstance(resolution, dict):
             continue
         batch_id = resolution.get("batch_id")
         if batch_id:
             return str(batch_id)
-    return "unresolved-source"
+    return "local-fixture"
 
 
 def _bindings(slide: dict[str, Any], constituency: str, media_path: Path) -> dict[str, Any]:
@@ -151,8 +151,8 @@ def generate_constituency_batch(
                 result = render_template(template, _bindings(slide, constituency, media_path), output_path)
                 if result.warnings:
                     raise ValueError(f"Render warnings for {constituency}/{slide['slide_id']}: {result.warnings}")
-                with Image.open(output_path) as rendered:
-                    width, height = rendered.size
+                with Image.open(output_path) as rendered_image:
+                    width, height = rendered_image.size
                 slide_results.append(
                     {
                         "slide_id": slide["slide_id"],
