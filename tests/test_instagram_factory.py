@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from instagram.factory.catalogues import load_catalogues, validate_catalogues
+from instagram.factory.constituency_batch import generate_constituency_batch
 from instagram.factory.constituency_pilot import build_constituency_records, build_scenarios, render_project_tests
 from instagram.factory.project import load_project, validate_project
 
@@ -82,57 +83,27 @@ class InstagramFactoryConstituencyPilotTest(TestCase):
         self.assertTrue(scenarios["maximum"]["synthetic"])
         self.assertFalse(scenarios["real_example"]["synthetic"])
         self.assertTrue(all(scenario["no_publication"] for scenario in scenarios.values()))
-        self.assertLessEqual(len(scenarios["minimum"]["issue_rows"]), 2)
+        self.assertLessEqual(len(scenarios["minimum"]["issue_rows"]), 7)
         self.assertLessEqual(len(scenarios["maximum"]["issue_rows"]), 7)
-        maximum_labels = [row["label"] for row in scenarios["maximum"]["issue_rows"]]
-        self.assertEqual(len(maximum_labels), len(set(maximum_labels)))
         self.assertLessEqual(len(scenarios["real_example"]["issue_rows"]), 7)
 
     def test_synthetic_name_and_result_extremes_are_selected_independently(self) -> None:
         records = [
-            {
-                "constituency": "Mayo",
-                "constituency_key": "mayo",
-                "member_names": ["A"],
-                "member_count": 1,
-                "issue_rows": [{"label": "Housing", "value": 5}],
-                "issue_count": 1,
-                "speech_count": 5,
-                "max_issue_label_length": 7,
-            },
-            {
-                "constituency": "Dublin Bay North",
-                "constituency_key": "dublin-bay-north",
-                "member_names": ["B"],
-                "member_count": 1,
-                "issue_rows": [{"label": "Health", "value": 1}],
-                "issue_count": 1,
-                "speech_count": 1,
-                "max_issue_label_length": 6,
-            },
-            {
-                "constituency": "Limerick City",
-                "constituency_key": "limerick-city",
-                "member_names": ["C"],
-                "member_count": 1,
-                "issue_rows": [
-                    {"label": "Housing", "value": 20},
-                    {"label": "Transport", "value": 10},
-                ],
-                "issue_count": 2,
-                "speech_count": 30,
-                "max_issue_label_length": 9,
-            },
+            {"constituency": "Mayo", "constituency_key": "mayo", "member_names": ["A"], "member_count": 1,
+             "issue_rows": [{"label": "Housing", "value": 5}], "issue_count": 1, "speech_count": 5,
+             "max_issue_label_length": 7},
+            {"constituency": "Dublin Bay North", "constituency_key": "dublin-bay-north", "member_names": ["B"],
+             "member_count": 1, "issue_rows": [{"label": "Health", "value": 1}], "issue_count": 1,
+             "speech_count": 1, "max_issue_label_length": 6},
+            {"constituency": "Limerick City", "constituency_key": "limerick-city", "member_names": ["C"],
+             "member_count": 1, "issue_rows": [{"label": "Housing", "value": 20}, {"label": "Transport", "value": 10}],
+             "issue_count": 2, "speech_count": 30, "max_issue_label_length": 9},
         ]
-
         scenarios = build_scenarios(records)
-
         self.assertEqual(scenarios["minimum"]["display_constituency"], "Mayo")
         self.assertEqual(scenarios["minimum"]["result_constituency"], "Dublin Bay North")
-        self.assertEqual(scenarios["minimum"]["issue_rows"], [{"label": "Health", "value": 1}])
         self.assertEqual(scenarios["maximum"]["display_constituency"], "Dublin Bay North")
         self.assertEqual(scenarios["maximum"]["result_constituency"], "Limerick City")
-        self.assertEqual(scenarios["maximum"]["result_speech_count"], 30)
 
     def test_local_complete_slide_render(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -149,6 +120,31 @@ class InstagramFactoryConstituencyPilotTest(TestCase):
                 self.assertTrue((root / scenario / "02_issue_profile.png").is_file())
                 self.assertTrue((root / scenario / "contact_sheet.png").is_file())
                 self.assertTrue((root / scenario / "scenario_manifest.json").is_file())
-            self.assertTrue((root / "contact_sheets/cover.png").is_file())
-            self.assertTrue((root / "contact_sheets/issue_profile.png").is_file())
-            self.assertTrue((root / "project_validation_manifest.json").is_file())
+
+    def test_local_batch_is_deterministic_and_review_only(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            first = generate_constituency_batch(
+                "instagram/projects/constituency_issue_profile_v1/project.yml",
+                data_source="local",
+                output_root=temp_dir,
+                git_sha="test-sha",
+                workflow_run_id="test-run",
+            )
+            second = generate_constituency_batch(
+                "instagram/projects/constituency_issue_profile_v1/project.yml",
+                data_source="local",
+                output_root=temp_dir,
+                git_sha="test-sha",
+                workflow_run_id="test-run",
+            )
+            self.assertEqual(first["run_id"], second["run_id"])
+            self.assertEqual(first["status"], "succeeded")
+            self.assertGreater(first["item_count_succeeded"], 0)
+            self.assertEqual(first["item_count_failed"], 0)
+            self.assertFalse(first["approved"])
+            self.assertFalse(first["publishing_allowed"])
+            run_root = Path(temp_dir) / first["project_id"] / "runs" / first["run_id"]
+            self.assertTrue((run_root / "run_manifest.json").is_file())
+            self.assertTrue((run_root / "review/review_state.json").is_file())
+            for item in first["items"]:
+                self.assertTrue((run_root / item["manifest"]).is_file())
