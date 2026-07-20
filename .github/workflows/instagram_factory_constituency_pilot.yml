@@ -64,7 +64,27 @@ jobs:
           python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
 
       - name: Run Content Factory tests
-        run: python -m unittest tests.test_instagram_factory tests.test_instagram_factory_batch -v
+        id: tests
+        shell: bash
+        run: |
+          set +e
+          python -m unittest tests.test_instagram_factory tests.test_instagram_factory_batch -v 2>&1 | tee phase3_test_output.log
+          status=${PIPESTATUS[0]}
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit "$status"
+
+      - name: Commit temporary test diagnostic
+        if: failure() && steps.tests.outputs.status != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cp phase3_test_output.log diagnostics/instagram_factory_phase3_test_output.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/instagram_factory_phase3_test_output.log
+          git commit -m "chore(instagram): capture Phase 3 test failure" || true
+          git push origin HEAD:feature/instagram-content-factory-phase3-batch
 
       - name: Render complete-slide validation set
         run: >-
@@ -111,7 +131,6 @@ jobs:
           PROJECT_DIR="preview/factory/batches/constituency_issue_profile_v1/${{ steps.batch.outputs.run_id }}"
           RUN_DIR="${{ steps.batch.outputs.run_dir }}"
           WORKTREE="/tmp/instagram-factory-batch-preview"
-
           rm -rf "$WORKTREE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -125,18 +144,6 @@ jobs:
           git -C "$WORKTREE" add "$PROJECT_DIR"
           git -C "$WORKTREE" commit -m "Publish constituency batch review sample ${{ steps.batch.outputs.run_id }}" || true
           git -C "$WORKTREE" push origin "$PREVIEW_BRANCH"
-
-          {
-            echo "## Constituency draft batch"
-            echo
-            echo "- Run ID: \`${{ steps.batch.outputs.run_id }}\`"
-            echo "- Data source: \`$DATA_SOURCE\`"
-            echo "- Review sample: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/review/batch_sample_issue_profiles.png"
-            echo "- Run manifest: https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PREVIEW_BRANCH}/${PROJECT_DIR}/run_manifest.json"
-            if [ "$DATA_SOURCE" = "s3" ]; then
-              echo "- S3 prefix: \`s3://${INSTAGRAM_VISUAL_S3_BUCKET}/${S3_PROJECT_PREFIX}/runs/${{ steps.batch.outputs.run_id }}\`"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload draft batch artifact
         uses: actions/upload-artifact@v4
