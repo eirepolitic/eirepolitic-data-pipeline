@@ -2,7 +2,7 @@
   "visual_id": "constituency_issue_profile_minimum",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-07-19T21:18:51.108310+00:00",
+  "created_at": "2026-07-20T01:08:16.631223+00:00",
   "input": {
     "scenario": "minimum",
     "synthetic": true
@@ -14,46 +14,21 @@
   "filters": [],
   "grouping": {
     "grain": "constituency",
-    "key": "offaly"
+    "key": "dublin-bay-south"
   },
-  "source_note": "Synthetic validation context using results from Offaly",
+  "source_note": "Synthetic validation context using results from Dublin Bay South",
   "attribution": {
     "source": "Houses of the Oireachtas / Eirepolitic classification"
   },
   "rows_rendered": [
     {
       "label": "Health",
-      "value": 24.0,
+      "value": 1.0,
       "group": ""
     },
     {
-      "label": "Education",
-      "value": 19.0,
-      "group": ""
-    },
-    {
-      "label": "Housing and Community Development",
-      "value": 19.0,
-      "group": ""
-    },
-    {
-      "label": "Agriculture",
-      "value": 17.0,
-      "group": ""
-    },
-    {
-      "label": "Social Welfare",
-      "value": 14.0,
-      "group": ""
-    },
-    {
-      "label": "Labor, Employment and Immigration",
-      "value": 11.0,
-      "group": ""
-    },
-    {
-      "label": "Law/Crime and Family Issues",
-      "value": 11.0,
+      "label": "Justice",
+      "value": 1.0,
       "group": ""
     }
   ],
