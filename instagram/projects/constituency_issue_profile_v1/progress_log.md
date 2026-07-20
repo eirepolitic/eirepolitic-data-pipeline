@@ -13,6 +13,7 @@
 - Local complete-slide validation: workflow run `29703058481` — succeeded.
 - Initial live S3 validation: workflow run `29703087934` — succeeded.
 - Final live S3 validation after quality corrections: workflow run `29703335986` — succeeded.
+- Corrected scenario-contract validation and preview publication: workflow run `29704116144` — succeeded.
 - Preview branch: `instagram-preview-output`
 - Preview root: `preview/factory/projects/constituency_issue_profile_v1/`
 
@@ -30,6 +31,7 @@
 
 ## Current status
 
-Technical pilot validation is complete. Visual quality and factual interpretation require explicit human review before any approval or batch-generation work.
+Technical pilot validation is complete. Minimum and maximum outputs are accepted as automated QA fixtures and require no aesthetic polishing unless they reveal a rendering defect. Human factual and visual review now focuses on the real-data example before any batch-generation work.
 
 - 2026-07-19: Corrected synthetic scenario selection: shortest/longest constituency names now independently pair with smallest/largest constituency result sets; provenance is explicit in manifests and covers.
+- 2026-07-19: User agreed synthetic minimum/maximum examples should remain QA fixtures; real-example refinement is the active review path.
