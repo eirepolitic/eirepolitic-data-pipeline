@@ -24,7 +24,7 @@ jobs:
       date_end: '2026-07-19'
       page_size: '200'
       sample_rows: '10'
-      batch_id: validation-fixes-20260719-1
+      batch_id: validation-fixes-20260719-2
       publish_candidate: true
     secrets: inherit
 
@@ -32,7 +32,7 @@ jobs:
     needs: refresh
     uses: ./.github/workflows/oireachtas_validation_reusable.yml
     with:
-      batch_id: validation-fixes-20260719-1
+      batch_id: validation-fixes-20260719-2
       run_consumers: true
     secrets: inherit
 
@@ -44,4 +44,4 @@ jobs:
         run: |
           test '${{ needs.refresh.result }}' = 'success'
           test '${{ needs.validate.result }}' = 'success'
-          echo 'Candidate validation-fixes-20260719-1 completed successfully.'
+          echo 'Candidate validation-fixes-20260719-2 completed successfully.'
