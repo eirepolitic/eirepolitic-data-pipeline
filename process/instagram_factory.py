@@ -57,6 +57,24 @@ def _render_tests(args: argparse.Namespace) -> int:
         return 1
 
 
+def _generate_batch(args: argparse.Namespace) -> int:
+    try:
+        from instagram.factory.constituency_batch import generate_constituency_batch
+
+        report = generate_constituency_batch(
+            args.project,
+            data_source=args.data_source,
+            output_root=args.output_root,
+            git_sha=args.git_sha,
+            workflow_run_id=args.workflow_run_id,
+        )
+        _print(report)
+        return 0 if report["status"] in {"succeeded", "succeeded_with_warnings"} else 1
+    except Exception as exc:
+        _print({"success": False, "errors": [str(exc)]})
+        return 1
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate and run Instagram Content Factory projects.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -87,6 +105,17 @@ def parse_args() -> argparse.Namespace:
     render_parser.add_argument("--data-source", choices=["local", "s3"], default="local")
     render_parser.add_argument("--output-root", help="Optional output directory override.")
     render_parser.set_defaults(handler=_render_tests)
+
+    batch_parser = subparsers.add_parser(
+        "generate-batch",
+        help="Generate one review-only complete post set per constituency.",
+    )
+    batch_parser.add_argument("--project", required=True, help="Repository-relative or absolute project.yml path.")
+    batch_parser.add_argument("--data-source", choices=["local", "s3"], default="s3")
+    batch_parser.add_argument("--output-root", help="Optional batch output root override.")
+    batch_parser.add_argument("--git-sha", help="Git commit used in deterministic run identity.")
+    batch_parser.add_argument("--workflow-run-id", help="Workflow run identifier for provenance.")
+    batch_parser.set_defaults(handler=_generate_batch)
 
     return parser.parse_args()
 
