@@ -1204,14 +1204,30 @@ Acceptance:
 
 ### Phase 3 — batch generation and S3 project storage
 
-Build:
+**Status: constituency implementation completed and live-validated (2026-07-20).**
 
-- granularity enumerator
-- item context builder
-- complete batch renderer
-- run/item/slide manifests
-- S3 uploader
-- review index
+Implemented for `constituency_issue_profile_v1`:
+
+- deterministic constituency enumeration from the active production dataset
+- one complete two-slide post set per constituency
+- stable run IDs derived from project version, source batch ID, and Git SHA
+- generated item folders with slide hashes and visual provenance
+- run, item, slide, visual, and review-state manifests
+- isolated item failure handling
+- batch review sample generation
+- immutable S3 run upload under the existing project prefix
+- project `latest.json` update
+- GitHub Actions artifact upload
+- all outputs remain unreviewed, unapproved, and non-publishable
+
+Validation evidence:
+
+- live workflow run: `29711056766`
+- artifact: `constituency-factory-batch-constituency_issue_profile_v1-v1-1cd892b3cf6f`
+- S3 project root: `s3://eirepolitic-data/processed/instagram_factory/projects/constituency_issue_profile_v1/`
+- all catalogue, project, unit-test, render, S3-upload, artifact, and review-state gates passed
+
+This validates Phase 3 for one constituency project. Generic multi-project batch orchestration and review UI remain future work.
 
 Acceptance:
 
@@ -1263,22 +1279,20 @@ These require separate design and approval.
 
 ## 18. Immediate next development tasks
 
-Phase 1 is complete. The next milestone is Phase 2 complete-slide testing.
+Phases 1 and 2 are complete for the constituency pilot. Phase 3 batch generation and S3 storage are implemented and live-validated for that project.
 
 Recommended order for the next chat instance:
 
 1. Read this file and the architecture/system docs.
-2. Inspect current live repo state; do not assume this plan is perfectly current.
-3. Inspect the completed catalogues, validators, and project template; do not duplicate them.
-4. Choose one simple pilot project, preferably constituency or member grain with two slides.
-5. Implement the min/max/real scenario builder for the pilot.
-6. Integrate standalone visual assets into complete post-layout slots.
-7. Render complete-slide test sets and contact sheets.
-8. Add factual real-example validation manifests.
-9. Review and refine before building batch mode.
-10. Add S3 project storage only after the pilot test flow is approved.
+2. Inspect current live repo state and the latest constituency batch manifest.
+3. Review generated constituency items without changing unaffected outputs.
+4. Implement Phase 4 review-state commands and targeted regeneration.
+5. Add per-item/per-slide review status transitions.
+6. Preserve immutable prior runs during selective regeneration.
+7. Build a review index or equivalent navigable output.
+8. Generalize batch orchestration only after the constituency review loop is validated.
 
-Do not jump directly to full batch generation before complete-slide validation is working.
+Do not enable automatic publishing, scheduling, or approval.
 
 ---
 
