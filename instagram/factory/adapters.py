@@ -31,11 +31,18 @@ def _constituency_load_records(data_source: str) -> tuple[list[dict[str, Any]], 
 
 def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
     rows = [dict(row) for row in record["issue_rows"][:7]]
+    constituency = str(record["constituency"])
+    constituency_key = str(record["constituency_key"])
     return {
         **record,
-        project["granularity"]["label_field"]: record["constituency"],
-        "display_label": record["constituency"],
-        "item_key": record["constituency_key"],
+        project["granularity"]["label_field"]: constituency,
+        "display_label": constituency,
+        "display_constituency": record.get("display_constituency", constituency),
+        "result_constituency": record.get("result_constituency", constituency),
+        "result_constituency_key": record.get("result_constituency_key", constituency_key),
+        "result_issue_count": record.get("result_issue_count", record.get("issue_count", len(rows))),
+        "result_speech_count": record.get("result_speech_count", record.get("speech_count", 0)),
+        "item_key": constituency_key,
         "issue_rows": rows,
         "issue_count": len(rows),
         "scenario": record.get("scenario", "batch_item"),
