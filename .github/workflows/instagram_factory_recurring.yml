@@ -2,12 +2,17 @@ name: Instagram Content Factory recurring draft generation
 
 on:
   workflow_dispatch:
+    inputs:
+      project_path:
+        description: Repository path to project.yml
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: instagram-factory-recurring-${{ github.ref }}
+  group: instagram-factory-recurring-${{ inputs.project_path }}
   cancel-in-progress: false
 
 jobs:
@@ -20,35 +25,43 @@ jobs:
       AWS_REGION: ca-central-1
       AWS_DEFAULT_REGION: ca-central-1
       BUCKET: eirepolitic-data
-      PROJECT_PREFIX: processed/instagram_factory/projects/constituency_issue_profile_v1
-      PROJECT_PATH: instagram/projects/constituency_issue_profile_v1/project.yml
+      PROJECT_PATH: ${{ inputs.project_path }}
       OUTPUT_ROOT: generated_factory_recurring
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-
-      - name: Download latest manifest when present
+      - name: Resolve project settings
+        id: project
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp "s3://$BUCKET/$PROJECT_PREFIX/latest.json" latest.json --only-show-errors || true
-
+          python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
+          readarray -t VALUES < <(python - <<'PY'
+          import yaml
+          project = yaml.safe_load(open('${{ inputs.project_path }}', encoding='utf-8'))
+          print(project['project_id'])
+          print(project['output']['s3_prefix'])
+          PY
+          )
+          echo "project_id=${VALUES[0]}" >> "$GITHUB_OUTPUT"
+          echo "prefix=${VALUES[1]}" >> "$GITHUB_OUTPUT"
+      - name: Download latest manifest when present
+        run: |
+          aws s3 cp "s3://$BUCKET/${{ steps.project.outputs.prefix }}/latest.json" latest.json --only-show-errors || true
       - name: Evaluate production readiness
         id: readiness
         shell: bash
         run: |
           set -euo pipefail
-          ARGS=(python process/instagram_factory.py check-readiness --data-source s3)
+          ARGS=(python process/instagram_factory.py check-readiness --project "$PROJECT_PATH" --data-source s3)
           if [ -f latest.json ]; then ARGS+=(--latest-manifest latest.json); fi
           "${ARGS[@]}" | tee readiness.json
           READY=$(python - <<'PY'
@@ -57,8 +70,7 @@ jobs:
           PY
           )
           echo "ready=$READY" >> "$GITHUB_OUTPUT"
-
-      - name: Generate new recurring draft batch
+      - name: Generate new draft batch
         if: steps.readiness.outputs.ready == 'true'
         run: |
           python process/instagram_factory.py generate-batch \
@@ -68,7 +80,6 @@ jobs:
             --git-sha "$GITHUB_SHA" \
             --workflow-run-id "$GITHUB_RUN_ID" \
             | tee generation.json
-
       - name: Resolve generated run
         if: steps.readiness.outputs.ready == 'true'
         id: run
@@ -84,39 +95,29 @@ jobs:
           )
           echo "run_id=${VALUES[0]}" >> "$GITHUB_OUTPUT"
           echo "run_root=${VALUES[1]}" >> "$GITHUB_OUTPUT"
-
-      - name: Upload immutable recurring run
+      - name: Upload immutable run
         if: steps.readiness.outputs.ready == 'true'
         run: |
-          aws s3 cp \
-            "${{ steps.run.outputs.run_root }}/" \
-            "s3://$BUCKET/$PROJECT_PREFIX/runs/${{ steps.run.outputs.run_id }}/" \
-            --recursive \
+          aws s3 cp "${{ steps.run.outputs.run_root }}/" \
+            "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ steps.run.outputs.run_id }}/" \
+            --recursive --only-show-errors
+          aws s3 cp "${{ steps.run.outputs.run_root }}/run_manifest.json" \
+            "s3://$BUCKET/${{ steps.project.outputs.prefix }}/latest.json" \
             --only-show-errors
-          aws s3 cp \
-            "${{ steps.run.outputs.run_root }}/run_manifest.json" \
-            "s3://$BUCKET/$PROJECT_PREFIX/latest.json" \
-            --only-show-errors
-
       - name: Upload workflow evidence
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-recurring-${{ github.run_id }}
+          name: instagram-recurring-${{ steps.project.outputs.project_id }}-${{ github.run_id }}
           path: |
             readiness.json
             generation.json
             ${{ steps.run.outputs.run_root }}/
           if-no-files-found: warn
-
       - name: Summary
         run: |
           {
             echo "## Recurring Content Factory check"
+            echo "- Project: \`${{ steps.project.outputs.project_id }}\`"
             echo "- Ready: \`${{ steps.readiness.outputs.ready }}\`"
             echo "- Publishing allowed: \`false\`"
-            if [ "${{ steps.readiness.outputs.ready }}" = "true" ]; then
-              echo "- Draft run: \`${{ steps.run.outputs.run_id }}\`"
-            else
-              echo "- Result: no new draft generated"
-            fi
           } >> "$GITHUB_STEP_SUMMARY"
