@@ -7,7 +7,7 @@ on:
       - feature/instagram-content-factory-phase3-batch
     paths:
       - "instagram/factory/**"
-      - "instagram/projects/constituency_issue_profile_v1/**"
+      - "instagram/projects/constituency_issue_profile_v1/project.yml"
       - "process/instagram_factory.py"
       - "tests/test_instagram_factory.py"
       - ".github/workflows/instagram_factory_constituency_batch.yml"
