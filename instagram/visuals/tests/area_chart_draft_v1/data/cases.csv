@@ -1,0 +1,104 @@
+case_id,period,series,value
+single_series,Jan,Issue volume,12
+single_series,Feb,Issue volume,18
+single_series,Mar,Issue volume,25
+single_series,Apr,Issue volume,33
+single_series,May,Issue volume,44
+two_series,Jan,Party A,20
+two_series,Feb,Party A,24
+two_series,Mar,Party A,29
+two_series,Apr,Party A,35
+two_series,Jan,Party B,42
+two_series,Feb,Party B,40
+two_series,Mar,Party B,37
+two_series,Apr,Party B,33
+four_series,Jan,Party A,20
+four_series,Feb,Party A,24
+four_series,Mar,Party A,29
+four_series,Apr,Party A,35
+four_series,Jan,Party B,42
+four_series,Feb,Party B,40
+four_series,Mar,Party B,37
+four_series,Apr,Party B,33
+four_series,Jan,Party C,18
+four_series,Feb,Party C,20
+four_series,Mar,Party C,19
+four_series,Apr,Party C,22
+four_series,Jan,Others,12
+four_series,Feb,Others,11
+four_series,Mar,Others,10
+four_series,Apr,Others,8
+six_series_overflow,Jan,Series 1,10
+six_series_overflow,Feb,Series 1,12
+six_series_overflow,Jan,Series 2,20
+six_series_overflow,Feb,Series 2,18
+six_series_overflow,Jan,Series 3,30
+six_series_overflow,Feb,Series 3,33
+six_series_overflow,Jan,Series 4,40
+six_series_overflow,Feb,Series 4,38
+six_series_overflow,Jan,Series 5,50
+six_series_overflow,Feb,Series 5,52
+six_series_overflow,Jan,Series 6,60
+six_series_overflow,Feb,Series 6,58
+dense_timeline,W01,Issue volume,10
+dense_timeline,W02,Issue volume,11
+dense_timeline,W03,Issue volume,12
+dense_timeline,W04,Issue volume,13
+dense_timeline,W05,Issue volume,14
+dense_timeline,W06,Issue volume,15
+dense_timeline,W07,Issue volume,16
+dense_timeline,W08,Issue volume,17
+dense_timeline,W09,Issue volume,18
+dense_timeline,W10,Issue volume,19
+dense_timeline,W11,Issue volume,20
+dense_timeline,W12,Issue volume,21
+dense_timeline,W13,Issue volume,22
+dense_timeline,W14,Issue volume,23
+dense_timeline,W15,Issue volume,24
+dense_timeline,W16,Issue volume,25
+dense_timeline,W17,Issue volume,26
+dense_timeline,W18,Issue volume,27
+dense_timeline,W19,Issue volume,28
+dense_timeline,W20,Issue volume,29
+long_series_labels,Jan,Affordable rental accommodation mentions,12
+long_series_labels,Feb,Affordable rental accommodation mentions,18
+long_series_labels,Mar,Affordable rental accommodation mentions,25
+long_series_labels,Jan,Emergency department waiting time mentions,30
+long_series_labels,Feb,Emergency department waiting time mentions,28
+long_series_labels,Mar,Emergency department waiting time mentions,26
+missing_values,Jan,Party A,20
+missing_values,Feb,Party A,
+missing_values,Mar,Party A,29
+missing_values,Jan,Party B,42
+missing_values,Feb,Party B,unknown
+missing_values,Mar,Party B,37
+negative_values,Jan,Party A,20
+negative_values,Feb,Party A,-5
+negative_values,Mar,Party A,29
+negative_values,Jan,Party B,42
+negative_values,Feb,Party B,40
+negative_values,Mar,Party B,-7
+tight_range,Jan,Support,51
+tight_range,Feb,Support,52
+tight_range,Mar,Support,53
+tight_range,Apr,Support,54
+tight_range,May,Support,55
+wide_range,2019,Issue volume,1
+wide_range,2020,Issue volume,20
+wide_range,2021,Issue volume,300
+wide_range,2022,Issue volume,5000
+wide_range,2023,Issue volume,72000
+zero_values,Jan,Issue volume,0
+zero_values,Feb,Issue volume,12
+zero_values,Mar,Issue volume,0
+zero_values,Apr,Issue volume,24
+phone_readability_stress,W01,Affordable rental accommodation mentions,1
+phone_readability_stress,W02,Affordable rental accommodation mentions,20
+phone_readability_stress,W03,Affordable rental accommodation mentions,300
+phone_readability_stress,W04,Affordable rental accommodation mentions,5000
+phone_readability_stress,W05,Affordable rental accommodation mentions,72000
+phone_readability_stress,W01,Emergency department waiting time mentions,72000
+phone_readability_stress,W02,Emergency department waiting time mentions,14000
+phone_readability_stress,W03,Emergency department waiting time mentions,900
+phone_readability_stress,W04,Emergency department waiting time mentions,12
+phone_readability_stress,W05,Emergency department waiting time mentions,1

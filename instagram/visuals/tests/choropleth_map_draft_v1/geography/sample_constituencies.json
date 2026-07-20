@@ -1,0 +1,50 @@
+{
+  "type": "FeatureCollection",
+  "name": "sample_constituencies",
+  "coordinate_space": {
+    "width": 1000,
+    "height": 760
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C01", "label": "North West"},
+      "geometry": {"type": "Polygon", "coordinates": [[[130,90],[330,70],[370,210],[300,300],[120,250],[130,90]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C02", "label": "North East"},
+      "geometry": {"type": "Polygon", "coordinates": [[[330,70],[560,85],[620,220],[500,300],[370,210],[330,70]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C03", "label": "Dublin"},
+      "geometry": {"type": "Polygon", "coordinates": [[[620,220],[820,210],[875,355],[705,420],[550,350],[620,220]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C04", "label": "Midlands"},
+      "geometry": {"type": "Polygon", "coordinates": [[[300,300],[500,300],[550,350],[510,520],[300,530],[240,400],[300,300]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C05", "label": "South West"},
+      "geometry": {"type": "Polygon", "coordinates": [[[120,250],[300,300],[240,400],[300,530],[220,690],[80,625],[70,420],[120,250]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C06", "label": "South"},
+      "geometry": {"type": "Polygon", "coordinates": [[[300,530],[510,520],[650,650],[500,720],[220,690],[300,530]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C07", "label": "South East"},
+      "geometry": {"type": "Polygon", "coordinates": [[[510,520],[705,420],[875,355],[900,540],[760,690],[650,650],[510,520]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"feature_id": "C08", "label": "East Central"},
+      "geometry": {"type": "Polygon", "coordinates": [[[500,300],[620,220],[550,350],[705,420],[510,520],[550,350],[500,300]]]}
+    }
+  ]
+}

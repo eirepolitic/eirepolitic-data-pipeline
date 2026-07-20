@@ -1,0 +1,92 @@
+template: instagram/visuals/templates/scatter_plot_draft_v1.yml
+bindings:
+  x: x
+  y: y
+  size: size
+  label: label
+  category: category
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: few_points
+    description: Three-point minimal scatter
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: few_points
+  - id: category_mix
+    description: Mixed point categories and legend
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: category_mix
+  - id: dense_points
+    description: Dense readable point cloud
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: dense_points
+  - id: wide_size_range
+    description: Bubble sizes spanning several orders of magnitude
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_size_range
+  - id: tight_xy_range
+    description: X and Y values close together
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: tight_xy_range
+  - id: outliers
+    description: High and low outlier positions
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: outliers
+  - id: negative_values
+    description: Negative x/y/size values and warnings
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: missing_values
+    description: Missing and invalid x/y/size values
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_values
+  - id: long_labels
+    description: Long point labels
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_labels
+  - id: overflow_points
+    description: Eighty-one points; should truncate to template max
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: overflow_points
+  - id: phone_readability_stress
+    description: Categories, outliers, long labels, and wide sizes
+    data: instagram/visuals/tests/scatter_plot_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress

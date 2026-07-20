@@ -1,0 +1,114 @@
+name: Instagram Content Factory constituency batch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-phase3-batch
+    paths:
+      - "instagram/factory/**"
+      - "instagram/projects/constituency_issue_profile_v1/project.yml"
+      - "process/instagram_factory.py"
+      - "tests/test_instagram_factory.py"
+      - ".github/workflows/instagram_factory_constituency_batch.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-factory-constituency-batch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate-batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      INSTAGRAM_VISUAL_S3_BUCKET: eirepolitic-data
+      PROJECT_ID: constituency_issue_profile_v1
+      PROJECT_PATH: instagram/projects/constituency_issue_profile_v1/project.yml
+      OUTPUT_ROOT: generated_factory_batches
+      S3_PROJECT_PREFIX: processed/instagram_factory/projects/constituency_issue_profile_v1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+
+      - name: Validate catalogues and project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
+
+      - name: Run Content Factory tests
+        run: python -m unittest tests.test_instagram_factory -v
+
+      - name: Generate complete constituency batch
+        run: |
+          python process/instagram_factory.py generate-batch \
+            --project "$PROJECT_PATH" \
+            --data-source s3 \
+            --output-root "$OUTPUT_ROOT" \
+            --git-sha "$GITHUB_SHA" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            | tee batch-result.json
+
+      - name: Resolve generated run
+        id: run
+        shell: bash
+        run: |
+          set -euo pipefail
+          readarray -t VALUES < <(python - <<'PY'
+          import json
+          report = json.load(open('batch-result.json', encoding='utf-8'))
+          print(report['run_id'])
+          print(report['output_root'])
+          PY
+          )
+          RUN_ID="${VALUES[0]}"
+          RUN_ROOT="${VALUES[1]}"
+          test -f "$RUN_ROOT/run_manifest.json"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "run_root=$RUN_ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Upload immutable run to S3
+        run: |
+          aws s3 cp \
+            "${{ steps.run.outputs.run_root }}/" \
+            "s3://$INSTAGRAM_VISUAL_S3_BUCKET/$S3_PROJECT_PREFIX/runs/${{ steps.run.outputs.run_id }}/" \
+            --recursive \
+            --only-show-errors
+          aws s3 cp \
+            "${{ steps.run.outputs.run_root }}/run_manifest.json" \
+            "s3://$INSTAGRAM_VISUAL_S3_BUCKET/$S3_PROJECT_PREFIX/latest.json" \
+            --only-show-errors
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: constituency-factory-batch-${{ steps.run.outputs.run_id }}
+          path: ${{ steps.run.outputs.run_root }}/
+          if-no-files-found: error
+
+      - name: Write summary
+        run: |
+          {
+            echo "## Constituency Content Factory batch"
+            echo
+            echo "- Run ID: \`${{ steps.run.outputs.run_id }}\`"
+            echo "- S3: \`s3://$INSTAGRAM_VISUAL_S3_BUCKET/$S3_PROJECT_PREFIX/runs/${{ steps.run.outputs.run_id }}/\`"
+            echo "- Review state: \`unreviewed\`"
+            echo "- Publishing allowed: \`false\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,29 @@
+visual_id: constituency_trends_small_multiples_draft_v1
+template: instagram/visuals/templates/small_multiples_draft_v1.yml
+source_note: "Source: realistic placeholder data for visual review only"
+input:
+  mode: local_csv
+  path: instagram/visuals/tests/small_multiples_draft_v1/data/cases.csv
+bindings:
+  group: group
+  x: period
+  value: value
+filters:
+  - field: case_id
+    operator: equals
+    value: 04_groups
+grouping:
+  batch_enabled: false
+  future_group_by_options:
+    - constituency
+    - party
+    - candidate
+    - county
+    - issue_category
+    - time_period
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."

@@ -1,0 +1,70 @@
+case_id,label,value
+02_slices,Party A,62
+02_slices,Party B,38
+04_slices,Party A,35
+04_slices,Party B,28
+04_slices,Party C,22
+04_slices,Others,15
+08_slices,Item 01,28
+08_slices,Item 02,22
+08_slices,Item 03,16
+08_slices,Item 04,12
+08_slices,Item 05,8
+08_slices,Item 06,6
+08_slices,Item 07,5
+08_slices,Item 08,3
+overflow_slices,Item 01,28
+overflow_slices,Item 02,22
+overflow_slices,Item 03,16
+overflow_slices,Item 04,12
+overflow_slices,Item 05,8
+overflow_slices,Item 06,6
+overflow_slices,Item 07,5
+overflow_slices,Item 08,3
+overflow_slices,Item 09,2
+overflow_slices,Item 10,2
+overflow_slices,Item 11,1
+overflow_slices,Item 12,1
+long_labels,Affordable rental accommodation mentions,35
+long_labels,Emergency department waiting time mentions,28
+long_labels,Public transport frequency complaints,18
+long_labels,Cost of living pressure reports,15
+tight_values,Party A,51
+tight_values,Party B,52
+tight_values,Party C,53
+tight_values,Party D,54
+wide_values,Local mentions,1
+wide_values,Regional mentions,20
+wide_values,National mentions,300
+wide_values,Media impressions,5000
+wide_values,Social impressions,72000
+zero_values,Party A,35
+zero_values,Party B,0
+zero_values,Party C,18
+zero_values,Party D,0
+negative_values,Party A,35
+negative_values,Party B,-3
+negative_values,Party C,18
+negative_values,Party D,-11
+missing_values,Party A,35
+missing_values,Party B,
+missing_values,Party C,unknown
+missing_values,Party D,15
+duplicate_labels,Party A,20
+duplicate_labels,Party A,15
+duplicate_labels,Party B,10
+duplicate_labels,Party B,18
+duplicate_labels,Party C,22
+all_zero_or_negative,Party A,0
+all_zero_or_negative,Party B,-3
+all_zero_or_negative,Party C,0
+phone_readability_stress,Affordable rental accommodation mentions,72000
+phone_readability_stress,Emergency department waiting time mentions,5000
+phone_readability_stress,Public transport frequency complaints,300
+phone_readability_stress,Cost of living pressure reports,20
+phone_readability_stress,Dublin Bay South Campaign Office,12
+phone_readability_stress,Cork North Central Regional Hub,9
+phone_readability_stress,Party A,35
+phone_readability_stress,Party B,-3
+phone_readability_stress,Party C,0
+phone_readability_stress,Party D,

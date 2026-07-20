@@ -1,0 +1,90 @@
+template: instagram/visuals/templates/line_chart_draft_v1.yml
+bindings:
+  x: period
+  value: value
+  series: series
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: short_timeline
+    description: Three-point minimal timeline
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: short_timeline
+  - id: rising_trend
+    description: Steady rising trend
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: rising_trend
+  - id: falling_trend
+    description: Steady falling trend
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: falling_trend
+  - id: flat_trend
+    description: Nearly flat trend
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: flat_trend
+  - id: volatile_trend
+    description: Sharp up and down movement
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: volatile_trend
+  - id: two_series
+    description: Two political series crossing over time
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: two_series
+  - id: four_series
+    description: Maximum planned series count
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: four_series
+  - id: missing_points
+    description: Missing observations within multiple series
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_points
+  - id: wide_range
+    description: Values spanning several orders of magnitude
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_range
+  - id: long_period_labels
+    description: Long x-axis labels
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_period_labels
+  - id: dense_timeline
+    description: Twenty-point overflow timeline; should truncate to template max
+    data: instagram/visuals/tests/line_chart_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: dense_timeline

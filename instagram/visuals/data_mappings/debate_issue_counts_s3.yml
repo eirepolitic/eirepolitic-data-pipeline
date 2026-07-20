@@ -1,0 +1,26 @@
+mapping_id: debate_issue_counts_s3
+review_only: true
+input:
+  mode: s3_csv_first_available
+  bucket: eirepolitic-data
+  region: ca-central-1
+  required: true
+  keys:
+    - processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+    - processed/debates/debate_speeches_classified.csv
+transforms:
+  - id: issue_category_counts
+    operation: count_by
+    label_field_candidates:
+      - PoliticalIssues
+      - issue_category
+      - issue
+      - topic
+      - category
+      - label
+    output_label_field: label
+    output_value_field: value
+    fallback_label: Unclassified
+    max_rows: 10
+    output_path: generated_visual_data/debate_issue_counts_s3.csv
+manifest_path: generated_visual_data/debate_issue_counts_s3.manifest.json

@@ -1,0 +1,31 @@
+visual_id: sourced_image_asset_wrapper_draft_v1
+template: instagram/visuals/templates/sourced_image_asset_draft_v1.yml
+source_note: "Source: realistic placeholder image metadata for visual review only"
+input:
+  mode: local_csv
+  path: instagram/visuals/tests/sourced_image_asset_draft_v1/data/cases.csv
+bindings:
+  image_ref: image_ref
+  asset_kind: asset_kind
+  source_name: source_name
+  source_url: source_url
+  license: license
+  retrieved_at: retrieved_at
+  alt_text: alt_text
+filters:
+  - field: case_id
+    operator: equals
+    value: complete_attribution
+grouping:
+  batch_enabled: false
+  future_group_by_options:
+    - source_name
+    - license
+    - asset_kind
+    - campaign
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder sourced-image metadata. Not for publication."

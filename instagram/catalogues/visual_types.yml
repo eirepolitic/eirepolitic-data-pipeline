@@ -1,0 +1,240 @@
+catalogue_version: 1
+visual_types:
+  - visual_type_id: horizontal_bar_draft_v1
+    display_name: Horizontal bar chart
+    renderer: horizontal_bar
+    template_path: instagram/visuals/templates/horizontal_bar_draft_v1.yml
+    status: draft
+    intended_use: Ranked categories with readable labels.
+    required_bindings: [label, value]
+    optional_bindings: [group]
+    supported_data_shapes: [category_value]
+    recommended_item_count: {min: 2, max: 7}
+    supported_slot_fit: contain
+    known_limitations: [Long labels require wrapping, Overflow rows are truncated]
+    test_contact_sheet: instagram/visuals/tests/horizontal_bar_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: vertical_bar_draft_v1
+    display_name: Vertical bar chart
+    renderer: vertical_bar
+    template_path: instagram/visuals/templates/vertical_bar_draft_v1.yml
+    status: draft
+    intended_use: Compact comparison of a small category set.
+    required_bindings: [label, value]
+    optional_bindings: []
+    supported_data_shapes: [category_value]
+    recommended_item_count: {min: 2, max: 7}
+    supported_slot_fit: contain
+    known_limitations: [Long category labels reduce readability]
+    test_contact_sheet: instagram/visuals/tests/vertical_bar_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: line_chart_draft_v1
+    display_name: Line chart
+    renderer: line_chart
+    template_path: instagram/visuals/templates/line_chart_draft_v1.yml
+    status: draft
+    intended_use: Ordered or time-series trends.
+    required_bindings: [x, value]
+    optional_bindings: [series]
+    supported_data_shapes: [ordered_series, multi_series]
+    recommended_item_count: {min: 2, max: 24}
+    supported_slot_fit: contain
+    known_limitations: [Requires a meaningful ordered x axis]
+    test_contact_sheet: instagram/visuals/tests/line_chart_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: area_chart_draft_v1
+    display_name: Area chart
+    renderer: area_chart
+    template_path: instagram/visuals/templates/area_chart_draft_v1.yml
+    status: draft
+    intended_use: Ordered trends where volume should be emphasized.
+    required_bindings: [x, value]
+    optional_bindings: [series]
+    supported_data_shapes: [ordered_series, multi_series]
+    recommended_item_count: {min: 2, max: 24}
+    supported_slot_fit: contain
+    known_limitations: [Requires ordered numeric or time values]
+    test_contact_sheet: instagram/visuals/tests/area_chart_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: stacked_bar_draft_v1
+    display_name: Stacked bar chart
+    renderer: stacked_bar
+    template_path: instagram/visuals/templates/stacked_bar_draft_v1.yml
+    status: draft
+    intended_use: Composition by category and segment.
+    required_bindings: [category, segment, value]
+    optional_bindings: []
+    supported_data_shapes: [category_segment_value]
+    recommended_item_count: {min: 2, max: 8}
+    supported_slot_fit: contain
+    known_limitations: [Dense segment sets require phone review]
+    test_contact_sheet: instagram/visuals/tests/stacked_bar_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: ranking_table_draft_v1
+    display_name: Ranking table
+    renderer: ranking_table
+    template_path: instagram/visuals/templates/ranking_table_draft_v1.yml
+    status: draft
+    intended_use: Ordered rows with values and optional details.
+    required_bindings: [label, value]
+    optional_bindings: [rank, detail]
+    supported_data_shapes: [ranked_rows]
+    recommended_item_count: {min: 2, max: 10}
+    supported_slot_fit: contain
+    known_limitations: [Long detail text reduces row capacity]
+    test_contact_sheet: instagram/visuals/tests/ranking_table_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: donut_chart_draft_v1
+    display_name: Donut chart
+    renderer: donut_chart
+    template_path: instagram/visuals/templates/donut_chart_draft_v1.yml
+    status: draft
+    intended_use: Part-to-whole distributions.
+    required_bindings: [label, value]
+    optional_bindings: []
+    supported_data_shapes: [category_value]
+    recommended_item_count: {min: 2, max: 8}
+    supported_slot_fit: contain
+    known_limitations: [Small slices and many categories are difficult to read]
+    test_contact_sheet: instagram/visuals/tests/donut_chart_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: scatter_plot_draft_v1
+    display_name: Scatter plot
+    renderer: scatter_plot
+    template_path: instagram/visuals/templates/scatter_plot_draft_v1.yml
+    status: draft
+    intended_use: Relationship between two numeric metrics.
+    required_bindings: [x, y]
+    optional_bindings: [label, group]
+    supported_data_shapes: [xy_points]
+    recommended_item_count: {min: 3, max: 40}
+    supported_slot_fit: contain
+    known_limitations: [Overlapping points can hide labels]
+    test_contact_sheet: instagram/visuals/tests/scatter_plot_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: dot_plot_draft_v1
+    display_name: Dot plot
+    renderer: dot_plot
+    template_path: instagram/visuals/templates/dot_plot_draft_v1.yml
+    status: draft
+    intended_use: Compact category comparisons.
+    required_bindings: [label, value]
+    optional_bindings: []
+    supported_data_shapes: [category_value]
+    recommended_item_count: {min: 2, max: 10}
+    supported_slot_fit: contain
+    known_limitations: [Long labels require wrapping]
+    test_contact_sheet: instagram/visuals/tests/dot_plot_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: lollipop_chart_draft_v1
+    display_name: Lollipop chart
+    renderer: lollipop_chart
+    template_path: instagram/visuals/templates/lollipop_chart_draft_v1.yml
+    status: draft
+    intended_use: Ranked values with lightweight emphasis.
+    required_bindings: [label, value]
+    optional_bindings: []
+    supported_data_shapes: [category_value]
+    recommended_item_count: {min: 2, max: 10}
+    supported_slot_fit: contain
+    known_limitations: [Long labels require wrapping]
+    test_contact_sheet: instagram/visuals/tests/lollipop_chart_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: slope_chart_draft_v1
+    display_name: Slope chart
+    renderer: slope_chart
+    template_path: instagram/visuals/templates/slope_chart_draft_v1.yml
+    status: draft
+    intended_use: Change between two endpoints.
+    required_bindings: [label, start, end]
+    optional_bindings: []
+    supported_data_shapes: [paired_endpoints]
+    recommended_item_count: {min: 2, max: 8}
+    supported_slot_fit: contain
+    known_limitations: [Crossing labels require careful review]
+    test_contact_sheet: instagram/visuals/tests/slope_chart_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: table_card_draft_v1
+    display_name: Table card
+    renderer: table_card
+    template_path: instagram/visuals/templates/table_card_draft_v1.yml
+    status: draft
+    intended_use: Compact key-value or ranked tabular content.
+    required_bindings: [label, value]
+    optional_bindings: [detail]
+    supported_data_shapes: [table_rows]
+    recommended_item_count: {min: 1, max: 8}
+    supported_slot_fit: contain
+    known_limitations: [Dense text requires phone review]
+    test_contact_sheet: instagram/visuals/tests/table_card_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: small_multiples_draft_v1
+    display_name: Small multiples
+    renderer: small_multiples
+    template_path: instagram/visuals/templates/small_multiples_draft_v1.yml
+    status: draft
+    intended_use: Repeated mini-series or panels.
+    required_bindings: [panel, x, value]
+    optional_bindings: []
+    supported_data_shapes: [panel_series]
+    recommended_item_count: {min: 2, max: 9}
+    supported_slot_fit: contain
+    known_limitations: [Data-dense output requires phone review]
+    test_contact_sheet: instagram/visuals/tests/small_multiples_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: point_map_draft_v1
+    display_name: Point map
+    renderer: point_map
+    template_path: instagram/visuals/templates/point_map_draft_v1.yml
+    status: draft
+    intended_use: Locations represented by points.
+    required_bindings: [latitude, longitude]
+    optional_bindings: [label, value]
+    supported_data_shapes: [geographic_points]
+    recommended_item_count: {min: 1, max: 30}
+    supported_slot_fit: contain
+    known_limitations: [No basemap acquisition or geocoding]
+    test_contact_sheet: instagram/visuals/tests/point_map_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: choropleth_map_draft_v1
+    display_name: Choropleth map
+    renderer: choropleth_map
+    template_path: instagram/visuals/templates/choropleth_map_draft_v1.yml
+    status: draft
+    intended_use: Values joined to reviewed polygon geography.
+    required_bindings: [geography_key, value]
+    optional_bindings: [label]
+    supported_data_shapes: [geography_value]
+    recommended_item_count: {min: 2, max: 50}
+    supported_slot_fit: contain
+    known_limitations: [Current geography fixtures are synthetic]
+    test_contact_sheet: instagram/visuals/tests/choropleth_map_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: tile_map_draft_v1
+    display_name: Tile map
+    renderer: tile_map
+    template_path: instagram/visuals/templates/tile_map_draft_v1.yml
+    status: draft
+    intended_use: Simplified geographic comparison using reviewed tile positions.
+    required_bindings: [geography_key, value]
+    optional_bindings: [label]
+    supported_data_shapes: [geography_value]
+    recommended_item_count: {min: 2, max: 50}
+    supported_slot_fit: contain
+    known_limitations: [Current tile layout is synthetic]
+    test_contact_sheet: instagram/visuals/tests/tile_map_draft_v1/contact_sheet.png
+    version: 1
+  - visual_type_id: sourced_image_asset_draft_v1
+    display_name: Sourced image asset
+    renderer: sourced_image_asset
+    template_path: instagram/visuals/templates/sourced_image_asset_draft_v1.yml
+    status: draft
+    intended_use: Review wrapper for licensed or attributed imagery.
+    required_bindings: [image_source]
+    optional_bindings: [source_url, licence, attribution]
+    supported_data_shapes: [image_asset]
+    recommended_item_count: {min: 1, max: 1}
+    supported_slot_fit: contain
+    known_limitations: [Does not acquire images, Licence review is mandatory]
+    test_contact_sheet: instagram/visuals/tests/sourced_image_asset_draft_v1/contact_sheet.png
+    version: 1

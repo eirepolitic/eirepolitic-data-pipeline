@@ -1,0 +1,13 @@
+case_id,image_ref,asset_kind,source_name,source_url,license,retrieved_at,alt_text
+complete_attribution,fixture-campaign-photo-001,photo,Fixture Image Library,https://example.org/fixture/photo-001,CC-BY-4.0,2026-06-11,Placeholder campaign image for visual QA
+missing_source_name,fixture-campaign-photo-002,photo,,https://example.org/fixture/photo-002,CC-BY-4.0,2026-06-11,Placeholder image with missing source name
+missing_source_url,fixture-campaign-photo-003,photo,Fixture Image Library,,CC-BY-4.0,2026-06-11,Placeholder image with missing source URL
+missing_license,fixture-campaign-photo-004,photo,Fixture Image Library,https://example.org/fixture/photo-004,,2026-06-11,Placeholder image with missing license
+missing_retrieved_at,fixture-campaign-photo-005,photo,Fixture Image Library,https://example.org/fixture/photo-005,CC-BY-4.0,,Placeholder image with missing retrieval date
+invalid_url,fixture-campaign-photo-006,photo,Fixture Image Library,example.org/fixture/photo-006,CC-BY-4.0,2026-06-11,Placeholder image with invalid source URL
+unknown_license,fixture-campaign-photo-007,photo,Fixture Image Library,https://example.org/fixture/photo-007,unknown,2026-06-11,Placeholder image with unconfirmed license
+long_metadata,fixture-campaign-photo-with-a-very-long-reference-that-should-truncate,photo,Fixture Image Library With A Very Long Name That Should Truncate Cleanly,https://example.org/fixture/very/long/path/photo-008?with=query&and=tracking,Creative Commons Attribution 4.0 International,2026-06-11,Very long alternative text describing a realistic placeholder political image used only for phone readability review in the contact sheet
+remote_disabled,fixture-remote-photo-009,remote_photo,Fixture Remote Library,https://example.org/fixture/photo-009,CC-BY-4.0,2026-06-11,Remote-style source represented as local placeholder because CI downloads are disabled
+multiple_rows,fixture-campaign-photo-010,photo,Fixture Image Library,https://example.org/fixture/photo-010,CC-BY-4.0,2026-06-11,First row should be rendered
+multiple_rows,fixture-campaign-photo-011,photo,Fixture Image Library,https://example.org/fixture/photo-011,CC-BY-4.0,2026-06-11,Second row should be ignored by max_rows placeholder wrapper
+phone_readability_stress,fixture-campaign-photo-with-stress-metadata,photo,Fixture Image Library With A Very Long Name That Should Truncate,example.org/not-valid,unknown,,Long alt text plus bad URL unknown license and missing retrieved date for warning badge stress

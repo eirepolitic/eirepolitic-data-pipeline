@@ -1,0 +1,83 @@
+template: instagram/visuals/templates/stacked_bar_draft_v1.yml
+bindings:
+  category: category
+  segment: segment
+  value: value
+source_note: "Fixture data for visual variation review only"
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."
+cases:
+  - id: few_categories
+    description: Three categories with three segments
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: few_categories
+  - id: many_categories
+    description: Nine categories; should truncate to template max
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: many_categories
+  - id: many_segments
+    description: Six segments; should truncate to template max
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: many_segments
+  - id: long_category_labels
+    description: Long x-axis category labels
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_category_labels
+  - id: long_segment_labels
+    description: Long legend segment labels
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: long_segment_labels
+  - id: zero_values
+    description: Includes zero-valued segments
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: zero_values
+  - id: negative_values
+    description: Includes negative values; should warn and clamp for stacked rendering
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: negative_values
+  - id: missing_values
+    description: Includes missing values; should warn and skip invalid rows
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: missing_values
+  - id: wide_totals
+    description: Large total differences between categories
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: wide_totals
+  - id: phone_readability_stress
+    description: Long categories, long segments, and wide totals
+    data: instagram/visuals/tests/stacked_bar_draft_v1/data/cases.csv
+    filters:
+      - field: case_id
+        operator: equals
+        value: phone_readability_stress

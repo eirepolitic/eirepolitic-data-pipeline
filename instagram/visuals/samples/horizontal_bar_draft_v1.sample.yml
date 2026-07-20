@@ -1,0 +1,31 @@
+visual_id: top_issues_horizontal_bar_draft_v1
+template: instagram/visuals/templates/horizontal_bar_draft_v1.yml
+title: "Top issues in Dáil speeches"
+subtitle: "Sample constituency issue counts · fixture data"
+source_note: "Source: realistic placeholder data for visual review only"
+input:
+  mode: local_csv
+  path: instagram/visuals/fixtures/issue_counts_sample.csv
+bindings:
+  label: issue
+  value: speech_count
+  group: constituency
+filters:
+  - field: constituency
+    operator: equals
+    value: Dublin Bay South
+grouping:
+  batch_enabled: false
+  future_group_by_options:
+    - constituency
+    - party
+    - candidate
+    - county
+    - issue_category
+    - time_period
+attribution:
+  source_name: Fixture data
+  source_url: ""
+  retrieved_at: ""
+  license: ""
+  notes: "Placeholder political data. Not for publication."

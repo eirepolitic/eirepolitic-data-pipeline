@@ -1,0 +1,31 @@
+template_id: choropleth_map_draft_v1
+status: draft
+renderer: choropleth_map
+description: Draft dark-green choropleth map for constituency or geographic value joins.
+params:
+  width: 1080
+  height: 860
+  max_features: 80
+  value_format: integer
+  show_labels: true
+  show_legend: true
+  bins: 5
+palette:
+  background: "#0f2f24"
+  panel: "#173d30"
+  panel_alt: "#214a3b"
+  text: "#f4ead7"
+  muted: "#cbbf9f"
+  accent: "#d8b45f"
+  accent_2: "#9ec5a2"
+  grid: "#cbbf9f"
+  warning: "#b55b5b"
+  map_no_data: "#2a463b"
+  map_outline: "#f4ead7"
+  map_low: "#275346"
+  map_high: "#d8b45f"
+constraints:
+  no_celtic_borders: true
+  no_full_frame_ornamentation: true
+  no_side_rails: true
+  no_built_in_corner_decorations: true

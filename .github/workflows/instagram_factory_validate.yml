@@ -1,0 +1,50 @@
+name: Instagram Content Factory validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-phase1
+    paths:
+      - "instagram/catalogues/**"
+      - "instagram/factory/**"
+      - "instagram/projects/**"
+      - "process/instagram_factory.py"
+      - "tests/test_instagram_factory.py"
+      - ".github/workflows/instagram_factory_validate.yml"
+  pull_request:
+    paths:
+      - "instagram/catalogues/**"
+      - "instagram/factory/**"
+      - "instagram/projects/**"
+      - "process/instagram_factory.py"
+      - "tests/test_instagram_factory.py"
+      - ".github/workflows/instagram_factory_validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install validation dependencies
+        run: pip install pyyaml
+
+      - name: Validate catalogues
+        run: python process/instagram_factory.py validate-catalogues
+
+      - name: Validate project template
+        run: >-
+          python process/instagram_factory.py validate-project
+          --project instagram/projects/_template/project.yml
+
+      - name: Run Content Factory unit tests
+        run: python -m unittest tests.test_instagram_factory -v

@@ -1,0 +1,95 @@
+catalogue_version: 1
+metrics:
+  - metric_id: debate_issue_counts
+    display_name: Debate speech issue counts
+    description: Count classified debate speeches by political issue.
+    status: draft
+    source_logical_keys:
+      - processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+      - processed/debates/debate_speeches_classified.csv
+    layer: compat
+    grain: national
+    measure_fields: [value]
+    dimension_fields: [label]
+    period_fields: []
+    mapping_config: instagram/visuals/data_mappings/debate_issue_counts_s3.yml
+    freshness_expectation: weekly
+    source_note: Oireachtas debate speeches with separately reviewed issue classification.
+    validation_rules:
+      required_output_fields: [label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
+  - metric_id: constituency_issue_counts
+    display_name: Constituency debate issue counts
+    description: Count classified debate speeches by issue for the current members representing each constituency.
+    status: draft
+    source_logical_keys:
+      - processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+      - processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+      - raw/members/oireachtas_members_34th_dail.csv
+      - processed/debates/debate_speeches_classified.csv
+    layer: compat
+    grain: constituency
+    measure_fields: [value]
+    dimension_fields: [constituency, label]
+    period_fields: []
+    mapping_config: instagram/visuals/data_mappings/constituency_issue_counts.yml
+    freshness_expectation: weekly
+    source_note: Houses of the Oireachtas member and debate data with separately reviewed Eirepolitic issue classification.
+    validation_rules:
+      required_output_fields: [constituency, label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+      require_member_speaker_match_manifest: true
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
+  - metric_id: member_party_counts
+    display_name: Current member counts by party
+    description: Count current Dáil members by party using the active unified-model compatibility output.
+    status: draft
+    source_logical_keys:
+      - processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv
+      - raw/members/oireachtas_members_34th_dail.csv
+    layer: compat
+    grain: national
+    measure_fields: [value]
+    dimension_fields: [label]
+    period_fields: []
+    mapping_config: instagram/visuals/data_mappings/member_party_counts_s3.yml
+    freshness_expectation: weekly
+    source_note: Houses of the Oireachtas member data.
+    validation_rules:
+      required_output_fields: [label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
+  - metric_id: fixture_issue_counts
+    display_name: Fixture issue speech counts
+    description: Deterministic local fixture used only for catalogue and orchestration regression tests.
+    status: draft
+    source_logical_keys:
+      - instagram/visuals/tests/horizontal_bar_draft_v1/data/04_items.csv
+    layer: fixture
+    grain: national
+    measure_fields: [value]
+    dimension_fields: [label]
+    period_fields: []
+    mapping_config: instagram/visuals/data_mappings/fixture_issue_counts_local.yml
+    freshness_expectation: static
+    source_note: Repository fixture; never use as a factual public post.
+    validation_rules:
+      required_output_fields: [label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+    privacy_classification: synthetic
+    external_verification: not_applicable
+    version: 1

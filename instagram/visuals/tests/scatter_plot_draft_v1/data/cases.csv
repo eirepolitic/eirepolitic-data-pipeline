@@ -1,0 +1,143 @@
+case_id,x,y,size,label,category
+few_points,20,35,12,Party A,Party
+few_points,42,28,8,Party B,Party
+few_points,65,52,18,Party C,Party
+category_mix,20,35,12,Party A,Party
+category_mix,42,28,8,Party B,Party
+category_mix,65,52,18,Party C,Party
+category_mix,30,70,5,Issue A,Issue
+category_mix,72,18,6,Issue B,Issue
+category_mix,55,44,10,Issue C,Issue
+dense_points,10,20,3,P01,Group A
+dense_points,14,24,4,P02,Group A
+dense_points,18,28,5,P03,Group A
+dense_points,22,30,6,P04,Group A
+dense_points,26,33,7,P05,Group A
+dense_points,30,36,8,P06,Group A
+dense_points,34,39,9,P07,Group A
+dense_points,38,42,10,P08,Group A
+dense_points,42,44,11,P09,Group A
+dense_points,46,47,12,P10,Group A
+dense_points,50,49,13,P11,Group A
+dense_points,54,52,14,P12,Group A
+dense_points,58,55,15,P13,Group B
+dense_points,62,57,16,P14,Group B
+dense_points,66,60,17,P15,Group B
+dense_points,70,62,18,P16,Group B
+dense_points,74,65,19,P17,Group B
+dense_points,78,67,20,P18,Group B
+wide_size_range,20,35,1,Small A,Party
+wide_size_range,42,28,20,Medium A,Party
+wide_size_range,65,52,300,Large A,Party
+wide_size_range,30,70,5000,Huge A,Issue
+wide_size_range,72,18,72000,Massive A,Issue
+tight_xy_range,51,52,10,A,Party
+tight_xy_range,52,53,12,B,Party
+tight_xy_range,53,54,14,C,Party
+tight_xy_range,54,55,16,D,Party
+tight_xy_range,55,56,18,E,Party
+outliers,20,35,12,Normal A,Party
+outliers,24,38,11,Normal B,Party
+outliers,28,41,10,Normal C,Party
+outliers,95,92,20,Outlier high,Party
+outliers,2,8,5,Outlier low,Party
+negative_values,20,35,12,Party A,Party
+negative_values,-42,28,8,Negative X,Party
+negative_values,65,-52,18,Negative Y,Party
+negative_values,30,70,-5,Negative Size,Issue
+missing_values,20,35,12,Party A,Party
+missing_values,,28,8,Missing X,Party
+missing_values,65,,18,Missing Y,Party
+missing_values,30,70,,Missing Size,Issue
+missing_values,72,18,unknown,Bad Size,Issue
+long_labels,20,35,12,Dublin Bay South Campaign Office,Party
+long_labels,42,28,8,Cork North Central Regional Hub,Party
+long_labels,65,52,18,Galway West Coastal Constituency Office,Party
+overflow_points,1,10,1,P01,Overflow
+overflow_points,2,11,2,P02,Overflow
+overflow_points,3,12,3,P03,Overflow
+overflow_points,4,13,4,P04,Overflow
+overflow_points,5,14,5,P05,Overflow
+overflow_points,6,15,6,P06,Overflow
+overflow_points,7,16,7,P07,Overflow
+overflow_points,8,17,8,P08,Overflow
+overflow_points,9,18,9,P09,Overflow
+overflow_points,10,19,10,P10,Overflow
+overflow_points,11,20,11,P11,Overflow
+overflow_points,12,21,12,P12,Overflow
+overflow_points,13,22,13,P13,Overflow
+overflow_points,14,23,14,P14,Overflow
+overflow_points,15,24,15,P15,Overflow
+overflow_points,16,25,16,P16,Overflow
+overflow_points,17,26,17,P17,Overflow
+overflow_points,18,27,18,P18,Overflow
+overflow_points,19,28,19,P19,Overflow
+overflow_points,20,29,20,P20,Overflow
+overflow_points,21,30,21,P21,Overflow
+overflow_points,22,31,22,P22,Overflow
+overflow_points,23,32,23,P23,Overflow
+overflow_points,24,33,24,P24,Overflow
+overflow_points,25,34,25,P25,Overflow
+overflow_points,26,35,26,P26,Overflow
+overflow_points,27,36,27,P27,Overflow
+overflow_points,28,37,28,P28,Overflow
+overflow_points,29,38,29,P29,Overflow
+overflow_points,30,39,30,P30,Overflow
+overflow_points,31,40,31,P31,Overflow
+overflow_points,32,41,32,P32,Overflow
+overflow_points,33,42,33,P33,Overflow
+overflow_points,34,43,34,P34,Overflow
+overflow_points,35,44,35,P35,Overflow
+overflow_points,36,45,36,P36,Overflow
+overflow_points,37,46,37,P37,Overflow
+overflow_points,38,47,38,P38,Overflow
+overflow_points,39,48,39,P39,Overflow
+overflow_points,40,49,40,P40,Overflow
+overflow_points,41,50,41,P41,Overflow
+overflow_points,42,51,42,P42,Overflow
+overflow_points,43,52,43,P43,Overflow
+overflow_points,44,53,44,P44,Overflow
+overflow_points,45,54,45,P45,Overflow
+overflow_points,46,55,46,P46,Overflow
+overflow_points,47,56,47,P47,Overflow
+overflow_points,48,57,48,P48,Overflow
+overflow_points,49,58,49,P49,Overflow
+overflow_points,50,59,50,P50,Overflow
+overflow_points,51,60,51,P51,Overflow
+overflow_points,52,61,52,P52,Overflow
+overflow_points,53,62,53,P53,Overflow
+overflow_points,54,63,54,P54,Overflow
+overflow_points,55,64,55,P55,Overflow
+overflow_points,56,65,56,P56,Overflow
+overflow_points,57,66,57,P57,Overflow
+overflow_points,58,67,58,P58,Overflow
+overflow_points,59,68,59,P59,Overflow
+overflow_points,60,69,60,P60,Overflow
+overflow_points,61,70,61,P61,Overflow
+overflow_points,62,71,62,P62,Overflow
+overflow_points,63,72,63,P63,Overflow
+overflow_points,64,73,64,P64,Overflow
+overflow_points,65,74,65,P65,Overflow
+overflow_points,66,75,66,P66,Overflow
+overflow_points,67,76,67,P67,Overflow
+overflow_points,68,77,68,P68,Overflow
+overflow_points,69,78,69,P69,Overflow
+overflow_points,70,79,70,P70,Overflow
+overflow_points,71,80,71,P71,Overflow
+overflow_points,72,81,72,P72,Overflow
+overflow_points,73,82,73,P73,Overflow
+overflow_points,74,83,74,P74,Overflow
+overflow_points,75,84,75,P75,Overflow
+overflow_points,76,85,76,P76,Overflow
+overflow_points,77,86,77,P77,Overflow
+overflow_points,78,87,78,P78,Overflow
+overflow_points,79,88,79,P79,Overflow
+overflow_points,80,89,80,P80,Overflow
+overflow_points,81,90,81,P81,Overflow
+phone_readability_stress,20,35,1,Dublin Bay South Campaign Office,Party
+phone_readability_stress,42,28,20,Cork North Central Regional Hub,Party
+phone_readability_stress,65,52,300,Galway West Coastal Constituency Office,Party
+phone_readability_stress,30,70,5000,Affordable rental accommodation mentions,Issue
+phone_readability_stress,72,18,72000,Emergency department waiting time mentions,Issue
+phone_readability_stress,95,92,12,Outlier high,Outlier
+phone_readability_stress,2,8,5,Outlier low,Outlier

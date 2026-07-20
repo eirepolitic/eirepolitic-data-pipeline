@@ -1,0 +1,65 @@
+project_id: example_national_party_breakdown_v1
+version: 1
+status: draft
+purpose: Show the current distribution of Dáil members by party using deterministic Oireachtas data.
+
+granularity:
+  grain: national
+  key_fields: [national_id]
+  label_field: national_label
+  source_metric: member_party_counts
+  selector:
+    mode: single
+  ordering:
+    field: national_label
+    direction: ascending
+
+period:
+  mode: latest_available
+  field: null
+
+slides:
+  - slide_id: party_breakdown
+    order: 1
+    post_type_id: title_text_media_v1
+    text:
+      slide_title: Current Dáil membership by party
+      body_text: Number of current members recorded for each party or grouping.
+      footer_text: "Source: Houses of the Oireachtas"
+    visual:
+      visual_type_id: horizontal_bar_draft_v1
+      metric_id: member_party_counts
+      bindings:
+        label: label
+        value: value
+      filters: {}
+      grouping: {}
+      sort:
+        field: value
+        direction: descending
+      item_limit: 8
+      empty_data_behavior: fail
+    accessibility:
+      alt_text_template: "Bar chart showing current Dáil member counts by party."
+    fallback_behavior:
+      missing_optional_text: omit
+      missing_visual: fail
+
+validation:
+  scenarios: [minimum, maximum, real_example]
+  real_example_selector:
+    mode: first_complete_item
+  require_explicit_approval: true
+
+output:
+  s3_prefix: processed/instagram_factory/projects/example_national_party_breakdown_v1
+  preview_branch: instagram-preview-output
+
+review:
+  require_all_items_reviewed: true
+  allow_targeted_regeneration: true
+
+schedule:
+  enabled: false
+  cadence: null
+  trigger: manual

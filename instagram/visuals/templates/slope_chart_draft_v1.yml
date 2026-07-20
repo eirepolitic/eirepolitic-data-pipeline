@@ -1,0 +1,28 @@
+template_id: slope_chart_draft_v1
+status: draft
+renderer: slope_chart
+description: Draft dark-green slope chart for comparing political values between two periods.
+params:
+  width: 1080
+  height: 860
+  max_items: 10
+  sort_by_change_abs: true
+  show_values: true
+  show_change: true
+  show_legend: true
+  value_format: integer
+palette:
+  background: "#0f2f24"
+  panel: "#173d30"
+  panel_alt: "#214a3b"
+  text: "#f4ead7"
+  muted: "#cbbf9f"
+  accent: "#d8b45f"
+  accent_2: "#9ec5a2"
+  grid: "#cbbf9f"
+  warning: "#b55b5b"
+constraints:
+  no_celtic_borders: true
+  no_full_frame_ornamentation: true
+  no_side_rails: true
+  no_built_in_corner_decorations: true
