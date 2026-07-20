@@ -12,7 +12,7 @@ on:
       - ".github/workflows/instagram_factory_phase5_validate.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -27,6 +27,8 @@ jobs:
       PROJECT_PREFIX: processed/instagram_factory/projects/constituency_issue_profile_v1
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-phase5-recurring
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -53,10 +55,11 @@ jobs:
           aws s3 cp "s3://$BUCKET/$PROJECT_PREFIX/latest.json" latest.json --only-show-errors || true
           ARGS=(python process/instagram_factory.py check-readiness --data-source s3)
           if [ -f latest.json ]; then ARGS+=(--latest-manifest latest.json); fi
-          "${ARGS[@]}" | tee live-readiness.json
-      - name: Upload readiness evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: instagram-phase5-readiness-${{ github.run_id }}
-          path: live-readiness.json
-          if-no-files-found: error
+          "${ARGS[@]}" | tee phase5_live_readiness.json
+      - name: Commit readiness evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add phase5_live_readiness.json
+          git commit -m "chore(instagram): capture Phase 5 live readiness" || true
+          git push origin HEAD:feature/instagram-content-factory-phase5-recurring
