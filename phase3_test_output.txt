@@ -1,0 +1,30 @@
+test_repository_catalogues_are_valid (tests.test_instagram_factory.InstagramFactoryCatalogueTest.test_repository_catalogues_are_valid) ... ok
+test_local_batch_is_deterministic_and_review_only (tests.test_instagram_factory.InstagramFactoryConstituencyPilotTest.test_local_batch_is_deterministic_and_review_only) ... ERROR
+test_local_complete_slide_render (tests.test_instagram_factory.InstagramFactoryConstituencyPilotTest.test_local_complete_slide_render) ... ok
+test_scenarios_include_synthetic_and_real_cases (tests.test_instagram_factory.InstagramFactoryConstituencyPilotTest.test_scenarios_include_synthetic_and_real_cases) ... ok
+test_synthetic_name_and_result_extremes_are_selected_independently (tests.test_instagram_factory.InstagramFactoryConstituencyPilotTest.test_synthetic_name_and_result_extremes_are_selected_independently) ... ok
+test_approved_project_cannot_use_draft_components (tests.test_instagram_factory.InstagramFactoryProjectTest.test_approved_project_cannot_use_draft_components) ... ok
+test_constituency_pilot_is_valid (tests.test_instagram_factory.InstagramFactoryProjectTest.test_constituency_pilot_is_valid) ... ok
+test_duplicate_slide_order_fails (tests.test_instagram_factory.InstagramFactoryProjectTest.test_duplicate_slide_order_fails) ... ok
+test_project_template_is_valid (tests.test_instagram_factory.InstagramFactoryProjectTest.test_project_template_is_valid) ... ok
+test_unknown_visual_type_fails_actionably (tests.test_instagram_factory.InstagramFactoryProjectTest.test_unknown_visual_type_fails_actionably) ... ok
+
+======================================================================
+ERROR: test_local_batch_is_deterministic_and_review_only (tests.test_instagram_factory.InstagramFactoryConstituencyPilotTest.test_local_batch_is_deterministic_and_review_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/tests/test_instagram_factory.py", line 126, in test_local_batch_is_deterministic_and_review_only
+    first = generate_constituency_batch(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/constituency_batch.py", line 103, in generate_constituency_batch
+    batch_id = _batch_id(source_manifest)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/constituency_batch.py", line 55, in _batch_id
+    batch_id = source.get("resolution", {}).get("batch_id")
+               ^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.671s
+
+FAILED (errors=1)
