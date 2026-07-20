@@ -20,7 +20,8 @@ def render_project_tests(
     output_root: str | Path | None = None,
 ) -> dict[str, Any]:
     project = load_project(project_path)
-    validation = validate_project(project=project, catalogues=load_catalogues())
+    catalogues = load_catalogues()
+    validation = validate_project(project=project, catalogues=catalogues)
     if not validation["success"]:
         raise ValueError("Invalid project:\n" + "\n".join(validation["errors"]))
 
@@ -32,8 +33,6 @@ def render_project_tests(
         root = REPO_ROOT / root
     root.mkdir(parents=True, exist_ok=True)
 
-    catalogues = load_catalogues()
-    post_types = {entry["post_type_id"]: entry for entry in catalogues["post_types"]["post_types"]}
     template_cache: dict[str, dict[str, Any]] = {}
     scenario_manifests: dict[str, Any] = {}
 
@@ -48,7 +47,7 @@ def render_project_tests(
         rendered: list[dict[str, Any]] = []
 
         for slide in sorted(project["slides"], key=lambda row: row["order"]):
-            post_type = post_types[slide["post_type_id"]]
+            post_type = catalogues.post_types[slide["post_type_id"]]
             layout_path = str(post_type["layout_path"])
             if layout_path not in template_cache:
                 template_cache[layout_path] = json.loads((REPO_ROOT / layout_path).read_text(encoding="utf-8"))
