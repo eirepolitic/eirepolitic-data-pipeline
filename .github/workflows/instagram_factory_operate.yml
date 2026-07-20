@@ -1,0 +1,125 @@
+name: Instagram Content Factory review and regeneration
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_path:
+        description: Repository path to project.yml
+        required: true
+        type: string
+      operation:
+        description: Operation to perform
+        required: true
+        type: choice
+        options: [mark_review, regenerate, build_review_index, mark_ready]
+      source_run_id:
+        description: Existing immutable run ID
+        required: true
+        type: string
+      item_slugs:
+        description: Space-separated item slugs when required
+        required: false
+        type: string
+      slide_ids:
+        description: Optional space-separated slide IDs
+        required: false
+        type: string
+      review_status:
+        description: Review status for mark_review
+        required: false
+        type: choice
+        options: [unreviewed, approved, changes_requested, rejected]
+        default: unreviewed
+      reason:
+        description: Review note or regeneration reason
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      BUCKET: eirepolitic-data
+      PROJECT_PATH: ${{ inputs.project_path }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+      - name: Resolve project settings
+        id: project
+        run: |
+          python process/instagram_factory.py validate-project --project "$PROJECT_PATH"
+          PREFIX=$(python - <<'PY'
+          import os, yaml
+          project = yaml.safe_load(open(os.environ['PROJECT_PATH'], encoding='utf-8'))
+          print(project['output']['s3_prefix'])
+          PY
+          )
+          echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+      - name: Download source run
+        run: |
+          mkdir -p source-run
+          aws s3 cp "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ inputs.source_run_id }}/" source-run/ --recursive --only-show-errors
+          test -f source-run/run_manifest.json
+      - name: Mark review
+        if: inputs.operation == 'mark_review'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for ITEM in ${{ inputs.item_slugs }}; do
+            if [ -n "${{ inputs.slide_ids }}" ]; then
+              for SLIDE in ${{ inputs.slide_ids }}; do
+                python process/instagram_factory.py mark-review --run-root source-run --item "$ITEM" --slide "$SLIDE" --status "${{ inputs.review_status }}" --note "${{ inputs.reason }}" --reviewer "${{ github.actor }}"
+              done
+            else
+              python process/instagram_factory.py mark-review --run-root source-run --item "$ITEM" --status "${{ inputs.review_status }}" --note "${{ inputs.reason }}" --reviewer "${{ github.actor }}"
+            fi
+          done
+          aws s3 cp source-run/review/review_state.json "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ inputs.source_run_id }}/review/review_state.json" --only-show-errors
+      - name: Regenerate selected outputs
+        if: inputs.operation == 'regenerate'
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEW_RUN_ID="${{ inputs.source_run_id }}-regen-${GITHUB_RUN_ID}"
+          ARGS=(python process/instagram_factory.py regenerate --project "$PROJECT_PATH" --source-run-root source-run --destination-run-root derived-run --new-run-id "$NEW_RUN_ID" --items ${{ inputs.item_slugs }} --reason "${{ inputs.reason }}" --data-source s3)
+          if [ -n "${{ inputs.slide_ids }}" ]; then ARGS+=(--slides ${{ inputs.slide_ids }}); fi
+          "${ARGS[@]}" | tee regeneration-result.json
+          aws s3 cp derived-run/ "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/$NEW_RUN_ID/" --recursive --only-show-errors
+          echo "NEW_RUN_ID=$NEW_RUN_ID" >> "$GITHUB_ENV"
+      - name: Build review index
+        if: inputs.operation == 'build_review_index'
+        run: |
+          python process/instagram_factory.py build-review-index --run-root source-run
+          aws s3 cp source-run/review/ "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ inputs.source_run_id }}/review/" --recursive --only-show-errors
+      - name: Mark ready
+        if: inputs.operation == 'mark_ready'
+        run: |
+          python process/instagram_factory.py mark-ready --run-root source-run --reviewer "${{ github.actor }}" --note "${{ inputs.reason }}"
+          aws s3 cp source-run/run_manifest.json "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ inputs.source_run_id }}/run_manifest.json" --only-show-errors
+          aws s3 cp source-run/review/review_state.json "s3://$BUCKET/${{ steps.project.outputs.prefix }}/runs/${{ inputs.source_run_id }}/review/review_state.json" --only-show-errors
+      - name: Upload operation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-${{ inputs.operation }}-${{ github.run_id }}
+          path: |
+            source-run/review/
+            source-run/run_manifest.json
+            derived-run/
+            regeneration-result.json
+          if-no-files-found: warn

@@ -4,29 +4,28 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .constituency_batch import _batch_id
-from .constituency_pilot import build_constituency_records, load_source_rows
+from .adapters import get_adapter
+from .common import source_batch_id
+from .project import load_project
 
 
 def evaluate_readiness(
+    project_path: str | Path,
     *,
     data_source: str = "s3",
     latest_manifest: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    members, speeches, source_manifest = load_source_rows(data_source)
-    records, join_manifest = build_constituency_records(members, speeches)
-    batch_id = _batch_id(source_manifest)
+    project = load_project(project_path)
+    adapter = get_adapter(project)
+    records, source_manifest, join_manifest = adapter.load_records(data_source)
+    batch_id = source_batch_id(source_manifest)
     previous_batch_id = (latest_manifest or {}).get("source_batch_id")
     reasons: list[str] = []
 
-    if not members:
-        reasons.append("member source is empty")
-    if not speeches:
-        reasons.append("speech source is empty")
-    if join_manifest.get("matched_speeches", 0) <= 0:
-        reasons.append("no speeches matched current members")
-    if join_manifest.get("constituency_count", 0) <= 0:
-        reasons.append("no constituency records were produced")
+    if not records:
+        reasons.append(f"no {project['granularity']['grain']} items were produced")
+    if join_manifest.get("matched_speeches") is not None and join_manifest.get("matched_speeches", 0) <= 0:
+        reasons.append("adapter join produced no matched source rows")
     if batch_id == "local-fixture" and data_source == "s3":
         reasons.append("production batch ID was not resolved")
 
@@ -36,6 +35,9 @@ def evaluate_readiness(
 
     return {
         "ready": not reasons,
+        "project_id": project["project_id"],
+        "adapter_id": adapter.adapter_id,
+        "grain": project["granularity"]["grain"],
         "data_source": data_source,
         "source_batch_id": batch_id,
         "previous_source_batch_id": previous_batch_id,
