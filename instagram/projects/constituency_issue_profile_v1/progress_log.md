@@ -21,50 +21,45 @@ Validation evidence:
 - artifact: `constituency-factory-batch-constituency_issue_profile_v1-v1-1cd892b3cf6f`
 - S3 root: `s3://eirepolitic-data/processed/instagram_factory/projects/constituency_issue_profile_v1/`
 
-All generated items remain unreviewed, unapproved, and non-publishable.
+## Phase 4
 
-## Phase 4 — 2026-07-20
+Implemented item/slide review states, append-only review history, immutable derived runs, and selective regeneration that preserves unaffected files byte-for-byte.
 
-Implemented review-state management and targeted regeneration:
+Validation workflow: `29711566533`.
 
-- item-level and slide-level review transitions
-- statuses: `unreviewed`, `approved`, `changes_requested`, and `rejected`
-- append-only review history
-- derived-run creation preserving the source run
-- selective constituency and slide regeneration
-- unaffected files copied byte-for-byte
-- regenerated slide hashes and provenance
-- manual S3 workflow for review updates and selective regeneration
+## Phase 5
 
-Validation evidence:
+Implemented production readiness checks, duplicate-batch prevention, and manual recurring draft generation.
 
-- Phase 4 workflow: `29711566533`
-- Phase 1–4 tests passed
+Validation workflow: `29711883200`.
 
-## Phase 5 — 2026-07-20
+The live source batch `current-government-backfill-20260716-1` was correctly blocked as already generated. Recurring execution remains manual.
 
-Implemented recurring-generation readiness controls:
+## Phase 6 — review index and ready gate
 
-- production source resolution through the active unified-data pointer
-- source, join, and constituency-count readiness checks
-- duplicate production-batch prevention using the project `latest.json`
-- `check-readiness` CLI command
-- manual recurring draft workflow
-- clean no-op behavior when no new production batch is available
-- immutable draft generation only when readiness passes
-- automatic publishing, approval, and scheduling remain disabled
+Implemented:
+
+- static HTML review index for every generated item and slide
+- review index manifest and status counts
+- `build-review-index` CLI command
+- strict `mark-ready` CLI command
+- exact blocking reasons for every unapproved item or slide
+- audited reviewer, timestamp, and note when a run is marked ready
+- `ready_for_posting` state in run and review manifests
+- publishing remains `false` even after the ready gate passes
 
 Validation evidence:
 
-- Phase 1–5 validation workflow: `29711883200`
-- live source batch: `current-government-backfill-20260716-1`
-- member rows: 176
-- speech rows: 47,275
-- matched speeches: 29,233
-- constituencies: 43
-- readiness result: blocked as expected because the source batch had already been generated
-- no duplicate draft batch was created
+- Phase 1–6 workflow: `29755339072`
+- catalogue validation: passed
+- project validation: passed
+- all Phase 1–6 tests: passed
+- unreviewed runs are blocked from ready status
+- fully approved runs can be marked ready
+- ready status does not enable publishing
 
 ## Current status
 
-Phases 1–5 are implemented for the constituency project. Recurring generation is available manually and protected by data-readiness and duplicate-batch gates. No cron schedule, automatic approval, scheduling, or Instagram publishing is enabled. Generic multi-project orchestration remains future work.
+The constituency Content Factory v1 workflow is implemented from project definition through review, selective regeneration, recurring readiness, review indexing, and an auditable ready-for-posting checkpoint.
+
+Automatic Instagram publishing, social scheduling, automatic approval, and automatic recurring cadence remain disabled and outside this completed v1 workflow.
