@@ -1,0 +1,356 @@
+{
+  "project_id": "constituency_issue_profile_v1",
+  "project_version": 1,
+  "run_id": "constituency_issue_profile_v1-v1-729fe252b617",
+  "state": "succeeded",
+  "draft": true,
+  "approved": false,
+  "publishing_allowed": false,
+  "review_state": "unreviewed",
+  "created_at": "2026-07-20T01:36:55.895207+00:00",
+  "git_sha": "3b0cc85e9e3c4b7a2ceb201719353b029703e49d",
+  "workflow_run_id": "29711157388",
+  "data_source": "s3",
+  "source_batch_id": "current-government-backfill-20260716-1",
+  "source_manifest": {
+    "mode": "s3",
+    "members": {
+      "input_mode": "s3_csv_first_available",
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "bucket": "eirepolitic-data",
+      "region": "ca-central-1",
+      "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "resolution": {
+        "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "resolution_mode": "batch_pointer",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "batch_id": "current-government-backfill-20260716-1",
+        "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+        "promoted_at_utc": "2026-07-18T19:07:00+00:00"
+      },
+      "checked": [
+        {
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "available": true
+        }
+      ],
+      "row_count": 176,
+      "missing": false
+    },
+    "speeches": {
+      "input_mode": "s3_csv_first_available",
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "bucket": "eirepolitic-data",
+      "region": "ca-central-1",
+      "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+      "resolution": {
+        "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+        "resolution_mode": "batch_pointer",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "batch_id": "current-government-backfill-20260716-1",
+        "manifest_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/manifest.json",
+        "promoted_at_utc": "2026-07-18T19:07:00+00:00"
+      },
+      "checked": [
+        {
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/current-government-backfill-20260716-1/compat/debates/debate_speeches_classified_compat.csv",
+          "available": true
+        }
+      ],
+      "row_count": 47275,
+      "missing": false
+    }
+  },
+  "join_manifest": {
+    "member_name_field": "full_name",
+    "constituency_field": "constituency",
+    "speaker_field": "Speaker Name",
+    "issue_field": "PoliticalIssues",
+    "member_rows": 176,
+    "speech_rows": 47275,
+    "matched_speeches": 29233,
+    "unmatched_speeches": 107,
+    "ignored_empty_issue": 17935,
+    "constituency_count": 43
+  },
+  "expected_item_count": 43,
+  "succeeded_item_count": 43,
+  "failed_item_count": 0,
+  "item_order": [
+    "carlow-kilkenny",
+    "cavan-monaghan",
+    "clare",
+    "cork-east",
+    "cork-north-central",
+    "cork-north-west",
+    "cork-south-central",
+    "cork-south-west",
+    "donegal",
+    "dublin-bay-north",
+    "dublin-bay-south",
+    "dublin-central",
+    "dublin-fingal-east",
+    "dublin-fingal-west",
+    "dublin-mid-west",
+    "dublin-north-west",
+    "dublin-rathdown",
+    "dublin-south-central",
+    "dublin-south-west",
+    "dublin-west",
+    "dun-laoghaire",
+    "galway-east",
+    "galway-west",
+    "kerry",
+    "kildare-north",
+    "kildare-south",
+    "laois",
+    "limerick-city",
+    "limerick-county",
+    "longford-westmeath",
+    "louth",
+    "mayo",
+    "meath-east",
+    "meath-west",
+    "offaly",
+    "roscommon-galway",
+    "sligo-leitrim",
+    "tipperary-north",
+    "tipperary-south",
+    "waterford",
+    "wexford",
+    "wicklow",
+    "wicklow-wexford"
+  ],
+  "items": {
+    "carlow-kilkenny": {
+      "status": "succeeded",
+      "label": "Carlow-Kilkenny",
+      "manifest": "generated/carlow-kilkenny/item_manifest.json"
+    },
+    "cavan-monaghan": {
+      "status": "succeeded",
+      "label": "Cavan-Monaghan",
+      "manifest": "generated/cavan-monaghan/item_manifest.json"
+    },
+    "clare": {
+      "status": "succeeded",
+      "label": "Clare",
+      "manifest": "generated/clare/item_manifest.json"
+    },
+    "cork-east": {
+      "status": "succeeded",
+      "label": "Cork East",
+      "manifest": "generated/cork-east/item_manifest.json"
+    },
+    "cork-north-central": {
+      "status": "succeeded",
+      "label": "Cork North-Central",
+      "manifest": "generated/cork-north-central/item_manifest.json"
+    },
+    "cork-north-west": {
+      "status": "succeeded",
+      "label": "Cork North-West",
+      "manifest": "generated/cork-north-west/item_manifest.json"
+    },
+    "cork-south-central": {
+      "status": "succeeded",
+      "label": "Cork South-Central",
+      "manifest": "generated/cork-south-central/item_manifest.json"
+    },
+    "cork-south-west": {
+      "status": "succeeded",
+      "label": "Cork South-West",
+      "manifest": "generated/cork-south-west/item_manifest.json"
+    },
+    "donegal": {
+      "status": "succeeded",
+      "label": "Donegal",
+      "manifest": "generated/donegal/item_manifest.json"
+    },
+    "dublin-bay-north": {
+      "status": "succeeded",
+      "label": "Dublin Bay North",
+      "manifest": "generated/dublin-bay-north/item_manifest.json"
+    },
+    "dublin-bay-south": {
+      "status": "succeeded",
+      "label": "Dublin Bay South",
+      "manifest": "generated/dublin-bay-south/item_manifest.json"
+    },
+    "dublin-central": {
+      "status": "succeeded",
+      "label": "Dublin Central",
+      "manifest": "generated/dublin-central/item_manifest.json"
+    },
+    "dublin-fingal-east": {
+      "status": "succeeded",
+      "label": "Dublin Fingal East",
+      "manifest": "generated/dublin-fingal-east/item_manifest.json"
+    },
+    "dublin-fingal-west": {
+      "status": "succeeded",
+      "label": "Dublin Fingal West",
+      "manifest": "generated/dublin-fingal-west/item_manifest.json"
+    },
+    "dublin-mid-west": {
+      "status": "succeeded",
+      "label": "Dublin Mid-West",
+      "manifest": "generated/dublin-mid-west/item_manifest.json"
+    },
+    "dublin-north-west": {
+      "status": "succeeded",
+      "label": "Dublin North-West",
+      "manifest": "generated/dublin-north-west/item_manifest.json"
+    },
+    "dublin-rathdown": {
+      "status": "succeeded",
+      "label": "Dublin Rathdown",
+      "manifest": "generated/dublin-rathdown/item_manifest.json"
+    },
+    "dublin-south-central": {
+      "status": "succeeded",
+      "label": "Dublin South-Central",
+      "manifest": "generated/dublin-south-central/item_manifest.json"
+    },
+    "dublin-south-west": {
+      "status": "succeeded",
+      "label": "Dublin South-West",
+      "manifest": "generated/dublin-south-west/item_manifest.json"
+    },
+    "dublin-west": {
+      "status": "succeeded",
+      "label": "Dublin West",
+      "manifest": "generated/dublin-west/item_manifest.json"
+    },
+    "dun-laoghaire": {
+      "status": "succeeded",
+      "label": "Dún Laoghaire",
+      "manifest": "generated/dun-laoghaire/item_manifest.json"
+    },
+    "galway-east": {
+      "status": "succeeded",
+      "label": "Galway East",
+      "manifest": "generated/galway-east/item_manifest.json"
+    },
+    "galway-west": {
+      "status": "succeeded",
+      "label": "Galway West",
+      "manifest": "generated/galway-west/item_manifest.json"
+    },
+    "kerry": {
+      "status": "succeeded",
+      "label": "Kerry",
+      "manifest": "generated/kerry/item_manifest.json"
+    },
+    "kildare-north": {
+      "status": "succeeded",
+      "label": "Kildare North",
+      "manifest": "generated/kildare-north/item_manifest.json"
+    },
+    "kildare-south": {
+      "status": "succeeded",
+      "label": "Kildare South",
+      "manifest": "generated/kildare-south/item_manifest.json"
+    },
+    "laois": {
+      "status": "succeeded",
+      "label": "Laois",
+      "manifest": "generated/laois/item_manifest.json"
+    },
+    "limerick-city": {
+      "status": "succeeded",
+      "label": "Limerick City",
+      "manifest": "generated/limerick-city/item_manifest.json"
+    },
+    "limerick-county": {
+      "status": "succeeded",
+      "label": "Limerick County",
+      "manifest": "generated/limerick-county/item_manifest.json"
+    },
+    "longford-westmeath": {
+      "status": "succeeded",
+      "label": "Longford-Westmeath",
+      "manifest": "generated/longford-westmeath/item_manifest.json"
+    },
+    "louth": {
+      "status": "succeeded",
+      "label": "Louth",
+      "manifest": "generated/louth/item_manifest.json"
+    },
+    "mayo": {
+      "status": "succeeded",
+      "label": "Mayo",
+      "manifest": "generated/mayo/item_manifest.json"
+    },
+    "meath-east": {
+      "status": "succeeded",
+      "label": "Meath East",
+      "manifest": "generated/meath-east/item_manifest.json"
+    },
+    "meath-west": {
+      "status": "succeeded",
+      "label": "Meath West",
+      "manifest": "generated/meath-west/item_manifest.json"
+    },
+    "offaly": {
+      "status": "succeeded",
+      "label": "Offaly",
+      "manifest": "generated/offaly/item_manifest.json"
+    },
+    "roscommon-galway": {
+      "status": "succeeded",
+      "label": "Roscommon-Galway",
+      "manifest": "generated/roscommon-galway/item_manifest.json"
+    },
+    "sligo-leitrim": {
+      "status": "succeeded",
+      "label": "Sligo-Leitrim",
+      "manifest": "generated/sligo-leitrim/item_manifest.json"
+    },
+    "tipperary-north": {
+      "status": "succeeded",
+      "label": "Tipperary North",
+      "manifest": "generated/tipperary-north/item_manifest.json"
+    },
+    "tipperary-south": {
+      "status": "succeeded",
+      "label": "Tipperary South",
+      "manifest": "generated/tipperary-south/item_manifest.json"
+    },
+    "waterford": {
+      "status": "succeeded",
+      "label": "Waterford",
+      "manifest": "generated/waterford/item_manifest.json"
+    },
+    "wexford": {
+      "status": "succeeded",
+      "label": "Wexford",
+      "manifest": "generated/wexford/item_manifest.json"
+    },
+    "wicklow": {
+      "status": "succeeded",
+      "label": "Wicklow",
+      "manifest": "generated/wicklow/item_manifest.json"
+    },
+    "wicklow-wexford": {
+      "status": "succeeded",
+      "label": "Wicklow-Wexford",
+      "manifest": "generated/wicklow-wexford/item_manifest.json"
+    }
+  },
+  "failures": [],
+  "review_sample": "review/batch_sample_issue_profiles.png",
+  "warnings": [
+    "granularity.source_metric constituency_issue_counts remains draft",
+    "slides[1].post_type_id title_text_media_v1 remains draft",
+    "slides[2].post_type_id title_text_media_v1 remains draft",
+    "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+    "slides[2].visual metric constituency_issue_counts remains draft"
+  ]
+}
