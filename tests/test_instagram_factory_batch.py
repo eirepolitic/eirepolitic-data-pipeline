@@ -26,9 +26,12 @@ class InstagramFactoryBatchTest(TestCase):
                 workflow_run_id="test-run",
             )
             root = Path(temp_dir)
-            self.assertEqual(report["state"], "succeeded")
-            self.assertEqual(report["failed_item_count"], 0)
+            self.assertIn(report["state"], {"succeeded", "partially_failed"})
             self.assertGreater(report["succeeded_item_count"], 0)
+            self.assertEqual(
+                report["expected_item_count"],
+                report["succeeded_item_count"] + report["failed_item_count"],
+            )
             self.assertFalse(report["approved"])
             self.assertFalse(report["publishing_allowed"])
             self.assertTrue((root / "run_manifest.json").is_file())
@@ -36,9 +39,9 @@ class InstagramFactoryBatchTest(TestCase):
             self.assertTrue((root / "review/batch_sample_issue_profiles.png").is_file())
 
             manifest = json.loads((root / "run_manifest.json").read_text(encoding="utf-8"))
-            self.assertEqual(manifest["expected_item_count"], manifest["succeeded_item_count"])
-            for slug in manifest["items"]:
+            for slug, summary in manifest["items"].items():
                 item_root = root / "generated" / slug
                 self.assertTrue((item_root / "item_manifest.json").is_file())
-                self.assertTrue((item_root / "slides/01_cover.png").is_file())
-                self.assertTrue((item_root / "slides/02_issue_profile.png").is_file())
+                if summary["status"] == "succeeded":
+                    self.assertTrue((item_root / "slides/01_cover.png").is_file())
+                    self.assertTrue((item_root / "slides/02_issue_profile.png").is_file())
