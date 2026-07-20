@@ -29,25 +29,42 @@ Implemented review-state management and targeted regeneration:
 
 - item-level and slide-level review transitions
 - statuses: `unreviewed`, `approved`, `changes_requested`, and `rejected`
-- append-only review history with reviewer, timestamp, note, item, slide, and status
-- overall review-state calculation
-- publishing remains disabled regardless of review state
-- derived-run creation preserving the complete source run
+- append-only review history
+- derived-run creation preserving the source run
 - selective constituency and slide regeneration
-- unaffected files copied byte-for-byte into the derived run
-- regenerated slide hashes and provenance recorded
-- parent-run linkage and regeneration reason recorded
+- unaffected files copied byte-for-byte
+- regenerated slide hashes and provenance
 - manual S3 workflow for review updates and selective regeneration
-- no mutation of the source run during regeneration
 
 Validation evidence:
 
-- Phase 4 validation workflow: `29711566533`
-- catalogue validation: passed
-- project validation: passed
-- Phase 1–4 unit tests: passed
-- regression test confirms an unaffected cover-slide hash remains unchanged when only the issue-profile slide is regenerated
+- Phase 4 workflow: `29711566533`
+- Phase 1–4 tests passed
+
+## Phase 5 — 2026-07-20
+
+Implemented recurring-generation readiness controls:
+
+- production source resolution through the active unified-data pointer
+- source, join, and constituency-count readiness checks
+- duplicate production-batch prevention using the project `latest.json`
+- `check-readiness` CLI command
+- manual recurring draft workflow
+- clean no-op behavior when no new production batch is available
+- immutable draft generation only when readiness passes
+- automatic publishing, approval, and scheduling remain disabled
+
+Validation evidence:
+
+- Phase 1–5 validation workflow: `29711883200`
+- live source batch: `current-government-backfill-20260716-1`
+- member rows: 176
+- speech rows: 47,275
+- matched speeches: 29,233
+- constituencies: 43
+- readiness result: blocked as expected because the source batch had already been generated
+- no duplicate draft batch was created
 
 ## Current status
 
-Phases 1–4 are implemented for the constituency project. Review and regeneration operations are available, but no automatic publishing, scheduling, or approval is enabled. Generic multi-project orchestration remains future work.
+Phases 1–5 are implemented for the constituency project. Recurring generation is available manually and protected by data-readiness and duplicate-batch gates. No cron schedule, automatic approval, scheduling, or Instagram publishing is enabled. Generic multi-project orchestration remains future work.
