@@ -11,7 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from instagram.factory.catalogues import CatalogueValidationError, list_options, load_catalogues, validate_catalogues
-from instagram.factory.project import validate_project
+from instagram.factory.project import load_project, validate_project
 
 
 def _print(payload: Any) -> None:
@@ -61,8 +61,11 @@ def _render_tests(args: argparse.Namespace) -> int:
 
 @_guard
 def _generate_batch(args: argparse.Namespace) -> int:
-    from instagram.factory.constituency_batch import generate_constituency_batch, upload_batch_to_s3
-    report = generate_constituency_batch(
+    from instagram.factory.generic_batch import generate_project_batch
+    from instagram.factory.storage import upload_directory_to_s3
+
+    project = load_project(args.project)
+    report = generate_project_batch(
         args.project,
         data_source=args.data_source,
         output_root=args.output_root,
@@ -70,8 +73,11 @@ def _generate_batch(args: argparse.Namespace) -> int:
         workflow_run_id=args.workflow_run_id,
     )
     if args.s3_bucket:
-        s3_prefix = f"{args.s3_prefix.rstrip('/')}/runs/{report['run_id']}"
-        report["s3_upload"] = upload_batch_to_s3(report["output_root"], args.s3_bucket, s3_prefix)
+        base_prefix = args.s3_prefix or project.get("output", {}).get("s3_prefix")
+        if not base_prefix:
+            raise ValueError("No S3 prefix supplied and project.output.s3_prefix is missing")
+        s3_prefix = f"{str(base_prefix).rstrip('/')}/runs/{report['run_id']}"
+        report["s3_upload"] = upload_directory_to_s3(report["output_root"], args.s3_bucket, s3_prefix)
         report["s3_output_prefix"] = f"s3://{args.s3_bucket}/{s3_prefix}"
     _print(report)
     return 0 if report["state"] in {"succeeded", "succeeded_with_warnings"} else 1
@@ -113,6 +119,7 @@ def _regenerate(args: argparse.Namespace) -> int:
 def _check_readiness(args: argparse.Namespace) -> int:
     from instagram.factory.recurring import evaluate_readiness, load_latest_manifest
     report = evaluate_readiness(
+        args.project,
         data_source=args.data_source,
         latest_manifest=load_latest_manifest(args.latest_manifest),
     )
@@ -131,11 +138,7 @@ def _build_review_index(args: argparse.Namespace) -> int:
 @_guard
 def _mark_ready(args: argparse.Namespace) -> int:
     from instagram.factory.ready import mark_ready_for_posting
-    report = mark_ready_for_posting(
-        args.run_root,
-        reviewer=args.reviewer,
-        note=args.note,
-    )
+    report = mark_ready_for_posting(args.run_root, reviewer=args.reviewer, note=args.note)
     _print(report)
     return 0
 
@@ -168,7 +171,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--git-sha")
     p.add_argument("--workflow-run-id")
     p.add_argument("--s3-bucket")
-    p.add_argument("--s3-prefix", default="processed/instagram_factory/projects/constituency_issue_profile_v1")
+    p.add_argument("--s3-prefix")
     p.set_defaults(handler=_generate_batch)
 
     p = subparsers.add_parser("mark-review")
@@ -192,6 +195,7 @@ def parse_args() -> argparse.Namespace:
     p.set_defaults(handler=_regenerate)
 
     p = subparsers.add_parser("check-readiness")
+    p.add_argument("--project", required=True)
     p.add_argument("--data-source", choices=["local", "s3"], default="s3")
     p.add_argument("--latest-manifest")
     p.set_defaults(handler=_check_readiness)
