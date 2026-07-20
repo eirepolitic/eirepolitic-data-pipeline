@@ -6,6 +6,7 @@ scenarios:
   minimum:
     synthetic: true
     no_publication: true
+    review_purpose: automated layout and regression QA only
     selection:
       display_constituency: shortest constituency name
       result_constituency: smallest total classified-speech result set
@@ -13,6 +14,7 @@ scenarios:
   maximum:
     synthetic: true
     no_publication: true
+    review_purpose: automated layout and regression QA only
     selection:
       display_constituency: longest constituency name
       result_constituency: largest total classified-speech result set
@@ -20,6 +22,7 @@ scenarios:
   real_example:
     synthetic: false
     no_publication: true
+    review_purpose: human factual and visual approval candidate
     selection:
       constituency: median combined layout complexity
       issue_rows: top seven internally consistent issue counts
@@ -42,7 +45,9 @@ acceptance:
   - maximum display constituency is the longest available name
   - minimum results come from the smallest constituency result set
   - maximum results come from the largest constituency result set
+  - synthetic scenarios have no clipping, overflow, or missing provenance
+  - synthetic scenarios do not require aesthetic approval
   - real-example rows come from one constituency
   - source and join manifests are present
   - synthetic outputs are marked no_publication
-  - explicit human factual and visual approval remains required
+  - explicit human factual and visual approval remains required for the real example
