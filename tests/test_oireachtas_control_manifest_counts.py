@@ -66,18 +66,19 @@ class ControlManifestCountTests(unittest.TestCase):
                 "row_count": "old",
             },
         ]
+        s3_client = object()
 
         with patch(
             "extract.oireachtas.table_control_table_manifests._actual_candidate_counts",
             return_value={"row_count": 174, "csv_rows": 174, "parquet_rows": 174},
         ) as count_mock:
-            errors = _populate_actual_candidate_row_counts(object(), bucket="bucket", rows=rows)
+            errors = _populate_actual_candidate_row_counts(s3_client, bucket="bucket", rows=rows)
 
         self.assertEqual(errors, [])
         self.assertEqual(rows[0]["row_count"], "174")
         self.assertEqual(rows[1]["row_count"], "2")
         count_mock.assert_called_once_with(
-            object(),
+            s3_client,
             bucket="bucket",
             csv_key="members.csv",
             parquet_key="members.parquet",
