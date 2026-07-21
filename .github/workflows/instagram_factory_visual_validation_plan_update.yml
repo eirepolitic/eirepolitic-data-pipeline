@@ -1,0 +1,121 @@
+name: Update visual-specific validation plan
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-party-project
+    paths:
+      - ".github/workflows/instagram_factory_visual_validation_plan_update.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-party-project
+          fetch-depth: 0
+      - name: Update canonical plan
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("instagram/CONTENT_FACTORY_PLAN.md")
+          text = path.read_text(encoding="utf-8")
+
+          marker = "### 8.4 Acceptance criteria\n\nA project cannot move to batch generation until:\n\n- all test renders succeed\n- no text overflows\n- no clipped visual labels\n- no missing required data\n- all real-example facts are validated\n- warnings are reviewed\n- user explicitly approves the design\n"
+          addition = r'''
+
+### 8.5 Visual-specific stress validation profiles
+
+`minimum` and `maximum` are summary groups, not sufficient individual visual scenarios. Every visual type must declare a validation profile describing the data-shape extremes that can reveal rendering defects.
+
+The factory must validate three separate dimensions:
+
+1. **Layout stress** — title/body/footer length, optional fields, media fit, and complete-slide composition.
+2. **Visual-shape stress** — item count, label length, value range/distribution, ties, gaps, overlaps, and visual-specific edge cases.
+3. **Factual real example** — one internally consistent production-data example with source references.
+
+Synthetic stress cases are permitted when real data does not contain the required extreme. Every synthetic case must record `synthetic: true` and `no_publication: true`.
+
+Common scenario vocabulary:
+
+- `item_count_min`
+- `item_count_max`
+- `labels_short`
+- `labels_long`
+- `values_small`
+- `values_large`
+- `values_tight`
+- `values_wide`
+- `single_outlier`
+- `all_equal`
+- `ties`
+- `zeros`
+- `negatives`
+- `missing_values`
+- `real_example`
+
+Required profiles by visual type:
+
+| Visual type | Required stress scenarios |
+|---|---|
+| Horizontal bar | item-count min/max, short/long labels, small/large values, tight values, wide values, single outlier, all equal, ties, zeros when supported, real example |
+| Vertical bar | item-count min/max, short/long x labels, tight values, wide values, single outlier, all equal, ties, zeros, negative baseline when supported, real example |
+| Line chart | point-count min/max, flat series, tightly clustered values, steep change, single spike, monotonic rise/fall, gaps/missing points, multiple overlapping series, crossing series, real example |
+| Area chart | point-count min/max, flat series, tight/wide ranges, dominant spike, multiple overlapping/stacked series where supported, gaps, zero baseline, real example |
+| Stacked bar | category-count min/max, segment-count min/max, equal composition, dominant segment, tiny segments, missing segments, zero segments, totals with tight/wide ranges, real example |
+| Ranking table | row-count min/max, long labels, long detail text, ties, large rank/value digits, missing optional details, equal values, real example |
+| Donut chart | category-count min/max, equal slices, dominant slice, tiny slices, zero slice handling, near-100/0 split, long legend labels, real example |
+| Scatter plot | point-count min/max, overlapping points, tightly clustered points, wide x/y ranges, single outlier, identical x or y values, negative quadrants, long labels, multiple groups, real example |
+| Dot plot | item-count min/max, long labels, tight/wide ranges, ties, all equal, outlier, zeros/negatives when supported, real example |
+| Lollipop chart | item-count min/max, long labels, tight/wide ranges, ties, all equal, outlier, zeros/negatives when supported, real example |
+| Slope chart | item-count min/max, no change, small changes, large changes, many crossings, equal endpoints, reversals, long labels, real example |
+| Table card | row-count min/max, long labels, long values/details, missing optional details, large numeric/text values, mixed field lengths, real example |
+| Small multiples | panel-count min/max, point-count min/max per panel, identical panels, widely different panel ranges, empty/sparse panel, long panel labels, real example |
+| Point map | point-count min/max, overlapping coordinates, tight cluster, widely dispersed points, edge-of-bounds points, missing labels, small/large marker values, real example |
+| Choropleth map | geography-count min/max, equal values, tight/wide ranges, dominant region, missing geography joins, zero/no-data regions, boundary labels where used, real example |
+| Tile map | tile-count min/max, equal values, tight/wide ranges, dominant tile, missing/no-data tiles, long labels, real example |
+| Sourced image asset | minimum/maximum supported image dimensions, portrait/landscape/square aspect ratios, crop/contain behavior, missing attribution/licence fields, unreadable source text, unavailable asset fallback, real licensed example |
+
+Each profile should later be stored in the visual catalogue under a validated `validation_profile` block. The scenario generator must build only the scenarios required by the selected visual type and must fail when a required stress scenario cannot be produced or explicitly waived with a recorded reason.
+
+Recommended output structure:
+
+```text
+validation/
+  layout/
+  item_count/
+  value_distribution/
+  labels/
+  visual_specific/
+  real/
+```
+'''
+          if "### 8.5 Visual-specific stress validation profiles" not in text:
+              if marker not in text:
+                  raise SystemExit("Acceptance criteria marker not found")
+              text = text.replace(marker, marker + addition, 1)
+
+          todo_marker = "## 18. Immediate next development tasks\n\nThe generic factory core is implemented and validated. Constituency remains the first production adapter/project only.\n\nRecommended next tasks:\n\n"
+          todo_item = "1. Implement visual-specific validation profiles in `instagram/catalogues/visual_types.yml`, then replace the current single minimum/maximum scenario model with the required scenario matrix for each selected visual.\n"
+          if todo_item not in text:
+              if todo_marker not in text:
+                  raise SystemExit("Immediate tasks marker not found")
+              text = text.replace(todo_marker, todo_marker + todo_item, 1)
+              for number in range(6, 0, -1):
+                  text = text.replace(f"\n{number}. ", f"\n{number + 1}. ", 1)
+              text = text.replace("\n2. Implement visual-specific", "\n1. Implement visual-specific", 1)
+
+          path.write_text(text, encoding="utf-8")
+      - name: Commit plan update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/CONTENT_FACTORY_PLAN.md
+          git commit -m "docs(instagram): define visual-specific validation profiles" || true
+          git push origin HEAD:feature/instagram-content-factory-party-project
