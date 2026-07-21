@@ -52,7 +52,7 @@ jobs:
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
-          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          CRON_VALUE: ${{ github.event.schedule }}
           INPUT_REFRESH_TYPE: ${{ inputs.refresh_type }}
           INPUT_PUBLISH_CANDIDATE: ${{ inputs.publish_candidate }}
           INPUT_RUN_CONSUMERS: ${{ inputs.run_consumers }}
@@ -60,11 +60,11 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${EVENT_NAME}" == 'schedule' ]]; then
-            case "${EVENT_SCHEDULE}" in
+            case "${CRON_VALUE}" in
               '45 6 * * 0') refresh_type='weekly' ;;
               '15 7 1 * *') refresh_type='monthly' ;;
               '30 7 2 1 *') refresh_type='yearly' ;;
-              *) echo "Unknown schedule: ${EVENT_SCHEDULE}" >&2; exit 2 ;;
+              *) echo "Unknown schedule: ${CRON_VALUE}" >&2; exit 2 ;;
             esac
             publish_candidate='true'
             run_consumers='true'
