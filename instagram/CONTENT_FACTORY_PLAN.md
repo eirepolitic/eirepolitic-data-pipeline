@@ -757,7 +757,9 @@ The factory must validate three separate dimensions:
 2. **Visual-shape stress** — item count, label length, value range/distribution, ties, gaps, overlaps, and visual-specific edge cases.
 3. **Factual real example** — one internally consistent production-data example with source references.
 
-Synthetic stress cases are permitted when real data does not contain the required extreme. Every synthetic case must record `synthetic: true` and `no_publication: true`.
+Validation is real-data-first. For each required scenario, the factory must search in this order: current production data, available historical production data, then a narrowly scoped synthetic contract-edge case. Synthetic data is allowed only when the project is recurring or the metric/data contract permits a credible edge condition that has not yet appeared in real data. Convenience alone is not a valid reason.
+
+Every synthetic case must be separated from factual review and record `data_origin: synthetic_contract_edge`, `synthetic: true`, `no_publication: true`, and a specific `synthetic_reason`. A scenario that is impossible or irrelevant for the selected metric should be explicitly waived with a recorded reason instead of fabricated.
 
 Common scenario vocabulary:
 
