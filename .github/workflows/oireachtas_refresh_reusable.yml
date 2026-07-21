@@ -14,6 +14,7 @@ on:
       sample_rows: {required: false, type: string, default: "10"}
       batch_id: {required: true, type: string}
       publish_candidate: {required: false, type: boolean, default: false}
+      seed_from_production: {required: false, type: boolean, default: false}
     outputs:
       batch_id: {value: "${{ jobs.refresh.outputs.batch_id }}"}
       tables: {value: "${{ jobs.refresh.outputs.tables }}"}
@@ -60,6 +61,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [[ '${{ inputs.seed_from_production }}' == 'true' && '${{ inputs.publish_candidate }}' != 'true' ]]; then
+            echo 'seed_from_production requires publish_candidate=true' >&2
+            exit 2
+          fi
           python process/oireachtas_refresh_inputs.py \
             --refresh-type '${{ inputs.refresh_type }}' \
             --mode '${{ inputs.mode }}' \
@@ -77,6 +82,17 @@ jobs:
         run: |
           set -euo pipefail
           [[ "${OIREACHTAS_BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]
+      - name: Seed complete candidate from production
+        if: inputs.seed_from_production
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false \
+            python process/oireachtas_seed_candidate.py \
+              --batch-id "${OIREACHTAS_BATCH_ID}" \
+              --bucket "${S3_BUCKET}" \
+              --region "${AWS_REGION}" \
+              | tee oireachtas_seed_candidate.json
       - name: Build refresh table set
         shell: bash
         env:
@@ -146,7 +162,8 @@ jobs:
             echo "- Refresh type: `${{ inputs.refresh_type }}`"
             echo "- Batch ID: `${OIREACHTAS_BATCH_ID}`"
             echo "- Candidate publishing: `${{ inputs.publish_candidate }}`"
-            echo "- Tables: `${{ steps.inputs.outputs.table_count || 'unknown' }}`"
+            echo "- Seeded from production: `${{ inputs.seed_from_production }}`"
+            echo "- Tables refreshed: `${{ steps.inputs.outputs.table_count || 'unknown' }}`"
             echo
             echo '```text'
             [[ -f oireachtas_refresh.log ]] && tail -n 120 oireachtas_refresh.log || echo 'No refresh log.'
@@ -159,6 +176,7 @@ jobs:
           name: oireachtas-${{ inputs.refresh_type }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             oireachtas_review_output/**
+            oireachtas_seed_candidate.json
             oireachtas_refresh.log
             oireachtas_refresh_inputs.json
             oireachtas_batch_manifest.json
