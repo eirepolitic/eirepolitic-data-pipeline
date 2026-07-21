@@ -5,9 +5,9 @@ on:
     branches:
       - fix/oireachtas-automatic-updates
     paths:
-      - tests/test_oireachtas_seed_candidate.py
-      - process/oireachtas_seed_candidate.py
-      - .github/workflows/oireachtas_auto_updates_debug.yml
+      - tests/test_oireachtas_*.py
+      - process/oireachtas_*.py
+      - .github/workflows/oireachtas_*.yml
 
 permissions:
   contents: write
@@ -27,11 +27,11 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Run focused test and record output
+      - name: Run full Oireachtas suite and record output
         shell: bash
         run: |
           set +e
-          python -m unittest tests.test_oireachtas_seed_candidate -v > automatic-update-test.log 2>&1
+          python -m unittest discover -s tests -p 'test_oireachtas_*.py' -v > automatic-update-test.log 2>&1
           status=$?
           cat automatic-update-test.log
           git config user.name 'github-actions[bot]'
