@@ -67,11 +67,18 @@ def render_project_tests(
             "scenario": scenario_name,
             "adapter_id": adapter.adapter_id,
             "grain": project["granularity"]["grain"],
+            "data_origin": str(context.get("data_origin", "unknown")),
+            "selection_reason": context.get("selection_reason"),
+            "source_item_key": context.get("source_item_key"),
+            "source_item_label": context.get("source_item_label"),
             "synthetic": bool(context.get("synthetic", False)),
+            "synthetic_reason": context.get("synthetic_reason"),
             "no_publication": True,
             "slides": rendered,
             "visual_manifest": asset_result.get("visual_manifest"),
         }
+        if scenario_manifest["synthetic"] and not scenario_manifest["synthetic_reason"]:
+            raise ValueError(f"Synthetic scenario '{scenario_name}' is missing a documented synthetic_reason")
         write_json(scenario_dir / "scenario_manifest.json", scenario_manifest)
         scenario_manifests[scenario_name] = scenario_manifest
 
