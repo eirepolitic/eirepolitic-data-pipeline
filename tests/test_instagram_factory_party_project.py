@@ -20,7 +20,16 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertEqual(scenarios["grain"], "party")
             self.assertEqual(scenarios["adapter_id"], "party_issue_profile_v1")
             self.assertEqual(set(scenarios["scenario_manifests"]), {"minimum", "maximum", "real_example"})
+            for manifest in scenarios["scenario_manifests"].values():
+                self.assertEqual(manifest["data_origin"], "current_real")
+                self.assertFalse(manifest["synthetic"])
+                self.assertTrue(manifest["selection_reason"])
+                self.assertTrue(manifest["source_item_key"])
             self.assertFalse(scenarios["publishing_allowed"])
+
+            minimum = scenarios["scenario_manifests"]["minimum"]
+            maximum = scenarios["scenario_manifests"]["maximum"]
+            self.assertNotEqual(minimum["selection_reason"], maximum["selection_reason"])
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
             self.assertEqual(batch["grain"], "party")
