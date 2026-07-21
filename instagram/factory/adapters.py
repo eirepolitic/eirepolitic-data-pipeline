@@ -6,18 +6,17 @@ from typing import Any, Callable
 
 from .constituency_pilot import (
     build_constituency_records,
-    build_scenarios,
     load_source_rows,
     render_visual,
     write_cover_asset,
 )
 from .party_adapter import (
     build_party_context,
-    build_party_scenarios,
     load_party_records,
     party_media_for_slide,
     render_party_assets,
 )
+from .validation_scenarios import select_real_category_value_scenarios
 
 
 @dataclass(frozen=True)
@@ -59,7 +58,12 @@ def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> di
 
 
 def _constituency_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return build_scenarios(records)
+    return select_real_category_value_scenarios(
+        records,
+        key_field="constituency_key",
+        label_field="constituency",
+        max_items=7,
+    )
 
 
 def _constituency_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
@@ -83,6 +87,15 @@ def _constituency_media(slide: dict[str, Any], assets: dict[str, Path]) -> Path:
     return assets["visual"] if slide.get("visual") else assets["cover"]
 
 
+def _party_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return select_real_category_value_scenarios(
+        records,
+        key_field="party_key",
+        label_field="party",
+        max_items=7,
+    )
+
+
 ADAPTERS: dict[str, FactoryAdapter] = {
     "constituency_issue_profile_v1": FactoryAdapter(
         adapter_id="constituency_issue_profile_v1",
@@ -96,7 +109,7 @@ ADAPTERS: dict[str, FactoryAdapter] = {
         adapter_id="party_issue_profile_v1",
         load_records=load_party_records,
         build_context=build_party_context,
-        build_scenarios=build_party_scenarios,
+        build_scenarios=_party_scenarios,
         render_assets=render_party_assets,
         media_for_slide=party_media_for_slide,
     ),
