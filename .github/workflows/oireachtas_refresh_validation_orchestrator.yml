@@ -64,7 +64,7 @@ jobs:
               '45 6 * * 0') refresh_type='weekly' ;;
               '15 7 1 * *') refresh_type='monthly' ;;
               '30 7 2 1 *') refresh_type='yearly' ;;
-              *) echo "Unknown schedule: ${CRON_VALUE}" >&2; exit 2 ;;
+              *) echo "Unknown cron value ${CRON_VALUE}" >&2; exit 2 ;;
             esac
             publish_candidate='true'
             run_consumers='true'
