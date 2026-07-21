@@ -4,23 +4,30 @@ on:
   workflow_dispatch:
     inputs:
       refresh_type:
-        description: Optional refresh before validation
+        description: Refresh type
         required: true
-        default: none
+        default: weekly
         type: choice
-        options: [none, weekly, monthly, yearly]
+        options: [weekly, monthly, yearly]
       publish_candidate:
         description: Write an immutable candidate batch
         required: true
-        default: false
+        default: true
         type: boolean
       run_consumers:
-        description: Reserved for downstream consumer validation
+        description: Run downstream consumer validation
+        required: true
+        default: true
+        type: boolean
+      auto_promote:
+        description: Promote only after all validation succeeds
         required: true
         default: false
         type: boolean
   schedule:
     - cron: '45 6 * * 0'
+    - cron: '15 7 1 * *'
+    - cron: '30 7 2 1 *'
 
 permissions:
   contents: read
@@ -37,6 +44,7 @@ jobs:
       refresh_type: ${{ steps.values.outputs.refresh_type }}
       publish_candidate: ${{ steps.values.outputs.publish_candidate }}
       run_consumers: ${{ steps.values.outputs.run_consumers }}
+      auto_promote: ${{ steps.values.outputs.auto_promote }}
       batch_id: ${{ steps.values.outputs.batch_id }}
     steps:
       - name: Resolve orchestration inputs
@@ -44,38 +52,52 @@ jobs:
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
+          CRON_VALUE: ${{ github.event.schedule }}
           INPUT_REFRESH_TYPE: ${{ inputs.refresh_type }}
           INPUT_PUBLISH_CANDIDATE: ${{ inputs.publish_candidate }}
           INPUT_RUN_CONSUMERS: ${{ inputs.run_consumers }}
+          INPUT_AUTO_PROMOTE: ${{ inputs.auto_promote }}
         run: |
           set -euo pipefail
           if [[ "${EVENT_NAME}" == 'schedule' ]]; then
-            refresh_type='weekly'
-            publish_candidate='false'
-            run_consumers='false'
+            case "${CRON_VALUE}" in
+              '45 6 * * 0') refresh_type='weekly' ;;
+              '15 7 1 * *') refresh_type='monthly' ;;
+              '30 7 2 1 *') refresh_type='yearly' ;;
+              *) echo "Unknown cron value ${CRON_VALUE}" >&2; exit 2 ;;
+            esac
+            publish_candidate='true'
+            run_consumers='true'
+            auto_promote='true'
           else
-            refresh_type="${INPUT_REFRESH_TYPE:-none}"
-            publish_candidate="${INPUT_PUBLISH_CANDIDATE:-false}"
-            run_consumers="${INPUT_RUN_CONSUMERS:-false}"
+            refresh_type="${INPUT_REFRESH_TYPE:-weekly}"
+            publish_candidate="${INPUT_PUBLISH_CANDIDATE:-true}"
+            run_consumers="${INPUT_RUN_CONSUMERS:-true}"
+            auto_promote="${INPUT_AUTO_PROMOTE:-false}"
           fi
-          case "${refresh_type}" in none|weekly|monthly|yearly) ;; *) echo 'Invalid refresh type' >&2; exit 2 ;; esac
-          batch_id="orchestrator-${refresh_type}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          case "${refresh_type}" in weekly|monthly|yearly) ;; *) echo 'Invalid refresh type' >&2; exit 2 ;; esac
+          if [[ "${auto_promote}" == 'true' && "${publish_candidate}" != 'true' ]]; then
+            echo 'auto_promote requires publish_candidate=true' >&2
+            exit 2
+          fi
+          batch_id="scheduled-${refresh_type}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           echo "refresh_type=${refresh_type}" >> "${GITHUB_OUTPUT}"
           echo "publish_candidate=${publish_candidate}" >> "${GITHUB_OUTPUT}"
           echo "run_consumers=${run_consumers}" >> "${GITHUB_OUTPUT}"
+          echo "auto_promote=${auto_promote}" >> "${GITHUB_OUTPUT}"
           echo "batch_id=${batch_id}" >> "${GITHUB_OUTPUT}"
           {
             echo '## Oireachtas orchestration plan'
             echo
             echo "- Refresh type: `${refresh_type}`"
             echo "- Batch ID: `${batch_id}`"
-            echo "- Candidate publishing: `${publish_candidate}`"
-            echo "- Consumer validation requested: `${run_consumers}`"
+            echo "- Complete candidate: `${publish_candidate}`"
+            echo "- Consumer validation: `${run_consumers}`"
+            echo "- Automatic promotion: `${auto_promote}`"
           } >> "${GITHUB_STEP_SUMMARY}"
 
   refresh:
     needs: prepare
-    if: needs.prepare.outputs.refresh_type != 'none'
     uses: ./.github/workflows/oireachtas_refresh_reusable.yml
     with:
       refresh_type: ${{ needs.prepare.outputs.refresh_type }}
@@ -89,21 +111,97 @@ jobs:
       sample_rows: "10"
       batch_id: ${{ needs.prepare.outputs.batch_id }}
       publish_candidate: ${{ needs.prepare.outputs.publish_candidate == 'true' }}
+      seed_from_production: ${{ needs.prepare.outputs.publish_candidate == 'true' }}
     secrets: inherit
 
   validation:
     needs: [prepare, refresh]
-    if: always() && needs.prepare.result == 'success' && (needs.refresh.result == 'success' || needs.refresh.result == 'skipped')
+    if: needs.refresh.result == 'success'
     uses: ./.github/workflows/oireachtas_validation_reusable.yml
     with:
       batch_id: ${{ needs.prepare.outputs.batch_id }}
       run_consumers: ${{ needs.prepare.outputs.run_consumers == 'true' }}
     secrets: inherit
 
+  promote:
+    needs: [prepare, refresh, validation]
+    if: needs.prepare.outputs.auto_promote == 'true' && needs.refresh.result == 'success' && needs.validation.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      BATCH_ID: ${{ needs.prepare.outputs.batch_id }}
+      OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Capture pre-promotion pointers
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status \
+            | tee pre-promotion-status.json
+      - name: Promote validated candidate
+        id: promote
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" promote \
+            --batch-id "${BATCH_ID}" \
+            | tee promotion-result.json
+      - name: Verify production pointer
+        id: verify
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" status \
+            | tee post-promotion-status.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          status = json.loads(Path('post-promotion-status.json').read_text())
+          production = status.get('production') or {}
+          assert production.get('mode') == 'batch', production
+          assert production.get('batch_id') == os.environ['BATCH_ID'], production
+          PY
+      - name: Roll back after failed pointer verification
+        if: failure() && steps.promote.outcome == 'success'
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" --region "${AWS_REGION}" rollback-previous \
+            | tee automatic-rollback-result.json
+      - name: Upload promotion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-promotion-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            pre-promotion-status.json
+            promotion-result.json
+            post-promotion-status.json
+            automatic-rollback-result.json
+          if-no-files-found: warn
+          retention-days: 365
+
   summary:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [prepare, refresh, validation]
+    needs: [prepare, refresh, validation, promote]
     if: always()
     steps:
       - name: Write orchestration result
@@ -117,7 +215,11 @@ jobs:
             echo "- Prepare: `${{ needs.prepare.result }}`"
             echo "- Refresh: `${{ needs.refresh.result }}`"
             echo "- Validation: `${{ needs.validation.result }}`"
+            echo "- Promotion: `${{ needs.promote.result }}`"
           } >> "${GITHUB_STEP_SUMMARY}"
-          if [[ '${{ needs.prepare.result }}' != 'success' ]]; then exit 1; fi
-          if [[ '${{ needs.refresh.result }}' != 'success' && '${{ needs.refresh.result }}' != 'skipped' ]]; then exit 1; fi
-          if [[ '${{ needs.validation.result }}' != 'success' ]]; then exit 1; fi
+          [[ '${{ needs.prepare.result }}' == 'success' ]]
+          [[ '${{ needs.refresh.result }}' == 'success' ]]
+          [[ '${{ needs.validation.result }}' == 'success' ]]
+          if [[ '${{ needs.prepare.outputs.auto_promote }}' == 'true' ]]; then
+            [[ '${{ needs.promote.result }}' == 'success' ]]
+          fi
