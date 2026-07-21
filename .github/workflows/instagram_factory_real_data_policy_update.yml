@@ -20,8 +20,21 @@ jobs:
           ref: feature/instagram-content-factory-party-project
           fetch-depth: 0
       - name: Update plan
+        shell: bash
         run: |
-          python -c "from pathlib import Path; p=Path('instagram/CONTENT_FACTORY_PLAN.md'); t=p.read_text(); old='Synthetic stress cases are permitted when real data does not contain the required extreme. Every synthetic case must record `synthetic: true` and `no_publication: true`.'; new='Validation is real-data-first. For each required scenario, the factory must search in this order: current production data, available historical production data, then a narrowly scoped synthetic contract-edge case. Synthetic data is allowed only when the project is recurring or the metric/data contract permits a credible edge condition that has not yet appeared in real data. Convenience alone is not a valid reason.\n\nEvery synthetic case must be separated from factual review and record `data_origin: synthetic_contract_edge`, `synthetic: true`, `no_publication: true`, and a specific `synthetic_reason`. A scenario that is impossible or irrelevant for the selected metric should be explicitly waived with a recorded reason instead of fabricated.'; assert old in t; p.write_text(t.replace(old,new,1))"
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path("instagram/CONTENT_FACTORY_PLAN.md")
+          text = path.read_text(encoding="utf-8")
+          old = "Synthetic stress cases are permitted when real data does not contain the required extreme. Every synthetic case must record `synthetic: true` and `no_publication: true`."
+          new = """Validation is real-data-first. For each required scenario, the factory must search in this order: current production data, available historical production data, then a narrowly scoped synthetic contract-edge case. Synthetic data is allowed only when the project is recurring or the metric/data contract permits a credible edge condition that has not yet appeared in real data. Convenience alone is not a valid reason.
+
+          Every synthetic case must be separated from factual review and record `data_origin: synthetic_contract_edge`, `synthetic: true`, `no_publication: true`, and a specific `synthetic_reason`. A scenario that is impossible or irrelevant for the selected metric should be explicitly waived with a recorded reason instead of fabricated."""
+          if old not in text:
+              raise SystemExit("Policy marker not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
       - name: Commit update
         run: |
           git config user.name "github-actions[bot]"
