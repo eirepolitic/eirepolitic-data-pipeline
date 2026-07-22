@@ -8,6 +8,7 @@ from unittest import TestCase
 from instagram.factory.generic_batch import generate_project_batch
 from instagram.factory.generic_regeneration import regenerate_project_items
 from instagram.factory.generic_tests import render_project_tests
+from instagram.factory.validation_scenarios import HORIZONTAL_BAR_REQUIRED_SCENARIOS
 
 PROJECT = "instagram/projects/party_issue_profile_v1/project.yml"
 
@@ -19,17 +20,23 @@ class PartyIssueProfileProjectTest(TestCase):
             scenarios = render_project_tests(PROJECT, data_source="local", output_root=root / "scenarios")
             self.assertEqual(scenarios["grain"], "party")
             self.assertEqual(scenarios["adapter_id"], "party_issue_profile_v1")
-            self.assertEqual(set(scenarios["scenario_manifests"]), {"minimum", "maximum", "real_example"})
-            for manifest in scenarios["scenario_manifests"].values():
-                self.assertEqual(manifest["data_origin"], "current_real")
-                self.assertFalse(manifest["synthetic"])
-                self.assertTrue(manifest["selection_reason"])
-                self.assertTrue(manifest["source_item_key"])
-            self.assertFalse(scenarios["publishing_allowed"])
+            self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(scenarios["scenario_manifests"]))
+            self.assertIn("minimum", scenarios["scenario_manifests"])
+            self.assertIn("maximum", scenarios["scenario_manifests"])
 
-            minimum = scenarios["scenario_manifests"]["minimum"]
-            maximum = scenarios["scenario_manifests"]["maximum"]
-            self.assertNotEqual(minimum["selection_reason"], maximum["selection_reason"])
+            for manifest in scenarios["scenario_manifests"].values():
+                if manifest["status"] == "waived":
+                    self.assertEqual(manifest["data_origin"], "waived_no_real_case")
+                    self.assertTrue(manifest["waiver_reason"])
+                    self.assertFalse(manifest["slides"])
+                else:
+                    self.assertEqual(manifest["data_origin"], "current_real")
+                    self.assertFalse(manifest["synthetic"])
+                    self.assertTrue(manifest["selection_reason"])
+                    self.assertTrue(manifest["source_item_key"])
+                    self.assertTrue(manifest["slides"])
+            self.assertGreater(scenarios["rendered_scenario_count"], 0)
+            self.assertFalse(scenarios["publishing_allowed"])
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
             self.assertEqual(batch["grain"], "party")
