@@ -18,15 +18,35 @@ def _load_records(_: str):
 
 
 def _context(record, project):
-    return {**record, "display_label": record["scope_name"], "synthetic": False, "no_publication": True}
+    return {**record, "display_label": record["scope_name"], "no_publication": True}
 
 
 def _scenarios(records, project):
     row = records[0]
     return {
-        "minimum": {**row, "scenario": "minimum", "synthetic": True},
-        "maximum": {**row, "scenario": "maximum", "synthetic": True},
-        "real_example": {**row, "scenario": "real_example", "synthetic": False},
+        "minimum": {
+            **row,
+            "scenario": "minimum",
+            "synthetic": True,
+            "synthetic_reason": "Deterministic non-production fixture used to test the grain-agnostic orchestrator.",
+            "data_origin": "synthetic_contract_edge",
+        },
+        "maximum": {
+            **row,
+            "scenario": "maximum",
+            "synthetic": True,
+            "synthetic_reason": "Deterministic non-production fixture used to test the grain-agnostic orchestrator.",
+            "data_origin": "synthetic_contract_edge",
+        },
+        "real_example": {
+            **row,
+            "scenario": "real_example",
+            "synthetic": False,
+            "data_origin": "current_real",
+            "selection_reason": "Only available deterministic fixture record.",
+            "source_item_key": "ireland",
+            "source_item_label": "Ireland",
+        },
     }
 
 
@@ -114,3 +134,5 @@ class GenericFactoryCoreTest(TestCase):
             tests = render_project_tests(project, data_source="local", output_root=root / "scenarios")
             self.assertEqual(tests["grain"], "national")
             self.assertEqual(set(tests["scenario_manifests"]), {"minimum", "maximum", "real_example"})
+            self.assertEqual(tests["rendered_scenario_count"], 3)
+            self.assertEqual(tests["waived_scenario_count"], 0)
