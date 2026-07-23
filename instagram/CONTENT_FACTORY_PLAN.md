@@ -746,6 +746,75 @@ A project cannot move to batch generation until:
 - warnings are reviewed
 - user explicitly approves the design
 
+
+### 8.5 Visual-specific stress validation profiles
+
+`minimum` and `maximum` are summary groups, not sufficient individual visual scenarios. Every visual type must declare a validation profile describing the data-shape extremes that can reveal rendering defects.
+
+The factory must validate three separate dimensions:
+
+1. **Layout stress** — title/body/footer length, optional fields, media fit, and complete-slide composition.
+2. **Visual-shape stress** — item count, label length, value range/distribution, ties, gaps, overlaps, and visual-specific edge cases.
+3. **Factual real example** — one internally consistent production-data example with source references.
+
+Validation is real-data-first. For each required scenario, the factory must search in this order: current production data, available historical production data, then a narrowly scoped synthetic contract-edge case. Synthetic data is allowed only when the project is recurring or the metric/data contract permits a credible edge condition that has not yet appeared in real data. Convenience alone is not a valid reason.
+
+Every synthetic case must be separated from factual review and record `data_origin: synthetic_contract_edge`, `synthetic: true`, `no_publication: true`, and a specific `synthetic_reason`. A scenario that is impossible or irrelevant for the selected metric should be explicitly waived with a recorded reason instead of fabricated.
+
+Common scenario vocabulary:
+
+- `item_count_min`
+- `item_count_max`
+- `labels_short`
+- `labels_long`
+- `values_small`
+- `values_large`
+- `values_tight`
+- `values_wide`
+- `single_outlier`
+- `all_equal`
+- `ties`
+- `zeros`
+- `negatives`
+- `missing_values`
+- `real_example`
+
+Required profiles by visual type:
+
+| Visual type | Required stress scenarios |
+|---|---|
+| Horizontal bar | item-count min/max, short/long labels, small/large values, tight values, wide values, single outlier, all equal, ties, zeros when supported, real example |
+| Vertical bar | item-count min/max, short/long x labels, tight values, wide values, single outlier, all equal, ties, zeros, negative baseline when supported, real example |
+| Line chart | point-count min/max, flat series, tightly clustered values, steep change, single spike, monotonic rise/fall, gaps/missing points, multiple overlapping series, crossing series, real example |
+| Area chart | point-count min/max, flat series, tight/wide ranges, dominant spike, multiple overlapping/stacked series where supported, gaps, zero baseline, real example |
+| Stacked bar | category-count min/max, segment-count min/max, equal composition, dominant segment, tiny segments, missing segments, zero segments, totals with tight/wide ranges, real example |
+| Ranking table | row-count min/max, long labels, long detail text, ties, large rank/value digits, missing optional details, equal values, real example |
+| Donut chart | category-count min/max, equal slices, dominant slice, tiny slices, zero slice handling, near-100/0 split, long legend labels, real example |
+| Scatter plot | point-count min/max, overlapping points, tightly clustered points, wide x/y ranges, single outlier, identical x or y values, negative quadrants, long labels, multiple groups, real example |
+| Dot plot | item-count min/max, long labels, tight/wide ranges, ties, all equal, outlier, zeros/negatives when supported, real example |
+| Lollipop chart | item-count min/max, long labels, tight/wide ranges, ties, all equal, outlier, zeros/negatives when supported, real example |
+| Slope chart | item-count min/max, no change, small changes, large changes, many crossings, equal endpoints, reversals, long labels, real example |
+| Table card | row-count min/max, long labels, long values/details, missing optional details, large numeric/text values, mixed field lengths, real example |
+| Small multiples | panel-count min/max, point-count min/max per panel, identical panels, widely different panel ranges, empty/sparse panel, long panel labels, real example |
+| Point map | point-count min/max, overlapping coordinates, tight cluster, widely dispersed points, edge-of-bounds points, missing labels, small/large marker values, real example |
+| Choropleth map | geography-count min/max, equal values, tight/wide ranges, dominant region, missing geography joins, zero/no-data regions, boundary labels where used, real example |
+| Tile map | tile-count min/max, equal values, tight/wide ranges, dominant tile, missing/no-data tiles, long labels, real example |
+| Sourced image asset | minimum/maximum supported image dimensions, portrait/landscape/square aspect ratios, crop/contain behavior, missing attribution/licence fields, unreadable source text, unavailable asset fallback, real licensed example |
+
+Each profile should be stored in the visual catalogue under a validated `validation_profile` block. The scenario generator must build only the scenarios required by the selected visual type and must fail when a required stress scenario cannot be produced or explicitly waived with a recorded reason.
+
+Recommended output structure:
+
+```text
+validation/
+  layout/
+  item_count/
+  value_distribution/
+  labels/
+  visual_specific/
+  real/
+```
+
 ---
 
 ## 9. Batch generation design
@@ -1319,12 +1388,13 @@ The generic factory core is implemented and validated. Constituency remains the 
 
 Recommended next tasks:
 
-1. Build the next real production adapter and project for a different grain, preferably `member` or `party`, without changing the generic orchestrator.
-2. Move adapter registration from a hard-coded Python dictionary to a validated plugin/configuration mechanism.
-3. Generalize preview publication and direct review links for every project workflow.
-4. Expand the mapping layer with `average_by`, `percentage_by`, `distinct_count_by`, ranking, date-period, join, pivot, rolling-window, and normalized-metric operations.
-5. Add reviewer notification after a new draft run is generated.
-6. Improve the static review index only after the second production grain validates the generic review loop.
+1. Implement visual-specific validation profiles in `instagram/catalogues/visual_types.yml`, then replace the current single minimum/maximum scenario model with the required scenario matrix for each selected visual.
+2. Build the next real production adapter and project for a different grain, preferably `member` or `party`, without changing the generic orchestrator.
+3. Move adapter registration from a hard-coded Python dictionary to a validated plugin/configuration mechanism.
+4. Generalize preview publication and direct review links for every project workflow.
+5. Expand the mapping layer with `average_by`, `percentage_by`, `distinct_count_by`, ranking, date-period, join, pivot, rolling-window, and normalized-metric operations.
+6. Add reviewer notification after a new draft run is generated.
+7. Improve the static review index only after the second production grain validates the generic review loop.
 
 Do not enable automatic publishing, social scheduling, automatic approval, or automatic recurring cadence.
 
