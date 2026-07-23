@@ -11,6 +11,7 @@ from .adapters import get_adapter
 from .catalogues import REPO_ROOT, CatalogueSet, load_catalogues
 from .common import replace_tokens
 from .project import load_project, validate_project
+from .validation_contact_sheet import build_validation_contact_sheet
 
 
 def _required_scenarios(project: dict[str, Any], catalogues: CatalogueSet) -> list[str]:
@@ -127,6 +128,13 @@ def render_project_tests(
         scenario_manifests[scenario_name] = scenario_manifest
         rendered_count += 1
 
+    contact_sheet = build_validation_contact_sheet(
+        root=root,
+        project_id=str(project["project_id"]),
+        scenario_manifests=scenario_manifests,
+        scenario_order=required_scenarios,
+    )
+
     report = {
         "success": True,
         "project_id": project["project_id"],
@@ -140,6 +148,7 @@ def render_project_tests(
         "rendered_scenario_count": rendered_count,
         "waived_scenario_count": waived_count,
         "scenario_manifests": scenario_manifests,
+        "validation_contact_sheet": contact_sheet,
         "review_state": "needs_review",
         "approved": False,
         "publishing_allowed": False,
