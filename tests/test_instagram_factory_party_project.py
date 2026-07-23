@@ -5,6 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from PIL import Image
+
 from instagram.factory.generic_batch import generate_project_batch
 from instagram.factory.generic_regeneration import regenerate_project_items
 from instagram.factory.generic_tests import render_project_tests
@@ -37,6 +39,18 @@ class PartyIssueProfileProjectTest(TestCase):
                     self.assertTrue(manifest["slides"])
             self.assertGreater(scenarios["rendered_scenario_count"], 0)
             self.assertFalse(scenarios["publishing_allowed"])
+
+            sheet = scenarios["validation_contact_sheet"]
+            self.assertEqual(sheet["layout"], "large_readable_tiles")
+            self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
+            self.assertTrue(sheet["pages"])
+            for page in sheet["pages"]:
+                page_path = Path(scenarios["output_root"]) / page
+                self.assertTrue(page_path.is_file())
+                with Image.open(page_path) as image:
+                    self.assertEqual(image.width, 2800)
+                    self.assertGreater(image.height, 1000)
+            self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet_manifest.json").is_file())
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
             self.assertEqual(batch["grain"], "party")
