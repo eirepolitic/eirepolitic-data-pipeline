@@ -41,10 +41,15 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertFalse(scenarios["publishing_allowed"])
 
             sheet = scenarios["validation_contact_sheet"]
-            self.assertEqual(sheet["layout"], "large_readable_tiles")
+            self.assertEqual(sheet["layout"], "deduplicated_summary_plus_complete_audit")
             self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
-            self.assertTrue(sheet["pages"])
-            for page in sheet["pages"]:
+            self.assertTrue(sheet["summary"]["cover_shown_once"])
+            self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
+            self.assertLessEqual(sheet["summary"]["unique_visual_count"], scenarios["rendered_scenario_count"])
+            self.assertNotIn("minimum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
+            self.assertNotIn("maximum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
+
+            for page in sheet["summary"]["pages"] + sheet["audit"]["pages"]:
                 page_path = Path(scenarios["output_root"]) / page
                 self.assertTrue(page_path.is_file())
                 with Image.open(page_path) as image:
