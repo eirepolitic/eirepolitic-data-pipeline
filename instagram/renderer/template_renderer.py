@@ -1,47 +1,93 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import io
+import json
+import re
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
+import requests
+import yaml
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from .constants import DEFAULT_PALETTE, DEFAULT_PALETTES, FONT_MAP
+from .constants import FONT_CANDIDATES
+
+
+PALETTE_ROOT = Path("instagram/templates/palettes")
 
 
 @dataclass
 class RenderResult:
     output_path: Path
+    source_values_path: Path
+    manifest_path: Path
     warnings: list[str]
-    element_metrics: dict[str, dict[str, Any]] = field(default_factory=dict)
+    text_metrics: list[dict[str, Any]]
 
 
-def _resolve_color(value: str, palette: Mapping[str, str]) -> str:
-    if value.startswith("{palette.") and value.endswith("}"):
-        key = value[len("{palette.") : -1]
-        return palette.get(key, "#FFFFFF")
-    return value
+def load_json(path: str | Path) -> dict[str, Any]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def _font_path(alias: str) -> Path:
-    return FONT_MAP.get(alias, FONT_MAP["default_regular"])
+def load_yaml_or_json(path: str | Path) -> dict[str, Any]:
+    path = Path(path)
+    text = path.read_text(encoding="utf-8")
+    data = json.loads(text) if path.suffix.lower() == ".json" else yaml.safe_load(text)
+    if not isinstance(data, dict):
+        raise RuntimeError(f"Expected mapping in {path}")
+    return data
 
 
-def _load_font(alias: str, size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(str(_font_path(alias)), size=size)
+def load_palette(palette_id: str) -> dict[str, str]:
+    palette_path = PALETTE_ROOT / f"{palette_id}.json"
+    if not palette_path.exists():
+        raise FileNotFoundError(f"Missing palette: {palette_path}")
+    data = load_json(palette_path)
+    return dict(data.get("colors", {}))
 
 
-def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
-    words = text.split()
+def resolve_palette_value(value: Any, palette: Mapping[str, str]) -> Any:
+    if not isinstance(value, str):
+        return value
+
+    def replace(match: re.Match[str]) -> str:
+        key = match.group(1)
+        return palette.get(key, match.group(0))
+
+    return re.sub(r"\{palette\.([A-Za-z0-9_]+)\}", replace, value)
+
+
+def font_path(kind: str) -> str | None:
+    key = "bold" if kind in {"default_bold", "bold"} else "regular"
+    for path in FONT_CANDIDATES.get(key, []):
+        if Path(path).exists():
+            return path
+    return None
+
+
+def load_font(kind: str, size: int) -> ImageFont.ImageFont:
+    path = font_path(kind)
+    if path:
+        return ImageFont.truetype(path, size=size)
+    return ImageFont.load_default()
+
+
+def _font_size(font: ImageFont.ImageFont, fallback: int) -> int:
+    return int(getattr(font, "size", fallback))
+
+
+def text_lines(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int) -> list[str]:
+    words = str(text or "").split()
     if not words:
-        return [""]
+        return []
     lines: list[str] = []
     current = words[0]
     for word in words[1:]:
-        candidate = f"{current} {word}"
-        bbox = draw.textbbox((0, 0), candidate, font=font)
-        if bbox[2] - bbox[0] <= max_width:
-            current = candidate
+        probe = f"{current} {word}"
+        if draw.textbbox((0, 0), probe, font=font)[2] <= max_width:
+            current = probe
         else:
             lines.append(current)
             current = word
@@ -49,172 +95,307 @@ def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFon
     return lines
 
 
-def _draw_text(
-    canvas: Image.Image,
+def ellipsize_to_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int) -> str:
+    text = str(text or "")
+    if draw.textbbox((0, 0), text, font=font)[2] <= max_width:
+        return text
+    suffix = "…"
+    while text and draw.textbbox((0, 0), text + suffix, font=font)[2] > max_width:
+        text = text[:-1]
+    return (text.rstrip() or "") + suffix
+
+
+def fit_text(
     draw: ImageDraw.ImageDraw,
-    element: Mapping[str, Any],
     text: str,
-    palette: Mapping[str, str],
-) -> tuple[list[str], dict[str, Any]]:
-    style = element.get("style", {}) or {}
-    x = int(element["x"])
-    y = int(element["y"])
-    width = int(element["w"])
-    height = int(element["h"])
-    requested_font_size = int(style.get("font_size", 40))
-    font_size = requested_font_size
-    min_font_size = int(style.get("min_font_size", 18))
-    max_lines = int(style.get("max_lines", 4))
-    family = str(style.get("font_family", "default_regular"))
-    align = str(style.get("align", "left"))
-    valign = str(style.get("valign", "top"))
-    shrink = bool(style.get("shrink_to_fit", True))
-    line_spacing = int(style.get("line_spacing", 4))
-    warnings: list[str] = []
-    was_truncated = False
+    style: Mapping[str, Any],
+    width: int,
+    height: int,
+) -> tuple[ImageFont.ImageFont, list[str], dict[str, Any]]:
+    requested_size = int(style.get("font_size", 32))
+    size = requested_size
+    min_size = int(style.get("min_font_size", 16))
+    max_lines = int(style.get("max_lines", 999))
+    shrink = bool(style.get("shrink_to_fit", False))
+    kind = str(style.get("font_family", "default_regular"))
+    spacing = int(style.get("line_spacing", 8))
+    original_line_count = 0
+    truncated = False
 
     while True:
-        font = _load_font(family, font_size)
-        lines = _wrap_text(draw, text, font, width)
-        if len(lines) <= max_lines:
-            break
-        if not shrink or font_size <= min_font_size:
-            lines = lines[:max_lines]
+        font = load_font(kind, size)
+        wrapped_lines = text_lines(draw, text, font, width)
+        original_line_count = len(wrapped_lines)
+        too_many_lines = bool(max_lines and len(wrapped_lines) > max_lines)
+        lines = wrapped_lines
+        truncated = False
+
+        if too_many_lines and (not shrink or size <= min_size):
+            lines = wrapped_lines[:max_lines]
             if lines:
-                lines[-1] = lines[-1].rstrip(" .") + "…"
-            was_truncated = True
-            warnings.append(f"text_truncated:{element['id']}")
-            break
-        font_size -= 2
+                lines[-1] = ellipsize_to_width(draw, lines[-1], font, width)
+            truncated = True
 
-    line_height = font.getbbox("Ag")[3] - font.getbbox("Ag")[1]
-    block_height = line_height * len(lines) + max(0, len(lines) - 1) * line_spacing
-    draw_y = y
-    if valign == "middle":
-        draw_y = y + max(0, (height - block_height) // 2)
-    elif valign == "bottom":
-        draw_y = y + max(0, height - block_height)
+        bbox = draw.multiline_textbbox((0, 0), "\n".join(lines), font=font, spacing=spacing) if lines else (0, 0, 0, 0)
+        fits_height = (bbox[3] - bbox[1]) <= height
+        fits_width = (bbox[2] - bbox[0]) <= width
+        fits_line_count = not too_many_lines
 
-    content = "\n".join(lines)
-    anchor = None
-    draw_x = x
-    if align == "center":
-        draw_x = x + width // 2
-        anchor = "ma"
-    elif align == "right":
-        draw_x = x + width
-        anchor = "ra"
-
-    fill = _resolve_color(str(style.get("color", "{palette.text_primary}")), palette)
-    draw.multiline_text(
-        (draw_x, draw_y),
-        content,
-        font=font,
-        fill=fill,
-        spacing=line_spacing,
-        align=align,
-        anchor=anchor,
-    )
-    bbox = draw.multiline_textbbox(
-        (draw_x, draw_y),
-        content,
-        font=font,
-        spacing=line_spacing,
-        align=align,
-        anchor=anchor,
-    )
-    slot_bbox = [x, y, x + width, y + height]
-    clipped = bool(
-        bbox[0] < slot_bbox[0]
-        or bbox[1] < slot_bbox[1]
-        or bbox[2] > slot_bbox[2]
-        or bbox[3] > slot_bbox[3]
-    )
-    if clipped:
-        warnings.append(f"text_clipped:{element['id']}")
-
-    metrics = {
-        "element_id": str(element["id"]),
-        "type": "text",
-        "requested_font_size": requested_font_size,
-        "final_font_size": font_size,
-        "min_font_size": min_font_size,
-        "font_shrunk": font_size < requested_font_size,
-        "line_count": len(lines),
-        "max_lines": max_lines,
-        "truncated": was_truncated,
-        "clipped": clipped,
-        "text_bbox": [int(value) for value in bbox],
-        "slot_bbox": slot_bbox,
-        "text": text,
-        "rendered_text": content,
-    }
-    return warnings, metrics
+        if not shrink or (fits_height and fits_width and fits_line_count) or size <= min_size:
+            actual_size = _font_size(font, size)
+            return font, lines, {
+                "requested_font_size": requested_size,
+                "actual_font_size": actual_size,
+                "minimum_font_size": min_size,
+                "font_shrunk": actual_size < requested_size,
+                "line_count": len(lines),
+                "original_line_count": original_line_count,
+                "truncated": truncated,
+                "max_lines": max_lines,
+            }
+        size -= 2
 
 
-def _draw_image(
-    canvas: Image.Image,
+def draw_text_element(
+    draw: ImageDraw.ImageDraw,
     element: Mapping[str, Any],
-    source: Path,
-) -> list[str]:
-    warnings: list[str] = []
-    if not source.exists():
-        warnings.append(f"missing_image:{element['id']}:{source}")
-        return warnings
-
-    with Image.open(source) as image:
-        image = image.convert("RGB")
-        target_size = (int(element["w"]), int(element["h"]))
-        fit = str(element.get("fit", "cover"))
-        if fit == "contain":
-            resized = ImageOps.contain(image, target_size)
-            background = Image.new(
-                "RGB",
-                target_size,
-                str(element.get("background", "#FFFFFF")),
-            )
-            offset = (
-                (target_size[0] - resized.width) // 2,
-                (target_size[1] - resized.height) // 2,
-            )
-            background.paste(resized, offset)
-            image = background
-        else:
-            image = ImageOps.fit(image, target_size, method=Image.Resampling.LANCZOS)
-        canvas.paste(image, (int(element["x"]), int(element["y"])))
-    return warnings
-
-
-def render_template(
-    template: Mapping[str, Any],
     bindings: Mapping[str, Any],
-    output_path: str | Path,
-    palettes: Mapping[str, Mapping[str, str]] | None = None,
-) -> RenderResult:
-    width = int(template.get("width", 1080))
-    height = int(template.get("height", 1350))
-    palette_name = str(template.get("palette", DEFAULT_PALETTE))
-    palette_map = palettes or DEFAULT_PALETTES
-    palette = palette_map.get(palette_name, palette_map[DEFAULT_PALETTE])
-    background = template.get("background", {"type": "solid", "color": "{palette.background}"})
-    background_color = _resolve_color(str(background.get("color", "#0F2F24")), palette)
-    canvas = Image.new("RGB", (width, height), background_color)
-    draw = ImageDraw.Draw(canvas)
+    palette: Mapping[str, str],
+    warnings: list[str],
+) -> dict[str, Any]:
+    placeholder = element.get("placeholder")
+    text = str(bindings.get(placeholder, "") if placeholder else element.get("text", ""))
+    if placeholder and placeholder not in bindings:
+        warnings.append(f"missing_binding:{placeholder}")
+    x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
+    style = dict(element.get("style", {}))
+    color = resolve_palette_value(style.get("color", "#000000"), palette)
+    align = str(style.get("align", "left"))
+    valign = str(style.get("valign", "top"))
+    spacing = int(style.get("line_spacing", 8))
+
+    font, lines, fit = fit_text(draw, text, style, w, h)
+    metric: dict[str, Any] = {
+        "element_id": str(element.get("id") or placeholder or "text"),
+        "placeholder": placeholder,
+        "source_text": text,
+        "element_box": [x, y, x + w, y + h],
+        **fit,
+        "rendered_lines": lines,
+        "rendered_bbox": None,
+        "clipped": False,
+    }
+    if not lines:
+        return metric
+
+    line_heights: list[int] = []
+    total_height = 0
+    for line in lines:
+        bbox = draw.textbbox((0, 0), line, font=font)
+        line_height = bbox[3] - bbox[1]
+        line_heights.append(line_height)
+        total_height += line_height
+    total_height += spacing * max(0, len(lines) - 1)
+
+    cursor_y = y
+    if valign == "middle":
+        cursor_y = y + max(0, (h - total_height) // 2)
+    elif valign == "bottom":
+        cursor_y = y + max(0, h - total_height)
+
+    left = x + w
+    top = y + h
+    right = x
+    bottom = y
+    for line, line_height in zip(lines, line_heights):
+        line_bbox = draw.textbbox((0, 0), line, font=font)
+        line_width = line_bbox[2] - line_bbox[0]
+        cursor_x = x
+        if align == "center":
+            cursor_x = x + max(0, (w - line_width) // 2)
+        elif align == "right":
+            cursor_x = x + max(0, w - line_width)
+        draw.text((cursor_x, cursor_y), line, font=font, fill=color)
+        actual_bbox = draw.textbbox((cursor_x, cursor_y), line, font=font)
+        left = min(left, actual_bbox[0])
+        top = min(top, actual_bbox[1])
+        right = max(right, actual_bbox[2])
+        bottom = max(bottom, actual_bbox[3])
+        cursor_y += line_height + spacing
+
+    metric["rendered_bbox"] = [left, top, right, bottom]
+    metric["clipped"] = bool(left < x or top < y or right > x + w or bottom > y + h)
+    if metric["clipped"]:
+        warnings.append(f"text_clipped:{metric['element_id']}")
+    if metric["truncated"]:
+        warnings.append(f"text_truncated:{metric['element_id']}")
+    return metric
+
+
+def load_image(reference: str, warnings: list[str]) -> Image.Image | None:
+    if not reference:
+        warnings.append("missing_image_reference")
+        return None
+    try:
+        if reference.startswith(("http://", "https://")):
+            response = requests.get(reference, timeout=20)
+            response.raise_for_status()
+            return Image.open(io.BytesIO(response.content)).convert("RGBA")
+        path = Path(reference)
+        if path.exists():
+            return Image.open(path).convert("RGBA")
+        warnings.append(f"image_not_found:{reference}")
+        return None
+    except Exception as exc:  # pragma: no cover
+        warnings.append(f"image_load_error:{reference}:{exc}")
+        return None
+
+
+def rounded_mask(width: int, height: int, radius: int) -> Image.Image:
+    mask = Image.new("L", (width, height), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rounded_rectangle((0, 0, width, height), radius=radius, fill=255)
+    return mask
+
+
+def draw_image_element(
+    base: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    element: Mapping[str, Any],
+    bindings: Mapping[str, Any],
+    palette: Mapping[str, str],
+    warnings: list[str],
+) -> None:
+    placeholder = element.get("placeholder")
+    reference = str(bindings.get(placeholder, "") if placeholder else element.get("source", ""))
+    if placeholder and placeholder not in bindings:
+        warnings.append(f"missing_binding:{placeholder}")
+    x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
+    background = resolve_palette_value(element.get("background"), palette)
+    if background:
+        radius = int(element.get("radius", 0) or 0)
+        box = (x, y, x + w, y + h)
+        if radius:
+            draw.rounded_rectangle(box, radius=radius, fill=background)
+        else:
+            draw.rectangle(box, fill=background)
+
+    image = load_image(reference, warnings)
+    if image is None:
+        draw.line((x + 24, y + 24, x + w - 24, y + h - 24), fill="#ffffff", width=3)
+        draw.line((x + w - 24, y + 24, x + 24, y + h - 24), fill="#ffffff", width=3)
+        return
+    fit = element.get("fit", "cover")
+    if fit == "contain":
+        image.thumbnail((w, h), Image.Resampling.LANCZOS)
+        pasted = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        pasted.alpha_composite(image, ((w - image.width) // 2, (h - image.height) // 2))
+        image = pasted
+    elif fit == "stretch":
+        image = image.resize((w, h), Image.Resampling.LANCZOS)
+    else:
+        image = ImageOps.fit(image, (w, h), method=Image.Resampling.LANCZOS)
+    radius = int(element.get("radius", 0) or 0)
+    mask = rounded_mask(w, h, radius) if radius else image.getchannel("A")
+    base.paste(image, (x, y), mask)
+
+
+def draw_rectangle(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], palette: Mapping[str, str]) -> None:
+    x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
+    fill = resolve_palette_value(element.get("fill", "#000000"), palette)
+    outline = resolve_palette_value(element.get("outline", element.get("stroke")), palette)
+    line_width = int(element.get("width", element.get("stroke_width", 1)) or 1)
+    radius = int(element.get("radius", 0) or 0)
+    box = (x, y, x + w, y + h)
+    if radius:
+        draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=line_width)
+    else:
+        draw.rectangle(box, fill=fill, outline=outline, width=line_width)
+
+
+def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], output_path: str | Path) -> RenderResult:
+    palette_id = str(template.get("palette", "eirepolitic_dark"))
+    palette = load_palette(palette_id)
+    width = int(template["width"])
+    height = int(template["height"])
+    background = template.get("background", {})
+    background_color = resolve_palette_value(background.get("color", "#ffffff"), palette)
+    image = Image.new("RGBA", (width, height), background_color)
+    draw = ImageDraw.Draw(image)
     warnings: list[str] = []
-    element_metrics: dict[str, dict[str, Any]] = {}
+    text_metrics: list[dict[str, Any]] = []
 
     for element in template.get("elements", []):
-        element_type = str(element.get("type"))
-        placeholder = element.get("placeholder")
-        value = bindings.get(placeholder, "") if placeholder else element.get("value", "")
-        if element_type == "text":
-            text_warnings, metrics = _draw_text(canvas, draw, element, str(value), palette)
-            warnings.extend(text_warnings)
-            element_metrics[str(element["id"])] = metrics
+        element_type = element.get("type")
+        if element_type == "rectangle":
+            draw_rectangle(draw, element, palette)
+        elif element_type == "text":
+            text_metrics.append(draw_text_element(draw, element, bindings, palette, warnings))
         elif element_type == "image":
-            warnings.extend(_draw_image(canvas, element, Path(str(value))))
+            draw_image_element(image, draw, element, bindings, palette, warnings)
+        elif element_type == "line":
+            x, y, w, h = [int(element.get(key, 0)) for key in ["x", "y", "w", "h"]]
+            fill = resolve_palette_value(element.get("fill", "#ffffff"), palette)
+            draw.line((x, y, x + w, y + h), fill=fill, width=int(element.get("width", 2)))
+        else:
+            warnings.append(f"unsupported_element:{element.get('id')}:{element_type}")
 
-    output = Path(output_path)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    canvas.save(output, format="PNG")
-    return RenderResult(output_path=output, warnings=warnings, element_metrics=element_metrics)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    image.convert("RGB").save(output_path, format="PNG")
+
+    metadata_dir = output_path.parent.parent / "metadata" if output_path.parent.name == "png" else output_path.parent / "metadata"
+    source_dir = metadata_dir / "source_values"
+    manifest_dir = metadata_dir / "manifests"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    stem = output_path.stem
+    source_path = source_dir / f"{stem}.source_values.json"
+    manifest_path = manifest_dir / f"{stem}.render_manifest.json"
+
+    source_path.write_text(json.dumps({
+        "template_id": template.get("template_id"),
+        "palette": palette_id,
+        "bindings": dict(bindings),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "warnings": warnings,
+        "text_metrics": text_metrics,
+    }, indent=2, ensure_ascii=False), encoding="utf-8")
+    manifest_path.write_text(json.dumps({
+        "success": True,
+        "output_path": str(output_path),
+        "width": width,
+        "height": height,
+        "template_id": template.get("template_id"),
+        "renderer_version": "1.1",
+        "warnings": warnings,
+        "text_metrics": text_metrics,
+    }, indent=2), encoding="utf-8")
+
+    return RenderResult(
+        output_path=output_path,
+        source_values_path=source_path,
+        manifest_path=manifest_path,
+        warnings=warnings,
+        text_metrics=text_metrics,
+    )
+
+
+def render_template_file(
+    template_path: str | Path,
+    bindings_path: str | Path,
+    output_path: str | Path,
+    palette_override: str | None = None,
+) -> dict[str, Any]:
+    template = load_json(template_path)
+    if palette_override:
+        template = dict(template)
+        template["palette"] = palette_override
+
+    binding_doc = load_yaml_or_json(bindings_path)
+    bindings = binding_doc.get("bindings", binding_doc)
+    if not isinstance(bindings, dict):
+        raise RuntimeError(f"bindings must be a mapping in {bindings_path}")
+
+    result = render_template(template, bindings, output_path)
+    return load_json(result.manifest_path)
