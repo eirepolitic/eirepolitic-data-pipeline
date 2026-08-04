@@ -19,11 +19,10 @@ on:
       - "tests/test_instagram_factory_party_project.py"
       - "tests/test_instagram_factory_constituency_project.py"
       - "tests/test_instagram_factory_historical_fallback.py"
-      - "process/update_instagram_measured_text_status.py"
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -36,17 +35,6 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-content-factory-party-project
-          fetch-depth: 0
-      - name: Update canonical measured-text status
-        run: |
-          python process/update_instagram_measured_text_status.py
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/CONTENT_FACTORY_PLAN.md
-          git commit -m "docs(instagram): complete measured-text validation status" || true
-          git push origin HEAD:feature/instagram-content-factory-party-project
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
