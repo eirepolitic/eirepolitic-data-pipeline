@@ -10,6 +10,7 @@ from instagram.factory.generic_tests import render_project_tests
 from instagram.factory.validation_scenarios import HORIZONTAL_BAR_REQUIRED_SCENARIOS
 
 PROJECT = "instagram/projects/constituency_issue_profile_v1/project.yml"
+LEGACY_ALIASES = {"minimum", "maximum"}
 
 
 class ConstituencyIssueProfileProjectTest(TestCase):
@@ -32,12 +33,14 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             expected_primary = [
                 name
                 for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
-                if report["scenario_manifests"][name]["status"] == "rendered"
+                if name not in LEGACY_ALIASES
+                and report["scenario_manifests"][name]["status"] == "rendered"
             ]
             waived_primary = [
                 name
                 for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
-                if report["scenario_manifests"][name]["status"] == "waived"
+                if name not in LEGACY_ALIASES
+                and report["scenario_manifests"][name]["status"] == "waived"
             ]
             self.assertEqual(sheet["full"]["scenario_rows"], expected_primary)
             self.assertEqual(sheet["full"]["waived_scenarios"], waived_primary)
