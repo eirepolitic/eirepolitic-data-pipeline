@@ -22,7 +22,7 @@ on:
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -35,9 +35,6 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-content-factory-party-project
-          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -56,8 +53,11 @@ jobs:
       - name: Run historical fallback tests
         run: python -m unittest tests.test_instagram_factory_historical_fallback -v
       - name: Run constituency project tests
+        id: constituency_test
         shell: python
         run: |
+          import os
+          import re
           import subprocess
           import sys
           from pathlib import Path
@@ -69,16 +69,27 @@ jobs:
           )
           output = (result.stdout or "") + (result.stderr or "")
           print(output)
-          Path("constituency-text-diagnostic.txt").write_text(output, encoding="utf-8")
+          Path("constituency-diagnostic.txt").write_text(output, encoding="utf-8")
+          lines = [line.strip() for line in output.splitlines() if line.strip()]
+          error = next(
+              (
+                  line
+                  for line in reversed(lines)
+                  if any(token in line for token in ("AssertionError", "ValueError", "KeyError", "TypeError"))
+              ),
+              lines[-1] if lines else "unknown-error",
+          )
+          safe = re.sub(r"[^A-Za-z0-9_-]+", "-", error).strip("-")[:160] or "unknown-error"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"error={safe}\n")
           raise SystemExit(result.returncode)
-      - name: Commit constituency diagnostic
+      - name: Upload constituency diagnostic
         if: failure()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f constituency-text-diagnostic.txt
-          git commit -m "diagnostic(instagram): capture constituency text-quality failure" || true
-          git push origin HEAD:feature/instagram-content-factory-party-project
+        uses: actions/upload-artifact@v4
+        with:
+          name: constituency-failure-${{ steps.constituency_test.outputs.error }}
+          path: constituency-diagnostic.txt
+          if-no-files-found: error
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
@@ -89,10 +100,11 @@ jobs:
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
       - name: Upload validation evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-project-validation-${{ github.run_id }}
           path: |
             generated_party_live_tests/
             party-live-validation.json
-          if-no-files-found: error
+          if-no-files-found: warn
