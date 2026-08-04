@@ -13,6 +13,7 @@ from instagram.factory.generic_tests import render_project_tests
 from instagram.factory.validation_scenarios import HORIZONTAL_BAR_REQUIRED_SCENARIOS
 
 PROJECT = "instagram/projects/party_issue_profile_v1/project.yml"
+LEGACY_ALIASES = {"minimum", "maximum"}
 
 
 class PartyIssueProfileProjectTest(TestCase):
@@ -76,42 +77,56 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertFalse(scenarios["publishing_allowed"])
 
             sheet = scenarios["validation_contact_sheet"]
-            self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
+            self.assertEqual(
+                sheet["layout"],
+                "full_review_plus_deduplicated_summary_plus_complete_audit",
+            )
             self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
             self.assertTrue(sheet["full"]["cover_shown_once"])
             self.assertTrue(sheet["summary"]["cover_shown_once"])
-            self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
-            self.assertLessEqual(sheet["summary"]["unique_visual_count"], scenarios["rendered_scenario_count"])
 
-            expected_full_scenarios = {
+            expected_visual_scenarios = {
                 name
-                for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
-                if name not in {"minimum", "maximum"}
+                for name in scenarios["required_scenarios"]
+                if name not in LEGACY_ALIASES
                 and scenarios["scenario_manifests"][name]["status"] == "rendered"
             }
-            self.assertEqual(set(sheet["full"]["scenario_rows"]), expected_full_scenarios)
+            expected_waived_scenarios = {
+                name
+                for name in scenarios["required_scenarios"]
+                if name not in LEGACY_ALIASES
+                and scenarios["scenario_manifests"][name]["status"] == "waived"
+            }
+            self.assertEqual(set(sheet["full"]["scenario_rows"]), expected_visual_scenarios)
+            self.assertEqual(set(sheet["full"]["waived_scenarios"]), expected_waived_scenarios)
             self.assertEqual(
-                set(sheet["full"]["waived_scenarios"]),
-                {
-                    name
-                    for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
-                    if scenarios["scenario_manifests"][name]["status"] == "waived"
-                },
+                len(sheet["full"]["scenario_rows"]) + len(sheet["full"]["waived_scenarios"]),
+                len(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS)),
             )
-            self.assertNotIn("minimum", sheet["full"]["scenario_rows"])
-            self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
-            self.assertNotIn("minimum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
-            self.assertNotIn("maximum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
 
+            self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
+            self.assertLessEqual(
+                sheet["summary"]["unique_visual_count"],
+                sheet["full"]["visual_row_count"],
+            )
+            summary_scenarios = {
+                scenario
+                for group in sheet["summary"]["render_groups"]
+                for scenario in group["scenarios"]
+            }
+            self.assertEqual(summary_scenarios, expected_visual_scenarios)
+
+            expected_files = {
+                "validation_contact_sheet.png",
+                "validation_summary_contact_sheet.png",
+            }
+            self.assertEqual({Path(page).name for page in sheet["full"]["pages"] + sheet["summary"]["pages"]}, expected_files)
             for page in sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]:
                 page_path = Path(scenarios["output_root"]) / page
                 self.assertTrue(page_path.is_file())
                 with Image.open(page_path) as image:
                     self.assertEqual(image.width, 2800)
                     self.assertGreater(image.height, 1000)
-            self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet.png").is_file())
-            self.assertTrue((Path(scenarios["output_root"]) / "validation_summary_contact_sheet.png").is_file())
-            self.assertTrue((Path(scenarios["output_root"]) / "validation_audit_contact_sheet.png").is_file())
             self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet_manifest.json").is_file())
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
