@@ -83,28 +83,33 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
             self.assertLessEqual(sheet["summary"]["unique_visual_count"], scenarios["rendered_scenario_count"])
 
-            expected_visual_scenarios = [
+            expected_primary = {
                 name
                 for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
-                if name not in {"minimum", "maximum"}
-                and scenarios["scenario_manifests"][name]["status"] == "rendered"
-            ]
-            self.assertEqual(sheet["full"]["scenario_rows"], expected_visual_scenarios)
-            self.assertEqual(sheet["full"]["visual_row_count"], len(expected_visual_scenarios))
+                if scenarios["scenario_manifests"][name]["status"] == "rendered"
+            }
+            waived_primary = {
+                name
+                for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
+                if scenarios["scenario_manifests"][name]["status"] == "waived"
+            }
+            self.assertEqual(set(sheet["full"]["scenario_rows"]), expected_primary)
+            self.assertEqual(len(sheet["full"]["scenario_rows"]), len(expected_primary))
+            self.assertEqual(set(sheet["full"]["waived_scenarios"]), waived_primary)
+            self.assertEqual(len(sheet["full"]["waived_scenarios"]), len(waived_primary))
             self.assertNotIn("minimum", sheet["full"]["scenario_rows"])
             self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
             self.assertNotIn("minimum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
             self.assertNotIn("maximum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
 
-            all_pages = sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]
-            for page in all_pages:
+            for page in sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]:
                 page_path = Path(scenarios["output_root"]) / page
                 self.assertTrue(page_path.is_file())
                 with Image.open(page_path) as image:
                     self.assertEqual(image.width, 2800)
                     self.assertGreater(image.height, 1000)
-            self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet.png").is_file())
-            self.assertTrue((Path(scenarios["output_root"]) / "validation_summary_contact_sheet.png").is_file())
+            self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
+            self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
             self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet_manifest.json").is_file())
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
