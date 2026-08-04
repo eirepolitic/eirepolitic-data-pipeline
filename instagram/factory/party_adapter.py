@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from pathlib import Path
-from statistics import median
 from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
@@ -12,14 +11,21 @@ from instagram.visuals.renderers.common import load_yaml
 
 from .catalogues import REPO_ROOT
 from .constituency_pilot import first_field, load_source_rows, normalize_text
+from .historical_sources import annotate_current_records
 
 
-def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
-    members, speeches, source_manifest = load_source_rows(data_source)
+def build_party_records(
+    members: list[dict[str, Any]],
+    speeches: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     member_name_field = first_field(members, ["full_name", "member_name", "name", "showAs"], "member name")
     party_field = first_field(members, ["party", "party_name", "latest_party_name"], "party")
     speaker_field = first_field(speeches, ["Speaker Name", "speaker_name", "speaker", "showAs"], "speaker")
-    issue_field = first_field(speeches, ["PoliticalIssues", "issue_category", "political_issues", "issue", "topic", "category", "label"], "issue")
+    issue_field = first_field(
+        speeches,
+        ["PoliticalIssues", "issue_category", "political_issues", "issue", "topic", "category", "label"],
+        "issue",
+    )
 
     member_lookup: dict[str, str] = {}
     party_members: dict[str, set[str]] = defaultdict(set)
@@ -51,7 +57,10 @@ def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str
     records: list[dict[str, Any]] = []
     for party in sorted(counts):
         issue_counts = counts[party]
-        rows = [{"label": label, "value": value} for label, value in sorted(issue_counts.items(), key=lambda item: (-item[1], item[0]))]
+        rows = [
+            {"label": label, "value": value}
+            for label, value in sorted(issue_counts.items(), key=lambda item: (-item[1], item[0]))
+        ]
         if not rows:
             continue
         records.append({
@@ -80,6 +89,13 @@ def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str
         "ignored_empty_issue": ignored_empty_issue,
         "party_count": len(records),
     }
+    return records, join_manifest
+
+
+def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    members, speeches, source_manifest = load_source_rows(data_source)
+    records, join_manifest = build_party_records(members, speeches)
+    annotate_current_records(records, source_manifest)
     return records, source_manifest, join_manifest
 
 
@@ -94,40 +110,6 @@ def build_party_context(record: dict[str, Any], project: dict[str, Any]) -> dict
         "scenario": record.get("scenario", "batch_item"),
         "synthetic": bool(record.get("synthetic", False)),
         "no_publication": True,
-    }
-
-
-def _complexity(record: dict[str, Any]) -> int:
-    return len(record["party"]) + record["issue_count"] * 12 + record["max_issue_label_length"] + min(record["speech_count"], 100)
-
-
-def _synthetic(name_record: dict[str, Any], result_record: dict[str, Any], scenario: str) -> dict[str, Any]:
-    rows = [dict(row) for row in result_record["issue_rows"][:7]]
-    return {
-        **result_record,
-        "party": name_record["party"],
-        "party_key": name_record["party_key"],
-        "issue_rows": rows,
-        "issue_count": len(rows),
-        "speech_count": sum(int(row["value"]) for row in rows),
-        "result_party": result_record["party"],
-        "scenario": scenario,
-        "synthetic": True,
-        "no_publication": True,
-    }
-
-
-def build_party_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    shortest = min(records, key=lambda row: (len(row["party"]), row["party"]))
-    longest = max(records, key=lambda row: (len(row["party"]), row["party"]))
-    smallest = min(records, key=lambda row: (row["speech_count"], row["issue_count"], row["party"]))
-    largest = max(records, key=lambda row: (row["speech_count"], row["issue_count"], row["party"]))
-    target = median(sorted(_complexity(row) for row in records))
-    real = min(records, key=lambda row: (abs(_complexity(row) - target), row["party"]))
-    return {
-        "minimum": _synthetic(shortest, smallest, "minimum"),
-        "maximum": _synthetic(longest, largest, "maximum"),
-        "real_example": {**real, "scenario": "real_example", "synthetic": False, "no_publication": True},
     }
 
 
@@ -152,7 +134,6 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     for (value, label), center_y in zip(metrics, centers):
         draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")
         draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")
-
     image.save(path, format="PNG")
 
 
@@ -177,7 +158,12 @@ def render_party_assets(item_dir: Path, context: dict[str, Any], project: dict[s
         visual,
         item_dir / "metadata/visual.json",
         item_dir / "manifests/visual_manifest.json",
-        {"scenario": context["scenario"], "synthetic": context["synthetic"]},
+        {
+            "scenario": context["scenario"],
+            "synthetic": context["synthetic"],
+            "data_origin": context.get("data_origin"),
+            "source_batch_id": context.get("source_batch_id"),
+        },
     )
     return {"paths": {"cover": cover, "visual": visual}, "visual_manifest": visual_manifest}
 
