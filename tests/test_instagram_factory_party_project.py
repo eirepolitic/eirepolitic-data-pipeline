@@ -25,6 +25,9 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(scenarios["scenario_manifests"]))
             self.assertIn("minimum", scenarios["scenario_manifests"])
             self.assertIn("maximum", scenarios["scenario_manifests"])
+            self.assertTrue(scenarios["quality_gates"]["layout_utilization"])
+            self.assertTrue(scenarios["quality_gates"]["media_slot_fill"])
+            self.assertTrue(scenarios["quality_gates"]["visual_plot_utilization"])
 
             for manifest in scenarios["scenario_manifests"].values():
                 if manifest["status"] == "waived":
@@ -37,6 +40,17 @@ class PartyIssueProfileProjectTest(TestCase):
                     self.assertTrue(manifest["selection_reason"])
                     self.assertTrue(manifest["source_item_key"])
                     self.assertTrue(manifest["slides"])
+                    for slide in manifest["slides"]:
+                        self.assertTrue(slide["layout_quality"]["success"])
+                        self.assertGreaterEqual(slide["layout_quality"]["whitespace"]["occupied_height_ratio"], 0.88)
+                        for media in slide["layout_quality"]["media"]:
+                            if media.get("measurable") and media.get("fit") == "contain":
+                                self.assertGreaterEqual(media["vertical_fill_ratio"], 0.96)
+                                self.assertGreaterEqual(media["area_fill_ratio"], 0.90)
+                        if slide["visual_quality"] is not None:
+                            self.assertTrue(slide["visual_quality"]["success"])
+                            self.assertGreaterEqual(slide["visual_quality"]["metrics"]["plot_vertical_fill_ratio"], 0.88)
+                            self.assertGreaterEqual(slide["visual_quality"]["metrics"]["plot_area_ratio"], 0.55)
             self.assertGreater(scenarios["rendered_scenario_count"], 0)
             self.assertFalse(scenarios["publishing_allowed"])
 
