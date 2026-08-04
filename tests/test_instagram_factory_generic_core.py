@@ -53,7 +53,7 @@ def _scenarios(records, project):
 def _assets(item_dir, context, project):
     path = item_dir / "assets" / "card.png"
     path.parent.mkdir(parents=True, exist_ok=True)
-    Image.new("RGB", (1080, 1080), "white").save(path)
+    Image.new("RGB", (1032, 1210), "white").save(path)
     return {"paths": {"cover": path}, "visual_manifest": None}
 
 
@@ -98,8 +98,6 @@ class GenericFactoryCoreTest(TestCase):
                 "post_type_id": "title_text_media_v1",
                 "text": {
                     "slide_title": "{{ scope_name }}",
-                    "body_text": "National test post.",
-                    "footer_text": "Synthetic fixture",
                 },
                 "media": {"main_media": "cover", "type": "generated_card"},
                 "accessibility": {"alt_text_template": "National test cover"},
@@ -136,3 +134,5 @@ class GenericFactoryCoreTest(TestCase):
             self.assertEqual(set(tests["scenario_manifests"]), {"minimum", "maximum", "real_example"})
             self.assertEqual(tests["rendered_scenario_count"], 3)
             self.assertEqual(tests["waived_scenario_count"], 0)
+            for scenario in tests["scenario_manifests"].values():
+                self.assertTrue(scenario["slides"][0]["layout_quality"]["success"])
