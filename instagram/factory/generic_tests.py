@@ -240,6 +240,7 @@ def render_project_tests(
                 template=layout,
                 bindings=bindings,
                 output_path=output_path,
+                element_metrics=result.element_metrics,
             )
             if not layout_quality["success"]:
                 raise ValueError(
@@ -268,6 +269,7 @@ def render_project_tests(
                 "slide_id": slide["slide_id"],
                 "path": str(output_path.relative_to(root)),
                 "warnings": [],
+                "element_metrics": result.element_metrics,
                 "layout_quality": layout_quality,
                 "visual_quality": visual_quality,
             })
@@ -326,6 +328,9 @@ def render_project_tests(
             "layout_utilization": True,
             "media_slot_fill": True,
             "visual_plot_utilization": True,
+            "title_text_bounds": True,
+            "chart_text_bounds": True,
+            "dynamic_text_sizing": True,
             "historical_real_data_fallback": True,
         },
         "review_state": "needs_review",
