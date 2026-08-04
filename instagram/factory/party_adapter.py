@@ -19,11 +19,7 @@ def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str
     member_name_field = first_field(members, ["full_name", "member_name", "name", "showAs"], "member name")
     party_field = first_field(members, ["party", "party_name", "latest_party_name"], "party")
     speaker_field = first_field(speeches, ["Speaker Name", "speaker_name", "speaker", "showAs"], "speaker")
-    issue_field = first_field(
-        speeches,
-        ["PoliticalIssues", "issue_category", "political_issues", "issue", "topic", "category", "label"],
-        "issue",
-    )
+    issue_field = first_field(speeches, ["PoliticalIssues", "issue_category", "political_issues", "issue", "topic", "category", "label"], "issue")
 
     member_lookup: dict[str, str] = {}
     party_members: dict[str, set[str]] = defaultdict(set)
@@ -55,10 +51,7 @@ def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str
     records: list[dict[str, Any]] = []
     for party in sorted(counts):
         issue_counts = counts[party]
-        rows = [
-            {"label": label, "value": value}
-            for label, value in sorted(issue_counts.items(), key=lambda item: (-item[1], item[0]))
-        ]
+        rows = [{"label": label, "value": value} for label, value in sorted(issue_counts.items(), key=lambda item: (-item[1], item[0]))]
         if not rows:
             continue
         records.append({
@@ -140,24 +133,24 @@ def build_party_scenarios(records: list[dict[str, Any]], project: dict[str, Any]
 
 def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    image = Image.new("RGB", (1080, 860), "#173d30")
+    image = Image.new("RGB", (1032, 1210), "#173d30")
     draw = ImageDraw.Draw(image)
     try:
-        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 72)
-        body_font = ImageFont.truetype("DejaVuSans.ttf", 34)
+        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 82)
+        body_font = ImageFont.truetype("DejaVuSans.ttf", 38)
     except OSError:
         title_font = ImageFont.load_default()
         body_font = ImageFont.load_default()
-    draw.rounded_rectangle((70, 70, 1010, 790), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
-    draw.multiline_text((540, 285), context["party"], font=title_font, fill="#f4ead7", anchor="mm", align="center", spacing=12)
+    draw.rounded_rectangle((34, 34, 998, 1176), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
+    draw.multiline_text((516, 360), context["party"], font=title_font, fill="#f4ead7", anchor="mm", align="center", spacing=14)
     if context["synthetic"]:
         detail = f"Results source: {context.get('result_party', context['party'])}"
         marker = f"SYNTHETIC {context['scenario'].upper()} TEST"
     else:
         detail = f"{context.get('member_count', 0)} current TDs · {context.get('speech_count', 0)} classified speeches"
         marker = "REAL DATA EXAMPLE" if context.get("scenario") == "real_example" else "DRAFT CONTENT FACTORY OUTPUT"
-    draw.text((540, 560), detail, font=body_font, fill="#cbbf9f", anchor="mm")
-    draw.text((540, 680), marker, font=body_font, fill="#d8b45f", anchor="mm")
+    draw.text((516, 760), detail, font=body_font, fill="#cbbf9f", anchor="mm")
+    draw.text((516, 1010), marker, font=body_font, fill="#d8b45f", anchor="mm")
     image.save(path, format="PNG")
 
 
