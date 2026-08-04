@@ -107,7 +107,7 @@ Acceptance met:
 
 ## Phase 5 — renderer readability checks
 
-**Status: partially completed**
+**Status: completed**
 
 Implemented:
 
@@ -118,22 +118,28 @@ Implemented:
 - maximum wrapped label lines
 - value-label right-edge headroom
 - duplicate-render detection in the summary review
+- title shrink, line-count, truncation, and bounding-box telemetry from the post-layout renderer
+- direct rendered-text clipping checks for slide titles
+- pixel-measured two-line wrapping for horizontal-bar category labels
+- dynamic category-label font sizing based on actual measured label complexity
+- adaptive chart left margin based on measured label width
+- direct Matplotlib bounding-box clipping checks for category labels
+- direct Matplotlib bounding-box clipping checks for value labels
+- automatic value-axis headroom expansion until value labels fit
+- zero-tolerance clipping and truncation thresholds in the visual template
 
-Still needed before this phase is complete:
+Acceptance met:
 
-- explicit title shrink/wrap telemetry from the post-layout renderer
-- direct text bounding-box clipping checks for category labels
-- direct rendered-text clipping checks for value labels
-- dynamic font-size selection based on actual label complexity rather than fixed validated sizes
-
-Current acceptance:
-
-- undersized configured text, thin bars, excessive wrapping, and crowded value labels fail before human review
-- direct pixel/text-bound clipping detection remains outstanding
+- titles below their minimum font size fail validation
+- clipped or truncated titles fail validation
+- category/value labels clipped by the chart or image bounds fail validation
+- category labels that require unsupported truncation fail validation
+- font sizing decisions and text bounds are preserved in scenario manifests
+- generic, constituency, party, and live S3 measured-text gates pass
 
 ## Phase 6 — regression tests and documentation
 
-**Status: in progress**
+**Status: completed**
 
 Completed:
 
@@ -141,23 +147,19 @@ Completed:
 - party production-project regression coverage
 - constituency production-project regression coverage
 - historical fallback precedence and waiver coverage
-- image-dimension, media-fill, scenario-coverage, and contact-sheet tests
+- image-dimension, media-fill, scenario-coverage, contact-sheet, title-bound, and chart-bound tests
 - successful live S3 validation
 - summary and audit outputs in validation artifacts
-- this implementation plan updated with actual status
-
-Remaining:
-
-- update the canonical `instagram/CONTENT_FACTORY_PLAN.md` with the completed validation architecture
-- update party and constituency project decision records
-- final handoff summary of remaining Phase 5 limitations
+- canonical factory plan updated with the validation architecture
+- party and constituency project decision records updated
+- this implementation plan updated with actual completion status
 
 ## Delivery status
 
 1. Phase 1 summary/audit redesign — completed
 2. Phase 2 party cover cleanup — completed
 3. Phase 4 utilization checks — completed
-4. Phase 5 renderer checks — partially completed
+4. Phase 5 renderer checks — completed
 5. Phase 3 historical fallback — completed
 6. Phase 2 constituency/general cover cleanup — completed
-7. Phase 6 final regression and documentation — in progress
+7. Phase 6 final regression and documentation — completed
