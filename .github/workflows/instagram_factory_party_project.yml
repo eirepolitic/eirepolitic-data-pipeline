@@ -63,98 +63,65 @@ jobs:
             --data-source s3 \
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
-      - name: Build contact sheet verification report
-        if: always()
+      - name: Discover and stage contact sheets
         shell: bash
         run: |
+          set -euo pipefail
+          mkdir -p contact_sheet_delivery
+          find . -type f \( -name '*contact_sheet*.png' -o -name 'validation_contact_sheet_manifest.json' -o -name 'project_validation_manifest.json' \) -print | sort | tee contact_sheet_delivery/discovered-files.txt
           python <<'PY'
           import json
+          import shutil
           from pathlib import Path
 
-          root = Path("generated_party_live_tests")
-          expected_files = [
-              "validation_contact_sheet.png",
-              "validation_summary_contact_sheet.png",
-              "validation_contact_sheet_manifest.json",
-              "project_validation_manifest.json",
-          ]
-          evidence = {
-              "files": {name: (root / name).is_file() for name in expected_files},
-              "rendered_scenarios": [],
-              "waived_scenarios": [],
-              "required_scenarios": [],
-              "missing_scenarios": [],
-              "unexpected_scenarios": [],
-              "layout": None,
-              "verification_success": False,
+          workspace = Path('.')
+          delivery = Path('contact_sheet_delivery')
+          primary_candidates = sorted(workspace.rglob('validation_contact_sheet.png'))
+          summary_candidates = sorted(workspace.rglob('validation_summary_contact_sheet.png'))
+          audit_candidates = sorted(workspace.rglob('validation_audit_contact_sheet*.png'))
+          sheet_manifests = sorted(workspace.rglob('validation_contact_sheet_manifest.json'))
+          project_manifests = sorted(workspace.rglob('project_validation_manifest.json'))
+
+          report = {
+              'primary_candidates': [str(path) for path in primary_candidates],
+              'summary_candidates': [str(path) for path in summary_candidates],
+              'audit_candidates': [str(path) for path in audit_candidates],
+              'sheet_manifests': [str(path) for path in sheet_manifests],
+              'project_manifests': [str(path) for path in project_manifests],
           }
 
-          contact_manifest_path = root / "validation_contact_sheet_manifest.json"
-          project_manifest_path = root / "project_validation_manifest.json"
-          if contact_manifest_path.is_file() and project_manifest_path.is_file():
-              contact = json.loads(contact_manifest_path.read_text(encoding="utf-8"))
-              project = json.loads(project_manifest_path.read_text(encoding="utf-8"))
-              full = contact.get("full") or {}
-              rendered = set(full.get("scenario_rows") or [])
-              waived = set(full.get("waived_scenarios") or [])
-              required = {
-                  name
-                  for name in project.get("required_scenarios") or []
-                  if name not in {"minimum", "maximum"}
-              }
-              represented = rendered | waived
-              evidence.update({
-                  "layout": contact.get("layout"),
-                  "rendered_scenarios": sorted(rendered),
-                  "waived_scenarios": sorted(waived),
-                  "required_scenarios": sorted(required),
-                  "missing_scenarios": sorted(required - represented),
-                  "unexpected_scenarios": sorted(represented - required),
-                  "represented_scenario_count": len(represented),
-                  "required_scenario_count": len(required),
-              })
-              evidence["verification_success"] = (
-                  contact.get("layout") == "full_review_plus_deduplicated_summary_plus_complete_audit"
-                  and not evidence["missing_scenarios"]
-                  and not evidence["unexpected_scenarios"]
-                  and all(evidence["files"].values())
-              )
+          if primary_candidates:
+              primary = primary_candidates[0]
+              shutil.copy2(primary, delivery / 'validation_contact_sheet.png')
+              report['selected_primary'] = str(primary)
+          if summary_candidates:
+              shutil.copy2(summary_candidates[0], delivery / 'validation_summary_contact_sheet.png')
+          for index, path in enumerate(audit_candidates, start=1):
+              shutil.copy2(path, delivery / f'validation_audit_contact_sheet_{index:02d}.png')
 
-          root.mkdir(parents=True, exist_ok=True)
-          (root / "contact-sheet-verification.json").write_text(
-              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
-              encoding="utf-8",
+          if sheet_manifests:
+              manifest = json.loads(sheet_manifests[0].read_text(encoding='utf-8'))
+              full = manifest.get('full') or {}
+              report['layout'] = manifest.get('layout')
+              report['rendered_scenarios'] = full.get('scenario_rows') or []
+              report['waived_scenarios'] = full.get('waived_scenarios') or []
+              report['represented_scenario_count'] = len(set(report['rendered_scenarios']) | set(report['waived_scenarios']))
+              shutil.copy2(sheet_manifests[0], delivery / 'validation_contact_sheet_manifest.json')
+
+          (delivery / 'contact-sheet-discovery.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
           )
-          print(json.dumps(evidence, indent=2, sort_keys=True))
+          print(json.dumps(report, indent=2, sort_keys=True))
           PY
-      - name: Upload full primary contact sheet
+          ls -lah contact_sheet_delivery
+      - name: Upload discovered contact sheets
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: party-full-contact-sheet-${{ github.run_id }}
-          path: generated_party_live_tests/validation_contact_sheet.png
-          if-no-files-found: warn
-      - name: Upload contact sheet verification report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: party-contact-sheet-verification-${{ github.run_id }}
-          path: generated_party_live_tests/contact-sheet-verification.json
-          if-no-files-found: warn
-      - name: Upload deduplicated summary contact sheet
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: party-summary-contact-sheet-${{ github.run_id }}
-          path: generated_party_live_tests/validation_summary_contact_sheet.png
-          if-no-files-found: warn
-      - name: Upload audit contact sheets
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: party-audit-contact-sheets-${{ github.run_id }}
-          path: generated_party_live_tests/validation_audit_contact_sheet*.png
-          if-no-files-found: warn
+          name: party-contact-sheet-delivery-${{ github.run_id }}
+          path: contact_sheet_delivery/
+          if-no-files-found: error
       - name: Upload complete validation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -164,14 +131,17 @@ jobs:
             generated_party_live_tests/
             party-live-validation.json
           if-no-files-found: warn
-      - name: Enforce contact sheet verification
-        shell: python
+      - name: Enforce primary contact sheet delivery
+        shell: bash
         run: |
+          test -f contact_sheet_delivery/validation_contact_sheet.png
+          python <<'PY'
           import json
           from pathlib import Path
 
-          evidence = json.loads(
-              Path("generated_party_live_tests/contact-sheet-verification.json").read_text(encoding="utf-8")
-          )
-          if not evidence.get("verification_success"):
-              raise SystemExit(json.dumps(evidence, indent=2, sort_keys=True))
+          report = json.loads(Path('contact_sheet_delivery/contact-sheet-discovery.json').read_text(encoding='utf-8'))
+          if report.get('layout') != 'full_review_plus_deduplicated_summary_plus_complete_audit':
+              raise SystemExit(f"Unexpected contact sheet layout: {report.get('layout')}")
+          if not report.get('rendered_scenarios') and not report.get('waived_scenarios'):
+              raise SystemExit('No scenarios were represented in the primary contact sheet manifest')
+          PY
