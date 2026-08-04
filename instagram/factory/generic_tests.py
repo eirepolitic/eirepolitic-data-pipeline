@@ -13,7 +13,7 @@ from .catalogues import REPO_ROOT, CatalogueSet, load_catalogues
 from .common import replace_tokens
 from .layout_quality import validate_slide_layout, validate_visual_manifest
 from .project import load_project, validate_project
-from .validation_contact_sheet import build_validation_contact_sheet
+from .validation_contact_sheet_compact import build_validation_contact_sheet
 
 
 def _required_scenarios(project: dict[str, Any], catalogues: CatalogueSet) -> list[str]:
@@ -43,11 +43,7 @@ def _combine_scenarios(
     historical: dict[str, dict[str, Any]],
     historical_manifest: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
-    """Prefer current real data, then historical real data, then record a waiver.
-
-    Synthetic contract-edge data is deliberately not generated here. It remains a
-    separately approved future fallback for recurring projects only.
-    """
+    """Prefer current real data, then historical real data, then record a waiver."""
     combined: dict[str, dict[str, Any]] = {}
     loaded_batches = int(historical_manifest.get("loaded_batch_count", 0) or 0)
     historical_status = str(historical_manifest.get("status") or "not_configured")
