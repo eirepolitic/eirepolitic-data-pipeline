@@ -63,21 +63,43 @@ jobs:
             --data-source s3 \
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
-      - name: Prepare contact sheet verification
+      - name: Locate, verify, and export full contact sheet
         shell: bash
         run: |
           set -euo pipefail
-          test -f generated_party_live_tests/validation_contact_sheet.png
-          test -f generated_party_live_tests/validation_summary_contact_sheet.png
-          test -f generated_party_live_tests/validation_contact_sheet_manifest.json
-          python <<'PY'
-          import json
-          from pathlib import Path
+          mapfile -t primary_candidates < <(find . -type f -name validation_contact_sheet.png -not -path './.git/*' | sort)
+          if [ "${#primary_candidates[@]}" -ne 1 ]; then
+            printf 'Expected exactly one primary contact sheet, found %s\n' "${#primary_candidates[@]}"
+            printf '%s\n' "${primary_candidates[@]:-none}"
+            exit 1
+          fi
+          primary="${primary_candidates[0]}"
+          root="$(dirname "$primary")"
+          manifest="$root/validation_contact_sheet_manifest.json"
+          project_manifest="$root/project_validation_manifest.json"
+          summary="$root/validation_summary_contact_sheet.png"
 
-          root = Path("generated_party_live_tests")
-          manifest = json.loads((root / "validation_contact_sheet_manifest.json").read_text(encoding="utf-8"))
+          test -f "$manifest"
+          test -f "$project_manifest"
+          test -f "$summary"
+
+          mkdir -p contact_sheet_export
+          PRIMARY_PATH="$primary" ROOT_PATH="$root" python <<'PY'
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+          from PIL import Image
+
+          primary = Path(os.environ["PRIMARY_PATH"])
+          root = Path(os.environ["ROOT_PATH"])
+          sheet = json.loads((root / "validation_contact_sheet_manifest.json").read_text(encoding="utf-8"))
           project = json.loads((root / "project_validation_manifest.json").read_text(encoding="utf-8"))
-          full = manifest.get("full") or {}
+
+          if sheet.get("layout") != "full_review_plus_deduplicated_summary_plus_complete_audit":
+              raise SystemExit(f"Unexpected layout: {sheet.get('layout')}")
+
+          full = sheet.get("full") or {}
           rendered = set(full.get("scenario_rows") or [])
           waived = set(full.get("waived_scenarios") or [])
           represented = rendered | waived
@@ -86,44 +108,42 @@ jobs:
               for name in project.get("required_scenarios") or []
               if name not in {"minimum", "maximum"}
           }
-          evidence = {
-              "layout": manifest.get("layout"),
-              "primary_file": "validation_contact_sheet.png",
-              "primary_exists": (root / "validation_contact_sheet.png").is_file(),
+          if represented != required:
+              raise SystemExit(
+                  "Scenario mismatch: "
+                  f"missing={sorted(required - represented)}; "
+                  f"unexpected={sorted(represented - required)}"
+              )
+
+          with Image.open(primary) as image:
+              width, height = image.size
+              if width != 2800 or height <= 1000:
+                  raise SystemExit(f"Unexpected primary image dimensions: {image.size}")
+
+          export = Path("contact_sheet_export")
+          shutil.copy2(primary, export / "validation_contact_sheet.png")
+          verification = {
+              "source_path": str(primary),
+              "export_file": "validation_contact_sheet.png",
+              "image_width": width,
+              "image_height": height,
               "rendered_scenarios": sorted(rendered),
               "waived_scenarios": sorted(waived),
               "represented_scenario_count": len(represented),
               "required_scenario_count": len(required),
-              "missing_scenarios": sorted(required - represented),
-              "unexpected_scenarios": sorted(represented - required),
-              "coverage_matches": represented == required,
           }
-          (root / "contact-sheet-verification.json").write_text(
-              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+          (export / "contact-sheet-verification.json").write_text(
+              json.dumps(verification, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
           )
-          print(json.dumps(evidence, indent=2, sort_keys=True))
+          print(json.dumps(verification, indent=2, sort_keys=True))
           PY
-          ls -lah generated_party_live_tests/validation* generated_party_live_tests/contact-sheet-verification.json
-      - name: Upload full primary contact sheet
+          ls -lah contact_sheet_export/
+      - name: Upload verified full contact sheet only
         uses: actions/upload-artifact@v4
         with:
-          name: party-full-contact-sheet-${{ github.run_id }}
-          path: |
-            generated_party_live_tests/validation_contact_sheet.png
-            generated_party_live_tests/contact-sheet-verification.json
-          if-no-files-found: error
-      - name: Upload deduplicated summary contact sheet
-        uses: actions/upload-artifact@v4
-        with:
-          name: party-summary-contact-sheet-${{ github.run_id }}
-          path: generated_party_live_tests/validation_summary_contact_sheet.png
-          if-no-files-found: error
-      - name: Upload audit contact sheets
-        uses: actions/upload-artifact@v4
-        with:
-          name: party-audit-contact-sheets-${{ github.run_id }}
-          path: generated_party_live_tests/validation_audit_contact_sheet*.png
+          name: verified-full-contact-sheet-${{ github.run_id }}
+          path: contact_sheet_export/
           if-no-files-found: error
       - name: Upload complete validation evidence
         uses: actions/upload-artifact@v4
@@ -133,22 +153,3 @@ jobs:
             generated_party_live_tests/
             party-live-validation.json
           if-no-files-found: error
-      - name: Enforce contact sheet coverage
-        shell: bash
-        run: |
-          python <<'PY'
-          import json
-          from pathlib import Path
-
-          evidence = json.loads(
-              Path("generated_party_live_tests/contact-sheet-verification.json").read_text(encoding="utf-8")
-          )
-          if evidence.get("layout") != "full_review_plus_deduplicated_summary_plus_complete_audit":
-              raise SystemExit(f"Unexpected contact sheet layout: {evidence.get('layout')}")
-          if not evidence.get("coverage_matches"):
-              raise SystemExit(
-                  "Primary contact sheet coverage mismatch; "
-                  f"missing={evidence.get('missing_scenarios')}; "
-                  f"unexpected={evidence.get('unexpected_scenarios')}"
-              )
-          PY
