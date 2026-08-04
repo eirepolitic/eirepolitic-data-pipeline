@@ -29,6 +29,7 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
             self.assertTrue(sheet["full"]["cover_shown_once"])
             self.assertTrue(sheet["summary"]["cover_shown_once"])
+
             expected_primary = {
                 name
                 for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
@@ -43,6 +44,8 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertEqual(len(sheet["full"]["scenario_rows"]), len(expected_primary))
             self.assertEqual(set(sheet["full"]["waived_scenarios"]), waived_primary)
             self.assertEqual(len(sheet["full"]["waived_scenarios"]), len(waived_primary))
+            self.assertNotIn("minimum", sheet["full"]["scenario_rows"])
+            self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
             self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
             self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
             for gate in ("title_text_bounds", "chart_text_bounds", "dynamic_text_sizing"):
