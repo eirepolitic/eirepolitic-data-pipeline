@@ -1,12 +1,7 @@
-name: Update validation architecture plan status
+name: Update validation architecture status
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/instagram-content-factory-party-project
-    paths:
-      - ".github/workflows/instagram_factory_validation_plan_status_update.yml"
 
 permissions:
   contents: write
@@ -19,55 +14,50 @@ jobs:
         with:
           ref: feature/instagram-content-factory-party-project
           fetch-depth: 0
-      - name: Update canonical plan
-        shell: bash
+      - name: Insert validation status
         run: |
-          python <<'PY'
+          cat > /tmp/update_plan.py <<'PY'
           from pathlib import Path
 
           path = Path("instagram/CONTENT_FACTORY_PLAN.md")
           text = path.read_text(encoding="utf-8")
           heading = "## Validation review architecture status (2026-08-03)"
-          section = '''## Validation review architecture status (2026-08-03)
+          section = """## Validation review architecture status (2026-08-03)
 
-The production validation architecture is now real-data-first and visual-specific.
+          The production validation architecture is now real-data-first and visual-specific.
 
-Implemented:
+          Implemented:
 
-- horizontal-bar validation profiles driven by the visual catalogue
-- current production data searched before historical production batches
-- up to 12 recent historical unified-model batches searched before waiver
-- full current/historical/synthetic-eligibility/waiver audit stages per scenario
-- synthetic contract-edge data not generated for convenience
-- deduplicated summary review sheet with one representative cover
-- complete audit contact sheet with every scenario
-- compact waiver presentation
-- duplicate visual grouping by SHA-256
-- automatic final-slide whitespace and occupied-height gates
-- automatic media-slot fill and aspect-ratio gates
-- automatic plot-utilization, font-size, bar-thickness, wrapping, and value-label-headroom gates
-- shared tall metric covers and shortened titles for party and constituency projects
-- generic, party, constituency, and historical-fallback regression coverage
+          - horizontal-bar validation profiles driven by the visual catalogue
+          - current production data searched before up to 12 recent historical production batches
+          - full current/historical/synthetic-eligibility/waiver audit stages per scenario
+          - synthetic contract-edge data not generated for convenience
+          - deduplicated summary review sheet and complete audit contact sheet
+          - one representative cover and compact waiver presentation
+          - duplicate visual grouping by SHA-256
+          - automatic whitespace, media-fill, aspect-ratio, plot-utilization, font-size, bar-thickness, wrapping, and value-label-headroom gates
+          - shared tall metric covers and shortened titles for party and constituency projects
+          - generic, party, constituency, and historical-fallback regression coverage
 
-Latest live historical validation loaded eight historical batches, replaced zero current waivers, and retained three waivers. This result confirms the fallback process; it does not imply the waived edge cases are impossible in future data.
+          Latest live historical validation loaded eight historical batches, replaced zero current waivers, and retained three waivers. This confirms the fallback process; it does not imply the waived edge cases are impossible in future data.
 
-Remaining validation gap:
+          Remaining validation gap:
 
-- direct rendered-text bounding-box clipping detection and dynamic font sizing remain future renderer work
+          - direct rendered-text bounding-box clipping detection and dynamic font sizing remain future renderer work
 
-All outputs remain draft, manually triggered, unapproved, and non-publishable.
+          All outputs remain draft, manually triggered, unapproved, and non-publishable.
 
----
+          ---
 
-'''
+          """
           if heading not in text:
               marker = "## Implementation correction — generic factory core"
               if marker not in text:
                   raise SystemExit("Generic-core status marker not found")
-              text = text.replace(marker, section + marker, 1)
-              path.write_text(text, encoding="utf-8")
+              path.write_text(text.replace(marker, section + marker, 1), encoding="utf-8")
           PY
-      - name: Commit update
+          python /tmp/update_plan.py
+      - name: Commit plan
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
