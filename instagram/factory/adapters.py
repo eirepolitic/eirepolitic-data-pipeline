@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .constituency_pilot import (
-    MEMBER_SOURCE,
-    SPEECH_SOURCE,
+    DEBATE_KEYS,
+    MEMBER_KEYS,
     build_constituency_records,
     load_source_rows,
     render_visual,
@@ -55,8 +55,8 @@ def _constituency_historical(
         data_source=data_source,
         project=project,
         current_source_manifest=current_source_manifest,
-        member_logical_key=MEMBER_SOURCE,
-        speech_logical_key=SPEECH_SOURCE,
+        member_logical_key=MEMBER_KEYS[0],
+        speech_logical_key=DEBATE_KEYS[0],
         build_records=build_constituency_records,
     )
 
@@ -70,16 +70,10 @@ def _party_historical(
         data_source=data_source,
         project=project,
         current_source_manifest=current_source_manifest,
-        member_logical_key=MEMBER_SOURCE,
-        speech_logical_key=SPEECH_SOURCE,
+        member_logical_key=MEMBER_KEYS[0],
+        speech_logical_key=DEBATE_KEYS[0],
         build_records=build_party_records,
     )
-
-
-def _party_load_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
-    records, source_manifest, join_manifest = load_party_records(data_source)
-    annotate_current_records(records, source_manifest)
-    return records, source_manifest, join_manifest
 
 
 def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
@@ -148,7 +142,7 @@ ADAPTERS: dict[str, FactoryAdapter] = {
     ),
     "party_issue_profile_v1": FactoryAdapter(
         adapter_id="party_issue_profile_v1",
-        load_records=_party_load_records,
+        load_records=load_party_records,
         build_context=build_party_context,
         build_scenarios=_party_scenarios,
         render_assets=render_party_assets,
