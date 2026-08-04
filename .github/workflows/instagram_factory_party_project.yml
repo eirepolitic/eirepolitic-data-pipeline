@@ -64,6 +64,7 @@ jobs:
             | tee party-live-validation.json
       - name: Summarize historical validation
         id: history_summary
+        if: always()
         shell: bash
         run: |
           python <<'PY'
@@ -71,26 +72,40 @@ jobs:
           import os
           from pathlib import Path
 
-          candidates = list(Path(".").glob("**/project_validation_manifest.json"))
-          if not candidates:
-              raise SystemExit("project_validation_manifest.json was not generated")
-          manifest_path = next(
-              (path for path in candidates if "generated_party_live_tests" in path.parts),
-              candidates[0],
-          )
-          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-          history = manifest.get("historical_search") or {}
           summary = {
-              "manifest_path": str(manifest_path),
-              "loaded_batch_count": int(history.get("loaded_batch_count", 0) or 0),
-              "available_batch_count": int(history.get("available_batch_count", 0) or 0),
-              "replacement_count": int(history.get("replacement_count", 0) or 0),
-              "replacement_scenarios": history.get("replacement_scenarios") or [],
-              "waived_scenario_count": int(manifest.get("waived_scenario_count", 0) or 0),
-              "rendered_scenario_count": int(manifest.get("rendered_scenario_count", 0) or 0),
-              "historical_status": history.get("status"),
+              "loaded_batch_count": "unknown",
+              "available_batch_count": "unknown",
+              "replacement_count": "unknown",
+              "replacement_scenarios": [],
+              "waived_scenario_count": "unknown",
+              "rendered_scenario_count": "unknown",
+              "historical_status": "summary_unavailable",
           }
-          output_dir = manifest_path.parent
+          output_dir = Path("generated_party_live_tests")
+          try:
+              candidates = list(Path(".").rglob("project_validation_manifest.json"))
+              manifest_path = next(
+                  (path for path in candidates if "generated_party_live_tests" in path.parts),
+                  candidates[0] if candidates else None,
+              )
+              if manifest_path is not None:
+                  manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                  history = manifest.get("historical_search") or {}
+                  summary.update({
+                      "manifest_path": str(manifest_path),
+                      "loaded_batch_count": int(history.get("loaded_batch_count", 0) or 0),
+                      "available_batch_count": int(history.get("available_batch_count", 0) or 0),
+                      "replacement_count": int(history.get("replacement_count", 0) or 0),
+                      "replacement_scenarios": history.get("replacement_scenarios") or [],
+                      "waived_scenario_count": int(manifest.get("waived_scenario_count", 0) or 0),
+                      "rendered_scenario_count": int(manifest.get("rendered_scenario_count", 0) or 0),
+                      "historical_status": history.get("status"),
+                  })
+                  output_dir = manifest_path.parent
+          except Exception as exc:
+              summary["summary_error"] = f"{type(exc).__name__}: {exc}"
+
+          output_dir.mkdir(parents=True, exist_ok=True)
           (output_dir / "historical-validation-summary.json").write_text(
               json.dumps(summary, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
@@ -99,6 +114,7 @@ jobs:
               handle.write(f"loaded={summary['loaded_batch_count']}\n")
               handle.write(f"replacements={summary['replacement_count']}\n")
               handle.write(f"waivers={summary['waived_scenario_count']}\n")
+          print(json.dumps(summary, indent=2, sort_keys=True))
           PY
       - name: Upload validation evidence
         if: always()
