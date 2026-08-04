@@ -30,11 +30,7 @@ def _image_element_metrics(element: Mapping[str, Any], reference: str) -> dict[s
         return metrics
     with Image.open(path) as source:
         source_width, source_height = source.size
-    metrics.update({
-        "measurable": True,
-        "source_width": source_width,
-        "source_height": source_height,
-    })
+    metrics.update({"measurable": True, "source_width": source_width, "source_height": source_height})
     if source_width <= 0 or source_height <= 0 or slot_width <= 0 or slot_height <= 0:
         return metrics
     if fit == "contain":
@@ -91,6 +87,7 @@ def validate_slide_layout(
     template: Mapping[str, Any],
     bindings: Mapping[str, Any],
     output_path: Path,
+    text_metrics: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -127,12 +124,29 @@ def validate_slide_layout(
         if float(metrics.get("area_fill_ratio", 0.0)) < min_area:
             errors.append(f"media_area_fill:{metrics['element_id']}:{metrics['area_fill_ratio']}<{min_area}")
 
+    text_reports = list(text_metrics or [])
+    for metric in text_reports:
+        element_id = str(metric.get("element_id") or "text")
+        if metric.get("clipped"):
+            errors.append(f"text_clipped:{element_id}")
+        if metric.get("truncated"):
+            errors.append(f"text_truncated:{element_id}")
+        minimum = int(metric.get("minimum_font_size", 0) or 0)
+        actual = int(metric.get("actual_font_size", 0) or 0)
+        if minimum and actual < minimum:
+            errors.append(f"text_font_size:{element_id}:{actual}<{minimum}")
+        max_lines = int(metric.get("max_lines", 0) or 0)
+        line_count = int(metric.get("line_count", 0) or 0)
+        if max_lines and line_count > max_lines:
+            errors.append(f"text_line_count:{element_id}:{line_count}>{max_lines}")
+
     return {
         "success": not errors,
         "errors": errors,
         "warnings": warnings,
         "whitespace": whitespace,
         "media": media_metrics,
+        "text": text_reports,
         "thresholds": {
             "max_top_whitespace_ratio": max_top,
             "max_bottom_whitespace_ratio": max_bottom,
@@ -163,6 +177,11 @@ def validate_visual_manifest(
         "max_wrapped_label_lines": int(readability.get("max_wrapped_label_lines", 0)),
         "max_value_label_x_ratio": float(readability.get("max_value_label_x_ratio", 0.0)),
         "displayed_item_count": int(readability.get("displayed_item_count", 0)),
+        "category_text_clipped_count": int(readability.get("category_text_clipped_count", 0)),
+        "value_text_clipped_count": int(readability.get("value_text_clipped_count", 0)),
+        "truncated_label_count": int(readability.get("truncated_label_count", 0)),
+        "category_label_font_shrunk": bool(readability.get("category_label_font_shrunk", False)),
+        "value_label_font_shrunk": bool(readability.get("value_label_font_shrunk", False)),
     }
     thresholds = {
         "min_plot_vertical_fill_ratio": float(rules.get("min_plot_vertical_fill_ratio", 0.0)),
@@ -173,17 +192,19 @@ def validate_visual_manifest(
         "min_bar_thickness_px": float(rules.get("min_bar_thickness_px", 0.0)),
         "max_wrapped_label_lines": int(rules.get("max_wrapped_label_lines", 0)),
         "max_value_label_x_ratio": float(rules.get("max_value_label_x_ratio", 1.0)),
+        "max_category_text_clipped_count": int(rules.get("max_category_text_clipped_count", 0)),
+        "max_value_text_clipped_count": int(rules.get("max_value_text_clipped_count", 0)),
+        "max_truncated_label_count": int(rules.get("max_truncated_label_count", 0)),
     }
 
-    minimum_checks = (
+    for metric_name, threshold_name in (
         ("plot_vertical_fill_ratio", "min_plot_vertical_fill_ratio"),
         ("plot_area_ratio", "min_plot_area_ratio"),
         ("category_label_font_size", "min_category_label_font_size"),
         ("value_label_font_size", "min_value_label_font_size"),
         ("axis_font_size", "min_axis_font_size"),
         ("bar_thickness_px", "min_bar_thickness_px"),
-    )
-    for metric_name, threshold_name in minimum_checks:
+    ):
         threshold = thresholds[threshold_name]
         if threshold and metrics[metric_name] < threshold:
             errors.append(f"{metric_name}:{metrics[metric_name]}<{threshold}")
@@ -191,10 +212,16 @@ def validate_visual_manifest(
     max_lines = thresholds["max_wrapped_label_lines"]
     if max_lines and metrics["max_wrapped_label_lines"] > max_lines:
         errors.append(f"max_wrapped_label_lines:{metrics['max_wrapped_label_lines']}>{max_lines}")
-
     max_x = thresholds["max_value_label_x_ratio"]
     if metrics["displayed_item_count"] > 0 and metrics["max_value_label_x_ratio"] > max_x:
         errors.append(f"max_value_label_x_ratio:{metrics['max_value_label_x_ratio']}>{max_x}")
+    for metric_name, threshold_name in (
+        ("category_text_clipped_count", "max_category_text_clipped_count"),
+        ("value_text_clipped_count", "max_value_text_clipped_count"),
+        ("truncated_label_count", "max_truncated_label_count"),
+    ):
+        if metrics[metric_name] > thresholds[threshold_name]:
+            errors.append(f"{metric_name}:{metrics[metric_name]}>{thresholds[threshold_name]}")
 
     return {
         "success": not errors,
