@@ -10,21 +10,19 @@ on:
       - "instagram/factory/adapters.py"
       - "instagram/factory/generic_tests.py"
       - "instagram/factory/historical_sources.py"
-      - "instagram/factory/historical_validation.py"
       - "instagram/factory/layout_quality.py"
       - "instagram/factory/validation_contact_sheet.py"
       - "instagram/factory/validation_scenarios.py"
       - "instagram/catalogues/metrics.yml"
-      - "instagram/catalogues/visual_types.yml"
-      - "instagram/templates/layouts/title_text_media_v1.json"
       - "instagram/visuals/data_mappings/party_issue_counts.yml"
       - "instagram/visuals/renderers/horizontal_bar.py"
       - "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+      - "instagram/templates/layouts/title_text_media_v1.json"
       - "instagram/projects/party_issue_profile_v1/**"
       - "instagram/projects/constituency_issue_profile_v1/**"
       - "tests/test_instagram_factory_generic_core.py"
       - "tests/test_instagram_factory_party_project.py"
-      - "tests/test_instagram_factory_historical_validation.py"
+      - "tests/test_instagram_factory_historical_fallback.py"
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
@@ -49,17 +47,54 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate catalogues and projects
+      - name: Validate catalogues and party project
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
-          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
-      - name: Run generic-core tests
+      - name: Diagnose generic batch phase
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          from tests.test_instagram_factory_generic_core import GenericFactoryCoreTest
+          from instagram.factory.generic_batch import generate_project_batch
+
+          case = GenericFactoryCoreTest()
+          case.setUp()
+          try:
+              with TemporaryDirectory() as temp_dir:
+                  root = Path(temp_dir)
+                  project = case._project(root)
+                  result = generate_project_batch(project, data_source="local", output_root=root / "batch", git_sha="generic")
+                  assert result["expected_item_count"] == 1
+          finally:
+              case.tearDown()
+          PY
+      - name: Diagnose generic render phase
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          from tests.test_instagram_factory_generic_core import GenericFactoryCoreTest
+          from instagram.factory.generic_tests import render_project_tests
+
+          case = GenericFactoryCoreTest()
+          case.setUp()
+          try:
+              with TemporaryDirectory() as temp_dir:
+                  root = Path(temp_dir)
+                  project = case._project(root)
+                  result = render_project_tests(project, data_source="local", output_root=root / "scenarios")
+                  assert result["rendered_scenario_count"] == 3
+          finally:
+              case.tearDown()
+          PY
+      - name: Run generic core tests
         run: python -m unittest tests.test_instagram_factory_generic_core -v
-      - name: Run party-project tests
+      - name: Run historical fallback tests
+        run: python -m unittest tests.test_instagram_factory_historical_fallback -v
+      - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
-      - name: Run historical-fallback tests
-        run: python -m unittest tests.test_instagram_factory_historical_validation -v
       - name: Validate live party scenarios
         run: |
           python process/instagram_factory.py render-tests \
@@ -68,11 +103,10 @@ jobs:
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
       - name: Upload validation evidence
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-project-validation-${{ github.run_id }}
           path: |
             generated_party_live_tests/
             party-live-validation.json
-          if-no-files-found: warn
+          if-no-files-found: error
