@@ -82,6 +82,14 @@ def _find_slide(manifest: dict[str, Any], slide_id: str) -> dict[str, Any] | Non
     return None
 
 
+def _visual_slide(manifest: dict[str, Any]) -> dict[str, Any] | None:
+    slide = _find_slide(manifest, "issue_profile")
+    if slide is not None:
+        return slide
+    visual_slides = [item for item in manifest.get("slides") or [] if str(item.get("slide_id")) != "cover"]
+    return visual_slides[0] if visual_slides else None
+
+
 def _metric_summary(metrics: Any) -> str:
     if not isinstance(metrics, dict):
         return ""
@@ -108,51 +116,73 @@ def _metric_summary(metrics: Any) -> str:
     return " · ".join(parts)
 
 
+def _cover_manifest(rendered: list[dict[str, Any]]) -> dict[str, Any] | None:
+    cover = next((item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")), None)
+    return cover or next((item for item in rendered if _find_slide(item, "cover")), None)
+
+
+def _full_scenario_rows(
+    manifests: dict[str, dict[str, Any]],
+    scenario_order: list[str],
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
+    rendered = [manifests[name] for name in scenario_order if name in manifests and manifests[name].get("status") == "rendered"]
+    waived = [
+        manifests[name]
+        for name in scenario_order
+        if name in manifests
+        and name not in LEGACY_ALIAS_SCENARIOS
+        and manifests[name].get("status") == "waived"
+    ]
+    rows: list[dict[str, Any]] = []
+    for name in scenario_order:
+        if name in LEGACY_ALIAS_SCENARIOS:
+            continue
+        manifest = manifests.get(name)
+        if not manifest or manifest.get("status") != "rendered":
+            continue
+        slide = _visual_slide(manifest)
+        if slide is None:
+            continue
+        rows.append({
+            "sha256": None,
+            "slide": slide,
+            "scenarios": [name],
+            "sources": [str(manifest.get("source_item_label") or "").strip()],
+            "selection_reasons": [str(manifest.get("selection_reason") or "").strip()],
+            "metrics": manifest.get("scenario_metrics"),
+        })
+    return _cover_manifest(rendered), rows, waived
+
+
 def _summary_groups(
     root: Path,
     manifests: dict[str, dict[str, Any]],
     scenario_order: list[str],
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
-    rendered = [manifests[name] for name in scenario_order if name in manifests and manifests[name].get("status") == "rendered"]
-    waived = [manifests[name] for name in scenario_order if name in manifests and manifests[name].get("status") == "waived"]
-
-    cover_manifest = next((item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")), None)
-    if cover_manifest is None:
-        cover_manifest = next((item for item in rendered if _find_slide(item, "cover")), None)
-
+    cover, rows, waived = _full_scenario_rows(manifests, scenario_order)
     grouped: dict[str, dict[str, Any]] = {}
-    for manifest in rendered:
-        scenario = str(manifest.get("scenario") or "unknown")
-        if scenario in LEGACY_ALIAS_SCENARIOS:
-            continue
-        slide = _find_slide(manifest, "issue_profile")
-        if slide is None:
-            visual_slides = [item for item in manifest.get("slides") or [] if str(item.get("slide_id")) != "cover"]
-            slide = visual_slides[0] if visual_slides else None
-        if slide is None:
-            continue
-        path = root / str(slide["path"])
+    for row in rows:
+        path = root / str(row["slide"]["path"])
         digest = _sha256(path)
         group = grouped.setdefault(
             digest,
             {
                 "sha256": digest,
-                "slide": slide,
+                "slide": row["slide"],
                 "scenarios": [],
                 "sources": [],
                 "selection_reasons": [],
-                "metrics": manifest.get("scenario_metrics"),
+                "metrics": row.get("metrics"),
             },
         )
-        group["scenarios"].append(scenario)
-        source = str(manifest.get("source_item_label") or "").strip()
-        if source and source not in group["sources"]:
-            group["sources"].append(source)
-        reason = str(manifest.get("selection_reason") or "").strip()
-        if reason and reason not in group["selection_reasons"]:
-            group["selection_reasons"].append(reason)
-
-    return cover_manifest, list(grouped.values()), waived
+        group["scenarios"].extend(row["scenarios"])
+        for source in row.get("sources") or []:
+            if source and source not in group["sources"]:
+                group["sources"].append(source)
+        for reason in row.get("selection_reasons") or []:
+            if reason and reason not in group["selection_reasons"]:
+                group["selection_reasons"].append(reason)
+    return cover, list(grouped.values()), waived
 
 
 def _draw_badges(draw: ImageDraw.ImageDraw, x: int, y: int, badges: list[str], *, max_width: int) -> int:
@@ -172,7 +202,7 @@ def _draw_badges(draw: ImageDraw.ImageDraw, x: int, y: int, badges: list[str], *
     return cursor_y + 50
 
 
-def _draw_summary_cover(canvas: Image.Image, root: Path, manifest: dict[str, Any], y: int) -> None:
+def _draw_cover(canvas: Image.Image, root: Path, manifest: dict[str, Any], y: int) -> None:
     draw = ImageDraw.Draw(canvas)
     row = (MARGIN, y, PAGE_WIDTH - MARGIN, y + SUMMARY_ROW_HEIGHT - 20)
     draw.rounded_rectangle(row, radius=28, fill="#f7f7f4", outline="#c8c8c2", width=3)
@@ -188,20 +218,20 @@ def _draw_summary_cover(canvas: Image.Image, root: Path, manifest: dict[str, Any
         draw.rounded_rectangle((x, y + 70, x + SUMMARY_THUMBNAIL_WIDTH, y + 70 + SUMMARY_THUMBNAIL_HEIGHT), radius=18, outline="#888888", width=3)
 
 
-def _draw_summary_visual(canvas: Image.Image, root: Path, group: dict[str, Any], y: int) -> None:
+def _draw_visual_row(canvas: Image.Image, root: Path, group: dict[str, Any], y: int) -> None:
     draw = ImageDraw.Draw(canvas)
     row = (MARGIN, y, PAGE_WIDTH - MARGIN, y + SUMMARY_ROW_HEIGHT - 20)
     draw.rounded_rectangle(row, radius=28, fill="#f7f7f4", outline="#c8c8c2", width=3)
     text_x = MARGIN + 30
     text_y = _draw_badges(draw, text_x, y + 28, list(group["scenarios"]), max_width=SUMMARY_METADATA_WIDTH - 70)
-    sources = ", ".join(group.get("sources") or []) or "Unknown source"
+    sources = ", ".join(source for source in (group.get("sources") or []) if source) or "Unknown source"
     draw.text((text_x, text_y), "Source", font=_font(24, bold=True), fill="#202020")
     text_y = _draw_wrapped(draw, (text_x, text_y + 34), sources, font=_font(26), fill="#333333", width=35, line_height=34, max_lines=3) + 18
     metric_text = _metric_summary(group.get("metrics"))
     if metric_text:
         draw.text((text_x, text_y), "Key metrics", font=_font(24, bold=True), fill="#202020")
         text_y = _draw_wrapped(draw, (text_x, text_y + 34), metric_text, font=_font(24), fill="#333333", width=38, line_height=32, max_lines=5) + 18
-    reasons = group.get("selection_reasons") or []
+    reasons = [reason for reason in (group.get("selection_reasons") or []) if reason]
     if reasons:
         draw.text((text_x, text_y), "Selection", font=_font(24, bold=True), fill="#202020")
         _draw_wrapped(draw, (text_x, text_y + 34), reasons[0], font=_font(22), fill="#555555", width=42, line_height=30, max_lines=4)
@@ -229,6 +259,63 @@ def _draw_waiver_block(canvas: Image.Image, waived: list[dict[str, Any]], y: int
     return y + height
 
 
+def _build_review_sheet(
+    *,
+    root: Path,
+    project_id: str,
+    cover: dict[str, Any] | None,
+    groups: list[dict[str, Any]],
+    waived: list[dict[str, Any]],
+    filename: str,
+    title: str,
+    subtitle: str,
+) -> dict[str, Any]:
+    row_count = len(groups) + (1 if cover else 0)
+    waiver_height = 120 + len(waived) * 95 if waived else 0
+    height = SUMMARY_HEADER_HEIGHT + row_count * SUMMARY_ROW_HEIGHT + waiver_height + MARGIN
+    canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
+    draw = ImageDraw.Draw(canvas)
+    draw.text((MARGIN, 45), title, font=_font(58, bold=True), fill="#173d30")
+    draw.text((MARGIN, 124), subtitle, font=_font(28), fill="#444444")
+    y = SUMMARY_HEADER_HEIGHT
+    if cover:
+        _draw_cover(canvas, root, cover, y)
+        y += SUMMARY_ROW_HEIGHT
+    for group in groups:
+        _draw_visual_row(canvas, root, group, y)
+        y += SUMMARY_ROW_HEIGHT
+    _draw_waiver_block(canvas, waived, y)
+    canvas.save(root / filename, format="PNG", optimize=True)
+    return {
+        "pages": [filename],
+        "visual_row_count": len(groups),
+        "cover_shown_once": bool(cover),
+        "waived_scenario_count": len(waived),
+        "scenario_rows": [scenario for group in groups for scenario in group["scenarios"]],
+        "waived_scenarios": [item.get("scenario") for item in waived],
+    }
+
+
+def _build_full_sheet(
+    *,
+    root: Path,
+    project_id: str,
+    scenario_manifests: dict[str, dict[str, Any]],
+    scenario_order: list[str],
+) -> dict[str, Any]:
+    cover, rows, waived = _full_scenario_rows(scenario_manifests, scenario_order)
+    return _build_review_sheet(
+        root=root,
+        project_id=project_id,
+        cover=cover,
+        groups=rows,
+        waived=waived,
+        filename="validation_contact_sheet.png",
+        title=f"{project_id} validation contact sheet",
+        subtitle="Every defined visual scenario shown once · cover shown once · compact waivers · not for publication",
+    )
+
+
 def _build_summary_sheet(
     *,
     root: Path,
@@ -237,39 +324,27 @@ def _build_summary_sheet(
     scenario_order: list[str],
 ) -> dict[str, Any]:
     cover, groups, waived = _summary_groups(root, scenario_manifests, scenario_order)
-    row_count = len(groups) + (1 if cover else 0)
-    waiver_height = 120 + len(waived) * 95 if waived else 0
-    height = SUMMARY_HEADER_HEIGHT + row_count * SUMMARY_ROW_HEIGHT + waiver_height + MARGIN
-    canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
-    draw = ImageDraw.Draw(canvas)
-    draw.text((MARGIN, 45), f"{project_id} validation summary", font=_font(58, bold=True), fill="#173d30")
-    draw.text((MARGIN, 124), "Unique renders only · cover shown once · compact waivers · not for publication", font=_font(28), fill="#444444")
-    y = SUMMARY_HEADER_HEIGHT
-    if cover:
-        _draw_summary_cover(canvas, root, cover, y)
-        y += SUMMARY_ROW_HEIGHT
-    for group in groups:
-        _draw_summary_visual(canvas, root, group, y)
-        y += SUMMARY_ROW_HEIGHT
-    _draw_waiver_block(canvas, waived, y)
-    filename = "validation_contact_sheet.png"
-    canvas.save(root / filename, format="PNG", optimize=True)
-    return {
-        "pages": [filename],
-        "unique_visual_count": len(groups),
-        "cover_shown_once": bool(cover),
-        "waived_scenario_count": len(waived),
-        "render_groups": [
-            {
-                "sha256": group["sha256"],
-                "scenarios": group["scenarios"],
-                "sources": group["sources"],
-                "slide_path": group["slide"]["path"],
-            }
-            for group in groups
-        ],
-        "waived_scenarios": [item.get("scenario") for item in waived],
-    }
+    result = _build_review_sheet(
+        root=root,
+        project_id=project_id,
+        cover=cover,
+        groups=groups,
+        waived=waived,
+        filename="validation_summary_contact_sheet.png",
+        title=f"{project_id} validation summary",
+        subtitle="Unique renders only · cover shown once · compact waivers · not for publication",
+    )
+    result["unique_visual_count"] = len(groups)
+    result["render_groups"] = [
+        {
+            "sha256": group["sha256"],
+            "scenarios": group["scenarios"],
+            "sources": group["sources"],
+            "slide_path": group["slide"]["path"],
+        }
+        for group in groups
+    ]
+    return result
 
 
 def _audit_metadata(manifest: dict[str, Any]) -> list[tuple[str, str]]:
@@ -345,6 +420,12 @@ def build_validation_contact_sheet(
     scenario_manifests: dict[str, dict[str, Any]],
     scenario_order: list[str],
 ) -> dict[str, Any]:
+    full = _build_full_sheet(
+        root=root,
+        project_id=project_id,
+        scenario_manifests=scenario_manifests,
+        scenario_order=scenario_order,
+    )
     summary = _build_summary_sheet(
         root=root,
         project_id=project_id,
@@ -359,11 +440,12 @@ def build_validation_contact_sheet(
     )
     manifest = {
         "project_id": project_id,
-        "layout": "deduplicated_summary_plus_complete_audit",
+        "layout": "full_review_plus_deduplicated_summary_plus_complete_audit",
         "scenario_count": len([name for name in scenario_order if name in scenario_manifests]),
+        "full": full,
         "summary": summary,
         "audit": audit,
-        "pages": summary["pages"],
+        "pages": full["pages"],
         "scenario_order": [name for name in scenario_order if name in scenario_manifests],
     }
     write_json(root / "validation_contact_sheet_manifest.json", manifest)
