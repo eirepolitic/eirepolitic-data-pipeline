@@ -4,13 +4,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from PIL import Image, ImageDraw, ImageFont
+
 from .constituency_pilot import (
     DEBATE_KEYS,
     MEMBER_KEYS,
     build_constituency_records,
     load_source_rows,
     render_visual,
-    write_cover_asset,
 )
 from .historical_sources import annotate_current_records, load_historical_joined_records
 from .party_adapter import (
@@ -65,7 +66,7 @@ def _party_historical(
     data_source: str,
     project: dict[str, Any],
     current_source_manifest: dict[str, Any],
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], dict[str,Any]]:
     return load_historical_joined_records(
         data_source=data_source,
         project=project,
@@ -84,10 +85,16 @@ def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> di
         **record,
         project["granularity"]["label_field"]: constituency,
         "display_label": constituency,
-        "display_constituency": record.get("display_constituency", constituency),
+        "display_constituency": constituency,
+        "display_constituency_key": constituency_key,
+        "result_constituency": constituency,
+        "result_constituency_key": constituency_key,
+        "result_issue_count": int(record.get("issue_count", len(rows))),
+        "result_speech_count": int(record.get("speech_count", 0)),
         "item_key": constituency_key,
         "issue_rows": rows,
         "issue_count": len(rows),
+        "speech_count": sum(int(row.get("value", 0)) for row in rows),
         "scenario": record.get("scenario", "batch_item"),
         "synthetic": bool(record.get("synthetic", False)),
         "no_publication": True,
@@ -103,11 +110,34 @@ def _constituency_scenarios(records: list[dict[str, Any]], project: dict[str, An
     )
 
 
+def _write_constituency_cover(path: Path, context: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image = Image.new("RGB", (1032, 1210), "#173d30")
+    draw = ImageDraw.Draw(image)
+    try:
+        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 124)
+        label_font = ImageFont.truetype("DejaVuSans.ttf", 38)
+    except OSError:
+        number_font = ImageFont.load_default()
+        label_font = ImageFont.load_default()
+
+    draw.rounded_rectangle((34, 34, 998, 1176), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
+    metrics = [
+        (context.get("member_count", 0), "CURRENT TDS"),
+        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),
+        (context.get("issue_count", 0), "ISSUE CATEGORIES SHOWN"),
+    ]
+    for (value, label), center_y in zip(metrics, (255, 600, 945)):
+        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")
+        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")
+    image.save(path, format="PNG")
+
+
 def _constituency_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
     assets_dir = item_dir / "assets"
     cover_asset = assets_dir / "cover.png"
     visual_asset = assets_dir / "visual.png"
-    write_cover_asset(cover_asset, context)
+    _write_constituency_cover(cover_asset, context)
     visual_manifest = render_visual(
         visual_asset,
         item_dir / "metadata/visual.json",
