@@ -68,6 +68,10 @@ def _iso(value: datetime | None) -> str | None:
     return value.isoformat() if value is not None else None
 
 
+def _timestamp(value: datetime | None) -> float:
+    return float(value.timestamp()) if value is not None else 0.0
+
+
 def load_historical_joined_records(
     *,
     data_source: str,
@@ -143,14 +147,10 @@ def load_historical_joined_records(
             "sort_timestamp": _iso(newest),
         })
         manifest["attempted_batches"].append(attempt)
-        candidates.append({**attempt, "sort_value": newest})
+        candidates.append({**attempt, "sort_epoch": _timestamp(newest)})
 
     candidates.sort(
-        key=lambda row: (
-            row.get("sort_value") is not None,
-            row.get("sort_value") or datetime.min,
-            row["batch_id"],
-        ),
+        key=lambda row: (float(row.get("sort_epoch", 0.0)), str(row["batch_id"])),
         reverse=True,
     )
 
