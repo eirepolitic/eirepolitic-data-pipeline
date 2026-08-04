@@ -5,11 +5,12 @@ from pathlib import Path
 from typing import Any
 
 from instagram.renderer.template_renderer import render_template
-from instagram.visuals.renderers.common import write_json
+from instagram.visuals.renderers.common import load_yaml, write_json
 
 from .adapters import get_adapter
 from .catalogues import REPO_ROOT, CatalogueSet, load_catalogues
 from .common import replace_tokens
+from .layout_quality import validate_slide_layout, validate_visual_manifest
 from .project import load_project, validate_project
 from .validation_contact_sheet import build_validation_contact_sheet
 
@@ -51,7 +52,8 @@ def render_project_tests(
         root = REPO_ROOT / root
     root.mkdir(parents=True, exist_ok=True)
 
-    template_cache: dict[str, dict[str, Any]] = {}
+    layout_cache: dict[str, dict[str, Any]] = {}
+    visual_template_cache: dict[str, dict[str, Any]] = {}
     scenario_manifests: dict[str, Any] = {}
     rendered_count = 0
     waived_count = 0
@@ -92,18 +94,50 @@ def render_project_tests(
         for slide in sorted(project["slides"], key=lambda row: row["order"]):
             post_type = catalogues.post_types[slide["post_type_id"]]
             layout_path = str(post_type["layout_path"])
-            if layout_path not in template_cache:
-                template_cache[layout_path] = json.loads((REPO_ROOT / layout_path).read_text(encoding="utf-8"))
+            if layout_path not in layout_cache:
+                layout_cache[layout_path] = json.loads((REPO_ROOT / layout_path).read_text(encoding="utf-8"))
+            layout = layout_cache[layout_path]
             bindings = {key: replace_tokens(value, context) for key, value in slide.get("text", {}).items()}
             bindings["main_media"] = str(adapter.media_for_slide(slide, asset_result["paths"]))
             output_path = scenario_dir / f"{slide['order']:02d}_{slide['slide_id']}.png"
-            result = render_template(template_cache[layout_path], bindings, output_path)
+            result = render_template(layout, bindings, output_path)
             if result.warnings:
                 raise ValueError(f"Render warnings for {scenario_name}/{slide['slide_id']}: {result.warnings}")
+
+            layout_quality = validate_slide_layout(
+                template=layout,
+                bindings=bindings,
+                output_path=output_path,
+            )
+            if not layout_quality["success"]:
+                raise ValueError(
+                    f"Layout quality failed for {scenario_name}/{slide['slide_id']}: "
+                    + "; ".join(layout_quality["errors"])
+                )
+
+            visual_quality = None
+            visual = slide.get("visual")
+            if isinstance(visual, dict):
+                visual_type = catalogues.visual_types[visual["visual_type_id"]]
+                visual_template_path = str(visual_type["template_path"])
+                if visual_template_path not in visual_template_cache:
+                    visual_template_cache[visual_template_path] = load_yaml(REPO_ROOT / visual_template_path)
+                visual_quality = validate_visual_manifest(
+                    visual_manifest=asset_result.get("visual_manifest"),
+                    template=visual_template_cache[visual_template_path],
+                )
+                if not visual_quality["success"]:
+                    raise ValueError(
+                        f"Visual quality failed for {scenario_name}/{slide['slide_id']}: "
+                        + "; ".join(visual_quality["errors"])
+                    )
+
             rendered.append({
                 "slide_id": slide["slide_id"],
                 "path": str(output_path.relative_to(root)),
                 "warnings": [],
+                "layout_quality": layout_quality,
+                "visual_quality": visual_quality,
             })
 
         scenario_manifest = {
@@ -149,6 +183,11 @@ def render_project_tests(
         "waived_scenario_count": waived_count,
         "scenario_manifests": scenario_manifests,
         "validation_contact_sheet": contact_sheet,
+        "quality_gates": {
+            "layout_utilization": True,
+            "media_slot_fill": True,
+            "visual_plot_utilization": True,
+        },
         "review_state": "needs_review",
         "approved": False,
         "publishing_allowed": False,
