@@ -7,20 +7,20 @@ on:
       - feature/instagram-content-factory-party-project
     paths:
       - "instagram/factory/**"
-      - "instagram/catalogues/**"
-      - "instagram/templates/layouts/title_text_media_v1.json"
+      - "instagram/catalogues/metrics.yml"
       - "instagram/visuals/data_mappings/party_issue_counts.yml"
       - "instagram/visuals/renderers/horizontal_bar.py"
       - "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+      - "instagram/templates/layouts/title_text_media_v1.json"
       - "instagram/projects/party_issue_profile_v1/**"
       - "instagram/projects/constituency_issue_profile_v1/**"
       - "tests/test_instagram_factory_generic_core.py"
       - "tests/test_instagram_factory_party_project.py"
-      - "tests/test_instagram_factory_historical_validation.py"
+      - "tests/test_instagram_factory_historical_fallback.py"
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -33,9 +33,6 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-content-factory-party-project
-          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -44,30 +41,64 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate catalogues and projects
+      - name: Validate catalogues and party project
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
-          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
-      - name: Run generic-core tests
+      - name: Diagnose generic batch phase
+        id: generic_batch_diag
         shell: bash
         run: |
-          set +e
-          python -m unittest tests.test_instagram_factory_generic_core -v > generic-core-failure.txt 2>&1
-          status=$?
-          cat generic-core-failure.txt
-          if [ "$status" -ne 0 ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -f generic-core-failure.txt
-            git commit -m "diagnostic(instagram): capture generic-core failure"
-            git push origin HEAD:feature/instagram-content-factory-party-project
-          fi
-          exit "$status"
-      - name: Run party-project tests
+          python <<'PY'
+          import os
+          import re
+          import traceback
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+
+          status = "success"
+          error = "none"
+          case = None
+          try:
+              from tests.test_instagram_factory_generic_core import GenericFactoryCoreTest
+              from instagram.factory.generic_batch import generate_project_batch
+              case = GenericFactoryCoreTest("test_batch_and_scenarios_support_national_grain")
+              case.setUp()
+              with TemporaryDirectory() as temp_dir:
+                  root = Path(temp_dir)
+                  project = case._project(root)
+                  result = generate_project_batch(project, data_source="local", output_root=root / "batch", git_sha="generic")
+                  assert result["expected_item_count"] == 1
+          except Exception as exc:
+              status = "failure"
+              error = f"{type(exc).__name__}-{exc}"
+              traceback.print_exc()
+          finally:
+              if case is not None:
+                  try:
+                      case.tearDown()
+                  except Exception:
+                      pass
+          error = re.sub(r"[^A-Za-z0-9._-]+", "-", error).strip("-")[:160] or "unknown"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"status={status}\n")
+              handle.write(f"error={error}\n")
+          Path("generic-batch-diagnostic.txt").write_text(f"status={status}\nerror={error}\n", encoding="utf-8")
+          PY
+      - name: Upload generic batch diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: generic-batch-${{ steps.generic_batch_diag.outputs.status }}-${{ steps.generic_batch_diag.outputs.error }}
+          path: generic-batch-diagnostic.txt
+      - name: Stop on generic batch failure
+        if: steps.generic_batch_diag.outputs.status != 'success'
+        run: exit 1
+      - name: Run generic core tests
+        run: python -m unittest tests.test_instagram_factory_generic_core -v
+      - name: Run historical fallback tests
+        run: python -m unittest tests.test_instagram_factory_historical_fallback -v
+      - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
-      - name: Run historical-fallback tests
-        run: python -m unittest tests.test_instagram_factory_historical_validation -v
       - name: Validate live party scenarios
         run: |
           python process/instagram_factory.py render-tests \
@@ -76,11 +107,10 @@ jobs:
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
       - name: Upload validation evidence
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-project-validation-${{ github.run_id }}
           path: |
             generated_party_live_tests/
             party-live-validation.json
-          if-no-files-found: warn
+          if-no-files-found: error
