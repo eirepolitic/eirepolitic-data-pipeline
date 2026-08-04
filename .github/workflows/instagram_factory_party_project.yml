@@ -63,7 +63,7 @@ jobs:
             --data-source s3 \
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
-      - name: Verify contact sheet outputs
+      - name: Prepare contact sheet verification
         shell: bash
         run: |
           set -euo pipefail
@@ -77,10 +77,6 @@ jobs:
           root = Path("generated_party_live_tests")
           manifest = json.loads((root / "validation_contact_sheet_manifest.json").read_text(encoding="utf-8"))
           project = json.loads((root / "project_validation_manifest.json").read_text(encoding="utf-8"))
-
-          if manifest.get("layout") != "full_review_plus_deduplicated_summary_plus_complete_audit":
-              raise SystemExit(f"Unexpected contact sheet layout: {manifest.get('layout')}")
-
           full = manifest.get("full") or {}
           rendered = set(full.get("scenario_rows") or [])
           waived = set(full.get("waived_scenarios") or [])
@@ -90,18 +86,17 @@ jobs:
               for name in project.get("required_scenarios") or []
               if name not in {"minimum", "maximum"}
           }
-          if represented != required:
-              missing = sorted(required - represented)
-              unexpected = sorted(represented - required)
-              raise SystemExit(f"Primary contact sheet scenario mismatch; missing={missing}; unexpected={unexpected}")
-
           evidence = {
+              "layout": manifest.get("layout"),
               "primary_file": "validation_contact_sheet.png",
               "primary_exists": (root / "validation_contact_sheet.png").is_file(),
               "rendered_scenarios": sorted(rendered),
               "waived_scenarios": sorted(waived),
               "represented_scenario_count": len(represented),
               "required_scenario_count": len(required),
+              "missing_scenarios": sorted(required - represented),
+              "unexpected_scenarios": sorted(represented - required),
+              "coverage_matches": represented == required,
           }
           (root / "contact-sheet-verification.json").write_text(
               json.dumps(evidence, indent=2, sort_keys=True) + "\n",
@@ -138,3 +133,22 @@ jobs:
             generated_party_live_tests/
             party-live-validation.json
           if-no-files-found: error
+      - name: Enforce contact sheet coverage
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          from pathlib import Path
+
+          evidence = json.loads(
+              Path("generated_party_live_tests/contact-sheet-verification.json").read_text(encoding="utf-8")
+          )
+          if evidence.get("layout") != "full_review_plus_deduplicated_summary_plus_complete_audit":
+              raise SystemExit(f"Unexpected contact sheet layout: {evidence.get('layout')}")
+          if not evidence.get("coverage_matches"):
+              raise SystemExit(
+                  "Primary contact sheet coverage mismatch; "
+                  f"missing={evidence.get('missing_scenarios')}; "
+                  f"unexpected={evidence.get('unexpected_scenarios')}"
+              )
+          PY
