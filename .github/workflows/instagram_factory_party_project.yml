@@ -7,6 +7,7 @@ on:
       - feature/instagram-content-factory-party-project
     paths:
       - "instagram/factory/**"
+      - "instagram/renderer/template_renderer.py"
       - "instagram/catalogues/metrics.yml"
       - "instagram/visuals/data_mappings/party_issue_counts.yml"
       - "instagram/visuals/renderers/horizontal_bar.py"
@@ -21,7 +22,7 @@ on:
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -34,92 +35,6 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-content-factory-party-project
-          fetch-depth: 0
-      - name: Apply measured text-bound wiring
-        shell: bash
-        run: |
-          python <<'PY'
-          from pathlib import Path
-
-          path = Path("instagram/factory/generic_tests.py")
-          text = path.read_text(encoding="utf-8")
-          text = text.replace(
-              '''            layout_quality = validate_slide_layout(
-                template=layout,
-                bindings=bindings,
-                output_path=output_path,
-            )
-''',
-              '''            layout_quality = validate_slide_layout(
-                template=layout,
-                bindings=bindings,
-                output_path=output_path,
-                element_metrics=result.element_metrics,
-            )
-''',
-              1,
-          )
-          text = text.replace(
-              '''                "warnings": [],
-                "layout_quality": layout_quality,
-                "visual_quality": visual_quality,
-''',
-              '''                "warnings": [],
-                "element_metrics": result.element_metrics,
-                "layout_quality": layout_quality,
-                "visual_quality": visual_quality,
-''',
-              1,
-          )
-          text = text.replace(
-              '''            "visual_plot_utilization": True,
-            "historical_real_data_fallback": True,
-''',
-              '''            "visual_plot_utilization": True,
-            "title_text_bounds": True,
-            "chart_text_bounds": True,
-            "dynamic_text_sizing": True,
-            "historical_real_data_fallback": True,
-''',
-              1,
-          )
-          path.write_text(text, encoding="utf-8")
-
-          party_path = Path("tests/test_instagram_factory_party_project.py")
-          party = party_path.read_text(encoding="utf-8")
-          marker = '                        self.assertTrue(slide["layout_quality"]["success"])\n'
-          addition = '''                        self.assertTrue(slide["layout_quality"]["success"])
-                        for text_metric in slide["layout_quality"].get("text", {}).values():
-                            self.assertFalse(text_metric["clipped"])
-                            self.assertFalse(text_metric["truncated"])
-                            self.assertGreaterEqual(text_metric["final_font_size"], 42)
-'''
-          if marker in party and addition not in party:
-              party = party.replace(marker, addition, 1)
-          party = party.replace(
-              '                            self.assertLessEqual(quality["metrics"]["max_value_label_x_ratio"], 0.93)\n',
-              '''                            self.assertLessEqual(quality["metrics"]["max_value_label_x_ratio"], 0.98)
-                            self.assertEqual(quality["metrics"]["category_text_clipped_count"], 0)
-                            self.assertEqual(quality["metrics"]["value_text_clipped_count"], 0)
-                            self.assertEqual(quality["metrics"]["truncated_label_count"], 0)
-''',
-              1,
-          )
-          party_path.write_text(party, encoding="utf-8")
-
-          constituency_path = Path("tests/test_instagram_factory_constituency_project.py")
-          constituency = constituency_path.read_text(encoding="utf-8")
-          if marker in constituency and addition not in constituency:
-              constituency = constituency.replace(marker, addition, 1)
-          constituency_path.write_text(constituency, encoding="utf-8")
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/factory/generic_tests.py tests/test_instagram_factory_party_project.py tests/test_instagram_factory_constituency_project.py
-          git commit -m "feat(instagram): enforce measured text bounds in validation" || true
-          git push origin HEAD:feature/instagram-content-factory-party-project
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -150,42 +65,37 @@ jobs:
             | tee party-live-validation.json
       - name: Summarize historical validation
         id: history_summary
-        shell: bash
+        shell: python
         run: |
-          python <<'PY'
           import json
           import os
           from pathlib import Path
 
-          candidates = list(Path(".").glob("**/project_validation_manifest.json"))
-          if not candidates:
-              raise SystemExit("project_validation_manifest.json was not generated")
-          manifest_path = next((path for path in candidates if "generated_party_live_tests" in path.parts), candidates[0])
+          manifest_path = Path("generated_party_live_tests/project_validation_manifest.json")
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-          history = manifest.get("historical_search") or {}
+          history = manifest.get("historical_search", {})
           summary = {
-              "manifest_path": str(manifest_path),
               "loaded_batch_count": int(history.get("loaded_batch_count", 0) or 0),
               "available_batch_count": int(history.get("available_batch_count", 0) or 0),
               "replacement_count": int(history.get("replacement_count", 0) or 0),
-              "replacement_scenarios": history.get("replacement_scenarios") or [],
+              "replacement_scenarios": history.get("replacement_scenarios", []),
               "waived_scenario_count": int(manifest.get("waived_scenario_count", 0) or 0),
               "rendered_scenario_count": int(manifest.get("rendered_scenario_count", 0) or 0),
               "historical_status": history.get("status"),
           }
-          output_dir = manifest_path.parent
-          (output_dir / "historical-validation-summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          Path("generated_party_live_tests/historical-validation-summary.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
               handle.write(f"loaded={summary['loaded_batch_count']}\n")
               handle.write(f"replacements={summary['replacement_count']}\n")
               handle.write(f"waivers={summary['waived_scenario_count']}\n")
-          PY
       - name: Upload validation evidence
-        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: party-project-validation-${{ github.run_id }}-history-${{ steps.history_summary.outputs.loaded || 'unknown' }}-replacements-${{ steps.history_summary.outputs.replacements || 'unknown' }}-waivers-${{ steps.history_summary.outputs.waivers || 'unknown' }}
+          name: party-project-validation-${{ github.run_id }}-history-${{ steps.history_summary.outputs.loaded }}-replacements-${{ steps.history_summary.outputs.replacements }}-waivers-${{ steps.history_summary.outputs.waivers }}
           path: |
             generated_party_live_tests/
             party-live-validation.json
-          if-no-files-found: warn
+          if-no-files-found: error
