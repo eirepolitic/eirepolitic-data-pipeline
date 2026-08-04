@@ -185,7 +185,8 @@ def validate_slide_layout(
         "warnings": warnings,
         "whitespace": whitespace,
         "media": media_metrics,
-        "text": normalized_text,
+        "text": list(normalized_text.values()),
+        "text_by_id": normalized_text,
         "thresholds": {
             "max_top_whitespace_ratio": max_top,
             "max_bottom_whitespace_ratio": max_bottom,
