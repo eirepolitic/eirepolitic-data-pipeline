@@ -26,6 +26,8 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(report["scenario_manifests"]))
             self.assertFalse(report["publishing_allowed"])
             self.assertTrue(report["validation_contact_sheet"]["summary"]["cover_shown_once"])
+            for gate in ("title_text_bounds", "chart_text_bounds", "dynamic_text_sizing"):
+                self.assertTrue(report["quality_gates"][gate])
 
             rendered = [
                 scenario
@@ -37,10 +39,20 @@ class ConstituencyIssueProfileProjectTest(TestCase):
                 self.assertIn(scenario["data_origin"], {"current_real", "historical_real"})
                 for slide in scenario["slides"]:
                     self.assertTrue(slide["layout_quality"]["success"])
+                    for text_metric in slide["layout_quality"].get("text", []):
+                        self.assertFalse(text_metric["clipped"])
+                        self.assertFalse(text_metric["truncated"])
+                        self.assertGreaterEqual(text_metric["final_font_size"], 42)
                     for media in slide["layout_quality"]["media"]:
                         if media.get("measurable") and media.get("fit") == "contain":
                             self.assertGreaterEqual(media["vertical_fill_ratio"], 0.96)
                             self.assertGreaterEqual(media["area_fill_ratio"], 0.90)
+                    if slide["visual_quality"] is not None:
+                        quality = slide["visual_quality"]
+                        self.assertTrue(quality["success"])
+                        self.assertEqual(quality["metrics"]["category_text_clipped_count"], 0)
+                        self.assertEqual(quality["metrics"]["value_text_clipped_count"], 0)
+                        self.assertEqual(quality["metrics"]["truncated_label_count"], 0)
 
             real_cover = next(
                 slide
