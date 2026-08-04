@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 
 from .common import load_palette, utc_now, write_json
 
+PLOT_BOUNDS = [0.27, 0.045, 0.68, 0.91]
+
 
 def _as_float(value: Any, fallback: float = 0.0) -> float:
     try:
@@ -72,7 +74,7 @@ def render(
 
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
-    ax = fig.add_axes([0.27, 0.045, 0.68, 0.91])
+    ax = fig.add_axes(PLOT_BOUNDS)
     ax.set_facecolor(palette["panel"])
 
     if clean_rows and max(values) > 0:
@@ -113,6 +115,7 @@ def render(
     plt.close(fig)
 
     created_at = utc_now()
+    plot_area_ratio = round(PLOT_BOUNDS[2] * PLOT_BOUNDS[3], 4)
     metadata = {
         "visual_id": visual_id,
         "template_id": template.get("template_id"),
@@ -125,6 +128,9 @@ def render(
         "source_note": sample.get("source_note", ""),
         "attribution": sample.get("attribution", {}),
         "rows_rendered": clean_rows,
+        "plot_bounds": PLOT_BOUNDS,
+        "plot_vertical_fill_ratio": PLOT_BOUNDS[3],
+        "plot_area_ratio": plot_area_ratio,
         "warnings": warnings,
     }
     manifest = {
@@ -136,6 +142,9 @@ def render(
         "metadata_path": str(metadata_path),
         "width": width,
         "height": height,
+        "plot_bounds": PLOT_BOUNDS,
+        "plot_vertical_fill_ratio": PLOT_BOUNDS[3],
+        "plot_area_ratio": plot_area_ratio,
         "warnings": warnings,
         "created_at": created_at,
     }
