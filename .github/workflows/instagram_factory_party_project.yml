@@ -16,6 +16,7 @@ on:
       - "instagram/projects/constituency_issue_profile_v1/**"
       - "tests/test_instagram_factory_generic_core.py"
       - "tests/test_instagram_factory_party_project.py"
+      - "tests/test_instagram_factory_constituency_project.py"
       - "tests/test_instagram_factory_historical_fallback.py"
       - ".github/workflows/instagram_factory_party_project.yml"
 
@@ -41,14 +42,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate catalogues and party project
+      - name: Validate catalogues and projects
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
+          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
       - name: Run generic core tests
         run: python -m unittest tests.test_instagram_factory_generic_core -v
       - name: Run historical fallback tests
         run: python -m unittest tests.test_instagram_factory_historical_fallback -v
+      - name: Run constituency project tests
+        run: python -m unittest tests.test_instagram_factory_constituency_project -v
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
