@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from instagram.factory.generic_tests import _combine_scenarios
+from instagram.factory.historical_validation import merge_historical_scenarios
 
 
 class HistoricalFallbackTest(TestCase):
@@ -19,24 +19,19 @@ class HistoricalFallbackTest(TestCase):
         historical = {
             "values_wide": {
                 "scenario": "values_wide",
-                "data_origin": "current_real",
+                "data_origin": "historical_real",
                 "source_item_label": "Historical Party",
                 "source_batch_id": "batch-old",
-                "selection_reason": "Current real record selected.",
+                "selection_reason": "Historical real record selected.",
                 "synthetic": False,
             }
         }
-        combined = _combine_scenarios(
-            required_scenarios=["values_wide"],
-            current=current,
-            historical=historical,
-            historical_manifest={"status": "completed", "loaded_batch_count": 3},
-        )
-        selected = combined["values_wide"]
+        merged, report = merge_historical_scenarios(current, historical)
+        selected = merged["values_wide"]
         self.assertEqual(selected["source_item_label"], "Current Party")
         self.assertEqual(selected["data_origin"], "current_real")
-        self.assertEqual(selected["search_stages"][0]["status"], "matched")
-        self.assertEqual(selected["search_stages"][1]["status"], "not_needed")
+        self.assertEqual(report["replacement_count"], 0)
+        self.assertIn("values_wide", report["retained_current_scenarios"])
 
     def test_historical_real_fills_missing_current_scenario(self) -> None:
         current = {
@@ -51,34 +46,30 @@ class HistoricalFallbackTest(TestCase):
         historical = {
             "single_outlier": {
                 "scenario": "single_outlier",
-                "data_origin": "current_real",
+                "data_origin": "historical_real",
                 "source_item_label": "Historical Party",
+                "source_item_key": "historical-party",
                 "source_batch_id": "batch-old",
-                "historical_batch_rank": 2,
                 "selection_reason": "Current real record with a large outlier.",
                 "synthetic": False,
             }
         }
-        combined = _combine_scenarios(
-            required_scenarios=["single_outlier"],
-            current=current,
-            historical=historical,
-            historical_manifest={"status": "completed", "loaded_batch_count": 4},
-        )
-        selected = combined["single_outlier"]
+        merged, report = merge_historical_scenarios(current, historical)
+        selected = merged["single_outlier"]
         self.assertFalse(selected.get("waived", False))
         self.assertEqual(selected["data_origin"], "historical_real")
         self.assertEqual(selected["source_batch_id"], "batch-old")
-        self.assertIn("Historical real", selected["selection_reason"])
-        self.assertEqual(selected["search_stages"][0]["status"], "no_qualifying_case")
-        self.assertEqual(selected["search_stages"][1]["status"], "matched")
+        self.assertTrue(selected["historical_fallback"])
+        self.assertEqual(selected["search_stages_attempted"], ["current_real", "historical_real"])
+        self.assertIn("No qualifying current production record existed", selected["selection_reason"])
+        self.assertEqual(report["replacement_count"], 1)
 
     def test_waiver_records_current_and_historical_search(self) -> None:
         current = {
             "zeros": {
                 "scenario": "zeros",
                 "waived": True,
-                "waiver_reason": "No current real zero-value category exists.",
+                "waiver_reason": "No current real record contains a displayed zero value.",
                 "data_origin": "waived_no_real_case",
                 "synthetic": False,
             }
@@ -92,18 +83,10 @@ class HistoricalFallbackTest(TestCase):
                 "synthetic": False,
             }
         }
-        combined = _combine_scenarios(
-            required_scenarios=["zeros"],
-            current=current,
-            historical=historical,
-            historical_manifest={"status": "completed", "loaded_batch_count": 5},
-        )
-        selected = combined["zeros"]
+        merged, report = merge_historical_scenarios(current, historical)
+        selected = merged["zeros"]
         self.assertTrue(selected["waived"])
-        self.assertIn("5 loaded batch(es)", selected["waiver_reason"])
-        self.assertEqual([stage["stage"] for stage in selected["search_stages"]], [
-            "current_real",
-            "historical_real",
-            "synthetic_contract_edge",
-            "waived",
-        ])
+        self.assertEqual(selected["search_stages_attempted"], ["current_real", "historical_real"])
+        self.assertIn("current or searched historical real record", selected["waiver_reason"])
+        self.assertEqual(report["replacement_count"], 0)
+        self.assertIn("zeros", report["retained_waivers"])
