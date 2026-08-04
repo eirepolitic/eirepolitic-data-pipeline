@@ -136,21 +136,23 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     image = Image.new("RGB", (1032, 1210), "#173d30")
     draw = ImageDraw.Draw(image)
     try:
-        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 82)
-        body_font = ImageFont.truetype("DejaVuSans.ttf", 38)
+        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 124)
+        label_font = ImageFont.truetype("DejaVuSans.ttf", 38)
     except OSError:
-        title_font = ImageFont.load_default()
-        body_font = ImageFont.load_default()
+        number_font = ImageFont.load_default()
+        label_font = ImageFont.load_default()
+
     draw.rounded_rectangle((34, 34, 998, 1176), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
-    draw.multiline_text((516, 360), context["party"], font=title_font, fill="#f4ead7", anchor="mm", align="center", spacing=14)
-    if context["synthetic"]:
-        detail = f"Results source: {context.get('result_party', context['party'])}"
-        marker = f"SYNTHETIC {context['scenario'].upper()} TEST"
-    else:
-        detail = f"{context.get('member_count', 0)} current TDs · {context.get('speech_count', 0)} classified speeches"
-        marker = "REAL DATA EXAMPLE" if context.get("scenario") == "real_example" else "DRAFT CONTENT FACTORY OUTPUT"
-    draw.text((516, 760), detail, font=body_font, fill="#cbbf9f", anchor="mm")
-    draw.text((516, 1010), marker, font=body_font, fill="#d8b45f", anchor="mm")
+    metrics = [
+        (context.get("member_count", 0), "CURRENT TDS"),
+        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),
+        (context.get("issue_count", 0), "ISSUE CATEGORIES SHOWN"),
+    ]
+    centers = [255, 600, 945]
+    for (value, label), center_y in zip(metrics, centers):
+        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")
+        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")
+
     image.save(path, format="PNG")
 
 
