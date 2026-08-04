@@ -240,7 +240,7 @@ def render_project_tests(
                 template=layout,
                 bindings=bindings,
                 output_path=output_path,
-                element_metrics=result.element_metrics,
+                text_metrics=result.text_metrics,
             )
             if not layout_quality["success"]:
                 raise ValueError(
@@ -269,7 +269,7 @@ def render_project_tests(
                 "slide_id": slide["slide_id"],
                 "path": str(output_path.relative_to(root)),
                 "warnings": [],
-                "element_metrics": result.element_metrics,
+                "text_metrics": result.text_metrics,
                 "layout_quality": layout_quality,
                 "visual_quality": visual_quality,
             })
