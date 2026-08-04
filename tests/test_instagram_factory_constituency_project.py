@@ -25,7 +25,24 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertEqual(report["adapter_id"], "constituency_issue_profile_v1")
             self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(report["scenario_manifests"]))
             self.assertFalse(report["publishing_allowed"])
-            self.assertTrue(report["validation_contact_sheet"]["summary"]["cover_shown_once"])
+            sheet = report["validation_contact_sheet"]
+            self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
+            self.assertTrue(sheet["full"]["cover_shown_once"])
+            self.assertTrue(sheet["summary"]["cover_shown_once"])
+            expected_primary = [
+                name
+                for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
+                if report["scenario_manifests"][name]["status"] == "rendered"
+            ]
+            waived_primary = [
+                name
+                for name in HORIZONTAL_BAR_REQUIRED_SCENARIOS
+                if report["scenario_manifests"][name]["status"] == "waived"
+            ]
+            self.assertEqual(sheet["full"]["scenario_rows"], expected_primary)
+            self.assertEqual(sheet["full"]["waived_scenarios"], waived_primary)
+            self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
+            self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
             for gate in ("title_text_bounds", "chart_text_bounds", "dynamic_text_sizing"):
                 self.assertTrue(report["quality_gates"][gate])
 
