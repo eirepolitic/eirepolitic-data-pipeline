@@ -9,10 +9,18 @@
   "validation": {
     "max_top_whitespace_ratio": 0.08,
     "max_bottom_whitespace_ratio": 0.04,
-    "min_occupied_height_ratio": 0.88
+    "min_occupied_height_ratio": 0.88,
+    "text": {
+      "title": {
+        "min_final_font_size": 42,
+        "max_lines": 2,
+        "allow_truncation": false,
+        "allow_clipping": false
+      }
+    }
   },
   "elements": [
-    {"id": "title", "type": "text", "placeholder": "slide_title", "x": 34, "y": 14, "w": 1012, "h": 96, "style": {"font_family": "default_bold", "font_size": 56, "color": "{palette.text_primary}", "align": "center", "valign": "middle", "max_lines": 2, "shrink_to_fit": true}},
+    {"id": "title", "type": "text", "placeholder": "slide_title", "x": 34, "y": 14, "w": 1012, "h": 96, "style": {"font_family": "default_bold", "font_size": 56, "min_font_size": 42, "color": "{palette.text_primary}", "align": "center", "valign": "middle", "max_lines": 2, "shrink_to_fit": true}},
     {"id": "main_media", "type": "image", "placeholder": "main_media", "x": 24, "y": 116, "w": 1032, "h": 1210, "fit": "contain", "background": "{palette.panel_background}", "radius": 24, "validation": {"min_vertical_fill_ratio": 0.96, "min_area_fill_ratio": 0.90}}
   ]
 }
