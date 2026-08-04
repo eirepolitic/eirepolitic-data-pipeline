@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 from pathlib import Path
 from typing import Any
@@ -10,7 +11,6 @@ from instagram.visuals.renderers.common import load_yaml, write_json
 from .adapters import get_adapter
 from .catalogues import REPO_ROOT, CatalogueSet, load_catalogues
 from .common import replace_tokens
-from .historical_validation import merge_historical_scenarios
 from .layout_quality import validate_slide_layout, validate_visual_manifest
 from .project import load_project, validate_project
 from .validation_contact_sheet import build_validation_contact_sheet
@@ -32,6 +32,107 @@ def _required_scenarios(project: dict[str, Any], catalogues: CatalogueSet) -> li
     return required
 
 
+def _stage(stage: str, status: str, **details: Any) -> dict[str, Any]:
+    return {"stage": stage, "status": status, **details}
+
+
+def _combine_scenarios(
+    *,
+    required_scenarios: list[str],
+    current: dict[str, dict[str, Any]],
+    historical: dict[str, dict[str, Any]],
+    historical_manifest: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    """Prefer current real data, then historical real data, then record a waiver.
+
+    Synthetic contract-edge data is deliberately not generated here. It remains a
+    separately approved future fallback for recurring projects only.
+    """
+    combined: dict[str, dict[str, Any]] = {}
+    loaded_batches = int(historical_manifest.get("loaded_batch_count", 0) or 0)
+    historical_status = str(historical_manifest.get("status") or "not_configured")
+
+    for scenario_name in required_scenarios:
+        current_candidate = current.get(scenario_name)
+        historical_candidate = historical.get(scenario_name)
+        current_matches = bool(current_candidate and current_candidate.get("waived") is not True)
+        historical_matches = bool(historical_candidate and historical_candidate.get("waived") is not True)
+
+        if current_matches:
+            selected = deepcopy(current_candidate)
+            selected["scenario"] = scenario_name
+            selected["data_origin"] = str(selected.get("data_origin") or "current_real")
+            selected["search_stages"] = [
+                _stage("current_real", "matched"),
+                _stage("historical_real", "not_needed", loaded_batch_count=loaded_batches),
+                _stage("synthetic_contract_edge", "not_needed"),
+                _stage("waived", "not_needed"),
+            ]
+            combined[scenario_name] = selected
+            continue
+
+        if historical_matches:
+            selected = deepcopy(historical_candidate)
+            selected["scenario"] = scenario_name
+            selected["data_origin"] = "historical_real"
+            selected["historical_fallback"] = True
+            original_reason = str(
+                selected.get("selection_reason")
+                or "A qualifying historical production record was selected."
+            ).replace("Current real record", "Historical real record")
+            selected["selection_reason"] = (
+                "No qualifying current production record existed. "
+                f"Historical real data selected: {original_reason}"
+            )
+            selected["search_stages"] = [
+                _stage("current_real", "no_qualifying_case"),
+                _stage(
+                    "historical_real",
+                    "matched",
+                    loaded_batch_count=loaded_batches,
+                    source_batch_id=selected.get("source_batch_id"),
+                ),
+                _stage("synthetic_contract_edge", "not_needed"),
+                _stage("waived", "not_needed"),
+            ]
+            combined[scenario_name] = selected
+            continue
+
+        selected = deepcopy(current_candidate or historical_candidate or {})
+        selected.update({
+            "scenario": scenario_name,
+            "waived": True,
+            "synthetic": False,
+            "no_publication": True,
+            "data_origin": "waived_no_real_case",
+        })
+        current_reason = str(
+            (current_candidate or {}).get("waiver_reason")
+            or "No qualifying current production record exists."
+        )
+        historical_reason = str(
+            (historical_candidate or {}).get("waiver_reason")
+            or "No qualifying historical production record exists."
+        )
+        selected["waiver_reason"] = (
+            f"Current production data and {loaded_batches} loaded batch(es) of historical production data were checked. "
+            f"{current_reason} {historical_reason} Synthetic contract-edge data was not generated."
+        )
+        selected["search_stages"] = [
+            _stage("current_real", "no_qualifying_case"),
+            _stage(
+                "historical_real",
+                "no_qualifying_case" if historical_status == "completed" else historical_status,
+                loaded_batch_count=loaded_batches,
+            ),
+            _stage("synthetic_contract_edge", "not_generated"),
+            _stage("waived", "selected"),
+        ]
+        combined[scenario_name] = selected
+
+    return combined
+
+
 def render_project_tests(
     project_path: str | Path,
     *,
@@ -46,13 +147,16 @@ def render_project_tests(
 
     adapter = get_adapter(project)
     records, source_manifest, join_manifest = adapter.load_records(data_source)
-    scenarios = adapter.build_scenarios(records, project)
+    current_scenarios = adapter.build_scenarios(records, project)
+    required_scenarios = _required_scenarios(project, catalogues)
 
     historical_search: dict[str, Any] = {
         "status": "not_configured",
         "record_count": 0,
         "replacement_count": 0,
+        "loaded_batch_count": 0,
     }
+    historical_scenarios: dict[str, dict[str, Any]] = {}
     if adapter.load_historical_records is not None:
         historical_records, historical_manifest = adapter.load_historical_records(
             data_source,
@@ -62,13 +166,20 @@ def render_project_tests(
         historical_search = dict(historical_manifest)
         if historical_records:
             historical_scenarios = adapter.build_scenarios(historical_records, project)
-            scenarios, merge_report = merge_historical_scenarios(scenarios, historical_scenarios)
-            historical_search["merge"] = merge_report
-            historical_search["replacement_count"] = merge_report["replacement_count"]
-        else:
-            historical_search.setdefault("replacement_count", 0)
 
-    required_scenarios = _required_scenarios(project, catalogues)
+    scenarios = _combine_scenarios(
+        required_scenarios=required_scenarios,
+        current=current_scenarios,
+        historical=historical_scenarios,
+        historical_manifest=historical_search,
+    )
+    historical_replacements = [
+        name for name, scenario in scenarios.items()
+        if scenario.get("data_origin") == "historical_real"
+    ]
+    historical_search["replacement_count"] = len(historical_replacements)
+    historical_search["replacement_scenarios"] = historical_replacements
+
     root = Path(output_root or project.get("output", {}).get("local_root") or f"generated_factory_tests/{project['project_id']}")
     if not root.is_absolute():
         root = REPO_ROOT / root
@@ -81,8 +192,6 @@ def render_project_tests(
     waived_count = 0
 
     for scenario_name in required_scenarios:
-        if scenario_name not in scenarios:
-            raise ValueError(f"Adapter did not provide required scenario: {scenario_name}")
         scenario = scenarios[scenario_name]
         scenario_dir = root / scenario_name
 
@@ -97,10 +206,7 @@ def render_project_tests(
                 "status": "waived",
                 "data_origin": str(scenario.get("data_origin", "waived_no_real_case")),
                 "waiver_reason": waiver_reason,
-                "search_stages_attempted": scenario.get(
-                    "search_stages_attempted",
-                    ["current_real", "historical_real"] if historical_search.get("enabled") else ["current_real"],
-                ),
+                "search_stages": scenario.get("search_stages", []),
                 "synthetic": False,
                 "no_publication": True,
                 "slides": [],
@@ -180,10 +286,7 @@ def render_project_tests(
             "source_speech_key": context.get("source_speech_key"),
             "source_last_modified": context.get("source_last_modified"),
             "historical_fallback": bool(context.get("historical_fallback", False)),
-            "search_stages_attempted": context.get(
-                "search_stages_attempted",
-                ["current_real"] if context.get("data_origin") != "historical_real" else ["current_real", "historical_real"],
-            ),
+            "search_stages": context.get("search_stages", []),
             "scenario_metrics": context.get("scenario_metrics"),
             "synthetic": bool(context.get("synthetic", False)),
             "synthetic_reason": context.get("synthetic_reason"),
