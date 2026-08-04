@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 from .common import load_palette, utc_now, write_json
 
 PLOT_BOUNDS = [0.27, 0.045, 0.68, 0.91]
+CATEGORY_LABEL_FONT_SIZE = 15
+VALUE_LABEL_FONT_SIZE = 15
+AXIS_FONT_SIZE = 12
 
 
 def _as_float(value: Any, fallback: float = 0.0) -> float:
@@ -71,17 +74,20 @@ def render(
     clean_rows, warnings = _clean_rows(rows, template, sample)
     labels = [_wrap_label(item["label"]) for item in clean_rows]
     values = [item["value"] for item in clean_rows]
+    wrapped_line_counts = [label.count("\n") + 1 for label in labels]
 
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
     ax = fig.add_axes(PLOT_BOUNDS)
     ax.set_facecolor(palette["panel"])
 
+    bar_height = 0.0
+    max_value_label_x_ratio = 0.0
     if clean_rows and max(values) > 0:
         bar_height = 0.72 if len(clean_rows) <= 4 else 0.62
         ax.barh(range(len(clean_rows)), values, color=palette["accent"], height=bar_height)
         ax.set_yticks(range(len(clean_rows)))
-        ax.set_yticklabels(labels, color=palette["text"], fontsize=15)
+        ax.set_yticklabels(labels, color=palette["text"], fontsize=CATEGORY_LABEL_FONT_SIZE)
         ax.invert_yaxis()
         max_value = max(values)
         x_limit = max_value * 1.20 if max_value else 1
@@ -89,12 +95,14 @@ def render(
         value_format = str(params.get("value_format", "integer"))
         for idx, value in enumerate(values):
             value_label = f"{value:g}%" if value_format == "percent" else (f"{value:,.0f}" if math.isfinite(value) else "0")
+            label_x = value + x_limit * 0.015
+            max_value_label_x_ratio = max(max_value_label_x_ratio, label_x / x_limit)
             ax.text(
-                value + x_limit * 0.015,
+                label_x,
                 idx,
                 value_label,
                 color=palette["text"],
-                fontsize=15,
+                fontsize=VALUE_LABEL_FONT_SIZE,
                 fontweight="bold",
                 va="center",
             )
@@ -105,7 +113,7 @@ def render(
         ax.set_xticks([])
 
     ax.xaxis.grid(True, color=palette["grid"], alpha=0.22)
-    ax.tick_params(axis="x", colors=palette["muted"], labelsize=12)
+    ax.tick_params(axis="x", colors=palette["muted"], labelsize=AXIS_FONT_SIZE)
     for spine in ax.spines.values():
         spine.set_visible(False)
 
@@ -116,6 +124,17 @@ def render(
 
     created_at = utc_now()
     plot_area_ratio = round(PLOT_BOUNDS[2] * PLOT_BOUNDS[3], 4)
+    plot_height_px = height * PLOT_BOUNDS[3]
+    bar_thickness_px = round((plot_height_px / max(len(clean_rows), 1)) * bar_height, 2) if clean_rows else 0.0
+    readability = {
+        "category_label_font_size": CATEGORY_LABEL_FONT_SIZE,
+        "value_label_font_size": VALUE_LABEL_FONT_SIZE,
+        "axis_font_size": AXIS_FONT_SIZE,
+        "bar_thickness_px": bar_thickness_px,
+        "max_wrapped_label_lines": max(wrapped_line_counts, default=0),
+        "max_value_label_x_ratio": round(max_value_label_x_ratio, 4),
+        "displayed_item_count": len(clean_rows),
+    }
     metadata = {
         "visual_id": visual_id,
         "template_id": template.get("template_id"),
@@ -131,6 +150,7 @@ def render(
         "plot_bounds": PLOT_BOUNDS,
         "plot_vertical_fill_ratio": PLOT_BOUNDS[3],
         "plot_area_ratio": plot_area_ratio,
+        "readability": readability,
         "warnings": warnings,
     }
     manifest = {
@@ -145,6 +165,7 @@ def render(
         "plot_bounds": PLOT_BOUNDS,
         "plot_vertical_fill_ratio": PLOT_BOUNDS[3],
         "plot_area_ratio": plot_area_ratio,
+        "readability": readability,
         "warnings": warnings,
         "created_at": created_at,
     }
