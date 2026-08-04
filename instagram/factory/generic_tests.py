@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,77 @@ def _required_scenarios(project: dict[str, Any], catalogues: CatalogueSet) -> li
     return required
 
 
+def _historical_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
+    selected = deepcopy(scenario)
+    selected["data_origin"] = "historical_real"
+    reason = str(selected.get("selection_reason") or "Historical real record selected.")
+    selected["selection_reason"] = reason.replace("Current real", "Historical real")
+    return selected
+
+
+def _combine_scenarios(
+    *,
+    required_scenarios: list[str],
+    current: dict[str, dict[str, Any]],
+    historical: dict[str, dict[str, Any]],
+    historical_manifest: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    combined: dict[str, dict[str, Any]] = {}
+    history_status = str(historical_manifest.get("status") or "not_configured")
+    loaded_batches = int(historical_manifest.get("loaded_batch_count") or 0)
+
+    for scenario_name in required_scenarios:
+        current_case = current.get(scenario_name)
+        historical_case = historical.get(scenario_name)
+        if current_case is None:
+            raise ValueError(f"Current adapter scenarios did not include required scenario: {scenario_name}")
+
+        if current_case.get("waived") is not True:
+            selected = deepcopy(current_case)
+            selected["search_stages"] = [
+                {"stage": "current_real", "status": "matched"},
+                {"stage": "historical_real", "status": "not_needed"},
+            ]
+            combined[scenario_name] = selected
+            continue
+
+        if historical_case is not None and historical_case.get("waived") is not True:
+            selected = _historical_scenario(historical_case)
+            selected["search_stages"] = [
+                {"stage": "current_real", "status": "no_qualifying_case"},
+                {
+                    "stage": "historical_real",
+                    "status": "matched",
+                    "source_batch_id": selected.get("source_batch_id"),
+                    "historical_batch_rank": selected.get("historical_batch_rank"),
+                },
+            ]
+            combined[scenario_name] = selected
+            continue
+
+        selected = deepcopy(current_case)
+        selected["search_stages"] = [
+            {"stage": "current_real", "status": "no_qualifying_case"},
+            {
+                "stage": "historical_real",
+                "status": "no_qualifying_case" if history_status == "completed" else history_status,
+                "loaded_batch_count": loaded_batches,
+            },
+            {"stage": "synthetic_contract_edge", "status": "not_permitted_or_not_required"},
+            {"stage": "waived", "status": "selected"},
+        ]
+        current_reason = str(selected.get("waiver_reason") or "No qualifying current real record exists.")
+        if history_status == "completed":
+            selected["waiver_reason"] = (
+                f"{current_reason} Historical search checked {loaded_batches} loaded batch(es) and found no qualifying real record."
+            )
+        else:
+            selected["waiver_reason"] = f"{current_reason} Historical search status: {history_status}."
+        combined[scenario_name] = selected
+
+    return combined
+
+
 def render_project_tests(
     project_path: str | Path,
     *,
@@ -45,8 +117,34 @@ def render_project_tests(
 
     adapter = get_adapter(project)
     records, source_manifest, join_manifest = adapter.load_records(data_source)
-    scenarios = adapter.build_scenarios(records, project)
     required_scenarios = _required_scenarios(project, catalogues)
+    current_scenarios = adapter.build_scenarios(records, project)
+
+    historical_records: list[dict[str, Any]] = []
+    historical_manifest: dict[str, Any] = {
+        "status": "not_configured",
+        "enabled": False,
+        "record_count": 0,
+        "loaded_batch_count": 0,
+        "search_order": ["current_real", "historical_real", "synthetic_contract_edge", "waived"],
+    }
+    historical_scenarios: dict[str, dict[str, Any]] = {}
+    if adapter.load_historical_records is not None:
+        historical_records, historical_manifest = adapter.load_historical_records(
+            data_source,
+            project,
+            source_manifest,
+        )
+        if historical_records:
+            historical_scenarios = adapter.build_scenarios(historical_records, project)
+
+    scenarios = _combine_scenarios(
+        required_scenarios=required_scenarios,
+        current=current_scenarios,
+        historical=historical_scenarios,
+        historical_manifest=historical_manifest,
+    )
+
     root = Path(output_root or project.get("output", {}).get("local_root") or f"generated_factory_tests/{project['project_id']}")
     if not root.is_absolute():
         root = REPO_ROOT / root
@@ -57,10 +155,9 @@ def render_project_tests(
     scenario_manifests: dict[str, Any] = {}
     rendered_count = 0
     waived_count = 0
+    historical_selected_count = 0
 
     for scenario_name in required_scenarios:
-        if scenario_name not in scenarios:
-            raise ValueError(f"Adapter did not provide required scenario: {scenario_name}")
         scenario = scenarios[scenario_name]
         scenario_dir = root / scenario_name
 
@@ -75,6 +172,7 @@ def render_project_tests(
                 "status": "waived",
                 "data_origin": str(scenario.get("data_origin", "waived_no_real_case")),
                 "waiver_reason": waiver_reason,
+                "search_stages": scenario.get("search_stages", []),
                 "synthetic": False,
                 "no_publication": True,
                 "slides": [],
@@ -88,6 +186,8 @@ def render_project_tests(
 
         context = adapter.build_context(scenario, project)
         context["scenario"] = scenario_name
+        if context.get("data_origin") == "historical_real":
+            historical_selected_count += 1
         asset_result = adapter.render_assets(scenario_dir, context, project)
         rendered: list[dict[str, Any]] = []
 
@@ -149,6 +249,12 @@ def render_project_tests(
             "selection_reason": context.get("selection_reason"),
             "source_item_key": context.get("source_item_key"),
             "source_item_label": context.get("source_item_label"),
+            "source_batch_id": context.get("source_batch_id"),
+            "source_member_key": context.get("source_member_key"),
+            "source_speech_key": context.get("source_speech_key"),
+            "source_last_modified": context.get("source_last_modified"),
+            "historical_batch_rank": context.get("historical_batch_rank"),
+            "search_stages": context.get("search_stages", []),
             "scenario_metrics": context.get("scenario_metrics"),
             "synthetic": bool(context.get("synthetic", False)),
             "synthetic_reason": context.get("synthetic_reason"),
@@ -178,6 +284,9 @@ def render_project_tests(
         "data_source": data_source,
         "source_manifest": source_manifest,
         "join_manifest": join_manifest,
+        "historical_search_manifest": historical_manifest,
+        "historical_record_count": len(historical_records),
+        "historical_selected_scenario_count": historical_selected_count,
         "required_scenarios": required_scenarios,
         "rendered_scenario_count": rendered_count,
         "waived_scenario_count": waived_count,
@@ -187,6 +296,8 @@ def render_project_tests(
             "layout_utilization": True,
             "media_slot_fill": True,
             "visual_plot_utilization": True,
+            "visual_readability": True,
+            "historical_real_data_fallback": True,
         },
         "review_state": "needs_review",
         "approved": False,
