@@ -23,6 +23,7 @@ MIN_VALUE_FONT_SIZE = 14
 AXIS_FONT_SIZE = 12
 MAX_LABEL_LINES = 2
 CLIP_TOLERANCE_PX = 3.0
+VALUE_LABEL_TARGET_X_RATIO = 0.965
 
 
 def _as_float(value: Any, fallback: float = 0.0) -> float:
@@ -250,17 +251,21 @@ def render(
                 )
             )
 
-        for _ in range(6):
+        for _ in range(8):
             fig.canvas.draw()
             renderer = fig.canvas.get_renderer()
             axes_bbox = ax.get_window_extent(renderer)
-            overflow = max(
-                (text.get_window_extent(renderer).x1 - (axes_bbox.x1 - CLIP_TOLERANCE_PX) for text in value_texts),
+            max_ratio = max(
+                (
+                    (text.get_window_extent(renderer).x1 - axes_bbox.x0) / axes_bbox.width
+                    for text in value_texts
+                ),
                 default=0.0,
             )
-            if overflow <= 0:
+            if max_ratio <= VALUE_LABEL_TARGET_X_RATIO:
                 break
-            x_limit *= 1.08
+            expansion = max(1.02, max_ratio / VALUE_LABEL_TARGET_X_RATIO)
+            x_limit *= expansion
             ax.set_xlim(0, x_limit)
     else:
         warnings.append("empty_or_zero_rows")
