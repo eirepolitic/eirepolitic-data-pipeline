@@ -8,10 +8,21 @@ on:
     paths:
       - "instagram/factory/party_adapter.py"
       - "instagram/factory/adapters.py"
+      - "instagram/factory/generic_tests.py"
+      - "instagram/factory/historical_sources.py"
+      - "instagram/factory/layout_quality.py"
+      - "instagram/factory/validation_contact_sheet.py"
+      - "instagram/factory/validation_scenarios.py"
       - "instagram/catalogues/metrics.yml"
       - "instagram/visuals/data_mappings/party_issue_counts.yml"
+      - "instagram/visuals/renderers/horizontal_bar.py"
+      - "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+      - "instagram/templates/layouts/title_text_media_v1.json"
       - "instagram/projects/party_issue_profile_v1/**"
+      - "instagram/projects/constituency_issue_profile_v1/**"
+      - "tests/test_instagram_factory_generic_core.py"
       - "tests/test_instagram_factory_party_project.py"
+      - "tests/test_instagram_factory_historical_fallback.py"
       - ".github/workflows/instagram_factory_party_project.yml"
 
 permissions:
@@ -43,6 +54,7 @@ jobs:
       - name: Run generic and party tests
         run: |
           python -m unittest tests.test_instagram_factory_generic_core -v
+          python -m unittest tests.test_instagram_factory_historical_fallback -v
           python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
         run: |
