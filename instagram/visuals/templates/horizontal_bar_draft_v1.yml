@@ -8,6 +8,9 @@ params:
   max_items: 7
   sort: descending
   value_format: integer
+validation:
+  min_plot_vertical_fill_ratio: 0.88
+  min_plot_area_ratio: 0.55
 palette:
   background: "#0f2f24"
   panel: "#173d30"
