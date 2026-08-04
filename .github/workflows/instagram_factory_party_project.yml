@@ -58,10 +58,38 @@ jobs:
             --data-source s3 \
             --output-root generated_party_live_tests \
             | tee party-live-validation.json
+      - name: Summarize historical validation
+        id: history_summary
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          manifest_path = Path("generated_party_live_tests/project_validation_manifest.json")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          history = manifest.get("historical_search", {})
+          summary = {
+              "loaded_batch_count": int(history.get("loaded_batch_count", 0) or 0),
+              "available_batch_count": int(history.get("available_batch_count", 0) or 0),
+              "replacement_count": int(history.get("replacement_count", 0) or 0),
+              "replacement_scenarios": history.get("replacement_scenarios", []),
+              "waived_scenario_count": int(manifest.get("waived_scenario_count", 0) or 0),
+              "rendered_scenario_count": int(manifest.get("rendered_scenario_count", 0) or 0),
+              "historical_status": history.get("status"),
+          }
+          Path("generated_party_live_tests/historical-validation-summary.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"loaded={summary['loaded_batch_count']}\n")
+              handle.write(f"replacements={summary['replacement_count']}\n")
+              handle.write(f"waivers={summary['waived_scenario_count']}\n")
       - name: Upload validation evidence
         uses: actions/upload-artifact@v4
         with:
-          name: party-project-validation-${{ github.run_id }}
+          name: party-project-validation-${{ github.run_id }}-history-${{ steps.history_summary.outputs.loaded }}-replacements-${{ steps.history_summary.outputs.replacements }}-waivers-${{ steps.history_summary.outputs.waivers }}
           path: |
             generated_party_live_tests/
             party-live-validation.json
