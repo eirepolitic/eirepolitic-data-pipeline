@@ -64,6 +64,10 @@ validation:
   real_example_selector:
     mode: median_complexity
   require_explicit_approval: true
+  historical_search:
+    enabled: true
+    required: true
+    max_batches: 12
 
 output:
   local_root: generated_factory_tests/party_issue_profile_v1
