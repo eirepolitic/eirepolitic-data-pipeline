@@ -16,7 +16,10 @@ validation:
   min_axis_font_size: 11
   min_bar_thickness_px: 70
   max_wrapped_label_lines: 2
-  max_value_label_x_ratio: 0.93
+  max_value_label_x_ratio: 0.98
+  max_category_text_clipped_count: 0
+  max_value_text_clipped_count: 0
+  max_truncated_label_count: 0
 palette:
   background: "#0f2f24"
   panel: "#173d30"
