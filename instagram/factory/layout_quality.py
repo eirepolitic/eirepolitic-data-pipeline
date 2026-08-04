@@ -86,11 +86,34 @@ def _content_bbox_metrics(output_path: Path) -> dict[str, Any]:
     }
 
 
+def _normalize_text_metrics(
+    text_metrics: list[dict[str, Any]] | Mapping[str, Mapping[str, Any]] | None,
+    element_metrics: Mapping[str, Mapping[str, Any]] | None,
+) -> dict[str, dict[str, Any]]:
+    normalized: dict[str, dict[str, Any]] = {}
+    source: Any = text_metrics if text_metrics is not None else element_metrics
+    if isinstance(source, Mapping):
+        for key, value in source.items():
+            if isinstance(value, Mapping):
+                metric = dict(value)
+                metric.setdefault("element_id", str(key))
+                normalized[str(key)] = metric
+        return normalized
+    if isinstance(source, list):
+        for value in source:
+            if not isinstance(value, dict):
+                continue
+            element_id = str(value.get("element_id") or value.get("placeholder") or "text")
+            normalized[element_id] = dict(value)
+    return normalized
+
+
 def validate_slide_layout(
     *,
     template: Mapping[str, Any],
     bindings: Mapping[str, Any],
     output_path: Path,
+    text_metrics: list[dict[str, Any]] | Mapping[str, Mapping[str, Any]] | None = None,
     element_metrics: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
@@ -111,8 +134,8 @@ def validate_slide_layout(
         errors.append(f"occupied_height_ratio:{whitespace['occupied_height_ratio']}<{min_occupied}")
 
     media_metrics: list[dict[str, Any]] = []
-    text_metrics: list[dict[str, Any]] = []
-    measured_text = element_metrics or {}
+    text_reports: list[dict[str, Any]] = []
+    measured_text = _normalize_text_metrics(text_metrics, element_metrics)
 
     for element in template.get("elements", []):
         if not isinstance(element, dict):
@@ -123,19 +146,31 @@ def validate_slide_layout(
             if not metrics:
                 continue
             rules = element.get("validation", {}) if isinstance(element.get("validation"), dict) else {}
-            min_font = float(rules.get("min_final_font_size", 0.0))
-            max_lines = int(rules.get("max_lines", 0))
+            min_font = float(
+                rules.get(
+                    "min_final_font_size",
+                    metrics.get("minimum_font_size", 0.0),
+                )
+            )
+            max_lines = int(rules.get("max_lines", metrics.get("max_lines", 0)) or 0)
             allow_truncation = bool(rules.get("allow_truncation", False))
             allow_clipping = bool(rules.get("allow_clipping", False))
-            if min_font and float(metrics.get("final_font_size", 0.0)) < min_font:
-                errors.append(f"text_font_size:{element_id}:{metrics.get('final_font_size')}<{min_font}")
+            final_font_size = float(
+                metrics.get(
+                    "final_font_size",
+                    metrics.get("actual_font_size", 0.0),
+                )
+            )
+            metrics["final_font_size"] = final_font_size
+            if min_font and final_font_size < min_font:
+                errors.append(f"text_font_size:{element_id}:{final_font_size}<{min_font}")
             if max_lines and int(metrics.get("line_count", 0)) > max_lines:
                 errors.append(f"text_line_count:{element_id}:{metrics.get('line_count')}>{max_lines}")
             if not allow_truncation and bool(metrics.get("truncated", False)):
                 errors.append(f"text_truncated:{element_id}")
             if not allow_clipping and bool(metrics.get("clipped", False)):
                 errors.append(f"text_clipped:{element_id}")
-            text_metrics.append(metrics)
+            text_reports.append(metrics)
             continue
 
         if element.get("type") != "image":
@@ -160,7 +195,7 @@ def validate_slide_layout(
         "warnings": warnings,
         "whitespace": whitespace,
         "media": media_metrics,
-        "text": text_metrics,
+        "text": text_reports,
         "thresholds": {
             "max_top_whitespace_ratio": max_top,
             "max_bottom_whitespace_ratio": max_bottom,
@@ -211,26 +246,24 @@ def validate_visual_manifest(
         "max_truncated_label_count": int(rules.get("max_truncated_label_count", 0)),
     }
 
-    minimum_checks = (
+    for metric_name, threshold_name in (
         ("plot_vertical_fill_ratio", "min_plot_vertical_fill_ratio"),
         ("plot_area_ratio", "min_plot_area_ratio"),
         ("category_label_font_size", "min_category_label_font_size"),
         ("value_label_font_size", "min_value_label_font_size"),
         ("axis_font_size", "min_axis_font_size"),
         ("bar_thickness_px", "min_bar_thickness_px"),
-    )
-    for metric_name, threshold_name in minimum_checks:
+    ):
         threshold = thresholds[threshold_name]
         if threshold and metrics[metric_name] < threshold:
             errors.append(f"{metric_name}:{metrics[metric_name]}<{threshold}")
 
-    maximum_checks = (
+    for metric_name, threshold_name in (
         ("max_wrapped_label_lines", "max_wrapped_label_lines"),
         ("category_text_clipped_count", "max_category_text_clipped_count"),
         ("value_text_clipped_count", "max_value_text_clipped_count"),
         ("truncated_label_count", "max_truncated_label_count"),
-    )
-    for metric_name, threshold_name in maximum_checks:
+    ):
         threshold = thresholds[threshold_name]
         if metrics[metric_name] > threshold:
             errors.append(f"{metric_name}:{metrics[metric_name]}>{threshold}")
