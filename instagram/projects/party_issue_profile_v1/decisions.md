@@ -51,10 +51,16 @@ Validation fails before human review when declared thresholds are breached for:
 - slide whitespace and occupied height
 - media-slot vertical and area fill
 - plot-area utilization
-- category, value, and axis font sizes
+- title final font size, line count, truncation, or clipping
+- dynamically selected category and value font sizes
+- direct category-label text bounds
+- direct value-label text bounds
+- unsupported category-label truncation
 - bar thickness
 - label wrapping
 - value-label right-edge headroom
+
+The horizontal-bar renderer measures text in pixels, selects a suitable label font and plot margin, and expands the value axis until value labels fit. All final text bounds and sizing decisions are retained in validation manifests.
 
 ## Historical validation result
 
