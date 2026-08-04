@@ -1,0 +1,59 @@
+name: Update measured text validation status
+
+on:
+  push:
+    branches:
+      - feature/instagram-content-factory-party-project
+    paths:
+      - ".github/workflows/instagram_factory_text_status_plan_update.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-party-project
+          fetch-depth: 0
+      - name: Update canonical plan
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path("instagram/CONTENT_FACTORY_PLAN.md")
+          text = path.read_text(encoding="utf-8")
+          old = """- automatic whitespace, media-fill, aspect-ratio, plot-utilization, font-size, bar-thickness, wrapping, and value-label-headroom gates
+- shared tall metric covers and shortened titles for party and constituency projects
+- generic, party, constituency, and historical-fallback regression coverage
+
+Latest live historical validation loaded eight historical batches, replaced zero current waivers, and retained three waivers. This confirms the fallback process; it does not imply the waived edge cases are impossible in future data.
+
+Remaining validation gap:
+
+- direct rendered-text bounding-box clipping detection and dynamic font sizing remain future renderer work
+"""
+          new = """- automatic whitespace, media-fill, aspect-ratio, plot-utilization, font-size, bar-thickness, wrapping, and value-label-headroom gates
+- measured title shrink, line-count, truncation, and bounding-box validation
+- pixel-measured category-label wrapping and dynamic font sizing
+- adaptive chart margins and value-axis headroom
+- direct category-label and value-label clipping detection with zero-tolerance thresholds
+- shared tall metric covers and shortened titles for party and constituency projects
+- generic, party, constituency, historical-fallback, and live S3 measured-text regression coverage
+
+Latest live historical validation loaded eight historical batches, replaced zero current waivers, and retained three waivers. This confirms the fallback process; it does not imply the waived edge cases are impossible in future data.
+"""
+          if old not in text:
+              raise SystemExit("Canonical validation status marker not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/CONTENT_FACTORY_PLAN.md
+          git commit -m "docs(instagram): complete measured-text validation status"
+          git push origin HEAD:feature/instagram-content-factory-party-project
