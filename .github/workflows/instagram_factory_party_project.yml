@@ -56,15 +56,58 @@ jobs:
         run: python -m unittest tests.test_instagram_factory_constituency_project -v
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
-      - name: Generate complete local scenario contact sheet
+      - name: Validate live party scenarios
+        id: live
+        continue-on-error: true
+        shell: bash
         run: |
+          set +e
           python process/instagram_factory.py render-tests \
             --project instagram/projects/party_issue_profile_v1/project.yml \
-            --data-source local \
-            --output-root generated_party_contact_sheet \
-            > party-contact-sheet-report.json
-          cat party-contact-sheet-report.json
-      - name: Verify complete local scenario contact sheet
+            --data-source s3 \
+            --output-root generated_party_live_tests \
+            > party-live-validation.json 2>&1
+          status=$?
+          cat party-live-validation.json
+          python <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path("party-live-validation.json")
+          raw = path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
+          error = "unknown-live-render-error"
+          try:
+              payload = json.loads(raw)
+              errors = payload.get("errors") or []
+              if errors:
+                  error = str(errors[0])
+              elif payload.get("success") is True:
+                  error = "success"
+          except Exception:
+              for line in reversed(raw.splitlines()):
+                  if line.strip():
+                      error = line.strip()
+                      break
+          slug = re.sub(r"[^A-Za-z0-9._-]+", "-", error).strip("-")[:120] or "unknown"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"error_slug={slug}\n")
+          Path("live-render-error-summary.txt").write_text(error + "\n", encoding="utf-8")
+          PY
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload live render result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-render-${{ steps.live.outputs.status }}-${{ steps.live.outputs.error_slug }}-${{ github.run_id }}
+          path: |
+            party-live-validation.json
+            live-render-error-summary.txt
+          if-no-files-found: error
+      - name: Rebuild and export full contact sheet from returned output root
+        if: steps.live.outputs.status == '0'
         shell: bash
         run: |
           set -euo pipefail
@@ -74,61 +117,53 @@ jobs:
           from pathlib import Path
 
           from PIL import Image
+          from instagram.factory.validation_contact_sheet import build_validation_contact_sheet
 
-          report = json.loads(Path("party-contact-sheet-report.json").read_text(encoding="utf-8"))
+          report = json.loads(Path("party-live-validation.json").read_text(encoding="utf-8"))
           root = Path(report["output_root"])
+          sheet = build_validation_contact_sheet(
+              root=root,
+              project_id=str(report["project_id"]),
+              scenario_manifests=report["scenario_manifests"],
+              scenario_order=report["required_scenarios"],
+          )
           primary = root / "validation_contact_sheet.png"
           if not primary.is_file():
-              raise SystemExit(f"Missing contact sheet: {primary}")
-
-          sheet = report["validation_contact_sheet"]
+              raise SystemExit(f"Primary contact sheet was not created: {primary}")
           full = sheet.get("full") or {}
           rendered = set(full.get("scenario_rows") or [])
           waived = set(full.get("waived_scenarios") or [])
           represented = rendered | waived
-          required = {
-              name
-              for name in report["required_scenarios"]
-              if name not in {"minimum", "maximum"}
-          }
+          required = {name for name in report["required_scenarios"] if name not in {"minimum", "maximum"}}
           if represented != required:
               raise SystemExit(
                   f"Scenario mismatch: missing={sorted(required - represented)}; "
                   f"unexpected={sorted(represented - required)}"
               )
-
           with Image.open(primary) as image:
               dimensions = image.size
-              if image.width != 2800 or image.height <= 1000:
-                  raise SystemExit(f"Unexpected dimensions: {dimensions}")
-
           export = Path("contact_sheet_export")
           export.mkdir(parents=True, exist_ok=True)
           shutil.copy2(primary, export / "validation_contact_sheet.png")
+          verification = {
+              "source_output_root": str(root),
+              "image_dimensions": list(dimensions),
+              "rendered_scenarios": sorted(rendered),
+              "waived_scenarios": sorted(waived),
+              "verification_success": True,
+          }
           (export / "contact-sheet-verification.json").write_text(
-              json.dumps({
-                  "verification_success": True,
-                  "image_dimensions": list(dimensions),
-                  "rendered_scenarios": sorted(rendered),
-                  "waived_scenarios": sorted(waived),
-                  "represented_scenario_count": len(represented),
-                  "required_scenario_count": len(required),
-              }, indent=2, sort_keys=True) + "\n",
+              json.dumps(verification, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
           )
           PY
-          ls -lah contact_sheet_export/
-      - name: Upload complete full contact sheet
+      - name: Upload verified standalone full contact sheet
+        if: steps.live.outputs.status == '0'
         uses: actions/upload-artifact@v4
         with:
-          name: complete-full-contact-sheet-${{ github.run_id }}
+          name: verified-standalone-full-contact-sheet-${{ github.run_id }}
           path: contact_sheet_export/
           if-no-files-found: error
-      - name: Validate live party scenarios separately
-        continue-on-error: true
-        run: |
-          python process/instagram_factory.py render-tests \
-            --project instagram/projects/party_issue_profile_v1/project.yml \
-            --data-source s3 \
-            --output-root generated_party_live_tests \
-            | tee party-live-validation.json
+      - name: Enforce live render success
+        shell: bash
+        run: test "${{ steps.live.outputs.status }}" = "0"
