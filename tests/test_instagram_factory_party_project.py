@@ -48,9 +48,16 @@ class PartyIssueProfileProjectTest(TestCase):
                                 self.assertGreaterEqual(media["vertical_fill_ratio"], 0.96)
                                 self.assertGreaterEqual(media["area_fill_ratio"], 0.90)
                         if slide["visual_quality"] is not None:
-                            self.assertTrue(slide["visual_quality"]["success"])
-                            self.assertGreaterEqual(slide["visual_quality"]["metrics"]["plot_vertical_fill_ratio"], 0.88)
-                            self.assertGreaterEqual(slide["visual_quality"]["metrics"]["plot_area_ratio"], 0.55)
+                            quality = slide["visual_quality"]
+                            self.assertTrue(quality["success"])
+                            self.assertGreaterEqual(quality["metrics"]["plot_vertical_fill_ratio"], 0.88)
+                            self.assertGreaterEqual(quality["metrics"]["plot_area_ratio"], 0.55)
+                            self.assertGreaterEqual(quality["metrics"]["category_label_font_size"], 14)
+                            self.assertGreaterEqual(quality["metrics"]["value_label_font_size"], 14)
+                            self.assertGreaterEqual(quality["metrics"]["axis_font_size"], 11)
+                            self.assertGreaterEqual(quality["metrics"]["bar_thickness_px"], 70)
+                            self.assertLessEqual(quality["metrics"]["max_wrapped_label_lines"], 2)
+                            self.assertLessEqual(quality["metrics"]["max_value_label_x_ratio"], 0.93)
             self.assertGreater(scenarios["rendered_scenario_count"], 0)
             self.assertFalse(scenarios["publishing_allowed"])
 
