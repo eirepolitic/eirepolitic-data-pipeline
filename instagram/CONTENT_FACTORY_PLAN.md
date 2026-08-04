@@ -12,6 +12,33 @@ It replaces the original informal plan and should be read together with:
 The intended user experience is conversational: a GPT with repository, GitHub, AWS, S3, workflow, and rendering access should be able to help define a post concept, test it, generate a full batch, return previews, accept feedback, selectively repair outputs, and preserve an auditable project record.
 
 
+## Validation review architecture status (2026-08-03)
+
+The production validation architecture is now real-data-first and visual-specific.
+
+Implemented:
+
+- horizontal-bar validation profiles driven by the visual catalogue
+- current production data searched before up to 12 recent historical production batches
+- full current/historical/synthetic-eligibility/waiver audit stages per scenario
+- synthetic contract-edge data not generated for convenience
+- deduplicated summary review sheet and complete audit contact sheet
+- one representative cover and compact waiver presentation
+- duplicate visual grouping by SHA-256
+- automatic whitespace, media-fill, aspect-ratio, plot-utilization, font-size, bar-thickness, wrapping, and value-label-headroom gates
+- shared tall metric covers and shortened titles for party and constituency projects
+- generic, party, constituency, and historical-fallback regression coverage
+
+Latest live historical validation loaded eight historical batches, replaced zero current waivers, and retained three waivers. This confirms the fallback process; it does not imply the waived edge cases are impossible in future data.
+
+Remaining validation gap:
+
+- direct rendered-text bounding-box clipping detection and dynamic font sizing remain future renderer work
+
+All outputs remain draft, manually triggered, unapproved, and non-publishable.
+
+---
+
 ## Implementation correction — generic factory core (2026-07-20)
 
 The factory is grain-agnostic. Constituency is the first production project and adapter, not the factory architecture.
