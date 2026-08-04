@@ -27,15 +27,12 @@ slides:
     post_type_id: title_text_media_v1
     text:
       slide_title: "{{ constituency }}"
-      body_text: "A constituency-level view of parliamentary issues raised by its current TDs."
-      footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
     media:
       main_media: cover
       type: generated_card
     accessibility:
       alt_text_template: "Cover slide for {{ constituency }} parliamentary issue profile."
     fallback_behavior:
-      missing_optional_text: omit
       missing_media: generate_placeholder
 
   - slide_id: issue_profile
@@ -43,8 +40,6 @@ slides:
     post_type_id: title_text_media_v1
     text:
       slide_title: "Issues raised by {{ constituency }} TDs"
-      body_text: "Classified debate speeches grouped by political issue. Counts describe recorded speeches, not policy positions."
-      footer_text: "Source: Houses of the Oireachtas and Eirepolitic issue classification"
     visual:
       visual_type_id: horizontal_bar_draft_v1
       metric_id: constituency_issue_counts
@@ -62,7 +57,6 @@ slides:
     accessibility:
       alt_text_template: "Horizontal bar chart of classified parliamentary issues raised by TDs for {{ constituency }}."
     fallback_behavior:
-      missing_optional_text: omit
       missing_visual: fail
 
 validation:
