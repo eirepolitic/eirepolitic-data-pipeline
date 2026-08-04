@@ -228,7 +228,7 @@ def build_validation_contact_sheet(
 
     manifest = {
         "project_id": project_id,
-        "layout": "compact_full_grid_plus_deduplicated_summary_plus_audit",
+        "layout": "full_review_plus_deduplicated_summary_plus_complete_audit",
         "scenario_count": len([name for name in scenario_order if name in scenario_manifests]),
         "full": full,
         "summary": summary,
