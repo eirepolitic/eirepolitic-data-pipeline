@@ -20,8 +20,9 @@ jobs:
           ref: feature/instagram-content-factory-party-project
           fetch-depth: 0
       - name: Update generic validator and tests
-        shell: python
+        shell: bash
         run: |
+          python <<'PY'
           from pathlib import Path
 
           path = Path("instagram/factory/generic_tests.py")
@@ -94,6 +95,7 @@ jobs:
           if marker in constituency and addition not in constituency:
               constituency = constituency.replace(marker, addition, 1)
           constituency_path.write_text(constituency, encoding="utf-8")
+          PY
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
