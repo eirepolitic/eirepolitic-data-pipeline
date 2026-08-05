@@ -3,26 +3,48 @@ name: Oireachtas Speech Issue Classifier v2
 on:
   workflow_dispatch:
     inputs:
-      model:
-        description: OpenAI model ID to evaluate
+      operation:
+        description: Pipeline operation
         required: true
+        type: choice
+        options: [prepare, submit, status, collect, publish, verify_models]
+        default: prepare
+      run_id:
+        description: Existing immutable run ID for submit/status/collect/publish
+        required: false
         type: string
-        default: gpt-5.6-luna
+      model:
+        description: Candidate OpenAI model ID; verified against the account before submission
+        required: false
+        type: string
+        default: gpt-5.4-nano
+      comparison_model:
+        description: Second candidate model for verify_models
+        required: false
+        type: string
+        default: gpt-5.4-mini
       max_rows:
-        description: Maximum new or changed speeches to classify; 0 means all
+        description: Maximum delta rows; 0 means all and is blocked unless backfill is enabled
         required: true
         type: number
         default: 25
+      historical_backfill:
+        description: Mark this as a historical backfill operation
+        required: true
+        type: boolean
+        default: false
+      force_speech_ids:
+        description: Optional comma-separated speech IDs to reclassify
+        required: false
+        type: string
       publish_latest:
-        description: Publish validated output as the current enrichment table
+        description: Required in addition to the repository publish variable
         required: true
         type: boolean
         default: false
   workflow_run:
-    workflows:
-      - Oireachtas Refresh Validation Orchestrator
-    types:
-      - completed
+    workflows: [Oireachtas Refresh Validation Orchestrator]
+    types: [completed]
 
 permissions:
   contents: read
@@ -32,10 +54,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  classify:
+  run:
     if: >-
       ${{
-        (github.event_name == 'workflow_dispatch') ||
+        github.event_name == 'workflow_dispatch' ||
         (
           github.event_name == 'workflow_run' &&
           github.event.workflow_run.conclusion == 'success' &&
@@ -44,24 +66,23 @@ jobs:
         )
       }}
     runs-on: ubuntu-latest
-    timeout-minutes: 720
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_MODEL: ${{ github.event_name == 'workflow_dispatch' && inputs.model || vars.OIREACHTAS_SPEECH_CLASSIFIER_MODEL }}
-      MAX_ROWS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_rows || '0' }}
-      PUBLISH_LATEST: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_latest || 'true' }}
-      DELAY_SECONDS: "0.2"
+      OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED || 'false' }}
+      AUTOMATIC_SUBMIT_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_AUTOMATIC_SUBMIT_ENABLED || 'false' }}
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
           cache: pip
 
       - name: Install dependencies
@@ -70,29 +91,145 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Validate configuration
+      - name: Resolve operation
+        id: config
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_OPERATION: ${{ inputs.operation }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_COMPARISON_MODEL: ${{ inputs.comparison_model }}
+          INPUT_MAX_ROWS: ${{ inputs.max_rows }}
+          INPUT_HISTORICAL_BACKFILL: ${{ inputs.historical_backfill }}
+          INPUT_FORCE_SPEECH_IDS: ${{ inputs.force_speech_ids }}
+          INPUT_PUBLISH_LATEST: ${{ inputs.publish_latest }}
         run: |
           set -euo pipefail
-          test -n "${OPENAI_API_KEY}" || { echo 'OPENAI_API_KEY is not configured' >&2; exit 2; }
-          test -n "${OPENAI_MODEL}" || { echo 'OPENAI model is not configured' >&2; exit 2; }
-          if [[ "${PUBLISH_LATEST}" == "true" && "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            test "${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED }}" = "true" || {
-              echo 'Manual publication requires OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED=true' >&2
-              exit 2
-            }
+          if [[ "${EVENT_NAME}" == 'workflow_run' ]]; then
+            operation='prepare'
+            run_id=''
+            model='${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_MODEL }}'
+            comparison_model=''
+            max_rows='0'
+            historical_backfill='false'
+            force_speech_ids=''
+            publish_latest='false'
+          else
+            operation="${INPUT_OPERATION}"
+            run_id="${INPUT_RUN_ID}"
+            model="${INPUT_MODEL}"
+            comparison_model="${INPUT_COMPARISON_MODEL}"
+            max_rows="${INPUT_MAX_ROWS}"
+            historical_backfill="${INPUT_HISTORICAL_BACKFILL}"
+            force_speech_ids="${INPUT_FORCE_SPEECH_IDS}"
+            publish_latest="${INPUT_PUBLISH_LATEST}"
           fi
 
-      - name: Classify new or changed speeches
-        run: python process/oireachtas_speech_issue_classifier.py
+          case "${operation}" in prepare|submit|status|collect|publish|verify_models) ;; *) echo 'Invalid operation' >&2; exit 2 ;; esac
+          if [[ "${operation}" == 'prepare' ]]; then
+            test -n "${model}" || { echo 'A candidate model is required' >&2; exit 2; }
+            if [[ "${max_rows}" == '0' && "${historical_backfill}" != 'true' && "${EVENT_NAME}" != 'workflow_run' ]]; then
+              echo 'max_rows=0 requires historical_backfill=true for manual runs' >&2
+              exit 2
+            fi
+            if [[ "${historical_backfill}" == 'true' ]]; then
+              test "${OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED}" = 'true' || { echo 'Backfill switch is disabled' >&2; exit 2; }
+            fi
+          elif [[ "${operation}" != 'verify_models' ]]; then
+            test -n "${run_id}" || { echo 'run_id is required for this operation' >&2; exit 2; }
+          fi
+          if [[ "${operation}" == 'publish' ]]; then
+            test "${publish_latest}" = 'true' || { echo 'publish_latest confirmation is required' >&2; exit 2; }
+            test "${OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED}" = 'true' || { echo 'Publishing switch is disabled' >&2; exit 2; }
+          fi
+          if [[ "${operation}" =~ ^(submit|status|collect|verify_models)$ ]]; then
+            test -n "${OPENAI_API_KEY}" || { echo 'OPENAI_API_KEY is not configured' >&2; exit 2; }
+          fi
+
+          {
+            echo "operation=${operation}"
+            echo "run_id=${run_id}"
+            echo "model=${model}"
+            echo "comparison_model=${comparison_model}"
+            echo "max_rows=${max_rows}"
+            echo "historical_backfill=${historical_backfill}"
+            echo "force_speech_ids=${force_speech_ids}"
+            echo "publish_latest=${publish_latest}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify candidate models
+        if: steps.config.outputs.operation == 'verify_models'
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_issue_classifier.py verify-models \
+            --models '${{ steps.config.outputs.model }},${{ steps.config.outputs.comparison_model }}' \
+            | tee model-availability.json
+
+      - name: Prepare immutable candidate run
+        id: prepare
+        if: steps.config.outputs.operation == 'prepare'
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(prepare --model '${{ steps.config.outputs.model }}' --max-rows '${{ steps.config.outputs.max_rows }}')
+          if [[ '${{ steps.config.outputs.historical_backfill }}' == 'true' ]]; then args+=(--historical-backfill); fi
+          if [[ -n '${{ steps.config.outputs.force_speech_ids }}' ]]; then args+=(--force-speech-ids '${{ steps.config.outputs.force_speech_ids }}'); fi
+          python process/oireachtas_speech_issue_classifier.py "${args[@]}" | tee prepare-result.json
+          echo "run_id=$(jq -r '.run_id' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "status=$(jq -r '.status' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "batch_request_rows=$(jq -r '.batch_request_rows' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+
+      - name: Submit prepared batch
+        if: >-
+          ${{
+            steps.config.outputs.operation == 'submit' ||
+            (
+              github.event_name == 'workflow_run' &&
+              steps.prepare.outputs.status == 'prepared' &&
+              steps.prepare.outputs.batch_request_rows != '0' &&
+              env.AUTOMATIC_SUBMIT_ENABLED == 'true'
+            )
+          }}
+        run: |
+          set -euo pipefail
+          run_id='${{ steps.config.outputs.run_id }}'
+          if [[ -z "${run_id}" ]]; then run_id='${{ steps.prepare.outputs.run_id }}'; fi
+          python process/oireachtas_speech_issue_classifier.py submit --run-id "${run_id}" | tee submit-result.json
+
+      - name: Check batch status
+        if: steps.config.outputs.operation == 'status'
+        run: python process/oireachtas_speech_issue_classifier.py status --run-id '${{ steps.config.outputs.run_id }}' | tee status-result.json
+
+      - name: Collect and validate candidate
+        if: steps.config.outputs.operation == 'collect'
+        run: python process/oireachtas_speech_issue_classifier.py collect --run-id '${{ steps.config.outputs.run_id }}' | tee collect-result.json
+
+      - name: Atomically publish validated candidate
+        if: steps.config.outputs.operation == 'publish'
+        run: python process/oireachtas_speech_issue_classifier.py publish --run-id '${{ steps.config.outputs.run_id }}' --publish-enabled | tee publish-result.json
+
+      - name: Upload run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speech-classifier-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            *-result.json
+            model-availability.json
+          if-no-files-found: warn
+          retention-days: 365
 
       - name: Write summary
         if: always()
         run: |
           {
             echo '## Oireachtas speech classification v2'
-            echo ''
-            echo "- Event: ${{ github.event_name }}"
-            echo "- Model: ${OPENAI_MODEL}"
-            echo "- Maximum rows: ${MAX_ROWS}"
-            echo "- Publish latest: ${PUBLISH_LATEST}"
+            echo
+            echo "- Event: `${{ github.event_name }}`"
+            echo "- Operation: `${{ steps.config.outputs.operation || 'not resolved' }}`"
+            echo "- Run ID: `${{ steps.config.outputs.run_id || steps.prepare.outputs.run_id || 'not created' }}`"
+            echo "- Candidate model: `${{ steps.config.outputs.model || 'not applicable' }}`"
+            echo "- Automatic submit enabled: `${AUTOMATIC_SUBMIT_ENABLED}`"
+            echo "- Publishing enabled: `${OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED}`"
           } >> "${GITHUB_STEP_SUMMARY}"
