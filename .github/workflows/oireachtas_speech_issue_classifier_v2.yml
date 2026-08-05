@@ -1,0 +1,98 @@
+name: Oireachtas Speech Issue Classifier v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model ID to evaluate
+        required: true
+        type: string
+        default: gpt-5.6-luna
+      max_rows:
+        description: Maximum new or changed speeches to classify; 0 means all
+        required: true
+        type: number
+        default: 25
+      publish_latest:
+        description: Publish validated output as the current enrichment table
+        required: true
+        type: boolean
+        default: false
+  workflow_run:
+    workflows:
+      - Oireachtas Refresh Validation Orchestrator
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-speech-issue-classifier-v2
+  cancel-in-progress: false
+
+jobs:
+  classify:
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch') ||
+        (
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          vars.OIREACHTAS_SPEECH_CLASSIFIER_ENABLED == 'true'
+        )
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ github.event_name == 'workflow_dispatch' && inputs.model || vars.OIREACHTAS_SPEECH_CLASSIFIER_MODEL }}
+      MAX_ROWS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_rows || '0' }}
+      PUBLISH_LATEST: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_latest || 'true' }}
+      DELAY_SECONDS: "0.2"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Validate configuration
+        run: |
+          set -euo pipefail
+          test -n "${OPENAI_API_KEY}" || { echo 'OPENAI_API_KEY is not configured' >&2; exit 2; }
+          test -n "${OPENAI_MODEL}" || { echo 'OPENAI model is not configured' >&2; exit 2; }
+          if [[ "${PUBLISH_LATEST}" == "true" && "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            test "${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED }}" = "true" || {
+              echo 'Manual publication requires OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED=true' >&2
+              exit 2
+            }
+          fi
+
+      - name: Classify new or changed speeches
+        run: python process/oireachtas_speech_issue_classifier.py
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo '## Oireachtas speech classification v2'
+            echo ''
+            echo "- Event: ${{ github.event_name }}"
+            echo "- Model: ${OPENAI_MODEL}"
+            echo "- Maximum rows: ${MAX_ROWS}"
+            echo "- Publish latest: ${PUBLISH_LATEST}"
+          } >> "${GITHUB_STEP_SUMMARY}"
