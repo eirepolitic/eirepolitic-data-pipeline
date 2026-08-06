@@ -40,6 +40,8 @@ jobs:
       AWS_REGION: "ca-central-1"
       S3_BUCKET: "eirepolitic-data"
       INSTAGRAM_MEMBERS_DATASET_KEYS: "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED || 'true' }}
 
     steps:
       - name: Check out repo
@@ -55,6 +57,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python -m playwright install chromium
+
+      - name: Resolve speech issue compatibility input
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "${OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED}" == 'true' ]]; then args+=(--cutover-enabled); fi
+          if [[ "${OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED}" != 'true' ]]; then args+=(--disable-legacy-fallback); fi
+          python process/oireachtas_resolve_speech_issue_compat.py "${args[@]}" | tee speech-issue-resolution.json
+          echo "DEBATE_ISSUES_KEY=$(jq -r '.key' speech-issue-resolution.json)" >> "${GITHUB_ENV}"
 
       - name: Render Instagram smoke test using compat members
         shell: bash
@@ -82,13 +94,17 @@ jobs:
           fi
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           context_path = Path(next(Path('generated_posts_oireachtas_compat_trial').rglob('post_context.json')))
           context = json.loads(context_path.read_text(encoding='utf-8'))
           datasets = context.get('datasets_used', [])
-          compat_key = 'processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv'
-          if not any(compat_key in item for item in datasets):
+          members_key = 'processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv'
+          debate_key = os.environ['DEBATE_ISSUES_KEY']
+          if not any(members_key in item for item in datasets):
               raise SystemExit(f'Compat members key not used. datasets_used={datasets}')
+          if not any(debate_key in item for item in datasets):
+              raise SystemExit(f'Resolved debate issue key not used. datasets_used={datasets}')
           html_count = len(list(context_path.parent.joinpath('html').glob('*.html')))
           png_dir = context_path.parent.joinpath('png')
           png_count = len(list(png_dir.glob('*.png'))) if png_dir.exists() else 0
@@ -98,6 +114,7 @@ jobs:
               'constituency': context.get('constituency', {}).get('name'),
               'member': context.get('member', {}).get('full_name'),
               'datasets_used': datasets,
+              'debate_issue_key': debate_key,
               'html_count': html_count,
               'png_count': png_count,
           }
@@ -117,7 +134,8 @@ jobs:
             echo "- Constituency: \`${{ inputs.constituency }}\`"
             echo "- Member: \`${{ inputs.member_name }}\`"
             echo "- Compat members key: \`${INSTAGRAM_MEMBERS_DATASET_KEYS}\`"
-            echo "- Production defaults changed: \`false\`"
+            echo "- Debate issue key: \`${DEBATE_ISSUES_KEY:-not resolved}\`"
+            echo "- Compatibility cutover enabled: \`${OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED}\`"
             echo
             echo '```text'
             if [[ -f oireachtas_instagram_consumer_smoke.log ]]; then
@@ -144,4 +162,5 @@ jobs:
             generated_posts_oireachtas_compat_trial/**
             oireachtas_instagram_consumer_smoke.log
             oireachtas_instagram_consumer_smoke_report.json
+            speech-issue-resolution.json
           if-no-files-found: error
