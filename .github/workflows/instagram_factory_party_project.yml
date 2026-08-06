@@ -53,7 +53,41 @@ jobs:
       - name: Run historical fallback tests
         run: python -m unittest tests.test_instagram_factory_historical_fallback -v
       - name: Run constituency project tests
-        run: python -m unittest tests.test_instagram_factory_constituency_project -v
+        id: constituency
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python -m unittest tests.test_instagram_factory_constituency_project -v > constituency-density-test.txt 2>&1
+          status=$?
+          cat constituency-density-test.txt
+          python <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          raw = Path("constituency-density-test.txt").read_text(encoding="utf-8", errors="replace")
+          candidates = [
+              line.strip()
+              for line in raw.splitlines()
+              if any(token in line for token in ("ValueError:", "AssertionError", "KeyError:", "TypeError:"))
+          ]
+          summary = candidates[-1] if candidates else next((line.strip() for line in reversed(raw.splitlines()) if line.strip()), "unknown")
+          slug = re.sub(r"[^A-Za-z0-9._-]+", "-", summary).strip("-")[:140] or "unknown"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"error_slug={slug}\n")
+          PY
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload constituency density diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: constituency-density-${{ steps.constituency.outputs.status || 'unknown' }}-${{ steps.constituency.outputs.error_slug || 'unknown' }}-${{ github.run_id }}
+          path: constituency-density-test.txt
+          if-no-files-found: error
+      - name: Enforce constituency tests
+        run: test "${{ steps.constituency.outputs.status }}" = "0"
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
@@ -121,6 +155,14 @@ jobs:
 
           report = json.loads(Path("party-live-validation.json").read_text(encoding="utf-8"))
           root = Path(report["output_root"])
+          density = report.get("density_validation") or {}
+          if not density.get("success"):
+              raise SystemExit(f"Density validation failed: {density}")
+          if int(density["metrics"]["item_count_max"]["displayed_item_count"]) < 6:
+              raise SystemExit(f"Dense maximum missing: {density}")
+          if int(density["metrics"]["real_example"]["displayed_item_count"]) < 5:
+              raise SystemExit(f"Dense representative missing: {density}")
+
           sheet = build_validation_contact_sheet(
               root=root,
               project_id=str(report["project_id"]),
@@ -150,6 +192,7 @@ jobs:
               "image_dimensions": list(dimensions),
               "rendered_scenarios": sorted(rendered),
               "waived_scenarios": sorted(waived),
+              "density_validation": density,
               "verification_success": True,
           }
           (export / "contact-sheet-verification.json").write_text(
@@ -161,7 +204,7 @@ jobs:
         if: steps.live.outputs.status == '0'
         uses: actions/upload-artifact@v4
         with:
-          name: verified-standalone-full-contact-sheet-${{ github.run_id }}
+          name: verified-dense-full-contact-sheet-${{ github.run_id }}
           path: contact_sheet_export/
           if-no-files-found: error
       - name: Enforce live render success
