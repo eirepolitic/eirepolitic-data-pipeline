@@ -21,7 +21,7 @@ from .party_adapter import (
     party_media_for_slide,
     render_party_assets,
 )
-from .validation_scenarios import select_real_category_value_scenarios
+from .validation_density import select_density_aware_category_value_scenarios
 
 HistoricalLoader = Callable[
     [str, dict[str, Any], dict[str, Any]],
@@ -66,7 +66,7 @@ def _party_historical(
     data_source: str,
     project: dict[str, Any],
     current_source_manifest: dict[str, Any],
-) -> tuple[list[dict[str, Any]], dict[str,Any]]:
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     return load_historical_joined_records(
         data_source=data_source,
         project=project,
@@ -102,11 +102,13 @@ def _constituency_context(record: dict[str, Any], project: dict[str, Any]) -> di
 
 
 def _constituency_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return select_real_category_value_scenarios(
+    return select_density_aware_category_value_scenarios(
         records,
         key_field="constituency_key",
         label_field="constituency",
         max_items=7,
+        dense_min_items=5,
+        maximum_min_items=6,
     )
 
 
@@ -152,11 +154,13 @@ def _constituency_media(slide: dict[str, Any], assets: dict[str, Path]) -> Path:
 
 
 def _party_scenarios(records: list[dict[str, Any]], project: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return select_real_category_value_scenarios(
+    return select_density_aware_category_value_scenarios(
         records,
         key_field="party_key",
         label_field="party",
         max_items=7,
+        dense_min_items=5,
+        maximum_min_items=6,
     )
 
 
