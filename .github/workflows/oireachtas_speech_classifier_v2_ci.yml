@@ -1,0 +1,142 @@
+name: Oireachtas Speech Classifier v2 CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'process/oireachtas_speech_*.py'
+      - 'process/oireachtas_validate_speech_enrichment.py'
+      - 'process/oireachtas_resolve_speech_issue_compat.py'
+      - 'extract/oireachtas/enrichment_contracts.py'
+      - 'extract/oireachtas/speech_issue_compat.py'
+      - 'configs/oireachtas/enrichment_*.yml'
+      - 'configs/oireachtas/speech_model_*'
+      - 'tests/test_oireachtas_*.py'
+      - 'tests/fixtures/oireachtas_speech_issue_*'
+      - '.github/workflows/oireachtas_speech_*'
+      - '.github/workflows/oireachtas_refresh_validation_orchestrator.yml'
+      - '.github/workflows/build_member_profile_metrics_2025.yml'
+      - '.github/workflows/oireachtas_instagram_consumer_smoke.yml'
+  push:
+    branches:
+      - 'feature/oireachtas-speech-classification-v2'
+    paths:
+      - 'process/oireachtas_speech_*.py'
+      - 'process/oireachtas_validate_speech_enrichment.py'
+      - 'process/oireachtas_resolve_speech_issue_compat.py'
+      - 'extract/oireachtas/enrichment_contracts.py'
+      - 'extract/oireachtas/speech_issue_compat.py'
+      - 'configs/oireachtas/enrichment_*.yml'
+      - 'configs/oireachtas/speech_model_*'
+      - 'tests/test_oireachtas_*.py'
+      - 'tests/fixtures/oireachtas_speech_issue_*'
+      - '.github/workflows/oireachtas_speech_*'
+      - '.github/workflows/oireachtas_refresh_validation_orchestrator.yml'
+      - '.github/workflows/build_member_profile_metrics_2025.yml'
+      - '.github/workflows/oireachtas_instagram_consumer_smoke.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-speech-classifier-v2-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  targeted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest
+      - name: Compile classifier modules and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            process/oireachtas_speech_issue_classifier.py \
+            process/oireachtas_speech_classifier_trigger_guard.py \
+            process/oireachtas_speech_model_evaluation.py \
+            process/oireachtas_validate_speech_enrichment.py \
+            process/oireachtas_resolve_speech_issue_compat.py \
+            process/oireachtas_stage_downstream_contracts.py \
+            extract/oireachtas/enrichment_contracts.py \
+            extract/oireachtas/speech_issue_compat.py \
+            tests/test_oireachtas_speech_issue_classifier.py \
+            tests/test_oireachtas_speech_issue_classifier_s3.py \
+            tests/test_oireachtas_speech_classifier_workflow.py \
+            tests/test_oireachtas_enrichment_contracts.py \
+            tests/test_oireachtas_speech_issue_compat.py \
+            tests/test_oireachtas_speech_model_evaluation.py \
+            tests/test_oireachtas_speech_model_candidates.py
+      - name: Parse changed YAML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          paths = [
+              Path('configs/oireachtas/enrichment_registry.yml'),
+              Path('configs/oireachtas/enrichment_write_policies.yml'),
+              Path('configs/oireachtas/speech_model_candidates.yml'),
+              Path('.github/workflows/oireachtas_speech_issue_classifier_v2.yml'),
+              Path('.github/workflows/oireachtas_speech_classifier_v2_ci.yml'),
+              Path('.github/workflows/oireachtas_refresh_validation_orchestrator.yml'),
+              Path('.github/workflows/build_member_profile_metrics_2025.yml'),
+              Path('.github/workflows/oireachtas_instagram_consumer_smoke.yml'),
+          ]
+          for path in paths:
+              with path.open(encoding='utf-8') as handle:
+                  yaml.safe_load(handle)
+              print(f'validated {path}')
+          PY
+      - name: Run classifier v2 tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            tests/test_oireachtas_speech_issue_classifier.py \
+            tests/test_oireachtas_speech_issue_classifier_s3.py \
+            tests/test_oireachtas_speech_classifier_workflow.py \
+            tests/test_oireachtas_enrichment_contracts.py \
+            tests/test_oireachtas_speech_issue_compat.py \
+            tests/test_oireachtas_speech_model_evaluation.py \
+            tests/test_oireachtas_speech_model_candidates.py
+
+  oireachtas-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest
+      - name: Validate core table registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.build_table --list-tables --json >/tmp/oireachtas_tables.json
+          test -s /tmp/oireachtas_tables.json
+      - name: Run full Oireachtas test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_oireachtas_*.py
