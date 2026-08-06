@@ -1,0 +1,137 @@
+name: Oireachtas Speech Candidate-only S3 Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/oireachtas-speech-classification-v2'
+    paths:
+      - 'process/oireachtas_speech_candidate_s3_validation.py'
+      - '.github/workflows/oireachtas_speech_candidate_s3_validation.yml'
+      - 'tests/test_oireachtas_speech_candidate_s3_validation.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-speech-candidate-only-s3-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      CANDIDATE_MODEL: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_MODEL || vars.OIREACHTAS_SPEECH_CLASSIFIER_MODEL }}
+      MAX_ROWS: '25'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest
+
+      - name: Run candidate safety unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_oireachtas_speech_candidate_s3_validation.py
+
+      - name: Validate candidate-only configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CANDIDATE_MODEL}" || {
+            echo 'Set OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_MODEL or OIREACHTAS_SPEECH_CLASSIFIER_MODEL.' >&2
+            exit 2
+          }
+          test "${MAX_ROWS}" -gt 0
+          test "${MAX_ROWS}" -le 25
+          test -n "${AWS_ACCESS_KEY_ID}"
+          test -n "${AWS_SECRET_ACCESS_KEY}"
+
+      - name: Snapshot classification pointers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_candidate_s3_validation.py snapshot \
+            --output candidate-pointer-before.json \
+            | tee candidate-pointer-before.stdout.json
+
+      - name: Prepare immutable candidate artifacts only
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_issue_classifier.py prepare \
+            --model "${CANDIDATE_MODEL}" \
+            --max-rows "${MAX_ROWS}" \
+            | tee candidate-prepare-result.json
+          echo "run_id=$(jq -r '.run_id' candidate-prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "status=$(jq -r '.status' candidate-prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "batch_request_rows=$(jq -r '.batch_request_rows' candidate-prepare-result.json)" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify immutable artifacts and pointer non-mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_candidate_s3_validation.py verify \
+            --run-id '${{ steps.prepare.outputs.run_id }}' \
+            --before candidate-pointer-before.json \
+            --output candidate-s3-validation-report.json \
+            | tee candidate-s3-validation.stdout.json
+          jq -e '.status == "pass"' candidate-s3-validation-report.json >/dev/null
+          jq -e '.production_pointer_unchanged == true' candidate-s3-validation-report.json >/dev/null
+          jq -e '.previous_pointer_unchanged == true' candidate-s3-validation-report.json >/dev/null
+          jq -e '.openai_batch_submitted == false' candidate-s3-validation-report.json >/dev/null
+          jq -e '.delta_rows_selected <= 25' candidate-s3-validation-report.json >/dev/null
+
+      - name: Upload candidate-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-speech-candidate-s3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            candidate-pointer-before.json
+            candidate-pointer-before.stdout.json
+            candidate-prepare-result.json
+            candidate-s3-validation-report.json
+            candidate-s3-validation.stdout.json
+          if-no-files-found: warn
+          retention-days: 365
+
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Candidate-only S3 validation'
+            echo
+            echo "- Model metadata: `${CANDIDATE_MODEL:-not configured}`"
+            echo "- Maximum rows: `${MAX_ROWS}`"
+            echo "- Run ID: `${{ steps.prepare.outputs.run_id || 'not created' }}`"
+            echo "- Prepare status: `${{ steps.prepare.outputs.status || 'not completed' }}`"
+            echo "- Paid Batch request rows prepared: `${{ steps.prepare.outputs.batch_request_rows || 'unknown' }}`"
+            echo '- OpenAI submission: `prohibited by workflow design`'
+            echo '- Collection: `not executed`'
+            echo '- Publication: `not executed`'
+            if [[ -f candidate-s3-validation-report.json ]]; then
+              echo
+              echo '```json'
+              cat candidate-s3-validation-report.json
+              echo
+              echo '```'
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
