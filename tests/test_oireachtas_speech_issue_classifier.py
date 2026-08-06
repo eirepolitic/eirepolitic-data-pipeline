@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import pytest
@@ -11,10 +12,13 @@ from process.oireachtas_speech_issue_classifier import (
     ParsedBatchResult,
     build_batch_requests,
     build_compatibility_output,
+    candidate_staleness_reasons,
+    combine_batch_results,
     evaluate_predictions,
     materialize_batch_rows,
     merge_results,
     parse_batch_output_jsonl,
+    reconcile_results_to_source,
     select_delta,
     structured_response_body,
     validate_candidate,
@@ -45,7 +49,12 @@ def speech_rows() -> pd.DataFrame:
     )
 
 
-def label_row(speech_id: str, speech_hash: str, label: str = "Health", status: str = "classified") -> dict[str, object]:
+def label_row(
+    speech_id: str,
+    speech_hash: str,
+    label: str = "Health",
+    status: str = "classified",
+) -> dict[str, object]:
     row: dict[str, object] = {column: "" for column in OUTPUT_COLUMNS}
     row.update(
         {
@@ -61,6 +70,8 @@ def label_row(speech_id: str, speech_hash: str, label: str = "Health", status: s
             "source_batch_speech_key": "batch/silver_speeches.parquet",
             "classification_run_id": "run-1",
             "review_status": "unreviewed",
+            "attempt_count": 1,
+            "retry_eligible_after_utc": "",
         }
     )
     return row
@@ -93,17 +104,30 @@ def test_select_delta_returns_new_changed_failed_and_forced_rows() -> None:
         ],
         ignore_index=True,
     )
+    failed = label_row("s4", "h4", "", "failed")
+    failed["retry_eligible_after_utc"] = "2026-01-01T00:00:00Z"
     existing = pd.DataFrame(
         [
             label_row("s1", "h1"),
             label_row("s2", "h2-old", "Education"),
-            label_row("s4", "h4", "", "failed"),
+            failed,
         ]
     )
 
-    delta = select_delta(speeches, existing, force_speech_ids=["s1"])
+    delta = select_delta(
+        speeches,
+        existing,
+        force_speech_ids=["s1"],
+        now_utc=datetime(2026, 1, 2, tzinfo=timezone.utc),
+    )
 
     assert delta["speech_id"].tolist() == ["s1", "s2", "s3", "s4"]
+    assert delta["selection_reason"].tolist() == [
+        "forced",
+        "changed_hash",
+        "new",
+        "retry_failed",
+    ]
 
 
 def test_select_delta_empty_when_all_hashes_are_current() -> None:
@@ -116,6 +140,50 @@ def test_select_delta_rejects_duplicate_source_ids() -> None:
     speeches = pd.concat([speech_rows(), speech_rows().iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="duplicate speech_id"):
         select_delta(speeches, pd.DataFrame())
+
+
+def test_failed_retry_waits_until_eligible_time() -> None:
+    failed = label_row("s1", "h1", "", "failed")
+    failed["attempt_count"] = 1
+    failed["retry_eligible_after_utc"] = "2026-02-01T00:00:00Z"
+
+    before = select_delta(
+        speech_rows().iloc[[0]],
+        pd.DataFrame([failed]),
+        now_utc=datetime(2026, 1, 31, tzinfo=timezone.utc),
+    )
+    after = select_delta(
+        speech_rows().iloc[[0]],
+        pd.DataFrame([failed]),
+        now_utc=datetime(2026, 2, 1, tzinfo=timezone.utc),
+    )
+
+    assert before.empty
+    assert after["selection_reason"].tolist() == ["retry_failed"]
+    assert after["prior_attempt_count"].tolist() == [1]
+
+
+def test_failed_retry_stops_at_retry_limit_but_force_overrides() -> None:
+    failed = label_row("s1", "h1", "", "failed")
+    failed["attempt_count"] = 3
+    failed["retry_eligible_after_utc"] = "2026-01-01T00:00:00Z"
+    existing = pd.DataFrame([failed])
+    now = datetime(2026, 1, 2, tzinfo=timezone.utc)
+
+    assert select_delta(
+        speech_rows().iloc[[0]],
+        existing,
+        max_retries=3,
+        now_utc=now,
+    ).empty
+    forced = select_delta(
+        speech_rows().iloc[[0]],
+        existing,
+        max_retries=3,
+        force_speech_ids=["s1"],
+        now_utc=now,
+    )
+    assert forced["selection_reason"].tolist() == ["forced"]
 
 
 def test_merge_results_is_idempotent_and_replaces_changed_hash() -> None:
@@ -134,6 +202,22 @@ def test_merge_results_rejects_duplicate_incoming_ids() -> None:
     duplicate = pd.DataFrame([label_row("s1", "h1"), label_row("s1", "h1")])
     with pytest.raises(ValueError, match="duplicate speech_id"):
         merge_results(pd.DataFrame(), duplicate)
+
+
+def test_reconcile_results_prunes_removed_and_old_hash_rows() -> None:
+    existing = pd.DataFrame(
+        [
+            label_row("s1", "h1"),
+            label_row("s2", "old-hash", "Education"),
+            label_row("removed", "h3"),
+        ]
+    )
+    new = pd.DataFrame([label_row("s2", "h2", "Education")])
+
+    reconciled = reconcile_results_to_source(existing, new, speech_rows())
+
+    assert reconciled["speech_id"].tolist() == ["s1", "s2"]
+    assert reconciled.set_index("speech_id").loc["s2", "speech_text_hash"] == "h2"
 
 
 def test_batch_request_uses_responses_structured_output_schema() -> None:
@@ -191,10 +275,19 @@ def test_parse_batch_output_rejects_duplicate_custom_ids() -> None:
         parse_batch_output_jsonl(f"{line}\n{line}\n".encode())
 
 
-def test_materialize_batch_rows_marks_missing_result_failed() -> None:
+def test_output_and_error_files_cannot_overlap_custom_ids() -> None:
+    output = [ParsedBatchResult("same", "classified", "Health")]
+    errors = [ParsedBatchResult("same", "failed", error="error")]
+    with pytest.raises(ValueError, match="overlapping custom_id"):
+        combine_batch_results(output, errors)
+
+
+def test_materialize_batch_rows_marks_missing_result_failed_and_schedules_retry() -> None:
     selection, _ = build_batch_requests(speech_rows(), model="test-model")
+    selection["prior_attempt_count"] = [0, 1]
     results = [ParsedBatchResult(selection.iloc[0]["custom_id"], "classified", "Health")]
 
+    before = datetime.now(timezone.utc)
     rows = materialize_batch_rows(
         selection,
         results,
@@ -203,10 +296,17 @@ def test_materialize_batch_rows_marks_missing_result_failed() -> None:
         source_key="batch/silver_speeches.parquet",
         run_id="run-1",
         openai_batch_id="batch_openai_1",
+        retry_delay_hours=24,
     )
 
     assert rows["classification_status"].tolist() == ["classified", "failed"]
+    assert rows["attempt_count"].tolist() == [1, 2]
+    assert rows.iloc[0]["retry_eligible_after_utc"] == ""
     assert "Missing result" in rows.iloc[1]["classification_error"]
+    retry_after = datetime.fromisoformat(
+        rows.iloc[1]["retry_eligible_after_utc"].replace("Z", "+00:00")
+    )
+    assert retry_after >= before + timedelta(hours=23, minutes=59)
 
 
 def test_candidate_validation_rejects_invalid_label_hash_mismatch_and_failures() -> None:
@@ -225,6 +325,24 @@ def test_candidate_validation_rejects_invalid_label_hash_mismatch_and_failures()
     assert {"classified_labels_valid", "source_hash_matches", "failure_rate_acceptable"} <= failed_checks
 
 
+def test_candidate_validation_marks_incomplete_source_as_partial() -> None:
+    candidate = pd.DataFrame([label_row("s1", "h1")])
+
+    report = validate_candidate(
+        candidate,
+        speeches=speech_rows(),
+        new_rows=candidate,
+        max_failure_rate=0.0,
+    )
+
+    assert report["dq_status"] == "fail"
+    assert report["candidate_status"] == "validated_partial"
+    coverage = next(
+        check for check in report["checks"] if check["check_name"] == "source_coverage_complete"
+    )
+    assert coverage["metric_value"]["missing_count"] == 1
+
+
 def test_candidate_validation_passes_empty_delta_against_valid_current_table() -> None:
     speeches = speech_rows()
     candidate = pd.DataFrame([label_row("s1", "h1"), label_row("s2", "h2", "Education")])
@@ -235,7 +353,41 @@ def test_candidate_validation_passes_empty_delta_against_valid_current_table() -
         max_failure_rate=0.0,
     )
     assert report["dq_status"] == "pass"
+    assert report["candidate_status"] == "validated"
     assert report["failure_rate"] == 0.0
+
+
+def test_staleness_reasons_detect_source_and_classification_pointer_changes() -> None:
+    manifest = {
+        "source_batch_id": "batch-1",
+        "source_batch_speech_key": "batch-1/silver.parquet",
+        "base_classification_run_id": "labels-1",
+        "base_classification_table_key": "labels-1/table.parquet",
+    }
+
+    assert candidate_staleness_reasons(
+        manifest=manifest,
+        active_source_batch_id="batch-1",
+        active_source_key="batch-1/silver.parquet",
+        current_classification_pointer={
+            "run_id": "labels-1",
+            "table_parquet_key": "labels-1/table.parquet",
+        },
+    ) == []
+
+    assert candidate_staleness_reasons(
+        manifest=manifest,
+        active_source_batch_id="batch-2",
+        active_source_key="batch-2/silver.parquet",
+        current_classification_pointer={
+            "run_id": "labels-2",
+            "table_parquet_key": "labels-2/table.parquet",
+        },
+    ) == [
+        "active_source_batch_changed",
+        "active_source_key_changed",
+        "classification_pointer_changed",
+    ]
 
 
 def test_compatibility_output_uses_new_enrichment_labels() -> None:
