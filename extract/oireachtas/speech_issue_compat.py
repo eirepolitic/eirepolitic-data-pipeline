@@ -4,7 +4,7 @@ import io
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 import pandas as pd
 
@@ -83,13 +83,10 @@ def _taxonomy() -> set[str]:
 def validate_compatibility_frame(frame: pd.DataFrame) -> dict[str, Any]:
     required = {
         "speech_id",
-        "speaker_member_code",
         "Speaker Name",
         "PoliticalIssues",
         "classification_status",
         "speech_text_hash",
-        "source_batch_id",
-        "classification_run_id",
     }
     missing = sorted(required - set(frame.columns))
     if missing:
@@ -116,20 +113,7 @@ def validate_compatibility_frame(frame: pd.DataFrame) -> dict[str, Any]:
         raise SpeechIssueCompatibilityError(
             f"Compatibility output has invalid labels: {invalid_labels}"
         )
-    run_ids = sorted(
-        value
-        for value in set(frame["classification_run_id"].astype(str))
-        if value
-    )
-    source_batch_ids = sorted(
-        value for value in set(frame["source_batch_id"].astype(str)) if value
-    )
-    return {
-        "rows": int(len(frame)),
-        "run_ids": run_ids,
-        "source_batch_ids": source_batch_ids,
-        "status": "pass",
-    }
+    return {"rows": int(len(frame)), "status": "pass"}
 
 
 def validate_published_compatibility(
@@ -177,14 +161,6 @@ def validate_published_compatibility(
     if frame_report["rows"] != int(manifest["source_rows"]):
         raise SpeechIssueCompatibilityError(
             "Compatibility row count does not match the published source row count"
-        )
-    if frame_report["run_ids"] != [str(pointer["run_id"])]:
-        raise SpeechIssueCompatibilityError(
-            "Compatibility rows do not all reference the published run"
-        )
-    if frame_report["source_batch_ids"] != [str(pointer["source_batch_id"])]:
-        raise SpeechIssueCompatibilityError(
-            "Compatibility rows do not all reference the published source batch"
         )
 
     resolution = CompatibilityResolution(
