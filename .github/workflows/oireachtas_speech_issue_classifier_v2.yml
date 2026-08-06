@@ -196,6 +196,13 @@ jobs:
           echo "status=$(jq -r '.status' prepare-result.json)" >> "${GITHUB_OUTPUT}"
           echo "batch_request_rows=$(jq -r '.batch_request_rows' prepare-result.json)" >> "${GITHUB_OUTPUT}"
 
+      - name: Validate prepared manifest contract
+        if: steps.config.outputs.operation == 'prepare' && steps.prepare.outputs.run_id != ''
+        run: |
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.prepare.outputs.run_id }}' \
+            | tee contract-result.json
+
       - name: Submit prepared batch
         if: >-
           ${{
@@ -219,11 +226,28 @@ jobs:
 
       - name: Collect and validate candidate
         if: steps.config.outputs.operation == 'collect'
-        run: python process/oireachtas_speech_issue_classifier.py collect --run-id '${{ steps.config.outputs.run_id }}' | tee collect-result.json
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_issue_classifier.py collect \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            | tee collect-result.json
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-contract \
+            | tee contract-result.json
 
       - name: Atomically publish validated candidate
         if: steps.config.outputs.operation == 'publish'
-        run: python process/oireachtas_speech_issue_classifier.py publish --run-id '${{ steps.config.outputs.run_id }}' --publish-enabled | tee publish-result.json
+        run: |
+          set -euo pipefail
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-contract \
+            | tee contract-result.json
+          python process/oireachtas_speech_issue_classifier.py publish \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-enabled \
+            | tee publish-result.json
 
       - name: Upload run evidence
         if: always()
