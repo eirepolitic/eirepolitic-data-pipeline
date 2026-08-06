@@ -132,3 +132,41 @@ def select_density_aware_category_value_scenarios(
     base["minimum"] = {**deepcopy(base["item_count_min"]), "scenario": "minimum"}
     base["maximum"] = {**deepcopy(base["item_count_max"]), "scenario": "maximum"}
     return base
+
+
+def validate_density_matrix(
+    scenarios: dict[str, dict[str, Any]],
+    *,
+    maximum_min_items: int = 6,
+    representative_min_items: int = 5,
+) -> dict[str, Any]:
+    """Require dense real examples after current and historical scenario merging."""
+    requirements = {
+        "item_count_max": maximum_min_items,
+        "real_example": representative_min_items,
+    }
+    errors: list[str] = []
+    metrics: dict[str, Any] = {}
+
+    for scenario_name, minimum in requirements.items():
+        scenario = scenarios.get(scenario_name) or {}
+        scenario_metrics = scenario.get("scenario_metrics") if isinstance(scenario.get("scenario_metrics"), dict) else {}
+        count = int(scenario_metrics.get("displayed_item_count", 0) or 0)
+        metrics[scenario_name] = {
+            "displayed_item_count": count,
+            "required_minimum": minimum,
+            "data_origin": scenario.get("data_origin"),
+            "waived": bool(scenario.get("waived", False)),
+            "source_item_label": scenario.get("source_item_label"),
+        }
+        if scenario.get("waived") is True:
+            errors.append(f"{scenario_name}:waived_but_requires_at_least_{minimum}_displayed_categories")
+        elif count < minimum:
+            errors.append(f"{scenario_name}:displayed_item_count:{count}<{minimum}")
+
+    return {
+        "success": not errors,
+        "errors": errors,
+        "metrics": metrics,
+        "requirements": requirements,
+    }
