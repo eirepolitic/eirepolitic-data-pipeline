@@ -1,0 +1,52 @@
+name: Apply two-column contact sheet wiring
+
+on:
+  push:
+    branches:
+      - feature/instagram-content-factory-party-project
+    paths:
+      - ".github/workflows/instagram_contact_sheet_two_column_patch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-content-factory-party-project
+          fetch-depth: 0
+      - name: Patch builder wiring and tests
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          generic = Path("instagram/factory/generic_tests.py")
+          text = generic.read_text(encoding="utf-8")
+          text = text.replace(
+              "from .validation_contact_sheet_compact import build_validation_contact_sheet",
+              "from .validation_contact_sheet import build_validation_contact_sheet",
+              1,
+          )
+          generic.write_text(text, encoding="utf-8")
+
+          old = "full_review_plus_deduplicated_summary_plus_complete_audit"
+          new = "two_column_full_review_plus_deduplicated_summary_plus_complete_audit"
+          for name in (
+              "tests/test_instagram_factory_party_project.py",
+              "tests/test_instagram_factory_constituency_project.py",
+          ):
+              path = Path(name)
+              content = path.read_text(encoding="utf-8").replace(old, new)
+              path.write_text(content, encoding="utf-8")
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/factory/generic_tests.py tests/test_instagram_factory_party_project.py tests/test_instagram_factory_constituency_project.py
+          git commit -m "fix(instagram): wire two-column contact sheet end to end" || true
+          git push origin HEAD:feature/instagram-content-factory-party-project
