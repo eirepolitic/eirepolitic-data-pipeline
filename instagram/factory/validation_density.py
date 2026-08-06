@@ -151,7 +151,17 @@ def validate_density_matrix(
     maximum_min_items: int = 6,
     representative_min_items: int = 5,
 ) -> dict[str, Any]:
-    """Require dense real examples after current and historical scenario merging."""
+    """Require dense real examples for horizontal-bar matrices after historical merging."""
+    if "item_count_max" not in scenarios:
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": "No item_count_max scenario is defined; density gate is not applicable.",
+            "errors": [],
+            "metrics": {},
+            "requirements": {},
+        }
+
     requirements = {
         "item_count_max": maximum_min_items,
         "real_example": representative_min_items,
@@ -177,6 +187,7 @@ def validate_density_matrix(
 
     return {
         "success": not errors,
+        "skipped": False,
         "errors": errors,
         "metrics": metrics,
         "requirements": requirements,
