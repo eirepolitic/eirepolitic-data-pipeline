@@ -87,10 +87,16 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertFalse(scenarios["publishing_allowed"])
 
             sheet = scenarios["validation_contact_sheet"]
-            self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
+            self.assertEqual(
+                sheet["layout"],
+                "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
+            )
             self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
             self.assertTrue(sheet["full"]["cover_shown_once"])
             self.assertTrue(sheet["summary"]["cover_shown_once"])
+            self.assertEqual(sheet["full"]["columns"], 2)
+            self.assertEqual(sheet["full"]["preview_width"], 760)
+            self.assertEqual(sheet["full"]["preview_height"], 950)
             self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
             self.assertLessEqual(sheet["summary"]["unique_visual_count"], scenarios["rendered_scenario_count"])
 
