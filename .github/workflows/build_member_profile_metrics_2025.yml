@@ -37,6 +37,8 @@ jobs:
       MEMBER_VOTES_INPUT_KEY: processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv
       MEMBER_PHOTOS_INPUT_KEY: processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv
       DEBATE_ISSUES_INPUT_KEY: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
+      OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED || 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -57,6 +59,16 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+      - name: Resolve production speech issue input
+        if: inputs.batch_id == ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "${OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_CUTOVER_ENABLED}" == 'true' ]]; then args+=(--cutover-enabled); fi
+          if [[ "${OIREACHTAS_SPEECH_CLASSIFIER_COMPAT_LEGACY_FALLBACK_ENABLED}" != 'true' ]]; then args+=(--disable-legacy-fallback); fi
+          python process/oireachtas_resolve_speech_issue_compat.py "${args[@]}" | tee speech-issue-resolution.json
+          echo "DEBATE_ISSUES_INPUT_KEY=$(jq -r '.key' speech-issue-resolution.json)" >> "${GITHUB_ENV}"
       - name: Build member profile metrics
         shell: bash
         run: |
@@ -67,6 +79,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: member-profile-metrics-${{ inputs.target_year }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: member_profile_metrics.json
+          path: |
+            member_profile_metrics.json
+            speech-issue-resolution.json
           if-no-files-found: warn
           retention-days: 90
