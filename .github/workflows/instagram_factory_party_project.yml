@@ -15,6 +15,7 @@ on:
       - "instagram/templates/layouts/title_text_media_v1.json"
       - "instagram/projects/party_issue_profile_v1/**"
       - "instagram/projects/constituency_issue_profile_v1/**"
+      - "tests/fixtures/instagram/**"
       - "tests/test_instagram_factory_generic_core.py"
       - "tests/test_instagram_factory_party_project.py"
       - "tests/test_instagram_factory_constituency_project.py"
@@ -53,95 +54,17 @@ jobs:
       - name: Run historical fallback tests
         run: python -m unittest tests.test_instagram_factory_historical_fallback -v
       - name: Run constituency project tests
-        id: constituency
-        continue-on-error: true
-        shell: bash
-        run: |
-          set +e
-          python -m unittest tests.test_instagram_factory_constituency_project -v > constituency-density-test.txt 2>&1
-          status=$?
-          cat constituency-density-test.txt
-          python <<'PY'
-          import os
-          import re
-          from pathlib import Path
-
-          raw = Path("constituency-density-test.txt").read_text(encoding="utf-8", errors="replace")
-          candidates = [
-              line.strip()
-              for line in raw.splitlines()
-              if any(token in line for token in ("ValueError:", "AssertionError", "KeyError:", "TypeError:"))
-          ]
-          summary = candidates[-1] if candidates else next((line.strip() for line in reversed(raw.splitlines()) if line.strip()), "unknown")
-          slug = re.sub(r"[^A-Za-z0-9._-]+", "-", summary).strip("-")[:140] or "unknown"
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-              handle.write(f"error_slug={slug}\n")
-          PY
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Upload constituency density diagnostic
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: constituency-density-${{ steps.constituency.outputs.status || 'unknown' }}-${{ steps.constituency.outputs.error_slug || 'unknown' }}-${{ github.run_id }}
-          path: constituency-density-test.txt
-          if-no-files-found: error
-      - name: Enforce constituency tests
-        run: test "${{ steps.constituency.outputs.status }}" = "0"
+        run: python -m unittest tests.test_instagram_factory_constituency_project -v
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
-        id: live
-        continue-on-error: true
-        shell: bash
         run: |
-          set +e
           python process/instagram_factory.py render-tests \
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
             --output-root generated_party_live_tests \
-            > party-live-validation.json 2>&1
-          status=$?
-          cat party-live-validation.json
-          python <<'PY'
-          import json
-          import os
-          import re
-          from pathlib import Path
-
-          path = Path("party-live-validation.json")
-          raw = path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
-          error = "unknown-live-render-error"
-          try:
-              payload = json.loads(raw)
-              errors = payload.get("errors") or []
-              if errors:
-                  error = str(errors[0])
-              elif payload.get("success") is True:
-                  error = "success"
-          except Exception:
-              for line in reversed(raw.splitlines()):
-                  if line.strip():
-                      error = line.strip()
-                      break
-          slug = re.sub(r"[^A-Za-z0-9._-]+", "-", error).strip("-")[:120] or "unknown"
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-              handle.write(f"error_slug={slug}\n")
-          Path("live-render-error-summary.txt").write_text(error + "\n", encoding="utf-8")
-          PY
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Upload live render result
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: live-render-${{ steps.live.outputs.status }}-${{ steps.live.outputs.error_slug }}-${{ github.run_id }}
-          path: |
-            party-live-validation.json
-            live-render-error-summary.txt
-          if-no-files-found: error
-      - name: Rebuild and export full contact sheet from returned output root
-        if: steps.live.outputs.status == '0'
+            > party-live-validation.json
+      - name: Verify and export dense full contact sheet
         shell: bash
         run: |
           set -euo pipefail
@@ -172,6 +95,7 @@ jobs:
           primary = root / "validation_contact_sheet.png"
           if not primary.is_file():
               raise SystemExit(f"Primary contact sheet was not created: {primary}")
+
           full = sheet.get("full") or {}
           rendered = set(full.get("scenario_rows") or [])
           waived = set(full.get("waived_scenarios") or [])
@@ -182,6 +106,7 @@ jobs:
                   f"Scenario mismatch: missing={sorted(required - represented)}; "
                   f"unexpected={sorted(represented - required)}"
               )
+
           with Image.open(primary) as image:
               dimensions = image.size
           export = Path("contact_sheet_export")
@@ -200,13 +125,9 @@ jobs:
               encoding="utf-8",
           )
           PY
-      - name: Upload verified standalone full contact sheet
-        if: steps.live.outputs.status == '0'
+      - name: Upload verified dense full contact sheet
         uses: actions/upload-artifact@v4
         with:
           name: verified-dense-full-contact-sheet-${{ github.run_id }}
           path: contact_sheet_export/
           if-no-files-found: error
-      - name: Enforce live render success
-        shell: bash
-        run: test "${{ steps.live.outputs.status }}" = "0"
