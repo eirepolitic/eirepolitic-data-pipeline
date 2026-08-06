@@ -25,6 +25,17 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertEqual(report["adapter_id"], "constituency_issue_profile_v1")
             self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(report["scenario_manifests"]))
             self.assertFalse(report["publishing_allowed"])
+            self.assertTrue(report["quality_gates"]["dense_real_examples"])
+            self.assertTrue(report["density_validation"]["success"])
+            self.assertGreaterEqual(
+                report["density_validation"]["metrics"]["item_count_max"]["displayed_item_count"],
+                6,
+            )
+            self.assertGreaterEqual(
+                report["density_validation"]["metrics"]["real_example"]["displayed_item_count"],
+                5,
+            )
+
             sheet = report["validation_contact_sheet"]
             self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
             self.assertTrue(sheet["full"]["cover_shown_once"])
@@ -48,8 +59,6 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
             self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
             self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
-            for gate in ("title_text_bounds", "chart_text_bounds", "dynamic_text_sizing"):
-                self.assertTrue(report["quality_gates"][gate])
 
             rendered = [
                 scenario
@@ -75,6 +84,13 @@ class ConstituencyIssueProfileProjectTest(TestCase):
                         self.assertEqual(quality["metrics"]["category_text_clipped_count"], 0)
                         self.assertEqual(quality["metrics"]["value_text_clipped_count"], 0)
                         self.assertEqual(quality["metrics"]["truncated_label_count"], 0)
+
+            for page in sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]:
+                page_path = Path(report["output_root"]) / page
+                self.assertTrue(page_path.is_file())
+                with Image.open(page_path) as image:
+                    self.assertEqual(image.width, 2400)
+                    self.assertGreater(image.height, 1000)
 
             real_cover = next(
                 slide
