@@ -14,6 +14,7 @@ from .common import replace_tokens
 from .layout_quality import validate_slide_layout, validate_visual_manifest
 from .project import load_project, validate_project
 from .validation_contact_sheet_compact import build_validation_contact_sheet
+from .validation_density import validate_density_matrix
 
 
 def _required_scenarios(project: dict[str, Any], catalogues: CatalogueSet) -> list[str]:
@@ -176,6 +177,17 @@ def render_project_tests(
     historical_search["replacement_count"] = len(historical_replacements)
     historical_search["replacement_scenarios"] = historical_replacements
 
+    density_validation = validate_density_matrix(
+        scenarios,
+        maximum_min_items=6,
+        representative_min_items=5,
+    )
+    if not density_validation["success"]:
+        raise ValueError(
+            "Validation density failed after current and historical fallback: "
+            + "; ".join(density_validation["errors"])
+        )
+
     root = Path(output_root or project.get("output", {}).get("local_root") or f"generated_factory_tests/{project['project_id']}")
     if not root.is_absolute():
         root = REPO_ROOT / root
@@ -315,6 +327,7 @@ def render_project_tests(
         "source_manifest": source_manifest,
         "join_manifest": join_manifest,
         "historical_search": historical_search,
+        "density_validation": density_validation,
         "required_scenarios": required_scenarios,
         "rendered_scenario_count": rendered_count,
         "waived_scenario_count": waived_count,
@@ -328,6 +341,7 @@ def render_project_tests(
             "chart_text_bounds": True,
             "dynamic_text_sizing": True,
             "historical_real_data_fallback": True,
+            "dense_real_examples": True,
         },
         "review_state": "needs_review",
         "approved": False,
