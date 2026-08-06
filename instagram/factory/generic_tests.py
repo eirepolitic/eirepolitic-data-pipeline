@@ -13,7 +13,7 @@ from .catalogues import REPO_ROOT, CatalogueSet, load_catalogues
 from .common import replace_tokens
 from .layout_quality import validate_slide_layout, validate_visual_manifest
 from .project import load_project, validate_project
-from .validation_contact_sheet_compact import build_validation_contact_sheet
+from .validation_contact_sheet import build_validation_contact_sheet
 from .validation_density import validate_density_matrix
 
 
