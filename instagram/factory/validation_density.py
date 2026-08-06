@@ -6,7 +6,6 @@ from typing import Any
 
 from .validation_scenarios import select_real_category_value_scenarios
 
-SPARSE_ALLOWED = {"item_count_min", "all_equal", "ties", "zeros"}
 DENSE_PREFERRED = {
     "labels_short",
     "labels_long",
@@ -23,11 +22,11 @@ def _count(record: dict[str, Any], rows_field: str, max_items: int) -> int:
     return min(len(record.get(rows_field) or []), max_items)
 
 
-def _waiver(scenario: str, minimum: int) -> dict[str, Any]:
+def _waiver(scenario: str, minimum: int, reason: str | None = None) -> dict[str, Any]:
     return {
         "scenario": scenario,
         "waived": True,
-        "waiver_reason": (
+        "waiver_reason": reason or (
             f"No qualifying real record contains at least {minimum} displayed categories. "
             "Current and configured historical production data must be checked before this waiver is accepted."
         ),
@@ -103,8 +102,19 @@ def select_density_aware_category_value_scenarios(
             max_items=max_items,
         )
         for scenario in DENSE_PREFERRED:
-            if dense.get(scenario, {}).get("waived") is not True:
-                base[scenario] = dense[scenario]
+            selected = deepcopy(dense.get(scenario) or {})
+            if selected.get("waived") is True:
+                base[scenario] = _waiver(
+                    scenario,
+                    dense_min_items,
+                    reason=(
+                        f"No qualifying real record with at least {dense_min_items} displayed categories satisfies "
+                        f"the {scenario} condition. Current and configured historical production data must be checked."
+                    ),
+                )
+            else:
+                selected["density_requirement"] = dense_min_items
+                base[scenario] = selected
 
         representative = _representative_dense_record(
             dense_records,
@@ -124,6 +134,7 @@ def select_density_aware_category_value_scenarios(
         rep["selection_reason"] = (
             f"Representative real record selected from candidates with at least {dense_min_items} displayed categories."
         )
+        rep["density_requirement"] = dense_min_items
         base["real_example"] = rep
     else:
         for scenario in DENSE_PREFERRED:
