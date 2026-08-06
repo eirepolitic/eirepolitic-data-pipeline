@@ -1,0 +1,278 @@
+name: Oireachtas Speech Issue Classifier v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Pipeline operation
+        required: true
+        type: choice
+        options: [prepare, submit, status, collect, publish, verify_models]
+        default: prepare
+      expected_source_batch_id:
+        description: Required for automatic post-refresh preparation; must match the active production batch
+        required: false
+        type: string
+      run_id:
+        description: Existing immutable run ID for submit/status/collect/publish
+        required: false
+        type: string
+      model:
+        description: Candidate OpenAI model ID; verified against the account before submission
+        required: false
+        type: string
+      comparison_model:
+        description: Second candidate model for verify_models
+        required: false
+        type: string
+      max_rows:
+        description: Maximum delta rows; 0 means all and is blocked for manual non-backfill runs
+        required: true
+        type: number
+        default: 25
+      historical_backfill:
+        description: Mark this as a historical backfill operation
+        required: true
+        type: boolean
+        default: false
+      force_speech_ids:
+        description: Optional comma-separated speech IDs to reclassify
+        required: false
+        type: string
+      publish_latest:
+        description: Required in addition to the repository publish variable
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oireachtas-speech-issue-classifier-v2
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OIREACHTAS_SPEECH_CLASSIFIER_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED || 'false' }}
+      OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED || 'false' }}
+      AUTOMATIC_SUBMIT_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_AUTOMATIC_SUBMIT_ENABLED || 'false' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Resolve and validate operation
+        id: config
+        shell: bash
+        env:
+          INPUT_OPERATION: ${{ inputs.operation }}
+          INPUT_EXPECTED_SOURCE_BATCH_ID: ${{ inputs.expected_source_batch_id }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_COMPARISON_MODEL: ${{ inputs.comparison_model }}
+          INPUT_MAX_ROWS: ${{ inputs.max_rows }}
+          INPUT_HISTORICAL_BACKFILL: ${{ inputs.historical_backfill }}
+          INPUT_FORCE_SPEECH_IDS: ${{ inputs.force_speech_ids }}
+          INPUT_PUBLISH_LATEST: ${{ inputs.publish_latest }}
+        run: |
+          set -euo pipefail
+          operation="${INPUT_OPERATION}"
+          expected_source_batch_id="${INPUT_EXPECTED_SOURCE_BATCH_ID}"
+          run_id="${INPUT_RUN_ID}"
+          model="${INPUT_MODEL}"
+          comparison_model="${INPUT_COMPARISON_MODEL}"
+          max_rows="${INPUT_MAX_ROWS}"
+          historical_backfill="${INPUT_HISTORICAL_BACKFILL}"
+          force_speech_ids="${INPUT_FORCE_SPEECH_IDS}"
+          publish_latest="${INPUT_PUBLISH_LATEST}"
+          automatic_post_refresh='false'
+          if [[ -n "${expected_source_batch_id}" ]]; then automatic_post_refresh='true'; fi
+
+          case "${operation}" in prepare|submit|status|collect|publish|verify_models) ;; *) echo 'Invalid operation' >&2; exit 2 ;; esac
+
+          if [[ "${automatic_post_refresh}" == 'true' ]]; then
+            test "${operation}" = 'prepare' || { echo 'Post-refresh dispatch may only prepare a candidate' >&2; exit 2; }
+            test "${OIREACHTAS_SPEECH_CLASSIFIER_ENABLED}" = 'true' || { echo 'Automatic classifier execution is disabled' >&2; exit 2; }
+            test "${OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_ENABLED}" = 'true' || { echo 'Automatic candidate generation is disabled' >&2; exit 2; }
+            test "${historical_backfill}" != 'true' || { echo 'Automatic post-refresh backfill is prohibited' >&2; exit 2; }
+            test -z "${force_speech_ids}" || { echo 'Automatic post-refresh forced reclassification is prohibited' >&2; exit 2; }
+          fi
+
+          if [[ "${operation}" == 'prepare' ]]; then
+            test -n "${model}" || { echo 'A candidate model is required' >&2; exit 2; }
+            if [[ "${max_rows}" == '0' && "${historical_backfill}" != 'true' && "${automatic_post_refresh}" != 'true' ]]; then
+              echo 'max_rows=0 requires historical_backfill=true for manual runs' >&2
+              exit 2
+            fi
+            if [[ "${historical_backfill}" == 'true' ]]; then
+              test "${OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED}" = 'true' || { echo 'Backfill switch is disabled' >&2; exit 2; }
+            fi
+          elif [[ "${operation}" != 'verify_models' ]]; then
+            test -n "${run_id}" || { echo 'run_id is required for this operation' >&2; exit 2; }
+          fi
+
+          if [[ "${operation}" == 'publish' ]]; then
+            test "${publish_latest}" = 'true' || { echo 'publish_latest confirmation is required' >&2; exit 2; }
+            test "${OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED}" = 'true' || { echo 'Publishing switch is disabled' >&2; exit 2; }
+          fi
+          if [[ "${operation}" =~ ^(submit|status|collect|verify_models)$ ]]; then
+            test -n "${OPENAI_API_KEY}" || { echo 'OPENAI_API_KEY is not configured' >&2; exit 2; }
+          fi
+
+          {
+            echo "operation=${operation}"
+            echo "expected_source_batch_id=${expected_source_batch_id}"
+            echo "automatic_post_refresh=${automatic_post_refresh}"
+            echo "run_id=${run_id}"
+            echo "model=${model}"
+            echo "comparison_model=${comparison_model}"
+            echo "max_rows=${max_rows}"
+            echo "historical_backfill=${historical_backfill}"
+            echo "force_speech_ids=${force_speech_ids}"
+            echo "publish_latest=${publish_latest}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify promoted source and inspect delta
+        id: trigger_guard
+        if: steps.config.outputs.automatic_post_refresh == 'true'
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_classifier_trigger_guard.py \
+            --expected-source-batch-id '${{ steps.config.outputs.expected_source_batch_id }}' \
+            | tee trigger-guard-result.json
+          echo "should_prepare=$(jq -r '.should_prepare' trigger-guard-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "reason=$(jq -r '.reason' trigger-guard-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "delta_rows=$(jq -r '.delta_rows' trigger-guard-result.json)" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify candidate models
+        if: steps.config.outputs.operation == 'verify_models'
+        run: |
+          set -euo pipefail
+          test -n '${{ steps.config.outputs.model }}' || { echo 'First candidate model is required' >&2; exit 2; }
+          test -n '${{ steps.config.outputs.comparison_model }}' || { echo 'Second candidate model is required' >&2; exit 2; }
+          python process/oireachtas_speech_issue_classifier.py verify-models \
+            --models '${{ steps.config.outputs.model }},${{ steps.config.outputs.comparison_model }}' \
+            | tee model-availability.json
+
+      - name: Prepare immutable candidate run
+        id: prepare
+        if: >-
+          ${{
+            steps.config.outputs.operation == 'prepare' &&
+            (
+              steps.config.outputs.automatic_post_refresh != 'true' ||
+              steps.trigger_guard.outputs.should_prepare == 'true'
+            )
+          }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(prepare --model '${{ steps.config.outputs.model }}' --max-rows '${{ steps.config.outputs.max_rows }}')
+          if [[ '${{ steps.config.outputs.historical_backfill }}' == 'true' ]]; then args+=(--historical-backfill); fi
+          if [[ -n '${{ steps.config.outputs.force_speech_ids }}' ]]; then args+=(--force-speech-ids '${{ steps.config.outputs.force_speech_ids }}'); fi
+          python process/oireachtas_speech_issue_classifier.py "${args[@]}" | tee prepare-result.json
+          echo "run_id=$(jq -r '.run_id' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "status=$(jq -r '.status' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+          echo "batch_request_rows=$(jq -r '.batch_request_rows' prepare-result.json)" >> "${GITHUB_OUTPUT}"
+
+      - name: Validate prepared manifest contract
+        if: steps.config.outputs.operation == 'prepare' && steps.prepare.outputs.run_id != ''
+        run: |
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.prepare.outputs.run_id }}' \
+            | tee contract-result.json
+
+      - name: Submit prepared batch
+        if: >-
+          ${{
+            steps.config.outputs.operation == 'submit' ||
+            (
+              steps.config.outputs.automatic_post_refresh == 'true' &&
+              steps.prepare.outputs.status == 'prepared' &&
+              steps.prepare.outputs.batch_request_rows != '0' &&
+              env.AUTOMATIC_SUBMIT_ENABLED == 'true'
+            )
+          }}
+        run: |
+          set -euo pipefail
+          run_id='${{ steps.config.outputs.run_id }}'
+          if [[ -z "${run_id}" ]]; then run_id='${{ steps.prepare.outputs.run_id }}'; fi
+          python process/oireachtas_speech_issue_classifier.py submit --run-id "${run_id}" | tee submit-result.json
+
+      - name: Check batch status
+        if: steps.config.outputs.operation == 'status'
+        run: python process/oireachtas_speech_issue_classifier.py status --run-id '${{ steps.config.outputs.run_id }}' | tee status-result.json
+
+      - name: Collect and validate candidate
+        if: steps.config.outputs.operation == 'collect'
+        run: |
+          set -euo pipefail
+          python process/oireachtas_speech_issue_classifier.py collect \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            | tee collect-result.json
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-contract \
+            | tee contract-result.json
+
+      - name: Atomically publish validated candidate
+        if: steps.config.outputs.operation == 'publish'
+        run: |
+          set -euo pipefail
+          python process/oireachtas_validate_speech_enrichment.py \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-contract \
+            | tee contract-result.json
+          python process/oireachtas_speech_issue_classifier.py publish \
+            --run-id '${{ steps.config.outputs.run_id }}' \
+            --publish-enabled \
+            | tee publish-result.json
+
+      - name: Upload run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speech-classifier-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            *-result.json
+            model-availability.json
+          if-no-files-found: warn
+          retention-days: 365
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo '## Oireachtas speech classification v2'
+            echo
+            echo "- Operation: `${{ steps.config.outputs.operation || 'not resolved' }}`"
+            echo "- Automatic post-refresh: `${{ steps.config.outputs.automatic_post_refresh || 'false' }}`"
+            echo "- Expected source batch: `${{ steps.config.outputs.expected_source_batch_id || 'not supplied' }}`"
+            echo "- Trigger decision: `${{ steps.trigger_guard.outputs.reason || 'not applicable' }}`"
+            echo "- Trigger delta rows: `${{ steps.trigger_guard.outputs.delta_rows || 'not inspected' }}`"
+            echo "- Run ID: `${{ steps.config.outputs.run_id || steps.prepare.outputs.run_id || 'not created' }}`"
+            echo "- Candidate model: `${{ steps.config.outputs.model || 'not applicable' }}`"
+            echo "- Automatic submit enabled: `${AUTOMATIC_SUBMIT_ENABLED}`"
+            echo "- Publishing enabled: `${OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED}`"
+          } >> "${GITHUB_STEP_SUMMARY}"

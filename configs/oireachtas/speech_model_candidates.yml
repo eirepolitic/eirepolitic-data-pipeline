@@ -1,0 +1,52 @@
+verification:
+  verified_local_date: '2026-08-05'
+  verified_at_utc: '2026-08-06T02:54:00Z'
+  verification_basis: Official OpenAI API model, Structured Outputs, and pricing documentation
+  pricing_currency: USD
+  pricing_unit: per_1m_text_tokens
+  pricing_tier: batch_short_context
+  long_context_threshold_tokens: 272000
+  assumptions:
+    - Evaluation and speech-classification requests remain below 272000 input tokens.
+    - Pricing is for direct OpenAI API Batch processing, not regional data-residency endpoints.
+    - Account availability must be verified with the configured project API key before submission.
+    - Model selection remains pending reviewed evaluation and user approval.
+  official_sources:
+    model_catalog: https://developers.openai.com/api/docs/models
+    luna_model: https://developers.openai.com/api/docs/models/gpt-5.6-luna
+    terra_model: https://developers.openai.com/api/docs/models/gpt-5.6-terra
+    structured_outputs: https://developers.openai.com/api/docs/guides/structured-outputs
+    pricing: https://developers.openai.com/api/docs/pricing
+
+selection:
+  status: requires_reviewed_evaluation_and_user_approval
+  selected_model: null
+  production_model_variable: OIREACHTAS_SPEECH_CLASSIFIER_MODEL
+
+candidates:
+  - model_name: gpt-5.6-luna
+    evaluation_role: lowest_cost_candidate
+    tier_description: Cost-sensitive high-volume classification candidate
+    account_availability: not_verified
+    responses_api: true
+    batch_api: true
+    structured_outputs: true
+    standard_input_price_per_million: 0.20
+    standard_cached_input_price_per_million: 0.02
+    standard_output_price_per_million: 1.20
+    batch_input_price_per_million: 0.10
+    batch_cached_input_price_per_million: 0.01
+    batch_output_price_per_million: 0.60
+  - model_name: gpt-5.6-terra
+    evaluation_role: stronger_comparison_candidate
+    tier_description: Intelligence-and-cost balanced comparison candidate
+    account_availability: not_verified
+    responses_api: true
+    batch_api: true
+    structured_outputs: true
+    standard_input_price_per_million: 2.00
+    standard_cached_input_price_per_million: 0.20
+    standard_output_price_per_million: 12.00
+    batch_input_price_per_million: 1.00
+    batch_cached_input_price_per_million: 0.10
+    batch_output_price_per_million: 6.00

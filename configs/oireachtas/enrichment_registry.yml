@@ -1,0 +1,167 @@
+# Enrichment tables are intentionally separate from the core Oireachtas table registry.
+# They consume validated production tables but never participate in core candidate promotion.
+
+enrichments:
+  enrichment_speech_issue_labels:
+    layer: enrichment
+    status: in_progress
+    cadence: post_production_refresh
+    source_table: silver_speeches
+    source_primary_key: [speech_id]
+    source_hash_column: speech_text_hash
+    primary_key: [speech_id]
+    description: Current validated political issue classification for each active speech.
+    core_refresh_required: false
+    columns:
+      - speech_id
+      - speech_text_hash
+      - issue_label
+      - classification_status
+      - model_name
+      - prompt_version
+      - taxonomy_version
+      - classified_at_utc
+      - input_tokens
+      - output_tokens
+      - source_batch_id
+      - source_batch_speech_key
+      - classification_run_id
+      - openai_response_id
+      - openai_batch_id
+      - review_status
+      - classification_error
+      - attempt_count
+      - retry_eligible_after_utc
+    required_columns:
+      - speech_id
+      - speech_text_hash
+      - issue_label
+      - classification_status
+      - model_name
+      - prompt_version
+      - taxonomy_version
+      - classified_at_utc
+      - input_tokens
+      - output_tokens
+      - source_batch_id
+      - source_batch_speech_key
+      - classification_run_id
+      - openai_response_id
+      - openai_batch_id
+      - review_status
+      - classification_error
+      - attempt_count
+      - retry_eligible_after_utc
+    required_non_blank:
+      - speech_id
+      - speech_text_hash
+      - classification_status
+      - model_name
+      - prompt_version
+      - taxonomy_version
+      - classified_at_utc
+      - source_batch_id
+      - source_batch_speech_key
+      - classification_run_id
+      - review_status
+    enum_columns:
+      classification_status: [classified, failed]
+      review_status: [unreviewed, approved, rejected, needs_review]
+    conditional_enums:
+      - when: {classification_status: classified}
+        column: issue_label
+        values:
+          - Macroeconomics
+          - Civil Rights, Minority Issues and Civil Liberties
+          - Health
+          - Agriculture
+          - Labor, Employment and Immigration
+          - Education
+          - Environment
+          - Energy
+          - Transportation
+          - Law/Crime and Family Issues
+          - Social Welfare
+          - Housing and Community Development
+          - Banking/Finance and Domestic Commerce
+          - Defense
+          - Space, Science, and Technology
+          - Foreign Trade
+          - International Affairs and Foreign Aid
+          - Government Operations
+          - Public Lands and Water Management
+          - State and Local Government Administration
+          - Culture and Arts
+          - Sports and Recreation
+          - Other/Miscellaneous
+          - Domestic Terrorism
+          - NONE
+    manifest:
+      required_fields:
+        - table
+        - run_id
+        - status
+        - created_at_utc
+        - updated_at_utc
+        - source_batch_id
+        - source_batch_speech_key
+        - base_classification_run_id
+        - base_classification_table_key
+        - model_name
+        - prompt_version
+        - taxonomy_version
+        - historical_backfill
+        - source_rows
+        - existing_rows
+        - full_delta_rows
+        - delta_rows_selected
+        - delta_truncated
+        - maintenance_needed
+        - deterministic_none_rows
+        - batch_request_rows
+        - max_rows
+        - max_retries
+        - short_speech_word_limit
+        - selection_csv_key
+        - selection_parquet_key
+        - requests_jsonl_key
+        - deterministic_results_key
+        - manifest_key
+        - artifact_checksums
+        - batch_submission_attempts
+        - published
+      allowed_statuses:
+        - no_op
+        - prepared
+        - submitted
+        - ready_to_collect
+        - batch_failed
+        - validated
+        - validated_partial
+        - validation_failed
+        - stale_candidate
+        - published
+      publishable_status: validated
+      immutable_identity_fields:
+        - table
+        - run_id
+        - created_at_utc
+        - source_batch_id
+        - source_batch_speech_key
+        - base_classification_run_id
+        - base_classification_table_key
+        - model_name
+        - prompt_version
+        - taxonomy_version
+        - historical_backfill
+        - selection_csv_key
+        - selection_parquet_key
+        - requests_jsonl_key
+        - deterministic_results_key
+        - manifest_key
+      candidate_artifact_fields:
+        - table_csv_key
+        - table_parquet_key
+        - compat_csv_key
+        - compat_parquet_key
+        - dq_key

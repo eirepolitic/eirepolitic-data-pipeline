@@ -16,6 +16,7 @@ from extract.oireachtas.batch import batch_key_for_production_key, current_batch
 from extract.oireachtas.contracts import load_contract_config
 from extract.oireachtas.io_s3 import DEFAULT_BUCKET, DEFAULT_REGION, make_s3_client
 from extract.oireachtas.normalize import stable_json_dumps
+from extract.oireachtas.speech_issue_compat import resolve_speech_issue_compatibility
 
 
 AUXILIARY_CONTRACTS = [
@@ -42,6 +43,13 @@ def _source_key(s3, *, bucket: str, logical_key: str) -> str:
         return logical_key
 
 
+def _resolve_contract_source(s3, *, bucket: str, name: str, logical_key: str) -> tuple[str, dict[str, str]]:
+    if name != "debate_issue_labels":
+        return _source_key(s3, bucket=bucket, logical_key=logical_key), {"mode": "standard"}
+    resolution = resolve_speech_issue_compatibility(s3, bucket=bucket)
+    return resolution.key, resolution.as_dict()
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parser().parse_args(argv)
     batch_id = args.batch_id or current_batch_id()
@@ -58,7 +66,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     results: list[dict[str, object]] = []
     for name in selected:
         contract = contracts[name]
-        source_key = _source_key(s3, bucket=args.bucket, logical_key=contract.logical_key)
+        source_key, resolution = _resolve_contract_source(
+            s3,
+            bucket=args.bucket,
+            name=name,
+            logical_key=contract.logical_key,
+        )
         source = s3.get_object(Bucket=args.bucket, Key=source_key)
         body = source["Body"].read()
         head = s3.head_object(Bucket=args.bucket, Key=source_key)
@@ -81,6 +94,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "source-etag": str(head.get("ETag", "")).strip('"')[:1024],
                 "source-last-modified": modified.astimezone(timezone.utc).isoformat()[:1024],
                 "contract": name,
+                "resolution-mode": str(resolution.get("mode", ""))[:1024],
+                "classification-run-id": str(resolution.get("run_id", ""))[:1024],
+                "classification-source-batch-id": str(resolution.get("source_batch_id", ""))[:1024],
             },
         )
         results.append(
@@ -91,6 +107,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "target_key": target_key,
                 "source_age_days": age_days,
                 "bytes": len(body),
+                "resolution": resolution,
             }
         )
 

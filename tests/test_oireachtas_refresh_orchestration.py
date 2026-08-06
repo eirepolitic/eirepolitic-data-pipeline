@@ -88,11 +88,18 @@ class WorkflowArchitectureTests(unittest.TestCase):
         self.assertNotIn("schedule:", yearly)
         self.assertEqual(orchestrator.count("schedule:"), 1)
 
-    def test_orchestrator_does_not_poll_or_dispatch_with_gh(self) -> None:
+    def test_orchestrator_does_not_poll_and_only_dispatches_independent_classifier(self) -> None:
         orchestrator = self.read("oireachtas_refresh_validation_orchestrator.yml")
-        self.assertNotIn("gh workflow run", orchestrator)
         self.assertNotIn("gh run list", orchestrator)
         self.assertNotIn("headSha", orchestrator)
+        self.assertEqual(orchestrator.count("gh workflow run"), 1)
+        self.assertIn(
+            "gh workflow run oireachtas_speech_issue_classifier_v2.yml",
+            orchestrator,
+        )
+        self.assertIn("continue-on-error: true", orchestrator)
+        self.assertIn("Verify production pointer", orchestrator)
+        self.assertIn("expected_source_batch_id=\"${BATCH_ID}\"", orchestrator)
         self.assertIn("uses: ./.github/workflows/oireachtas_refresh_reusable.yml", orchestrator)
 
     def test_all_manual_refreshes_use_shared_reusable_workflow(self) -> None:

@@ -31,6 +31,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: oireachtas-production-orchestrator
@@ -137,6 +138,9 @@ jobs:
       BATCH_ID: ${{ needs.prepare.outputs.batch_id }}
       OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
       OIREACHTAS_PUBLISH_LATEST: 'true'
+      CLASSIFIER_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_ENABLED || 'false' }}
+      CLASSIFIER_CANDIDATE_ENABLED: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_ENABLED || 'false' }}
+      CLASSIFIER_MODEL: ${{ vars.OIREACHTAS_SPEECH_CLASSIFIER_MODEL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -178,6 +182,22 @@ jobs:
           assert production.get('mode') == 'batch', production
           assert production.get('batch_id') == os.environ['BATCH_ID'], production
           PY
+      - name: Dispatch independent speech-classification candidate
+        if: env.CLASSIFIER_ENABLED == 'true' && env.CLASSIFIER_CANDIDATE_ENABLED == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "${CLASSIFIER_MODEL}" || { echo 'OIREACHTAS_SPEECH_CLASSIFIER_MODEL is not configured' >&2; exit 2; }
+          gh workflow run oireachtas_speech_issue_classifier_v2.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f operation=prepare \
+            -f expected_source_batch_id="${BATCH_ID}" \
+            -f model="${CLASSIFIER_MODEL}" \
+            -f max_rows=0 \
+            -f historical_backfill=false \
+            -f publish_latest=false
       - name: Roll back after failed pointer verification
         if: failure() && steps.promote.outcome == 'success'
         run: |
