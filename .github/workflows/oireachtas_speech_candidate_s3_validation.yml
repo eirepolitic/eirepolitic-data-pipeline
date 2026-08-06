@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python process/oireachtas_speech_candidate_s3_validation.py snapshot \
+          python -m process.oireachtas_speech_candidate_s3_validation snapshot \
             --output candidate-pointer-before.json \
             | tee candidate-pointer-before.stdout.json
 
@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python process/oireachtas_speech_issue_classifier.py prepare \
+          python -m process.oireachtas_speech_issue_classifier prepare \
             --model "${CANDIDATE_MODEL}" \
             --max-rows "${MAX_ROWS}" \
             | tee candidate-prepare-result.json
@@ -84,7 +84,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python process/oireachtas_speech_candidate_s3_validation.py verify \
+          python -m process.oireachtas_speech_candidate_s3_validation verify \
             --run-id '${{ steps.prepare.outputs.run_id }}' \
             --before candidate-pointer-before.json \
             --output candidate-s3-validation-report.json \
