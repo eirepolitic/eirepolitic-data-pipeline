@@ -9,20 +9,20 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from instagram.visuals.renderers.common import write_json
 
-PAGE_WIDTH = 2800
-MARGIN = 70
-GAP = 40
+PAGE_WIDTH = 2400
+MARGIN = 50
+GAP = 30
+COLS = 2
+CARD_WIDTH = (PAGE_WIDTH - (2 * MARGIN) - GAP) // COLS
+CARD_HEIGHT = 1180
+THUMB_WIDTH = 760
+THUMB_HEIGHT = 950
+HEADER_HEIGHT = 180
 MAX_SINGLE_IMAGE_HEIGHT = 30000
-SUMMARY_HEADER_HEIGHT = 210
-SUMMARY_ROW_HEIGHT = 820
-SUMMARY_METADATA_WIDTH = 650
-SUMMARY_THUMBNAIL_WIDTH = 1900
-SUMMARY_THUMBNAIL_HEIGHT = 700
-AUDIT_HEADER_HEIGHT = 220
-AUDIT_ROW_HEIGHT = 940
-AUDIT_METADATA_WIDTH = 760
-AUDIT_THUMBNAIL_WIDTH = 900
-AUDIT_THUMBNAIL_HEIGHT = 790
+AUDIT_ROW_HEIGHT = 900
+AUDIT_METADATA_WIDTH = 610
+AUDIT_THUMBNAIL_WIDTH = 760
+AUDIT_THUMBNAIL_HEIGHT = 700
 LEGACY_ALIAS_SCENARIOS = {"minimum", "maximum"}
 
 
@@ -50,7 +50,10 @@ def _draw_wrapped(
     max_lines: int,
 ) -> int:
     x, y = xy
-    for line in _wrapped_lines(text, width)[:max_lines]:
+    lines = _wrapped_lines(text, width)[:max_lines]
+    for index, line in enumerate(lines):
+        if index == max_lines - 1 and len(_wrapped_lines(text, width)) > max_lines:
+            line = line.rstrip(" .") + "…"
         draw.text((x, y), line, font=font, fill=fill)
         y += line_height
     return y
@@ -60,10 +63,8 @@ def _thumbnail(path: Path, width: int, height: int) -> Image.Image:
     with Image.open(path) as source:
         image = source.convert("RGB")
     canvas = Image.new("RGB", (width, height), "white")
-    fitted = ImageOps.contain(image, (width - 20, height - 20))
-    x = (width - fitted.width) // 2
-    y = (height - fitted.height) // 2
-    canvas.paste(fitted, (x, y))
+    fitted = ImageOps.contain(image, (width - 16, height - 16))
+    canvas.paste(fitted, ((width - fitted.width) // 2, (height - fitted.height) // 2))
     return canvas
 
 
@@ -83,268 +84,267 @@ def _find_slide(manifest: dict[str, Any], slide_id: str) -> dict[str, Any] | Non
 
 
 def _visual_slide(manifest: dict[str, Any]) -> dict[str, Any] | None:
-    slide = _find_slide(manifest, "issue_profile")
-    if slide is not None:
-        return slide
-    visual_slides = [item for item in manifest.get("slides") or [] if str(item.get("slide_id")) != "cover"]
-    return visual_slides[0] if visual_slides else None
+    preferred = _find_slide(manifest, "issue_profile")
+    if preferred is not None:
+        return preferred
+    return next(
+        (slide for slide in manifest.get("slides") or [] if str(slide.get("slide_id")) != "cover"),
+        None,
+    )
 
 
-def _metric_summary(metrics: Any) -> str:
+def _metric_line(metrics: Any) -> str:
     if not isinstance(metrics, dict):
         return ""
-    labels = {
-        "displayed_item_count": "bars",
-        "longest_label_length": "longest label",
-        "minimum_value": "min",
-        "maximum_value": "max",
-        "relative_spread": "spread",
-        "positive_max_to_min_ratio": "max/min",
-        "top_to_second_ratio": "top/second",
-        "has_ties": "ties",
-        "all_equal": "all equal",
-        "has_zero": "zero",
-    }
     parts: list[str] = []
-    for key in labels:
-        value = metrics.get(key)
-        if value is None:
-            continue
-        if isinstance(value, float):
-            value = round(value, 2)
-        parts.append(f"{labels[key]}: {value}")
+    count = metrics.get("displayed_item_count")
+    if count is not None:
+        parts.append(f"{int(count)} bars")
+    longest = metrics.get("longest_label_length")
+    if longest is not None:
+        parts.append(f"longest label {int(longest)} chars")
+    minimum = metrics.get("minimum_value")
+    maximum = metrics.get("maximum_value")
+    if minimum is not None and maximum is not None:
+        parts.append(f"range {minimum:g}–{maximum:g}")
+    if metrics.get("has_ties"):
+        parts.append("ties")
+    if metrics.get("all_equal"):
+        parts.append("all equal")
+    if metrics.get("has_zero"):
+        parts.append("includes zero")
     return " · ".join(parts)
 
 
-def _cover_manifest(rendered: list[dict[str, Any]]) -> dict[str, Any] | None:
-    cover = next((item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")), None)
-    return cover or next((item for item in rendered if _find_slide(item, "cover")), None)
+def _badge_label(scenarios: list[str]) -> str:
+    return " + ".join(str(value).replace("_", " ").upper() for value in scenarios)
 
 
-def _full_scenario_rows(
-    manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
-    rendered = [manifests[name] for name in scenario_order if name in manifests and manifests[name].get("status") == "rendered"]
-    waived = [
-        manifests[name]
-        for name in scenario_order
-        if name in manifests
-        and name not in LEGACY_ALIAS_SCENARIOS
-        and manifests[name].get("status") == "waived"
-    ]
-    rows: list[dict[str, Any]] = []
-    for name in scenario_order:
-        if name in LEGACY_ALIAS_SCENARIOS:
-            continue
-        manifest = manifests.get(name)
-        if not manifest or manifest.get("status") != "rendered":
-            continue
-        slide = _visual_slide(manifest)
-        if slide is None:
-            continue
-        rows.append({
-            "sha256": None,
-            "slide": slide,
-            "scenarios": [name],
-            "sources": [str(manifest.get("source_item_label") or "").strip()],
-            "selection_reasons": [str(manifest.get("selection_reason") or "").strip()],
-            "metrics": manifest.get("scenario_metrics"),
-        })
-    return _cover_manifest(rendered), rows, waived
+def _draw_badge(draw: ImageDraw.ImageDraw, x: int, y: int, text: str, max_width: int) -> int:
+    font = _font(27, bold=True)
+    lines = _wrapped_lines(text, 34)[:2]
+    label = "\n".join(lines)
+    bbox = draw.multiline_textbbox((0, 0), label, font=font, spacing=4)
+    width = min(max_width, bbox[2] - bbox[0] + 32)
+    height = bbox[3] - bbox[1] + 20
+    draw.rounded_rectangle((x, y, x + width, y + height), radius=16, fill="#d8b45f")
+    draw.multiline_text((x + 16, y + 8), label, font=font, fill="#173d30", spacing=4)
+    return height
 
 
-def _summary_groups(
+def _draw_review_card(
+    canvas: Image.Image,
+    *,
     root: Path,
-    manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
-    cover, rows, waived = _full_scenario_rows(manifests, scenario_order)
-    grouped: dict[str, dict[str, Any]] = {}
-    for row in rows:
-        path = root / str(row["slide"]["path"])
-        digest = _sha256(path)
-        group = grouped.setdefault(
-            digest,
-            {
-                "sha256": digest,
-                "slide": row["slide"],
-                "scenarios": [],
-                "sources": [],
-                "selection_reasons": [],
-                "metrics": row.get("metrics"),
-            },
+    x: int,
+    y: int,
+    entry: dict[str, Any],
+) -> None:
+    draw = ImageDraw.Draw(canvas)
+    draw.rounded_rectangle(
+        (x, y, x + CARD_WIDTH, y + CARD_HEIGHT),
+        radius=26,
+        fill="#f7f7f4",
+        outline="#b9b9b3",
+        width=3,
+    )
+
+    badge_height = _draw_badge(
+        draw,
+        x + 24,
+        y + 20,
+        _badge_label(list(entry["scenarios"])),
+        CARD_WIDTH - 48,
+    )
+    text_y = y + 20 + badge_height + 10
+    source = str(entry.get("source") or "Representative real example")
+    draw.text((x + 24, text_y), textwrap.shorten(source, width=62, placeholder="…"), font=_font(25, bold=True), fill="#28342f")
+    text_y += 38
+
+    metric_line = _metric_line(entry.get("metrics"))
+    if metric_line:
+        draw.text((x + 24, text_y), textwrap.shorten(metric_line, width=82, placeholder="…"), font=_font(21), fill="#555555")
+        text_y += 33
+
+    reason = str(entry.get("selection_reason") or "")
+    if reason:
+        _draw_wrapped(
+            draw,
+            (x + 24, text_y),
+            reason,
+            font=_font(20),
+            fill="#666666",
+            width=88,
+            line_height=28,
+            max_lines=2,
         )
-        group["scenarios"].extend(row["scenarios"])
-        for source in row.get("sources") or []:
-            if source and source not in group["sources"]:
-                group["sources"].append(source)
-        for reason in row.get("selection_reasons") or []:
-            if reason and reason not in group["selection_reasons"]:
-                group["selection_reasons"].append(reason)
-    return cover, list(grouped.values()), waived
+
+    preview_x = x + (CARD_WIDTH - THUMB_WIDTH) // 2
+    preview_y = y + CARD_HEIGHT - THUMB_HEIGHT - 24
+    thumb = _thumbnail(root / str(entry["slide"]["path"]), THUMB_WIDTH, THUMB_HEIGHT)
+    canvas.paste(thumb, (preview_x, preview_y))
+    draw.rounded_rectangle(
+        (preview_x, preview_y, preview_x + THUMB_WIDTH, preview_y + THUMB_HEIGHT),
+        radius=16,
+        outline="#777777",
+        width=2,
+    )
 
 
-def _draw_badges(draw: ImageDraw.ImageDraw, x: int, y: int, badges: list[str], *, max_width: int) -> int:
-    font = _font(24, bold=True)
-    cursor_x = x
-    cursor_y = y
-    for badge in badges:
-        label = badge.replace("_", " ").upper()
-        bbox = draw.textbbox((0, 0), label, font=font)
-        width = bbox[2] - bbox[0] + 28
-        if cursor_x + width > x + max_width:
-            cursor_x = x
-            cursor_y += 50
-        draw.rounded_rectangle((cursor_x, cursor_y, cursor_x + width, cursor_y + 38), radius=16, fill="#d8b45f")
-        draw.text((cursor_x + 14, cursor_y + 7), label, font=font, fill="#173d30")
-        cursor_x += width + 12
-    return cursor_y + 50
+def _waiver_height(waived: list[dict[str, Any]]) -> int:
+    return 0 if not waived else 100 + 70 * len(waived)
 
 
-def _draw_cover(canvas: Image.Image, root: Path, manifest: dict[str, Any], y: int) -> None:
-    draw = ImageDraw.Draw(canvas)
-    row = (MARGIN, y, PAGE_WIDTH - MARGIN, y + SUMMARY_ROW_HEIGHT - 20)
-    draw.rounded_rectangle(row, radius=28, fill="#f7f7f4", outline="#c8c8c2", width=3)
-    draw.text((MARGIN + 30, y + 28), "COVER LAYOUT", font=_font(40, bold=True), fill="#173d30")
-    source = str(manifest.get("source_item_label") or "Representative real example")
-    draw.text((MARGIN + 30, y + 92), source, font=_font(30), fill="#333333")
-    draw.text((MARGIN + 30, y + 146), "Shown once because chart stress scenarios do not change the cover layout.", font=_font(24), fill="#555555")
-    slide = _find_slide(manifest, "cover")
-    if slide:
-        thumb = _thumbnail(root / str(slide["path"]), SUMMARY_THUMBNAIL_WIDTH, SUMMARY_THUMBNAIL_HEIGHT)
-        x = MARGIN + SUMMARY_METADATA_WIDTH + GAP
-        canvas.paste(thumb, (x, y + 70))
-        draw.rounded_rectangle((x, y + 70, x + SUMMARY_THUMBNAIL_WIDTH, y + 70 + SUMMARY_THUMBNAIL_HEIGHT), radius=18, outline="#888888", width=3)
-
-
-def _draw_visual_row(canvas: Image.Image, root: Path, group: dict[str, Any], y: int) -> None:
-    draw = ImageDraw.Draw(canvas)
-    row = (MARGIN, y, PAGE_WIDTH - MARGIN, y + SUMMARY_ROW_HEIGHT - 20)
-    draw.rounded_rectangle(row, radius=28, fill="#f7f7f4", outline="#c8c8c2", width=3)
-    text_x = MARGIN + 30
-    text_y = _draw_badges(draw, text_x, y + 28, list(group["scenarios"]), max_width=SUMMARY_METADATA_WIDTH - 70)
-    sources = ", ".join(source for source in (group.get("sources") or []) if source) or "Unknown source"
-    draw.text((text_x, text_y), "Source", font=_font(24, bold=True), fill="#202020")
-    text_y = _draw_wrapped(draw, (text_x, text_y + 34), sources, font=_font(26), fill="#333333", width=35, line_height=34, max_lines=3) + 18
-    metric_text = _metric_summary(group.get("metrics"))
-    if metric_text:
-        draw.text((text_x, text_y), "Key metrics", font=_font(24, bold=True), fill="#202020")
-        text_y = _draw_wrapped(draw, (text_x, text_y + 34), metric_text, font=_font(24), fill="#333333", width=38, line_height=32, max_lines=5) + 18
-    reasons = [reason for reason in (group.get("selection_reasons") or []) if reason]
-    if reasons:
-        draw.text((text_x, text_y), "Selection", font=_font(24, bold=True), fill="#202020")
-        _draw_wrapped(draw, (text_x, text_y + 34), reasons[0], font=_font(22), fill="#555555", width=42, line_height=30, max_lines=4)
-    x = MARGIN + SUMMARY_METADATA_WIDTH + GAP
-    slide = group["slide"]
-    thumb = _thumbnail(root / str(slide["path"]), SUMMARY_THUMBNAIL_WIDTH, SUMMARY_THUMBNAIL_HEIGHT)
-    canvas.paste(thumb, (x, y + 70))
-    draw.rounded_rectangle((x, y + 70, x + SUMMARY_THUMBNAIL_WIDTH, y + 70 + SUMMARY_THUMBNAIL_HEIGHT), radius=18, outline="#888888", width=3)
-
-
-def _draw_waiver_block(canvas: Image.Image, waived: list[dict[str, Any]], y: int) -> int:
+def _draw_waivers(canvas: Image.Image, waived: list[dict[str, Any]], y: int) -> None:
     if not waived:
-        return y
-    height = 120 + len(waived) * 95
+        return
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle((MARGIN, y, PAGE_WIDTH - MARGIN, y + height), radius=28, fill="#eee8d8", outline="#b89b55", width=3)
-    draw.text((MARGIN + 30, y + 28), "WAIVED SCENARIOS", font=_font(38, bold=True), fill="#725416")
-    line_y = y + 88
+    height = _waiver_height(waived)
+    draw.rounded_rectangle(
+        (MARGIN, y, PAGE_WIDTH - MARGIN, y + height - 20),
+        radius=22,
+        fill="#eee8d8",
+        outline="#b89b55",
+        width=3,
+    )
+    draw.text((MARGIN + 24, y + 20), "WAIVED SCENARIOS", font=_font(31, bold=True), fill="#725416")
+    line_y = y + 68
     for manifest in waived:
         scenario = str(manifest.get("scenario") or "unknown").replace("_", " ").upper()
-        reason = str(manifest.get("waiver_reason") or "No reason recorded")
-        draw.text((MARGIN + 35, line_y), scenario, font=_font(24, bold=True), fill="#725416")
-        _draw_wrapped(draw, (MARGIN + 360, line_y), reason, font=_font(23), fill="#3b3423", width=120, line_height=30, max_lines=2)
-        line_y += 95
-    return y + height
+        reason = str(manifest.get("waiver_reason") or "No qualifying real case")
+        draw.text((MARGIN + 28, line_y), scenario, font=_font(21, bold=True), fill="#725416")
+        draw.text(
+            (MARGIN + 330, line_y),
+            textwrap.shorten(reason, width=175, placeholder="…"),
+            font=_font(19),
+            fill="#3b3423",
+        )
+        line_y += 70
 
 
-def _build_review_sheet(
+def _build_grid_sheet(
     *,
     root: Path,
     project_id: str,
-    cover: dict[str, Any] | None,
-    groups: list[dict[str, Any]],
+    entries: list[dict[str, Any]],
     waived: list[dict[str, Any]],
     filename: str,
     title: str,
     subtitle: str,
 ) -> dict[str, Any]:
-    row_count = len(groups) + (1 if cover else 0)
-    waiver_height = 120 + len(waived) * 95 if waived else 0
-    height = SUMMARY_HEADER_HEIGHT + row_count * SUMMARY_ROW_HEIGHT + waiver_height + MARGIN
+    rows = max(1, (len(entries) + COLS - 1) // COLS)
+    height = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP) + _waiver_height(waived) + MARGIN
     canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
     draw = ImageDraw.Draw(canvas)
-    draw.text((MARGIN, 45), title, font=_font(58, bold=True), fill="#173d30")
-    draw.text((MARGIN, 124), subtitle, font=_font(28), fill="#444444")
-    y = SUMMARY_HEADER_HEIGHT
-    if cover:
-        _draw_cover(canvas, root, cover, y)
-        y += SUMMARY_ROW_HEIGHT
-    for group in groups:
-        _draw_visual_row(canvas, root, group, y)
-        y += SUMMARY_ROW_HEIGHT
-    _draw_waiver_block(canvas, waived, y)
+    draw.text((MARGIN, 38), title, font=_font(50, bold=True), fill="#173d30")
+    draw.text((MARGIN, 105), subtitle, font=_font(25), fill="#444444")
+
+    for index, entry in enumerate(entries):
+        row = index // COLS
+        col = index % COLS
+        x = MARGIN + col * (CARD_WIDTH + GAP)
+        y = HEADER_HEIGHT + row * (CARD_HEIGHT + GAP)
+        _draw_review_card(canvas, root=root, x=x, y=y, entry=entry)
+
+    waiver_y = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP)
+    _draw_waivers(canvas, waived, waiver_y)
     canvas.save(root / filename, format="PNG", optimize=True)
     return {
         "pages": [filename],
-        "visual_row_count": len(groups),
-        "cover_shown_once": bool(cover),
-        "waived_scenario_count": len(waived),
-        "scenario_rows": [scenario for group in groups for scenario in group["scenarios"]],
+        "columns": COLS,
+        "card_width": CARD_WIDTH,
+        "card_height": CARD_HEIGHT,
+        "preview_width": THUMB_WIDTH,
+        "preview_height": THUMB_HEIGHT,
+        "visual_row_count": len([entry for entry in entries if entry.get("kind") != "cover"]),
+        "cover_shown_once": any(entry.get("kind") == "cover" for entry in entries),
+        "scenario_rows": [
+            scenario
+            for entry in entries
+            if entry.get("kind") != "cover"
+            for scenario in entry["scenarios"]
+        ],
         "waived_scenarios": [item.get("scenario") for item in waived],
     }
 
 
-def _build_full_sheet(
-    *,
-    root: Path,
-    project_id: str,
+def _full_entries(
     scenario_manifests: dict[str, dict[str, Any]],
     scenario_order: list[str],
-) -> dict[str, Any]:
-    cover, rows, waived = _full_scenario_rows(scenario_manifests, scenario_order)
-    return _build_review_sheet(
-        root=root,
-        project_id=project_id,
-        cover=cover,
-        groups=rows,
-        waived=waived,
-        filename="validation_contact_sheet.png",
-        title=f"{project_id} validation contact sheet",
-        subtitle="Every defined visual scenario shown once · cover shown once · compact waivers · not for publication",
-    )
-
-
-def _build_summary_sheet(
-    *,
-    root: Path,
-    project_id: str,
-    scenario_manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> dict[str, Any]:
-    cover, groups, waived = _summary_groups(root, scenario_manifests, scenario_order)
-    result = _build_review_sheet(
-        root=root,
-        project_id=project_id,
-        cover=cover,
-        groups=groups,
-        waived=waived,
-        filename="validation_summary_contact_sheet.png",
-        title=f"{project_id} validation summary",
-        subtitle="Unique renders only · cover shown once · compact waivers · not for publication",
-    )
-    result["unique_visual_count"] = len(groups)
-    result["render_groups"] = [
-        {
-            "sha256": group["sha256"],
-            "scenarios": group["scenarios"],
-            "sources": group["sources"],
-            "slide_path": group["slide"]["path"],
-        }
-        for group in groups
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    rendered = [
+        scenario_manifests[name]
+        for name in scenario_order
+        if name in scenario_manifests and scenario_manifests[name].get("status") == "rendered"
     ]
-    return result
+    waived = [
+        scenario_manifests[name]
+        for name in scenario_order
+        if name in scenario_manifests
+        and name not in LEGACY_ALIAS_SCENARIOS
+        and scenario_manifests[name].get("status") == "waived"
+    ]
+
+    entries: list[dict[str, Any]] = []
+    cover_manifest = next(
+        (item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")),
+        None,
+    )
+    cover_manifest = cover_manifest or next((item for item in rendered if _find_slide(item, "cover")), None)
+    if cover_manifest:
+        entries.append({
+            "kind": "cover",
+            "scenarios": ["cover layout"],
+            "source": cover_manifest.get("source_item_label"),
+            "selection_reason": "Representative cover shown once; chart scenarios do not change the cover layout.",
+            "metrics": None,
+            "slide": _find_slide(cover_manifest, "cover"),
+        })
+
+    for name in scenario_order:
+        if name in LEGACY_ALIAS_SCENARIOS:
+            continue
+        manifest = scenario_manifests.get(name)
+        if not manifest or manifest.get("status") != "rendered":
+            continue
+        slide = _visual_slide(manifest)
+        if slide is None:
+            continue
+        entries.append({
+            "kind": "visual",
+            "scenarios": [name],
+            "source": manifest.get("source_item_label"),
+            "selection_reason": manifest.get("selection_reason"),
+            "metrics": manifest.get("scenario_metrics"),
+            "slide": slide,
+        })
+    return entries, waived
+
+
+def _summary_entries(root: Path, entries: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    unique: dict[str, dict[str, Any]] = {}
+    groups: list[dict[str, Any]] = []
+    for entry in entries:
+        if entry.get("kind") == "cover":
+            unique["cover"] = dict(entry)
+            continue
+        digest = _sha256(root / str(entry["slide"]["path"]))
+        if digest not in unique:
+            unique[digest] = dict(entry)
+            unique[digest]["sha256"] = digest
+        else:
+            unique[digest]["scenarios"].extend(entry["scenarios"])
+    summary = list(unique.values())
+    for entry in summary:
+        if entry.get("kind") == "cover":
+            continue
+        groups.append({
+            "sha256": entry.get("sha256"),
+            "scenarios": entry["scenarios"],
+            "sources": [entry.get("source")],
+            "slide_path": entry["slide"]["path"],
+        })
+    return summary, groups
 
 
 def _audit_metadata(manifest: dict[str, Any]) -> list[tuple[str, str]]:
@@ -355,7 +355,7 @@ def _audit_metadata(manifest: dict[str, Any]) -> list[tuple[str, str]]:
         output.append(("Why selected", str(manifest["selection_reason"])))
     if manifest.get("waiver_reason"):
         output.append(("Why waived", str(manifest["waiver_reason"])))
-    metrics = _metric_summary(manifest.get("scenario_metrics"))
+    metrics = _metric_line(manifest.get("scenario_metrics"))
     if metrics:
         output.append(("Metrics", metrics))
     return output
@@ -363,29 +363,59 @@ def _audit_metadata(manifest: dict[str, Any]) -> list[tuple[str, str]]:
 
 def _draw_audit_row(canvas: Image.Image, *, y: int, root: Path, manifest: dict[str, Any]) -> None:
     draw = ImageDraw.Draw(canvas)
-    row_box = (MARGIN, y, PAGE_WIDTH - MARGIN, y + AUDIT_ROW_HEIGHT - 25)
-    draw.rounded_rectangle(row_box, radius=28, fill="#f7f7f4", outline="#c8c8c2", width=3)
-    scenario = str(manifest.get("scenario") or "unknown")
-    draw.text((MARGIN + 35, y + 30), scenario, font=_font(42, bold=True), fill="#173d30")
-    text_y = y + 100
+    draw.rounded_rectangle(
+        (MARGIN, y, PAGE_WIDTH - MARGIN, y + AUDIT_ROW_HEIGHT - 22),
+        radius=24,
+        fill="#f7f7f4",
+        outline="#c8c8c2",
+        width=3,
+    )
+    scenario = str(manifest.get("scenario") or "unknown").replace("_", " ").upper()
+    draw.text((MARGIN + 28, y + 26), scenario, font=_font(36, bold=True), fill="#173d30")
+    text_y = y + 84
     for label, value in _audit_metadata(manifest):
-        draw.text((MARGIN + 35, text_y), f"{label}:", font=_font(24, bold=True), fill="#202020")
-        text_y = _draw_wrapped(draw, (MARGIN + 35, text_y + 34), value, font=_font(24), fill="#333333", width=47, line_height=31, max_lines=5) + 15
+        draw.text((MARGIN + 28, text_y), f"{label}:", font=_font(21, bold=True), fill="#202020")
+        text_y = _draw_wrapped(
+            draw,
+            (MARGIN + 28, text_y + 28),
+            value,
+            font=_font(20),
+            fill="#333333",
+            width=46,
+            line_height=27,
+            max_lines=4,
+        ) + 10
+
     if manifest.get("status") == "waived":
         panel_x = MARGIN + AUDIT_METADATA_WIDTH + GAP
-        panel_y = y + 80
-        panel_w = PAGE_WIDTH - MARGIN - panel_x - 35
-        panel_h = AUDIT_ROW_HEIGHT - 160
-        draw.rounded_rectangle((panel_x, panel_y, panel_x + panel_w, panel_y + panel_h), radius=24, fill="#eee8d8", outline="#b89b55", width=4)
-        draw.text((panel_x + panel_w // 2, panel_y + 185), "NO REAL QUALIFYING CASE", font=_font(46, bold=True), fill="#725416", anchor="mm")
-        _draw_wrapped(draw, (panel_x + 90, panel_y + 275), str(manifest.get("waiver_reason") or "No reason recorded."), font=_font(32), fill="#3b3423", width=80, line_height=44, max_lines=8)
+        panel_w = PAGE_WIDTH - MARGIN - panel_x - 25
+        draw.rounded_rectangle(
+            (panel_x, y + 70, panel_x + panel_w, y + AUDIT_ROW_HEIGHT - 70),
+            radius=22,
+            fill="#eee8d8",
+            outline="#b89b55",
+            width=3,
+        )
+        draw.text(
+            (panel_x + panel_w // 2, y + 240),
+            "NO REAL QUALIFYING CASE",
+            font=_font(42, bold=True),
+            fill="#725416",
+            anchor="mm",
+        )
         return
+
     start_x = MARGIN + AUDIT_METADATA_WIDTH + GAP
     for index, slide in enumerate((manifest.get("slides") or [])[:2]):
         thumb = _thumbnail(root / str(slide["path"]), AUDIT_THUMBNAIL_WIDTH, AUDIT_THUMBNAIL_HEIGHT)
         x = start_x + index * (AUDIT_THUMBNAIL_WIDTH + GAP)
-        canvas.paste(thumb, (x, y + 95))
-        draw.rounded_rectangle((x, y + 95, x + AUDIT_THUMBNAIL_WIDTH, y + 95 + AUDIT_THUMBNAIL_HEIGHT), radius=18, outline="#888888", width=3)
+        canvas.paste(thumb, (x, y + 100))
+        draw.rounded_rectangle(
+            (x, y + 100, x + AUDIT_THUMBNAIL_WIDTH, y + 100 + AUDIT_THUMBNAIL_HEIGHT),
+            radius=16,
+            outline="#888888",
+            width=2,
+        )
 
 
 def _build_audit_sheet(
@@ -396,18 +426,22 @@ def _build_audit_sheet(
     scenario_order: list[str],
 ) -> dict[str, Any]:
     ordered = [scenario_manifests[name] for name in scenario_order if name in scenario_manifests]
-    rows_per_page = max(1, (MAX_SINGLE_IMAGE_HEIGHT - AUDIT_HEADER_HEIGHT) // AUDIT_ROW_HEIGHT)
+    rows_per_page = max(1, (MAX_SINGLE_IMAGE_HEIGHT - HEADER_HEIGHT) // AUDIT_ROW_HEIGHT)
     pages: list[str] = []
     for page_index, start in enumerate(range(0, len(ordered), rows_per_page), start=1):
         rows = ordered[start : start + rows_per_page]
-        height = AUDIT_HEADER_HEIGHT + len(rows) * AUDIT_ROW_HEIGHT + MARGIN
+        height = HEADER_HEIGHT + len(rows) * AUDIT_ROW_HEIGHT + MARGIN
         canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
         draw = ImageDraw.Draw(canvas)
-        draw.text((MARGIN, 55), f"{project_id} validation audit", font=_font(58, bold=True), fill="#173d30")
-        draw.text((MARGIN, 132), "Complete scenario-by-scenario evidence · not for publication", font=_font(28), fill="#444444")
+        draw.text((MARGIN, 38), f"{project_id} validation audit", font=_font(50, bold=True), fill="#173d30")
+        draw.text((MARGIN, 105), "Complete scenario evidence · not for publication", font=_font(25), fill="#444444")
         for row_index, manifest in enumerate(rows):
-            _draw_audit_row(canvas, y=AUDIT_HEADER_HEIGHT + row_index * AUDIT_ROW_HEIGHT, root=root, manifest=manifest)
-        filename = "validation_audit_contact_sheet.png" if len(ordered) <= rows_per_page else f"validation_audit_contact_sheet_{page_index:02d}.png"
+            _draw_audit_row(canvas, y=HEADER_HEIGHT + row_index * AUDIT_ROW_HEIGHT, root=root, manifest=manifest)
+        filename = (
+            "validation_audit_contact_sheet.png"
+            if len(ordered) <= rows_per_page
+            else f"validation_audit_contact_sheet_{page_index:02d}.png"
+        )
         canvas.save(root / filename, format="PNG", optimize=True)
         pages.append(filename)
     return {"pages": pages, "scenario_count": len(ordered), "rows_per_page": rows_per_page}
@@ -420,27 +454,40 @@ def build_validation_contact_sheet(
     scenario_manifests: dict[str, dict[str, Any]],
     scenario_order: list[str],
 ) -> dict[str, Any]:
-    full = _build_full_sheet(
+    entries, waived = _full_entries(scenario_manifests, scenario_order)
+    full = _build_grid_sheet(
         root=root,
         project_id=project_id,
-        scenario_manifests=scenario_manifests,
-        scenario_order=scenario_order,
+        entries=entries,
+        waived=waived,
+        filename="validation_contact_sheet.png",
+        title=f"{project_id} validation contact sheet",
+        subtitle="Two-column review grid · larger previews · concise metadata · every defined scenario shown once",
     )
-    summary = _build_summary_sheet(
+
+    summary_entries, render_groups = _summary_entries(root, entries)
+    summary = _build_grid_sheet(
         root=root,
         project_id=project_id,
-        scenario_manifests=scenario_manifests,
-        scenario_order=scenario_order,
+        entries=summary_entries,
+        waived=waived,
+        filename="validation_summary_contact_sheet.png",
+        title=f"{project_id} deduplicated validation summary",
+        subtitle="Two-column review grid · unique renders only · concise metadata",
     )
+    summary["unique_visual_count"] = len([entry for entry in summary_entries if entry.get("kind") != "cover"])
+    summary["render_groups"] = render_groups
+
     audit = _build_audit_sheet(
         root=root,
         project_id=project_id,
         scenario_manifests=scenario_manifests,
         scenario_order=scenario_order,
     )
+
     manifest = {
         "project_id": project_id,
-        "layout": "full_review_plus_deduplicated_summary_plus_complete_audit",
+        "layout": "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
         "scenario_count": len([name for name in scenario_order if name in scenario_manifests]),
         "full": full,
         "summary": summary,
