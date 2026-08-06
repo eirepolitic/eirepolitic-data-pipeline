@@ -37,9 +37,15 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             )
 
             sheet = report["validation_contact_sheet"]
-            self.assertEqual(sheet["layout"], "full_review_plus_deduplicated_summary_plus_complete_audit")
+            self.assertEqual(
+                sheet["layout"],
+                "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
+            )
             self.assertTrue(sheet["full"]["cover_shown_once"])
             self.assertTrue(sheet["summary"]["cover_shown_once"])
+            self.assertEqual(sheet["full"]["columns"], 2)
+            self.assertEqual(sheet["full"]["preview_width"], 760)
+            self.assertEqual(sheet["full"]["preview_height"], 950)
 
             expected_primary = {
                 name
