@@ -1,0 +1,27 @@
+policies:
+  enrichment_speech_issue_labels:
+    storage_mode: immutable_run
+    merge_strategy: replace_by_primary_key
+    primary_key: [speech_id]
+    source_key: [speech_id, speech_text_hash]
+    candidate_generation_required: true
+    validation_required: true
+    atomic_pointer_publish_required: true
+    previous_pointer_required: true
+    allow_core_transaction_coupling: false
+    allow_partial_publication: false
+    allow_stale_publication: false
+    allow_duplicate_primary_keys: false
+    allow_invalid_labels: false
+    allow_missing_source_hashes: false
+    allow_source_batch_mismatch: false
+    allow_unbounded_paid_run: false
+    retry:
+      max_attempts_default: 3
+      delay_hours_default: 24
+    switches:
+      automatic_execution: OIREACHTAS_SPEECH_CLASSIFIER_ENABLED
+      candidate_generation: OIREACHTAS_SPEECH_CLASSIFIER_CANDIDATE_ENABLED
+      automatic_submission: OIREACHTAS_SPEECH_CLASSIFIER_AUTOMATIC_SUBMIT_ENABLED
+      publication: OIREACHTAS_SPEECH_CLASSIFIER_PUBLISH_ENABLED
+      historical_backfill: OIREACHTAS_SPEECH_CLASSIFIER_BACKFILL_ENABLED
