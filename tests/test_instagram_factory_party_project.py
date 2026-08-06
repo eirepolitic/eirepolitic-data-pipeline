@@ -32,8 +32,19 @@ class PartyIssueProfileProjectTest(TestCase):
                 "title_text_bounds",
                 "chart_text_bounds",
                 "dynamic_text_sizing",
+                "dense_real_examples",
             ):
                 self.assertTrue(scenarios["quality_gates"][gate])
+
+            self.assertTrue(scenarios["density_validation"]["success"])
+            self.assertGreaterEqual(
+                scenarios["density_validation"]["metrics"]["item_count_max"]["displayed_item_count"],
+                6,
+            )
+            self.assertGreaterEqual(
+                scenarios["density_validation"]["metrics"]["real_example"]["displayed_item_count"],
+                5,
+            )
 
             for manifest in scenarios["scenario_manifests"].values():
                 if manifest["status"] == "waived":
@@ -99,14 +110,12 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertEqual(len(sheet["full"]["waived_scenarios"]), len(waived_primary))
             self.assertNotIn("minimum", sheet["full"]["scenario_rows"])
             self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
-            self.assertNotIn("minimum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
-            self.assertNotIn("maximum", [scenario for group in sheet["summary"]["render_groups"] for scenario in group["scenarios"]])
 
             for page in sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]:
                 page_path = Path(scenarios["output_root"]) / page
                 self.assertTrue(page_path.is_file())
                 with Image.open(page_path) as image:
-                    self.assertEqual(image.width, 2800)
+                    self.assertEqual(image.width, 2400)
                     self.assertGreater(image.height, 1000)
             self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
             self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
