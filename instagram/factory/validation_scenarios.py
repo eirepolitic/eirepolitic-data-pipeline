@@ -273,7 +273,7 @@ def select_real_horizontal_bar_scenarios(
     scenarios["values_tight"] = _select(
         records,
         scenario="values_tight",
-        reason=f"Current real record with positive relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
+        reason=f"Current real record with relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
         key=lambda row: metrics(row)["relative_spread"],
         key_field=key_field,
         label_field=label_field,
@@ -283,9 +283,9 @@ def select_real_horizontal_bar_scenarios(
         candidates=lambda row: (
             metrics(row)["displayed_item_count"] >= 2
             and metrics(row)["relative_spread"] is not None
-            and 0 < metrics(row)["relative_spread"] <= VALUES_TIGHT_MAX_RELATIVE_SPREAD
+            and metrics(row)["relative_spread"] <= VALUES_TIGHT_MAX_RELATIVE_SPREAD
         ),
-        waiver_reason=f"No current real record has at least two displayed values with positive relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
+        waiver_reason=f"No current real record has at least two displayed values with relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
     )
     scenarios["values_wide"] = _select(
         records,
