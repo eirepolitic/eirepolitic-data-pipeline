@@ -89,7 +89,7 @@ class PartyIssueProfileProjectTest(TestCase):
             sheet = scenarios["validation_contact_sheet"]
             self.assertEqual(
                 sheet["layout"],
-                "two_column_two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
+                "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
             )
             self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
             self.assertTrue(sheet["full"]["cover_shown_once"])
