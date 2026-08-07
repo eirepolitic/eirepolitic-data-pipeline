@@ -15,6 +15,7 @@ GAP = 30
 COLS = 2
 CARD_WIDTH = (PAGE_WIDTH - (2 * MARGIN) - GAP) // COLS
 CARD_HEIGHT = 1180
+WAIVER_CARD_HEIGHT = 360
 THUMB_WIDTH = 760
 THUMB_HEIGHT = 950
 HEADER_HEIGHT = 180
@@ -88,10 +89,7 @@ def _visual_slide(manifest: dict[str, Any]) -> dict[str, Any] | None:
     preferred = _find_slide(manifest, "issue_profile")
     if preferred is not None:
         return preferred
-    return next(
-        (slide for slide in manifest.get("slides") or [] if str(slide.get("slide_id")) != "cover"),
-        None,
-    )
+    return next((slide for slide in manifest.get("slides") or [] if str(slide.get("slide_id")) != "cover"), None)
 
 
 def _number(value: Any) -> str:
@@ -114,7 +112,6 @@ def _primary_metric(scenario: str, metrics: Any) -> str:
     spread = metrics.get("relative_spread")
     max_min = metrics.get("positive_max_to_min_ratio")
     top_second = metrics.get("top_to_second_ratio")
-
     if scenario in {"item_count_min", "item_count_max"}:
         return f"{count} displayed bars"
     if scenario in {"labels_short", "labels_long"}:
@@ -188,41 +185,14 @@ def _draw_badge(draw: ImageDraw.ImageDraw, x: int, y: int, text: str, max_width:
     return height
 
 
-def _draw_review_card(
-    canvas: Image.Image,
-    *,
-    root: Path,
-    x: int,
-    y: int,
-    entry: dict[str, Any],
-    card_width: int = CARD_WIDTH,
-) -> None:
+def _draw_review_card(canvas: Image.Image, *, root: Path, x: int, y: int, entry: dict[str, Any], card_width: int = CARD_WIDTH) -> None:
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle(
-        (x, y, x + card_width, y + CARD_HEIGHT),
-        radius=26,
-        fill="#f7f7f4",
-        outline="#b9b9b3",
-        width=3,
-    )
-
-    badge_height = _draw_badge(
-        draw,
-        x + 24,
-        y + 20,
-        _badge_label(list(entry["scenarios"])),
-        card_width - 48,
-    )
+    draw.rounded_rectangle((x, y, x + card_width, y + CARD_HEIGHT), radius=26, fill="#f7f7f4", outline="#b9b9b3", width=3)
+    badge_height = _draw_badge(draw, x + 24, y + 20, _badge_label(list(entry["scenarios"])), card_width - 48)
     text_y = y + 20 + badge_height + 12
     source = str(entry.get("source") or "Representative real example")
-    draw.text(
-        (x + 24, text_y),
-        textwrap.shorten(source, width=58 if card_width == CARD_WIDTH else 120, placeholder="…"),
-        font=_font(24, bold=True),
-        fill="#28342f",
-    )
+    draw.text((x + 24, text_y), textwrap.shorten(source, width=58 if card_width == CARD_WIDTH else 120, placeholder="…"), font=_font(24, bold=True), fill="#28342f")
     text_y += 38
-
     scenario = str((entry.get("scenarios") or [""])[0])
     primary = _primary_metric(scenario, entry.get("metrics"))
     if primary:
@@ -231,57 +201,27 @@ def _draw_review_card(
     secondary = _secondary_metric(scenario, entry.get("metrics"))
     if secondary:
         draw.text((x + 24, text_y), secondary, font=_font(21), fill="#666666")
-
     preview_x = x + (card_width - THUMB_WIDTH) // 2
     preview_y = y + CARD_HEIGHT - THUMB_HEIGHT - 24
     thumb = _thumbnail(root / str(entry["slide"]["path"]), THUMB_WIDTH, THUMB_HEIGHT)
     canvas.paste(thumb, (preview_x, preview_y))
-    draw.rounded_rectangle(
-        (preview_x, preview_y, preview_x + THUMB_WIDTH, preview_y + THUMB_HEIGHT),
-        radius=16,
-        outline="#777777",
-        width=2,
-    )
+    draw.rounded_rectangle((preview_x, preview_y, preview_x + THUMB_WIDTH, preview_y + THUMB_HEIGHT), radius=16, outline="#777777", width=2)
 
 
-def _draw_waiver_card(
-    canvas: Image.Image,
-    *,
-    x: int,
-    y: int,
-    entry: dict[str, Any],
-    card_width: int = CARD_WIDTH,
-) -> None:
+def _draw_waiver_card(canvas: Image.Image, *, x: int, y: int, entry: dict[str, Any], card_width: int = CARD_WIDTH) -> None:
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle(
-        (x, y, x + card_width, y + CARD_HEIGHT),
-        radius=26,
-        fill="#eee8d8",
-        outline="#b89b55",
-        width=3,
-    )
-    badge_height = _draw_badge(
-        draw,
-        x + 24,
-        y + 24,
-        _badge_label(list(entry["scenarios"])),
-        card_width - 48,
-    )
-    draw.text(
-        (x + 24, y + 24 + badge_height + 24),
-        "NO REAL QUALIFYING CASE",
-        font=_font(34, bold=True),
-        fill="#725416",
-    )
+    draw.rounded_rectangle((x, y, x + card_width, y + WAIVER_CARD_HEIGHT), radius=26, fill="#eee8d8", outline="#b89b55", width=3)
+    badge_height = _draw_badge(draw, x + 24, y + 24, _badge_label(list(entry["scenarios"])), card_width - 48)
+    draw.text((x + 24, y + 24 + badge_height + 18), "NO REAL QUALIFYING CASE", font=_font(31, bold=True), fill="#725416")
     _draw_wrapped(
         draw,
-        (x + 24, y + 24 + badge_height + 82),
+        (x + 24, y + 24 + badge_height + 70),
         str(entry.get("waiver_reason") or "No qualifying real case was found."),
-        font=_font(27),
+        font=_font(24),
         fill="#3b3423",
-        width=64 if card_width == CARD_WIDTH else 132,
-        line_height=38,
-        max_lines=9,
+        width=62 if card_width == CARD_WIDTH else 128,
+        line_height=34,
+        max_lines=4,
     )
 
 
@@ -301,6 +241,23 @@ def _layout_grid(entries: list[dict[str, Any]]) -> list[tuple[int, int, int, dic
     return placements
 
 
+def _row_heights(placements: list[tuple[int, int, int, dict[str, Any]]]) -> dict[int, int]:
+    heights: dict[int, int] = {}
+    for row, _, _, entry in placements:
+        entry_height = WAIVER_CARD_HEIGHT if entry.get("kind") == "waiver" else CARD_HEIGHT
+        heights[row] = max(heights.get(row, 0), entry_height)
+    return heights
+
+
+def _row_offsets(row_heights: dict[int, int]) -> dict[int, int]:
+    offsets: dict[int, int] = {}
+    cursor = HEADER_HEIGHT
+    for row in sorted(row_heights):
+        offsets[row] = cursor
+        cursor += row_heights[row] + GAP
+    return offsets
+
+
 def _build_grid_sheet(
     *,
     root: Path,
@@ -311,88 +268,54 @@ def _build_grid_sheet(
     title: str,
     subtitle: str,
 ) -> dict[str, Any]:
-    waiver_entries = [
-        {
-            "kind": "waiver",
-            "scenarios": [str(item.get("scenario") or "unknown")],
-            "waiver_reason": item.get("waiver_reason"),
-        }
-        for item in waived
-    ]
+    waiver_entries = [{"kind": "waiver", "scenarios": [str(item.get("scenario") or "unknown")], "waiver_reason": item.get("waiver_reason")} for item in waived]
     grid_entries = [*entries, *waiver_entries]
     placements = _layout_grid(grid_entries)
-    rows = max((row for row, _, _, _ in placements), default=0) + 1
-    height = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP) + MARGIN
+    row_heights = _row_heights(placements)
+    row_offsets = _row_offsets(row_heights)
+    content_height = sum(row_heights.values()) + max(0, len(row_heights) - 1) * GAP
+    height = HEADER_HEIGHT + content_height + MARGIN
     canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
     draw = ImageDraw.Draw(canvas)
     draw.text((MARGIN, 38), title, font=_font(50, bold=True), fill="#173d30")
     draw.text((MARGIN, 105), subtitle, font=_font(25), fill="#444444")
-
     for row, col, span, entry in placements:
         x = MARGIN + col * (CARD_WIDTH + GAP)
-        y = HEADER_HEIGHT + row * (CARD_HEIGHT + GAP)
+        y = row_offsets[row]
         width = CARD_WIDTH if span == 1 else (2 * CARD_WIDTH + GAP)
         if entry.get("kind") == "waiver":
             _draw_waiver_card(canvas, x=x, y=y, entry=entry, card_width=width)
         else:
             _draw_review_card(canvas, root=root, x=x, y=y, entry=entry, card_width=width)
-
     canvas.save(root / filename, format="PNG", optimize=True)
     return {
         "pages": [filename],
         "columns": COLS,
         "card_width": CARD_WIDTH,
         "card_height": CARD_HEIGHT,
+        "waiver_card_height": WAIVER_CARD_HEIGHT,
         "preview_width": THUMB_WIDTH,
         "preview_height": THUMB_HEIGHT,
         "metric_first": True,
         "waivers_inline": True,
+        "waivers_compact": True,
         "cover_metadata_compact": True,
         "waiver_card_count": len(waived),
         "visual_row_count": len([entry for entry in entries if entry.get("kind") != "cover"]),
         "cover_shown_once": any(entry.get("kind") == "cover" for entry in entries),
-        "scenario_rows": [
-            scenario
-            for entry in entries
-            if entry.get("kind") != "cover"
-            for scenario in entry["scenarios"]
-        ],
+        "scenario_rows": [scenario for entry in entries if entry.get("kind") != "cover" for scenario in entry["scenarios"]],
         "waived_scenarios": [item.get("scenario") for item in waived],
     }
 
 
-def _full_entries(
-    scenario_manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    rendered = [
-        scenario_manifests[name]
-        for name in scenario_order
-        if name in scenario_manifests and scenario_manifests[name].get("status") == "rendered"
-    ]
-    waived = [
-        scenario_manifests[name]
-        for name in scenario_order
-        if name in scenario_manifests
-        and name not in LEGACY_ALIAS_SCENARIOS
-        and scenario_manifests[name].get("status") == "waived"
-    ]
-
+def _full_entries(scenario_manifests: dict[str, dict[str, Any]], scenario_order: list[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    rendered = [scenario_manifests[name] for name in scenario_order if name in scenario_manifests and scenario_manifests[name].get("status") == "rendered"]
+    waived = [scenario_manifests[name] for name in scenario_order if name in scenario_manifests and name not in LEGACY_ALIAS_SCENARIOS and scenario_manifests[name].get("status") == "waived"]
     entries: list[dict[str, Any]] = []
-    cover_manifest = next(
-        (item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")),
-        None,
-    )
+    cover_manifest = next((item for item in rendered if item.get("scenario") == "real_example" and _find_slide(item, "cover")), None)
     cover_manifest = cover_manifest or next((item for item in rendered if _find_slide(item, "cover")), None)
     if cover_manifest:
-        entries.append({
-            "kind": "cover",
-            "scenarios": ["cover layout"],
-            "source": cover_manifest.get("source_item_label"),
-            "metrics": None,
-            "slide": _find_slide(cover_manifest, "cover"),
-        })
-
+        entries.append({"kind": "cover", "scenarios": ["cover layout"], "source": cover_manifest.get("source_item_label"), "metrics": None, "slide": _find_slide(cover_manifest, "cover")})
     for name in scenario_order:
         if name in LEGACY_ALIAS_SCENARIOS:
             continue
@@ -402,13 +325,7 @@ def _full_entries(
         slide = _visual_slide(manifest)
         if slide is None:
             continue
-        entries.append({
-            "kind": "visual",
-            "scenarios": [name],
-            "source": manifest.get("source_item_label"),
-            "metrics": manifest.get("scenario_metrics"),
-            "slide": slide,
-        })
+        entries.append({"kind": "visual", "scenarios": [name], "source": manifest.get("source_item_label"), "metrics": manifest.get("scenario_metrics"), "slide": slide})
     return entries, waived
 
 
@@ -429,12 +346,7 @@ def _summary_entries(root: Path, entries: list[dict[str, Any]]) -> tuple[list[di
     for entry in summary:
         if entry.get("kind") == "cover":
             continue
-        groups.append({
-            "sha256": entry.get("sha256"),
-            "scenarios": entry["scenarios"],
-            "sources": [entry.get("source")],
-            "slide_path": entry["slide"]["path"],
-        })
+        groups.append({"sha256": entry.get("sha256"), "scenarios": entry["scenarios"], "sources": [entry.get("source")], "slide_path": entry["slide"]["path"]})
     return summary, groups
 
 
@@ -454,68 +366,28 @@ def _audit_metadata(manifest: dict[str, Any]) -> list[tuple[str, str]]:
 
 def _draw_audit_row(canvas: Image.Image, *, y: int, root: Path, manifest: dict[str, Any]) -> None:
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle(
-        (MARGIN, y, PAGE_WIDTH - MARGIN, y + AUDIT_ROW_HEIGHT - 22),
-        radius=24,
-        fill="#f7f7f4",
-        outline="#c8c8c2",
-        width=3,
-    )
+    draw.rounded_rectangle((MARGIN, y, PAGE_WIDTH - MARGIN, y + AUDIT_ROW_HEIGHT - 22), radius=24, fill="#f7f7f4", outline="#c8c8c2", width=3)
     scenario = str(manifest.get("scenario") or "unknown").replace("_", " ").upper()
     draw.text((MARGIN + 28, y + 26), scenario, font=_font(36, bold=True), fill="#173d30")
     text_y = y + 84
     for label, value in _audit_metadata(manifest):
         draw.text((MARGIN + 28, text_y), f"{label}:", font=_font(21, bold=True), fill="#202020")
-        text_y = _draw_wrapped(
-            draw,
-            (MARGIN + 28, text_y + 28),
-            value,
-            font=_font(20),
-            fill="#333333",
-            width=46,
-            line_height=27,
-            max_lines=4,
-        ) + 10
-
+        text_y = _draw_wrapped(draw, (MARGIN + 28, text_y + 28), value, font=_font(20), fill="#333333", width=46, line_height=27, max_lines=4) + 10
     if manifest.get("status") == "waived":
         panel_x = MARGIN + AUDIT_METADATA_WIDTH + GAP
         panel_w = PAGE_WIDTH - MARGIN - panel_x - 25
-        draw.rounded_rectangle(
-            (panel_x, y + 70, panel_x + panel_w, y + AUDIT_ROW_HEIGHT - 70),
-            radius=22,
-            fill="#eee8d8",
-            outline="#b89b55",
-            width=3,
-        )
-        draw.text(
-            (panel_x + panel_w // 2, y + 240),
-            "NO REAL QUALIFYING CASE",
-            font=_font(42, bold=True),
-            fill="#725416",
-            anchor="mm",
-        )
+        draw.rounded_rectangle((panel_x, y + 70, panel_x + panel_w, y + AUDIT_ROW_HEIGHT - 70), radius=22, fill="#eee8d8", outline="#b89b55", width=3)
+        draw.text((panel_x + panel_w // 2, y + 240), "NO REAL QUALIFYING CASE", font=_font(42, bold=True), fill="#725416", anchor="mm")
         return
-
     start_x = MARGIN + AUDIT_METADATA_WIDTH + GAP
     for index, slide in enumerate((manifest.get("slides") or [])[:2]):
         thumb = _thumbnail(root / str(slide["path"]), AUDIT_THUMBNAIL_WIDTH, AUDIT_THUMBNAIL_HEIGHT)
         x = start_x + index * (AUDIT_THUMBNAIL_WIDTH + GAP)
         canvas.paste(thumb, (x, y + 100))
-        draw.rounded_rectangle(
-            (x, y + 100, x + AUDIT_THUMBNAIL_WIDTH, y + 100 + AUDIT_THUMBNAIL_HEIGHT),
-            radius=16,
-            outline="#888888",
-            width=2,
-        )
+        draw.rounded_rectangle((x, y + 100, x + AUDIT_THUMBNAIL_WIDTH, y + 100 + AUDIT_THUMBNAIL_HEIGHT), radius=16, outline="#888888", width=2)
 
 
-def _build_audit_sheet(
-    *,
-    root: Path,
-    project_id: str,
-    scenario_manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> dict[str, Any]:
+def _build_audit_sheet(*, root: Path, project_id: str, scenario_manifests: dict[str, dict[str, Any]], scenario_order: list[str]) -> dict[str, Any]:
     ordered = [scenario_manifests[name] for name in scenario_order if name in scenario_manifests]
     rows_per_page = max(1, (MAX_SINGLE_IMAGE_HEIGHT - HEADER_HEIGHT) // AUDIT_ROW_HEIGHT)
     pages: list[str] = []
@@ -528,23 +400,13 @@ def _build_audit_sheet(
         draw.text((MARGIN, 105), "Complete scenario evidence · not for publication", font=_font(25), fill="#444444")
         for row_index, manifest in enumerate(rows):
             _draw_audit_row(canvas, y=HEADER_HEIGHT + row_index * AUDIT_ROW_HEIGHT, root=root, manifest=manifest)
-        filename = (
-            "validation_audit_contact_sheet.png"
-            if len(ordered) <= rows_per_page
-            else f"validation_audit_contact_sheet_{page_index:02d}.png"
-        )
+        filename = "validation_audit_contact_sheet.png" if len(ordered) <= rows_per_page else f"validation_audit_contact_sheet_{page_index:02d}.png"
         canvas.save(root / filename, format="PNG", optimize=True)
         pages.append(filename)
     return {"pages": pages, "scenario_count": len(ordered), "rows_per_page": rows_per_page}
 
 
-def build_validation_contact_sheet(
-    *,
-    root: Path,
-    project_id: str,
-    scenario_manifests: dict[str, dict[str, Any]],
-    scenario_order: list[str],
-) -> dict[str, Any]:
+def build_validation_contact_sheet(*, root: Path, project_id: str, scenario_manifests: dict[str, dict[str, Any]], scenario_order: list[str]) -> dict[str, Any]:
     entries, waived = _full_entries(scenario_manifests, scenario_order)
     full = _build_grid_sheet(
         root=root,
@@ -553,9 +415,8 @@ def build_validation_contact_sheet(
         waived=waived,
         filename="validation_contact_sheet.png",
         title=f"{project_id} validation contact sheet",
-        subtitle="Metric-first two-column review · large previews · inline waivers · every defined scenario shown once",
+        subtitle="Metric-first two-column review · large previews · compact inline waivers · every defined scenario shown once",
     )
-
     summary_entries, render_groups = _summary_entries(root, entries)
     summary = _build_grid_sheet(
         root=root,
@@ -564,18 +425,11 @@ def build_validation_contact_sheet(
         waived=waived,
         filename="validation_summary_contact_sheet.png",
         title=f"{project_id} deduplicated validation summary",
-        subtitle="Metric-first two-column review · unique renders only · inline waivers",
+        subtitle="Metric-first two-column review · unique renders only · compact inline waivers",
     )
     summary["unique_visual_count"] = len([entry for entry in summary_entries if entry.get("kind") != "cover"])
     summary["render_groups"] = render_groups
-
-    audit = _build_audit_sheet(
-        root=root,
-        project_id=project_id,
-        scenario_manifests=scenario_manifests,
-        scenario_order=scenario_order,
-    )
-
+    audit = _build_audit_sheet(root=root, project_id=project_id, scenario_manifests=scenario_manifests, scenario_order=scenario_order)
     manifest = {
         "project_id": project_id,
         "layout": "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
