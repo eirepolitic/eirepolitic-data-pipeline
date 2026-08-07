@@ -1,0 +1,213 @@
+name: Instagram Content Factory party project validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-content-factory-party-project
+    paths:
+      - "instagram/factory/**"
+      - "instagram/renderer/template_renderer.py"
+      - "instagram/catalogues/metrics.yml"
+      - "instagram/visuals/data_mappings/party_issue_counts.yml"
+      - "instagram/visuals/renderers/horizontal_bar.py"
+      - "instagram/visuals/templates/horizontal_bar_draft_v1.yml"
+      - "instagram/templates/layouts/title_text_media_v1.json"
+      - "instagram/projects/party_issue_profile_v1/**"
+      - "instagram/projects/constituency_issue_profile_v1/**"
+      - "tests/fixtures/instagram/**"
+      - "tests/test_instagram_factory_generic_core.py"
+      - "tests/test_instagram_factory_party_project.py"
+      - "tests/test_instagram_factory_constituency_project.py"
+      - "tests/test_instagram_factory_historical_fallback.py"
+      - "tests/test_instagram_factory_validation_semantics.py"
+      - ".github/workflows/instagram_factory_party_project.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+      - name: Validate catalogues and projects
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
+          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
+      - name: Run generic core tests
+        run: python -m unittest tests.test_instagram_factory_generic_core -v
+      - name: Run historical fallback tests
+        run: python -m unittest tests.test_instagram_factory_historical_fallback -v
+      - name: Run semantic scenario contract tests
+        run: python -m unittest tests.test_instagram_factory_validation_semantics -v
+      - name: Run constituency project tests
+        run: python -m unittest tests.test_instagram_factory_constituency_project -v
+      - name: Run party project tests
+        run: python -m unittest tests.test_instagram_factory_party_project -v
+      - name: Validate live party scenarios
+        run: |
+          python process/instagram_factory.py render-tests \
+            --project instagram/projects/party_issue_profile_v1/project.yml \
+            --data-source s3 \
+            --output-root generated_party_live_tests \
+            > party-live-validation.json
+      - name: Verify and export dense two-column contact sheet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          import json
+          import shutil
+          from pathlib import Path
+          from PIL import Image
+          from instagram.factory.validation_contact_sheet import build_validation_contact_sheet
+
+          report = json.loads(Path("party-live-validation.json").read_text(encoding="utf-8"))
+          root = Path(report["output_root"])
+          density = report.get("density_validation") or {}
+          if not density.get("success"):
+              raise SystemExit(f"Density validation failed: {density}")
+          if int(density["metrics"]["item_count_max"]["displayed_item_count"]) < 6:
+              raise SystemExit(f"Dense maximum missing: {density}")
+          if int(density["metrics"]["real_example"]["displayed_item_count"]) < 5:
+              raise SystemExit(f"Dense representative missing: {density}")
+
+          thresholds = {
+              "item_count_min": ("displayed_item_count", lambda value: int(value) <= 3, "<= 3"),
+              "item_count_max": ("displayed_item_count", lambda value: int(value) >= 6, ">= 6"),
+              "labels_short": ("longest_label_length", lambda value: int(value) <= 20, "<= 20"),
+              "labels_long": ("longest_label_length", lambda value: int(value) >= 35, ">= 35"),
+              "values_small": ("maximum_value", lambda value: float(value) <= 20.0, "<= 20"),
+              "values_large": ("maximum_value", lambda value: float(value) >= 1000.0, ">= 1000"),
+              "values_tight": ("relative_spread", lambda value: float(value) <= 0.20, "<= 0.20"),
+              "values_wide": ("positive_max_to_min_ratio", lambda value: float(value) >= 5.0, ">= 5.0"),
+              "single_outlier": ("top_to_second_ratio", lambda value: float(value) >= 3.0, ">= 3.0"),
+              "real_example": ("displayed_item_count", lambda value: int(value) >= 5, ">= 5"),
+          }
+          semantic_metrics = {}
+          for scenario, (field, qualifies, description) in thresholds.items():
+              manifest = report["scenario_manifests"].get(scenario) or {}
+              if manifest.get("status") == "waived":
+                  semantic_metrics[scenario] = {
+                      "status": "waived",
+                      "waiver_reason": manifest.get("waiver_reason"),
+                      "search_stages_attempted": manifest.get("search_stages_attempted"),
+                  }
+                  continue
+              metrics = manifest.get("scenario_metrics") or {}
+              value = metrics.get(field)
+              if value is None or not qualifies(value):
+                  raise SystemExit(f"Semantic threshold failed for {scenario}: {field}={value}; required {description}")
+              semantic_metrics[scenario] = {
+                  "status": "rendered",
+                  field: value,
+                  "data_origin": manifest.get("data_origin"),
+                  "search_stages_attempted": manifest.get("search_stages_attempted"),
+              }
+
+          for scenario, field in (("ties", "has_ties"), ("all_equal", "all_equal"), ("zeros", "has_zero")):
+              manifest = report["scenario_manifests"].get(scenario) or {}
+              if manifest.get("status") == "waived":
+                  semantic_metrics[scenario] = {
+                      "status": "waived",
+                      "waiver_reason": manifest.get("waiver_reason"),
+                      "search_stages_attempted": manifest.get("search_stages_attempted"),
+                  }
+                  continue
+              metrics = manifest.get("scenario_metrics") or {}
+              if metrics.get(field) is not True:
+                  raise SystemExit(f"Exact semantic condition failed for {scenario}: {field}={metrics.get(field)}")
+              semantic_metrics[scenario] = {
+                  "status": "rendered",
+                  field: True,
+                  "data_origin": manifest.get("data_origin"),
+                  "search_stages_attempted": manifest.get("search_stages_attempted"),
+              }
+
+          sheet = build_validation_contact_sheet(
+              root=root,
+              project_id=str(report["project_id"]),
+              scenario_manifests=report["scenario_manifests"],
+              scenario_order=report["required_scenarios"],
+          )
+          if sheet.get("layout") != "two_column_full_review_plus_deduplicated_summary_plus_complete_audit":
+              raise SystemExit(f"Unexpected sheet layout: {sheet.get('layout')}")
+          full = sheet.get("full") or {}
+          if int(full.get("columns", 0)) != 2:
+              raise SystemExit(f"Expected two columns, got: {full.get('columns')}")
+          if int(full.get("preview_width", 0)) != 760 or int(full.get("preview_height", 0)) != 950:
+              raise SystemExit(f"Unexpected preview dimensions: {full}")
+          if not 300 <= int(full.get("waiver_card_height", 0)) <= 400:
+              raise SystemExit(f"Unexpected waiver card height: {full.get('waiver_card_height')}")
+          if full.get("waiver_rows_separate") is not True:
+              raise SystemExit(f"Waiver rows are not isolated from visual rows: {full}")
+          if full.get("final_waiver_spans_columns") is not True:
+              raise SystemExit(f"Final odd waiver does not span both columns: {full}")
+
+          primary = root / "validation_contact_sheet.png"
+          summary = root / "validation_summary_contact_sheet.png"
+          contact_manifest = root / "validation_contact_sheet_manifest.json"
+          required_files = [primary, summary, contact_manifest]
+          audit_pages = [root / page for page in ((sheet.get("audit") or {}).get("pages") or [])]
+          required_files.extend(audit_pages)
+          for path in required_files:
+              if not path.is_file():
+                  raise SystemExit(f"Required validation evidence was not created: {path}")
+
+          rendered = set(full.get("scenario_rows") or [])
+          waived = set(full.get("waived_scenarios") or [])
+          represented = rendered | waived
+          required = {name for name in report["required_scenarios"] if name not in {"minimum", "maximum"}}
+          if represented != required:
+              raise SystemExit(f"Scenario mismatch: missing={sorted(required - represented)}; unexpected={sorted(represented - required)}")
+
+          with Image.open(primary) as image:
+              dimensions = image.size
+          export = Path("contact_sheet_export")
+          export.mkdir(parents=True, exist_ok=True)
+          for path in required_files:
+              shutil.copy2(path, export / path.name)
+          shutil.copy2(Path("party-live-validation.json"), export / "party-live-validation.json")
+          verification = {
+              "source_output_root": str(root),
+              "image_dimensions": list(dimensions),
+              "columns": full["columns"],
+              "preview_width": full["preview_width"],
+              "preview_height": full["preview_height"],
+              "waiver_card_height": full["waiver_card_height"],
+              "waiver_rows_separate": full["waiver_rows_separate"],
+              "final_waiver_spans_columns": full["final_waiver_spans_columns"],
+              "rendered_scenarios": sorted(rendered),
+              "waived_scenarios": sorted(waived),
+              "semantic_metrics": semantic_metrics,
+              "density_validation": density,
+              "exported_evidence_files": sorted(path.name for path in required_files) + ["party-live-validation.json"],
+              "verification_success": True,
+          }
+          (export / "contact-sheet-verification.json").write_text(
+              json.dumps(verification, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload verified dense two-column contact sheet
+        uses: actions/upload-artifact@v4
+        with:
+          name: verified-dense-two-column-contact-sheet-${{ github.run_id }}
+          path: contact_sheet_export/
+          if-no-files-found: error

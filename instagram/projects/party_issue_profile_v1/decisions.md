@@ -1,17 +1,29 @@
-# Constituency issue profile decisions
+# Party issue profile decisions
+
+## Purpose
+
+Create one two-slide draft post per current party showing which classified parliamentary issues appear most often in speeches by that party's current TDs.
 
 ## Grain
 
-Use `constituency` as the granularity. Each current constituency receives one two-slide draft post set.
+- grain: `party`
+- stable key: normalized `party_key`
+- display label: `party`
+- ordering: alphabetical by party name
 
-## Slide sequence
+## Slides
 
-1. Cover slide titled with the constituency name and a tall metric card showing current TDs, classified speeches, and displayed issue categories.
-2. Horizontal bar chart titled `Top issues: <constituency>` showing the top seven classified issues.
+1. Cover slide titled with the party name and a tall metric card showing current TDs, classified speeches, and displayed issue categories.
+2. Horizontal bar chart titled `Top issues: <party>` showing the top seven classified issues.
 
-Both slides use `title_text_media_v1`. The issue chart reuses `horizontal_bar_draft_v1`.
+The cover media does not repeat the party name and contains no small footer/status copy.
 
-The cover media does not repeat the constituency name and contains no small footer/status copy.
+## Interpretation rules
+
+- Counts represent recorded classified speeches, not party policy positions or endorsements.
+- Current party membership is used to attribute matched speeches.
+- Empty and unclassified issue values are excluded.
+- Unmatched speakers are reported in the join manifest.
 
 ## Validation policy
 
@@ -21,11 +33,10 @@ The cover media does not repeat the constituency name and contains no small foot
 - Synthetic contract-edge data is not generated for convenience.
 - A scenario is waived only after current and searched historical production data contain no qualifying real case.
 - A non-qualifying current record is treated as no match and cannot block historical fallback.
-- Every scenario records the full decision path: current real, historical real, synthetic contract edge, and waiver.
+- Every scenario records its full search path: current real, historical real, synthetic contract edge, and waiver.
 - Legacy `minimum` and `maximum` remain compatibility aliases only; the review matrix uses visual-specific scenario names.
-- All validation outputs remain `no_publication` until explicit approval.
 
-Horizontal-bar scenarios use the same hard semantic contract as the party project:
+Horizontal-bar scenarios use hard semantic qualification rather than best-available ranking:
 
 - `item_count_min`: at most 3 displayed categories
 - `item_count_max`: at least 6 displayed categories
@@ -58,7 +69,7 @@ Validation fails before human review when declared thresholds are breached for:
 - semantic scenario qualification
 - slide whitespace and occupied height
 - media-slot vertical and area fill
-- chart plot utilization
+- plot-area utilization
 - title final font size, line count, truncation, or clipping
 - dynamically selected category and value font sizes
 - direct category-label text bounds
@@ -73,25 +84,12 @@ Validation fails before human review when declared thresholds are breached for:
 
 The horizontal-bar renderer measures text in pixels, selects a suitable label font and plot margin, and expands the value axis until value labels fit. All final text bounds and sizing decisions are retained in validation manifests.
 
-A dedicated constituency regression test verifies the same quality and semantic contract used by the party project.
+## Historical validation result
 
-## Batch policy
+Live validation searches up to 12 historical batches when current production data does not qualify for a scenario. Historical fallback exists to replace only current waivers with genuinely qualifying historical real cases; remaining unmatched scenarios stay explicitly waived.
 
-- Generate one deterministic two-slide post set for every constituency returned by the active production dataset.
-- Preserve a stable run ID derived from project version, source batch ID, and Git commit.
-- Write run, item, slide, visual, and review-state manifests.
-- Store each run under the existing project S3 prefix.
-- Isolate item failures and retain partial results.
-- Do not publish, schedule, or mark generated posts approved automatically.
+## Operational policy
 
-## Recurring-generation cadence
-
-Recurring readiness checks remain manual. The workflow may be started explicitly when a new draft check is needed, but no cron or automatic schedule is configured. Duplicate-batch prevention and review safeguards remain active.
-
-## Data policy
-
-Resolve unified compatibility keys through the production pointer, retain legacy fallback keys for current-source resolution, and record join coverage. Historical validation uses physical compatibility objects from prior unified-model batches.
-
-## Scope boundary
-
-The generic factory supports party and constituency production projects through adapter contracts. Automatic publishing, scheduling, approval, and recurring cadence remain disabled.
+- Every generated item starts unreviewed and non-publishable.
+- Generation and readiness checks remain manual.
+- No automatic approval, scheduling, or Instagram publishing.

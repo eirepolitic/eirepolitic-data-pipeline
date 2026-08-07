@@ -1,15 +1,57 @@
 {
   "schema_version": "1.0",
   "template_id": "title_text_media_v1",
-  "description": "Title, short explanatory text, and media block",
+  "description": "Compact centered title with a near-full-height media block",
   "width": 1080,
   "height": 1350,
   "palette": "eirepolitic_dark",
   "background": {"type": "solid", "color": "{palette.background}"},
+  "validation": {
+    "max_top_whitespace_ratio": 0.08,
+    "max_bottom_whitespace_ratio": 0.04,
+    "min_occupied_height_ratio": 0.88
+  },
   "elements": [
-    {"id": "title", "type": "text", "placeholder": "slide_title", "x": 76, "y": 72, "w": 928, "h": 110, "style": {"font_family": "default_bold", "font_size": 54, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true}},
-    {"id": "body", "type": "text", "placeholder": "body_text", "x": 76, "y": 200, "w": 928, "h": 170, "style": {"font_size": 30, "color": "{palette.text_muted}", "align": "left", "max_lines": 4, "shrink_to_fit": true}},
-    {"id": "main_media", "type": "image", "placeholder": "main_media", "x": 76, "y": 410, "w": 928, "h": 760, "fit": "contain", "background": "{palette.panel_background}", "radius": 28},
-    {"id": "footer", "type": "text", "placeholder": "footer_text", "x": 76, "y": 1222, "w": 928, "h": 56, "style": {"font_size": 24, "color": "{palette.text_muted}", "align": "center", "valign": "middle", "max_lines": 2}}
+    {
+      "id": "title",
+      "type": "text",
+      "placeholder": "slide_title",
+      "x": 34,
+      "y": 14,
+      "w": 1012,
+      "h": 96,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 56,
+        "min_font_size": 42,
+        "color": "{palette.text_primary}",
+        "align": "center",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true
+      },
+      "validation": {
+        "min_final_font_size": 42,
+        "max_lines": 2,
+        "allow_truncation": false,
+        "allow_clipping": false
+      }
+    },
+    {
+      "id": "main_media",
+      "type": "image",
+      "placeholder": "main_media",
+      "x": 24,
+      "y": 116,
+      "w": 1032,
+      "h": 1210,
+      "fit": "contain",
+      "background": "{palette.panel_background}",
+      "radius": 24,
+      "validation": {
+        "min_vertical_fill_ratio": 0.96,
+        "min_area_fill_ratio": 0.90
+      }
+    }
   ]
 }

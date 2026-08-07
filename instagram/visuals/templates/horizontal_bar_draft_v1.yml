@@ -3,11 +3,23 @@ status: draft
 renderer: horizontal_bar
 description: Draft dark-green horizontal bar chart for ranked political values.
 params:
-  width: 1080
-  height: 860
+  width: 1032
+  height: 1210
   max_items: 7
   sort: descending
   value_format: integer
+validation:
+  min_plot_vertical_fill_ratio: 0.88
+  min_plot_area_ratio: 0.55
+  min_category_label_font_size: 14
+  min_value_label_font_size: 14
+  min_axis_font_size: 11
+  min_bar_thickness_px: 70
+  max_wrapped_label_lines: 2
+  max_value_label_x_ratio: 0.98
+  max_category_text_clipped_count: 0
+  max_value_text_clipped_count: 0
+  max_truncated_label_count: 0
 palette:
   background: "#0f2f24"
   panel: "#173d30"

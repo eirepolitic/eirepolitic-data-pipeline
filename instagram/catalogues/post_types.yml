@@ -25,29 +25,26 @@ post_types:
     version: 1
 
   - post_type_id: title_text_media_v1
-    display_name: Title, text, and media
-    description: Title and explanatory text above a reusable media slot.
+    display_name: Centered title with expanded media
+    description: Centered title above a large reusable media slot with no description or footer.
     status: draft
     layout_path: instagram/templates/layouts/title_text_media_v1.json
     supported_aspect_ratios: ["4:5"]
     supported_slot_types: [text, image, visual]
-    required_variables: [slide_title, body_text, main_media, footer_text]
+    required_variables: [slide_title, main_media]
     optional_variables: []
     text_limits:
       slide_title: {max_lines: 2}
-      body_text: {max_lines: 4}
-      footer_text: {max_lines: 2}
     slots:
       main_media:
         type: visual_or_image
-        width: 928
-        height: 760
+        width: 1000
+        height: 1128
         fit: contain
     fallback_rules:
       missing_media: fail
-      missing_body_text: fail
     example_preview: null
-    version: 1
+    version: 2
 
   - post_type_id: profile_card_main_v1
     display_name: Centred member profile card
