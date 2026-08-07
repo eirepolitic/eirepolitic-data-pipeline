@@ -50,6 +50,13 @@ class ValidationScenarioSemanticContractTest(TestCase):
         self.assertGreaterEqual(scenarios["values_wide"]["scenario_metrics"]["positive_max_to_min_ratio"], VALUES_WIDE_MIN_POSITIVE_RATIO)
         self.assertGreaterEqual(scenarios["real_example"]["scenario_metrics"]["displayed_item_count"], REAL_EXAMPLE_MIN_ITEMS)
 
+    def test_values_tight_accepts_zero_relative_spread(self) -> None:
+        scenarios = _select([
+            _record("equal", "Equal", ["Tax", "Jobs", "Health", "Housing", "Energy"], [5, 5, 5, 5, 5]),
+        ])
+        self.assertFalse(scenarios["values_tight"].get("waived", False))
+        self.assertEqual(scenarios["values_tight"]["scenario_metrics"]["relative_spread"], 0.0)
+
     def test_non_qualifying_best_available_records_are_waived(self) -> None:
         records = [
             _record("seven", "Seven", ["Long category label number one", "Long category label number two", "Health", "Housing", "Energy", "Justice", "Education"], [100, 90, 80, 70, 60, 55, 51]),
@@ -119,6 +126,7 @@ class ValidationScenarioSemanticContractTest(TestCase):
         entries = [
             {"kind": "visual", "scenarios": ["real_example"]},
             {"kind": "visual", "scenarios": ["item_count_max"]},
+            {"kind": "visual", "scenarios": ["labels_long"]},
             {"kind": "waiver", "scenarios": ["zeros"]},
             {"kind": "waiver", "scenarios": ["all_equal"]},
             {"kind": "waiver", "scenarios": ["single_outlier"]},
@@ -130,5 +138,12 @@ class ValidationScenarioSemanticContractTest(TestCase):
         self.assertLessEqual(WAIVER_CARD_HEIGHT, 400)
         self.assertIn(CARD_HEIGHT, heights.values())
         self.assertIn(WAIVER_CARD_HEIGHT, heights.values())
-        waiver_rows = [row for row, _, _, entry in placements if entry["kind"] == "waiver"]
-        self.assertLess(len(set(waiver_rows)), len(waiver_rows))
+
+        kinds_by_row: dict[int, set[str]] = {}
+        for row, _, _, entry in placements:
+            kinds_by_row.setdefault(row, set()).add(entry["kind"])
+        self.assertTrue(all(len(kinds) == 1 for kinds in kinds_by_row.values()))
+
+        waiver_placements = [placement for placement in placements if placement[3]["kind"] == "waiver"]
+        self.assertEqual(waiver_placements[0][0], waiver_placements[1][0])
+        self.assertEqual(waiver_placements[-1][2], 2)
