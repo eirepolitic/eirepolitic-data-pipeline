@@ -23,6 +23,8 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertEqual(scenarios["grain"], "party")
             self.assertEqual(scenarios["adapter_id"], "party_issue_profile_v1")
             self.assertTrue(set(HORIZONTAL_BAR_REQUIRED_SCENARIOS).issubset(scenarios["scenario_manifests"]))
+            self.assertIn("minimum", scenarios["scenario_manifests"])
+            self.assertIn("maximum", scenarios["scenario_manifests"])
             for gate in (
                 "layout_utilization",
                 "media_slot_fill",
@@ -48,17 +50,50 @@ class PartyIssueProfileProjectTest(TestCase):
                 if manifest["status"] == "waived":
                     self.assertEqual(manifest["data_origin"], "waived_no_real_case")
                     self.assertTrue(manifest["waiver_reason"])
+                    self.assertFalse(manifest["slides"])
                     continue
+
+                self.assertEqual(manifest["data_origin"], "current_real")
+                self.assertFalse(manifest["synthetic"])
+                self.assertTrue(manifest["selection_reason"])
+                self.assertTrue(manifest["source_item_key"])
+                self.assertTrue(manifest["slides"])
                 for slide in manifest["slides"]:
                     self.assertTrue(slide["layout_quality"]["success"])
+                    self.assertGreaterEqual(slide["layout_quality"]["whitespace"]["occupied_height_ratio"], 0.88)
+                    for text_metric in slide["layout_quality"].get("text", []):
+                        self.assertFalse(text_metric["clipped"])
+                        self.assertFalse(text_metric["truncated"])
+                        self.assertGreaterEqual(text_metric["final_font_size"], 42)
+                    for media in slide["layout_quality"]["media"]:
+                        if media.get("measurable") and media.get("fit") == "contain":
+                            self.assertGreaterEqual(media["vertical_fill_ratio"], 0.96)
+                            self.assertGreaterEqual(media["area_fill_ratio"], 0.90)
                     if slide["visual_quality"] is not None:
-                        self.assertTrue(slide["visual_quality"]["success"])
+                        quality = slide["visual_quality"]
+                        self.assertTrue(quality["success"])
+                        self.assertGreaterEqual(quality["metrics"]["plot_vertical_fill_ratio"], 0.88)
+                        self.assertGreaterEqual(quality["metrics"]["plot_area_ratio"], 0.55)
+                        self.assertGreaterEqual(quality["metrics"]["category_label_font_size"], 14)
+                        self.assertGreaterEqual(quality["metrics"]["value_label_font_size"], 14)
+                        self.assertGreaterEqual(quality["metrics"]["axis_font_size"], 11)
+                        self.assertGreaterEqual(quality["metrics"]["bar_thickness_px"], 70)
+                        self.assertLessEqual(quality["metrics"]["max_wrapped_label_lines"], 2)
+                        self.assertLessEqual(quality["metrics"]["max_value_label_x_ratio"], 0.98)
+                        self.assertEqual(quality["metrics"]["category_text_clipped_count"], 0)
+                        self.assertEqual(quality["metrics"]["value_text_clipped_count"], 0)
+                        self.assertEqual(quality["metrics"]["truncated_label_count"], 0)
+            self.assertGreater(scenarios["rendered_scenario_count"], 0)
+            self.assertFalse(scenarios["publishing_allowed"])
 
             sheet = scenarios["validation_contact_sheet"]
             self.assertEqual(
                 sheet["layout"],
                 "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
             )
+            self.assertEqual(sheet["scenario_count"], len(scenarios["required_scenarios"]))
+            self.assertTrue(sheet["full"]["cover_shown_once"])
+            self.assertTrue(sheet["summary"]["cover_shown_once"])
             self.assertEqual(sheet["full"]["columns"], 2)
             self.assertEqual(sheet["full"]["preview_width"], 760)
             self.assertEqual(sheet["full"]["preview_height"], 950)
@@ -66,7 +101,8 @@ class PartyIssueProfileProjectTest(TestCase):
             self.assertTrue(sheet["full"]["waivers_inline"])
             self.assertTrue(sheet["full"]["cover_metadata_compact"])
             self.assertEqual(sheet["full"]["waiver_card_count"], scenarios["waived_scenario_count"])
-            self.assertTrue(sheet["full"]["cover_shown_once"])
+            self.assertGreater(sheet["summary"]["unique_visual_count"], 0)
+            self.assertLessEqual(sheet["summary"]["unique_visual_count"], scenarios["rendered_scenario_count"])
 
             expected_primary = {
                 name
@@ -79,7 +115,11 @@ class PartyIssueProfileProjectTest(TestCase):
                 if scenarios["scenario_manifests"][name]["status"] == "waived"
             }
             self.assertEqual(set(sheet["full"]["scenario_rows"]), expected_primary)
+            self.assertEqual(len(sheet["full"]["scenario_rows"]), len(expected_primary))
             self.assertEqual(set(sheet["full"]["waived_scenarios"]), waived_primary)
+            self.assertEqual(len(sheet["full"]["waived_scenarios"]), len(waived_primary))
+            self.assertNotIn("minimum", sheet["full"]["scenario_rows"])
+            self.assertNotIn("maximum", sheet["full"]["scenario_rows"])
 
             for page in sheet["full"]["pages"] + sheet["summary"]["pages"] + sheet["audit"]["pages"]:
                 page_path = Path(scenarios["output_root"]) / page
@@ -87,8 +127,14 @@ class PartyIssueProfileProjectTest(TestCase):
                 with Image.open(page_path) as image:
                     self.assertEqual(image.width, 2400)
                     self.assertGreater(image.height, 1000)
+            self.assertEqual(sheet["full"]["pages"], ["validation_contact_sheet.png"])
+            self.assertEqual(sheet["summary"]["pages"], ["validation_summary_contact_sheet.png"])
+            self.assertTrue((Path(scenarios["output_root"]) / "validation_contact_sheet_manifest.json").is_file())
 
             batch = generate_project_batch(PROJECT, data_source="local", output_root=root / "batch", git_sha="party-test")
+            self.assertEqual(batch["grain"], "party")
+            self.assertEqual(batch["adapter_id"], "party_issue_profile_v1")
+            self.assertGreater(batch["expected_item_count"], 0)
             self.assertEqual(batch["failed_item_count"], 0)
             self.assertFalse(batch["publishing_allowed"])
 
