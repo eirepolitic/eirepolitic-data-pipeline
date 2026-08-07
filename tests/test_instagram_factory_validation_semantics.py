@@ -12,6 +12,8 @@ from instagram.factory.validation_scenarios import (
     LABELS_LONG_MIN_LENGTH,
     LABELS_SHORT_MAX_LENGTH,
     REAL_EXAMPLE_MIN_ITEMS,
+    VALUES_LARGE_MINIMUM_VALUE,
+    VALUES_SMALL_MAXIMUM_VALUE,
     VALUES_TIGHT_MAX_RELATIVE_SPREAD,
     VALUES_WIDE_MIN_POSITIVE_RATIO,
     select_real_category_value_scenarios,
@@ -49,6 +51,24 @@ class ValidationScenarioSemanticContractTest(TestCase):
         self.assertLessEqual(scenarios["values_tight"]["scenario_metrics"]["relative_spread"], VALUES_TIGHT_MAX_RELATIVE_SPREAD)
         self.assertGreaterEqual(scenarios["values_wide"]["scenario_metrics"]["positive_max_to_min_ratio"], VALUES_WIDE_MIN_POSITIVE_RATIO)
         self.assertGreaterEqual(scenarios["real_example"]["scenario_metrics"]["displayed_item_count"], REAL_EXAMPLE_MIN_ITEMS)
+
+    def test_small_large_and_outlier_thresholds_are_hard_qualified(self) -> None:
+        records = [
+            _record("small", "Small", ["Tax", "Jobs", "Health", "Housing", "Energy"], [17, 16, 15, 14, 13]),
+            _record("large", "Large", ["Tax", "Jobs", "Health", "Housing", "Energy", "Justice"], [1298, 900, 800, 700, 600, 500]),
+            _record("outlier", "Outlier", ["Tax", "Jobs", "Health", "Housing", "Energy"], [300, 90, 80, 70, 60]),
+        ]
+        scenarios = _select(records)
+        self.assertLessEqual(scenarios["values_small"]["scenario_metrics"]["maximum_value"], VALUES_SMALL_MAXIMUM_VALUE)
+        self.assertGreaterEqual(scenarios["values_large"]["scenario_metrics"]["maximum_value"], VALUES_LARGE_MINIMUM_VALUE)
+        self.assertGreaterEqual(scenarios["single_outlier"]["scenario_metrics"]["top_to_second_ratio"], 3.0)
+
+        no_matches = _select([
+            _record("middle", "Middle", ["Tax", "Jobs", "Health", "Housing", "Energy"], [100, 90, 80, 70, 60]),
+        ])
+        self.assertTrue(no_matches["values_small"]["waived"])
+        self.assertTrue(no_matches["values_large"]["waived"])
+        self.assertTrue(no_matches["single_outlier"]["waived"])
 
     def test_values_tight_accepts_zero_relative_spread(self) -> None:
         scenarios = _select([
