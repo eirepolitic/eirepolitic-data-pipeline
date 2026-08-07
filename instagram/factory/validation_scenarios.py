@@ -20,6 +20,16 @@ HORIZONTAL_BAR_REQUIRED_SCENARIOS = [
     "real_example",
 ]
 
+ITEM_COUNT_MIN_MAX = 3
+ITEM_COUNT_MAX_MIN = 6
+LABELS_SHORT_MAX_LENGTH = 20
+LABELS_LONG_MIN_LENGTH = 35
+VALUES_SMALL_MAXIMUM_VALUE = 20.0
+VALUES_LARGE_MINIMUM_VALUE = 1000.0
+VALUES_TIGHT_MAX_RELATIVE_SPREAD = 0.20
+VALUES_WIDE_MIN_POSITIVE_RATIO = 5.0
+REAL_EXAMPLE_MIN_ITEMS = 5
+
 
 def _display_rows(record: dict[str, Any], rows_field: str, max_items: int) -> list[dict[str, Any]]:
     return [deepcopy(row) for row in record.get(rows_field, [])[:max_items]]
@@ -162,7 +172,7 @@ def select_real_horizontal_bar_scenarios(
     max_items: int = 7,
     outlier_ratio: float = 3.0,
 ) -> dict[str, dict[str, Any]]:
-    """Build a real-data-first validation matrix for a horizontal bar visual."""
+    """Build a threshold-qualified, real-data-first validation matrix for a horizontal bar visual."""
     if not records:
         raise ValueError("Cannot select validation scenarios from an empty record set")
 
@@ -173,76 +183,97 @@ def select_real_horizontal_bar_scenarios(
     scenarios["item_count_min"] = _select(
         records,
         scenario="item_count_min",
-        reason="Current real record with the fewest categories actually displayed.",
+        reason=f"Current real record with no more than {ITEM_COUNT_MIN_MAX} displayed categories, minimizing displayed count.",
         key=lambda row: (metrics(row)["displayed_item_count"], int(row.get(total_field, 0)), str(row.get(label_field, ""))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: 0 < metrics(row)["displayed_item_count"] <= ITEM_COUNT_MIN_MAX,
+        waiver_reason=f"No current real record has {ITEM_COUNT_MIN_MAX} or fewer displayed categories.",
     )
     scenarios["item_count_max"] = _select(
         records,
         scenario="item_count_max",
-        reason="Current real record with the most categories actually displayed.",
+        reason=f"Current real record with at least {ITEM_COUNT_MAX_MIN} displayed categories, maximizing displayed count.",
         key=lambda row: (metrics(row)["displayed_item_count"], int(row.get(total_field, 0)), len(str(row.get(label_field, "")))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: metrics(row)["displayed_item_count"] >= ITEM_COUNT_MAX_MIN,
         maximum=True,
+        waiver_reason=f"No current real record has at least {ITEM_COUNT_MAX_MIN} displayed categories.",
     )
     scenarios["labels_short"] = _select(
         records,
         scenario="labels_short",
-        reason="Current real record minimizing the longest displayed category label.",
+        reason=f"Current real record whose longest displayed category label is at most {LABELS_SHORT_MAX_LENGTH} characters.",
         key=lambda row: (metrics(row)["longest_label_length"], sum(len(label) for label in _labels(row, rows_field, max_items))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: (
+            metrics(row)["displayed_item_count"] > 0
+            and metrics(row)["longest_label_length"] <= LABELS_SHORT_MAX_LENGTH
+        ),
+        waiver_reason=f"No current real record has a longest displayed category label of {LABELS_SHORT_MAX_LENGTH} characters or fewer.",
     )
     scenarios["labels_long"] = _select(
         records,
         scenario="labels_long",
-        reason="Current real record maximizing the longest displayed category label.",
+        reason=f"Current real record whose longest displayed category label is at least {LABELS_LONG_MIN_LENGTH} characters.",
         key=lambda row: (metrics(row)["longest_label_length"], sum(len(label) for label in _labels(row, rows_field, max_items))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: metrics(row)["longest_label_length"] >= LABELS_LONG_MIN_LENGTH,
         maximum=True,
+        waiver_reason=f"No current real record has a displayed category label of at least {LABELS_LONG_MIN_LENGTH} characters.",
     )
     scenarios["values_small"] = _select(
         records,
         scenario="values_small",
-        reason="Current real record with the smallest displayed maximum value.",
+        reason=f"Current real record whose displayed maximum value is at most {_number_for_reason(VALUES_SMALL_MAXIMUM_VALUE)}.",
         key=lambda row: (metrics(row)["maximum_value"] or 0, int(row.get(total_field, 0))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: (
+            metrics(row)["maximum_value"] is not None
+            and metrics(row)["maximum_value"] <= VALUES_SMALL_MAXIMUM_VALUE
+        ),
+        waiver_reason=f"No current real record has a displayed maximum value of {_number_for_reason(VALUES_SMALL_MAXIMUM_VALUE)} or less.",
     )
     scenarios["values_large"] = _select(
         records,
         scenario="values_large",
-        reason="Current real record with the largest displayed maximum value.",
+        reason=f"Current real record whose displayed maximum value is at least {_number_for_reason(VALUES_LARGE_MINIMUM_VALUE)}.",
         key=lambda row: (metrics(row)["maximum_value"] or 0, int(row.get(total_field, 0))),
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
+        candidates=lambda row: (
+            metrics(row)["maximum_value"] is not None
+            and metrics(row)["maximum_value"] >= VALUES_LARGE_MINIMUM_VALUE
+        ),
         maximum=True,
+        waiver_reason=f"No current real record has a displayed maximum value of at least {_number_for_reason(VALUES_LARGE_MINIMUM_VALUE)}.",
     )
     scenarios["values_tight"] = _select(
         records,
         scenario="values_tight",
-        reason="Current real record with the smallest positive relative spread between displayed values.",
+        reason=f"Current real record with positive relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
         key=lambda row: metrics(row)["relative_spread"],
         key_field=key_field,
         label_field=label_field,
@@ -252,23 +283,26 @@ def select_real_horizontal_bar_scenarios(
         candidates=lambda row: (
             metrics(row)["displayed_item_count"] >= 2
             and metrics(row)["relative_spread"] is not None
-            and metrics(row)["relative_spread"] > 0
+            and 0 < metrics(row)["relative_spread"] <= VALUES_TIGHT_MAX_RELATIVE_SPREAD
         ),
-        waiver_reason="No current real record contains at least two distinct positive displayed values for a tight-range test.",
+        waiver_reason=f"No current real record has at least two displayed values with positive relative spread no greater than {VALUES_TIGHT_MAX_RELATIVE_SPREAD:.0%}.",
     )
     scenarios["values_wide"] = _select(
         records,
         scenario="values_wide",
-        reason="Current real record with the largest positive max-to-min value ratio.",
+        reason=f"Current real record with positive max-to-min ratio of at least {VALUES_WIDE_MIN_POSITIVE_RATIO:g}x.",
         key=lambda row: metrics(row)["positive_max_to_min_ratio"],
         key_field=key_field,
         label_field=label_field,
         rows_field=rows_field,
         total_field=total_field,
         max_items=max_items,
-        candidates=lambda row: metrics(row)["positive_max_to_min_ratio"] is not None,
+        candidates=lambda row: (
+            metrics(row)["positive_max_to_min_ratio"] is not None
+            and metrics(row)["positive_max_to_min_ratio"] >= VALUES_WIDE_MIN_POSITIVE_RATIO
+        ),
         maximum=True,
-        waiver_reason="No current real record contains at least two positive displayed values for a wide-range test.",
+        waiver_reason=f"No current real record has at least two positive displayed values with a max/min ratio of at least {VALUES_WIDE_MIN_POSITIVE_RATIO:g}x.",
     )
     scenarios["single_outlier"] = _select(
         records,
@@ -331,47 +365,61 @@ def select_real_horizontal_bar_scenarios(
         waiver_reason="No current real record contains a displayed zero value; count metrics currently omit zero-count categories.",
     )
 
-    complexity_values = sorted(
-        _complexity(
-            row,
+    representative_records = [
+        row for row in records
+        if metrics(row)["displayed_item_count"] >= REAL_EXAMPLE_MIN_ITEMS
+    ]
+    if representative_records:
+        complexity_values = sorted(
+            _complexity(
+                row,
+                label_field=label_field,
+                rows_field=rows_field,
+                total_field=total_field,
+                max_items=max_items,
+            )
+            for row in representative_records
+        )
+        target = median(complexity_values)
+        representative = min(
+            representative_records,
+            key=lambda row: (
+                abs(
+                    _complexity(
+                        row,
+                        label_field=label_field,
+                        rows_field=rows_field,
+                        total_field=total_field,
+                        max_items=max_items,
+                    )
+                    - target
+                ),
+                str(row.get(label_field, "")),
+            ),
+        )
+        scenarios["real_example"] = _real_scenario(
+            representative,
+            scenario="real_example",
+            reason=f"Current real record nearest the median combined layout and visual complexity among records with at least {REAL_EXAMPLE_MIN_ITEMS} displayed categories.",
+            key_field=key_field,
             label_field=label_field,
             rows_field=rows_field,
             total_field=total_field,
             max_items=max_items,
         )
-        for row in records
-    )
-    target = median(complexity_values)
-    representative = min(
-        records,
-        key=lambda row: (
-            abs(
-                _complexity(
-                    row,
-                    label_field=label_field,
-                    rows_field=rows_field,
-                    total_field=total_field,
-                    max_items=max_items,
-                )
-                - target
-            ),
-            str(row.get(label_field, "")),
-        ),
-    )
-    scenarios["real_example"] = _real_scenario(
-        representative,
-        scenario="real_example",
-        reason="Current real record nearest the median combined layout and visual complexity.",
-        key_field=key_field,
-        label_field=label_field,
-        rows_field=rows_field,
-        total_field=total_field,
-        max_items=max_items,
-    )
+    else:
+        scenarios["real_example"] = _waiver(
+            "real_example",
+            f"No current real record has at least {REAL_EXAMPLE_MIN_ITEMS} displayed categories for representative-density validation.",
+        )
 
     scenarios["minimum"] = {**deepcopy(scenarios["item_count_min"]), "scenario": "minimum"}
     scenarios["maximum"] = {**deepcopy(scenarios["item_count_max"]), "scenario": "maximum"}
     return scenarios
+
+
+def _number_for_reason(value: float) -> str:
+    return f"{int(value):,}" if float(value).is_integer() else f"{value:g}"
 
 
 def select_real_category_value_scenarios(
