@@ -54,35 +54,7 @@ jobs:
       - name: Run historical fallback tests
         run: python -m unittest tests.test_instagram_factory_historical_fallback -v
       - name: Run constituency project tests
-        id: constituency
-        continue-on-error: true
-        shell: bash
-        run: |
-          set +e
-          python -m unittest tests.test_instagram_factory_constituency_project -v > constituency-two-column-test.txt 2>&1
-          status=$?
-          cat constituency-two-column-test.txt
-          python <<'PY'
-          import os, re
-          from pathlib import Path
-          raw = Path("constituency-two-column-test.txt").read_text(encoding="utf-8", errors="replace")
-          candidates = [line.strip() for line in raw.splitlines() if any(token in line for token in ("AssertionError", "ValueError:", "TypeError:", "KeyError:"))]
-          summary = candidates[-1] if candidates else next((line.strip() for line in reversed(raw.splitlines()) if line.strip()), "unknown")
-          slug = re.sub(r"[^A-Za-z0-9._-]+", "-", summary).strip("-")[:140] or "unknown"
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-              handle.write(f"status={os.environ.get('STATUS','')}\n")
-              handle.write(f"error_slug={slug}\n")
-          PY
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-      - name: Upload constituency two-column diagnostic
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: constituency-two-column-${{ steps.constituency.outputs.status || 'unknown' }}-${{ steps.constituency.outputs.error_slug || 'unknown' }}-${{ github.run_id }}
-          path: constituency-two-column-test.txt
-          if-no-files-found: error
-      - name: Enforce constituency project tests
-        run: test "${{ steps.constituency.outputs.status }}" = "0"
+        run: python -m unittest tests.test_instagram_factory_constituency_project -v
       - name: Run party project tests
         run: python -m unittest tests.test_instagram_factory_party_project -v
       - name: Validate live party scenarios
@@ -92,12 +64,13 @@ jobs:
             --data-source s3 \
             --output-root generated_party_live_tests \
             > party-live-validation.json
-      - name: Verify and export dense full contact sheet
+      - name: Verify and export dense two-column contact sheet
         shell: bash
         run: |
           set -euo pipefail
           python <<'PY'
-          import json, shutil
+          import json
+          import shutil
           from pathlib import Path
           from PIL import Image
           from instagram.factory.validation_contact_sheet import build_validation_contact_sheet
@@ -111,27 +84,55 @@ jobs:
               raise SystemExit(f"Dense maximum missing: {density}")
           if int(density["metrics"]["real_example"]["displayed_item_count"]) < 5:
               raise SystemExit(f"Dense representative missing: {density}")
-          sheet = build_validation_contact_sheet(root=root, project_id=str(report["project_id"]), scenario_manifests=report["scenario_manifests"], scenario_order=report["required_scenarios"])
+
+          sheet = build_validation_contact_sheet(
+              root=root,
+              project_id=str(report["project_id"]),
+              scenario_manifests=report["scenario_manifests"],
+              scenario_order=report["required_scenarios"],
+          )
+          if sheet.get("layout") != "two_column_full_review_plus_deduplicated_summary_plus_complete_audit":
+              raise SystemExit(f"Unexpected sheet layout: {sheet.get('layout')}")
+          full = sheet.get("full") or {}
+          if int(full.get("columns", 0)) != 2:
+              raise SystemExit(f"Expected two columns, got: {full.get('columns')}")
+          if int(full.get("preview_width", 0)) != 760 or int(full.get("preview_height", 0)) != 950:
+              raise SystemExit(f"Unexpected preview dimensions: {full}")
+
           primary = root / "validation_contact_sheet.png"
           if not primary.is_file():
               raise SystemExit(f"Primary contact sheet was not created: {primary}")
-          full = sheet.get("full") or {}
           rendered = set(full.get("scenario_rows") or [])
           waived = set(full.get("waived_scenarios") or [])
           represented = rendered | waived
           required = {name for name in report["required_scenarios"] if name not in {"minimum", "maximum"}}
           if represented != required:
               raise SystemExit(f"Scenario mismatch: missing={sorted(required - represented)}; unexpected={sorted(represented - required)}")
+
           with Image.open(primary) as image:
               dimensions = image.size
           export = Path("contact_sheet_export")
           export.mkdir(parents=True, exist_ok=True)
           shutil.copy2(primary, export / "validation_contact_sheet.png")
-          (export / "contact-sheet-verification.json").write_text(json.dumps({"source_output_root": str(root), "image_dimensions": list(dimensions), "rendered_scenarios": sorted(rendered), "waived_scenarios": sorted(waived), "density_validation": density, "verification_success": True}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          verification = {
+              "source_output_root": str(root),
+              "image_dimensions": list(dimensions),
+              "columns": full["columns"],
+              "preview_width": full["preview_width"],
+              "preview_height": full["preview_height"],
+              "rendered_scenarios": sorted(rendered),
+              "waived_scenarios": sorted(waived),
+              "density_validation": density,
+              "verification_success": True,
+          }
+          (export / "contact-sheet-verification.json").write_text(
+              json.dumps(verification, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
           PY
-      - name: Upload verified dense full contact sheet
+      - name: Upload verified dense two-column contact sheet
         uses: actions/upload-artifact@v4
         with:
-          name: verified-dense-full-contact-sheet-${{ github.run_id }}
+          name: verified-dense-two-column-contact-sheet-${{ github.run_id }}
           path: contact_sheet_export/
           if-no-files-found: error
