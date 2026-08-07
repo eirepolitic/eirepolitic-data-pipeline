@@ -227,17 +227,30 @@ def _draw_waiver_card(canvas: Image.Image, *, x: int, y: int, entry: dict[str, A
 
 def _layout_grid(entries: list[dict[str, Any]]) -> list[tuple[int, int, int, dict[str, Any]]]:
     placements: list[tuple[int, int, int, dict[str, Any]]] = []
+    visual_entries = [entry for entry in entries if entry.get("kind") != "waiver"]
+    waiver_entries = [entry for entry in entries if entry.get("kind") == "waiver"]
+
     row = 0
-    col = 0
-    for index, entry in enumerate(entries):
-        is_last = index == len(entries) - 1
-        span = 2 if is_last and col == 0 and entry.get("kind") == "waiver" else 1
-        placements.append((row, col, span, entry))
-        if span == 2 or col == 1:
+    for index, entry in enumerate(visual_entries):
+        col = index % COLS
+        placements.append((row, col, 1, entry))
+        if col == COLS - 1:
             row += 1
-            col = 0
-        else:
-            col = 1
+    if visual_entries and len(visual_entries) % COLS:
+        row += 1
+
+    waiver_index = 0
+    while waiver_index < len(waiver_entries):
+        remaining = len(waiver_entries) - waiver_index
+        if remaining == 1:
+            placements.append((row, 0, 2, waiver_entries[waiver_index]))
+            waiver_index += 1
+            row += 1
+            continue
+        placements.append((row, 0, 1, waiver_entries[waiver_index]))
+        placements.append((row, 1, 1, waiver_entries[waiver_index + 1]))
+        waiver_index += 2
+        row += 1
     return placements
 
 
@@ -287,6 +300,10 @@ def _build_grid_sheet(
             _draw_waiver_card(canvas, x=x, y=y, entry=entry, card_width=width)
         else:
             _draw_review_card(canvas, root=root, x=x, y=y, entry=entry, card_width=width)
+    kinds_by_row: dict[int, set[str]] = {}
+    for row, _, _, entry in placements:
+        kinds_by_row.setdefault(row, set()).add("waiver" if entry.get("kind") == "waiver" else "visual")
+    waiver_placements = [placement for placement in placements if placement[3].get("kind") == "waiver"]
     canvas.save(root / filename, format="PNG", optimize=True)
     return {
         "pages": [filename],
@@ -299,6 +316,8 @@ def _build_grid_sheet(
         "metric_first": True,
         "waivers_inline": True,
         "waivers_compact": True,
+        "waiver_rows_separate": all(len(kinds) == 1 for kinds in kinds_by_row.values()),
+        "final_waiver_spans_columns": (not waiver_placements) or waiver_placements[-1][2] == 2 or len(waiver_placements) % 2 == 0,
         "cover_metadata_compact": True,
         "waiver_card_count": len(waived),
         "visual_row_count": len([entry for entry in entries if entry.get("kind") != "cover"]),
