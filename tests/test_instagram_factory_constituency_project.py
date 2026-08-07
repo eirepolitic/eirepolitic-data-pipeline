@@ -39,7 +39,7 @@ class ConstituencyIssueProfileProjectTest(TestCase):
             sheet = report["validation_contact_sheet"]
             self.assertEqual(
                 sheet["layout"],
-                "two_column_two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
+                "two_column_full_review_plus_deduplicated_summary_plus_complete_audit",
             )
             self.assertTrue(sheet["full"]["cover_shown_once"])
             self.assertTrue(sheet["summary"]["cover_shown_once"])
