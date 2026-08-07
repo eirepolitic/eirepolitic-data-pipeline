@@ -32,22 +32,41 @@ The cover media does not repeat the party name and contains no small footer/stat
 - A missing current scenario searches up to 12 recent historical unified-model batches.
 - Synthetic contract-edge data is not generated for convenience.
 - A scenario is waived only after current and searched historical production data contain no qualifying real case.
+- A non-qualifying current record is treated as no match and cannot block historical fallback.
 - Every scenario records its full search path: current real, historical real, synthetic contract edge, and waiver.
 - Legacy `minimum` and `maximum` remain compatibility aliases only; the review matrix uses visual-specific scenario names.
 
+Horizontal-bar scenarios use hard semantic qualification rather than best-available ranking:
+
+- `item_count_min`: at most 3 displayed categories
+- `item_count_max`: at least 6 displayed categories
+- `labels_short`: longest displayed category label at most 20 characters
+- `labels_long`: longest displayed category label at least 35 characters
+- `values_small`: displayed maximum value at most 20
+- `values_large`: displayed maximum value at least 1,000
+- `values_tight`: relative spread at most 20%, including 0% spread
+- `values_wide`: positive max/min ratio at least 5x
+- `single_outlier`: top/second ratio at least 3x
+- `ties`: exact tied displayed values
+- `all_equal`: exact all-equal displayed values
+- `zeros`: exact displayed zero value
+- `real_example`: at least 5 displayed categories
+
 ## Review outputs
 
-- `validation_contact_sheet.png` is the deduplicated approval summary.
-- The cover appears once.
-- Identical visual renders are grouped by hash and labelled with all scenarios they cover.
-- Waivers appear in one compact block.
+- `validation_contact_sheet.png` is the primary two-column review sheet and shows every defined non-legacy scenario exactly once as rendered or waived.
+- The representative cover appears once.
+- Rendered scenario cards retain large 760x950 previews and metric-first metadata.
+- Waived scenarios use separate compact 360px cards; two waivers share a row and an odd final waiver spans both columns.
+- `validation_summary_contact_sheet.png` is the separate deduplicated render summary.
 - `validation_audit_contact_sheet.png` preserves complete scenario-by-scenario evidence.
-- Full provenance and quality measurements remain in JSON manifests.
+- `validation_contact_sheet_manifest.json`, live validation JSON, and scenario manifests retain source, batch, search-stage, selection, and quality details.
 
 ## Automated quality gates
 
 Validation fails before human review when declared thresholds are breached for:
 
+- semantic scenario qualification
 - slide whitespace and occupied height
 - media-slot vertical and area fill
 - plot-area utilization
@@ -59,12 +78,15 @@ Validation fails before human review when declared thresholds are breached for:
 - bar thickness
 - label wrapping
 - value-label right-edge headroom
+- primary-sheet scenario completeness
+- compact waiver-row isolation and final odd-waiver spanning
+- required review evidence export
 
 The horizontal-bar renderer measures text in pixels, selects a suitable label font and plot margin, and expands the value axis until value labels fit. All final text bounds and sizing decisions are retained in validation manifests.
 
 ## Historical validation result
 
-Live validation searched eight historical batches. No current waiver was replaced by those batches, and three scenarios remained waived. The result confirms the fallback process rather than proving all possible historical edge cases exist.
+Live validation searches up to 12 historical batches when current production data does not qualify for a scenario. Historical fallback exists to replace only current waivers with genuinely qualifying historical real cases; remaining unmatched scenarios stay explicitly waived.
 
 ## Operational policy
 
