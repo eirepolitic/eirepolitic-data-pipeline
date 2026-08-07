@@ -50,9 +50,10 @@ def _draw_wrapped(
     max_lines: int,
 ) -> int:
     x, y = xy
-    lines = _wrapped_lines(text, width)[:max_lines]
+    wrapped = _wrapped_lines(text, width)
+    lines = wrapped[:max_lines]
     for index, line in enumerate(lines):
-        if index == max_lines - 1 and len(_wrapped_lines(text, width)) > max_lines:
+        if index == max_lines - 1 and len(wrapped) > max_lines:
             line = line.rstrip(" .") + "…"
         draw.text((x, y), line, font=font, fill=fill)
         y += line_height
@@ -93,6 +94,61 @@ def _visual_slide(manifest: dict[str, Any]) -> dict[str, Any] | None:
     )
 
 
+def _number(value: Any) -> str:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if number.is_integer():
+        return f"{int(number):,}"
+    return f"{number:,.2f}".rstrip("0").rstrip(".")
+
+
+def _primary_metric(scenario: str, metrics: Any) -> str:
+    if not isinstance(metrics, dict):
+        return ""
+    count = int(metrics.get("displayed_item_count", 0) or 0)
+    longest = int(metrics.get("longest_label_length", 0) or 0)
+    minimum = metrics.get("minimum_value")
+    maximum = metrics.get("maximum_value")
+    spread = metrics.get("relative_spread")
+    max_min = metrics.get("positive_max_to_min_ratio")
+    top_second = metrics.get("top_to_second_ratio")
+
+    if scenario in {"item_count_min", "item_count_max"}:
+        return f"{count} displayed bars"
+    if scenario in {"labels_short", "labels_long"}:
+        return f"Longest label: {longest} chars"
+    if scenario in {"values_small", "values_large"}:
+        return f"Maximum value: {_number(maximum)}"
+    if scenario == "values_tight" and spread is not None:
+        return f"Relative spread: {float(spread) * 100:.1f}%"
+    if scenario == "values_wide" and max_min is not None:
+        return f"Max / min: {float(max_min):.1f}×"
+    if scenario == "single_outlier" and top_second is not None:
+        return f"Top / second: {float(top_second):.1f}×"
+    if scenario == "all_equal":
+        return f"All equal · {count} bars"
+    if scenario == "ties":
+        return f"Ties present · {count} bars"
+    if scenario == "zeros":
+        return f"Includes zero · {count} bars"
+    if scenario == "real_example":
+        return f"Representative · {count} bars"
+    if minimum is not None and maximum is not None:
+        return f"{count} bars · {_number(minimum)}–{_number(maximum)}"
+    return f"{count} bars" if count else ""
+
+
+def _secondary_metric(scenario: str, metrics: Any) -> str:
+    if not isinstance(metrics, dict):
+        return ""
+    count = int(metrics.get("displayed_item_count", 0) or 0)
+    if scenario not in {"item_count_min", "item_count_max", "all_equal", "ties", "zeros", "real_example"} and count:
+        return f"{count} bars"
+    return ""
+
+
 def _metric_line(metrics: Any) -> str:
     if not isinstance(metrics, dict):
         return ""
@@ -106,7 +162,7 @@ def _metric_line(metrics: Any) -> str:
     minimum = metrics.get("minimum_value")
     maximum = metrics.get("maximum_value")
     if minimum is not None and maximum is not None:
-        parts.append(f"range {minimum:g}–{maximum:g}")
+        parts.append(f"range {_number(minimum)}–{_number(maximum)}")
     if metrics.get("has_ties"):
         parts.append("ties")
     if metrics.get("all_equal"):
@@ -139,10 +195,11 @@ def _draw_review_card(
     x: int,
     y: int,
     entry: dict[str, Any],
+    card_width: int = CARD_WIDTH,
 ) -> None:
     draw = ImageDraw.Draw(canvas)
     draw.rounded_rectangle(
-        (x, y, x + CARD_WIDTH, y + CARD_HEIGHT),
+        (x, y, x + card_width, y + CARD_HEIGHT),
         radius=26,
         fill="#f7f7f4",
         outline="#b9b9b3",
@@ -154,32 +211,28 @@ def _draw_review_card(
         x + 24,
         y + 20,
         _badge_label(list(entry["scenarios"])),
-        CARD_WIDTH - 48,
+        card_width - 48,
     )
-    text_y = y + 20 + badge_height + 10
+    text_y = y + 20 + badge_height + 12
     source = str(entry.get("source") or "Representative real example")
-    draw.text((x + 24, text_y), textwrap.shorten(source, width=62, placeholder="…"), font=_font(25, bold=True), fill="#28342f")
+    draw.text(
+        (x + 24, text_y),
+        textwrap.shorten(source, width=58 if card_width == CARD_WIDTH else 120, placeholder="…"),
+        font=_font(24, bold=True),
+        fill="#28342f",
+    )
     text_y += 38
 
-    metric_line = _metric_line(entry.get("metrics"))
-    if metric_line:
-        draw.text((x + 24, text_y), textwrap.shorten(metric_line, width=82, placeholder="…"), font=_font(21), fill="#555555")
-        text_y += 33
+    scenario = str((entry.get("scenarios") or [""])[0])
+    primary = _primary_metric(scenario, entry.get("metrics"))
+    if primary:
+        draw.text((x + 24, text_y), primary, font=_font(31, bold=True), fill="#173d30")
+        text_y += 43
+    secondary = _secondary_metric(scenario, entry.get("metrics"))
+    if secondary:
+        draw.text((x + 24, text_y), secondary, font=_font(21), fill="#666666")
 
-    reason = str(entry.get("selection_reason") or "")
-    if reason:
-        _draw_wrapped(
-            draw,
-            (x + 24, text_y),
-            reason,
-            font=_font(20),
-            fill="#666666",
-            width=88,
-            line_height=28,
-            max_lines=2,
-        )
-
-    preview_x = x + (CARD_WIDTH - THUMB_WIDTH) // 2
+    preview_x = x + (card_width - THUMB_WIDTH) // 2
     preview_y = y + CARD_HEIGHT - THUMB_HEIGHT - 24
     thumb = _thumbnail(root / str(entry["slide"]["path"]), THUMB_WIDTH, THUMB_HEIGHT)
     canvas.paste(thumb, (preview_x, preview_y))
@@ -191,35 +244,61 @@ def _draw_review_card(
     )
 
 
-def _waiver_height(waived: list[dict[str, Any]]) -> int:
-    return 0 if not waived else 100 + 70 * len(waived)
-
-
-def _draw_waivers(canvas: Image.Image, waived: list[dict[str, Any]], y: int) -> None:
-    if not waived:
-        return
+def _draw_waiver_card(
+    canvas: Image.Image,
+    *,
+    x: int,
+    y: int,
+    entry: dict[str, Any],
+    card_width: int = CARD_WIDTH,
+) -> None:
     draw = ImageDraw.Draw(canvas)
-    height = _waiver_height(waived)
     draw.rounded_rectangle(
-        (MARGIN, y, PAGE_WIDTH - MARGIN, y + height - 20),
-        radius=22,
+        (x, y, x + card_width, y + CARD_HEIGHT),
+        radius=26,
         fill="#eee8d8",
         outline="#b89b55",
         width=3,
     )
-    draw.text((MARGIN + 24, y + 20), "WAIVED SCENARIOS", font=_font(31, bold=True), fill="#725416")
-    line_y = y + 68
-    for manifest in waived:
-        scenario = str(manifest.get("scenario") or "unknown").replace("_", " ").upper()
-        reason = str(manifest.get("waiver_reason") or "No qualifying real case")
-        draw.text((MARGIN + 28, line_y), scenario, font=_font(21, bold=True), fill="#725416")
-        draw.text(
-            (MARGIN + 330, line_y),
-            textwrap.shorten(reason, width=175, placeholder="…"),
-            font=_font(19),
-            fill="#3b3423",
-        )
-        line_y += 70
+    badge_height = _draw_badge(
+        draw,
+        x + 24,
+        y + 24,
+        _badge_label(list(entry["scenarios"])),
+        card_width - 48,
+    )
+    draw.text(
+        (x + 24, y + 24 + badge_height + 24),
+        "NO REAL QUALIFYING CASE",
+        font=_font(34, bold=True),
+        fill="#725416",
+    )
+    _draw_wrapped(
+        draw,
+        (x + 24, y + 24 + badge_height + 82),
+        str(entry.get("waiver_reason") or "No qualifying real case was found."),
+        font=_font(27),
+        fill="#3b3423",
+        width=64 if card_width == CARD_WIDTH else 132,
+        line_height=38,
+        max_lines=9,
+    )
+
+
+def _layout_grid(entries: list[dict[str, Any]]) -> list[tuple[int, int, int, dict[str, Any]]]:
+    placements: list[tuple[int, int, int, dict[str, Any]]] = []
+    row = 0
+    col = 0
+    for index, entry in enumerate(entries):
+        is_last = index == len(entries) - 1
+        span = 2 if is_last and col == 0 and entry.get("kind") == "waiver" else 1
+        placements.append((row, col, span, entry))
+        if span == 2 or col == 1:
+            row += 1
+            col = 0
+        else:
+            col = 1
+    return placements
 
 
 def _build_grid_sheet(
@@ -232,22 +311,32 @@ def _build_grid_sheet(
     title: str,
     subtitle: str,
 ) -> dict[str, Any]:
-    rows = max(1, (len(entries) + COLS - 1) // COLS)
-    height = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP) + _waiver_height(waived) + MARGIN
+    waiver_entries = [
+        {
+            "kind": "waiver",
+            "scenarios": [str(item.get("scenario") or "unknown")],
+            "waiver_reason": item.get("waiver_reason"),
+        }
+        for item in waived
+    ]
+    grid_entries = [*entries, *waiver_entries]
+    placements = _layout_grid(grid_entries)
+    rows = max((row for row, _, _, _ in placements), default=0) + 1
+    height = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP) + MARGIN
     canvas = Image.new("RGB", (PAGE_WIDTH, height), "#e9ebe6")
     draw = ImageDraw.Draw(canvas)
     draw.text((MARGIN, 38), title, font=_font(50, bold=True), fill="#173d30")
     draw.text((MARGIN, 105), subtitle, font=_font(25), fill="#444444")
 
-    for index, entry in enumerate(entries):
-        row = index // COLS
-        col = index % COLS
+    for row, col, span, entry in placements:
         x = MARGIN + col * (CARD_WIDTH + GAP)
         y = HEADER_HEIGHT + row * (CARD_HEIGHT + GAP)
-        _draw_review_card(canvas, root=root, x=x, y=y, entry=entry)
+        width = CARD_WIDTH if span == 1 else (2 * CARD_WIDTH + GAP)
+        if entry.get("kind") == "waiver":
+            _draw_waiver_card(canvas, x=x, y=y, entry=entry, card_width=width)
+        else:
+            _draw_review_card(canvas, root=root, x=x, y=y, entry=entry, card_width=width)
 
-    waiver_y = HEADER_HEIGHT + rows * (CARD_HEIGHT + GAP)
-    _draw_waivers(canvas, waived, waiver_y)
     canvas.save(root / filename, format="PNG", optimize=True)
     return {
         "pages": [filename],
@@ -256,6 +345,10 @@ def _build_grid_sheet(
         "card_height": CARD_HEIGHT,
         "preview_width": THUMB_WIDTH,
         "preview_height": THUMB_HEIGHT,
+        "metric_first": True,
+        "waivers_inline": True,
+        "cover_metadata_compact": True,
+        "waiver_card_count": len(waived),
         "visual_row_count": len([entry for entry in entries if entry.get("kind") != "cover"]),
         "cover_shown_once": any(entry.get("kind") == "cover" for entry in entries),
         "scenario_rows": [
@@ -296,7 +389,6 @@ def _full_entries(
             "kind": "cover",
             "scenarios": ["cover layout"],
             "source": cover_manifest.get("source_item_label"),
-            "selection_reason": "Representative cover shown once; chart scenarios do not change the cover layout.",
             "metrics": None,
             "slide": _find_slide(cover_manifest, "cover"),
         })
@@ -314,7 +406,6 @@ def _full_entries(
             "kind": "visual",
             "scenarios": [name],
             "source": manifest.get("source_item_label"),
-            "selection_reason": manifest.get("selection_reason"),
             "metrics": manifest.get("scenario_metrics"),
             "slide": slide,
         })
@@ -462,7 +553,7 @@ def build_validation_contact_sheet(
         waived=waived,
         filename="validation_contact_sheet.png",
         title=f"{project_id} validation contact sheet",
-        subtitle="Two-column review grid · larger previews · concise metadata · every defined scenario shown once",
+        subtitle="Metric-first two-column review · large previews · inline waivers · every defined scenario shown once",
     )
 
     summary_entries, render_groups = _summary_entries(root, entries)
@@ -473,7 +564,7 @@ def build_validation_contact_sheet(
         waived=waived,
         filename="validation_summary_contact_sheet.png",
         title=f"{project_id} deduplicated validation summary",
-        subtitle="Two-column review grid · unique renders only · concise metadata",
+        subtitle="Metric-first two-column review · unique renders only · inline waivers",
     )
     summary["unique_visual_count"] = len([entry for entry in summary_entries if entry.get("kind") != "cover"])
     summary["render_groups"] = render_groups
