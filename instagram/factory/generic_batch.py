@@ -73,6 +73,9 @@ def generate_project_batch(
         try:
             asset_result = adapter.render_assets(item_dir, context, project)
             visual_manifest = asset_result.get("visual_manifest")
+            visual_warnings = list((visual_manifest or {}).get("warnings") or [])
+            if visual_warnings:
+                raise ValueError(f"Visual warnings for {item_label}: {visual_warnings}")
             for slide in sorted(project["slides"], key=lambda value: value["order"]):
                 post_type = catalogues.post_types[slide["post_type_id"]]
                 layout_path = str(post_type["layout_path"])
