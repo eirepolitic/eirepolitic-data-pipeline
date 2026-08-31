@@ -2,208 +2,67 @@ name: Unified Speech Issue Classifier (Manual)
 
 on:
   workflow_dispatch:
-    inputs:
-      mode:
-        description: "Readiness = inventory only; classify = call OpenAI"
-        required: true
-        default: readiness
-        type: choice
-        options: [readiness, dry-run, classify]
-      max_model_rows:
-        description: "Maximum OpenAI rows for a review test. 0 means all pending rows."
-        required: true
-        default: "25"
-        type: string
-      write_candidate:
-        description: "Write a complete classified candidate batch. Requires classify mode and max_model_rows=0."
-        required: true
-        default: false
-        type: boolean
-      model:
-        description: "OpenAI model"
-        required: true
-        default: gpt-5.6-luna
-        type: string
+
+permissions:
+  contents: write
 
 concurrency:
   group: classify-political-issues
   cancel-in-progress: false
 
-permissions:
-  contents: write
-
 jobs:
-  classifier:
+  guided-luna-benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 720
+    timeout-minutes: 120
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OPENAI_MODEL: ${{ inputs.model }}
-      OPENAI_REASONING_EFFORT: low
-      OPENAI_VERBOSITY: low
-      OIREACHTAS_BATCH_ID: ${{ inputs.write_candidate && format('speech-classifier-{0}-{1}', github.run_id, github.run_attempt) || '' }}
-      OIREACHTAS_PUBLISH_LATEST: ${{ inputs.write_candidate && 'true' || 'false' }}
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-
       - name: Install dependencies
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install 'openai>=3.6.0,<4'
-
       - name: Run classifier unit tests
         run: |
           set -euo pipefail
           python -m unittest tests.test_oireachtas_speech_issue_classifier tests.test_oireachtas_speech_classifier_wiring -v
-
-      - name: Validate write request
-        if: inputs.write_candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ '${{ inputs.mode }}' == 'classify' ]]
-          [[ '${{ inputs.max_model_rows }}' == '0' ]]
-          [[ -n "${OIREACHTAS_BATCH_ID}" ]]
-
-      - name: Seed candidate from current production
-        if: inputs.write_candidate
-        run: |
-          set -euo pipefail
-          python process/oireachtas_seed_candidate.py \
-            --batch-id "${OIREACHTAS_BATCH_ID}" \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            | tee speech_classifier_seed.json
-
-      - name: Run unified classifier
-        id: classifier_run
-        continue-on-error: true
+      - name: Run guided Luna benchmark
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        shell: bash
-        run: |
-          set -o pipefail
-          args=(
-            --mode '${{ inputs.mode }}'
-            --max-model-rows '${{ inputs.max_model_rows }}'
-            --model '${{ inputs.model }}'
-            --reasoning-effort low
-            --verbosity low
-            --bucket "${S3_BUCKET}"
-            --region "${AWS_REGION}"
-            --report-path speech_issue_classifier_report.json
-          )
-          if [[ '${{ inputs.write_candidate }}' == 'true' ]]; then
-            args+=(--write)
-          fi
-          python -m process.oireachtas_speech_issue_classifier "${args[@]}" 2>&1 | tee speech_classifier_console.log
-          exit_code=${PIPESTATUS[0]}
-          echo "exit_code=${exit_code}" >> "${GITHUB_OUTPUT}"
-          exit "${exit_code}"
-
-      - name: Run legacy migration audit
-        if: inputs.mode == 'readiness' && steps.classifier_run.outcome == 'success'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m process.oireachtas_speech_issue_migration_audit \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            --report-path speech_issue_migration_audit.json
-
-      - name: Run GPT-4.1 mini control benchmark
-        if: inputs.mode == 'readiness' && steps.classifier_run.outcome == 'success' && github.ref == 'refs/heads/feature/unified-speech-issue-classifier'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        shell: bash
         run: |
           set -euo pipefail
           test -f diagnostics/speech_classifier/latest_luna_benchmark.json
-          python -m process.oireachtas_speech_issue_model_control \
-            --luna-report diagnostics/speech_classifier/latest_luna_benchmark.json \
-            --model gpt-4.1-mini \
+          python -m process.oireachtas_speech_issue_luna_prompt_benchmark \
+            --baseline-report diagnostics/speech_classifier/latest_luna_benchmark.json \
+            --model gpt-5.6-luna \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
-            --report-path speech_issue_model_control.json
-
-      - name: Persist classifier diagnostics on branch
+            --report-path speech_issue_luna_prompt_benchmark.json
+      - name: Persist benchmark
         if: always()
-        shell: bash
         run: |
           mkdir -p diagnostics/speech_classifier
-          cp speech_classifier_console.log diagnostics/speech_classifier/latest_console.log 2>/dev/null || true
-          cp speech_issue_classifier_report.json diagnostics/speech_classifier/latest_report.json 2>/dev/null || true
-          cp speech_issue_migration_audit.json diagnostics/speech_classifier/latest_migration_audit.json 2>/dev/null || true
-          cp speech_issue_model_control.json diagnostics/speech_classifier/latest_model_control.json 2>/dev/null || true
+          cp speech_issue_luna_prompt_benchmark.json diagnostics/speech_classifier/latest_luna_prompt_benchmark.json 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/speech_classifier
-          git commit -m "Record speech classifier control diagnostics" || true
+          git add diagnostics/speech_classifier/latest_luna_prompt_benchmark.json
+          git commit -m "Record guided Luna benchmark" || true
           git push
-
-      - name: Fail when classifier failed
-        if: steps.classifier_run.outcome == 'failure'
-        run: exit 1
-
-      - name: Assemble complete candidate batch
-        if: inputs.write_candidate && steps.classifier_run.outcome == 'success'
-        run: |
-          set -euo pipefail
-          python process/oireachtas_batch_control.py \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            assemble \
-            --batch-id "${OIREACHTAS_BATCH_ID}" \
-            --required-table enrichment_speech_issue_labels \
-            | tee speech_classifier_batch_manifest.json
-
-      - name: Write summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo '## Unified speech issue classifier'
-            echo
-            echo "- Mode: `${{ inputs.mode }}`"
-            echo "- Model: `${{ inputs.model }}`"
-            echo "- Max model rows: `${{ inputs.max_model_rows }}`"
-            echo "- Candidate write: `${{ inputs.write_candidate }}`"
-            echo "- Candidate batch: `${OIREACHTAS_BATCH_ID:-none}`"
-            echo "- Classifier outcome: `${{ steps.classifier_run.outcome }}`"
-            for file in speech_issue_classifier_report.json speech_issue_migration_audit.json speech_issue_model_control.json; do
-              if [[ -f "$file" ]]; then
-                echo
-                echo "### $file"
-                echo '```json'
-                cat "$file"
-                echo '```'
-              fi
-            done
-          } >> "${GITHUB_STEP_SUMMARY}"
-
-      - name: Upload classifier evidence
+      - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: speech-classifier-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            speech_issue_classifier_report.json
-            speech_issue_migration_audit.json
-            speech_issue_model_control.json
-            speech_classifier_console.log
-            speech_classifier_seed.json
-            speech_classifier_batch_manifest.json
+          name: guided-luna-benchmark-${{ github.run_id }}
+          path: speech_issue_luna_prompt_benchmark.json
           if-no-files-found: warn
           retention-days: 180
