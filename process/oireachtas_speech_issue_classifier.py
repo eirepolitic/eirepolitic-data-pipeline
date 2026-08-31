@@ -12,25 +12,27 @@ from pathlib import Path
 from typing import Any, Callable
 
 import pandas as pd
+from botocore.exceptions import ClientError
 from openai import OpenAI
 
+from extract.oireachtas.batch import current_batch_id, record_batch_table
 from extract.oireachtas.io_s3 import (
     DEFAULT_BUCKET,
     DEFAULT_REGION,
+    candidate_publishing_enabled,
     get_bytes,
     make_s3_client,
     put_dataframe_csv,
     put_dataframe_parquet,
-    put_json,
 )
 
+TABLE_NAME = "enrichment_speech_issue_labels"
 SILVER_SPEECHES_KEY = "processed/oireachtas_unified/latest/csv/silver_speeches.csv"
 LEGACY_CLASSIFIED_KEY = "processed/debates/debate_speeches_classified.csv"
-ENRICHMENT_CSV_KEY = "processed/oireachtas_unified/enrichment/speech_issue_labels/latest/speech_issue_labels.csv"
-ENRICHMENT_PARQUET_KEY = "processed/oireachtas_unified/enrichment/speech_issue_labels/latest/speech_issue_labels.parquet"
+ENRICHMENT_CSV_KEY = f"processed/oireachtas_unified/latest/csv/{TABLE_NAME}.csv"
+ENRICHMENT_PARQUET_KEY = f"processed/oireachtas_unified/latest/parquet/{TABLE_NAME}.parquet"
 COMPAT_CSV_KEY = "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
 COMPAT_PARQUET_KEY = "processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet"
-MANIFEST_KEY = "processed/oireachtas_unified/enrichment/speech_issue_labels/latest/manifest.json"
 
 DEFAULT_MODEL = "gpt-5.6-luna"
 DEFAULT_REASONING_EFFORT = "low"
@@ -65,6 +67,22 @@ ISSUE_CATEGORIES = [
     "NONE",
 ]
 ISSUE_CATEGORY_SET = set(ISSUE_CATEGORIES)
+PERSISTED_COLUMNS = [
+    "speech_id",
+    "member_code",
+    "speaker_name",
+    "debate_date",
+    "speech_order",
+    "source_speech_text_hash",
+    "issue_label",
+    "issue_label_source",
+    "model_name",
+    "classification_status",
+    "review_status",
+    "classified_at_utc",
+    "speech_text",
+    "word_count",
+]
 
 
 @dataclass(frozen=True)
@@ -86,7 +104,7 @@ def normalize_text(value: Any) -> str:
 
 
 def normalize_name(value: Any) -> str:
-    return " ".join(normalize_text(value).lower().split())
+    return normalize_text(value).lower()
 
 
 def normalize_date(value: Any) -> str:
@@ -94,9 +112,7 @@ def normalize_date(value: Any) -> str:
     if not text:
         return ""
     parsed = pd.to_datetime(text, errors="coerce")
-    if pd.isna(parsed):
-        return text
-    return parsed.date().isoformat()
+    return parsed.date().isoformat() if not pd.isna(parsed) else text
 
 
 def normalize_order(value: Any) -> str:
@@ -107,6 +123,11 @@ def normalize_order(value: Any) -> str:
         except ValueError:
             pass
     return text
+
+
+def safe_int(value: Any, default: int = 0) -> int:
+    parsed = pd.to_numeric(value, errors="coerce")
+    return default if pd.isna(parsed) else int(parsed)
 
 
 def canonicalize_label(value: Any) -> str:
@@ -131,54 +152,86 @@ def _read_csv_bytes(payload: bytes) -> pd.DataFrame:
 def read_s3_csv(s3: Any, *, bucket: str, key: str, optional: bool = False) -> pd.DataFrame:
     try:
         return _read_csv_bytes(get_bytes(s3, bucket=bucket, key=key))
-    except Exception:
+    except ClientError as exc:
+        code = str(exc.response.get("Error", {}).get("Code", ""))
+        if optional and code in {"404", "NoSuchKey", "NotFound"}:
+            return pd.DataFrame()
+        raise
+    except FileNotFoundError:
         if optional:
             return pd.DataFrame()
         raise
 
 
-def build_legacy_lookup(legacy: pd.DataFrame) -> tuple[dict[tuple[str, str, str, str], str], dict[str, int]]:
+def build_legacy_lookups(
+    legacy: pd.DataFrame,
+) -> tuple[dict[tuple[str, str, str, str], str], dict[tuple[str, str], str], dict[str, int]]:
     if legacy.empty:
-        return {}, {"legacy_rows": 0, "legacy_valid_labels": 0, "legacy_ambiguous_keys": 0}
+        return {}, {}, {"legacy_rows": 0, "legacy_valid_labels": 0, "legacy_ambiguous_exact_keys": 0, "legacy_ambiguous_date_hash_keys": 0}
 
     working = pd.DataFrame(index=legacy.index)
-    speech_text = _col(legacy, "Speech Text", "speech_text")
-    working["text_hash"] = speech_text.map(text_hash)
+    working["text_hash"] = _col(legacy, "Speech Text", "speech_text").map(text_hash)
     working["debate_date"] = _col(legacy, "Debate Date", "debate_date", "date").map(normalize_date)
     working["speech_order"] = _col(legacy, "Speech Order", "speech_order").map(normalize_order)
     working["speaker_name"] = _col(legacy, "Speaker Name", "speaker_name", "member_name").map(normalize_name)
     working["issue_label"] = _col(legacy, "PoliticalIssues", "political_issues", "issue_label").map(canonicalize_label)
     working = working[working["issue_label"] != ""].copy()
-    working["key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["text_hash"]))
+    working["exact_key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["text_hash"]))
+    working["date_hash_key"] = list(zip(working["debate_date"], working["text_hash"]))
 
-    lookup: dict[tuple[str, str, str, str], str] = {}
-    ambiguous = 0
-    for key, group in working.groupby("key", sort=False):
+    exact: dict[tuple[str, str, str, str], str] = {}
+    ambiguous_exact = 0
+    for key, group in working.groupby("exact_key", sort=False):
         labels = sorted(set(group["issue_label"].tolist()))
         if len(labels) == 1:
-            lookup[key] = labels[0]
+            exact[key] = labels[0]
         else:
-            ambiguous += 1
-    return lookup, {
+            ambiguous_exact += 1
+
+    date_hash: dict[tuple[str, str], str] = {}
+    ambiguous_date_hash = 0
+    for key, group in working.groupby("date_hash_key", sort=False):
+        labels = sorted(set(group["issue_label"].tolist()))
+        if len(group) == 1 and len(labels) == 1:
+            date_hash[key] = labels[0]
+        else:
+            ambiguous_date_hash += 1
+
+    return exact, date_hash, {
         "legacy_rows": int(len(legacy)),
         "legacy_valid_labels": int(len(working)),
-        "legacy_ambiguous_keys": int(ambiguous),
+        "legacy_ambiguous_exact_keys": int(ambiguous_exact),
+        "legacy_ambiguous_date_hash_keys": int(ambiguous_date_hash),
     }
 
 
-def build_existing_lookup(existing: pd.DataFrame) -> dict[str, tuple[str, str, str, str]]:
-    lookup: dict[str, tuple[str, str, str, str]] = {}
+def build_legacy_lookup(legacy: pd.DataFrame) -> tuple[dict[tuple[str, str, str, str], str], dict[str, int]]:
+    exact, _, stats = build_legacy_lookups(legacy)
+    return exact, {
+        "legacy_rows": stats["legacy_rows"],
+        "legacy_valid_labels": stats["legacy_valid_labels"],
+        "legacy_ambiguous_keys": stats["legacy_ambiguous_exact_keys"],
+    }
+
+
+def build_existing_lookup(existing: pd.DataFrame) -> dict[str, dict[str, str]]:
+    lookup: dict[str, dict[str, str]] = {}
     if existing.empty or "speech_id" not in existing.columns:
         return lookup
     for _, row in existing.iterrows():
         speech_id = normalize_text(row.get("speech_id"))
         label = canonicalize_label(row.get("issue_label"))
         source_hash = normalize_text(row.get("source_speech_text_hash"))
-        status = normalize_text(row.get("classification_status"))
-        model_name = normalize_text(row.get("model_name"))
-        source = normalize_text(row.get("issue_label_source"))
-        if speech_id and label and source_hash:
-            lookup[speech_id] = (source_hash, label, status or "classified", model_name or source)
+        if not speech_id or not label or not source_hash:
+            continue
+        lookup[speech_id] = {
+            "source_hash": source_hash,
+            "label": label,
+            "status": normalize_text(row.get("classification_status")),
+            "model_name": normalize_text(row.get("model_name")),
+            "classified_at_utc": normalize_text(row.get("classified_at_utc")),
+            "review_status": normalize_text(row.get("review_status")) or "unreviewed",
+        }
     return lookup
 
 
@@ -202,19 +255,19 @@ def prepare_classification_plan(
         raise ValueError("silver_speeches contains duplicate speech_id values")
 
     existing_lookup = build_existing_lookup(existing)
-    legacy_lookup, legacy_stats = build_legacy_lookup(legacy)
+    legacy_exact, legacy_date_hash, legacy_stats = build_legacy_lookups(legacy)
     now = utc_now_iso()
-
-    rows: list[dict[str, Any]] = []
     stats = {
         "silver_rows": int(len(silver)),
         "reused_existing": 0,
-        "migrated_legacy": 0,
+        "migrated_legacy_exact": 0,
+        "migrated_legacy_date_hash_unique": 0,
         "short_text_none": 0,
         "pending_model": 0,
         "existing_hash_mismatch": 0,
         **legacy_stats,
     }
+    rows: list[dict[str, Any]] = []
 
     for _, source in silver.iterrows():
         speech_id = normalize_text(source.get("speech_id"))
@@ -223,38 +276,45 @@ def prepare_classification_plan(
         debate_date = normalize_date(source.get("debate_date"))
         speech_order = normalize_order(source.get("speech_order"))
         speaker_name = normalize_text(source.get("speaker_name"))
-        speaker_member_code = normalize_text(source.get("speaker_member_code"))
-        word_count = int(pd.to_numeric(source.get("word_count"), errors="coerce") or 0)
-        if word_count <= 0 and speech_text:
-            word_count = len(speech_text.split())
+        member_code = normalize_text(source.get("speaker_member_code"))
+        word_count = safe_int(source.get("word_count"), default=len(speech_text.split()))
 
         issue_label = ""
         issue_label_source = ""
         model_name = ""
         classification_status = "pending"
         classified_at_utc = ""
+        review_status = "unreviewed"
 
         prior = existing_lookup.get(speech_id)
         if prior:
-            prior_hash, prior_label, prior_status, prior_model = prior
-            if prior_hash == source_hash:
-                issue_label = prior_label
+            if prior["source_hash"] == source_hash:
+                issue_label = prior["label"]
                 issue_label_source = "existing_unified_enrichment"
-                model_name = prior_model
-                classification_status = prior_status if prior_status in {"classified", "none", "skipped_short_text"} else ("none" if prior_label == "NONE" else "classified")
+                model_name = prior["model_name"]
+                classification_status = prior["status"] if prior["status"] in {"classified", "none", "skipped_short_text"} else ("none" if issue_label == "NONE" else "classified")
+                classified_at_utc = prior["classified_at_utc"]
+                review_status = prior["review_status"]
                 stats["reused_existing"] += 1
             else:
                 stats["existing_hash_mismatch"] += 1
 
         if not issue_label:
-            legacy_key = (debate_date, speech_order, normalize_name(speaker_name), source_hash)
-            legacy_label = legacy_lookup.get(legacy_key, "")
-            if legacy_label:
-                issue_label = legacy_label
+            exact_key = (debate_date, speech_order, normalize_name(speaker_name), source_hash)
+            issue_label = legacy_exact.get(exact_key, "")
+            if issue_label:
                 issue_label_source = "legacy_migration_exact"
                 model_name = "legacy_unknown"
-                classification_status = "none" if legacy_label == "NONE" else "classified"
-                stats["migrated_legacy"] += 1
+                classification_status = "none" if issue_label == "NONE" else "classified"
+                stats["migrated_legacy_exact"] += 1
+
+        if not issue_label:
+            issue_label = legacy_date_hash.get((debate_date, source_hash), "")
+            if issue_label:
+                issue_label_source = "legacy_migration_date_hash_unique"
+                model_name = "legacy_unknown"
+                classification_status = "none" if issue_label == "NONE" else "classified"
+                stats["migrated_legacy_date_hash_unique"] += 1
 
         if not issue_label and word_count < min_words:
             issue_label = "NONE"
@@ -270,7 +330,7 @@ def prepare_classification_plan(
         rows.append(
             {
                 "speech_id": speech_id,
-                "member_code": speaker_member_code,
+                "member_code": member_code,
                 "speaker_name": speaker_name,
                 "debate_date": debate_date,
                 "speech_order": speech_order,
@@ -279,15 +339,15 @@ def prepare_classification_plan(
                 "issue_label_source": issue_label_source,
                 "model_name": model_name,
                 "classification_status": classification_status,
-                "review_status": "unreviewed",
+                "review_status": review_status,
                 "classified_at_utc": classified_at_utc,
                 "speech_text": speech_text,
                 "word_count": word_count,
             }
         )
 
-    result = pd.DataFrame(rows)
-    stats["planned_rows"] = int(len(result))
+    result = pd.DataFrame(rows, columns=PERSISTED_COLUMNS)
+    stats["migrated_legacy"] = stats["migrated_legacy_exact"] + stats["migrated_legacy_date_hash_unique"]
     stats["classified_or_none_before_model"] = int((result["issue_label"] != "").sum())
     return ClassificationPlan(rows=result, stats=stats)
 
@@ -307,15 +367,12 @@ def build_classifier_prompt(speech_text: str) -> list[dict[str, str]]:
         {
             "role": "system",
             "content": (
-                "You classify Irish parliamentary speeches by their single core policy topic. "
-                "Choose exactly one allowed issue label. Use NONE when the speech has no sufficiently clear core policy topic. "
-                "Do not infer party positions, intent, or sentiment."
+                "Classify Irish parliamentary speeches by their single core policy topic. "
+                "Choose exactly one allowed issue label. Use NONE when there is no sufficiently clear core policy topic. "
+                "Do not infer party positions, intent, sentiment, or importance."
             ),
         },
-        {
-            "role": "user",
-            "content": f"Allowed issue labels:\n{categories}\n\nSpeech:\n{speech_text}",
-        },
+        {"role": "user", "content": f"Allowed issue labels:\n{categories}\n\nSpeech:\n{speech_text}"},
     ]
 
 
@@ -406,7 +463,7 @@ def execute_model_classification(
 def build_compat_output(silver: pd.DataFrame, enrichment: pd.DataFrame) -> pd.DataFrame:
     labels = enrichment[["speech_id", "issue_label", "classification_status"]].copy()
     merged = silver.merge(labels, on="speech_id", how="left", validate="one_to_one")
-    compat = pd.DataFrame(
+    return pd.DataFrame(
         {
             "speech_id": merged["speech_id"],
             "member_code": _col(merged, "speaker_member_code"),
@@ -418,31 +475,51 @@ def build_compat_output(silver: pd.DataFrame, enrichment: pd.DataFrame) -> pd.Da
             "classification_status": _col(merged, "classification_status"),
         }
     )
-    return compat
 
 
 def validate_enrichment(silver: pd.DataFrame, enrichment: pd.DataFrame) -> dict[str, Any]:
     row_count_match = len(silver) == len(enrichment)
-    speech_id_unique = bool(not enrichment["speech_id"].duplicated().any()) if len(enrichment) else False
-    speech_id_populated = bool(enrichment["speech_id"].astype(str).str.strip().ne("").all()) if len(enrichment) else False
+    unique = bool(len(enrichment) and not enrichment["speech_id"].duplicated().any())
+    populated = bool(len(enrichment) and enrichment["speech_id"].astype(str).str.strip().ne("").all())
     invalid_labels = int((~enrichment["issue_label"].isin(ISSUE_CATEGORY_SET | {""})).sum()) if len(enrichment) else 0
-    invalid_statuses = int((~enrichment["classification_status"].isin({"classified", "none", "skipped_short_text", "pending", "failed"})).sum()) if len(enrichment) else 0
-    classified_missing_model = int(
-        ((enrichment["issue_label_source"] == "openai_model") & (enrichment["model_name"].astype(str).str.strip() == "")).sum()
-    ) if len(enrichment) else 0
-    status = "pass" if all([len(enrichment) > 0, row_count_match, speech_id_unique, speech_id_populated, invalid_labels == 0, invalid_statuses == 0, classified_missing_model == 0]) else "fail"
+    valid_statuses = {"classified", "none", "skipped_short_text", "pending", "failed"}
+    invalid_statuses = int((~enrichment["classification_status"].isin(valid_statuses)).sum()) if len(enrichment) else 0
+    missing_model = int(((enrichment["issue_label_source"] == "openai_model") & enrichment["model_name"].astype(str).str.strip().eq("")).sum()) if len(enrichment) else 0
+    dq_status = "pass" if all([len(enrichment) > 0, row_count_match, unique, populated, invalid_labels == 0, invalid_statuses == 0, missing_model == 0]) else "fail"
     return {
-        "dq_status": status,
+        "table": TABLE_NAME,
+        "dq_status": dq_status,
         "silver_rows": int(len(silver)),
         "enrichment_rows": int(len(enrichment)),
         "row_count_match": bool(row_count_match),
-        "speech_id_unique": bool(speech_id_unique),
-        "speech_id_populated": bool(speech_id_populated),
+        "speech_id_unique": unique,
+        "speech_id_populated": populated,
         "invalid_issue_label_count": invalid_labels,
         "invalid_status_count": invalid_statuses,
-        "model_classified_missing_model_name": classified_missing_model,
+        "model_classified_missing_model_name": missing_model,
         "pending_rows": int((enrichment["classification_status"] == "pending").sum()),
         "failed_rows": int((enrichment["classification_status"] == "failed").sum()),
+    }
+
+
+def readiness_report(silver: pd.DataFrame, existing: pd.DataFrame, legacy: pd.DataFrame) -> dict[str, Any]:
+    plan = prepare_classification_plan(silver, existing=existing, legacy=legacy)
+    rows = plan.rows
+    silver_dates = pd.to_datetime(silver["debate_date"], errors="coerce")
+    legacy_dates = pd.to_datetime(_col(legacy, "Debate Date", "debate_date", "date"), errors="coerce") if not legacy.empty else pd.Series(dtype="datetime64[ns]")
+    pending_dates = pd.to_datetime(rows.loc[rows["classification_status"] == "pending", "debate_date"], errors="coerce")
+    migrated = plan.stats["migrated_legacy"]
+    valid_legacy = plan.stats["legacy_valid_labels"]
+    return {
+        **plan.stats,
+        "legacy_migration_pct": round((migrated / valid_legacy * 100), 2) if valid_legacy else 0.0,
+        "silver_min_date": silver_dates.min().date().isoformat() if silver_dates.notna().any() else None,
+        "silver_max_date": silver_dates.max().date().isoformat() if silver_dates.notna().any() else None,
+        "legacy_min_date": legacy_dates.min().date().isoformat() if legacy_dates.notna().any() else None,
+        "legacy_max_date": legacy_dates.max().date().isoformat() if legacy_dates.notna().any() else None,
+        "pending_min_date": pending_dates.min().date().isoformat() if pending_dates.notna().any() else None,
+        "pending_max_date": pending_dates.max().date().isoformat() if pending_dates.notna().any() else None,
+        "ready_for_live_test": bool(plan.stats["pending_model"] > 0),
     }
 
 
@@ -454,55 +531,65 @@ def write_outputs(
     enrichment: pd.DataFrame,
     stats: dict[str, Any],
     model: str,
-    mode: str,
 ) -> dict[str, Any]:
-    compat = build_compat_output(silver, enrichment)
     dq = validate_enrichment(silver, enrichment)
-    manifest = {
-        "table": "enrichment_speech_issue_labels",
-        "run_id": f"speech_issue_labels_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
-        "created_at_utc": utc_now_iso(),
-        "mode": mode,
-        "model": model,
-        "status": "success" if dq["dq_status"] == "pass" else "failed",
-        "stats": stats,
-        "dq": dq,
-        "source_keys": {
-            "silver_speeches": SILVER_SPEECHES_KEY,
-            "legacy_classified": LEGACY_CLASSIFIED_KEY,
-        },
-        "output_keys": {
-            "enrichment_csv": ENRICHMENT_CSV_KEY,
-            "enrichment_parquet": ENRICHMENT_PARQUET_KEY,
-            "compat_csv": COMPAT_CSV_KEY,
-            "compat_parquet": COMPAT_PARQUET_KEY,
-            "manifest": MANIFEST_KEY,
-        },
-    }
+    if dq["dq_status"] != "pass":
+        raise RuntimeError(f"Cannot write failed enrichment DQ: {dq}")
+    if dq["pending_rows"] or dq["failed_rows"]:
+        raise RuntimeError("Complete writes require zero pending and zero failed classifications")
+    if not current_batch_id() or not candidate_publishing_enabled():
+        raise RuntimeError("Classifier writes require an active OIREACHTAS candidate batch")
+
+    compat = build_compat_output(silver, enrichment)
     put_dataframe_csv(s3, bucket=bucket, key=ENRICHMENT_CSV_KEY, df=enrichment)
     put_dataframe_parquet(s3, bucket=bucket, key=ENRICHMENT_PARQUET_KEY, df=enrichment)
     put_dataframe_csv(s3, bucket=bucket, key=COMPAT_CSV_KEY, df=compat)
     put_dataframe_parquet(s3, bucket=bucket, key=COMPAT_PARQUET_KEY, df=compat)
-    put_json(s3, bucket=bucket, key=MANIFEST_KEY, payload=manifest)
+
+    run_id = f"speech_issue_labels_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    schema = {"table": TABLE_NAME, "primary_key": ["speech_id"], "columns": PERSISTED_COLUMNS, "row_count": int(len(enrichment))}
+    manifest = {
+        "table": TABLE_NAME,
+        "run_id": run_id,
+        "status": "success",
+        "created_at_utc": utc_now_iso(),
+        "model": model,
+        "output_rows": int(len(enrichment)),
+        "stats": stats,
+        "source_key": SILVER_SPEECHES_KEY,
+        "s3_keys": {
+            "csv": ENRICHMENT_CSV_KEY,
+            "parquet": ENRICHMENT_PARQUET_KEY,
+            "compat_csv": COMPAT_CSV_KEY,
+            "compat_parquet": COMPAT_PARQUET_KEY,
+        },
+    }
+    record_batch_table(
+        s3,
+        bucket=bucket,
+        batch_id=current_batch_id() or "",
+        table=TABLE_NAME,
+        manifest=manifest,
+        schema=schema,
+        dq=dq,
+        candidate_keys=[ENRICHMENT_CSV_KEY, ENRICHMENT_PARQUET_KEY, COMPAT_CSV_KEY, COMPAT_PARQUET_KEY],
+    )
     return manifest
 
 
-def readiness_report(silver: pd.DataFrame, existing: pd.DataFrame, legacy: pd.DataFrame) -> dict[str, Any]:
-    plan = prepare_classification_plan(silver, existing=existing, legacy=legacy)
-    rows = plan.rows
-    dates = pd.to_datetime(silver["debate_date"], errors="coerce")
-    classified_dates = pd.to_datetime(rows.loc[rows["issue_label"] != "", "debate_date"], errors="coerce")
-    pending_dates = pd.to_datetime(rows.loc[rows["classification_status"] == "pending", "debate_date"], errors="coerce")
-    return {
-        **plan.stats,
-        "silver_min_date": dates.min().date().isoformat() if dates.notna().any() else None,
-        "silver_max_date": dates.max().date().isoformat() if dates.notna().any() else None,
-        "classified_min_date": classified_dates.min().date().isoformat() if classified_dates.notna().any() else None,
-        "classified_max_date": classified_dates.max().date().isoformat() if classified_dates.notna().any() else None,
-        "pending_min_date": pending_dates.min().date().isoformat() if pending_dates.notna().any() else None,
-        "pending_max_date": pending_dates.max().date().isoformat() if pending_dates.notna().any() else None,
-        "ready_for_live_test": bool(plan.stats["pending_model"] > 0 and plan.stats["migrated_legacy"] > 0),
-    }
+def sample_model_results(output: pd.DataFrame, limit: int = 25) -> list[dict[str, Any]]:
+    selected = output[output["issue_label_source"] == "openai_model"].head(limit)
+    return [
+        {
+            "speech_id": row["speech_id"],
+            "debate_date": row["debate_date"],
+            "speaker_name": row["speaker_name"],
+            "issue_label": row["issue_label"],
+            "word_count": int(row["word_count"]),
+            "speech_excerpt": str(row["speech_text"])[:300],
+        }
+        for _, row in selected.iterrows()
+    ]
 
 
 def parse_args() -> argparse.Namespace:
@@ -516,7 +603,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bucket", default=os.getenv("S3_BUCKET", DEFAULT_BUCKET))
     parser.add_argument("--region", default=os.getenv("AWS_REGION", DEFAULT_REGION))
     parser.add_argument("--report-path", default="speech_issue_classifier_report.json")
-    parser.add_argument("--write", action="store_true", help="Write enrichment/compat outputs. Required for production use.")
+    parser.add_argument("--write", action="store_true")
     return parser.parse_args()
 
 
@@ -528,7 +615,7 @@ def main() -> int:
     legacy = read_s3_csv(s3, bucket=args.bucket, key=LEGACY_CLASSIFIED_KEY, optional=True)
 
     if args.mode == "readiness":
-        report = readiness_report(silver, existing, legacy)
+        report = {"mode": "readiness", "model": args.model, **readiness_report(silver, existing, legacy)}
         Path(args.report_path).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0
@@ -556,11 +643,21 @@ def main() -> int:
         )
 
     dq = validate_enrichment(silver, output)
-    report = {"mode": args.mode, "model": args.model, "stats": stats, "dq": dq, "write_requested": bool(args.write)}
+    report: dict[str, Any] = {
+        "mode": args.mode,
+        "model": args.model,
+        "stats": stats,
+        "dq": dq,
+        "write_requested": bool(args.write),
+        "model_result_sample": sample_model_results(output),
+    }
     if args.write:
-        if args.mode == "dry-run":
-            raise RuntimeError("--write is not allowed in dry-run mode")
-        report["manifest"] = write_outputs(s3, bucket=args.bucket, silver=silver, enrichment=output, stats=stats, model=args.model, mode=args.mode)
+        if args.mode != "classify":
+            raise RuntimeError("--write is only permitted in classify mode")
+        if args.max_model_rows > 0:
+            raise RuntimeError("--write cannot be combined with --max-model-rows; partial model runs are review-only")
+        report["manifest"] = write_outputs(s3, bucket=args.bucket, silver=silver, enrichment=output, stats=stats, model=args.model)
+
     Path(args.report_path).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if dq["dq_status"] == "pass" else 1
