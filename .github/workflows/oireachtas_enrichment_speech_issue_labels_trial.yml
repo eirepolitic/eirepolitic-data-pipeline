@@ -34,7 +34,7 @@ jobs:
       - name: Run unified classifier readiness inventory
         run: |
           set -euo pipefail
-          python process/oireachtas_speech_issue_classifier.py \
+          python -m process.oireachtas_speech_issue_classifier \
             --mode readiness \
             --model gpt-5.6-luna \
             --report-path speech_issue_classifier_report.json
