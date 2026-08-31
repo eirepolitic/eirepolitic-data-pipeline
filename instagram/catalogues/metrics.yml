@@ -75,6 +75,54 @@ metrics:
     external_verification: internal_source_check
     version: 1
 
+  - metric_id: party_issue_share_overindex
+    display_name: Party issue share above cross-party average
+    description: January 2026 percentage-point difference between a party's category share of classified speeches and the unweighted mean category share across current party groupings.
+    status: draft
+    source_logical_keys:
+      - raw/members/oireachtas_members_34th_dail.csv
+      - processed/debates/debate_speeches_classified.csv
+    layer: processed
+    grain: party
+    measure_fields: [value]
+    dimension_fields: [party, label]
+    period_fields: [Debate Date]
+    mapping_config: null
+    freshness_expectation: monthly
+    source_note: Houses of the Oireachtas member/debate data with Eirepolitic issue classification. Zero category shares are included in the cross-party mean.
+    validation_rules:
+      required_output_fields: [party, label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+      require_member_speaker_match_manifest: true
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
+  - metric_id: party_issue_per_td_overindex
+    display_name: Party issue speeches per TD above cross-party average
+    description: January 2026 difference between a party's classified speeches per current TD in each category and the unweighted mean party rate for that category.
+    status: draft
+    source_logical_keys:
+      - raw/members/oireachtas_members_34th_dail.csv
+      - processed/debates/debate_speeches_classified.csv
+    layer: processed
+    grain: party
+    measure_fields: [value]
+    dimension_fields: [party, label]
+    period_fields: [Debate Date]
+    mapping_config: null
+    freshness_expectation: monthly
+    source_note: Houses of the Oireachtas member/debate data with Eirepolitic issue classification. Zero category rates are included in the cross-party mean.
+    validation_rules:
+      required_output_fields: [party, label, value]
+      minimum_rows: 1
+      non_negative_fields: [value]
+      require_member_speaker_match_manifest: true
+    privacy_classification: public_aggregate
+    external_verification: internal_source_check
+    version: 1
+
   - metric_id: member_party_counts
     display_name: Current member counts by party
     description: Count current Dáil members by party using the active unified-model compatibility output.
