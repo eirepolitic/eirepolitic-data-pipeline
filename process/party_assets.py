@@ -3,12 +3,6 @@
 
 This module is intentionally consumer-neutral. Instagram and future outputs should
 resolve party assets through this registry instead of embedding party-specific paths.
-
-Default registry:
-  configs/reference/party_assets_v1.csv
-
-Default S3 asset root:
-  s3://eirepolitic-data/processed/reference/party_assets/v1/
 """
 
 from __future__ import annotations
@@ -32,6 +26,7 @@ DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_ASSET_PREFIX = "processed/reference/party_assets/v1/assets/"
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 VALID_STATUSES = {"approved", "approved_fallback", "source_identified_pending_ingest", "pending_review"}
+GENERATED_SOURCE_TYPES = {"eirepolitic_generated_standin"}
 
 
 @dataclass(frozen=True)
@@ -49,12 +44,10 @@ class PartyAsset:
 
 
 def canonical_party_key(value: str) -> str:
-    """Match the commissioning party-key normalization contract."""
     value = (value or "").strip()
     ascii_value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
     ascii_value = ascii_value.lower().replace("%", "")
-    ascii_value = re.sub(r"[^a-z0-9]+", "-", ascii_value).strip("-")
-    return ascii_value
+    return re.sub(r"[^a-z0-9]+", "-", ascii_value).strip("-")
 
 
 def _aliases(raw: str) -> tuple[str, ...]:
@@ -117,7 +110,6 @@ def validate_registry(rows: Iterable[PartyAsset]) -> list[str]:
 
         if row.asset_status not in VALID_STATUSES:
             errors.append(f"{row.party_key}: invalid asset_status {row.asset_status!r}")
-
         if not row.party_name:
             errors.append(f"{row.party_key}: missing party_name")
         if not row.retrieval_date:
@@ -128,19 +120,24 @@ def validate_registry(rows: Iterable[PartyAsset]) -> list[str]:
         if row.asset_status == "approved_fallback":
             if not row.fallback_type:
                 errors.append(f"{row.party_key}: approved_fallback requires fallback_type")
-        else:
-            if not row.logo_s3_uri.startswith("s3://"):
-                errors.append(f"{row.party_key}: non-fallback row requires logo_s3_uri")
-            if not row.source_url.startswith("https://"):
-                errors.append(f"{row.party_key}: non-fallback row requires HTTPS source_url")
-            if not row.source_type:
-                errors.append(f"{row.party_key}: non-fallback row requires source_type")
+            continue
+
+        if not row.logo_s3_uri.startswith("s3://"):
+            errors.append(f"{row.party_key}: non-fallback row requires logo_s3_uri")
+        if not row.source_type:
+            errors.append(f"{row.party_key}: non-fallback row requires source_type")
+        elif row.source_type in GENERATED_SOURCE_TYPES:
+            if row.source_url:
+                errors.append(f"{row.party_key}: generated stand-in must not claim an external source_url")
+            if not row.fallback_type:
+                errors.append(f"{row.party_key}: generated stand-in requires fallback_type")
+        elif not row.source_url.startswith("https://"):
+            errors.append(f"{row.party_key}: external-source row requires HTTPS source_url")
 
     try:
         build_alias_index(rows)
     except ValueError as exc:
         errors.append(str(exc))
-
     return errors
 
 
@@ -167,16 +164,13 @@ def list_all_s3_keys(bucket: str, client=None) -> Iterable[str]:
 
 
 def audit_s3(rows: Iterable[PartyAsset], bucket: str = DEFAULT_BUCKET, client=None) -> dict:
-    """Read-only audit for existing image candidates and expected registry objects."""
     rows = list(rows)
     all_keys = list(list_all_s3_keys(bucket, client=client))
     image_keys = [key for key in all_keys if Path(key.lower()).suffix in IMAGE_EXTENSIONS]
-
     party_tokens = {
         row.party_key: {canonical_party_key(row.party_name), row.party_key, *(canonical_party_key(a) for a in row.party_aliases)}
         for row in rows
     }
-
     candidates: dict[str, list[str]] = {row.party_key: [] for row in rows}
     for key in image_keys:
         key_norm = canonical_party_key(key)
@@ -196,7 +190,6 @@ def audit_s3(rows: Iterable[PartyAsset], bucket: str = DEFAULT_BUCKET, client=No
             }
         else:
             expected[row.party_key] = {"uri": "", "bucket_matches": True, "exists": False}
-
     return {
         "bucket": bucket,
         "object_count": len(all_keys),
@@ -218,9 +211,9 @@ def _write_report(report: dict, output_path: str | None) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate or audit the shared party asset registry")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
-    parser.add_argument("--audit-s3", action="store_true", help="read-only scan of S3 for existing party image candidates")
+    parser.add_argument("--audit-s3", action="store_true")
     parser.add_argument("--bucket", default=os.getenv("S3_BUCKET", DEFAULT_BUCKET))
-    parser.add_argument("--output", help="optional JSON report path")
+    parser.add_argument("--output")
     args = parser.parse_args()
 
     rows = load_registry(args.registry)
@@ -230,27 +223,17 @@ def main() -> int:
         "party_count": len(rows),
         "validation_errors": errors,
         "parties": [
-            {
-                "party_key": row.party_key,
-                "party_name": row.party_name,
-                "asset_status": row.asset_status,
-                "logo_s3_uri": row.logo_s3_uri,
-            }
+            {"party_key": row.party_key, "party_name": row.party_name, "asset_status": row.asset_status, "logo_s3_uri": row.logo_s3_uri}
             for row in rows
         ],
     }
-
     audit_failed = False
     if args.audit_s3:
         try:
             report["s3_audit"] = audit_s3(rows, bucket=args.bucket)
         except Exception as exc:
             audit_failed = True
-            report["s3_audit_error"] = {
-                "type": type(exc).__name__,
-                "message": str(exc),
-            }
-
+            report["s3_audit_error"] = {"type": type(exc).__name__, "message": str(exc)}
     _write_report(report, args.output)
     return 1 if errors or audit_failed else 0
 
