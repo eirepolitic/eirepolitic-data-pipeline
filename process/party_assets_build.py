@@ -130,6 +130,17 @@ def validate_normalized(path: Path) -> list[str]:
     return errors
 
 
+def _draw_preview_background(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int]) -> None:
+    left, top, right, bottom = box
+    midpoint = (left + right) // 2
+    draw.rectangle((left, top, midpoint, bottom), fill="#f2f2f2")
+    draw.rectangle((midpoint + 1, top, right, bottom), fill="#263238")
+    draw.rectangle(box, outline="#9e9e9e", width=1)
+    label_font = _font(14, bold=True)
+    draw.text((left + 8, top + 8), "LIGHT", font=label_font, fill="#333333")
+    draw.text((midpoint + 8, top + 8), "DARK", font=label_font, fill="#f5f5f5")
+
+
 def build_contact_sheet(entries: list[dict[str, Any]], output: Path) -> None:
     rows = max(1, (len(entries) + CONTACT_COLUMNS - 1) // CONTACT_COLUMNS)
     sheet = Image.new("RGB", (CONTACT_COLUMNS * CONTACT_CELL_W, rows * CONTACT_CELL_H), "white")
@@ -145,15 +156,16 @@ def build_contact_sheet(entries: list[dict[str, Any]], output: Path) -> None:
         draw.rectangle((left, top, left + CONTACT_CELL_W - 1, top + CONTACT_CELL_H - 1), outline="black", width=1)
 
         preview_box = (left + 30, top + 30, left + CONTACT_CELL_W - 30, top + 355)
+        _draw_preview_background(draw, preview_box)
         if entry.get("normalized_path") and Path(entry["normalized_path"]).is_file():
             with Image.open(entry["normalized_path"]) as logo:
                 logo = logo.convert("RGBA")
-                logo.thumbnail((preview_box[2] - preview_box[0], preview_box[3] - preview_box[1]), Image.Resampling.LANCZOS)
+                logo.thumbnail((preview_box[2] - preview_box[0] - 24, preview_box[3] - preview_box[1] - 24), Image.Resampling.LANCZOS)
                 x = preview_box[0] + ((preview_box[2] - preview_box[0]) - logo.width) // 2
                 y = preview_box[1] + ((preview_box[3] - preview_box[1]) - logo.height) // 2
                 sheet.paste(logo, (x, y), logo)
         else:
-            draw.text((left + CONTACT_CELL_W // 2, top + 190), "NO PARTY LOGO", font=title_font, anchor="mm", fill="black")
+            draw.text((left + CONTACT_CELL_W // 2, top + 190), "NO PARTY LOGO", font=title_font, anchor="mm", fill="#d32f2f")
 
         draw.text((left + 20, top + 382), entry["party_name"], font=title_font, fill="black")
         draw.text((left + 20, top + 420), entry["party_key"], font=meta_font, fill="black")
