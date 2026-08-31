@@ -166,6 +166,7 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
 
     source_manifest = {
         "data_origin": "real_s3",
+        "source_batch_id": "classifier-current-2026-08-31",
         "source_bucket": S3_BUCKET,
         "member_key": MEMBER_KEY,
         "classified_key": CLASSIFIED_KEY,
