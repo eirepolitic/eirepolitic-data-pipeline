@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  guided-luna-benchmark:
+  luna-medium-benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -36,35 +36,37 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest tests.test_oireachtas_speech_issue_classifier -v
-      - name: Run guided Luna benchmark
+      - name: Run Luna medium-reasoning disagreement benchmark
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           set -euo pipefail
           test -f diagnostics/speech_classifier/latest_luna_benchmark.json
-          python -m process.oireachtas_speech_issue_luna_prompt_benchmark \
+          test -f diagnostics/speech_classifier/latest_model_control.json
+          python -m process.oireachtas_speech_issue_luna_medium_benchmark \
             --baseline-report diagnostics/speech_classifier/latest_luna_benchmark.json \
+            --control-report diagnostics/speech_classifier/latest_model_control.json \
             --model gpt-5.6-luna \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
-            --report-path speech_issue_luna_prompt_benchmark.json
+            --report-path speech_issue_luna_medium_benchmark.json
       - name: Persist benchmark
         if: always()
         run: |
-          if [[ -f speech_issue_luna_prompt_benchmark.json ]]; then
+          if [[ -f speech_issue_luna_medium_benchmark.json ]]; then
             mkdir -p diagnostics/speech_classifier
-            cp speech_issue_luna_prompt_benchmark.json diagnostics/speech_classifier/latest_luna_prompt_benchmark.json
+            cp speech_issue_luna_medium_benchmark.json diagnostics/speech_classifier/latest_luna_medium_benchmark.json
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add diagnostics/speech_classifier/latest_luna_prompt_benchmark.json
-            git commit -m "Record guided Luna benchmark" || true
+            git add diagnostics/speech_classifier/latest_luna_medium_benchmark.json
+            git commit -m "Record Luna medium benchmark" || true
             git push
           fi
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: guided-luna-benchmark-${{ github.run_id }}
-          path: speech_issue_luna_prompt_benchmark.json
+          name: luna-medium-benchmark-${{ github.run_id }}
+          path: speech_issue_luna_medium_benchmark.json
           if-no-files-found: warn
           retention-days: 180
