@@ -49,7 +49,7 @@ jobs:
         id: fetch
         continue-on-error: true
         run: >-
-          python process/party_assets_fetch.py
+          python -m process.party_assets_fetch
           --staging-root generated_party_asset_review/sources
           --allow-unresolved
           --output generated_party_asset_review/fetch_report.json
@@ -59,7 +59,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: >-
-          python process/party_assets_build.py
+          python -m process.party_assets_build
           --source-root generated_party_asset_review/sources
           --output-root generated_party_asset_review/build
 
