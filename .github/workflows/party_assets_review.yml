@@ -46,6 +46,8 @@ jobs:
           -v
 
       - name: Fetch direct authoritative source assets
+        id: fetch
+        continue-on-error: true
         run: >-
           python process/party_assets_fetch.py
           --staging-root generated_party_asset_review/sources
@@ -54,11 +56,41 @@ jobs:
 
       - name: Build normalized assets and contact sheet
         id: build
+        if: always()
         continue-on-error: true
         run: >-
           python process/party_assets_build.py
           --source-root generated_party_asset_review/sources
           --output-root generated_party_asset_review/build
+
+      - name: Summarize review status
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          fetch_path = Path("generated_party_asset_review/fetch_report.json")
+          if fetch_path.is_file():
+              fetch = json.loads(fetch_path.read_text(encoding="utf-8"))
+              print(f"Fetched: {fetch.get('fetched_count', 0)}")
+              print(f"Fallbacks: {fetch.get('fallback_count', 0)}")
+              print("Unresolved:", ", ".join(fetch.get("unresolved_parties", [])) or "none")
+              for error in fetch.get("errors", []):
+                  print("Fetch error:", error)
+          else:
+              print("Fetch report missing")
+
+          manifest_path = Path("generated_party_asset_review/build/manifest.json")
+          if manifest_path.is_file():
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+              built = [e["party_key"] for e in manifest.get("entries", []) if e.get("build_status") == "built"]
+              print("Built:", ", ".join(built) or "none")
+              for error in manifest.get("errors", []):
+                  print("Build error:", error)
+          else:
+              print("Build manifest missing")
+          PY
 
       - name: Upload party asset review artifact
         if: always()
@@ -69,19 +101,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Report unresolved party assets
-        if: steps.build.outcome == 'failure'
-        run: |
-          echo "Review artifact generated, but one or more party sources remain unresolved or invalid."
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          fetch = json.loads(Path("generated_party_asset_review/fetch_report.json").read_text(encoding="utf-8"))
-          print("Unresolved source parties:", ", ".join(fetch.get("unresolved_parties", [])) or "none")
-          manifest = Path("generated_party_asset_review/build/manifest.json")
-          if manifest.is_file():
-              build = json.loads(manifest.read_text(encoding="utf-8"))
-              for error in build.get("errors", []):
-                  print("-", error)
-          PY
+      - name: Fail if fetch or build is incomplete
+        if: steps.fetch.outcome == 'failure' || steps.build.outcome == 'failure'
+        run: exit 1
