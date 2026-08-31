@@ -239,7 +239,18 @@ def render(
         ax.set_xlim(0, x_limit)
         value_format = str(params.get("value_format", "integer"))
         for idx, value in enumerate(values):
-            value_label = f"{value:g}%" if value_format == "percent" else (f"{value:,.0f}" if math.isfinite(value) else "0")
+            if not math.isfinite(value):
+                value_label = "0"
+            elif value_format == "percent":
+                value_label = f"{value:g}%"
+            elif value_format == "plus_pp_1":
+                value_label = f"+{value:.1f} pp"
+            elif value_format == "plus_decimal_2":
+                value_label = f"+{value:.2f}"
+            elif value_format == "decimal_2":
+                value_label = f"{value:.2f}"
+            else:
+                value_label = f"{value:,.0f}"
             value_texts.append(
                 ax.annotate(
                     value_label,
