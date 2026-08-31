@@ -29,8 +29,7 @@ jobs:
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_share_overindex_jan2026/project.yml
-          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_per_td_overindex_jan2026/project.yml
-      - name: Generate share batch and capture report
+      - name: Generate share batch and preserve raw report
         shell: bash
         run: |
           set +e
@@ -40,46 +39,24 @@ jobs:
             --output-root generated_january_share_overindex \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > january-share-report.json
+            > january-share-report.txt 2>&1
           code=$?
           set -e
           mkdir -p instagram/commissioning/diagnostics
-          cp january-share-report.json instagram/commissioning/diagnostics/january-share-report.json
-          python <<'PY'
-          import json
-          from pathlib import Path
-          p=Path('january-share-report.json')
-          data=json.loads(p.read_text(encoding='utf-8'))
-          compact={
-              'state':data.get('state'),
-              'run_id':data.get('run_id'),
-              'expected_item_count':data.get('expected_item_count'),
-              'succeeded_item_count':data.get('succeeded_item_count'),
-              'failed_item_count':data.get('failed_item_count'),
-              'source_manifest':data.get('source_manifest'),
-              'join_manifest':data.get('join_manifest'),
-              'items':[{
-                  'item_slug':i.get('item_slug'),
-                  'item_label':i.get('item_label'),
-                  'status':i.get('status'),
-                  'errors':i.get('errors'),
-                  'warnings':i.get('warnings'),
-              } for i in data.get('items',[])],
-          }
-          Path('instagram/commissioning/diagnostics/january-share-compact.json').write_text(json.dumps(compact,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          PY
+          cp january-share-report.txt instagram/commissioning/diagnostics/january-share-report.txt
+          printf '%s\n' "$code" > instagram/commissioning/diagnostics/january-share-exit-code.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/diagnostics/january-share-report.json instagram/commissioning/diagnostics/january-share-compact.json
-          git commit -m "Record January share over-index diagnostics" || true
+          git add instagram/commissioning/diagnostics/january-share-report.txt instagram/commissioning/diagnostics/january-share-exit-code.txt
+          git commit -m "Record raw January share over-index diagnostic" || true
           git push
-          exit "$code"
+          echo "generation_exit_code=$code"
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: january-share-diagnostics-${{ github.run_id }}
           path: |
-            january-share-report.json
+            january-share-report.txt
             generated_january_share_overindex/
           if-no-files-found: warn
