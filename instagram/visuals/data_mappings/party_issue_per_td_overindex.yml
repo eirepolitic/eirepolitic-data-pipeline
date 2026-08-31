@@ -1,0 +1,31 @@
+mapping_id: party_issue_per_td_overindex
+review_only: true
+input:
+  mode: joined_sources
+  sources:
+    members:
+      mode: s3_csv
+      bucket: eirepolitic-data
+      key: raw/members/oireachtas_members_34th_dail.csv
+    debate_issues:
+      mode: s3_csv
+      bucket: eirepolitic-data
+      key: processed/debates/debate_speeches_classified.csv
+transforms:
+  - id: january_party_issue_per_td_overindex
+    operation: filter_join_rate_per_current_td_then_compare_unweighted_party_mean
+    period_start: 2026-01-01
+    period_end: 2026-01-31
+    member_name_candidates: [Full Name, Member Name, Name, full_name]
+    party_candidates: [Party, party, Party Name]
+    speaker_name_candidates: [Speaker Name, Speaker, speaker_name, Member Name]
+    issue_candidates: [PoliticalIssues, Issue Category, issue_category, Category, classification]
+    exclude_issue_values: [NONE]
+    category_metric: party_category_count / current_td_count
+    baseline_metric: unweighted_mean_party_category_rate_per_td_including_zeroes
+    output_metric: speeches_per_td_difference_from_baseline
+    keep_rows: above_average_only
+    max_rows: 7
+    output_label_field: label
+    output_value_field: value
+manifest_path: generated_factory_data/party_issue_per_td_overindex.manifest.json
