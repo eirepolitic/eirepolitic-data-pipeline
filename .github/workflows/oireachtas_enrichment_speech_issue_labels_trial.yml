@@ -1,56 +1,57 @@
-name: Oireachtas Speech Issue Labels Readiness (Legacy Alias)
+name: Speech Classifier Backfill Checkpoint Inspector
 
 on:
   workflow_dispatch:
 
-concurrency:
-  group: oireachtas-enrichment-speech-issue-labels-readiness
-  cancel-in-progress: false
-
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  readiness:
+  inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_BATCH_ID: speech-classifier-backfill-2026-08-31
+      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install dependencies
+      - name: Install minimal dependencies
+        run: python -m pip install boto3 pandas
+      - name: Inspect checkpoint
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Run unified classifier readiness inventory
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import boto3
+          from process.oireachtas_speech_issue_classifier import ENRICHMENT_CSV_KEY, read_s3_csv
+          s3 = boto3.client('s3', region_name='ca-central-1')
+          df = read_s3_csv(s3, bucket='eirepolitic-data', key=ENRICHMENT_CSV_KEY)
+          status = df['classification_status'].fillna('').value_counts().to_dict()
+          sources = df['issue_label_source'].fillna('').value_counts().to_dict()
+          report = {
+              'rows': len(df),
+              'status_counts': status,
+              'source_counts': sources,
+              'model_rows': int((df['issue_label_source'] == 'openai_model').sum()),
+              'pending_rows': int((df['classification_status'] == 'pending').sum()),
+              'failed_rows': int((df['classification_status'] == 'failed').sum()),
+              'max_debate_date': str(df['debate_date'].max()),
+          }
+          Path('diagnostics/speech_classifier/backfill_checkpoint_status.json').write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+      - name: Commit compact status
         run: |
-          set -euo pipefail
-          python -m process.oireachtas_speech_issue_classifier \
-            --mode readiness \
-            --model gpt-5.6-luna \
-            --report-path speech_issue_classifier_report.json
-      - name: Explain migration
-        run: |
-          {
-            echo '## Speech issue enrichment workflow migrated'
-            echo
-            echo 'This workflow is now a read-only alias for the unified classifier readiness inventory.'
-            echo 'It no longer rebuilds enrichment data from the legacy classified CSV.'
-            echo 'Use `Unified Speech Issue Classifier (Manual)` for Luna test classification and candidate creation.'
-          } >> "${GITHUB_STEP_SUMMARY}"
-      - name: Upload readiness evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: speech-issue-readiness-${{ github.run_id }}-${{ github.run_attempt }}
-          path: speech_issue_classifier_report.json
-          if-no-files-found: error
-          retention-days: 90
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/speech_classifier/backfill_checkpoint_status.json
+          git commit -m "Record backfill checkpoint status" || true
+          git push || true
