@@ -218,7 +218,7 @@ def render(
     )
     plot_bounds = [plot_left, PLOT_BOTTOM, PLOT_RIGHT - plot_left, PLOT_HEIGHT]
     ax = fig.add_axes(plot_bounds)
-    ax.set_facecolor(palette["panel"])
+    ax.set_facecolor(palette["background"])
 
     value_font_size = MAX_VALUE_FONT_SIZE
     if values and max(len(f"{value:,.0f}") for value in values) >= 7:
@@ -279,6 +279,7 @@ def render(
     ax.tick_params(axis="x", colors=palette["muted"], labelsize=AXIS_FONT_SIZE)
     for spine in ax.spines.values():
         spine.set_visible(False)
+    ax.axvline(0, color=palette["accent"], linewidth=1.4, alpha=0.75)
 
     source_note = str(sample.get("source_note") or "").strip()
     if source_note:

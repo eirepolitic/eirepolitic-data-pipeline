@@ -125,29 +125,44 @@ def build_party_context(record: dict[str, Any], project: dict[str, Any]) -> dict
 
 def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    image = Image.new("RGB", (1032, 1210), "#173d30")
+    image = Image.new("RGB", (1032, 1210), "#0f2f24")
     draw = ImageDraw.Draw(image)
     try:
-        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 124)
-        label_font = ImageFont.truetype("DejaVuSans.ttf", 38)
+        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 92)
+        label_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 30)
+        party_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 68)
+        small_font = ImageFont.truetype("DejaVuSans.ttf", 25)
     except OSError:
         number_font = ImageFont.load_default()
         label_font = ImageFont.load_default()
+        party_font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
 
-    draw.rounded_rectangle((34, 34, 998, 1176), radius=42, fill="#214a3b", outline="#d8b45f", width=5)
-    metrics = [
-        (context.get("member_count", 0), "CURRENT TDS"),
-        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),
-    ]
-    centers = [280, 650]
-    for (value, label), center_y in zip(metrics, centers):
-        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")
-        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")
+    cx, cy, radius = 516, 430, 225
+    draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline="#d8b45f", width=10)
+    party = str(context.get("party") or "").strip()
+    if party == "Fianna Fáil":
+        party_lines = ["FIANNA", "FÁIL"]
+    else:
+        words = party.split()
+        split = max(1, len(words) // 2)
+        party_lines = [" ".join(words[:split]), " ".join(words[split:])] if len(words) > 1 else [party]
+    if len(party_lines) == 1:
+        draw.text((cx, cy), party_lines[0], font=party_font, fill="#f4ead7", anchor="mm")
+    else:
+        draw.text((cx, cy - 46), party_lines[0], font=party_font, fill="#f4ead7", anchor="mm")
+        draw.text((cx, cy + 46), party_lines[1], font=party_font, fill="#f4ead7", anchor="mm")
+
+    draw.text((270, 820), f"{int(context.get('member_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((270, 895), "CURRENT TDS", font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((762, 820), f"{int(context.get('speech_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((762, 895), "CLASSIFIED SPEECHES", font=label_font, fill="#d8b45f", anchor="mm")
+
+    draw.line((215, 980, 817, 980), fill="#d8b45f", width=3)
+    draw.text((516, 1035), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")
     period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"
-    draw.text((516, 930), period, font=label_font, fill="#f4ead7", anchor="mm")
-    draw.text((516, 1000), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((516, 1083), period, font=small_font, fill="#f4ead7", anchor="mm")
     image.save(path, format="PNG")
-
 
 def render_party_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
     assets = item_dir / "assets"
