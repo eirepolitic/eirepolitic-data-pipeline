@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   commission:
@@ -29,8 +29,10 @@ jobs:
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
-      - name: Generate live commissioning batch
+      - name: Generate live commissioning batch and preserve diagnostics
+        shell: bash
         run: |
+          set +e
           python process/instagram_factory.py generate-batch \
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
@@ -38,56 +40,80 @@ jobs:
             --git-sha "$GITHUB_SHA" \
             --workflow-run-id "$GITHUB_RUN_ID" \
             > commissioning-batch-report.json
-      - name: Build review index
-        run: |
-          python process/instagram_factory.py build-review-index \
-            --run-root generated_party_commissioning \
-            > commissioning-review-index.json
-      - name: Print commissioning data summary
+          code=$?
+          set -e
+          echo "$code" > commissioning-generate-exit-code.txt
+          cat commissioning-batch-report.json
+      - name: Build diagnostic summary
         shell: bash
         run: |
           python <<'PY'
           import json
           from pathlib import Path
 
+          report_path = Path("commissioning-batch-report.json")
+          cli_report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
           root = Path("generated_party_commissioning")
-          run = json.loads((root / "run_manifest.json").read_text(encoding="utf-8"))
-          print("COMMISSIONING_RUN_SUMMARY_BEGIN")
-          print(json.dumps({
-              "project_id": run["project_id"],
-              "run_id": run["run_id"],
-              "git_sha": run["git_sha"],
-              "source_batch_id": run["source_batch_id"],
-              "state": run["state"],
-              "expected_item_count": run["expected_item_count"],
-              "succeeded_item_count": run["succeeded_item_count"],
-              "failed_item_count": run["failed_item_count"],
-              "source_manifest": run["source_manifest"],
-              "join_manifest": run["join_manifest"],
-          }, indent=2, sort_keys=True))
-          print("COMMISSIONING_RUN_SUMMARY_END")
-
-          candidates = []
-          for slug in run["item_order"]:
-              manifest_path = root / run["items"][slug]["manifest"]
-              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-              visual_path = root / "generated" / slug / "manifests" / "visual_manifest.json"
-              visual = json.loads(visual_path.read_text(encoding="utf-8")) if visual_path.exists() else {}
-              candidates.append({
-                  "slug": slug,
-                  "label": manifest.get("item_label"),
-                  "status": manifest.get("status"),
-                  "source_batch_id": manifest.get("source_batch_id"),
-                  "slides": [{"slide_id": s["slide_id"], "sha256": s["sha256"], "width": s["width"], "height": s["height"]} for s in manifest.get("slides", [])],
-                  "visual_manifest": visual,
-              })
-          summary = {"candidates": candidates}
-          Path("commissioning-candidates.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-          print("COMMISSIONING_CANDIDATES_BEGIN")
+          summary = {
+              "cli_report": cli_report,
+              "generate_exit_code": int(Path("commissioning-generate-exit-code.txt").read_text().strip()),
+          }
+          run_path = root / "run_manifest.json"
+          if run_path.exists():
+              run = json.loads(run_path.read_text(encoding="utf-8"))
+              summary["run"] = {
+                  "project_id": run.get("project_id"),
+                  "run_id": run.get("run_id"),
+                  "git_sha": run.get("git_sha"),
+                  "source_batch_id": run.get("source_batch_id"),
+                  "state": run.get("state"),
+                  "expected_item_count": run.get("expected_item_count"),
+                  "succeeded_item_count": run.get("succeeded_item_count"),
+                  "failed_item_count": run.get("failed_item_count"),
+                  "source_manifest": run.get("source_manifest"),
+                  "join_manifest": run.get("join_manifest"),
+                  "failures": run.get("failures"),
+              }
+              items = []
+              for slug in run.get("item_order", []):
+                  item_ref = (run.get("items") or {}).get(slug) or {}
+                  manifest_path = root / str(item_ref.get("manifest") or "")
+                  if not manifest_path.is_file():
+                      continue
+                  manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                  visual_path = root / "generated" / slug / "manifests" / "visual_manifest.json"
+                  visual = json.loads(visual_path.read_text(encoding="utf-8")) if visual_path.exists() else None
+                  items.append({
+                      "slug": slug,
+                      "label": manifest.get("item_label"),
+                      "status": manifest.get("status"),
+                      "errors": manifest.get("errors"),
+                      "source_batch_id": manifest.get("source_batch_id"),
+                      "slides": manifest.get("slides"),
+                      "visual_manifest": visual,
+                  })
+              summary["items"] = items
+          out = Path("instagram/commissioning")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "party_e2e_trial_latest.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           print(json.dumps(summary, indent=2, sort_keys=True))
-          print("COMMISSIONING_CANDIDATES_END")
           PY
-      - name: Upload commissioning batch
+      - name: Commit diagnostic summary
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/commissioning/party_e2e_trial_latest.json
+          git commit -m "Record Instagram commissioning batch diagnostics" || true
+          git push
+      - name: Build review index when batch exists
+        if: ${{ hashFiles('generated_party_commissioning/run_manifest.json') != '' }}
+        run: |
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_party_commissioning \
+            > commissioning-review-index.json || true
+      - name: Upload commissioning evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: instagram-party-commissioning-${{ github.run_id }}
@@ -95,5 +121,13 @@ jobs:
             generated_party_commissioning/
             commissioning-batch-report.json
             commissioning-review-index.json
-            commissioning-candidates.json
-          if-no-files-found: error
+            commissioning-generate-exit-code.txt
+            instagram/commissioning/party_e2e_trial_latest.json
+          if-no-files-found: warn
+      - name: Fail if generation failed
+        shell: bash
+        run: |
+          code=$(cat commissioning-generate-exit-code.txt)
+          if [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
