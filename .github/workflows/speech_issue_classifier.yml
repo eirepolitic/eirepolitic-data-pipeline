@@ -1,12 +1,29 @@
-name: Classify Political Issues (Manual)
+name: Unified Speech Issue Classifier (Manual)
 
 on:
   workflow_dispatch:
     inputs:
-      test_rows:
-        description: "Process only first N missing rows (0 = all)"
+      mode:
+        description: "Readiness = inventory only; classify = call OpenAI"
         required: true
-        default: "50"
+        default: readiness
+        type: choice
+        options: [readiness, dry-run, classify]
+      max_model_rows:
+        description: "Maximum OpenAI rows for a review test. 0 means all pending rows."
+        required: true
+        default: "25"
+        type: string
+      write_candidate:
+        description: "Write a complete classified candidate batch. Requires classify mode and max_model_rows=0."
+        required: true
+        default: false
+        type: boolean
+      model:
+        description: "OpenAI model"
+        required: true
+        default: gpt-5.6-luna
+        type: string
 
 concurrency:
   group: classify-political-issues
@@ -16,51 +33,120 @@ permissions:
   contents: read
 
 jobs:
-  classify:
+  classifier:
     runs-on: ubuntu-latest
     timeout-minutes: 720
-
-    # Make AWS creds available to ALL steps (fixes NoCredentialsError)
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      # If your AWS auth uses temporary credentials, uncomment:
-      # AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-
-      # Shared pipeline config
-      S3_BUCKET: "eirepolitic-data"
-      INPUT_KEY: "raw/debates/debate_speeches_extracted.csv"
-      OUTPUT_KEY: "processed/debates/debate_speeches_classified.csv"
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OPENAI_MODEL: ${{ inputs.model }}
+      OPENAI_REASONING_EFFORT: low
+      OPENAI_VERBOSITY: low
+      OIREACHTAS_BATCH_ID: ${{ inputs.write_candidate && format('speech-classifier-{0}-{1}', github.run_id, github.run_attempt) || '' }}
+      OIREACHTAS_PUBLISH_LATEST: ${{ inputs.write_candidate && 'true' || 'false' }}
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.12'
+          cache: pip
 
       - name: Install dependencies
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
-      - name: Run speech issue classifier
+      - name: Run classifier unit tests
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_oireachtas_speech_issue_classifier -v
+
+      - name: Validate write request
+        if: inputs.write_candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ '${{ inputs.mode }}' == 'classify' ]]
+          [[ '${{ inputs.max_model_rows }}' == '0' ]]
+          [[ -n "${OIREACHTAS_BATCH_ID}" ]]
+
+      - name: Seed candidate from current production
+        if: inputs.write_candidate
+        run: |
+          set -euo pipefail
+          python process/oireachtas_seed_candidate.py \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            | tee speech_classifier_seed.json
+
+      - name: Run unified classifier
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: "gpt-4.1-mini"   # or "gpt-5", "gpt-5-nano", "gpt-5.2"
-          OPENAI_REASONING_EFFORT: "low"
-          OPENAI_VERBOSITY: "low"
-          TEST_ROWS: ${{ inputs.test_rows }}
+        shell: bash
         run: |
-          python process/speech_issue_classifier.py
+          set -euo pipefail
+          args=(
+            --mode '${{ inputs.mode }}'
+            --max-model-rows '${{ inputs.max_model_rows }}'
+            --model '${{ inputs.model }}'
+            --reasoning-effort low
+            --verbosity low
+            --bucket "${S3_BUCKET}"
+            --region "${AWS_REGION}"
+            --report-path speech_issue_classifier_report.json
+          )
+          if [[ '${{ inputs.write_candidate }}' == 'true' ]]; then
+            args+=(--write)
+          fi
+          python process/oireachtas_speech_issue_classifier.py "${args[@]}"
 
-      - name: Convert classified CSV to Parquet
-        env:
-          CSV_KEY: "processed/debates/debate_speeches_classified.csv"
-          PARQUET_KEY: "processed/debates/parquets/debate_speeches_classified.parquet"
+      - name: Assemble complete candidate batch
+        if: inputs.write_candidate
         run: |
-          python process/debate_speeches_csv_to_parquet.py
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            assemble \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --required-table enrichment_speech_issue_labels \
+            | tee speech_classifier_batch_manifest.json
 
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Unified speech issue classifier'
+            echo
+            echo "- Mode: `${{ inputs.mode }}`"
+            echo "- Model: `${{ inputs.model }}`"
+            echo "- Max model rows: `${{ inputs.max_model_rows }}`"
+            echo "- Candidate write: `${{ inputs.write_candidate }}`"
+            echo "- Candidate batch: `${OIREACHTAS_BATCH_ID:-none}`"
+            if [[ -f speech_issue_classifier_report.json ]]; then
+              echo
+              echo '```json'
+              cat speech_issue_classifier_report.json
+              echo '```'
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload classifier evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speech-classifier-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            speech_issue_classifier_report.json
+            speech_classifier_seed.json
+            speech_classifier_batch_manifest.json
+          if-no-files-found: warn
+          retention-days: 180
