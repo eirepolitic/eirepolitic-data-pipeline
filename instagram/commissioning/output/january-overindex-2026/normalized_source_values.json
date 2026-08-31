@@ -8,6 +8,7 @@
   },
   "share_source_manifest": {
     "data_origin": "real_s3",
+    "source_batch_id": "classifier-current-2026-08-31",
     "source_bucket": "eirepolitic-data",
     "member_key": "raw/members/oireachtas_members_34th_dail.csv",
     "classified_key": "processed/debates/debate_speeches_classified.csv",
@@ -17,7 +18,14 @@
     "matched_classified_rows": 2378,
     "party_count": 11,
     "category_count": 24,
-    "mode": "share_pp"
+    "mode": "share_pp",
+    "classified_source": {
+      "resolution": {
+        "batch_id": "classifier-current-2026-08-31",
+        "bucket": "eirepolitic-data",
+        "key": "processed/debates/debate_speeches_classified.csv"
+      }
+    }
   },
   "share_join_manifest": {
     "current_member_rows": 176,
@@ -27,6 +35,7 @@
   },
   "per_td_source_manifest": {
     "data_origin": "real_s3",
+    "source_batch_id": "classifier-current-2026-08-31",
     "source_bucket": "eirepolitic-data",
     "member_key": "raw/members/oireachtas_members_34th_dail.csv",
     "classified_key": "processed/debates/debate_speeches_classified.csv",
@@ -36,7 +45,14 @@
     "matched_classified_rows": 2378,
     "party_count": 11,
     "category_count": 24,
-    "mode": "per_td"
+    "mode": "per_td",
+    "classified_source": {
+      "resolution": {
+        "batch_id": "classifier-current-2026-08-31",
+        "bucket": "eirepolitic-data",
+        "key": "processed/debates/debate_speeches_classified.csv"
+      }
+    }
   },
   "per_td_join_manifest": {
     "current_member_rows": 176,
@@ -113,7 +129,7 @@
     },
     {
       "party": "Aontú",
-      "party_key": "aont",
+      "party_key": "aontu",
       "member_count": 2,
       "speech_count": 38,
       "period_start": "2026-01-01",
@@ -179,7 +195,7 @@
     },
     {
       "party": "Fianna Fáil",
-      "party_key": "fianna-f-il",
+      "party_key": "fianna-fail",
       "member_count": 48,
       "speech_count": 770,
       "period_start": "2026-01-01",
@@ -634,7 +650,7 @@
     },
     {
       "party": "Sinn Féin",
-      "party_key": "sinn-f-in",
+      "party_key": "sinn-fein",
       "member_count": 39,
       "speech_count": 471,
       "period_start": "2026-01-01",
@@ -820,7 +836,7 @@
     },
     {
       "party": "Aontú",
-      "party_key": "aont",
+      "party_key": "aontu",
       "member_count": 2,
       "speech_count": 38,
       "period_start": "2026-01-01",
@@ -886,7 +902,7 @@
     },
     {
       "party": "Fianna Fáil",
-      "party_key": "fianna-f-il",
+      "party_key": "fianna-fail",
       "member_count": 48,
       "speech_count": 770,
       "period_start": "2026-01-01",
@@ -1327,7 +1343,7 @@
     },
     {
       "party": "Sinn Féin",
-      "party_key": "sinn-f-in",
+      "party_key": "sinn-fein",
       "member_count": 39,
       "speech_count": 471,
       "period_start": "2026-01-01",

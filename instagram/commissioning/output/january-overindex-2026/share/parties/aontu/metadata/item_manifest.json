@@ -1,25 +1,25 @@
 {
   "project_id": "party_issue_share_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_share_overindex_jan2026-v1-d33809de3e9d",
+  "run_id": "party_issue_share_overindex_jan2026-v1-ff48c4aba419",
   "grain": "party",
-  "item_key": "fianna-f-il",
+  "item_key": "aontu",
   "item_key_fields": {
-    "party_key": "fianna-f-il"
+    "party_key": "aontu"
   },
-  "item_label": "Fianna Fáil",
-  "item_slug": "fianna-f-il",
+  "item_label": "Aontú",
+  "item_slug": "aontu",
   "status": "succeeded",
   "review_state": "unreviewed",
   "no_publication": true,
-  "source_batch_id": "local-fixture",
+  "source_batch_id": "classifier-current-2026-08-31",
   "slides": [
     {
       "slide_id": "cover",
       "order": 1,
       "layout_id": "title_text_media_v1",
-      "path": "generated/fianna-f-il/slides/01_cover.png",
-      "sha256": "c6d5c65ff154a0c08094739aeb0d2c64d04731570fc4fffbdb2381f7a3e1a0a3",
+      "path": "generated/aontu/slides/01_cover.png",
+      "sha256": "e84ee059ddde18fe3c287b957659f3de9065c0c140b85404a60fd7f6443d9f55",
       "width": 1080,
       "height": 1350,
       "warnings": []
@@ -28,32 +28,32 @@
       "slide_id": "issue_profile",
       "order": 2,
       "layout_id": "title_text_media_v1",
-      "path": "generated/fianna-f-il/slides/02_issue_profile.png",
-      "sha256": "3934bee2070dcf3c83a0ca43dfb676ecb2e0188b1ba55b20d30d14d6942c75da",
+      "path": "generated/aontu/slides/02_issue_profile.png",
+      "sha256": "708f145003ba48163564409bfc1c29004202708ef7406f7c8d1ecca2d29f0c69",
       "width": 1080,
       "height": 1350,
       "warnings": []
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:34:58.275337+00:00",
+  "generated_at": "2026-08-31T22:37:44.018259+00:00",
   "visual_manifest": {
     "success": true,
-    "visual_id": "fianna-f-il-share_pp",
+    "visual_id": "aontu-share_pp",
     "template_id": "horizontal_bar_draft_v1",
     "renderer": "horizontal_bar",
-    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-f-il/assets/visual.png",
-    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-f-il/metadata/visual.json",
+    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aontu/assets/visual.png",
+    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aontu/metadata/visual.json",
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
-      0.4053718507751938,
+      0.42,
       0.14,
-      0.5646281492248062,
+      0.55,
       0.78
     ],
     "plot_vertical_fill_ratio": 0.78,
-    "plot_area_ratio": 0.4404,
+    "plot_area_ratio": 0.429,
     "readability": {
       "category_label_font_size": 18,
       "category_label_font_size_requested": 18,
@@ -66,39 +66,25 @@
       "axis_font_size": 12,
       "bar_thickness_px": 83.59,
       "max_wrapped_label_lines": 3,
-      "max_value_label_x_ratio": 0.961,
+      "max_value_label_x_ratio": 0.9555,
       "displayed_item_count": 7,
-      "max_category_label_width_px": 376.34,
-      "plot_left_ratio": 0.4054,
+      "max_category_label_width_px": 397.17,
+      "plot_left_ratio": 0.42,
       "category_text_clipped_count": 0,
       "value_text_clipped_count": 0,
       "truncated_label_count": 0,
       "category_text_bounds": [
         {
-          "raw_label": "Education",
-          "rendered_label": "Education",
+          "raw_label": "Agriculture",
+          "rendered_label": "Agriculture",
           "font_size": 18,
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            214.76,
+            208.68,
             1006.61,
-            403.76,
+            418.86,
             1044.62
-          ],
-          "clipped_to_figure": false
-        },
-        {
-          "raw_label": "Sports and Recreation",
-          "rendered_label": "Sports and\nRecreation",
-          "font_size": 18,
-          "line_count": 2,
-          "truncated": false,
-          "bbox_px": [
-            198.76,
-            848.62,
-            403.76,
-            939.65
           ],
           "clipped_to_figure": false
         },
@@ -109,52 +95,52 @@
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            118.76,
-            719.01,
-            403.76,
-            810.04
+            133.86,
+            848.62,
+            418.86,
+            939.65
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "International Affairs and Foreign Aid",
-          "rendered_label": "International Affairs\nand Foreign Aid",
+          "raw_label": "Foreign Trade",
+          "rendered_label": "Foreign Trade",
           "font_size": 18,
-          "line_count": 2,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            27.42,
-            589.4,
-            403.76,
-            680.43
+            162.54,
+            747.4,
+            418.86,
+            785.41
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Government Operations",
-          "rendered_label": "Government\nOperations",
+          "raw_label": "Defense",
+          "rendered_label": "Defense",
           "font_size": 18,
-          "line_count": 2,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            168.42,
-            459.8,
-            403.76,
-            550.83
+            263.86,
+            617.79,
+            418.86,
+            655.8
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "State and Local Government Administration",
-          "rendered_label": "State and Local\nGovernment\nAdministration",
+          "raw_label": "Housing and Community Development",
+          "rendered_label": "Housing and\nCommunity\nDevelopment",
           "font_size": 18,
           "line_count": 3,
           "truncated": false,
           "bbox_px": [
-            110.42,
-            307.43,
-            403.76,
-            443.98
+            164.86,
+            437.04,
+            418.86,
+            573.59
           ],
           "clipped_to_figure": false
         },
@@ -165,101 +151,115 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            85.59,
-            228.97,
-            403.76,
-            266.98
+            100.68,
+            358.58,
+            418.86,
+            396.59
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Banking/Finance and Domestic Commerce",
+          "rendered_label": "Banking/Finance and\nDomestic Commerce",
+          "font_size": 18,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            21.68,
+            200.58,
+            418.86,
+            291.61
           ],
           "clipped_to_figure": false
         }
       ],
       "value_text_bounds": [
         {
-          "value": 6.059312947222455,
-          "text": "+6.1 pp",
+          "value": 11.405515761504217,
+          "text": "+11.4 pp",
           "font_size": 15,
           "bbox_px": [
-            841.29,
+            816.76,
             1014.5,
-            978.29,
+            975.76,
             1045.75
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 4.0352496197196155,
-          "text": "+4.0 pp",
+          "value": 7.164476424505212,
+          "text": "+7.2 pp",
           "font_size": 15,
           "bbox_px": [
-            705.58,
+            680.42,
             884.89,
-            842.58,
+            817.42,
             916.14
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 3.9724053376972823,
-          "text": "+4.0 pp",
+          "value": 4.996949105658392,
+          "text": "+5.0 pp",
           "font_size": 15,
           "bbox_px": [
-            701.36,
+            610.74,
             755.28,
-            838.36,
+            747.74,
             786.53
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 1.072040632416861,
-          "text": "+1.1 pp",
+          "value": 4.523864295803853,
+          "text": "+4.5 pp",
           "font_size": 15,
           "bbox_px": [
-            506.89,
+            595.54,
             625.68,
-            643.89,
+            732.54,
             656.93
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 0.8705475007009398,
-          "text": "+0.9 pp",
+          "value": 3.0649814685989876,
+          "text": "+3.1 pp",
           "font_size": 15,
           "bbox_px": [
-            493.38,
+            548.64,
             496.07,
-            630.38,
+            685.64,
             527.32
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 0.3771618263820622,
-          "text": "+0.4 pp",
+          "value": 1.985285971811638,
+          "text": "+2.0 pp",
           "font_size": 15,
           "bbox_px": [
-            460.3,
+            513.93,
             366.46,
-            597.3,
+            650.93,
             397.71
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 0.13292780366399642,
-          "text": "+0.1 pp",
+          "value": 1.6530983217238755,
+          "text": "+1.7 pp",
           "font_size": 15,
           "bbox_px": [
-            443.92,
+            503.25,
             236.85,
-            580.92,
+            640.25,
             268.1
           ],
           "clipped_to_axes": false,
@@ -268,6 +268,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:34:58.003646+00:00"
+    "created_at": "2026-08-31T22:37:43.829405+00:00"
   }
 }

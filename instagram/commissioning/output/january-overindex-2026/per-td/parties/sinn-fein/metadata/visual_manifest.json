@@ -1,20 +1,20 @@
 {
   "success": true,
-  "visual_id": "fianna-f-il-per_td",
+  "visual_id": "sinn-fein-per_td",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/fianna-f-il/assets/visual.png",
-  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/fianna-f-il/metadata/visual.json",
+  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-fein/assets/visual.png",
+  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-fein/metadata/visual.json",
   "width": 1032,
   "height": 1210,
   "plot_bounds": [
-    0.4001937984496124,
+    0.42,
     0.14,
-    0.5698062015503875,
+    0.55,
     0.78
   ],
   "plot_vertical_fill_ratio": 0.78,
-  "plot_area_ratio": 0.4444,
+  "plot_area_ratio": 0.429,
   "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
@@ -26,40 +26,68 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
-    "max_wrapped_label_lines": 3,
-    "max_value_label_x_ratio": 0.9544,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9565,
     "displayed_item_count": 7,
-    "max_category_label_width_px": 371.0,
-    "plot_left_ratio": 0.4002,
+    "max_category_label_width_px": 397.17,
+    "plot_left_ratio": 0.42,
     "category_text_clipped_count": 0,
     "value_text_clipped_count": 0,
     "truncated_label_count": 0,
     "category_text_bounds": [
       {
-        "raw_label": "Education",
-        "rendered_label": "Education",
+        "raw_label": "Health",
+        "rendered_label": "Health",
         "font_size": 18,
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          209.42,
+          293.86,
           1006.61,
-          398.42,
+          418.86,
           1044.62
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Law/Crime and Family Issues",
-        "rendered_label": "Law/Crime and\nFamily Issues",
+        "raw_label": "Culture and Arts",
+        "rendered_label": "Culture and Arts",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          107.68,
+          877.01,
+          418.86,
+          915.01
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Public Lands and Water Management",
+        "rendered_label": "Public Lands and\nWater Management",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          113.42,
-          848.62,
-          398.42,
-          939.65
+          45.26,
+          719.26,
+          418.86,
+          809.79
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Agriculture",
+        "rendered_label": "Agriculture",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          208.68,
+          617.79,
+          418.86,
+          655.8
         ],
         "clipped_to_figure": false
       },
@@ -70,157 +98,129 @@
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          193.42,
-          719.01,
-          398.42,
-          810.04
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Government Operations",
-        "rendered_label": "Government\nOperations",
-        "font_size": 18,
-        "line_count": 2,
-        "truncated": false,
-        "bbox_px": [
-          163.07,
-          589.4,
-          398.42,
-          680.43
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Labor, Employment and Immigration",
-        "rendered_label": "Labor, Employment\nand Immigration",
-        "font_size": 18,
-        "line_count": 2,
-        "truncated": false,
-        "bbox_px": [
-          27.42,
+          213.86,
           459.8,
-          398.42,
+          418.86,
           550.83
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "State and Local Government Administration",
-        "rendered_label": "State and Local\nGovernment\nAdministration",
+        "raw_label": "Banking/Finance and Domestic Commerce",
+        "rendered_label": "Banking/Finance and\nDomestic Commerce",
         "font_size": 18,
-        "line_count": 3,
+        "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          105.07,
-          307.43,
-          398.42,
-          443.98
+          21.68,
+          330.19,
+          418.86,
+          421.22
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Energy",
-        "rendered_label": "Energy",
+        "raw_label": "Other/Miscellaneous",
+        "rendered_label": "Other/Miscellaneous",
         "font_size": 18,
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          266.07,
-          229.22,
-          398.42,
-          266.72
+          30.86,
+          228.97,
+          418.86,
+          266.98
         ],
         "clipped_to_figure": false
       }
     ],
     "value_text_bounds": [
       {
-        "value": 1.1284832591650773,
-        "text": "+1.13/TD",
+        "value": 0.3798209366391183,
+        "text": "+0.38/TD",
         "font_size": 15,
         "bbox_px": [
-          812.2,
+          814.37,
           1014.5,
-          974.2,
+          976.37,
           1045.75
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.6673686162322527,
-        "text": "+0.67/TD",
+        "value": 0.20414812460267004,
+        "text": "+0.20/TD",
         "font_size": 15,
         "bbox_px": [
-          655.89,
+          645.89,
           884.89,
-          817.89,
+          807.89,
           916.14
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.6609186268277177,
-        "text": "+0.66/TD",
+        "value": 0.17881171858444583,
+        "text": "+0.18/TD",
         "font_size": 15,
         "bbox_px": [
-          653.7,
+          621.59,
           755.28,
-          815.7,
+          783.59,
           786.53
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.1618854630218266,
-        "text": "+0.16/TD",
+        "value": 0.1532766475948295,
+        "text": "+0.15/TD",
         "font_size": 15,
         "bbox_px": [
-          484.54,
+          597.1,
           625.68,
-          646.54,
+          759.1,
           656.93
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.12784753125662207,
-        "text": "+0.13/TD",
+        "value": 0.06957247298156387,
+        "text": "+0.07/TD",
         "font_size": 15,
         "bbox_px": [
-          473.0,
+          516.83,
           496.07,
-          635.0,
+          678.83,
           527.32
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.0641025641025641,
+        "value": 0.05914918414918416,
         "text": "+0.06/TD",
         "font_size": 15,
         "bbox_px": [
-          451.4,
+          506.83,
           366.46,
-          613.4,
+          668.83,
           397.71
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.041123649078194546,
-        "text": "+0.04/TD",
+        "value": 0.015588578088578095,
+        "text": "+0.02/TD",
         "font_size": 15,
         "bbox_px": [
-          443.61,
+          465.06,
           236.85,
-          605.61,
+          627.06,
           268.1
         ],
         "clipped_to_axes": false,
@@ -229,5 +229,5 @@
     ]
   },
   "warnings": [],
-  "created_at": "2026-08-31T22:35:09.106877+00:00"
+  "created_at": "2026-08-31T22:37:56.580742+00:00"
 }

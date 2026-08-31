@@ -1,20 +1,20 @@
 {
   "success": true,
-  "visual_id": "fianna-f-il-share_pp",
+  "visual_id": "fianna-fail-per_td",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-f-il/assets/visual.png",
-  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-f-il/metadata/visual.json",
+  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/fianna-fail/assets/visual.png",
+  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/fianna-fail/metadata/visual.json",
   "width": 1032,
   "height": 1210,
   "plot_bounds": [
-    0.4053718507751938,
+    0.4001937984496124,
     0.14,
-    0.5646281492248062,
+    0.5698062015503875,
     0.78
   ],
   "plot_vertical_fill_ratio": 0.78,
-  "plot_area_ratio": 0.4404,
+  "plot_area_ratio": 0.4444,
   "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
@@ -27,10 +27,10 @@
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
     "max_wrapped_label_lines": 3,
-    "max_value_label_x_ratio": 0.961,
+    "max_value_label_x_ratio": 0.9544,
     "displayed_item_count": 7,
-    "max_category_label_width_px": 376.34,
-    "plot_left_ratio": 0.4054,
+    "max_category_label_width_px": 371.0,
+    "plot_left_ratio": 0.4002,
     "category_text_clipped_count": 0,
     "value_text_clipped_count": 0,
     "truncated_label_count": 0,
@@ -42,24 +42,10 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          214.76,
+          209.42,
           1006.61,
-          403.76,
+          398.42,
           1044.62
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Sports and Recreation",
-        "rendered_label": "Sports and\nRecreation",
-        "font_size": 18,
-        "line_count": 2,
-        "truncated": false,
-        "bbox_px": [
-          198.76,
-          848.62,
-          403.76,
-          939.65
         ],
         "clipped_to_figure": false
       },
@@ -70,24 +56,24 @@
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          118.76,
-          719.01,
-          403.76,
-          810.04
+          113.42,
+          848.62,
+          398.42,
+          939.65
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "International Affairs and Foreign Aid",
-        "rendered_label": "International Affairs\nand Foreign Aid",
+        "raw_label": "Sports and Recreation",
+        "rendered_label": "Sports and\nRecreation",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          27.42,
-          589.4,
-          403.76,
-          680.43
+          193.42,
+          719.01,
+          398.42,
+          810.04
         ],
         "clipped_to_figure": false
       },
@@ -98,9 +84,23 @@
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          168.42,
+          163.07,
+          589.4,
+          398.42,
+          680.43
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Labor, Employment and Immigration",
+        "rendered_label": "Labor, Employment\nand Immigration",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
           459.8,
-          403.76,
+          398.42,
           550.83
         ],
         "clipped_to_figure": false
@@ -112,115 +112,115 @@
         "line_count": 3,
         "truncated": false,
         "bbox_px": [
-          110.42,
+          105.07,
           307.43,
-          403.76,
+          398.42,
           443.98
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Macroeconomics",
-        "rendered_label": "Macroeconomics",
+        "raw_label": "Energy",
+        "rendered_label": "Energy",
         "font_size": 18,
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          85.59,
-          228.97,
-          403.76,
-          266.98
+          266.07,
+          229.22,
+          398.42,
+          266.72
         ],
         "clipped_to_figure": false
       }
     ],
     "value_text_bounds": [
       {
-        "value": 6.059312947222455,
-        "text": "+6.1 pp",
+        "value": 1.1284832591650773,
+        "text": "+1.13/TD",
         "font_size": 15,
         "bbox_px": [
-          841.29,
+          812.2,
           1014.5,
-          978.29,
+          974.2,
           1045.75
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 4.0352496197196155,
-        "text": "+4.0 pp",
+        "value": 0.6673686162322527,
+        "text": "+0.67/TD",
         "font_size": 15,
         "bbox_px": [
-          705.58,
+          655.89,
           884.89,
-          842.58,
+          817.89,
           916.14
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 3.9724053376972823,
-        "text": "+4.0 pp",
+        "value": 0.6609186268277177,
+        "text": "+0.66/TD",
         "font_size": 15,
         "bbox_px": [
-          701.36,
+          653.7,
           755.28,
-          838.36,
+          815.7,
           786.53
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 1.072040632416861,
-        "text": "+1.1 pp",
+        "value": 0.1618854630218266,
+        "text": "+0.16/TD",
         "font_size": 15,
         "bbox_px": [
-          506.89,
+          484.54,
           625.68,
-          643.89,
+          646.54,
           656.93
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.8705475007009398,
-        "text": "+0.9 pp",
+        "value": 0.12784753125662207,
+        "text": "+0.13/TD",
         "font_size": 15,
         "bbox_px": [
-          493.38,
+          473.0,
           496.07,
-          630.38,
+          635.0,
           527.32
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.3771618263820622,
-        "text": "+0.4 pp",
+        "value": 0.0641025641025641,
+        "text": "+0.06/TD",
         "font_size": 15,
         "bbox_px": [
-          460.3,
+          451.4,
           366.46,
-          597.3,
+          613.4,
           397.71
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.13292780366399642,
-        "text": "+0.1 pp",
+        "value": 0.041123649078194546,
+        "text": "+0.04/TD",
         "font_size": 15,
         "bbox_px": [
-          443.92,
+          443.61,
           236.85,
-          580.92,
+          605.61,
           268.1
         ],
         "clipped_to_axes": false,
@@ -229,5 +229,5 @@
     ]
   },
   "warnings": [],
-  "created_at": "2026-08-31T22:34:58.003646+00:00"
+  "created_at": "2026-08-31T22:37:53.104552+00:00"
 }

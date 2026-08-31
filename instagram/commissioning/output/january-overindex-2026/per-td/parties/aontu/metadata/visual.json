@@ -1,12 +1,60 @@
 {
-  "success": true,
-  "visual_id": "sinn-f-in-per_td",
+  "visual_id": "aontu-per_td",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-f-in/assets/visual.png",
-  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-f-in/metadata/visual.json",
-  "width": 1032,
-  "height": 1210,
+  "created_at": "2026-08-31T22:37:52.591747+00:00",
+  "input": {
+    "data_origin": "real_s3",
+    "source_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "mode": "per_td"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Agriculture",
+      "value": 2.4481484424666244,
+      "group": ""
+    },
+    {
+      "label": "Law/Crime and Family Issues",
+      "value": 1.6465352828989193,
+      "group": ""
+    },
+    {
+      "label": "Foreign Trade",
+      "value": 1.0373887476160202,
+      "group": ""
+    },
+    {
+      "label": "Housing and Community Development",
+      "value": 0.9546646535282899,
+      "group": ""
+    },
+    {
+      "label": "Defense",
+      "value": 0.8570804195804196,
+      "group": ""
+    },
+    {
+      "label": "Macroeconomics",
+      "value": 0.38469485060394154,
+      "group": ""
+    },
+    {
+      "label": "Banking/Finance and Domestic Commerce",
+      "value": 0.3283799533799534,
+      "group": ""
+    }
+  ],
   "plot_bounds": [
     0.42,
     0.14,
@@ -26,7 +74,7 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
-    "max_wrapped_label_lines": 2,
+    "max_wrapped_label_lines": 3,
     "max_value_label_x_ratio": 0.9565,
     "displayed_item_count": 7,
     "max_category_label_width_px": 397.17,
@@ -36,48 +84,6 @@
     "truncated_label_count": 0,
     "category_text_bounds": [
       {
-        "raw_label": "Health",
-        "rendered_label": "Health",
-        "font_size": 18,
-        "line_count": 1,
-        "truncated": false,
-        "bbox_px": [
-          293.86,
-          1006.61,
-          418.86,
-          1044.62
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Culture and Arts",
-        "rendered_label": "Culture and Arts",
-        "font_size": 18,
-        "line_count": 1,
-        "truncated": false,
-        "bbox_px": [
-          107.68,
-          877.01,
-          418.86,
-          915.01
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Public Lands and Water Management",
-        "rendered_label": "Public Lands and\nWater Management",
-        "font_size": 18,
-        "line_count": 2,
-        "truncated": false,
-        "bbox_px": [
-          45.26,
-          719.26,
-          418.86,
-          809.79
-        ],
-        "clipped_to_figure": false
-      },
-      {
         "raw_label": "Agriculture",
         "rendered_label": "Agriculture",
         "font_size": 18,
@@ -85,23 +91,79 @@
         "truncated": false,
         "bbox_px": [
           208.68,
-          617.79,
+          1006.61,
           418.86,
-          655.8
+          1044.62
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Sports and Recreation",
-        "rendered_label": "Sports and\nRecreation",
+        "raw_label": "Law/Crime and Family Issues",
+        "rendered_label": "Law/Crime and\nFamily Issues",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          213.86,
-          459.8,
+          133.86,
+          848.62,
           418.86,
-          550.83
+          939.65
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Foreign Trade",
+        "rendered_label": "Foreign Trade",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          162.54,
+          747.4,
+          418.86,
+          785.41
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Housing and Community Development",
+        "rendered_label": "Housing and\nCommunity\nDevelopment",
+        "font_size": 18,
+        "line_count": 3,
+        "truncated": false,
+        "bbox_px": [
+          164.86,
+          566.64,
+          418.86,
+          703.19
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Defense",
+        "rendered_label": "Defense",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          263.86,
+          488.18,
+          418.86,
+          526.19
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Macroeconomics",
+        "rendered_label": "Macroeconomics",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          100.68,
+          358.58,
+          418.86,
+          396.59
         ],
         "clipped_to_figure": false
       },
@@ -113,31 +175,17 @@
         "truncated": false,
         "bbox_px": [
           21.68,
-          330.19,
+          200.58,
           418.86,
-          421.22
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Other/Miscellaneous",
-        "rendered_label": "Other/Miscellaneous",
-        "font_size": 18,
-        "line_count": 1,
-        "truncated": false,
-        "bbox_px": [
-          30.86,
-          228.97,
-          418.86,
-          266.98
+          291.61
         ],
         "clipped_to_figure": false
       }
     ],
     "value_text_bounds": [
       {
-        "value": 0.3798209366391183,
-        "text": "+0.38/TD",
+        "value": 2.4481484424666244,
+        "text": "+2.45/TD",
         "font_size": 15,
         "bbox_px": [
           814.37,
@@ -149,78 +197,78 @@
         "clipped_to_figure": false
       },
       {
-        "value": 0.20414812460267004,
-        "text": "+0.20/TD",
+        "value": 1.6465352828989193,
+        "text": "+1.65/TD",
         "font_size": 15,
         "bbox_px": [
-          645.89,
+          695.09,
           884.89,
-          807.89,
+          857.09,
           916.14
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.17881171858444583,
-        "text": "+0.18/TD",
+        "value": 1.0373887476160202,
+        "text": "+1.04/TD",
         "font_size": 15,
         "bbox_px": [
-          621.59,
+          604.46,
           755.28,
-          783.59,
+          766.46,
           786.53
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.1532766475948295,
-        "text": "+0.15/TD",
+        "value": 0.9546646535282899,
+        "text": "+0.95/TD",
         "font_size": 15,
         "bbox_px": [
-          597.1,
+          592.15,
           625.68,
-          759.1,
+          754.15,
           656.93
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.06957247298156387,
-        "text": "+0.07/TD",
+        "value": 0.8570804195804196,
+        "text": "+0.86/TD",
         "font_size": 15,
         "bbox_px": [
-          516.83,
+          577.63,
           496.07,
-          678.83,
+          739.63,
           527.32
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.05914918414918416,
-        "text": "+0.06/TD",
+        "value": 0.38469485060394154,
+        "text": "+0.38/TD",
         "font_size": 15,
         "bbox_px": [
-          506.83,
+          507.35,
           366.46,
-          668.83,
+          669.35,
           397.71
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 0.015588578088578095,
-        "text": "+0.02/TD",
+        "value": 0.3283799533799534,
+        "text": "+0.33/TD",
         "font_size": 15,
         "bbox_px": [
-          465.06,
+          498.97,
           236.85,
-          627.06,
+          660.97,
           268.1
         ],
         "clipped_to_axes": false,
@@ -228,6 +276,5 @@
       }
     ]
   },
-  "warnings": [],
-  "created_at": "2026-08-31T22:35:14.070450+00:00"
+  "warnings": []
 }

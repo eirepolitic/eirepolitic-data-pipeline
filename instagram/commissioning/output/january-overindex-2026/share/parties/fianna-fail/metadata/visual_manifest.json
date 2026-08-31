@@ -1,60 +1,12 @@
 {
-  "visual_id": "fianna-f-il-share_pp",
+  "success": true,
+  "visual_id": "fianna-fail-share_pp",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-08-31T22:34:58.003646+00:00",
-  "input": {
-    "data_origin": "real_s3",
-    "source_key": "processed/debates/debate_speeches_classified.csv",
-    "period_start": "2026-01-01",
-    "period_end": "2026-01-31",
-    "mode": "share_pp"
-  },
-  "bindings": {
-    "label": "label",
-    "value": "value"
-  },
-  "filters": [],
-  "grouping": {},
-  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
-  "attribution": {},
-  "rows_rendered": [
-    {
-      "label": "Education",
-      "value": 6.059312947222455,
-      "group": ""
-    },
-    {
-      "label": "Sports and Recreation",
-      "value": 4.0352496197196155,
-      "group": ""
-    },
-    {
-      "label": "Law/Crime and Family Issues",
-      "value": 3.9724053376972823,
-      "group": ""
-    },
-    {
-      "label": "International Affairs and Foreign Aid",
-      "value": 1.072040632416861,
-      "group": ""
-    },
-    {
-      "label": "Government Operations",
-      "value": 0.8705475007009398,
-      "group": ""
-    },
-    {
-      "label": "State and Local Government Administration",
-      "value": 0.3771618263820622,
-      "group": ""
-    },
-    {
-      "label": "Macroeconomics",
-      "value": 0.13292780366399642,
-      "group": ""
-    }
-  ],
+  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-fail/assets/visual.png",
+  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/fianna-fail/metadata/visual.json",
+  "width": 1032,
+  "height": 1210,
   "plot_bounds": [
     0.4053718507751938,
     0.14,
@@ -276,5 +228,6 @@
       }
     ]
   },
-  "warnings": []
+  "warnings": [],
+  "created_at": "2026-08-31T22:37:44.333286+00:00"
 }

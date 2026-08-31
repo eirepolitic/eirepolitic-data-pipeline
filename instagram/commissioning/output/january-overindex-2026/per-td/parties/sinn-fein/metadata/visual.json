@@ -1,12 +1,60 @@
 {
-  "success": true,
-  "visual_id": "aont-share_pp",
+  "visual_id": "sinn-fein-per_td",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aont/assets/visual.png",
-  "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aont/metadata/visual.json",
-  "width": 1032,
-  "height": 1210,
+  "created_at": "2026-08-31T22:37:56.580742+00:00",
+  "input": {
+    "data_origin": "real_s3",
+    "source_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "mode": "per_td"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Health",
+      "value": 0.3798209366391183,
+      "group": ""
+    },
+    {
+      "label": "Culture and Arts",
+      "value": 0.20414812460267004,
+      "group": ""
+    },
+    {
+      "label": "Public Lands and Water Management",
+      "value": 0.17881171858444583,
+      "group": ""
+    },
+    {
+      "label": "Agriculture",
+      "value": 0.1532766475948295,
+      "group": ""
+    },
+    {
+      "label": "Sports and Recreation",
+      "value": 0.06957247298156387,
+      "group": ""
+    },
+    {
+      "label": "Banking/Finance and Domestic Commerce",
+      "value": 0.05914918414918416,
+      "group": ""
+    },
+    {
+      "label": "Other/Miscellaneous",
+      "value": 0.015588578088578095,
+      "group": ""
+    }
+  ],
   "plot_bounds": [
     0.42,
     0.14,
@@ -26,8 +74,8 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
-    "max_wrapped_label_lines": 3,
-    "max_value_label_x_ratio": 0.9555,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9565,
     "displayed_item_count": 7,
     "max_category_label_width_px": 397.17,
     "plot_left_ratio": 0.42,
@@ -36,13 +84,13 @@
     "truncated_label_count": 0,
     "category_text_bounds": [
       {
-        "raw_label": "Agriculture",
-        "rendered_label": "Agriculture",
+        "raw_label": "Health",
+        "rendered_label": "Health",
         "font_size": 18,
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          208.68,
+          293.86,
           1006.61,
           418.86,
           1044.62
@@ -50,41 +98,41 @@
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Law/Crime and Family Issues",
-        "rendered_label": "Law/Crime and\nFamily Issues",
+        "raw_label": "Culture and Arts",
+        "rendered_label": "Culture and Arts",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          107.68,
+          877.01,
+          418.86,
+          915.01
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Public Lands and Water Management",
+        "rendered_label": "Public Lands and\nWater Management",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          133.86,
-          848.62,
+          45.26,
+          719.26,
           418.86,
-          939.65
+          809.79
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Foreign Trade",
-        "rendered_label": "Foreign Trade",
+        "raw_label": "Agriculture",
+        "rendered_label": "Agriculture",
         "font_size": 18,
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          162.54,
-          747.4,
-          418.86,
-          785.41
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Defense",
-        "rendered_label": "Defense",
-        "font_size": 18,
-        "line_count": 1,
-        "truncated": false,
-        "bbox_px": [
-          263.86,
+          208.68,
           617.79,
           418.86,
           655.8
@@ -92,30 +140,16 @@
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Housing and Community Development",
-        "rendered_label": "Housing and\nCommunity\nDevelopment",
+        "raw_label": "Sports and Recreation",
+        "rendered_label": "Sports and\nRecreation",
         "font_size": 18,
-        "line_count": 3,
+        "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          164.86,
-          437.04,
+          213.86,
+          459.8,
           418.86,
-          573.59
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Macroeconomics",
-        "rendered_label": "Macroeconomics",
-        "font_size": 18,
-        "line_count": 1,
-        "truncated": false,
-        "bbox_px": [
-          100.68,
-          358.58,
-          418.86,
-          396.59
+          550.83
         ],
         "clipped_to_figure": false
       },
@@ -127,100 +161,114 @@
         "truncated": false,
         "bbox_px": [
           21.68,
-          200.58,
+          330.19,
           418.86,
-          291.61
+          421.22
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Other/Miscellaneous",
+        "rendered_label": "Other/Miscellaneous",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          30.86,
+          228.97,
+          418.86,
+          266.98
         ],
         "clipped_to_figure": false
       }
     ],
     "value_text_bounds": [
       {
-        "value": 11.405515761504217,
-        "text": "+11.4 pp",
+        "value": 0.3798209366391183,
+        "text": "+0.38/TD",
         "font_size": 15,
         "bbox_px": [
-          816.76,
+          814.37,
           1014.5,
-          975.76,
+          976.37,
           1045.75
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 7.164476424505212,
-        "text": "+7.2 pp",
+        "value": 0.20414812460267004,
+        "text": "+0.20/TD",
         "font_size": 15,
         "bbox_px": [
-          680.42,
+          645.89,
           884.89,
-          817.42,
+          807.89,
           916.14
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 4.996949105658392,
-        "text": "+5.0 pp",
+        "value": 0.17881171858444583,
+        "text": "+0.18/TD",
         "font_size": 15,
         "bbox_px": [
-          610.74,
+          621.59,
           755.28,
-          747.74,
+          783.59,
           786.53
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 4.523864295803853,
-        "text": "+4.5 pp",
+        "value": 0.1532766475948295,
+        "text": "+0.15/TD",
         "font_size": 15,
         "bbox_px": [
-          595.54,
+          597.1,
           625.68,
-          732.54,
+          759.1,
           656.93
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 3.0649814685989876,
-        "text": "+3.1 pp",
+        "value": 0.06957247298156387,
+        "text": "+0.07/TD",
         "font_size": 15,
         "bbox_px": [
-          548.64,
+          516.83,
           496.07,
-          685.64,
+          678.83,
           527.32
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 1.985285971811638,
-        "text": "+2.0 pp",
+        "value": 0.05914918414918416,
+        "text": "+0.06/TD",
         "font_size": 15,
         "bbox_px": [
-          513.93,
+          506.83,
           366.46,
-          650.93,
+          668.83,
           397.71
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
       },
       {
-        "value": 1.6530983217238755,
-        "text": "+1.7 pp",
+        "value": 0.015588578088578095,
+        "text": "+0.02/TD",
         "font_size": 15,
         "bbox_px": [
-          503.25,
+          465.06,
           236.85,
-          640.25,
+          627.06,
           268.1
         ],
         "clipped_to_axes": false,
@@ -228,6 +276,5 @@
       }
     ]
   },
-  "warnings": [],
-  "created_at": "2026-08-31T22:34:57.270382+00:00"
+  "warnings": []
 }

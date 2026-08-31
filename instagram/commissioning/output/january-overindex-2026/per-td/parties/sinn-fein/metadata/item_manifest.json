@@ -1,24 +1,24 @@
 {
   "project_id": "party_issue_per_td_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_per_td_overindex_jan2026-v1-c24ca28611c1",
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-df263b5f2642",
   "grain": "party",
-  "item_key": "sinn-f-in",
+  "item_key": "sinn-fein",
   "item_key_fields": {
-    "party_key": "sinn-f-in"
+    "party_key": "sinn-fein"
   },
   "item_label": "Sinn Féin",
-  "item_slug": "sinn-f-in",
+  "item_slug": "sinn-fein",
   "status": "succeeded",
   "review_state": "unreviewed",
   "no_publication": true,
-  "source_batch_id": "local-fixture",
+  "source_batch_id": "classifier-current-2026-08-31",
   "slides": [
     {
       "slide_id": "cover",
       "order": 1,
       "layout_id": "title_text_media_v1",
-      "path": "generated/sinn-f-in/slides/01_cover.png",
+      "path": "generated/sinn-fein/slides/01_cover.png",
       "sha256": "53e689e8220b40fb9227d867468b61b0b9bcbe70c1ba18c3673e29d10d1d3055",
       "width": 1080,
       "height": 1350,
@@ -28,7 +28,7 @@
       "slide_id": "issue_profile",
       "order": 2,
       "layout_id": "title_text_media_v1",
-      "path": "generated/sinn-f-in/slides/02_issue_profile.png",
+      "path": "generated/sinn-fein/slides/02_issue_profile.png",
       "sha256": "969965e3ef508332a71d77daa93947db45b7eeb7e9f9b8dde02aeeb95f7814c9",
       "width": 1080,
       "height": 1350,
@@ -36,14 +36,14 @@
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:35:14.343745+00:00",
+  "generated_at": "2026-08-31T22:37:56.776642+00:00",
   "visual_manifest": {
     "success": true,
-    "visual_id": "sinn-f-in-per_td",
+    "visual_id": "sinn-fein-per_td",
     "template_id": "horizontal_bar_draft_v1",
     "renderer": "horizontal_bar",
-    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-f-in/assets/visual.png",
-    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-f-in/metadata/visual.json",
+    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-fein/assets/visual.png",
+    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/sinn-fein/metadata/visual.json",
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
@@ -268,6 +268,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:35:14.070450+00:00"
+    "created_at": "2026-08-31T22:37:56.580742+00:00"
   }
 }

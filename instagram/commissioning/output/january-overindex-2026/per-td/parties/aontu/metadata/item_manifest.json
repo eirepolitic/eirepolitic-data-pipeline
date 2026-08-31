@@ -1,25 +1,25 @@
 {
-  "project_id": "party_issue_share_overindex_jan2026",
+  "project_id": "party_issue_per_td_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_share_overindex_jan2026-v1-d33809de3e9d",
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-df263b5f2642",
   "grain": "party",
-  "item_key": "aont",
+  "item_key": "aontu",
   "item_key_fields": {
-    "party_key": "aont"
+    "party_key": "aontu"
   },
   "item_label": "Aontú",
-  "item_slug": "aont",
+  "item_slug": "aontu",
   "status": "succeeded",
   "review_state": "unreviewed",
   "no_publication": true,
-  "source_batch_id": "local-fixture",
+  "source_batch_id": "classifier-current-2026-08-31",
   "slides": [
     {
       "slide_id": "cover",
       "order": 1,
       "layout_id": "title_text_media_v1",
-      "path": "generated/aont/slides/01_cover.png",
-      "sha256": "e84ee059ddde18fe3c287b957659f3de9065c0c140b85404a60fd7f6443d9f55",
+      "path": "generated/aontu/slides/01_cover.png",
+      "sha256": "8eb3466e791f71cc200bb5ce175d4fbddb1b055c136e1fadc30242643cf32b03",
       "width": 1080,
       "height": 1350,
       "warnings": []
@@ -28,22 +28,22 @@
       "slide_id": "issue_profile",
       "order": 2,
       "layout_id": "title_text_media_v1",
-      "path": "generated/aont/slides/02_issue_profile.png",
-      "sha256": "708f145003ba48163564409bfc1c29004202708ef7406f7c8d1ecca2d29f0c69",
+      "path": "generated/aontu/slides/02_issue_profile.png",
+      "sha256": "6461733ed2feda60633edfad4e190b7d1a8a1c95779ee17406cb21326f791a31",
       "width": 1080,
       "height": 1350,
       "warnings": []
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:34:57.539795+00:00",
+  "generated_at": "2026-08-31T22:37:52.781392+00:00",
   "visual_manifest": {
     "success": true,
-    "visual_id": "aont-share_pp",
+    "visual_id": "aontu-per_td",
     "template_id": "horizontal_bar_draft_v1",
     "renderer": "horizontal_bar",
-    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aont/assets/visual.png",
-    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex/generated/aont/metadata/visual.json",
+    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/aontu/assets/visual.png",
+    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/aontu/metadata/visual.json",
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
@@ -66,7 +66,7 @@
       "axis_font_size": 12,
       "bar_thickness_px": 83.59,
       "max_wrapped_label_lines": 3,
-      "max_value_label_x_ratio": 0.9555,
+      "max_value_label_x_ratio": 0.9565,
       "displayed_item_count": 7,
       "max_category_label_width_px": 397.17,
       "plot_left_ratio": 0.42,
@@ -117,20 +117,6 @@
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Defense",
-          "rendered_label": "Defense",
-          "font_size": 18,
-          "line_count": 1,
-          "truncated": false,
-          "bbox_px": [
-            263.86,
-            617.79,
-            418.86,
-            655.8
-          ],
-          "clipped_to_figure": false
-        },
-        {
           "raw_label": "Housing and Community Development",
           "rendered_label": "Housing and\nCommunity\nDevelopment",
           "font_size": 18,
@@ -138,9 +124,23 @@
           "truncated": false,
           "bbox_px": [
             164.86,
-            437.04,
+            566.64,
             418.86,
-            573.59
+            703.19
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Defense",
+          "rendered_label": "Defense",
+          "font_size": 18,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            263.86,
+            488.18,
+            418.86,
+            526.19
           ],
           "clipped_to_figure": false
         },
@@ -175,91 +175,91 @@
       ],
       "value_text_bounds": [
         {
-          "value": 11.405515761504217,
-          "text": "+11.4 pp",
+          "value": 2.4481484424666244,
+          "text": "+2.45/TD",
           "font_size": 15,
           "bbox_px": [
-            816.76,
+            814.37,
             1014.5,
-            975.76,
+            976.37,
             1045.75
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 7.164476424505212,
-          "text": "+7.2 pp",
+          "value": 1.6465352828989193,
+          "text": "+1.65/TD",
           "font_size": 15,
           "bbox_px": [
-            680.42,
+            695.09,
             884.89,
-            817.42,
+            857.09,
             916.14
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 4.996949105658392,
-          "text": "+5.0 pp",
+          "value": 1.0373887476160202,
+          "text": "+1.04/TD",
           "font_size": 15,
           "bbox_px": [
-            610.74,
+            604.46,
             755.28,
-            747.74,
+            766.46,
             786.53
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 4.523864295803853,
-          "text": "+4.5 pp",
+          "value": 0.9546646535282899,
+          "text": "+0.95/TD",
           "font_size": 15,
           "bbox_px": [
-            595.54,
+            592.15,
             625.68,
-            732.54,
+            754.15,
             656.93
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 3.0649814685989876,
-          "text": "+3.1 pp",
+          "value": 0.8570804195804196,
+          "text": "+0.86/TD",
           "font_size": 15,
           "bbox_px": [
-            548.64,
+            577.63,
             496.07,
-            685.64,
+            739.63,
             527.32
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 1.985285971811638,
-          "text": "+2.0 pp",
+          "value": 0.38469485060394154,
+          "text": "+0.38/TD",
           "font_size": 15,
           "bbox_px": [
-            513.93,
+            507.35,
             366.46,
-            650.93,
+            669.35,
             397.71
           ],
           "clipped_to_axes": false,
           "clipped_to_figure": false
         },
         {
-          "value": 1.6530983217238755,
-          "text": "+1.7 pp",
+          "value": 0.3283799533799534,
+          "text": "+0.33/TD",
           "font_size": 15,
           "bbox_px": [
-            503.25,
+            498.97,
             236.85,
-            640.25,
+            660.97,
             268.1
           ],
           "clipped_to_axes": false,
@@ -268,6 +268,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:34:57.270382+00:00"
+    "created_at": "2026-08-31T22:37:52.591747+00:00"
   }
 }
