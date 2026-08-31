@@ -1,4 +1,4 @@
-name: Instagram Content Factory party project validation
+name: Instagram January Party Over-Index Commissioning
 
 on:
   workflow_dispatch:
@@ -7,9 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  render-v6-final:
+  render-january-overindex:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -20,116 +20,165 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Apply final chart centering
+
+      - name: Add normalized value label formats
+        shell: bash
         run: |
           python <<'PY'
           from pathlib import Path
           path = Path('instagram/visuals/renderers/horizontal_bar.py')
           text = path.read_text(encoding='utf-8')
-          text = text.replace('PLOT_BOTTOM = 0.12', 'PLOT_BOTTOM = 0.14', 1)
-          path.write_text(text, encoding='utf-8')
+          old = '''            value_format = str(params.get("value_format", "integer"))\n            for idx, value in enumerate(values):\n                value_label = f"{value:g}%" if value_format == "percent" else (f"{value:,.0f}" if math.isfinite(value) else "0")\n'''
+          new = '''            value_format = str(params.get("value_format", "integer"))\n            for idx, value in enumerate(values):\n                if not math.isfinite(value):\n                    value_label = "0"\n                elif value_format == "percent":\n                    value_label = f"{value:g}%"\n                elif value_format == "plus_pp_1":\n                    value_label = f"+{value:.1f} pp"\n                elif value_format == "plus_decimal_2":\n                    value_label = f"+{value:.2f}"\n                elif value_format == "decimal_2":\n                    value_label = f"{value:.2f}"\n                else:\n                    value_label = f"{value:,.0f}"\n'''
+          if old not in text:
+              raise SystemExit('horizontal_bar value-format insertion point not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/visuals/renderers/horizontal_bar.py
-          git commit -m "Center party issue chart vertically for v6" || true
+          git commit -m "Support normalized party over-index value labels" || true
           git push
-      - name: Validate and generate final all-party batch
+
+      - name: Validate catalogues and projects
         run: |
           python process/instagram_factory.py validate-catalogues
-          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
+          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_share_overindex_jan2026/project.yml
+          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_per_td_overindex_jan2026/project.yml
+
+      - name: Generate January issue-share over-index batch
+        run: |
           python process/instagram_factory.py generate-batch \
-            --project instagram/projects/party_issue_profile_v1/project.yml \
+            --project instagram/projects/party_issue_share_overindex_jan2026/project.yml \
             --data-source s3 \
-            --output-root generated_party_v6 \
+            --output-root generated_january_share_overindex \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > commissioning-v6-report.json
+            > january-share-report.json
           python process/instagram_factory.py build-review-index \
-            --run-root generated_party_v6 \
-            > commissioning-v6-review-index.json
-      - name: Export all party review sets and contact sheets
+            --run-root generated_january_share_overindex \
+            > january-share-review-index.json
+
+      - name: Generate January per-TD over-index batch
+        run: |
+          python process/instagram_factory.py generate-batch \
+            --project instagram/projects/party_issue_per_td_overindex_jan2026/project.yml \
+            --data-source s3 \
+            --output-root generated_january_per_td_overindex \
+            --git-sha "$(git rev-parse HEAD)" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            > january-per-td-report.json
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_january_per_td_overindex \
+            > january-per-td-review-index.json
+
+      - name: Export review artifacts and contact sheets
+        shell: bash
         run: |
           python <<'PY'
           import json, math, shutil
           from pathlib import Path
           from PIL import Image, ImageDraw, ImageFont
 
-          src_root = Path('generated_party_v6')
-          out_root = Path('instagram/commissioning/output/all-parties/v6-final')
-          if out_root.exists():
-              shutil.rmtree(out_root)
-          parties_root = out_root / 'parties'
-          parties_root.mkdir(parents=True, exist_ok=True)
+          output_root = Path('instagram/commissioning/output/january-overindex-2026')
+          if output_root.exists():
+              shutil.rmtree(output_root)
+          output_root.mkdir(parents=True, exist_ok=True)
 
-          run = json.loads((src_root/'run_manifest.json').read_text(encoding='utf-8'))
-          records = []
-          for slug in run['item_order']:
-              src = src_root/'generated'/slug
-              dst = parties_root/slug
-              (dst/'slides').mkdir(parents=True, exist_ok=True)
-              (dst/'metadata').mkdir(parents=True, exist_ok=True)
-              for png in sorted((src/'slides').glob('*.png')):
-                  shutil.copy2(png, dst/'slides'/png.name)
-              shutil.copy2(src/'item_manifest.json', dst/'metadata'/'item_manifest.json')
-              if (src/'manifests'/'visual_manifest.json').exists():
-                  shutil.copy2(src/'manifests'/'visual_manifest.json', dst/'metadata'/'visual_manifest.json')
-              manifest = json.loads((src/'item_manifest.json').read_text(encoding='utf-8'))
-              records.append({'slug':slug,'label':manifest.get('item_label'),'status':manifest.get('status')})
+          modes = [
+              ('share', Path('generated_january_share_overindex'), Path('january-share-review-index.json')),
+              ('per-td', Path('generated_january_per_td_overindex'), Path('january-per-td-review-index.json')),
+          ]
 
-          shutil.copy2(src_root/'run_manifest.json', out_root/'run_manifest.json')
-          shutil.copy2('commissioning-v6-review-index.json', out_root/'review_index.json')
-          summary = {
-              'version':'v6-final',
-              'project_id':run.get('project_id'),
-              'source_batch_id':run.get('source_batch_id'),
-              'expected_item_count':run.get('expected_item_count'),
-              'succeeded_item_count':run.get('succeeded_item_count'),
-              'failed_item_count':run.get('failed_item_count'),
-              'parties':records,
-              'publishing_allowed':False,
-              'note':'Commissioning closeout batch using stale classified speech coverage; not for publication.'
-          }
-          (out_root/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-
-          font = ImageFont.load_default()
-          def sheet(slide_name, output_name):
-              thumbs=[]
+          def contact_sheet(records, mode_root, slide_name, out_name):
+              cards=[]
               for rec in records:
-                  p=parties_root/rec['slug']/'slides'/slide_name
-                  if not p.exists():
+                  src=mode_root/'parties'/rec['slug']/'slides'/slide_name
+                  if not src.exists():
                       continue
-                  im=Image.open(p).convert('RGB')
-                  im.thumbnail((270,338),Image.Resampling.LANCZOS)
-                  canvas=Image.new('RGB',(300,390),'white')
-                  canvas.paste(im,((300-im.width)//2,8))
-                  d=ImageDraw.Draw(canvas)
-                  d.text((150,355),str(rec['label']),font=font,fill='black',anchor='ma',align='center')
-                  thumbs.append(canvas)
+                  im=Image.open(src).convert('RGB')
+                  im.thumbnail((270,338), Image.Resampling.LANCZOS)
+                  card=Image.new('RGB',(300,390),'white')
+                  card.paste(im,((300-im.width)//2,8))
+                  d=ImageDraw.Draw(card)
+                  d.text((150,355),str(rec['label']),fill='black',anchor='ma',align='center')
+                  cards.append(card)
               cols=3
-              rows=math.ceil(len(thumbs)/cols)
+              rows=max(1,math.ceil(len(cards)/cols))
               sheet=Image.new('RGB',(cols*300,rows*390),'white')
-              for i,im in enumerate(thumbs):
-                  sheet.paste(im,((i%cols)*300,(i//cols)*390))
-              sheet.save(out_root/output_name,'JPEG',quality=88,optimize=True)
-          sheet('01_cover.png','contact_sheet_covers.jpg')
-          sheet('02_issue_profile.png','contact_sheet_top_issues.jpg')
+              for i,card in enumerate(cards):
+                  sheet.paste(card,((i%cols)*300,(i//cols)*390))
+              sheet.save(mode_root/out_name,'JPEG',quality=88,optimize=True)
+
+          combined={}
+          for mode, src_root, review_index in modes:
+              mode_root=output_root/mode
+              parties_root=mode_root/'parties'
+              parties_root.mkdir(parents=True, exist_ok=True)
+              run=json.loads((src_root/'run_manifest.json').read_text(encoding='utf-8'))
+              records=[]
+              for slug in run['item_order']:
+                  src=src_root/'generated'/slug
+                  manifest=json.loads((src/'item_manifest.json').read_text(encoding='utf-8'))
+                  dst=parties_root/slug
+                  (dst/'slides').mkdir(parents=True,exist_ok=True)
+                  (dst/'metadata').mkdir(parents=True,exist_ok=True)
+                  for png in sorted((src/'slides').glob('*.png')):
+                      shutil.copy2(png,dst/'slides'/png.name)
+                  shutil.copy2(src/'item_manifest.json',dst/'metadata'/'item_manifest.json')
+                  if (src/'metadata'/'visual.json').exists():
+                      shutil.copy2(src/'metadata'/'visual.json',dst/'metadata'/'visual.json')
+                  if (src/'manifests'/'visual_manifest.json').exists():
+                      shutil.copy2(src/'manifests'/'visual_manifest.json',dst/'metadata'/'visual_manifest.json')
+                  records.append({'slug':slug,'label':manifest.get('item_label'),'status':manifest.get('status')})
+              shutil.copy2(src_root/'run_manifest.json',mode_root/'run_manifest.json')
+              shutil.copy2(review_index,mode_root/'review_index.json')
+              summary={
+                  'mode':mode,
+                  'period':'2026-01-01/2026-01-31',
+                  'expected_item_count':run.get('expected_item_count'),
+                  'succeeded_item_count':run.get('succeeded_item_count'),
+                  'failed_item_count':run.get('failed_item_count'),
+                  'source_batch_id':run.get('source_batch_id'),
+                  'parties':records,
+                  'publishing_allowed':False,
+              }
+              (mode_root/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+              contact_sheet(records,mode_root,'01_cover.png','contact_sheet_covers.jpg')
+              contact_sheet(records,mode_root,'02_issue_profile.png','contact_sheet_charts.jpg')
+              combined[mode]=summary
+
+          # Compact Fianna Fáil data comparison for factual review.
+          comparison={}
+          for mode in ('share','per-td'):
+              visual=output_root/mode/'parties'/'fianna-fail'/'metadata'/'visual.json'
+              if visual.exists():
+                  data=json.loads(visual.read_text(encoding='utf-8'))
+                  comparison[mode]=data.get('rows_rendered',[])
+          (output_root/'fianna-fail-comparison.json').write_text(json.dumps(comparison,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          (output_root/'summary.json').write_text(json.dumps(combined,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/output/all-parties/v6-final
-          git commit -m "Add final all-party Instagram commissioning batch" || true
+          git add instagram/commissioning/output/january-overindex-2026
+          git commit -m "Add January 2026 normalized party issue review outputs" || true
           git push
-      - name: Upload final commissioning evidence
+
+      - name: Upload commissioning evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-party-v6-final-${{ github.run_id }}
+          name: instagram-january-overindex-${{ github.run_id }}
           path: |
-            generated_party_v6/
-            commissioning-v6-report.json
-            commissioning-v6-review-index.json
-          if-no-files-found: error
+            generated_january_share_overindex/
+            generated_january_per_td_overindex/
+            january-share-report.json
+            january-per-td-report.json
+            january-share-review-index.json
+            january-per-td-review-index.json
+          if-no-files-found: warn
