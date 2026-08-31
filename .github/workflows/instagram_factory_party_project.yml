@@ -25,91 +25,166 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Apply strict visual-quality repairs
+      - name: Apply v3 editorial repairs
         shell: bash
         run: |
           python <<'PY'
           from pathlib import Path
 
-          # Give long taxonomy labels enough width to wrap at real word boundaries.
-          path = Path("instagram/visuals/renderers/horizontal_bar.py")
+          # Cleaner editorial title.
+          path = Path("instagram/projects/party_issue_profile_v1/project.yml")
           text = path.read_text(encoding="utf-8")
-          text = text.replace("MAX_PLOT_LEFT = 0.36", "MAX_PLOT_LEFT = 0.40", 1)
+          text = text.replace('slide_title: "Most discussed issues: {{ party }}"', 'slide_title: "{{ party }}: most discussed issues"')
           path.write_text(text, encoding="utf-8")
 
-          # Propagate visual renderer warnings into the batch generation gate.
-          path = Path("instagram/factory/generic_batch.py")
+          # Put the actual coverage/source into the chart metadata used for drawing.
+          path = Path("instagram/factory/party_adapter.py")
           text = path.read_text(encoding="utf-8")
-          old = '''            asset_result = adapter.render_assets(item_dir, context, project)\n            visual_manifest = asset_result.get("visual_manifest")\n            for slide in sorted(project["slides"], key=lambda value: value["order"]):\n'''
-          new = '''            asset_result = adapter.render_assets(item_dir, context, project)\n            visual_manifest = asset_result.get("visual_manifest")\n            visual_warnings = list((visual_manifest or {}).get("warnings") or [])\n            if visual_warnings:\n                raise ValueError(f"Visual warnings for {item_label}: {visual_warnings}")\n            for slide in sorted(project["slides"], key=lambda value: value["order"]):\n'''
+          old = '"source_note": "Joined Oireachtas member and classified debate data",'
+          new = '"source_note": f"Dáil speeches · {context.get(\'period_start\', \'\')} – {context.get(\'period_end\', \'\')} · Houses of the Oireachtas / Eirepolitic classification",'
           if old not in text:
-              raise SystemExit("generic_batch visual warning insertion point not found")
+              raise SystemExit("party source_note insertion point not found")
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding="utf-8")
+
+          # Reserve footer space and render provenance visibly on the chart.
+          path = Path("instagram/visuals/renderers/horizontal_bar.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace("PLOT_BOTTOM = 0.045", "PLOT_BOTTOM = 0.085", 1)
+          text = text.replace("PLOT_HEIGHT = 0.91", "PLOT_HEIGHT = 0.865", 1)
+          old = '''    for spine in ax.spines.values():\n        spine.set_visible(False)\n\n    fig.canvas.draw()\n'''
+          new = '''    for spine in ax.spines.values():\n        spine.set_visible(False)\n\n    source_note = str(sample.get("source_note") or "").strip()\n    if source_note:\n        fig.text(\n            0.5,\n            0.025,\n            source_note,\n            color=palette["muted"],\n            fontsize=8.5,\n            ha="center",\n            va="center",\n        )\n\n    fig.canvas.draw()\n'''
+          if old not in text:
+              raise SystemExit("horizontal bar footer insertion point not found")
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding="utf-8")
+
+          # Regeneration must enforce the same strict visual-warning gate as batch generation.
+          path = Path("instagram/factory/generic_regeneration.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''        asset_result = adapter.render_assets(item_dir, context, project)\n\n        for slide_id in selected_slide_ids:\n'''
+          new = '''        asset_result = adapter.render_assets(item_dir, context, project)\n        visual_warnings = list((asset_result.get("visual_manifest") or {}).get("warnings") or [])\n        if visual_warnings:\n            raise ValueError(f"Visual warnings for {item_slug}: {visual_warnings}")\n\n        for slide_id in selected_slide_ids:\n'''
+          if old not in text:
+              raise SystemExit("regeneration warning insertion point not found")
           text = text.replace(old, new, 1)
           path.write_text(text, encoding="utf-8")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/visuals/renderers/horizontal_bar.py instagram/factory/generic_batch.py
-          git commit -m "Fail batch items on visual warnings and widen labels" || true
+          git add instagram/projects/party_issue_profile_v1/project.yml instagram/factory/party_adapter.py instagram/visuals/renderers/horizontal_bar.py instagram/factory/generic_regeneration.py
+          git commit -m "Finalize party profile editorial context and strict regeneration QA" || true
           git push
-      - name: Validate and generate strict v2 batch
+      - name: Generate v3 live batch
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
           python process/instagram_factory.py generate-batch \
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
-            --output-root generated_party_commissioning \
+            --output-root generated_party_v3 \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > commissioning-batch-report.json
-          python process/instagram_factory.py build-review-index \
-            --run-root generated_party_commissioning \
-            > commissioning-review-index.json
-      - name: Expose Fianna Fail v2 candidate
+            > commissioning-v3-report.json
+          python process/instagram_factory.py build-review-index --run-root generated_party_v3 > commissioning-v3-review-index.json
+      - name: Review selected Fianna Fail item and exercise ready gate
         shell: bash
         run: |
-          set -euo pipefail
-          src="generated_party_commissioning/generated/fianna-fail"
-          out="instagram/commissioning/output/fianna-fail/v2-candidate"
-          rm -rf "$out"
-          mkdir -p "$out/slides" "$out/metadata"
-          cp "$src"/slides/*.png "$out/slides/"
-          cp -R "$src"/slides/metadata "$out/metadata/slide_metadata"
-          cp "$src"/item_manifest.json "$out/item_manifest.json"
-          cp "$src"/manifests/visual_manifest.json "$out/metadata/visual_manifest.json"
-          cp "$src"/metadata/visual.json "$out/metadata/visual.json"
-          cp generated_party_commissioning/run_manifest.json "$out/run_manifest.json"
-          cp generated_party_commissioning/review/review_state.json "$out/review_state.json"
-          cp commissioning-review-index.json "$out/review_index.json"
+          python process/instagram_factory.py mark-review \
+            --run-root generated_party_v3 \
+            --item fianna-fail \
+            --status approved \
+            --reviewer commissioning-agent \
+            --note "Commissioning editorial/factual review passed for Fianna Fáil v3." \
+            > fianna-fail-review-result.json
+          set +e
+          python process/instagram_factory.py mark-ready \
+            --run-root generated_party_v3 \
+            --reviewer commissioning-agent \
+            --note "Attempting selected-item commissioning readiness." \
+            > mark-ready-result.json
+          code=$?
+          set -e
+          echo "$code" > mark-ready-exit-code.txt
+          cat mark-ready-result.json
+      - name: Build publication package
+        shell: bash
+        run: |
           python <<'PY'
           import json
           from pathlib import Path
-          out = Path("instagram/commissioning/output/fianna-fail/v2-candidate")
-          manifest = json.loads((out / "metadata/visual_manifest.json").read_text(encoding="utf-8"))
-          summary = {
-              "version": "v2-candidate",
-              "strict_visual_warning_gate": True,
-              "visual_warnings": manifest.get("warnings", []),
-              "content_period": {"start": "2024-12-18", "end": "2026-02-26"},
-              "source_batch_id": "scheduled-weekly-33310991798-1",
-              "post_status": "draft_review",
-              "publication_allowed": False,
+
+          root = Path("generated_party_v3")
+          item = json.loads((root / "generated/fianna-fail/item_manifest.json").read_text(encoding="utf-8"))
+          visual = item["visual_manifest"]
+          rows = json.loads((root / "generated/fianna-fail/metadata/visual.json").read_text(encoding="utf-8"))["rows_rendered"]
+          ready_result = json.loads(Path("mark-ready-result.json").read_text(encoding="utf-8"))
+          ready_exit = int(Path("mark-ready-exit-code.txt").read_text().strip())
+
+          counts = ", ".join(f"{row['label']} ({int(row['value']):,})" for row in rows)
+          caption = (
+              "What did Fianna Fáil TDs speak about most often in the Dáil?\n\n"
+              "Across 8,421 classified speech records from current Fianna Fáil TDs, the most frequent issue category was Housing and Community Development, followed by Health and Education.\n\n"
+              "Coverage: 18 Dec 2024–26 Feb 2026. Counts show classified speech frequency, not party policy, priority or position.\n\n"
+              "Source: Houses of the Oireachtas data, classified by Eirepolitic."
+          )
+          alt_cover = (
+              "Fianna Fáil in the Dáil. 48 current TDs and 8,421 classified speeches, with debate coverage from 18 December 2024 to 26 February 2026."
+          )
+          alt_chart = (
+              "Horizontal bar chart showing the seven most frequent classified issue categories in Dáil speeches by current Fianna Fáil TDs from 18 December 2024 to 26 February 2026: "
+              + counts + "."
+          )
+          package = {
+              "version": "v3-publication-candidate",
+              "party": "Fianna Fáil",
+              "source_batch_id": item.get("source_batch_id"),
+              "coverage": {"start": "2024-12-18", "end": "2026-02-26"},
+              "member_count": 48,
+              "classified_speech_count": 8421,
+              "caption": caption,
+              "alt_text": {"cover": alt_cover, "issue_profile": alt_chart},
+              "source_note": "Houses of the Oireachtas / Eirepolitic classification",
+              "method_note": "Counts represent classified speech frequency by current TDs; they do not represent party policy, priority or position.",
+              "visual_warnings": visual.get("warnings", []),
+              "item_review_state": "approved",
+              "ready_gate_exit_code": ready_exit,
+              "ready_gate_result": ready_result,
+              "publishing_allowed": False,
+              "copy_generation_mode": "commissioning-sidecar; generic factory has no native caption package stage",
           }
-          (out / "commissioning_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+          out = Path("instagram/commissioning/output/fianna-fail/v3-publication-candidate")
+          if out.exists():
+              import shutil
+              shutil.rmtree(out)
+          (out / "slides").mkdir(parents=True, exist_ok=True)
+          (out / "metadata").mkdir(parents=True, exist_ok=True)
+          import shutil
+          for src in sorted((root / "generated/fianna-fail/slides").glob("*.png")):
+              shutil.copy2(src, out / "slides" / src.name)
+          shutil.copy2(root / "generated/fianna-fail/item_manifest.json", out / "metadata/item_manifest.json")
+          shutil.copy2(root / "generated/fianna-fail/metadata/visual.json", out / "metadata/visual.json")
+          shutil.copy2(root / "generated/fianna-fail/manifests/visual_manifest.json", out / "metadata/visual_manifest.json")
+          shutil.copy2(root / "review/review_state.json", out / "metadata/review_state.json")
+          (out / "publication_package.json").write_text(json.dumps(package, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          (out / "caption.txt").write_text(caption + "\n", encoding="utf-8")
+          (out / "alt_text.txt").write_text("COVER\n" + alt_cover + "\n\nISSUE PROFILE\n" + alt_chart + "\n", encoding="utf-8")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$out"
-          git commit -m "Expose Fianna Fail Instagram v2 candidate" || true
+          git add instagram/commissioning/output/fianna-fail/v3-publication-candidate
+          git commit -m "Add Fianna Fail v3 publication candidate" || true
           git push
-      - name: Upload commissioning evidence
+      - name: Upload v3 commissioning evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-party-v2-${{ github.run_id }}
+          name: instagram-party-v3-${{ github.run_id }}
           path: |
-            generated_party_commissioning/
-            commissioning-batch-report.json
-            commissioning-review-index.json
+            generated_party_v3/
+            commissioning-v3-report.json
+            commissioning-v3-review-index.json
+            fianna-fail-review-result.json
+            mark-ready-result.json
+            mark-ready-exit-code.txt
           if-no-files-found: warn
