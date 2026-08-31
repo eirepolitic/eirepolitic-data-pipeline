@@ -9,7 +9,6 @@ import pandas as pd
 from openai import OpenAI
 
 from process.oireachtas_speech_issue_classifier import (
-    ISSUE_CATEGORIES,
     SILVER_SPEECHES_KEY,
     build_classifier_prompt,
     canonicalize_label,
@@ -24,7 +23,7 @@ def classify_control(client: OpenAI, text: str, model: str) -> str:
         model=model,
         input=build_classifier_prompt(text),
         text={
-            "verbosity": "low",
+            "verbosity": "medium",
             "format": {
                 "type": "json_schema",
                 "name": "speech_issue_classification",
@@ -124,6 +123,7 @@ def main() -> int:
         )
 
     succeeded = len(results)
+    matched = sum(1 for row in results if row["control_matches_legacy"])
     report = {
         "mode": "model_control_benchmark",
         "control_model": args.model,
@@ -131,7 +131,7 @@ def main() -> int:
         "sample_requested": len(speech_ids),
         "sample_succeeded": succeeded,
         "sample_failed": len(failures),
-        "legacy_exact_agreement_pct": round(expected_match / succeeded * 100, 1) if succeeded else 0.0,
+        "legacy_exact_agreement_pct": round(matched / succeeded * 100, 1) if succeeded else 0.0,
         "control_luna_agreement_pct": round(luna_match / succeeded * 100, 1) if succeeded else 0.0,
         "all_three_exact_pct": round(all_three_match / succeeded * 100, 1) if succeeded else 0.0,
         "luna_disagreement_rows": luna_disagreements,
