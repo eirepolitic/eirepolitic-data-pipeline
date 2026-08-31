@@ -1,19 +1,15 @@
-name: Oireachtas Speech Issue Labels Readiness (Legacy Alias)
+name: Speech Classifier Backfill Checkpoint Inspector
 
 on:
   workflow_dispatch:
 
-concurrency:
-  group: oireachtas-enrichment-speech-issue-labels-readiness
-  cancel-in-progress: false
-
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  readiness:
+  inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -25,32 +21,50 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install dependencies
+      - name: Install minimal dependencies
+        run: python -m pip install boto3 pandas
+      - name: Inspect checkpoint
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Run unified classifier readiness inventory
+          python - <<'PY'
+          import io
+          import json
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+          from botocore.exceptions import ClientError
+          from extract.oireachtas.batch import batch_key_for_production_key
+          batch_id = 'speech-classifier-backfill-2026-08-31'
+          logical = 'processed/oireachtas_unified/latest/csv/enrichment_speech_issue_labels.csv'
+          key = batch_key_for_production_key(logical, batch_id)
+          s3 = boto3.client('s3', region_name='ca-central-1')
+          try:
+              obj = s3.get_object(Bucket='eirepolitic-data', Key=key)
+          except ClientError as exc:
+              if str(exc.response.get('Error', {}).get('Code', '')) in {'404','NoSuchKey','NotFound'}:
+                  report = {'checkpoint_exists': False, 'candidate_key': key}
+                  Path('diagnostics/speech_classifier/backfill_checkpoint_status.json').write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
+                  print(json.dumps(report, indent=2, sort_keys=True))
+                  raise SystemExit(0)
+              raise
+          df = pd.read_csv(io.BytesIO(obj['Body'].read()), dtype=str, keep_default_na=False)
+          report = {
+              'checkpoint_exists': True,
+              'rows': len(df),
+              'status_counts': df['classification_status'].value_counts().to_dict(),
+              'source_counts': df['issue_label_source'].value_counts().to_dict(),
+              'model_rows': int((df['issue_label_source'] == 'openai_model').sum()),
+              'pending_rows': int((df['classification_status'] == 'pending').sum()),
+              'failed_rows': int((df['classification_status'] == 'failed').sum()),
+              'max_debate_date': str(df['debate_date'].max()),
+              'candidate_key': key,
+          }
+          Path('diagnostics/speech_classifier/backfill_checkpoint_status.json').write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+      - name: Commit compact status
         run: |
-          set -euo pipefail
-          python -m process.oireachtas_speech_issue_classifier \
-            --mode readiness \
-            --model gpt-5.6-luna \
-            --report-path speech_issue_classifier_report.json
-      - name: Explain migration
-        run: |
-          {
-            echo '## Speech issue enrichment workflow migrated'
-            echo
-            echo 'This workflow is a read-only alias for the unified classifier readiness inventory.'
-            echo 'It does not rebuild enrichment data from the legacy classified CSV.'
-            echo 'Use `Unified Speech Issue Classifier (Manual)` for tests or complete candidate creation.'
-          } >> "${GITHUB_STEP_SUMMARY}"
-      - name: Upload readiness evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: speech-issue-readiness-${{ github.run_id }}-${{ github.run_attempt }}
-          path: speech_issue_classifier_report.json
-          if-no-files-found: error
-          retention-days: 90
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/speech_classifier/backfill_checkpoint_status.json
+          git commit -m "Record backfill checkpoint status" || true
+          git push || true
