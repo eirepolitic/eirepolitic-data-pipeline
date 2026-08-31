@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  render-v5-review:
+  render-v6-final:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
@@ -24,146 +24,112 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Build approved corner assets from reference template
-        shell: bash
+      - name: Apply final chart centering
         run: |
           python <<'PY'
           from pathlib import Path
-          from PIL import Image, ImageChops, ImageOps
-
-          src = Image.open('instagram/reference/member_profile_template.png').convert('RGBA')
-          # The approved ornament sits in the top-left corner of the canonical reference.
-          # Crop enough area to retain the knot plus its extending border strokes.
-          crop = src.crop((0, 0, 230, 230)).copy()
-
-          # Convert pixels matching the reference background to transparency while
-          # retaining the light ornamental artwork. Use the dominant corner pixel
-          # as the background reference so this remains deterministic.
-          bg = crop.getpixel((0, 0))[:3]
-          px = crop.load()
-          for y in range(crop.height):
-              for x in range(crop.width):
-                  r, g, b, a = px[x, y]
-                  distance = abs(r-bg[0]) + abs(g-bg[1]) + abs(b-bg[2])
-                  if distance < 42:
-                      px[x, y] = (r, g, b, 0)
-
-          out = Path('instagram/templates/assets')
-          out.mkdir(parents=True, exist_ok=True)
-          crop.save(out/'corner_tl.png')
-          ImageOps.mirror(crop).save(out/'corner_tr.png')
-          ImageOps.flip(crop).save(out/'corner_bl.png')
-          ImageOps.flip(ImageOps.mirror(crop)).save(out/'corner_br.png')
-          PY
-      - name: Apply v5 layout and visual spacing
-        shell: bash
-        run: |
-          python <<'PY'
-          import json
-          from pathlib import Path
-
-          # Replace Unicode ornaments with the exact mirrored reference-corner assets.
-          path = Path('instagram/templates/layouts/title_text_media_v1.json')
-          doc = json.loads(path.read_text(encoding='utf-8'))
-          kept = [e for e in doc['elements'] if not str(e.get('id','')).startswith('ornament_')]
-          ornaments = [
-              {'id':'ornament_tl','type':'image','source':'instagram/templates/assets/corner_tl.png','x':0,'y':0,'w':155,'h':155,'fit':'contain'},
-              {'id':'ornament_tr','type':'image','source':'instagram/templates/assets/corner_tr.png','x':925,'y':0,'w':155,'h':155,'fit':'contain'},
-              {'id':'ornament_bl','type':'image','source':'instagram/templates/assets/corner_bl.png','x':0,'y':1195,'w':155,'h':155,'fit':'contain'},
-              {'id':'ornament_br','type':'image','source':'instagram/templates/assets/corner_br.png','x':925,'y':1195,'w':155,'h':155,'fit':'contain'},
-          ]
-          doc['elements'] = ornaments[:2] + kept + ornaments[2:]
-          path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
-
-          # Move the central cover focal ring upward to reduce title-to-logo dead space.
-          path = Path('instagram/factory/party_adapter.py')
-          text = path.read_text(encoding='utf-8')
-          text = text.replace('cx, cy, radius = 516, 430, 225', 'cx, cy, radius = 516, 375, 225', 1)
-          # Rebalance lower metrics slightly upward with the focal device.
-          text = text.replace('(270, 820)', '(270, 785)', 1)
-          text = text.replace('(270, 895)', '(270, 860)', 1)
-          text = text.replace('(762, 820)', '(762, 785)', 1)
-          text = text.replace('(762, 895)', '(762, 860)', 1)
-          text = text.replace('(215, 980, 817, 980)', '(215, 945, 817, 945)', 1)
-          text = text.replace('(516, 1035)', '(516, 1000)', 1)
-          text = text.replace('(516, 1083)', '(516, 1048)', 1)
-          path.write_text(text, encoding='utf-8')
-
-          # Shrink/recenter chart content by roughly 10% inside the same visual canvas.
           path = Path('instagram/visuals/renderers/horizontal_bar.py')
           text = path.read_text(encoding='utf-8')
-          replacements = {
-              'PLOT_LEFT = 0.34':'PLOT_LEFT = 0.36',
-              'MAX_PLOT_LEFT = 0.40':'MAX_PLOT_LEFT = 0.42',
-              'PLOT_RIGHT = 0.955':'PLOT_RIGHT = 0.92',
-              'PLOT_BOTTOM = 0.085':'PLOT_BOTTOM = 0.12',
-              'PLOT_HEIGHT = 0.865':'PLOT_HEIGHT = 0.78',
-          }
-          for old,new in replacements.items():
-              text = text.replace(old,new,1)
+          text = text.replace('PLOT_BOTTOM = 0.12', 'PLOT_BOTTOM = 0.14', 1)
           path.write_text(text, encoding='utf-8')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/templates/assets instagram/templates/layouts/title_text_media_v1.json instagram/factory/party_adapter.py instagram/visuals/renderers/horizontal_bar.py
-          git commit -m "Use reference corners and refine v5 spacing" || true
+          git add instagram/visuals/renderers/horizontal_bar.py
+          git commit -m "Center party issue chart vertically for v6" || true
           git push
-      - name: Generate v5 live batch
-        shell: bash
+      - name: Validate and generate final all-party batch
         run: |
-          set +e
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
           python process/instagram_factory.py generate-batch \
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
-            --output-root generated_party_v5 \
+            --output-root generated_party_v6 \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > commissioning-v5-report.json
-          code=$?
-          set -e
-          if [ "$code" -ne 0 ]; then
-            mkdir -p instagram/commissioning/diagnostics
-            cp commissioning-v5-report.json instagram/commissioning/diagnostics/v5_generation_report.json
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add instagram/commissioning/diagnostics/v5_generation_report.json
-            git commit -m "Record v5 generation diagnostics" || true
-            git push
-            exit "$code"
-          fi
-      - name: Export selected v5 for review
-        shell: bash
+            > commissioning-v6-report.json
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_party_v6 \
+            > commissioning-v6-review-index.json
+      - name: Export all party review sets and contact sheets
         run: |
-          set -euo pipefail
-          src="generated_party_v5/generated/fianna-fail"
-          out="instagram/commissioning/output/fianna-fail/v5-review"
-          rm -rf "$out"
-          mkdir -p "$out/slides" "$out/review_previews" "$out/metadata"
-          cp "$src"/slides/*.png "$out/slides/"
-          cp "$src"/item_manifest.json "$out/metadata/item_manifest.json"
-          cp "$src"/manifests/visual_manifest.json "$out/metadata/visual_manifest.json"
           python <<'PY'
+          import json, math, shutil
           from pathlib import Path
-          from PIL import Image
-          root = Path('instagram/commissioning/output/fianna-fail/v5-review')
-          for src in sorted((root/'slides').glob('*.png')):
-              im = Image.open(src).convert('RGB')
-              im.thumbnail((540,675), Image.Resampling.LANCZOS)
-              im.save(root/'review_previews'/f'{src.stem}.jpg','JPEG',quality=82,optimize=True)
+          from PIL import Image, ImageDraw, ImageFont
+
+          src_root = Path('generated_party_v6')
+          out_root = Path('instagram/commissioning/output/all-parties/v6-final')
+          if out_root.exists():
+              shutil.rmtree(out_root)
+          parties_root = out_root / 'parties'
+          parties_root.mkdir(parents=True, exist_ok=True)
+
+          run = json.loads((src_root/'run_manifest.json').read_text(encoding='utf-8'))
+          records = []
+          for slug in run['item_order']:
+              src = src_root/'generated'/slug
+              dst = parties_root/slug
+              (dst/'slides').mkdir(parents=True, exist_ok=True)
+              (dst/'metadata').mkdir(parents=True, exist_ok=True)
+              for png in sorted((src/'slides').glob('*.png')):
+                  shutil.copy2(png, dst/'slides'/png.name)
+              shutil.copy2(src/'item_manifest.json', dst/'metadata'/'item_manifest.json')
+              if (src/'manifests'/'visual_manifest.json').exists():
+                  shutil.copy2(src/'manifests'/'visual_manifest.json', dst/'metadata'/'visual_manifest.json')
+              manifest = json.loads((src/'item_manifest.json').read_text(encoding='utf-8'))
+              records.append({'slug':slug,'label':manifest.get('item_label'),'status':manifest.get('status')})
+
+          shutil.copy2(src_root/'run_manifest.json', out_root/'run_manifest.json')
+          shutil.copy2('commissioning-v6-review-index.json', out_root/'review_index.json')
+          summary = {
+              'version':'v6-final',
+              'project_id':run.get('project_id'),
+              'source_batch_id':run.get('source_batch_id'),
+              'expected_item_count':run.get('expected_item_count'),
+              'succeeded_item_count':run.get('succeeded_item_count'),
+              'failed_item_count':run.get('failed_item_count'),
+              'parties':records,
+              'publishing_allowed':False,
+              'note':'Commissioning closeout batch using stale classified speech coverage; not for publication.'
+          }
+          (out_root/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+
+          font = ImageFont.load_default()
+          def sheet(slide_name, output_name):
+              thumbs=[]
+              for rec in records:
+                  p=parties_root/rec['slug']/'slides'/slide_name
+                  if not p.exists():
+                      continue
+                  im=Image.open(p).convert('RGB')
+                  im.thumbnail((270,338),Image.Resampling.LANCZOS)
+                  canvas=Image.new('RGB',(300,390),'white')
+                  canvas.paste(im,((300-im.width)//2,8))
+                  d=ImageDraw.Draw(canvas)
+                  d.text((150,355),str(rec['label']),font=font,fill='black',anchor='ma',align='center')
+                  thumbs.append(canvas)
+              cols=3
+              rows=math.ceil(len(thumbs)/cols)
+              sheet=Image.new('RGB',(cols*300,rows*390),'white')
+              for i,im in enumerate(thumbs):
+                  sheet.paste(im,((i%cols)*300,(i//cols)*390))
+              sheet.save(out_root/output_name,'JPEG',quality=88,optimize=True)
+          sheet('01_cover.png','contact_sheet_covers.jpg')
+          sheet('02_issue_profile.png','contact_sheet_top_issues.jpg')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$out"
-          git commit -m "Add Fianna Fail v5 review candidate" || true
+          git add instagram/commissioning/output/all-parties/v6-final
+          git commit -m "Add final all-party Instagram commissioning batch" || true
           git push
-      - name: Upload v5 evidence
-        if: always()
+      - name: Upload final commissioning evidence
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-party-v5-${{ github.run_id }}
+          name: instagram-party-v6-final-${{ github.run_id }}
           path: |
-            generated_party_v5/
-            commissioning-v5-report.json
-          if-no-files-found: warn
+            generated_party_v6/
+            commissioning-v6-report.json
+            commissioning-v6-review-index.json
+          if-no-files-found: error
