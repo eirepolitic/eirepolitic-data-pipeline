@@ -6,20 +6,10 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: classify-political-issues
-  cancel-in-progress: false
-
 jobs:
-  luna-recent-100:
+  finalize-migration:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,56 +18,36 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install 'openai>=3.6.0,<4'
-      - name: Run core tests
-        run: python -m unittest tests.test_oireachtas_speech_issue_classifier -v
-      - name: Run 100 recent-speech Luna classifications
-        id: sample
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Apply normalized legacy migration fallback
         run: |
-          python -m process.oireachtas_speech_issue_luna_sample \
-            --count 100 \
-            --cutoff 2026-02-26 \
-            --model gpt-5.6-luna \
-            --reasoning-effort low \
-            --verbosity low \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            --report-path speech_issue_luna_sample_100.json
-      - name: Build category summary and persist
-        if: always()
-        run: |
-          if [[ -f speech_issue_luna_sample_100.json ]]; then
-            python - <<'PY'
-          import json
-          from collections import Counter
+          python - <<'PY'
           from pathlib import Path
-          p = Path('speech_issue_luna_sample_100.json')
-          doc = json.loads(p.read_text(encoding='utf-8'))
-          counts = Counter(row['issue_label'] for row in doc.get('results', []))
-          doc['category_counts'] = dict(sorted(counts.items()))
-          doc['none_count'] = counts.get('NONE', 0)
-          doc['none_pct'] = round(counts.get('NONE', 0) / max(1, len(doc.get('results', []))) * 100, 1)
-          p.write_text(json.dumps(doc, indent=2, ensure_ascii=False, sort_keys=True) + '\n', encoding='utf-8')
+          import re
+          path = Path('process/oireachtas_speech_issue_classifier.py')
+          text = path.read_text(encoding='utf-8')
+          new_func = '''def build_legacy_lookups(legacy: pd.DataFrame):\n    if legacy.empty:\n        return {}, {}, {}, {}, {\n            "legacy_rows": 0,\n            "legacy_valid_labels": 0,\n            "legacy_ambiguous_exact_keys": 0,\n            "legacy_ambiguous_date_hash_keys": 0,\n            "legacy_ambiguous_normalized_exact_keys": 0,\n            "legacy_ambiguous_normalized_date_hash_keys": 0,\n        }\n    working = pd.DataFrame(index=legacy.index)\n    speech_text = _col(legacy, "Speech Text", "speech_text")\n    working["text_hash"] = speech_text.map(text_hash)\n    working["normalized_text_hash"] = speech_text.map(lambda value: text_hash(normalize_text(value)))\n    working["debate_date"] = _col(legacy, "Debate Date", "debate_date", "date").map(normalize_date)\n    working["speech_order"] = _col(legacy, "Speech Order", "speech_order").map(normalize_order)\n    working["speaker_name"] = _col(legacy, "Speaker Name", "speaker_name", "member_name").map(normalize_name)\n    working["issue_label"] = _col(legacy, "PoliticalIssues", "political_issues", "issue_label").map(canonicalize_label)\n    working = working[working["issue_label"] != ""].copy()\n    working["exact_key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["text_hash"]))\n    working["date_hash_key"] = list(zip(working["debate_date"], working["text_hash"]))\n    working["normalized_exact_key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["normalized_text_hash"]))\n    working["normalized_date_hash_key"] = list(zip(working["debate_date"], working["normalized_text_hash"]))\n    def exact_lookup(column):\n        lookup, ambiguous = {}, 0\n        for key, group in working.groupby(column, sort=False):\n            labels = sorted(set(group["issue_label"].tolist()))\n            if len(labels) == 1:\n                lookup[key] = labels[0]\n            else:\n                ambiguous += 1\n        return lookup, ambiguous\n    def unique_lookup(column):\n        lookup, ambiguous = {}, 0\n        for key, group in working.groupby(column, sort=False):\n            labels = sorted(set(group["issue_label"].tolist()))\n            if len(group) == 1 and len(labels) == 1:\n                lookup[key] = labels[0]\n            else:\n                ambiguous += 1\n        return lookup, ambiguous\n    exact, a_exact = exact_lookup("exact_key")\n    date_hash, a_date = unique_lookup("date_hash_key")\n    normalized_exact, a_norm_exact = exact_lookup("normalized_exact_key")\n    normalized_date_hash, a_norm_date = unique_lookup("normalized_date_hash_key")\n    return exact, date_hash, normalized_exact, normalized_date_hash, {\n        "legacy_rows": int(len(legacy)),\n        "legacy_valid_labels": int(len(working)),\n        "legacy_ambiguous_exact_keys": int(a_exact),\n        "legacy_ambiguous_date_hash_keys": int(a_date),\n        "legacy_ambiguous_normalized_exact_keys": int(a_norm_exact),\n        "legacy_ambiguous_normalized_date_hash_keys": int(a_norm_date),\n    }\n\n\n'''
+          text, n = re.subn(r'def build_legacy_lookups\([\s\S]*?\n\ndef build_legacy_lookup\(', new_func + 'def build_legacy_lookup(', text, count=1)
+          if n != 1:
+              raise SystemExit('build_legacy_lookups replacement failed')
+          text = text.replace('    exact, _, stats = build_legacy_lookups(legacy)\n', '    exact, _, _, _, stats = build_legacy_lookups(legacy)\n', 1)
+          text = text.replace('    legacy_exact, legacy_date_hash, legacy_stats = build_legacy_lookups(legacy)\n', '    legacy_exact, legacy_date_hash, legacy_normalized_exact, legacy_normalized_date_hash, legacy_stats = build_legacy_lookups(legacy)\n', 1)
+          text = text.replace('        "migrated_legacy_date_hash_unique": 0,\n', '        "migrated_legacy_date_hash_unique": 0,\n        "migrated_legacy_normalized_exact": 0,\n        "migrated_legacy_normalized_date_hash_unique": 0,\n', 1)
+          anchor = '''        if not issue_label:\n            issue_label = legacy_date_hash.get((debate_date, source_hash), "")\n            if issue_label:\n                issue_label_source = "legacy_migration_date_hash_unique"\n                model_name = "legacy_unknown"\n                classification_status = "none" if issue_label == "NONE" else "classified"\n                stats["migrated_legacy_date_hash_unique"] += 1\n\n'''
+          extra = anchor + '''        normalized_source_hash = text_hash(normalize_text(speech_text))\n        if not issue_label:\n            issue_label = legacy_normalized_exact.get((debate_date, speech_order, normalize_name(speaker_name), normalized_source_hash), "")\n            if issue_label:\n                issue_label_source = "legacy_migration_normalized_exact"\n                model_name = "legacy_unknown"\n                classification_status = "none" if issue_label == "NONE" else "classified"\n                stats["migrated_legacy_normalized_exact"] += 1\n        if not issue_label:\n            issue_label = legacy_normalized_date_hash.get((debate_date, normalized_source_hash), "")\n            if issue_label:\n                issue_label_source = "legacy_migration_normalized_date_hash_unique"\n                model_name = "legacy_unknown"\n                classification_status = "none" if issue_label == "NONE" else "classified"\n                stats["migrated_legacy_normalized_date_hash_unique"] += 1\n\n'''
+          if anchor not in text:
+              raise SystemExit('legacy date-hash anchor missing')
+          text = text.replace(anchor, extra, 1)
+          text = text.replace('    stats["migrated_legacy"] = stats["migrated_legacy_exact"] + stats["migrated_legacy_date_hash_unique"]\n', '    stats["migrated_legacy"] = (stats["migrated_legacy_exact"] + stats["migrated_legacy_date_hash_unique"] + stats["migrated_legacy_normalized_exact"] + stats["migrated_legacy_normalized_date_hash_unique"])\n', 1)
+          path.write_text(text, encoding='utf-8')
           PY
-            mkdir -p diagnostics/speech_classifier
-            cp speech_issue_luna_sample_100.json diagnostics/speech_classifier/latest_luna_sample_100.json
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add diagnostics/speech_classifier/latest_luna_sample_100.json
-            git commit -m "Record 100-speech Luna sample" || true
-            git push
-          fi
-      - name: Upload sample evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: luna-recent-100-${{ github.run_id }}
-          path: speech_issue_luna_sample_100.json
-          if-no-files-found: warn
-          retention-days: 180
+      - name: Run core classifier tests
+        run: python -m unittest tests.test_oireachtas_speech_issue_classifier -v
+      - name: Commit classifier patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add process/oireachtas_speech_issue_classifier.py
+          git commit -m "Add normalized legacy classification migration fallback"
+          git push
