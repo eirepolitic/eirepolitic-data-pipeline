@@ -1,0 +1,175 @@
+{
+  "adapter_id": "party_issue_profile_v1",
+  "approved": false,
+  "created_at": "2026-08-31T16:48:08.896021+00:00",
+  "data_source": "s3",
+  "draft": true,
+  "expected_item_count": 11,
+  "failed_item_count": 1,
+  "failures": [
+    {
+      "error": "Render warnings for People Before Profit-Solidarity/cover: ['text_clipped:title']",
+      "item_label": "People Before Profit-Solidarity",
+      "item_slug": "people-before-profit-solidarity"
+    }
+  ],
+  "git_sha": "c44cf632d99b3d1591c570a736d40ebc6b571dbd",
+  "grain": "party",
+  "item_order": [
+    "100-rdr",
+    "aontu",
+    "fianna-fail",
+    "fine-gael",
+    "green-party",
+    "independent",
+    "independent-ireland",
+    "labour-party",
+    "people-before-profit-solidarity",
+    "sinn-fein",
+    "social-democrats"
+  ],
+  "items": {
+    "100-rdr": {
+      "label": "100% RDR",
+      "manifest": "generated/100-rdr/item_manifest.json",
+      "status": "succeeded"
+    },
+    "aontu": {
+      "label": "Aontú",
+      "manifest": "generated/aontu/item_manifest.json",
+      "status": "succeeded"
+    },
+    "fianna-fail": {
+      "label": "Fianna Fáil",
+      "manifest": "generated/fianna-fail/item_manifest.json",
+      "status": "succeeded"
+    },
+    "fine-gael": {
+      "label": "Fine Gael",
+      "manifest": "generated/fine-gael/item_manifest.json",
+      "status": "succeeded"
+    },
+    "green-party": {
+      "label": "Green Party",
+      "manifest": "generated/green-party/item_manifest.json",
+      "status": "succeeded"
+    },
+    "independent": {
+      "label": "Independent",
+      "manifest": "generated/independent/item_manifest.json",
+      "status": "succeeded"
+    },
+    "independent-ireland": {
+      "label": "Independent Ireland",
+      "manifest": "generated/independent-ireland/item_manifest.json",
+      "status": "succeeded"
+    },
+    "labour-party": {
+      "label": "Labour Party",
+      "manifest": "generated/labour-party/item_manifest.json",
+      "status": "succeeded"
+    },
+    "people-before-profit-solidarity": {
+      "label": "People Before Profit-Solidarity",
+      "manifest": "generated/people-before-profit-solidarity/item_manifest.json",
+      "status": "failed"
+    },
+    "sinn-fein": {
+      "label": "Sinn Féin",
+      "manifest": "generated/sinn-fein/item_manifest.json",
+      "status": "succeeded"
+    },
+    "social-democrats": {
+      "label": "Social Democrats",
+      "manifest": "generated/social-democrats/item_manifest.json",
+      "status": "succeeded"
+    }
+  },
+  "join_manifest": {
+    "date_field": "Debate Date",
+    "ignored_empty_issue": 17935,
+    "issue_field": "PoliticalIssues",
+    "matched_speeches": 29233,
+    "member_name_field": "full_name",
+    "member_rows": 176,
+    "party_count": 11,
+    "party_field": "party",
+    "period_end": "2026-02-26",
+    "period_start": "2024-12-18",
+    "speaker_field": "Speaker Name",
+    "speech_rows": 47275,
+    "unmatched_speeches": 107
+  },
+  "output_root": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_v4",
+  "project_id": "party_issue_profile_v1",
+  "project_version": 1,
+  "publishing_allowed": false,
+  "review_state": "unreviewed",
+  "run_id": "party_issue_profile_v1-v1-1eebdaaa83bd",
+  "source_batch_id": "scheduled-weekly-33310991798-1",
+  "source_manifest": {
+    "members": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "scheduled-weekly-33310991798-1",
+        "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "row_count": 176,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+    },
+    "mode": "s3",
+    "speeches": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "scheduled-weekly-33310991798-1",
+        "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv",
+      "row_count": 47275,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+    }
+  },
+  "state": "partially_failed",
+  "succeeded_item_count": 10,
+  "warnings": [
+    "granularity.source_metric party_issue_counts remains draft",
+    "slides[1].post_type_id title_text_media_v1 remains draft",
+    "slides[2].post_type_id title_text_media_v1 remains draft",
+    "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+    "slides[2].visual metric party_issue_counts remains draft"
+  ],
+  "workflow_run_id": "33416061417"
+}
