@@ -1,6 +1,6 @@
 # Party asset layer v1
 
-Status: implementation in progress on `feature/party-asset-layer-v1`.
+Status: implementation paused pending manual logo sourcing for the remaining unresolved parties.
 
 ## Scope
 
@@ -57,41 +57,49 @@ Priority:
 
 1. exact logo/brand asset served by an official party site;
 2. exact registered-emblem asset published by the Electoral Commission;
-3. authoritative register/brand page pending exact-file verification;
-4. explicit approved fallback.
+3. authoritative manually supplied party artwork after provenance review;
+4. explicit EirePolitic-generated stand-in where no official shared identity exists.
 
-Do not scrape a generic webpage and guess which image is the logo. Do not fabricate an official-looking logo. Do not synthesize a combined emblem for non-standard groupings.
+Do not scrape a generic webpage and guess which image is the logo. Do not fabricate an official-looking party logo. Do not synthesize a combined emblem for non-standard groupings.
 
-`Independent` is `approved_fallback` with `fallback_type=no_party_logo`; it has no party-logo S3 URI. Consumers must use an explicitly neutral non-party treatment.
+`Independent` uses an EirePolitic-generated neutral `IND / INDEPENDENT` stand-in. It is explicitly marked `eirepolitic_generated_standin`, is not official branding, and must never be presented as an official Independent party emblem.
 
 ## Source audit snapshot — 2026-08-31
 
-Exact direct authoritative asset URLs are pinned for:
+Exact direct authoritative asset URLs are pinned and technically working for:
 
 - `100-rdr` — Electoral Commission registered emblem
 - `aontu` — official Aontú logo asset
-- `fine-gael` — official Fine Gael logo asset; current pinned variant uses light/white text and requires visual review
+- `fine-gael` — official Fine Gael logo asset
 - `green-party` — official Green Party SVG
 - `independent-ireland` — Electoral Commission registered emblem
 - `labour-party` — official Labour RGB SVG mark
 - `people-before-profit-solidarity` — Electoral Commission registered grouping emblem
 
-Still intentionally unresolved at exact-file level:
+Generated stand-in:
+
+- `independent` — neutral EirePolitic-created stand-in; not official branding
+
+### Deferred manual sourcing
+
+The following remain intentionally unresolved and are now deferred for manual sourcing:
 
 - `fianna-fail`
 - `sinn-fein`
 - `social-democrats`
 
-All three have authoritative official-party / Electoral Commission evidence for their identity and registered emblem, but the registry does not yet point at a standalone direct reusable source file. PDF extraction, screenshot-derived artwork, or guessed site assets have not been substituted.
+Automated official-site discovery and official-publication extraction were attempted. The resulting candidates were reviewed and rejected as not sufficiently correct for canonical use. **None of those publication-derived candidates are approved or canonical.**
+
+When work resumes, manually supplied logo files for these parties should be placed through the same provenance/normalization/review pipeline rather than bypassing the asset layer.
 
 No open redistribution licence is assumed where none is explicitly published. Usage notes remain conservative and assets stay unapproved until human review.
 
 ## Asset states
 
 - `source_identified_pending_ingest`: authoritative source identified, normalized approved S3 asset not yet present.
-- `pending_review`: prepared asset requires human/source/licensing review.
+- `pending_review`: prepared/generated asset requires human/source/licensing review.
 - `approved`: normalized asset exists, validates technically, and is approved for use.
-- `approved_fallback`: no party logo should be used and an explicit fallback applies.
+- `approved_fallback`: explicit no-logo treatment where applicable.
 
 No recognized party may silently fall through to invented branding.
 
@@ -101,18 +109,18 @@ No recognized party may silently fall through to invented branding.
 
 `process/party_assets.py`
 
-Validates unique keys, aliases, provenance, fallback state, and can perform a read-only S3 candidate audit.
+Validates unique keys, aliases, provenance, generated stand-ins, fallback state, and can perform a read-only S3 candidate audit.
 
 ```bash
 python -m unittest tests.test_party_assets -v
 python -m process.party_assets
 ```
 
-### Safe source fetch
+### Source staging
 
 `process/party_assets_fetch.py`
 
-Fetches only direct HTTPS image/SVG URLs with an approved direct-asset `source_type`. Generic party webpages remain `unresolved_source` and are never scraped for guessed assets.
+Fetches only approved direct HTTPS image/SVG sources and generates registered EirePolitic stand-ins locally. Generic party webpages remain `unresolved_source` and are never scraped for guessed canonical assets.
 
 ```bash
 python -m process.party_assets_fetch \
@@ -146,16 +154,9 @@ python -m process.party_assets_upload --build-root generated_party_asset_review/
 
 ## CI / review
 
-`.github/workflows/party_assets_review.yml` performs a no-S3-write review build:
+`.github/workflows/party_assets_review.yml` performs a no-S3-write review build and publishes browser-accessible review sheets on the feature branch.
 
-1. run all party-asset unit tests;
-2. fetch direct authoritative assets only;
-3. normalize available assets;
-4. generate manifest and light/dark contact sheet;
-5. expose per-party fetch states;
-6. retain a packaged review artifact and standalone contact sheet.
-
-The workflow deliberately remains incomplete/red while any recognized non-fallback party lacks a reviewed source.
+`.github/workflows/party_assets_publication_review.yml` is review-only tooling for extracting candidates from official party publications. Its candidates are advisory only and are not canonical. Current publication-derived candidates were rejected and should not be promoted.
 
 `.github/workflows/party_assets_audit.yml` performs a read-only S3 inventory. Registry/build/upload tests pass, but the configured GitHub Actions AWS principal currently receives `AccessDenied` for bucket enumeration.
 
@@ -168,14 +169,17 @@ Resource: arn:aws:s3:::eirepolitic-data
 
 No `s3:PutObject`, delete, or production-pointer permission is required for the discovery audit. IAM has not been changed by this work.
 
-## Remaining sequence
+## Resume point
 
-1. Review the generated contact sheet and source provenance for fetched assets.
-2. Resolve exact standalone authoritative files for Fianna Fáil, Sinn Féin, and Social Democrats (or explicitly approve a different authoritative extraction strategy).
-3. Grant/execute read-only `s3:ListBucket` audit to determine whether equivalent party assets already exist elsewhere in the bucket.
-4. Compare any existing S3 candidates against the authoritative sources and reject stale/unofficial duplicates.
-5. Mark reviewed rows `pending_review`/`approved` as appropriate.
-6. Only after explicit human approval, use the guarded uploader for the new versioned S3 prefix and store CSV/Parquet/manifest/contact-sheet outputs.
-7. In a separate rendering change, replace the temporary party-name wordmark with the shared `party_key -> asset` resolver without redesigning the post.
+When manual logo files for Fianna Fáil, Sinn Féin, and Social Democrats are available:
+
+1. supply/upload the three files and identify their source/provenance where known;
+2. add them to the party asset staging/review flow;
+3. normalize and regenerate the complete contact sheet;
+4. review/approve the complete asset set, including the Independent stand-in;
+5. run the read-only S3 inventory when `s3:ListBucket` is available;
+6. compare existing S3 candidates and reject stale/unofficial duplicates;
+7. only after explicit approval, perform the guarded versioned S3 upload;
+8. integrate the shared resolver into Instagram in a separate rendering change without redesigning the post.
 
 The classified-debate cutoff/backfill issue remains out of scope.
