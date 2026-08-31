@@ -49,7 +49,13 @@ def _download_pdf(url: str, session=None) -> bytes:
     if parsed.scheme != "https" or not parsed.netloc:
         raise ValueError(f"PDF source must be HTTPS: {url}")
     http = session or requests.Session()
-    response = http.get(url, timeout=TIMEOUT_SECONDS, stream=True, allow_redirects=True)
+    response = http.get(
+        url,
+        timeout=TIMEOUT_SECONDS,
+        stream=True,
+        allow_redirects=True,
+        headers={"User-Agent": "Mozilla/5.0 EirePoliticPartyAssetReview/1.0"},
+    )
     response.raise_for_status()
     final = urlparse(response.url)
     if final.scheme != "https":
@@ -81,6 +87,14 @@ def _save_preview(image: Image.Image, path: Path, max_size=(430, 330)) -> None:
     rgba.save(path, "PNG")
 
 
+def _render_region(page, clip: fitz.Rect) -> Image.Image:
+    pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5), clip=clip, alpha=False)
+    image = Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGB")
+    if image.getbbox() is None:
+        raise ValueError("rendered page region is empty")
+    return image
+
+
 def extract_candidates(row: dict[str, str], output_root: Path, session=None) -> list[dict]:
     party_key = row["party_key"].strip()
     pdf_url = row["publication_url"].strip()
@@ -95,7 +109,6 @@ def extract_candidates(row: dict[str, str], output_root: Path, session=None) -> 
         for page_index in range(min(page_limit, document.page_count)):
             page = document.load_page(page_index)
 
-            # Embedded raster/image candidates.
             for image_index, image_info in enumerate(page.get_images(full=True), start=1):
                 xref = image_info[0]
                 extracted = document.extract_image(xref)
@@ -127,21 +140,19 @@ def extract_candidates(row: dict[str, str], output_root: Path, session=None) -> 
                     "publication_url": pdf_url,
                 })
 
-            # Top branding region candidate. Useful when the logo is vector artwork.
             rect = page.rect
             clip = fitz.Rect(rect.x0, rect.y0, rect.x1, rect.y0 + rect.height * 0.35)
-            pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5), clip=clip, alpha=True)
+            image = _render_region(page, clip)
             candidate_index += 1
             preview_path = output_root / "previews" / party_key / f"top_region_p{page_index + 1}.png"
-            image = Image.open(io.BytesIO(pix.tobytes("png")))
             _save_preview(image, preview_path, max_size=(460, 330))
             entries.append({
                 "party_key": party_key,
                 "party_name": row["party_name"],
                 "kind": "top_page_region",
                 "page": page_index + 1,
-                "width": pix.width,
-                "height": pix.height,
+                "width": image.width,
+                "height": image.height,
                 "preview_path": str(preview_path),
                 "publication_url": pdf_url,
             })
@@ -165,10 +176,7 @@ def build_contact_sheet(entries: list[dict], output: Path) -> None:
         top = row_idx * CELL_H
         draw.rectangle((left, top, left + CELL_W - 1, top + CELL_H - 1), outline="black", width=1)
         box = (left + 20, top + 20, left + CELL_W - 20, top + 355)
-        mid = (box[0] + box[2]) // 2
-        draw.rectangle((box[0], box[1], mid, box[3]), fill="#f2f2f2")
-        draw.rectangle((mid + 1, box[1], box[2], box[3]), fill="#263238")
-        draw.rectangle(box, outline="#999999", width=1)
+        draw.rectangle(box, fill="#f4f4f4", outline="#999999", width=1)
 
         preview = Path(entry["preview_path"])
         if preview.is_file():
