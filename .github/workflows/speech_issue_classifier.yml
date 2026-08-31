@@ -113,6 +113,16 @@ jobs:
           echo "exit_code=${exit_code}" >> "${GITHUB_OUTPUT}"
           exit "${exit_code}"
 
+      - name: Run legacy migration audit
+        if: inputs.mode == 'readiness' && steps.classifier_run.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m process.oireachtas_speech_issue_migration_audit \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --report-path speech_issue_migration_audit.json
+
       - name: Persist classifier diagnostics on branch
         if: always()
         shell: bash
@@ -120,6 +130,7 @@ jobs:
           mkdir -p diagnostics/speech_classifier
           cp speech_classifier_console.log diagnostics/speech_classifier/latest_console.log 2>/dev/null || true
           cp speech_issue_classifier_report.json diagnostics/speech_classifier/latest_report.json 2>/dev/null || true
+          cp speech_issue_migration_audit.json diagnostics/speech_classifier/latest_migration_audit.json 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/speech_classifier
@@ -157,8 +168,16 @@ jobs:
             echo "- Classifier outcome: `${{ steps.classifier_run.outcome }}`"
             if [[ -f speech_issue_classifier_report.json ]]; then
               echo
+              echo '### Readiness/classifier report'
               echo '```json'
               cat speech_issue_classifier_report.json
+              echo '```'
+            fi
+            if [[ -f speech_issue_migration_audit.json ]]; then
+              echo
+              echo '### Migration audit'
+              echo '```json'
+              cat speech_issue_migration_audit.json
               echo '```'
             fi
           } >> "${GITHUB_STEP_SUMMARY}"
@@ -170,6 +189,7 @@ jobs:
           name: speech-classifier-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             speech_issue_classifier_report.json
+            speech_issue_migration_audit.json
             speech_classifier_console.log
             speech_classifier_seed.json
             speech_classifier_batch_manifest.json
