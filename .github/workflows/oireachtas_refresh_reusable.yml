@@ -150,13 +150,22 @@ jobs:
             *) echo 'classify_speeches requires silver_speeches in the refresh table set' >&2; exit 2 ;;
           esac
           python -m pip install 'openai>=3.6.0,<4'
-          python -m process.oireachtas_speech_issue_backfill \
-            --model "${OPENAI_MODEL}" \
-            --concurrency 4 \
-            --checkpoint-every 100 \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            --report-path speech_issue_classifier_report.json
+          success=false
+          for pass in 1 2 3 4; do
+            echo "=== speech classifier pass ${pass} ==="
+            if python -m process.oireachtas_speech_issue_backfill \
+              --model "${OPENAI_MODEL}" \
+              --concurrency 4 \
+              --checkpoint-every 100 \
+              --bucket "${S3_BUCKET}" \
+              --region "${AWS_REGION}" \
+              --report-path speech_issue_classifier_report.json; then
+              success=true
+              break
+            fi
+            echo "Classifier pass ${pass} left failed rows; resuming from checkpoint."
+          done
+          [[ "$success" == true ]]
       - name: Assemble candidate batch manifest
         if: inputs.publish_candidate
         shell: bash
