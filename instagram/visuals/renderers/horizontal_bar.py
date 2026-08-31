@@ -21,7 +21,7 @@ MIN_CATEGORY_FONT_SIZE = 14
 MAX_VALUE_FONT_SIZE = 16
 MIN_VALUE_FONT_SIZE = 14
 AXIS_FONT_SIZE = 12
-MAX_LABEL_LINES = 2
+MAX_LABEL_LINES = 3
 CLIP_TOLERANCE_PX = 3.0
 VALUE_LABEL_TARGET_X_RATIO = 0.965
 
@@ -90,42 +90,42 @@ def _wrap_two_lines(
     if _text_width(renderer, label, font_size) <= max_width_px:
         return label, False, _text_width(renderer, label, font_size)
 
-    # Only wrap at word boundaries. If a label cannot fit at a valid word
-    # boundary, let the existing truncation/validation path reject it rather
-    # than silently splitting a word for visual balance.
-    split_points = [index for index, character in enumerate(label) if character == " "]
-    best: tuple[float, str, str] | None = None
-    for index in split_points:
-        left = label[:index].rstrip()
-        right = label[index:].lstrip()
-        if not left or not right:
-            continue
-        left_width = _text_width(renderer, left, font_size)
-        right_width = _text_width(renderer, right, font_size)
-        widest = max(left_width, right_width)
+    words = label.split()
+
+    # Prefer two balanced lines at word boundaries.
+    best_two: tuple[float, list[str], float] | None = None
+    for i in range(1, len(words)):
+        lines = [" ".join(words[:i]), " ".join(words[i:])]
+        widths = [_text_width(renderer, line, font_size) for line in lines]
+        widest = max(widths)
         if widest <= max_width_px:
-            score = widest + abs(left_width - right_width) * 0.15
-            if best is None or score < best[0]:
-                best = (score, left, right)
-    if best is not None:
-        _, left, right = best
-        return f"{left}\n{right}", False, max(
-            _text_width(renderer, left, font_size),
-            _text_width(renderer, right, font_size),
-        )
+            score = widest + abs(widths[0] - widths[1]) * 0.15
+            if best_two is None or score < best_two[0]:
+                best_two = (score, lines, widest)
+    if best_two is not None:
+        return "\n".join(best_two[1]), False, best_two[2]
+
+    # For long taxonomy labels, allow a third line rather than truncating or
+    # splitting words. Seven-row charts have sufficient vertical room for this.
+    best_three: tuple[float, list[str], float] | None = None
+    for i in range(1, len(words) - 1):
+        for j in range(i + 1, len(words)):
+            lines = [" ".join(words[:i]), " ".join(words[i:j]), " ".join(words[j:])]
+            widths = [_text_width(renderer, line, font_size) for line in lines]
+            widest = max(widths)
+            if widest <= max_width_px:
+                score = widest + (max(widths) - min(widths)) * 0.12
+                if best_three is None or score < best_three[0]:
+                    best_three = (score, lines, widest)
+    if best_three is not None:
+        return "\n".join(best_three[1]), False, best_three[2]
 
     if not allow_truncate:
         return label, True, _text_width(renderer, label, font_size)
 
-    midpoint = max(1, len(label) // 2)
-    split = min(range(1, len(label)), key=lambda value: abs(value - midpoint))
-    left = _ellipsize(renderer, label[:split].rstrip(), font_size, max_width_px)
-    right = _ellipsize(renderer, label[split:].lstrip(), font_size, max_width_px)
-    return f"{left}\n{right}", True, max(
-        _text_width(renderer, left, font_size),
-        _text_width(renderer, right, font_size),
-    )
-
+    # Last-resort truncation remains explicit so strict visual QA can reject it.
+    candidate = _ellipsize(renderer, label, font_size, max_width_px)
+    return candidate, True, _text_width(renderer, candidate, font_size)
 
 def _select_label_layout(
     renderer: Any,
@@ -247,6 +247,8 @@ def render(
                 value_label = f"+{value:.1f} pp"
             elif value_format == "plus_decimal_2":
                 value_label = f"+{value:.2f}"
+            elif value_format == "plus_per_td_2":
+                value_label = f"+{value:.2f}/TD"
             elif value_format == "decimal_2":
                 value_label = f"{value:.2f}"
             else:

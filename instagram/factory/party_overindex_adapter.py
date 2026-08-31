@@ -266,7 +266,7 @@ def render_assets(item_dir: Path, context: dict[str, Any], project: dict[str, An
         raise ValueError(f"No above-average categories for {context.get('party')}")
 
     mode = str(context.get("mode"))
-    value_format = "plus_pp_1" if mode == "share_pp" else "plus_decimal_2"
+    value_format = "plus_pp_1" if mode == "share_pp" else "plus_per_td_2"
     sample = {
         "visual_id": f"{context.get('party_key')}-{mode}",
         "bindings": {"label": "label", "value": "value"},
