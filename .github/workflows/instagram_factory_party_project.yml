@@ -43,14 +43,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          src="generated_party_commissioning/generated/fianna-fail"
           out="instagram/commissioning/output/fianna-fail/v0-baseline"
           rm -rf "$out"
           mkdir -p "$out/slides" "$out/metadata"
-          cp generated_party_commissioning/generated/fianna-fail/slides/*.png "$out/slides/"
-          cp -R generated_party_commissioning/generated/fianna-fail/slides/metadata "$out/metadata/slide_metadata"
-          cp generated_party_commissioning/generated/fianna-fail/manifests/*.json "$out/metadata/" || true
-          cp generated_party_commissioning/manifests/fianna-fail.json "$out/item_manifest.json"
+          cp "$src"/slides/*.png "$out/slides/"
+          cp -R "$src"/slides/metadata "$out/metadata/slide_metadata"
+          cp "$src"/item_manifest.json "$out/item_manifest.json"
           cp generated_party_commissioning/run_manifest.json "$out/run_manifest.json"
+          cp generated_party_commissioning/review/review_state.json "$out/review_state.json"
           cp commissioning-review-index.json "$out/review_index.json"
           python <<'PY'
           import json
