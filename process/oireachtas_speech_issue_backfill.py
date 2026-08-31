@@ -12,7 +12,6 @@ import pandas as pd
 
 from extract.oireachtas.batch import current_batch_id
 from extract.oireachtas.io_s3 import candidate_publishing_enabled, make_s3_client, put_dataframe_csv
-from process.oireachtas_speech_issue_bulk_cost_sample import classify_one
 from process.oireachtas_speech_issue_classifier import (
     DEFAULT_MODEL,
     ENRICHMENT_CSV_KEY,
@@ -23,6 +22,7 @@ from process.oireachtas_speech_issue_classifier import (
     validate_enrichment,
     write_outputs,
 )
+from process.oireachtas_speech_issue_openai import classify_row
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,6 +37,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def write_checkpoint(s3: Any, *, bucket: str, output: pd.DataFrame) -> None:
+    # During an active candidate batch the IO layer redirects this logical key
+    # into the candidate. It is intentionally not registered in the manifest
+    # until the dataset is complete and passes final DQ.
     put_dataframe_csv(s3, bucket=bucket, key=ENRICHMENT_CSV_KEY, df=output)
 
 
@@ -59,18 +62,15 @@ def main() -> int:
     completed_since_checkpoint = 0
     model_succeeded = 0
     model_failed = 0
-    usage = {"input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0}
     failure_rows: list[dict[str, Any]] = []
+    attempt_counts: dict[str, int] = {}
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
         future_to_idx = {
             executor.submit(
-                classify_one,
+                classify_row,
                 {
                     "speech_id": output.at[idx, "speech_id"],
-                    "debate_date": output.at[idx, "debate_date"],
-                    "speaker_name": output.at[idx, "speaker_name"],
-                    "word_count": int(output.at[idx, "word_count"]),
                     "speech_text": output.at[idx, "speech_text"],
                 },
                 model=args.model,
@@ -81,8 +81,8 @@ def main() -> int:
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]
             result = future.result()
-            for key in usage:
-                usage[key] += int(result.get(key, 0) or 0)
+            attempts = str(int(result.get("attempts", 0) or 0))
+            attempt_counts[attempts] = attempt_counts.get(attempts, 0) + 1
 
             if result.get("status") == "success":
                 label = str(result["issue_label"])
@@ -125,8 +125,8 @@ def main() -> int:
         "model_succeeded_this_run": model_succeeded,
         "model_failed_this_run": model_failed,
         "remaining_pending": int((output["classification_status"] == "pending").sum()),
+        "attempt_counts": attempt_counts,
         "elapsed_seconds": round(elapsed, 3),
-        "usage": usage,
     }
     report: dict[str, Any] = {
         "batch_id": current_batch_id(),
