@@ -15,6 +15,8 @@ on:
       batch_id: {required: true, type: string}
       publish_candidate: {required: false, type: boolean, default: false}
       seed_from_production: {required: false, type: boolean, default: false}
+      classify_speeches: {required: false, type: boolean, default: false}
+      speech_classifier_model: {required: false, type: string, default: gpt-5.6-luna}
     outputs:
       batch_id: {value: "${{ jobs.refresh.outputs.batch_id }}"}
       tables: {value: "${{ jobs.refresh.outputs.tables }}"}
@@ -63,6 +65,10 @@ jobs:
           set -euo pipefail
           if [[ '${{ inputs.seed_from_production }}' == 'true' && '${{ inputs.publish_candidate }}' != 'true' ]]; then
             echo 'seed_from_production requires publish_candidate=true' >&2
+            exit 2
+          fi
+          if [[ '${{ inputs.classify_speeches }}' == 'true' && '${{ inputs.publish_candidate }}' != 'true' ]]; then
+            echo 'classify_speeches requires publish_candidate=true so outputs remain candidate-scoped' >&2
             exit 2
           fi
           python process/oireachtas_refresh_inputs.py \
@@ -130,6 +136,29 @@ jobs:
               --github-repository "${GITHUB_REPOSITORY}" \
               2>&1 | tee -a oireachtas_refresh.log
           done
+      - name: Classify unified speech issue enrichment
+        if: inputs.classify_speeches
+        shell: bash
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ inputs.speech_classifier_model }}
+          TABLES: ${{ steps.inputs.outputs.tables }}
+        run: |
+          set -euo pipefail
+          case ",${TABLES}," in
+            *,silver_speeches,*) ;;
+            *) echo 'classify_speeches requires silver_speeches in the refresh table set' >&2; exit 2 ;;
+          esac
+          python process/oireachtas_speech_issue_classifier.py \
+            --mode classify \
+            --max-model-rows 0 \
+            --model "${OPENAI_MODEL}" \
+            --reasoning-effort low \
+            --verbosity low \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --report-path speech_issue_classifier_report.json \
+            --write
       - name: Assemble candidate batch manifest
         if: inputs.publish_candidate
         shell: bash
@@ -143,6 +172,9 @@ jobs:
             table="${table//[[:space:]]/}"
             args+=(--required-table "${table}")
           done
+          if [[ '${{ inputs.classify_speeches }}' == 'true' ]]; then
+            args+=(--required-table enrichment_speech_issue_labels)
+          fi
           OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas_batch_manifest.json
       - name: Record workflow result
         id: result
@@ -163,6 +195,8 @@ jobs:
             echo "- Batch ID: `${OIREACHTAS_BATCH_ID}`"
             echo "- Candidate publishing: `${{ inputs.publish_candidate }}`"
             echo "- Seeded from production: `${{ inputs.seed_from_production }}`"
+            echo "- Speech classification: `${{ inputs.classify_speeches }}`"
+            echo "- Speech classifier model: `${{ inputs.speech_classifier_model }}`"
             echo "- Tables refreshed: `${{ steps.inputs.outputs.table_count || 'unknown' }}`"
             echo
             echo '```text'
@@ -180,5 +214,6 @@ jobs:
             oireachtas_refresh.log
             oireachtas_refresh_inputs.json
             oireachtas_batch_manifest.json
+            speech_issue_classifier_report.json
           if-no-files-found: warn
           retention-days: 90
