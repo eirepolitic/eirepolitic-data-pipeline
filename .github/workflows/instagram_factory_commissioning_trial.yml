@@ -1,0 +1,101 @@
+name: Instagram Content Factory commissioning trial
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pillow matplotlib boto3 requests
+      - name: Validate project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
+      - name: Generate live commissioning batch
+        run: |
+          python process/instagram_factory.py generate-batch \
+            --project instagram/projects/party_issue_profile_v1/project.yml \
+            --data-source s3 \
+            --output-root generated_party_commissioning \
+            --git-sha "$GITHUB_SHA" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            > commissioning-batch-report.json
+      - name: Build review index
+        run: |
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_party_commissioning \
+            > commissioning-review-index.json
+      - name: Print commissioning data summary
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("generated_party_commissioning")
+          run = json.loads((root / "run_manifest.json").read_text(encoding="utf-8"))
+          print("COMMISSIONING_RUN_SUMMARY_BEGIN")
+          print(json.dumps({
+              "project_id": run["project_id"],
+              "run_id": run["run_id"],
+              "git_sha": run["git_sha"],
+              "source_batch_id": run["source_batch_id"],
+              "state": run["state"],
+              "expected_item_count": run["expected_item_count"],
+              "succeeded_item_count": run["succeeded_item_count"],
+              "failed_item_count": run["failed_item_count"],
+              "source_manifest": run["source_manifest"],
+              "join_manifest": run["join_manifest"],
+          }, indent=2, sort_keys=True))
+          print("COMMISSIONING_RUN_SUMMARY_END")
+
+          candidates = []
+          for slug in run["item_order"]:
+              manifest_path = root / run["items"][slug]["manifest"]
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+              visual_path = root / "generated" / slug / "manifests" / "visual_manifest.json"
+              visual = json.loads(visual_path.read_text(encoding="utf-8")) if visual_path.exists() else {}
+              rows = visual.get("displayed_rows") or visual.get("rows") or visual.get("data") or []
+              candidates.append({
+                  "slug": slug,
+                  "label": manifest.get("item_label"),
+                  "status": manifest.get("status"),
+                  "source_batch_id": manifest.get("source_batch_id"),
+                  "slides": [{"slide_id": s["slide_id"], "sha256": s["sha256"], "width": s["width"], "height": s["height"]} for s in manifest.get("slides", [])],
+                  "visual_manifest": visual,
+                  "rows": rows,
+              })
+          summary = {"candidates": candidates}
+          Path("commissioning-candidates.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print("COMMISSIONING_CANDIDATES_BEGIN")
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          print("COMMISSIONING_CANDIDATES_END")
+          PY
+      - name: Upload commissioning batch
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-party-commissioning-${{ github.run_id }}
+          path: |
+            generated_party_commissioning/
+            commissioning-batch-report.json
+            commissioning-review-index.json
+            commissioning-candidates.json
+          if-no-files-found: error
