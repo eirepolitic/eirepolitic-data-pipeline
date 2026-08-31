@@ -123,22 +123,21 @@ jobs:
             --region "${AWS_REGION}" \
             --report-path speech_issue_migration_audit.json
 
-      - name: Run Luna recent-speech commissioning sample
+      - name: Run Luna historical benchmark
         if: inputs.mode == 'readiness' && steps.classifier_run.outcome == 'success' && github.ref == 'refs/heads/feature/unified-speech-issue-classifier'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
-          python -m process.oireachtas_speech_issue_luna_sample \
-            --count 25 \
-            --cutoff 2026-02-26 \
+          python -m process.oireachtas_speech_issue_luna_benchmark \
+            --per-label 4 \
             --model gpt-5.6-luna \
             --reasoning-effort low \
             --verbosity low \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
-            --report-path speech_issue_luna_sample.json
+            --report-path speech_issue_luna_benchmark.json
 
       - name: Persist classifier diagnostics on branch
         if: always()
@@ -148,7 +147,7 @@ jobs:
           cp speech_classifier_console.log diagnostics/speech_classifier/latest_console.log 2>/dev/null || true
           cp speech_issue_classifier_report.json diagnostics/speech_classifier/latest_report.json 2>/dev/null || true
           cp speech_issue_migration_audit.json diagnostics/speech_classifier/latest_migration_audit.json 2>/dev/null || true
-          cp speech_issue_luna_sample.json diagnostics/speech_classifier/latest_luna_sample.json 2>/dev/null || true
+          cp speech_issue_luna_benchmark.json diagnostics/speech_classifier/latest_luna_benchmark.json 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/speech_classifier
@@ -184,27 +183,15 @@ jobs:
             echo "- Candidate write: `${{ inputs.write_candidate }}`"
             echo "- Candidate batch: `${OIREACHTAS_BATCH_ID:-none}`"
             echo "- Classifier outcome: `${{ steps.classifier_run.outcome }}`"
-            if [[ -f speech_issue_classifier_report.json ]]; then
-              echo
-              echo '### Readiness/classifier report'
-              echo '```json'
-              cat speech_issue_classifier_report.json
-              echo '```'
-            fi
-            if [[ -f speech_issue_migration_audit.json ]]; then
-              echo
-              echo '### Migration audit'
-              echo '```json'
-              cat speech_issue_migration_audit.json
-              echo '```'
-            fi
-            if [[ -f speech_issue_luna_sample.json ]]; then
-              echo
-              echo '### Luna recent-speech sample'
-              echo '```json'
-              cat speech_issue_luna_sample.json
-              echo '```'
-            fi
+            for file in speech_issue_classifier_report.json speech_issue_migration_audit.json speech_issue_luna_benchmark.json; do
+              if [[ -f "$file" ]]; then
+                echo
+                echo "### $file"
+                echo '```json'
+                cat "$file"
+                echo '```'
+              fi
+            done
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload classifier evidence
@@ -215,7 +202,7 @@ jobs:
           path: |
             speech_issue_classifier_report.json
             speech_issue_migration_audit.json
-            speech_issue_luna_sample.json
+            speech_issue_luna_benchmark.json
             speech_classifier_console.log
             speech_classifier_seed.json
             speech_classifier_batch_manifest.json
