@@ -11,9 +11,9 @@ from matplotlib.font_manager import FontProperties
 
 from .common import load_palette, utc_now, write_json
 
-PLOT_BOTTOM = 0.045
+PLOT_BOTTOM = 0.085
 PLOT_RIGHT = 0.97
-PLOT_HEIGHT = 0.91
+PLOT_HEIGHT = 0.865
 MIN_PLOT_LEFT = 0.28
 MAX_PLOT_LEFT = 0.40
 MAX_CATEGORY_FONT_SIZE = 18
@@ -279,6 +279,18 @@ def render(
     ax.tick_params(axis="x", colors=palette["muted"], labelsize=AXIS_FONT_SIZE)
     for spine in ax.spines.values():
         spine.set_visible(False)
+
+    source_note = str(sample.get("source_note") or "").strip()
+    if source_note:
+        fig.text(
+            0.5,
+            0.025,
+            source_note,
+            color=palette["muted"],
+            fontsize=8.5,
+            ha="center",
+            va="center",
+        )
 
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()

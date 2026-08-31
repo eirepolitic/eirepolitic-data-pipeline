@@ -160,7 +160,7 @@ def render_party_assets(item_dir: Path, context: dict[str, Any], project: dict[s
         "bindings": {"label": "label", "value": "value"},
         "filters": [],
         "grouping": {"grain": "party", "key": context["party_key"]},
-        "source_note": "Joined Oireachtas member and classified debate data",
+        "source_note": f"Dáil speeches · {context.get('period_start', '')} – {context.get('period_end', '')} · Houses of the Oireachtas / Eirepolitic classification",
         "attribution": {"source": "Houses of the Oireachtas / Eirepolitic classification"},
     }
     visual_manifest = horizontal_bar.render(

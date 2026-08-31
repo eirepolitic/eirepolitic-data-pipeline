@@ -70,6 +70,9 @@ def regenerate_project_items(
         item_manifest = load_json(item_manifest_path)
         current_slides = {slide["slide_id"]: slide for slide in item_manifest.get("slides", [])}
         asset_result = adapter.render_assets(item_dir, context, project)
+        visual_warnings = list((asset_result.get("visual_manifest") or {}).get("warnings") or [])
+        if visual_warnings:
+            raise ValueError(f"Visual warnings for {item_slug}: {visual_warnings}")
 
         for slide_id in selected_slide_ids:
             slide = slides_by_id[slide_id]
