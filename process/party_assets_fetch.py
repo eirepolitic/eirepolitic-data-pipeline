@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""Fetch reviewed party source assets into a local staging tree.
+"""Stage reviewed party source assets into a local deterministic tree.
 
-Safety/quality rules:
-- HTTPS only
-- only registry rows whose source_type identifies a direct asset are fetched
-- generic webpages are reported as unresolved, never scraped/guessed
-- supported image/SVG extensions only
-- bounded download size and timeout
-- existing staging files are not overwritten unless --replace is supplied
-- no S3 writes and no publishing
+External authoritative assets are fetched over HTTPS. EirePolitic-generated stand-ins
+are generated locally. Generic webpages remain unresolved and are never scraped or
+guessed. This module never writes to S3.
 """
 
 from __future__ import annotations
@@ -22,6 +17,7 @@ from urllib.parse import urlparse
 import requests
 
 from process.party_assets import DEFAULT_REGISTRY, PartyAsset, load_registry
+from process.party_assets_standin import generate_independent_standin
 
 SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 DIRECT_SOURCE_TYPES = {
@@ -29,6 +25,7 @@ DIRECT_SOURCE_TYPES = {
     "official_party_logo_asset_svg",
     "electoral_commission_registered_emblem_asset",
 }
+GENERATED_SOURCE_TYPES = {"eirepolitic_generated_standin"}
 MAX_BYTES = 12 * 1024 * 1024
 TIMEOUT_SECONDS = 30
 
@@ -50,9 +47,36 @@ def _content_type_ok(content_type: str, suffix: str) -> bool:
     return media_type.startswith("image/") or media_type == "application/octet-stream"
 
 
+def _stage_generated(row: PartyAsset, staging_root: Path, replace: bool) -> dict:
+    if row.source_type != "eirepolitic_generated_standin":
+        raise ValueError(f"Unsupported generated source type: {row.source_type}")
+    destination = staging_root / row.party_key / "source.png"
+    if destination.exists() and not replace:
+        return {
+            "party_key": row.party_key,
+            "status": "exists",
+            "path": str(destination),
+            "source_type": row.source_type,
+        }
+    if row.party_key != "independent":
+        raise ValueError(f"No stand-in generator registered for {row.party_key}")
+    result = generate_independent_standin(destination)
+    return {
+        "party_key": row.party_key,
+        "status": "generated",
+        "path": str(destination),
+        "source_type": row.source_type,
+        "official_branding": False,
+        "generator_metadata": result,
+    }
+
+
 def fetch_row(row: PartyAsset, staging_root: Path, replace: bool = False, session=None) -> dict:
     if row.asset_status == "approved_fallback":
         return {"party_key": row.party_key, "status": "fallback", "fallback_type": row.fallback_type}
+
+    if row.source_type in GENERATED_SOURCE_TYPES:
+        return _stage_generated(row, staging_root, replace)
 
     suffix = source_extension(row)
     if suffix is None:
@@ -136,22 +160,22 @@ def fetch_registry(
 
     unresolved = [item["party_key"] for item in results if item["status"] == "unresolved_source"]
     success = not errors and (allow_unresolved or not unresolved)
-    report = {
+    return {
         "registry": str(registry_path),
         "staging_root": str(staging_root),
         "success": success,
         "fetched_count": sum(item["status"] == "fetched" for item in results),
+        "generated_count": sum(item["status"] == "generated" for item in results),
         "fallback_count": sum(item["status"] == "fallback" for item in results),
         "unresolved_count": len(unresolved),
         "unresolved_parties": unresolved,
         "errors": errors,
         "results": results,
     }
-    return report
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch direct authoritative party logo sources into staging")
+    parser = argparse.ArgumentParser(description="Stage authoritative and generated party logo sources")
     parser.add_argument("--staging-root", required=True)
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
     parser.add_argument("--replace", action="store_true")
