@@ -206,6 +206,15 @@ def audit_s3(rows: Iterable[PartyAsset], bucket: str = DEFAULT_BUCKET, client=No
     }
 
 
+def _write_report(report: dict, output_path: str | None) -> None:
+    text = json.dumps(report, indent=2, ensure_ascii=False)
+    print(text)
+    if output_path:
+        output = Path(output_path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(text + "\n", encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate or audit the shared party asset registry")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
@@ -231,17 +240,19 @@ def main() -> int:
         ],
     }
 
+    audit_failed = False
     if args.audit_s3:
-        report["s3_audit"] = audit_s3(rows, bucket=args.bucket)
+        try:
+            report["s3_audit"] = audit_s3(rows, bucket=args.bucket)
+        except Exception as exc:
+            audit_failed = True
+            report["s3_audit_error"] = {
+                "type": type(exc).__name__,
+                "message": str(exc),
+            }
 
-    text = json.dumps(report, indent=2, ensure_ascii=False)
-    print(text)
-    if args.output:
-        output = Path(args.output)
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(text + "\n", encoding="utf-8")
-
-    return 1 if errors else 0
+    _write_report(report, args.output)
+    return 1 if errors or audit_failed else 0
 
 
 if __name__ == "__main__":
