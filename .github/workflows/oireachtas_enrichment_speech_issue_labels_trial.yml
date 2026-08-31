@@ -1,86 +1,38 @@
-name: Speech Classifier Production Rollout Finalizer
+name: Speech Classifier Rollout PR Ready Helper
 
 on:
   workflow_dispatch:
 
 permissions:
-  actions: read
-  contents: write
   pull-requests: write
+  contents: read
 
 jobs:
-  finalize:
+  ready:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-    env:
-      SOURCE_RUN_ID: '33431803802'
-      PR_NUMBER: '40'
     steps:
-      - name: Wait for validated production rollout
+      - name: Mark PR 40 ready for review
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          for i in $(seq 1 720); do
-            payload=$(curl --fail-with-body -sS -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}")
-            status=$(printf '%s' "$payload" | python -c "import json,sys; d=json.load(sys.stdin); print(d['status'])")
-            conclusion=$(printf '%s' "$payload" | python -c "import json,sys; d=json.load(sys.stdin); print(d.get('conclusion') or '')")
-            echo "source_run status=${status} conclusion=${conclusion}"
-            if [[ "$status" == 'completed' ]]; then
-              [[ "$conclusion" == 'success' ]]
-              exit 0
-            fi
-            sleep 30
-          done
-          echo 'Timed out waiting for production rollout.' >&2
-          exit 1
-
-      - name: Confirm PR is still clean and targets main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          payload=$(curl --fail-with-body -sS -L \
+          pr=$(curl --fail-with-body -sS -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}")
-          printf '%s' "$payload" | python - <<'PY'
-          import json, sys
-          d = json.load(sys.stdin)
-          assert d['state'] == 'open', d['state']
-          assert d['base']['ref'] == 'main', d['base']['ref']
-          assert d['head']['ref'] == 'production/speech-classifier-rollout-2026-08-31', d['head']['ref']
-          assert d.get('mergeable') is not False, d.get('mergeable')
-          print('PR guard passed')
-          PY
-
-      - name: Merge rollout PR
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          head_sha=$(curl --fail-with-body -sS -L \
-            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/40")
+          node_id=$(printf '%s' "$pr" | python -c "import json,sys; print(json.load(sys.stdin)['node_id'])")
+          curl --fail-with-body -sS -L -X POST \
             -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" \
-            | python -c "import json,sys; print(json.load(sys.stdin)['head']['sha'])")
-          curl --fail-with-body -sS -L -X PUT \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge" \
-            -d "{\"commit_title\":\"Roll out resumable unified speech issue classification\",\"merge_method\":\"squash\",\"sha\":\"${head_sha}\"}" \
-            | tee merge_result.json
+            -H "Content-Type: application/json" \
+            https://api.github.com/graphql \
+            -d "{\"query\":\"mutation { markPullRequestReadyForReview(input: {pullRequestId: \\\"${node_id}\\\"}) { pullRequest { number isDraft } } }\"}" \
+            | tee ready_result.json
           python - <<'PY'
           import json
           from pathlib import Path
-          d=json.loads(Path('merge_result.json').read_text())
-          assert d.get('merged') is True, d
-          print('merge passed', d.get('sha'))
+          d=json.loads(Path('ready_result.json').read_text())
+          assert not d.get('errors'), d
+          assert d['data']['markPullRequestReadyForReview']['pullRequest']['isDraft'] is False, d
+          print('PR 40 marked ready')
           PY
