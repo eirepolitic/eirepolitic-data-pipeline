@@ -26,7 +26,8 @@ from urllib.parse import urlparse
 
 import boto3
 
-DEFAULT_REGISTRY = Path("configs/reference/party_assets_v1.csv")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_REGISTRY = REPO_ROOT / "configs/reference/party_assets_v1.csv"
 DEFAULT_BUCKET = "eirepolitic-data"
 DEFAULT_ASSET_PREFIX = "processed/reference/party_assets/v1/assets/"
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
@@ -216,7 +217,7 @@ def main() -> int:
     rows = load_registry(args.registry)
     errors = validate_registry(rows)
     report = {
-        "registry": args.registry,
+        "registry": str(args.registry),
         "party_count": len(rows),
         "validation_errors": errors,
         "parties": [
