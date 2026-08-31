@@ -25,7 +25,50 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate and generate live batch
+      - name: Apply small commissioning source repairs
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          # Blocker #2: never prefer character-level breaks over word boundaries.
+          path = Path("instagram/visuals/renderers/horizontal_bar.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    split_points = [index for index, character in enumerate(label) if character == " "]\n    split_points.extend(index for index in range(1, len(label)) if index not in split_points)\n'''
+          new = '''    # Only wrap at word boundaries. If a label cannot fit at a valid word\n    # boundary, let the existing truncation/validation path reject it rather\n    # than silently splitting a word for visual balance.\n    split_points = [index for index, character in enumerate(label) if character == " "]\n'''
+          if old in text:
+              text = text.replace(old, new, 1)
+              path.write_text(text, encoding="utf-8")
+
+          # Add explicit source-date coverage to every party context.
+          path = Path("instagram/factory/party_adapter.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    records, join_manifest = build_party_records(members, speeches)\n    annotate_current_records(records, source_manifest)\n    return records, source_manifest, join_manifest\n'''
+          new = '''    records, join_manifest = build_party_records(members, speeches)\n    date_field = first_field(speeches, ["Debate Date", "debate_date", "date"], "debate date")\n    dates = sorted(str(row.get(date_field) or "").strip() for row in speeches if str(row.get(date_field) or "").strip())\n    if not dates:\n        raise ValueError("No debate dates available for party issue profile period")\n    for record in records:\n        record["period_start"] = dates[0]\n        record["period_end"] = dates[-1]\n    join_manifest["date_field"] = date_field\n    join_manifest["period_start"] = dates[0]\n    join_manifest["period_end"] = dates[-1]\n    annotate_current_records(records, source_manifest)\n    return records, source_manifest, join_manifest\n'''
+          if old in text:
+              text = text.replace(old, new, 1)
+
+          old = '''    metrics = [\n        (context.get("member_count", 0), "CURRENT TDS"),\n        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),\n        (context.get("issue_count", 0), "ISSUE CATEGORIES SHOWN"),\n    ]\n    centers = [255, 600, 945]\n    for (value, label), center_y in zip(metrics, centers):\n        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")\n        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")\n'''
+          new = '''    metrics = [\n        (context.get("member_count", 0), "CURRENT TDS"),\n        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),\n    ]\n    centers = [280, 650]\n    for (value, label), center_y in zip(metrics, centers):\n        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")\n        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")\n    period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"\n    draw.text((516, 930), period, font=label_font, fill="#f4ead7", anchor="mm")\n    draw.text((516, 1000), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")\n'''
+          if old in text:
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding="utf-8")
+
+          # Make the editorial claim match what the metric actually measures.
+          path = Path("instagram/projects/party_issue_profile_v1/project.yml")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace('''period:\n  mode: latest_available\n  field: null\n''', '''period:\n  mode: latest_available\n  field: "Debate Date"\n''')
+          text = text.replace('''      slide_title: "{{ party }}"\n''', '''      slide_title: "{{ party }} in the Dáil"\n''', 1)
+          text = text.replace('''      slide_title: "Top issues: {{ party }}"\n''', '''      slide_title: "Most discussed issues: {{ party }}"\n''', 1)
+          text = text.replace('''      alt_text_template: "Horizontal bar chart of classified parliamentary issues raised by current {{ party }} TDs."\n''', '''      alt_text_template: "Horizontal bar chart of the most frequent classified issue categories in Dáil speeches by current {{ party }} TDs."\n''', 1)
+          path.write_text(text, encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/visuals/renderers/horizontal_bar.py instagram/factory/party_adapter.py instagram/projects/party_issue_profile_v1/project.yml
+          git commit -m "Repair party profile wrapping and period semantics" || true
+          git push
+      - name: Validate and generate v1 live batch
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
@@ -33,49 +76,37 @@ jobs:
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
             --output-root generated_party_commissioning \
-            --git-sha "$GITHUB_SHA" \
+            --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
             > commissioning-batch-report.json
           python process/instagram_factory.py build-review-index \
             --run-root generated_party_commissioning \
             > commissioning-review-index.json
-      - name: Expose selected v0 baseline
+      - name: Expose Fianna Fail v1 candidate
         shell: bash
         run: |
           set -euo pipefail
           src="generated_party_commissioning/generated/fianna-fail"
-          out="instagram/commissioning/output/fianna-fail/v0-baseline"
+          out="instagram/commissioning/output/fianna-fail/v1-candidate"
           rm -rf "$out"
           mkdir -p "$out/slides" "$out/metadata"
           cp "$src"/slides/*.png "$out/slides/"
           cp -R "$src"/slides/metadata "$out/metadata/slide_metadata"
           cp "$src"/item_manifest.json "$out/item_manifest.json"
+          cp "$src"/manifests/visual_manifest.json "$out/metadata/visual_manifest.json"
+          cp "$src"/metadata/visual.json "$out/metadata/visual.json"
           cp generated_party_commissioning/run_manifest.json "$out/run_manifest.json"
           cp generated_party_commissioning/review/review_state.json "$out/review_state.json"
           cp commissioning-review-index.json "$out/review_index.json"
-          python <<'PY'
-          import json
-          from pathlib import Path
-          out = Path("instagram/commissioning/output/fianna-fail/v0-baseline")
-          summary = {
-              "version": "v0-baseline",
-              "selection_reason": "Largest classified-speech sample among named parties in the frozen production batch.",
-              "content_period": {"start": "2024-12-18", "end": "2026-02-26"},
-              "source_batch_id": "scheduled-weekly-33310991798-1",
-              "post_status": "draft_review",
-              "publication_allowed": False,
-          }
-          (out / "commissioning_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-          PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$out"
-          git commit -m "Expose Fianna Fail Instagram v0 baseline" || true
+          git commit -m "Expose Fianna Fail Instagram v1 candidate" || true
           git push
       - name: Upload commissioning evidence
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-party-v0-${{ github.run_id }}
+          name: instagram-party-v1-${{ github.run_id }}
           path: |
             generated_party_commissioning/
             commissioning-batch-report.json
