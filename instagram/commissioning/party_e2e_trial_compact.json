@@ -1,6 +1,44 @@
 {
   "cli_errors": null,
   "cli_success": null,
+  "date_field_diagnostics": {
+    "Debate Date": {
+      "lexicographic_max": "2026-02-26",
+      "lexicographic_min": "2024-12-18",
+      "non_empty_count": 47275,
+      "sample": [
+        "2024-12-18",
+        "2024-12-18",
+        "2024-12-18",
+        "2024-12-18",
+        "2024-12-18"
+      ]
+    },
+    "Debate Section": {
+      "lexicographic_max": "dbsect_9",
+      "lexicographic_min": "dbsect_10",
+      "non_empty_count": 47275,
+      "sample": [
+        "dbsect_7",
+        "dbsect_7",
+        "dbsect_7",
+        "dbsect_7",
+        "dbsect_7"
+      ]
+    },
+    "Debate Section Name": {
+      "lexicographic_max": "\u00dadar\u00e1s na Gaeltachta (Amendment) Bill 2024: C\u00e9im an Choiste (At\u00f3g\u00e1il)",
+      "lexicographic_min": "Abolition of Carer's Allowance Means Test: Motion [Private Members]",
+      "non_empty_count": 47275,
+      "sample": [
+        "Ainmni\u00fa Iarrth\u00f3ir\u00ed agus Ceann Comhairle a thoghadh - Selection of Candidate and Election of Ceann Comhairle",
+        "Ainmni\u00fa Iarrth\u00f3ir\u00ed agus Ceann Comhairle a thoghadh - Selection of Candidate and Election of Ceann Comhairle",
+        "Ainmni\u00fa Iarrth\u00f3ir\u00ed agus Ceann Comhairle a thoghadh - Selection of Candidate and Election of Ceann Comhairle",
+        "Ainmni\u00fa Iarrth\u00f3ir\u00ed agus Ceann Comhairle a thoghadh - Selection of Candidate and Election of Ceann Comhairle",
+        "Ainmni\u00fa Iarrth\u00f3ir\u00ed agus Ceann Comhairle a thoghadh - Selection of Candidate and Election of Ceann Comhairle"
+      ]
+    }
+  },
   "generate_exit_code": 1,
   "items": [
     {
@@ -64,6 +102,81 @@
         "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']"
       ],
       "label": "People Before Profit-Solidarity",
+      "render_metrics": [
+        {
+          "file": "01_cover.render_manifest.json",
+          "text_metrics": [
+            {
+              "actual_font_size": 56,
+              "clipped": false,
+              "element_box": [
+                34,
+                10,
+                1046,
+                122
+              ],
+              "element_id": "title",
+              "font_shrunk": false,
+              "line_count": 1,
+              "max_lines": 2,
+              "minimum_font_size": 42,
+              "original_line_count": 1,
+              "placeholder": "slide_title",
+              "rendered_bbox": [
+                56,
+                47,
+                1023,
+                102
+              ],
+              "rendered_lines": [
+                "People Before Profit-Solidarity"
+              ],
+              "requested_font_size": 56,
+              "source_text": "People Before Profit-Solidarity",
+              "truncated": false
+            }
+          ],
+          "warnings": []
+        },
+        {
+          "file": "02_issue_profile.render_manifest.json",
+          "text_metrics": [
+            {
+              "actual_font_size": 54,
+              "clipped": true,
+              "element_box": [
+                34,
+                10,
+                1046,
+                122
+              ],
+              "element_id": "title",
+              "font_shrunk": true,
+              "line_count": 2,
+              "max_lines": 2,
+              "minimum_font_size": 42,
+              "original_line_count": 2,
+              "placeholder": "slide_title",
+              "rendered_bbox": [
+                149,
+                20,
+                931,
+                133
+              ],
+              "rendered_lines": [
+                "Top issues: People Before",
+                "Profit-Solidarity"
+              ],
+              "requested_font_size": 56,
+              "source_text": "Top issues: People Before Profit-Solidarity",
+              "truncated": false
+            }
+          ],
+          "warnings": [
+            "text_clipped:title"
+          ]
+        }
+      ],
       "slide_count": 1,
       "slug": "people-before-profit-solidarity",
       "status": "failed"
@@ -536,9 +649,9 @@
         "item_slug": "people-before-profit-solidarity"
       }
     ],
-    "git_sha": "2a7c8959005adf8e86ac6cfef9362e43619386af",
+    "git_sha": "26e7db726cf5820fac35bed845d09a47d310e2eb",
     "project_id": "party_issue_profile_v1",
-    "run_id": "party_issue_profile_v1-v1-5ad578c66037",
+    "run_id": "party_issue_profile_v1-v1-ab4aed916b35",
     "source_batch_id": "scheduled-weekly-33310991798-1",
     "state": "partially_failed",
     "succeeded_item_count": 10
@@ -597,5 +710,15 @@
       "row_count": 47275,
       "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
     }
-  }
+  },
+  "speech_fields": [
+    "Debate Date",
+    "Debate Section",
+    "Debate Section Name",
+    "PoliticalIssues",
+    "Speaker Name",
+    "Speech Order",
+    "Speech Text",
+    "speech_id"
+  ]
 }
