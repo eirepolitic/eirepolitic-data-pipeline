@@ -30,7 +30,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   classifier:
@@ -88,11 +88,13 @@ jobs:
             | tee speech_classifier_seed.json
 
       - name: Run unified classifier
+        id: classifier_run
+        continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: |
-          set -euo pipefail
+          set -o pipefail
           args=(
             --mode '${{ inputs.mode }}'
             --max-model-rows '${{ inputs.max_model_rows }}'
@@ -106,10 +108,30 @@ jobs:
           if [[ '${{ inputs.write_candidate }}' == 'true' ]]; then
             args+=(--write)
           fi
-          python process/oireachtas_speech_issue_classifier.py "${args[@]}"
+          python process/oireachtas_speech_issue_classifier.py "${args[@]}" 2>&1 | tee speech_classifier_console.log
+          exit_code=${PIPESTATUS[0]}
+          echo "exit_code=${exit_code}" >> "${GITHUB_OUTPUT}"
+          exit "${exit_code}"
+
+      - name: Persist classifier diagnostics on branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p diagnostics/speech_classifier
+          cp speech_classifier_console.log diagnostics/speech_classifier/latest_console.log 2>/dev/null || true
+          cp speech_issue_classifier_report.json diagnostics/speech_classifier/latest_report.json 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/speech_classifier
+          git commit -m "Record speech classifier readiness diagnostics" || true
+          git push
+
+      - name: Fail when classifier failed
+        if: steps.classifier_run.outcome == 'failure'
+        run: exit 1
 
       - name: Assemble complete candidate batch
-        if: inputs.write_candidate
+        if: inputs.write_candidate && steps.classifier_run.outcome == 'success'
         run: |
           set -euo pipefail
           python process/oireachtas_batch_control.py \
@@ -132,6 +154,7 @@ jobs:
             echo "- Max model rows: `${{ inputs.max_model_rows }}`"
             echo "- Candidate write: `${{ inputs.write_candidate }}`"
             echo "- Candidate batch: `${OIREACHTAS_BATCH_ID:-none}`"
+            echo "- Classifier outcome: `${{ steps.classifier_run.outcome }}`"
             if [[ -f speech_issue_classifier_report.json ]]; then
               echo
               echo '```json'
@@ -147,6 +170,7 @@ jobs:
           name: speech-classifier-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             speech_issue_classifier_report.json
+            speech_classifier_console.log
             speech_classifier_seed.json
             speech_classifier_batch_manifest.json
           if-no-files-found: warn
