@@ -73,22 +73,25 @@ class PartyAssetFetchTests(unittest.TestCase):
             self.assertEqual(destination.read_bytes(), b"abc")
             self.assertEqual(len(session.calls), 1)
 
-    def test_fallback_is_never_fetched(self):
+    def test_generated_independent_standin_is_staged_locally(self):
         with TemporaryDirectory() as temp_dir:
             result = fetch_row(
                 row(
                     party_key="independent",
                     party_name="Independent",
                     source_url="",
-                    source_type="none",
-                    logo_s3_uri="",
-                    asset_status="approved_fallback",
-                    fallback_type="no_party_logo",
+                    source_type="eirepolitic_generated_standin",
+                    logo_s3_uri="s3://bucket/assets/independent/logo.png",
+                    asset_status="pending_review",
+                    fallback_type="eirepolitic_neutral_standin",
                 ),
                 Path(temp_dir),
             )
-            self.assertEqual(result["status"], "fallback")
-            self.assertEqual(result["fallback_type"], "no_party_logo")
+            destination = Path(temp_dir) / "independent/source.png"
+            self.assertEqual(result["status"], "generated")
+            self.assertFalse(result["official_branding"])
+            self.assertTrue(destination.is_file())
+            self.assertGreater(destination.stat().st_size, 0)
 
 
 if __name__ == "__main__":
