@@ -44,19 +44,36 @@ jobs:
           set -e
           echo "$code" > commissioning-generate-exit-code.txt
           cat commissioning-batch-report.json
-      - name: Build diagnostic summary
+      - name: Build compact diagnostic summary
         shell: bash
         run: |
           python <<'PY'
           import json
           from pathlib import Path
+          from instagram.factory.party_adapter import load_party_records
 
-          report_path = Path("commissioning-batch-report.json")
-          cli_report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else {}
           root = Path("generated_party_commissioning")
+          cli_report = json.loads(Path("commissioning-batch-report.json").read_text(encoding="utf-8"))
+          records, source_manifest, join_manifest = load_party_records("s3")
           summary = {
-              "cli_report": cli_report,
               "generate_exit_code": int(Path("commissioning-generate-exit-code.txt").read_text().strip()),
+              "cli_success": cli_report.get("success"),
+              "cli_errors": cli_report.get("errors"),
+              "source_manifest": source_manifest,
+              "join_manifest": join_manifest,
+              "party_records": [
+                  {
+                      "party": r.get("party"),
+                      "party_key": r.get("party_key"),
+                      "member_count": r.get("member_count"),
+                      "speech_count": r.get("speech_count"),
+                      "issue_count": r.get("issue_count"),
+                      "top_issues": (r.get("issue_rows") or [])[:7],
+                      "data_origin": r.get("data_origin"),
+                      "source_batch_id": r.get("source_batch_id"),
+                  }
+                  for r in records
+              ],
           }
           run_path = root / "run_manifest.json"
           if run_path.exists():
@@ -70,41 +87,36 @@ jobs:
                   "expected_item_count": run.get("expected_item_count"),
                   "succeeded_item_count": run.get("succeeded_item_count"),
                   "failed_item_count": run.get("failed_item_count"),
-                  "source_manifest": run.get("source_manifest"),
-                  "join_manifest": run.get("join_manifest"),
                   "failures": run.get("failures"),
               }
-              items = []
+              item_errors = []
               for slug in run.get("item_order", []):
                   item_ref = (run.get("items") or {}).get(slug) or {}
                   manifest_path = root / str(item_ref.get("manifest") or "")
                   if not manifest_path.is_file():
                       continue
                   manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                  visual_path = root / "generated" / slug / "manifests" / "visual_manifest.json"
-                  visual = json.loads(visual_path.read_text(encoding="utf-8")) if visual_path.exists() else None
-                  items.append({
+                  item_errors.append({
                       "slug": slug,
                       "label": manifest.get("item_label"),
                       "status": manifest.get("status"),
                       "errors": manifest.get("errors"),
-                      "source_batch_id": manifest.get("source_batch_id"),
-                      "slides": manifest.get("slides"),
-                      "visual_manifest": visual,
+                      "slide_count": len(manifest.get("slides") or []),
                   })
-              summary["items"] = items
+              summary["items"] = item_errors
           out = Path("instagram/commissioning")
           out.mkdir(parents=True, exist_ok=True)
-          (out / "party_e2e_trial_latest.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          path = out / "party_e2e_trial_compact.json"
+          path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           print(json.dumps(summary, indent=2, sort_keys=True))
           PY
-      - name: Commit diagnostic summary
+      - name: Commit compact diagnostic summary
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/party_e2e_trial_latest.json
-          git commit -m "Record Instagram commissioning batch diagnostics" || true
+          git add instagram/commissioning/party_e2e_trial_compact.json
+          git commit -m "Record compact Instagram commissioning diagnostics" || true
           git push
       - name: Build review index when batch exists
         if: ${{ hashFiles('generated_party_commissioning/run_manifest.json') != '' }}
@@ -122,7 +134,7 @@ jobs:
             commissioning-batch-report.json
             commissioning-review-index.json
             commissioning-generate-exit-code.txt
-            instagram/commissioning/party_e2e_trial_latest.json
+            instagram/commissioning/party_e2e_trial_compact.json
           if-no-files-found: warn
       - name: Fail if generation failed
         shell: bash
