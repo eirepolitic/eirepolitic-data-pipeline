@@ -1,0 +1,273 @@
+{
+  "project_id": "party_issue_per_td_overindex_jan2026",
+  "project_version": 1,
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-c24ca28611c1",
+  "grain": "party",
+  "item_key": "people-before-profit-solidarity",
+  "item_key_fields": {
+    "party_key": "people-before-profit-solidarity"
+  },
+  "item_label": "People Before Profit-Solidarity",
+  "item_slug": "people-before-profit-solidarity",
+  "status": "succeeded",
+  "review_state": "unreviewed",
+  "no_publication": true,
+  "source_batch_id": "local-fixture",
+  "slides": [
+    {
+      "slide_id": "cover",
+      "order": 1,
+      "layout_id": "title_text_media_v1",
+      "path": "generated/people-before-profit-solidarity/slides/01_cover.png",
+      "sha256": "19eb45852892ff8881374b5c9afc92cb498dd86296701b6fa9494c7f56f44f9b",
+      "width": 1080,
+      "height": 1350,
+      "warnings": []
+    },
+    {
+      "slide_id": "issue_profile",
+      "order": 2,
+      "layout_id": "title_text_media_v1",
+      "path": "generated/people-before-profit-solidarity/slides/02_issue_profile.png",
+      "sha256": "bb75e48a165898ffad07ca93928fbd2e08594ddfdba57da67bf1273d25494f59",
+      "width": 1080,
+      "height": 1350,
+      "warnings": []
+    }
+  ],
+  "errors": [],
+  "generated_at": "2026-08-31T22:35:13.636331+00:00",
+  "visual_manifest": {
+    "success": true,
+    "visual_id": "people-before-profit-solidarity-per_td",
+    "template_id": "horizontal_bar_draft_v1",
+    "renderer": "horizontal_bar",
+    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/people-before-profit-solidarity/assets/visual.png",
+    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_per_td_overindex/generated/people-before-profit-solidarity/metadata/visual.json",
+    "width": 1032,
+    "height": 1210,
+    "plot_bounds": [
+      0.4053718507751938,
+      0.14,
+      0.5646281492248062,
+      0.78
+    ],
+    "plot_vertical_fill_ratio": 0.78,
+    "plot_area_ratio": 0.4404,
+    "readability": {
+      "category_label_font_size": 18,
+      "category_label_font_size_requested": 18,
+      "category_label_font_size_minimum": 14,
+      "category_label_font_shrunk": false,
+      "value_label_font_size": 15,
+      "value_label_font_size_requested": 16,
+      "value_label_font_size_minimum": 14,
+      "value_label_font_shrunk": true,
+      "axis_font_size": 12,
+      "bar_thickness_px": 83.59,
+      "max_wrapped_label_lines": 3,
+      "max_value_label_x_ratio": 0.9549,
+      "displayed_item_count": 7,
+      "max_category_label_width_px": 376.34,
+      "plot_left_ratio": 0.4054,
+      "category_text_clipped_count": 0,
+      "value_text_clipped_count": 0,
+      "truncated_label_count": 0,
+      "category_text_bounds": [
+        {
+          "raw_label": "International Affairs and Foreign Aid",
+          "rendered_label": "International Affairs\nand Foreign Aid",
+          "font_size": 18,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            27.42,
+            978.22,
+            403.76,
+            1069.26
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Housing and Community Development",
+          "rendered_label": "Housing and\nCommunity\nDevelopment",
+          "font_size": 18,
+          "line_count": 3,
+          "truncated": false,
+          "bbox_px": [
+            149.76,
+            825.86,
+            403.76,
+            962.41
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Social Welfare",
+          "rendered_label": "Social Welfare",
+          "font_size": 18,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            134.79,
+            747.4,
+            403.76,
+            785.41
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Government Operations",
+          "rendered_label": "Government\nOperations",
+          "font_size": 18,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            168.42,
+            589.4,
+            403.76,
+            680.43
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Transportation",
+          "rendered_label": "Transportation",
+          "font_size": 18,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            129.28,
+            488.18,
+            403.76,
+            526.19
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Law/Crime and Family Issues",
+          "rendered_label": "Law/Crime and\nFamily Issues",
+          "font_size": 18,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            118.76,
+            330.19,
+            403.76,
+            421.22
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Space, Science, and Technology",
+          "rendered_label": "Space, Science,\nand Technology",
+          "font_size": 18,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            105.76,
+            200.58,
+            403.76,
+            291.61
+          ],
+          "clipped_to_figure": false
+        }
+      ],
+      "value_text_bounds": [
+        {
+          "value": 6.305639436321255,
+          "text": "+6.31/TD",
+          "font_size": 15,
+          "bbox_px": [
+            812.76,
+            1014.5,
+            974.76,
+            1045.75
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 3.287997986861623,
+          "text": "+3.29/TD",
+          "font_size": 15,
+          "bbox_px": [
+            631.98,
+            884.89,
+            793.98,
+            916.14
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 1.9706638058910786,
+          "text": "+1.97/TD",
+          "font_size": 15,
+          "bbox_px": [
+            553.07,
+            755.28,
+            715.07,
+            786.53
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 1.37021879635516,
+          "text": "+1.37/TD",
+          "font_size": 15,
+          "bbox_px": [
+            517.1,
+            625.68,
+            679.1,
+            656.93
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 0.9373013350286075,
+          "text": "+0.94/TD",
+          "font_size": 15,
+          "bbox_px": [
+            491.16,
+            496.07,
+            653.16,
+            527.32
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 0.6465352828989193,
+          "text": "+0.65/TD",
+          "font_size": 15,
+          "bbox_px": [
+            473.74,
+            366.46,
+            635.74,
+            397.71
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 0.5528846153846153,
+          "text": "+0.55/TD",
+          "font_size": 15,
+          "bbox_px": [
+            468.13,
+            236.85,
+            630.13,
+            268.1
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        }
+      ]
+    },
+    "warnings": [],
+    "created_at": "2026-08-31T22:35:13.354809+00:00"
+  }
+}

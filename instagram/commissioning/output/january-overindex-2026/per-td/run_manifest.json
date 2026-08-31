@@ -1,0 +1,117 @@
+{
+  "project_id": "party_issue_per_td_overindex_jan2026",
+  "project_version": 1,
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-c24ca28611c1",
+  "adapter_id": "party_issue_per_td_overindex_v1",
+  "grain": "party",
+  "state": "succeeded",
+  "draft": true,
+  "approved": false,
+  "publishing_allowed": false,
+  "review_state": "unreviewed",
+  "created_at": "2026-08-31T22:35:15.067193+00:00",
+  "git_sha": "563eeb351fc6e9608e0fa1f353d244ff325d3147",
+  "workflow_run_id": "33446842291",
+  "data_source": "s3",
+  "source_batch_id": "local-fixture",
+  "source_manifest": {
+    "data_origin": "real_s3",
+    "source_bucket": "eirepolitic-data",
+    "member_key": "raw/members/oireachtas_members_34th_dail.csv",
+    "classified_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "january_rows": 3687,
+    "matched_classified_rows": 2378,
+    "party_count": 11,
+    "category_count": 24,
+    "mode": "per_td"
+  },
+  "join_manifest": {
+    "current_member_rows": 176,
+    "unmatched_speaker_count": 0,
+    "unmatched_speaker_names": 0,
+    "matched_classified_rows": 2378
+  },
+  "expected_item_count": 11,
+  "succeeded_item_count": 11,
+  "failed_item_count": 0,
+  "item_order": [
+    "100-rdr",
+    "aont",
+    "fianna-f-il",
+    "fine-gael",
+    "green-party",
+    "independent",
+    "independent-ireland",
+    "labour-party",
+    "people-before-profit-solidarity",
+    "sinn-f-in",
+    "social-democrats"
+  ],
+  "items": {
+    "100-rdr": {
+      "status": "succeeded",
+      "label": "100% RDR",
+      "manifest": "generated/100-rdr/item_manifest.json"
+    },
+    "aont": {
+      "status": "succeeded",
+      "label": "Aontú",
+      "manifest": "generated/aont/item_manifest.json"
+    },
+    "fianna-f-il": {
+      "status": "succeeded",
+      "label": "Fianna Fáil",
+      "manifest": "generated/fianna-f-il/item_manifest.json"
+    },
+    "fine-gael": {
+      "status": "succeeded",
+      "label": "Fine Gael",
+      "manifest": "generated/fine-gael/item_manifest.json"
+    },
+    "green-party": {
+      "status": "succeeded",
+      "label": "Green Party",
+      "manifest": "generated/green-party/item_manifest.json"
+    },
+    "independent": {
+      "status": "succeeded",
+      "label": "Independent",
+      "manifest": "generated/independent/item_manifest.json"
+    },
+    "independent-ireland": {
+      "status": "succeeded",
+      "label": "Independent Ireland",
+      "manifest": "generated/independent-ireland/item_manifest.json"
+    },
+    "labour-party": {
+      "status": "succeeded",
+      "label": "Labour Party",
+      "manifest": "generated/labour-party/item_manifest.json"
+    },
+    "people-before-profit-solidarity": {
+      "status": "succeeded",
+      "label": "People Before Profit-Solidarity",
+      "manifest": "generated/people-before-profit-solidarity/item_manifest.json"
+    },
+    "sinn-f-in": {
+      "status": "succeeded",
+      "label": "Sinn Féin",
+      "manifest": "generated/sinn-f-in/item_manifest.json"
+    },
+    "social-democrats": {
+      "status": "succeeded",
+      "label": "Social Democrats",
+      "manifest": "generated/social-democrats/item_manifest.json"
+    }
+  },
+  "failures": [],
+  "warnings": [
+    "granularity.source_metric party_issue_per_td_overindex remains draft",
+    "slides[1].post_type_id title_text_media_v1 remains draft",
+    "slides[2].post_type_id title_text_media_v1 remains draft",
+    "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+    "slides[2].visual metric party_issue_per_td_overindex remains draft"
+  ]
+}

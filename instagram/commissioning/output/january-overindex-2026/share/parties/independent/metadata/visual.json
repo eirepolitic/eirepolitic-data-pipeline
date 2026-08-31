@@ -1,0 +1,280 @@
+{
+  "visual_id": "independent-share_pp",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-08-31T22:35:00.021714+00:00",
+  "input": {
+    "data_origin": "real_s3",
+    "source_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "mode": "share_pp"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Health",
+      "value": 3.9503219299346846,
+      "group": ""
+    },
+    {
+      "label": "Transportation",
+      "value": 3.153639048175906,
+      "group": ""
+    },
+    {
+      "label": "Energy",
+      "value": 2.461566240078995,
+      "group": ""
+    },
+    {
+      "label": "Culture and Arts",
+      "value": 2.220787156432501,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 2.1122473545872427,
+      "group": ""
+    },
+    {
+      "label": "Government Operations",
+      "value": 1.631685097281574,
+      "group": ""
+    },
+    {
+      "label": "Public Lands and Water Management",
+      "value": 1.5372490218177512,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.40270712209302323,
+    0.14,
+    0.5672928779069768,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4425,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 83.59,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9608,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 373.59,
+    "plot_left_ratio": 0.4027,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          276.01,
+          1006.61,
+          401.01,
+          1044.62
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Transportation",
+        "rendered_label": "Transportation",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          126.53,
+          877.01,
+          401.01,
+          915.01
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Energy",
+        "rendered_label": "Energy",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          268.67,
+          747.65,
+          401.01,
+          785.15
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Culture and Arts",
+        "rendered_label": "Culture and Arts",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          89.84,
+          617.79,
+          401.01,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Education",
+        "rendered_label": "Education",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          212.01,
+          488.18,
+          401.01,
+          526.19
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Government Operations",
+        "rendered_label": "Government\nOperations",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          165.67,
+          330.19,
+          401.01,
+          421.22
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Public Lands and Water Management",
+        "rendered_label": "Public Lands and\nWater Management",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          200.84,
+          401.01,
+          291.36
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 3.9503219299346846,
+        "text": "+4.0 pp",
+        "font_size": 15,
+        "bbox_px": [
+          841.08,
+          1014.5,
+          978.08,
+          1045.75
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 3.153639048175906,
+        "text": "+3.2 pp",
+        "font_size": 15,
+        "bbox_px": [
+          758.63,
+          884.89,
+          895.63,
+          916.14
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 2.461566240078995,
+        "text": "+2.5 pp",
+        "font_size": 15,
+        "bbox_px": [
+          687.01,
+          755.28,
+          824.01,
+          786.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 2.220787156432501,
+        "text": "+2.2 pp",
+        "font_size": 15,
+        "bbox_px": [
+          662.09,
+          625.68,
+          799.09,
+          656.93
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 2.1122473545872427,
+        "text": "+2.1 pp",
+        "font_size": 15,
+        "bbox_px": [
+          650.86,
+          496.07,
+          787.86,
+          527.32
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.631685097281574,
+        "text": "+1.6 pp",
+        "font_size": 15,
+        "bbox_px": [
+          601.12,
+          366.46,
+          738.12,
+          397.71
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.5372490218177512,
+        "text": "+1.5 pp",
+        "font_size": 15,
+        "bbox_px": [
+          591.35,
+          236.85,
+          728.35,
+          268.1
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

@@ -1,0 +1,280 @@
+{
+  "visual_id": "aont-share_pp",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-08-31T22:34:57.270382+00:00",
+  "input": {
+    "data_origin": "real_s3",
+    "source_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "mode": "share_pp"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Agriculture",
+      "value": 11.405515761504217,
+      "group": ""
+    },
+    {
+      "label": "Law/Crime and Family Issues",
+      "value": 7.164476424505212,
+      "group": ""
+    },
+    {
+      "label": "Foreign Trade",
+      "value": 4.996949105658392,
+      "group": ""
+    },
+    {
+      "label": "Defense",
+      "value": 4.523864295803853,
+      "group": ""
+    },
+    {
+      "label": "Housing and Community Development",
+      "value": 3.0649814685989876,
+      "group": ""
+    },
+    {
+      "label": "Macroeconomics",
+      "value": 1.985285971811638,
+      "group": ""
+    },
+    {
+      "label": "Banking/Finance and Domestic Commerce",
+      "value": 1.6530983217238755,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.42,
+    0.14,
+    0.55,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.429,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 83.59,
+    "max_wrapped_label_lines": 3,
+    "max_value_label_x_ratio": 0.9555,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 397.17,
+    "plot_left_ratio": 0.42,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Agriculture",
+        "rendered_label": "Agriculture",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          208.68,
+          1006.61,
+          418.86,
+          1044.62
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Law/Crime and Family Issues",
+        "rendered_label": "Law/Crime and\nFamily Issues",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          133.86,
+          848.62,
+          418.86,
+          939.65
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Foreign Trade",
+        "rendered_label": "Foreign Trade",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          162.54,
+          747.4,
+          418.86,
+          785.41
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Defense",
+        "rendered_label": "Defense",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          263.86,
+          617.79,
+          418.86,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Housing and Community Development",
+        "rendered_label": "Housing and\nCommunity\nDevelopment",
+        "font_size": 18,
+        "line_count": 3,
+        "truncated": false,
+        "bbox_px": [
+          164.86,
+          437.04,
+          418.86,
+          573.59
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Macroeconomics",
+        "rendered_label": "Macroeconomics",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          100.68,
+          358.58,
+          418.86,
+          396.59
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Banking/Finance and Domestic Commerce",
+        "rendered_label": "Banking/Finance and\nDomestic Commerce",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          21.68,
+          200.58,
+          418.86,
+          291.61
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 11.405515761504217,
+        "text": "+11.4 pp",
+        "font_size": 15,
+        "bbox_px": [
+          816.76,
+          1014.5,
+          975.76,
+          1045.75
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 7.164476424505212,
+        "text": "+7.2 pp",
+        "font_size": 15,
+        "bbox_px": [
+          680.42,
+          884.89,
+          817.42,
+          916.14
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.996949105658392,
+        "text": "+5.0 pp",
+        "font_size": 15,
+        "bbox_px": [
+          610.74,
+          755.28,
+          747.74,
+          786.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.523864295803853,
+        "text": "+4.5 pp",
+        "font_size": 15,
+        "bbox_px": [
+          595.54,
+          625.68,
+          732.54,
+          656.93
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 3.0649814685989876,
+        "text": "+3.1 pp",
+        "font_size": 15,
+        "bbox_px": [
+          548.64,
+          496.07,
+          685.64,
+          527.32
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.985285971811638,
+        "text": "+2.0 pp",
+        "font_size": 15,
+        "bbox_px": [
+          513.93,
+          366.46,
+          650.93,
+          397.71
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.6530983217238755,
+        "text": "+1.7 pp",
+        "font_size": 15,
+        "bbox_px": [
+          503.25,
+          236.85,
+          640.25,
+          268.1
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

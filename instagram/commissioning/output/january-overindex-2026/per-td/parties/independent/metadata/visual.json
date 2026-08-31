@@ -1,0 +1,216 @@
+{
+  "visual_id": "independent-per_td",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-08-31T22:35:11.171925+00:00",
+  "input": {
+    "data_origin": "real_s3",
+    "source_key": "processed/debates/debate_speeches_classified.csv",
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "mode": "per_td"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Culture and Arts",
+      "value": 0.18331479126933672,
+      "group": ""
+    },
+    {
+      "label": "Energy",
+      "value": 0.14529031574486123,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 0.0659832591650773,
+      "group": ""
+    },
+    {
+      "label": "Other/Miscellaneous",
+      "value": 0.026806526806526815,
+      "group": ""
+    },
+    {
+      "label": "Public Lands and Water Management",
+      "value": 0.012145051917779204,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.4166666666666667,
+    0.14,
+    0.5533333333333332,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4316,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 16,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": false,
+    "axis_font_size": 12,
+    "bar_thickness_px": 117.03,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9592,
+    "displayed_item_count": 5,
+    "max_category_label_width_px": 388.0,
+    "plot_left_ratio": 0.4167,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Culture and Arts",
+        "rendered_label": "Culture and Arts",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          104.24,
+          989.22,
+          415.42,
+          1027.23
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Energy",
+        "rendered_label": "Energy",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          283.07,
+          803.76,
+          415.42,
+          841.26
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Education",
+        "rendered_label": "Education",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          226.42,
+          617.79,
+          415.42,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Other/Miscellaneous",
+        "rendered_label": "Other/Miscellaneous",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          432.08,
+          415.42,
+          470.09
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Public Lands and Water Management",
+        "rendered_label": "Public Lands and\nWater Management",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          41.82,
+          218.23,
+          415.42,
+          308.75
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 0.18331479126933672,
+        "text": "+0.18/TD",
+        "font_size": 16,
+        "bbox_px": [
+          805.75,
+          996.06,
+          977.75,
+          1029.4
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.14529031574486123,
+        "text": "+0.15/TD",
+        "font_size": 16,
+        "bbox_px": [
+          731.27,
+          810.35,
+          903.27,
+          843.68
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.0659832591650773,
+        "text": "+0.07/TD",
+        "font_size": 16,
+        "bbox_px": [
+          575.92,
+          624.63,
+          747.92,
+          657.97
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.026806526806526815,
+        "text": "+0.03/TD",
+        "font_size": 16,
+        "bbox_px": [
+          499.18,
+          438.92,
+          671.18,
+          472.25
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.012145051917779204,
+        "text": "+0.01/TD",
+        "font_size": 16,
+        "bbox_px": [
+          470.46,
+          253.2,
+          642.46,
+          286.54
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}
