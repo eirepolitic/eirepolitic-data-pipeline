@@ -149,6 +149,7 @@ jobs:
             *,silver_speeches,*) ;;
             *) echo 'classify_speeches requires silver_speeches in the refresh table set' >&2; exit 2 ;;
           esac
+          python -m pip install 'openai>=3.6.0,<4'
           python process/oireachtas_speech_issue_classifier.py \
             --mode classify \
             --max-model-rows 0 \
