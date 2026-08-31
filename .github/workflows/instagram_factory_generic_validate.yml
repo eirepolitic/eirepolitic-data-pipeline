@@ -34,20 +34,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate catalogues and reference project
-        run: |
-          python process/instagram_factory.py validate-catalogues
-          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
-      - name: Test base factory
-        run: python -m unittest tests.test_instagram_factory -v
-      - name: Test review and regeneration
-        run: python -m unittest tests.test_instagram_factory_phase4 -v
-      - name: Test recurring readiness
-        run: python -m unittest tests.test_instagram_factory_phase5 -v
-      - name: Test review index and ready gate
-        run: python -m unittest tests.test_instagram_factory_phase6 -v
-      - name: Test generic core with non-constituency grain
-        run: python -m unittest tests.test_instagram_factory_generic_core -v
       - name: Validate party asset registry
         run: python -m unittest tests.test_party_assets -v
       - name: Audit S3 for existing party image candidates
@@ -62,3 +48,17 @@ jobs:
           path: generated_party_asset_audit/party_asset_audit.json
           if-no-files-found: error
           retention-days: 14
+      - name: Validate catalogues and reference project
+        run: |
+          python process/instagram_factory.py validate-catalogues
+          python process/instagram_factory.py validate-project --project instagram/projects/constituency_issue_profile_v1/project.yml
+      - name: Test base factory
+        run: python -m unittest tests.test_instagram_factory -v
+      - name: Test review and regeneration
+        run: python -m unittest tests.test_instagram_factory_phase4 -v
+      - name: Test recurring readiness
+        run: python -m unittest tests.test_instagram_factory_phase5 -v
+      - name: Test review index and ready gate
+        run: python -m unittest tests.test_instagram_factory_phase6 -v
+      - name: Test generic core with non-constituency grain
+        run: python -m unittest tests.test_instagram_factory_generic_core -v
