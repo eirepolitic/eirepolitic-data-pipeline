@@ -1,0 +1,601 @@
+{
+  "cli_errors": null,
+  "cli_success": null,
+  "generate_exit_code": 1,
+  "items": [
+    {
+      "errors": [],
+      "label": "100% RDR",
+      "slide_count": 2,
+      "slug": "100-rdr",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Aont\u00fa",
+      "slide_count": 2,
+      "slug": "aontu",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Fianna F\u00e1il",
+      "slide_count": 2,
+      "slug": "fianna-fail",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Fine Gael",
+      "slide_count": 2,
+      "slug": "fine-gael",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Green Party",
+      "slide_count": 2,
+      "slug": "green-party",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Independent",
+      "slide_count": 2,
+      "slug": "independent",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Independent Ireland",
+      "slide_count": 2,
+      "slug": "independent-ireland",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Labour Party",
+      "slide_count": 2,
+      "slug": "labour-party",
+      "status": "succeeded"
+    },
+    {
+      "errors": [
+        "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']"
+      ],
+      "label": "People Before Profit-Solidarity",
+      "slide_count": 1,
+      "slug": "people-before-profit-solidarity",
+      "status": "failed"
+    },
+    {
+      "errors": [],
+      "label": "Sinn F\u00e9in",
+      "slide_count": 2,
+      "slug": "sinn-fein",
+      "status": "succeeded"
+    },
+    {
+      "errors": [],
+      "label": "Social Democrats",
+      "slide_count": 2,
+      "slug": "social-democrats",
+      "status": "succeeded"
+    }
+  ],
+  "join_manifest": {
+    "ignored_empty_issue": 17935,
+    "issue_field": "PoliticalIssues",
+    "matched_speeches": 29233,
+    "member_name_field": "full_name",
+    "member_rows": 176,
+    "party_count": 11,
+    "party_field": "party",
+    "speaker_field": "Speaker Name",
+    "speech_rows": 47275,
+    "unmatched_speeches": 107
+  },
+  "party_records": [
+    {
+      "data_origin": "current_real",
+      "issue_count": 20,
+      "member_count": 1,
+      "party": "100% RDR",
+      "party_key": "100-rdr",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 97,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 17
+        },
+        {
+          "label": "Education",
+          "value": 11
+        },
+        {
+          "label": "Health",
+          "value": 11
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 9
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 8
+        },
+        {
+          "label": "Transportation",
+          "value": 6
+        },
+        {
+          "label": "Social Welfare",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 21,
+      "member_count": 2,
+      "party": "Aont\u00fa",
+      "party_key": "aontu",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 551,
+      "top_issues": [
+        {
+          "label": "Education",
+          "value": 78
+        },
+        {
+          "label": "Housing and Community Development",
+          "value": 74
+        },
+        {
+          "label": "Health",
+          "value": 61
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 43
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 41
+        },
+        {
+          "label": "Social Welfare",
+          "value": 35
+        },
+        {
+          "label": "Transportation",
+          "value": 33
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 48,
+      "party": "Fianna F\u00e1il",
+      "party_key": "fianna-fail",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 8421,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 1286
+        },
+        {
+          "label": "Health",
+          "value": 1135
+        },
+        {
+          "label": "Education",
+          "value": 920
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 630
+        },
+        {
+          "label": "Transportation",
+          "value": 571
+        },
+        {
+          "label": "Government Operations",
+          "value": 549
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 542
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 39,
+      "party": "Fine Gael",
+      "party_key": "fine-gael",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 5263,
+      "top_issues": [
+        {
+          "label": "Health",
+          "value": 669
+        },
+        {
+          "label": "Housing and Community Development",
+          "value": 563
+        },
+        {
+          "label": "Education",
+          "value": 550
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 389
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 340
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 320
+        },
+        {
+          "label": "Government Operations",
+          "value": 308
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 21,
+      "member_count": 1,
+      "party": "Green Party",
+      "party_key": "green-party",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 141,
+      "top_issues": [
+        {
+          "label": "Health",
+          "value": 27
+        },
+        {
+          "label": "Housing and Community Development",
+          "value": 18
+        },
+        {
+          "label": "Education",
+          "value": 13
+        },
+        {
+          "label": "Government Operations",
+          "value": 12
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 11
+        },
+        {
+          "label": "Transportation",
+          "value": 9
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 16,
+      "party": "Independent",
+      "party_key": "independent",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 3724,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 541
+        },
+        {
+          "label": "Health",
+          "value": 446
+        },
+        {
+          "label": "Education",
+          "value": 380
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 292
+        },
+        {
+          "label": "Government Operations",
+          "value": 290
+        },
+        {
+          "label": "Transportation",
+          "value": 289
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 235
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 4,
+      "party": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 654,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 83
+        },
+        {
+          "label": "Education",
+          "value": 77
+        },
+        {
+          "label": "Health",
+          "value": 76
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 51
+        },
+        {
+          "label": "Transportation",
+          "value": 45
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 44
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 42
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 23,
+      "member_count": 11,
+      "party": "Labour Party",
+      "party_key": "labour-party",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 1487,
+      "top_issues": [
+        {
+          "label": "Health",
+          "value": 199
+        },
+        {
+          "label": "Housing and Community Development",
+          "value": 198
+        },
+        {
+          "label": "Education",
+          "value": 166
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 134
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 98
+        },
+        {
+          "label": "Government Operations",
+          "value": 94
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 91
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 3,
+      "party": "People Before Profit-Solidarity",
+      "party_key": "people-before-profit-solidarity",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 1170,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 197
+        },
+        {
+          "label": "Health",
+          "value": 159
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 96
+        },
+        {
+          "label": "Education",
+          "value": 90
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 85
+        },
+        {
+          "label": "Government Operations",
+          "value": 82
+        },
+        {
+          "label": "Transportation",
+          "value": 76
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 39,
+      "party": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 6037,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 909
+        },
+        {
+          "label": "Health",
+          "value": 794
+        },
+        {
+          "label": "Education",
+          "value": 604
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 419
+        },
+        {
+          "label": "Government Operations",
+          "value": 395
+        },
+        {
+          "label": "International Affairs and Foreign Aid",
+          "value": 392
+        },
+        {
+          "label": "Transportation",
+          "value": 384
+        }
+      ]
+    },
+    {
+      "data_origin": "current_real",
+      "issue_count": 24,
+      "member_count": 12,
+      "party": "Social Democrats",
+      "party_key": "social-democrats",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "speech_count": 1688,
+      "top_issues": [
+        {
+          "label": "Housing and Community Development",
+          "value": 244
+        },
+        {
+          "label": "Health",
+          "value": 226
+        },
+        {
+          "label": "Education",
+          "value": 148
+        },
+        {
+          "label": "Law/Crime and Family Issues",
+          "value": 146
+        },
+        {
+          "label": "Transportation",
+          "value": 123
+        },
+        {
+          "label": "Labor, Employment and Immigration",
+          "value": 121
+        },
+        {
+          "label": "Government Operations",
+          "value": 113
+        }
+      ]
+    }
+  ],
+  "run": {
+    "expected_item_count": 11,
+    "failed_item_count": 1,
+    "failures": [
+      {
+        "error": "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']",
+        "item_label": "People Before Profit-Solidarity",
+        "item_slug": "people-before-profit-solidarity"
+      }
+    ],
+    "git_sha": "c8e04a7d3ee8fc2340e730e5eaf056ad4af0728a",
+    "project_id": "party_issue_profile_v1",
+    "run_id": "party_issue_profile_v1-v1-3670cb78e1d3",
+    "source_batch_id": "scheduled-weekly-33310991798-1",
+    "state": "partially_failed",
+    "succeeded_item_count": 10
+  },
+  "source_manifest": {
+    "members": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "scheduled-weekly-33310991798-1",
+        "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+      "row_count": 176,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+    },
+    "mode": "s3",
+    "speeches": {
+      "bucket": "eirepolitic-data",
+      "checked": [
+        {
+          "available": true,
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+        }
+      ],
+      "input_mode": "s3_csv_first_available",
+      "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "missing": false,
+      "region": "ca-central-1",
+      "resolution": {
+        "batch_id": "scheduled-weekly-33310991798-1",
+        "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+        "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+        "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+        "resolution_mode": "batch_pointer",
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv",
+      "row_count": 47275,
+      "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+    }
+  }
+}
