@@ -108,6 +108,14 @@ tables:
     description: "Atomic speech records parsed from debate XML."
     columns: [speech_id, debate_id, debate_section_id, debate_date, speech_order, speaker_ref, speaker_name, speaker_member_code, speaker_match_method, speaker_match_confidence, speech_text, speech_text_hash, word_count, char_count, language, source_file_id, xml_source_key, snapshot_date]
 
+  enrichment_speech_issue_labels:
+    layer: enrichment
+    status: in_progress
+    cadence: weekly
+    primary_key: ["speech_id"]
+    description: "One issue classification per unified speech, preserving reusable historical labels by source text hash."
+    columns: [speech_id, member_code, speaker_name, debate_date, speech_order, source_speech_text_hash, issue_label, issue_label_source, model_name, classification_status, review_status, classified_at_utc, speech_text, word_count]
+
   silver_divisions:
     layer: silver
     status: confirmed

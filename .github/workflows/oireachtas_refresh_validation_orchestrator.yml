@@ -112,6 +112,8 @@ jobs:
       batch_id: ${{ needs.prepare.outputs.batch_id }}
       publish_candidate: ${{ needs.prepare.outputs.publish_candidate == 'true' }}
       seed_from_production: ${{ needs.prepare.outputs.publish_candidate == 'true' }}
+      classify_speeches: ${{ needs.prepare.outputs.refresh_type == 'weekly' }}
+      speech_classifier_model: gpt-5.6-luna
     secrets: inherit
 
   validation:

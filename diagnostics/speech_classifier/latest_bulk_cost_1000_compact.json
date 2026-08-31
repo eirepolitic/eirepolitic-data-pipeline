@@ -1,0 +1,119 @@
+{
+  "attempt_counts": {
+    "1": 981,
+    "2": 14,
+    "3": 2,
+    "4": 3
+  },
+  "average_tokens_per_speech": {
+    "cached_input": 6.4,
+    "input": 700.0,
+    "output": 36.0,
+    "reasoning": 17.4
+  },
+  "category_counts": {
+    "Agriculture": 14,
+    "Banking/Finance and Domestic Commerce": 23,
+    "Civil Rights, Minority Issues and Civil Liberties": 24,
+    "Culture and Arts": 22,
+    "Defense": 23,
+    "Education": 93,
+    "Energy": 65,
+    "Environment": 21,
+    "Foreign Trade": 5,
+    "Government Operations": 64,
+    "Health": 116,
+    "Housing and Community Development": 100,
+    "International Affairs and Foreign Aid": 61,
+    "Labor, Employment and Immigration": 33,
+    "Law/Crime and Family Issues": 79,
+    "Macroeconomics": 34,
+    "NONE": 36,
+    "Other/Miscellaneous": 6,
+    "Public Lands and Water Management": 16,
+    "Social Welfare": 48,
+    "Space, Science, and Technology": 15,
+    "Sports and Recreation": 26,
+    "State and Local Government Administration": 7,
+    "Transportation": 67
+  },
+  "concurrency": 8,
+  "cutoff_exclusive": "2026-02-26",
+  "estimated_all_pending_cost_usd_at_sample_rate": 2.72,
+  "estimated_cost_per_1000_speeches_usd": 0.182,
+  "estimated_remaining_recent_cost_usd_at_sample_rate": 2.22,
+  "estimated_sample_cost_usd": {
+    "cached_input_usd": 0.000128,
+    "output_usd": 0.043182,
+    "total_usd": 0.182026,
+    "uncached_input_usd": 0.138716
+  },
+  "failures": [
+    {
+      "attempts": 4,
+      "cached_input_tokens": 3993,
+      "debate_date": "2026-03-04",
+      "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+      "estimated_cost_usd": 0.000963,
+      "input_tokens": 5336,
+      "issue_label": "",
+      "latency_seconds": 21.433,
+      "output_tokens": 512,
+      "reasoning_tokens": 512,
+      "speaker_name": "Deputy Joanna Byrne",
+      "speech_excerpt": "I welcome the intention of this Bill, which clearly aims to protect children from harm, and I commend People Before Profit on bringing it forward. We will support this Bill through to the next Stages, but we may work with People Before Profit on some amendments to it. We have been examining algorithms at several Oireachtas committees, including the Joint Committee on Arts, Media, Culture, Communications and Sport. The expert opinion given at those committees should feed into this Bill, add some ",
+      "speech_id": "speech:94dfeab75cb29da9e9950918",
+      "status": "failed",
+      "word_count": 838
+    },
+    {
+      "attempts": 4,
+      "cached_input_tokens": 0,
+      "debate_date": "2026-06-30",
+      "error": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-5.6-luna in organization org-TUSQ3xKPUWDqkU3FEXFYWF8S on tokens per min (TPM): Limit 200000, Used 197267, Requested 4210. Please try again in 443ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 0,
+      "issue_label": "",
+      "latency_seconds": 23.185,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "speaker_name": "Minister for Children, Disability and Equality (Deputy Norma Foley)",
+      "speech_excerpt": "I move amendment No 1: To delete all words after \"Dáil Éireann\" and substitute the following: \"welcomes the significant prioritisation by the Government of measures designed to: — reduce out-of-pocket costs of early learning and childcare for families; — better align the supply of State-subsidised early learning and childcare with demand; and — increase the pay and improve the working conditions of Early Years Educators and School-Age Childcare practitioners, as well as develop career pathways a",
+      "speech_id": "speech:5fb67f7d31da875b0c05b33d",
+      "status": "failed",
+      "word_count": 3054
+    }
+  ],
+  "latency_seconds": {
+    "max": 23.185,
+    "mean": 1.572,
+    "p50": 1.102,
+    "p95": 3.322
+  },
+  "mode": "bulk_cost_reliability_sample",
+  "model": "gpt-5.6-luna",
+  "none_count": 36,
+  "none_pct": 3.61,
+  "pending_recent_after_cutoff": 12197,
+  "pending_total_all_dates": 14930,
+  "pricing_usd_per_million_tokens": {
+    "cached_input": 0.02,
+    "output": 1.2,
+    "uncached_input": 0.2
+  },
+  "reasoning_effort": "low",
+  "sample_attempted": 1000,
+  "sample_failed": 2,
+  "sample_requested": 1000,
+  "sample_succeeded": 998,
+  "success_pct": 99.8,
+  "throughput_speeches_per_minute": 299.62,
+  "usage": {
+    "cached_input_tokens": 6404,
+    "input_tokens": 699984,
+    "output_tokens": 35985,
+    "reasoning_tokens": 17413
+  },
+  "wall_seconds": 200.253,
+  "writes_performed": false
+}
