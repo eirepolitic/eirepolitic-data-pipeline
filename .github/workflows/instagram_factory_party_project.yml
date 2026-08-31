@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  render-v4-review:
+  render-v5-review:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
@@ -24,7 +24,91 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Generate v4 live batch with diagnostics
+      - name: Build approved corner assets from reference template
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageChops, ImageOps
+
+          src = Image.open('instagram/reference/member_profile_template.png').convert('RGBA')
+          # The approved ornament sits in the top-left corner of the canonical reference.
+          # Crop enough area to retain the knot plus its extending border strokes.
+          crop = src.crop((0, 0, 230, 230)).copy()
+
+          # Convert pixels matching the reference background to transparency while
+          # retaining the light ornamental artwork. Use the dominant corner pixel
+          # as the background reference so this remains deterministic.
+          bg = crop.getpixel((0, 0))[:3]
+          px = crop.load()
+          for y in range(crop.height):
+              for x in range(crop.width):
+                  r, g, b, a = px[x, y]
+                  distance = abs(r-bg[0]) + abs(g-bg[1]) + abs(b-bg[2])
+                  if distance < 42:
+                      px[x, y] = (r, g, b, 0)
+
+          out = Path('instagram/templates/assets')
+          out.mkdir(parents=True, exist_ok=True)
+          crop.save(out/'corner_tl.png')
+          ImageOps.mirror(crop).save(out/'corner_tr.png')
+          ImageOps.flip(crop).save(out/'corner_bl.png')
+          ImageOps.flip(ImageOps.mirror(crop)).save(out/'corner_br.png')
+          PY
+      - name: Apply v5 layout and visual spacing
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          from pathlib import Path
+
+          # Replace Unicode ornaments with the exact mirrored reference-corner assets.
+          path = Path('instagram/templates/layouts/title_text_media_v1.json')
+          doc = json.loads(path.read_text(encoding='utf-8'))
+          kept = [e for e in doc['elements'] if not str(e.get('id','')).startswith('ornament_')]
+          ornaments = [
+              {'id':'ornament_tl','type':'image','source':'instagram/templates/assets/corner_tl.png','x':0,'y':0,'w':155,'h':155,'fit':'contain'},
+              {'id':'ornament_tr','type':'image','source':'instagram/templates/assets/corner_tr.png','x':925,'y':0,'w':155,'h':155,'fit':'contain'},
+              {'id':'ornament_bl','type':'image','source':'instagram/templates/assets/corner_bl.png','x':0,'y':1195,'w':155,'h':155,'fit':'contain'},
+              {'id':'ornament_br','type':'image','source':'instagram/templates/assets/corner_br.png','x':925,'y':1195,'w':155,'h':155,'fit':'contain'},
+          ]
+          doc['elements'] = ornaments[:2] + kept + ornaments[2:]
+          path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          # Move the central cover focal ring upward to reduce title-to-logo dead space.
+          path = Path('instagram/factory/party_adapter.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('cx, cy, radius = 516, 430, 225', 'cx, cy, radius = 516, 375, 225', 1)
+          # Rebalance lower metrics slightly upward with the focal device.
+          text = text.replace('(270, 820)', '(270, 785)', 1)
+          text = text.replace('(270, 895)', '(270, 860)', 1)
+          text = text.replace('(762, 820)', '(762, 785)', 1)
+          text = text.replace('(762, 895)', '(762, 860)', 1)
+          text = text.replace('(215, 980, 817, 980)', '(215, 945, 817, 945)', 1)
+          text = text.replace('(516, 1035)', '(516, 1000)', 1)
+          text = text.replace('(516, 1083)', '(516, 1048)', 1)
+          path.write_text(text, encoding='utf-8')
+
+          # Shrink/recenter chart content by roughly 10% inside the same visual canvas.
+          path = Path('instagram/visuals/renderers/horizontal_bar.py')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              'PLOT_LEFT = 0.34':'PLOT_LEFT = 0.36',
+              'MAX_PLOT_LEFT = 0.40':'MAX_PLOT_LEFT = 0.42',
+              'PLOT_RIGHT = 0.955':'PLOT_RIGHT = 0.92',
+              'PLOT_BOTTOM = 0.085':'PLOT_BOTTOM = 0.12',
+              'PLOT_HEIGHT = 0.865':'PLOT_HEIGHT = 0.78',
+          }
+          for old,new in replacements.items():
+              text = text.replace(old,new,1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/templates/assets instagram/templates/layouts/title_text_media_v1.json instagram/factory/party_adapter.py instagram/visuals/renderers/horizontal_bar.py
+          git commit -m "Use reference corners and refine v5 spacing" || true
+          git push
+      - name: Generate v5 live batch
         shell: bash
         run: |
           set +e
@@ -33,27 +117,28 @@ jobs:
           python process/instagram_factory.py generate-batch \
             --project instagram/projects/party_issue_profile_v1/project.yml \
             --data-source s3 \
-            --output-root generated_party_v4 \
+            --output-root generated_party_v5 \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > commissioning-v4-report.json
+            > commissioning-v5-report.json
           code=$?
           set -e
-          echo "$code" > commissioning-v4-exit-code.txt
-          mkdir -p instagram/commissioning/diagnostics
-          cp commissioning-v4-report.json instagram/commissioning/diagnostics/v4_generation_report.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/diagnostics/v4_generation_report.json
-          git commit -m "Record v4 generation diagnostics" || true
-          git push
-          exit "$code"
-      - name: Export selected v4 for review
+          if [ "$code" -ne 0 ]; then
+            mkdir -p instagram/commissioning/diagnostics
+            cp commissioning-v5-report.json instagram/commissioning/diagnostics/v5_generation_report.json
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add instagram/commissioning/diagnostics/v5_generation_report.json
+            git commit -m "Record v5 generation diagnostics" || true
+            git push
+            exit "$code"
+          fi
+      - name: Export selected v5 for review
         shell: bash
         run: |
           set -euo pipefail
-          src="generated_party_v4/generated/fianna-fail"
-          out="instagram/commissioning/output/fianna-fail/v4-review"
+          src="generated_party_v5/generated/fianna-fail"
+          out="instagram/commissioning/output/fianna-fail/v5-review"
           rm -rf "$out"
           mkdir -p "$out/slides" "$out/review_previews" "$out/metadata"
           cp "$src"/slides/*.png "$out/slides/"
@@ -62,14 +147,23 @@ jobs:
           python <<'PY'
           from pathlib import Path
           from PIL import Image
-          root = Path('instagram/commissioning/output/fianna-fail/v4-review')
-          for src in sorted((root / 'slides').glob('*.png')):
+          root = Path('instagram/commissioning/output/fianna-fail/v5-review')
+          for src in sorted((root/'slides').glob('*.png')):
               im = Image.open(src).convert('RGB')
-              im.thumbnail((540, 675), Image.Resampling.LANCZOS)
-              im.save(root / 'review_previews' / f'{src.stem}.jpg', 'JPEG', quality=82, optimize=True)
+              im.thumbnail((540,675), Image.Resampling.LANCZOS)
+              im.save(root/'review_previews'/f'{src.stem}.jpg','JPEG',quality=82,optimize=True)
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$out"
-          git commit -m "Add Fianna Fail v4 visual review candidate" || true
+          git commit -m "Add Fianna Fail v5 review candidate" || true
           git push
+      - name: Upload v5 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-party-v5-${{ github.run_id }}
+          path: |
+            generated_party_v5/
+            commissioning-v5-report.json
+          if-no-files-found: warn
