@@ -188,10 +188,12 @@ def draw_text_element(
     if not lines:
         return metric
 
+    line_boxes: list[tuple[int, int, int, int]] = []
     line_heights: list[int] = []
     total_height = 0
     for line in lines:
         bbox = draw.textbbox((0, 0), line, font=font)
+        line_boxes.append(bbox)
         line_height = bbox[3] - bbox[1]
         line_heights.append(line_height)
         total_height += line_height
@@ -207,16 +209,20 @@ def draw_text_element(
     top = y + h
     right = x
     bottom = y
-    for line, line_height in zip(lines, line_heights):
-        line_bbox = draw.textbbox((0, 0), line, font=font)
+    for line, line_height, line_bbox in zip(lines, line_heights, line_boxes):
         line_width = line_bbox[2] - line_bbox[0]
         cursor_x = x
         if align == "center":
             cursor_x = x + max(0, (w - line_width) // 2)
         elif align == "right":
             cursor_x = x + max(0, w - line_width)
-        draw.text((cursor_x, cursor_y), line, font=font, fill=color)
-        actual_bbox = draw.textbbox((cursor_x, cursor_y), line, font=font)
+
+        # Pillow's textbbox can have non-zero left/top bearings. Treat cursor_x/cursor_y
+        # as the intended glyph-bbox origin so the rendered geometry matches fit_text.
+        draw_x = cursor_x - line_bbox[0]
+        draw_y = cursor_y - line_bbox[1]
+        draw.text((draw_x, draw_y), line, font=font, fill=color)
+        actual_bbox = draw.textbbox((draw_x, draw_y), line, font=font)
         left = min(left, actual_bbox[0])
         top = min(top, actual_bbox[1])
         right = max(right, actual_bbox[2])
