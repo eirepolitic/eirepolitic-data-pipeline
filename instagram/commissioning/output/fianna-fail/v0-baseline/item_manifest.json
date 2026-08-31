@@ -1,0 +1,273 @@
+{
+  "project_id": "party_issue_profile_v1",
+  "project_version": 1,
+  "run_id": "party_issue_profile_v1-v1-9ed2110b88bb",
+  "grain": "party",
+  "item_key": "fianna-fail",
+  "item_key_fields": {
+    "party_key": "fianna-fail"
+  },
+  "item_label": "Fianna Fáil",
+  "item_slug": "fianna-fail",
+  "status": "succeeded",
+  "review_state": "unreviewed",
+  "no_publication": true,
+  "source_batch_id": "scheduled-weekly-33310991798-1",
+  "slides": [
+    {
+      "slide_id": "cover",
+      "order": 1,
+      "layout_id": "title_text_media_v1",
+      "path": "generated/fianna-fail/slides/01_cover.png",
+      "sha256": "4115b17ada3bed31ee2c0a2e160765dc7cb6e6fa32e7775b93eb650514b67f95",
+      "width": 1080,
+      "height": 1350,
+      "warnings": []
+    },
+    {
+      "slide_id": "issue_profile",
+      "order": 2,
+      "layout_id": "title_text_media_v1",
+      "path": "generated/fianna-fail/slides/02_issue_profile.png",
+      "sha256": "93bd984926c1ee7f42acab38869cfbd2c671fd4c8eda906a16e393dec7de9292",
+      "width": 1080,
+      "height": 1350,
+      "warnings": []
+    }
+  ],
+  "errors": [],
+  "generated_at": "2026-08-31T15:39:14.618127+00:00",
+  "visual_manifest": {
+    "success": true,
+    "visual_id": "party_issue_profile_batch_item",
+    "template_id": "horizontal_bar_draft_v1",
+    "renderer": "horizontal_bar",
+    "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fianna-fail/assets/visual.png",
+    "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fianna-fail/metadata/visual.json",
+    "width": 1032,
+    "height": 1210,
+    "plot_bounds": [
+      0.3536821705426357,
+      0.045,
+      0.6163178294573644,
+      0.91
+    ],
+    "plot_vertical_fill_ratio": 0.91,
+    "plot_area_ratio": 0.5608,
+    "readability": {
+      "category_label_font_size": 16,
+      "category_label_font_size_requested": 18,
+      "category_label_font_size_minimum": 14,
+      "category_label_font_shrunk": true,
+      "value_label_font_size": 15,
+      "value_label_font_size_requested": 16,
+      "value_label_font_size_minimum": 14,
+      "value_label_font_shrunk": true,
+      "axis_font_size": 12,
+      "bar_thickness_px": 97.53,
+      "max_wrapped_label_lines": 2,
+      "max_value_label_x_ratio": 0.9635,
+      "displayed_item_count": 7,
+      "max_category_label_width_px": 323.0,
+      "plot_left_ratio": 0.3537,
+      "category_text_clipped_count": 0,
+      "value_text_clipped_count": 0,
+      "truncated_label_count": 0,
+      "category_text_bounds": [
+        {
+          "raw_label": "Housing and Community Development",
+          "rendered_label": "Housing and Comm\nunity Development",
+          "font_size": 16,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            27.42,
+            1012.95,
+            350.42,
+            1092.96
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Health",
+          "rendered_label": "Health",
+          "font_size": 16,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            242.42,
+            886.75,
+            350.42,
+            920.08
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Education",
+          "rendered_label": "Education",
+          "font_size": 16,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            186.42,
+            735.54,
+            350.42,
+            768.87
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Law/Crime and Family Issues",
+          "rendered_label": "Law/Crime and\nFamily Issues",
+          "font_size": 16,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            104.42,
+            559.32,
+            350.42,
+            639.33
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Transportation",
+          "rendered_label": "Transportation",
+          "font_size": 16,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            112.31,
+            433.12,
+            350.42,
+            466.45
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "Government Operations",
+          "rendered_label": "Governmen\nt Operations",
+          "font_size": 16,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            146.42,
+            256.9,
+            350.42,
+            336.92
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "International Affairs and Foreign Aid",
+          "rendered_label": "International Affai\nrs and Foreign Aid",
+          "font_size": 16,
+          "line_count": 2,
+          "truncated": false,
+          "bbox_px": [
+            52.34,
+            105.7,
+            350.42,
+            185.71
+          ],
+          "clipped_to_figure": false
+        }
+      ],
+      "value_text_bounds": [
+        {
+          "value": 1286.0,
+          "text": "1,286",
+          "font_size": 15,
+          "bbox_px": [
+            877.84,
+            1043.0,
+            977.84,
+            1074.25
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 1135.0,
+          "text": "1,135",
+          "font_size": 15,
+          "bbox_px": [
+            819.58,
+            891.79,
+            919.58,
+            923.04
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 920.0,
+          "text": "920",
+          "font_size": 15,
+          "bbox_px": [
+            736.63,
+            740.58,
+            802.63,
+            771.83
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 630.0,
+          "text": "630",
+          "font_size": 15,
+          "bbox_px": [
+            624.74,
+            589.38,
+            690.74,
+            620.63
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 571.0,
+          "text": "571",
+          "font_size": 15,
+          "bbox_px": [
+            601.97,
+            438.17,
+            667.97,
+            469.42
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 549.0,
+          "text": "549",
+          "font_size": 15,
+          "bbox_px": [
+            593.48,
+            286.96,
+            659.48,
+            318.21
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        },
+        {
+          "value": 542.0,
+          "text": "542",
+          "font_size": 15,
+          "bbox_px": [
+            590.78,
+            135.75,
+            656.78,
+            167.0
+          ],
+          "clipped_to_axes": false,
+          "clipped_to_figure": false
+        }
+      ]
+    },
+    "warnings": [],
+    "created_at": "2026-08-31T15:39:14.385214+00:00"
+  }
+}
