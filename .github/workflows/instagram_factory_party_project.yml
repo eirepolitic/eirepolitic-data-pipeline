@@ -7,9 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  diagnose-january-overindex:
+  render-january-overindex:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -25,38 +25,206 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Validate
+
+      - name: Harden long-label rendering and normalized metadata
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('instagram/visuals/renderers/horizontal_bar.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('MAX_LABEL_LINES = 2', 'MAX_LABEL_LINES = 3', 1)
+          start = text.index('def _wrap_two_lines(')
+          end = text.index('\ndef _select_label_layout(', start)
+          replacement = '''def _wrap_two_lines(\n    renderer: Any,\n    label: str,\n    *,\n    font_size: int,\n    max_width_px: float,\n    allow_truncate: bool,\n) -> tuple[str, bool, float]:\n    label = " ".join(str(label).split())\n    if _text_width(renderer, label, font_size) <= max_width_px:\n        return label, False, _text_width(renderer, label, font_size)\n\n    words = label.split()\n\n    # Prefer two balanced lines at word boundaries.\n    best_two: tuple[float, list[str], float] | None = None\n    for i in range(1, len(words)):\n        lines = [" ".join(words[:i]), " ".join(words[i:])]\n        widths = [_text_width(renderer, line, font_size) for line in lines]\n        widest = max(widths)\n        if widest <= max_width_px:\n            score = widest + abs(widths[0] - widths[1]) * 0.15\n            if best_two is None or score < best_two[0]:\n                best_two = (score, lines, widest)\n    if best_two is not None:\n        return "\\n".join(best_two[1]), False, best_two[2]\n\n    # For long taxonomy labels, allow a third line rather than truncating or\n    # splitting words. Seven-row charts have sufficient vertical room for this.\n    best_three: tuple[float, list[str], float] | None = None\n    for i in range(1, len(words) - 1):\n        for j in range(i + 1, len(words)):\n            lines = [" ".join(words[:i]), " ".join(words[i:j]), " ".join(words[j:])]\n            widths = [_text_width(renderer, line, font_size) for line in lines]\n            widest = max(widths)\n            if widest <= max_width_px:\n                score = widest + (max(widths) - min(widths)) * 0.12\n                if best_three is None or score < best_three[0]:\n                    best_three = (score, lines, widest)\n    if best_three is not None:\n        return "\\n".join(best_three[1]), False, best_three[2]\n\n    if not allow_truncate:\n        return label, True, _text_width(renderer, label, font_size)\n\n    # Last-resort truncation remains explicit so strict visual QA can reject it.\n    candidate = _ellipsize(renderer, label, font_size, max_width_px)\n    return candidate, True, _text_width(renderer, candidate, font_size)\n\n'''
+          text = text[:start] + replacement + text[end+1:]
+          if 'elif value_format == "plus_per_td_2":' not in text:
+              text = text.replace(
+                  '            elif value_format == "plus_decimal_2":\n                value_label = f"+{value:.2f}"\n',
+                  '            elif value_format == "plus_decimal_2":\n                value_label = f"+{value:.2f}"\n            elif value_format == "plus_per_td_2":\n                value_label = f"+{value:.2f}/TD"\n',
+                  1,
+              )
+          path.write_text(text, encoding='utf-8')
+
+          path = Path('instagram/factory/party_overindex_adapter.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('value_format = "plus_pp_1" if mode == "share_pp" else "plus_decimal_2"',
+                              'value_format = "plus_pp_1" if mode == "share_pp" else "plus_per_td_2"', 1)
+          marker = '    source_manifest = {\n        "data_origin": "real_s3",\n'
+          if marker in text and '"source_batch_id": "classifier-current-2026-08-31"' not in text:
+              text = text.replace(marker, marker + '        "source_batch_id": "classifier-current-2026-08-31",\n', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/visuals/renderers/horizontal_bar.py instagram/factory/party_overindex_adapter.py
+          git commit -m "Support three-line taxonomy labels for normalized party charts" || true
+          git push
+
+      - name: Validate catalogues and projects
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_share_overindex_jan2026/project.yml
-      - name: Generate share batch and preserve raw report
-        shell: bash
+          python process/instagram_factory.py validate-project --project instagram/projects/party_issue_per_td_overindex_jan2026/project.yml
+
+      - name: Generate January issue-share over-index batch
         run: |
-          set +e
           python process/instagram_factory.py generate-batch \
             --project instagram/projects/party_issue_share_overindex_jan2026/project.yml \
             --data-source s3 \
             --output-root generated_january_share_overindex \
             --git-sha "$(git rev-parse HEAD)" \
             --workflow-run-id "$GITHUB_RUN_ID" \
-            > january-share-report.txt 2>&1
-          code=$?
-          set -e
-          mkdir -p instagram/commissioning/diagnostics
-          cp january-share-report.txt instagram/commissioning/diagnostics/january-share-report.txt
-          printf '%s\n' "$code" > instagram/commissioning/diagnostics/january-share-exit-code.txt
+            > january-share-report.json
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_january_share_overindex \
+            > january-share-review-index.json
+
+      - name: Generate January per-TD over-index batch
+        run: |
+          python process/instagram_factory.py generate-batch \
+            --project instagram/projects/party_issue_per_td_overindex_jan2026/project.yml \
+            --data-source s3 \
+            --output-root generated_january_per_td_overindex \
+            --git-sha "$(git rev-parse HEAD)" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            > january-per-td-report.json
+          python process/instagram_factory.py build-review-index \
+            --run-root generated_january_per_td_overindex \
+            > january-per-td-review-index.json
+
+      - name: Export review artifacts, source values and contact sheets
+        shell: bash
+        run: |
+          python <<'PY'
+          import json, math, shutil
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          from instagram.factory.party_overindex_adapter import (
+              load_party_share_overindex_records,
+              load_party_per_td_overindex_records,
+          )
+
+          output_root = Path('instagram/commissioning/output/january-overindex-2026')
+          if output_root.exists():
+              shutil.rmtree(output_root)
+          output_root.mkdir(parents=True, exist_ok=True)
+
+          modes = [
+              ('share', Path('generated_january_share_overindex'), Path('january-share-review-index.json')),
+              ('per-td', Path('generated_january_per_td_overindex'), Path('january-per-td-review-index.json')),
+          ]
+
+          def contact_sheet(records, mode_root, slide_name, out_name):
+              cards=[]
+              for rec in records:
+                  src=mode_root/'parties'/rec['slug']/'slides'/slide_name
+                  if not src.exists():
+                      continue
+                  im=Image.open(src).convert('RGB')
+                  im.thumbnail((270,338), Image.Resampling.LANCZOS)
+                  card=Image.new('RGB',(300,390),'white')
+                  card.paste(im,((300-im.width)//2,8))
+                  d=ImageDraw.Draw(card)
+                  d.text((150,355),str(rec['label']),fill='black',anchor='ma',align='center')
+                  cards.append(card)
+              cols=3
+              rows=max(1,math.ceil(len(cards)/cols))
+              sheet=Image.new('RGB',(cols*300,rows*390),'white')
+              for i,card in enumerate(cards):
+                  sheet.paste(card,((i%cols)*300,(i//cols)*390))
+              sheet.save(mode_root/out_name,'JPEG',quality=88,optimize=True)
+
+          combined={}
+          label_to_slug={}
+          for mode, src_root, review_index in modes:
+              mode_root=output_root/mode
+              parties_root=mode_root/'parties'
+              parties_root.mkdir(parents=True, exist_ok=True)
+              run=json.loads((src_root/'run_manifest.json').read_text(encoding='utf-8'))
+              records=[]
+              for slug in run['item_order']:
+                  src=src_root/'generated'/slug
+                  manifest=json.loads((src/'item_manifest.json').read_text(encoding='utf-8'))
+                  label=manifest.get('item_label')
+                  label_to_slug[(mode,label)]=slug
+                  dst=parties_root/slug
+                  (dst/'slides').mkdir(parents=True,exist_ok=True)
+                  (dst/'metadata').mkdir(parents=True,exist_ok=True)
+                  for png in sorted((src/'slides').glob('*.png')):
+                      shutil.copy2(png,dst/'slides'/png.name)
+                  shutil.copy2(src/'item_manifest.json',dst/'metadata'/'item_manifest.json')
+                  if (src/'metadata'/'visual.json').exists():
+                      shutil.copy2(src/'metadata'/'visual.json',dst/'metadata'/'visual.json')
+                  if (src/'manifests'/'visual_manifest.json').exists():
+                      shutil.copy2(src/'manifests'/'visual_manifest.json',dst/'metadata'/'visual_manifest.json')
+                  records.append({'slug':slug,'label':label,'status':manifest.get('status')})
+              shutil.copy2(src_root/'run_manifest.json',mode_root/'run_manifest.json')
+              shutil.copy2(review_index,mode_root/'review_index.json')
+              summary={
+                  'mode':mode,
+                  'period':'2026-01-01/2026-01-31',
+                  'expected_item_count':run.get('expected_item_count'),
+                  'succeeded_item_count':run.get('succeeded_item_count'),
+                  'failed_item_count':run.get('failed_item_count'),
+                  'source_batch_id':run.get('source_batch_id'),
+                  'parties':records,
+                  'publishing_allowed':False,
+              }
+              (mode_root/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+              contact_sheet(records,mode_root,'01_cover.png','contact_sheet_covers.jpg')
+              contact_sheet(records,mode_root,'02_issue_profile.png','contact_sheet_charts.jpg')
+              combined[mode]=summary
+
+          share_records, share_source, share_join = load_party_share_overindex_records('s3')
+          td_records, td_source, td_join = load_party_per_td_overindex_records('s3')
+          normalized = {
+              'methodology': {
+                  'period_start':'2026-01-01',
+                  'period_end':'2026-01-31',
+                  'share':'party category share minus unweighted mean party category share, in percentage points; zero shares included',
+                  'per_td':'party category speeches per current TD minus unweighted mean party category speeches per current TD; zero rates included',
+                  'display':'top 7 positive differences only',
+              },
+              'share_source_manifest':share_source,
+              'share_join_manifest':share_join,
+              'per_td_source_manifest':td_source,
+              'per_td_join_manifest':td_join,
+              'share_records':share_records,
+              'per_td_records':td_records,
+          }
+          (output_root/'normalized_source_values.json').write_text(json.dumps(normalized,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+
+          comparison={}
+          for mode in ('share','per-td'):
+              slug=label_to_slug.get((mode,'Fianna Fáil'))
+              if not slug:
+                  continue
+              visual=output_root/mode/'parties'/slug/'metadata'/'visual.json'
+              comparison[mode]={
+                  'slug':slug,
+                  'rows_rendered': json.loads(visual.read_text(encoding='utf-8')).get('rows_rendered',[]) if visual.exists() else [],
+              }
+          (output_root/'fianna-fail-comparison.json').write_text(json.dumps(comparison,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          (output_root/'summary.json').write_text(json.dumps(combined,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/diagnostics/january-share-report.txt instagram/commissioning/diagnostics/january-share-exit-code.txt
-          git commit -m "Record raw January share over-index diagnostic" || true
+          git add instagram/commissioning/output/january-overindex-2026
+          git commit -m "Add January 2026 normalized party issue variants" || true
           git push
-          echo "generation_exit_code=$code"
-      - name: Upload evidence
+
+      - name: Upload commissioning evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: january-share-diagnostics-${{ github.run_id }}
+          name: instagram-january-overindex-${{ github.run_id }}
           path: |
-            january-share-report.txt
             generated_january_share_overindex/
+            generated_january_per_td_overindex/
+            january-share-report.json
+            january-per-td-report.json
+            january-share-review-index.json
+            january-per-td-review-index.json
           if-no-files-found: warn
