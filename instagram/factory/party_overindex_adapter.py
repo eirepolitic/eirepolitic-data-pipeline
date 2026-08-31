@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import csv
 import io
-import json
 import re
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -14,12 +13,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 from instagram.visuals.renderers import horizontal_bar
 
-S3_BUCKET = "eirepolitic-data-pipeline"
+S3_BUCKET = "eirepolitic-data"
 MEMBER_KEY = "raw/members/oireachtas_members_34th_dail.csv"
-CLASSIFIED_KEY_CANDIDATES = [
-    "processed/debates/debate_speeches_classified.csv",
-    "processed/debates/debate_speeches_classified_latest.csv",
-]
+CLASSIFIED_KEY = "processed/debates/debate_speeches_classified.csv"
 JAN_START = "2026-01-01"
 JAN_END = "2026-01-31"
 
@@ -36,16 +32,6 @@ def _csv_rows(body: bytes) -> list[dict[str, str]]:
 def _read_s3_csv(s3: Any, key: str) -> list[dict[str, str]]:
     obj = s3.get_object(Bucket=S3_BUCKET, Key=key)
     return _csv_rows(obj["Body"].read())
-
-
-def _first_existing_csv(s3: Any, keys: list[str]) -> tuple[str, list[dict[str, str]]]:
-    last_error: Exception | None = None
-    for key in keys:
-        try:
-            return key, _read_s3_csv(s3, key)
-        except Exception as exc:
-            last_error = exc
-    raise RuntimeError(f"Could not read any classified speech key: {keys}; last_error={last_error}")
 
 
 def _parse_date(value: str) -> str | None:
@@ -72,10 +58,10 @@ def _field(row: dict[str, str], names: list[str]) -> str:
     return ""
 
 
-def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     s3 = boto3.client("s3")
     members = _read_s3_csv(s3, MEMBER_KEY)
-    classified_key, speeches = _first_existing_csv(s3, CLASSIFIED_KEY_CANDIDATES)
+    speeches = _read_s3_csv(s3, CLASSIFIED_KEY)
 
     member_party: dict[str, str] = {}
     party_member_counts: Counter[str] = Counter()
@@ -91,27 +77,30 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     party_total_counts: Counter[str] = Counter()
     january_rows = 0
     matched_rows = 0
+    unmatched_speakers: Counter[str] = Counter()
     seen_categories: set[str] = set()
 
     for row in speeches:
-        date_value = _field(row, ["Debate Date", "debate_date", "Date"])
-        date_iso = _parse_date(date_value)
+        date_iso = _parse_date(_field(row, ["Debate Date", "debate_date", "Date"]))
         if not date_iso or not (JAN_START <= date_iso <= JAN_END):
             continue
         january_rows += 1
-        speaker = _field(row, ["Speaker", "Speaker Name", "speaker_name", "Member Name"])
-        category = _field(row, ["Issue Category", "issue_category", "Category", "classification"])
-        if not speaker or not category:
+        speaker = _field(row, ["Speaker Name", "Speaker", "speaker_name", "Member Name"])
+        category = _field(row, ["PoliticalIssues", "Issue Category", "issue_category", "Category", "classification"])
+        if not speaker or not category or category.upper() == "NONE":
             continue
         party = member_party.get(speaker.casefold())
         if not party:
+            unmatched_speakers[speaker] += 1
             continue
         matched_rows += 1
         seen_categories.add(category)
         party_category_counts[party][category] += 1
         party_total_counts[party] += 1
 
-    parties = sorted(party_member_counts)
+    # Only compare groupings with at least one current TD. Include zero values for a
+    # category when computing the cross-party mean so quiet categories are genuine zeros.
+    parties = sorted(party for party, count in party_member_counts.items() if count > 0)
     categories = sorted(seen_categories)
     if not parties or not categories:
         raise RuntimeError("January normalization source produced no parties/categories")
@@ -145,21 +134,16 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             if mode == "share_pp":
                 actual = (count / total) if total else 0.0
                 delta = (actual - baseline) * 100.0
-                display_value = delta
-                value_label = f"+{delta:.1f} pp" if delta > 0 else f"{delta:.1f} pp"
             else:
                 actual = (count / td_count) if td_count else 0.0
                 delta = actual - baseline
-                display_value = delta
-                value_label = f"+{delta:.2f}" if delta > 0 else f"{delta:.2f}"
             if delta > 0:
                 rows.append({
                     "label": category,
-                    "value": display_value,
+                    "value": delta,
                     "raw_count": count,
                     "actual": actual,
                     "baseline": baseline,
-                    "value_label": value_label,
                 })
         rows.sort(key=lambda item: item["value"], reverse=True)
         records.append({
@@ -169,37 +153,57 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             "speech_count": total,
             "period_start": JAN_START,
             "period_end": JAN_END,
-            "rows": rows[:7],
+            "issue_rows": rows[:7],
+            "issue_count": min(7, len(rows)),
             "mode": mode,
-            "source_batch_id": "latest-classified-production",
-            "classified_s3_key": classified_key,
+            "source_batch_id": "classifier-current-2026-08-31",
+            "classified_s3_key": CLASSIFIED_KEY,
+            "scenario": "batch_item",
+            "synthetic": False,
+            "no_publication": True,
         })
 
-    manifest = {
+    source_manifest = {
+        "data_origin": "real_s3",
         "source_bucket": S3_BUCKET,
         "member_key": MEMBER_KEY,
-        "classified_key": classified_key,
+        "classified_key": CLASSIFIED_KEY,
         "period_start": JAN_START,
         "period_end": JAN_END,
         "january_rows": january_rows,
-        "matched_rows": matched_rows,
+        "matched_classified_rows": matched_rows,
         "party_count": len(parties),
         "category_count": len(categories),
         "mode": mode,
     }
-    return records, manifest
+    join_manifest = {
+        "current_member_rows": len(members),
+        "unmatched_speaker_count": sum(unmatched_speakers.values()),
+        "unmatched_speaker_names": len(unmatched_speakers),
+        "matched_classified_rows": matched_rows,
+    }
+    return records, source_manifest, join_manifest
 
 
-def load_party_share_overindex_records(*_args: Any, **_kwargs: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def load_party_share_overindex_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    if data_source != "s3":
+        raise ValueError("January over-index commissioning adapter currently requires data_source='s3'")
     return _load_records("share_pp")
 
 
-def load_party_per_td_overindex_records(*_args: Any, **_kwargs: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def load_party_per_td_overindex_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    if data_source != "s3":
+        raise ValueError("January over-index commissioning adapter currently requires data_source='s3'")
     return _load_records("per_td")
 
 
-def build_context(record: dict[str, Any], *_args: Any, **_kwargs: Any) -> dict[str, Any]:
-    return dict(record)
+def build_context(record: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **record,
+        project["granularity"]["label_field"]: record["party"],
+        "display_label": record["party"],
+        "item_key": record["party_key"],
+    }
 
 
 def render_cover(path: Path, context: dict[str, Any]) -> None:
@@ -208,8 +212,8 @@ def render_cover(path: Path, context: dict[str, Any]) -> None:
     draw = ImageDraw.Draw(image)
     try:
         party_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 68)
-        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 74)
-        label_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 26)
+        number_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 72)
+        label_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 25)
         small_font = ImageFont.truetype("DejaVuSans.ttf", 24)
     except OSError:
         party_font = number_font = label_font = small_font = ImageFont.load_default()
@@ -229,22 +233,21 @@ def render_cover(path: Path, context: dict[str, Any]) -> None:
         draw.text((cx, cy-46), lines[0], font=party_font, fill="#f4ead7", anchor="mm")
         draw.text((cx, cy+46), lines[1], font=party_font, fill="#f4ead7", anchor="mm")
 
-    mode = context.get("mode")
-    if mode == "share_pp":
-        big = f"{int(context.get('speech_count',0)):,}"
-        label = "JANUARY SPEECHES"
-        second_big = "VS AVG"
-        second_label = "PARTY ISSUE SHARE"
+    if context.get("mode") == "share_pp":
+        left_value = f"{int(context.get('speech_count',0)):,}"
+        left_label = "JANUARY CLASSIFIED SPEECHES"
+        right_value = "VS AVG"
+        right_label = "ISSUE SHARE"
     else:
-        big = f"{int(context.get('member_count',0)):,}"
-        label = "CURRENT TDS"
-        second_big = "PER TD"
-        second_label = "ISSUE OVER-INDEX"
+        left_value = f"{int(context.get('member_count',0)):,}"
+        left_label = "CURRENT TDS"
+        right_value = "PER TD"
+        right_label = "VS PARTY AVERAGE"
 
-    draw.text((270, 785), big, font=number_font, fill="#f4ead7", anchor="mm")
-    draw.text((270, 852), label, font=label_font, fill="#d8b45f", anchor="mm")
-    draw.text((762, 785), second_big, font=number_font, fill="#f4ead7", anchor="mm")
-    draw.text((762, 852), second_label, font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((270, 785), left_value, font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((270, 852), left_label, font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((762, 785), right_value, font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((762, 852), right_label, font=label_font, fill="#d8b45f", anchor="mm")
     draw.line((215, 945, 817, 945), fill="#d8b45f", width=3)
     draw.text((516, 1000), "JANUARY 2026", font=label_font, fill="#d8b45f", anchor="mm")
     draw.text((516, 1048), "1 Jan – 31 Jan 2026", font=small_font, fill="#f4ead7", anchor="mm")
@@ -252,22 +255,20 @@ def render_cover(path: Path, context: dict[str, Any]) -> None:
 
 
 def render_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
-    assets = item_dir / "assets"
-    manifests = item_dir / "manifests"
-    metadata_dir = item_dir / "metadata"
-    assets.mkdir(parents=True, exist_ok=True)
-    manifests.mkdir(parents=True, exist_ok=True)
-    metadata_dir.mkdir(parents=True, exist_ok=True)
+    assets_dir = item_dir / "assets"
+    cover_asset = assets_dir / "cover.png"
+    visual_asset = assets_dir / "visual.png"
+    cover_asset.parent.mkdir(parents=True, exist_ok=True)
+    render_cover(cover_asset, context)
 
-    cover = assets / "cover.png"
-    render_cover(cover, context)
-
-    rows = context.get("rows") or []
+    rows = context.get("issue_rows") or []
     if not rows:
         raise ValueError(f"No above-average categories for {context.get('party')}")
 
+    mode = str(context.get("mode"))
+    value_format = "plus_pp_1" if mode == "share_pp" else "plus_decimal_2"
     sample = {
-        "visual_id": f"{context.get('party_key')}-{context.get('mode')}",
+        "visual_id": f"{context.get('party_key')}-{mode}",
         "bindings": {"label": "label", "value": "value"},
         "source_note": "January 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
     }
@@ -278,7 +279,7 @@ def render_assets(item_dir: Path, context: dict[str, Any], project: dict[str, An
             "height": 1210,
             "max_items": 7,
             "sort": "descending",
-            "value_format": "decimal",
+            "value_format": value_format,
         },
         "palette": {
             "background": "#0f2f24",
@@ -289,47 +290,26 @@ def render_assets(item_dir: Path, context: dict[str, Any], project: dict[str, An
             "grid": "#f4ead7",
         },
     }
-    visual_png = assets / "issue_profile.png"
-    visual_metadata = metadata_dir / "visual.json"
-    visual_manifest_path = manifests / "visual_manifest.json"
     visual_manifest = horizontal_bar.render(
         template,
         sample,
         rows,
-        visual_png,
-        visual_metadata,
-        visual_manifest_path,
+        visual_asset,
+        item_dir / "metadata/visual.json",
+        item_dir / "manifests/visual_manifest.json",
         {
             "data_origin": "real_s3",
-            "source_key": context.get("classified_s3_key"),
+            "source_key": CLASSIFIED_KEY,
             "period_start": JAN_START,
             "period_end": JAN_END,
-            "mode": context.get("mode"),
+            "mode": mode,
         },
     )
     return {
-        "cover": str(cover),
-        "issue_profile": str(visual_png),
+        "paths": {"cover": cover_asset, "visual": visual_asset},
         "visual_manifest": visual_manifest,
     }
 
 
-def media_for_slide(slide: dict[str, Any], asset_result: dict[str, Any]) -> str | None:
-    slide_id = str(slide.get("slide_id"))
-    return asset_result.get(slide_id)
-
-
-class PartyShareOverindexAdapter:
-    def load_records(self, **kwargs: Any):
-        return load_party_share_overindex_records(**kwargs)
-    def build_context(self, record: dict[str, Any], **kwargs: Any):
-        return build_context(record, **kwargs)
-    def render_assets(self, item_dir: Path, context: dict[str, Any], project: dict[str, Any]):
-        return render_assets(item_dir, context, project)
-    def media_for_slide(self, slide: dict[str, Any], asset_result: dict[str, Any]):
-        return media_for_slide(slide, asset_result)
-
-
-class PartyPerTDOverindexAdapter(PartyShareOverindexAdapter):
-    def load_records(self, **kwargs: Any):
-        return load_party_per_td_overindex_records(**kwargs)
+def media_for_slide(slide: dict[str, Any], assets: dict[str, Path]) -> Path:
+    return assets["visual"] if slide.get("visual") else assets["cover"]
