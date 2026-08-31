@@ -6,74 +6,36 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: classify-political-issues
-  cancel-in-progress: false
-
 jobs:
-  luna-bulk-cost-1000:
+  compact-benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - name: Install dependencies
+      - name: Extract compact benchmark summary
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install 'openai>=3.6.0,<4'
-      - name: Run core classifier tests
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          src = Path('diagnostics/speech_classifier/latest_bulk_cost_1000.json')
+          doc = json.loads(src.read_text(encoding='utf-8'))
+          keys = [
+              'mode','model','reasoning_effort','cutoff_exclusive','concurrency','writes_performed',
+              'pending_total_all_dates','pending_recent_after_cutoff','sample_requested','sample_attempted',
+              'sample_succeeded','sample_failed','success_pct','wall_seconds','throughput_speeches_per_minute',
+              'latency_seconds','attempt_counts','usage','pricing_usd_per_million_tokens',
+              'estimated_sample_cost_usd','estimated_cost_per_1000_speeches_usd',
+              'estimated_remaining_recent_cost_usd_at_sample_rate','estimated_all_pending_cost_usd_at_sample_rate',
+              'average_tokens_per_speech','category_counts','none_count','none_pct','failures'
+          ]
+          compact = {key: doc.get(key) for key in keys}
+          out = Path('diagnostics/speech_classifier/latest_bulk_cost_1000_compact.json')
+          out.write_text(json.dumps(compact, indent=2, ensure_ascii=False, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(compact, indent=2, ensure_ascii=False, sort_keys=True))
+          PY
+      - name: Commit compact summary
         run: |
-          set -euo pipefail
-          python -m unittest tests.test_oireachtas_speech_issue_classifier -v
-      - name: Run 1000-speech Luna cost benchmark
-        id: benchmark
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          set -o pipefail
-          python -m process.oireachtas_speech_issue_bulk_cost_sample \
-            --count 1000 \
-            --cutoff 2026-02-26 \
-            --model gpt-5.6-luna \
-            --concurrency 8 \
-            --bucket "${S3_BUCKET}" \
-            --region "${AWS_REGION}" \
-            --report-path speech_issue_bulk_cost_sample.json \
-            2>&1 | tee speech_issue_bulk_cost_console.log
-      - name: Persist benchmark evidence
-        if: always()
-        run: |
-          if [[ -f speech_issue_bulk_cost_sample.json ]]; then
-            mkdir -p diagnostics/speech_classifier
-            cp speech_issue_bulk_cost_sample.json diagnostics/speech_classifier/latest_bulk_cost_1000.json
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add diagnostics/speech_classifier/latest_bulk_cost_1000.json
-            git commit -m "Record 1000-speech Luna bulk cost benchmark" || true
-            git push
-          fi
-      - name: Upload benchmark evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: luna-bulk-cost-1000-${{ github.run_id }}
-          path: |
-            speech_issue_bulk_cost_sample.json
-            speech_issue_bulk_cost_console.log
-          if-no-files-found: warn
-          retention-days: 180
-      - name: Fail if benchmark failed
-        if: steps.benchmark.outcome == 'failure'
-        run: exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/speech_classifier/latest_bulk_cost_1000_compact.json
+          git commit -m "Add compact 1000-speech benchmark summary" || true
+          git push
