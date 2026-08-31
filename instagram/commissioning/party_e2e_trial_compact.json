@@ -39,7 +39,7 @@
       ]
     }
   },
-  "generate_exit_code": 1,
+  "generate_exit_code": 0,
   "items": [
     {
       "errors": [],
@@ -98,88 +98,11 @@
       "status": "succeeded"
     },
     {
-      "errors": [
-        "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']"
-      ],
+      "errors": [],
       "label": "People Before Profit-Solidarity",
-      "render_metrics": [
-        {
-          "file": "01_cover.render_manifest.json",
-          "text_metrics": [
-            {
-              "actual_font_size": 56,
-              "clipped": false,
-              "element_box": [
-                34,
-                10,
-                1046,
-                122
-              ],
-              "element_id": "title",
-              "font_shrunk": false,
-              "line_count": 1,
-              "max_lines": 2,
-              "minimum_font_size": 42,
-              "original_line_count": 1,
-              "placeholder": "slide_title",
-              "rendered_bbox": [
-                56,
-                38,
-                1023,
-                93
-              ],
-              "rendered_lines": [
-                "People Before Profit-Solidarity"
-              ],
-              "requested_font_size": 56,
-              "source_text": "People Before Profit-Solidarity",
-              "truncated": false
-            }
-          ],
-          "warnings": []
-        },
-        {
-          "file": "02_issue_profile.render_manifest.json",
-          "text_metrics": [
-            {
-              "actual_font_size": 54,
-              "clipped": true,
-              "element_box": [
-                34,
-                10,
-                1046,
-                122
-              ],
-              "element_id": "title",
-              "font_shrunk": true,
-              "line_count": 2,
-              "max_lines": 2,
-              "minimum_font_size": 42,
-              "original_line_count": 2,
-              "placeholder": "slide_title",
-              "rendered_bbox": [
-                149,
-                10,
-                931,
-                123
-              ],
-              "rendered_lines": [
-                "Top issues: People Before",
-                "Profit-Solidarity"
-              ],
-              "requested_font_size": 56,
-              "source_text": "Top issues: People Before Profit-Solidarity",
-              "truncated": false
-            }
-          ],
-          "warnings": [
-            "text_clipped:title"
-          ]
-        }
-      ],
-      "slide_count": 1,
+      "slide_count": 2,
       "slug": "people-before-profit-solidarity",
-      "status": "failed"
+      "status": "succeeded"
     },
     {
       "errors": [],
@@ -641,20 +564,14 @@
   ],
   "run": {
     "expected_item_count": 11,
-    "failed_item_count": 1,
-    "failures": [
-      {
-        "error": "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']",
-        "item_label": "People Before Profit-Solidarity",
-        "item_slug": "people-before-profit-solidarity"
-      }
-    ],
-    "git_sha": "e9bf9557d0c208aec75930b5e413168399fd7897",
+    "failed_item_count": 0,
+    "failures": [],
+    "git_sha": "382b702bcf3370048ba0d26a5c6b4539d627bcbe",
     "project_id": "party_issue_profile_v1",
-    "run_id": "party_issue_profile_v1-v1-6bbcdf8147e4",
+    "run_id": "party_issue_profile_v1-v1-8d598702f13b",
     "source_batch_id": "scheduled-weekly-33310991798-1",
-    "state": "partially_failed",
-    "succeeded_item_count": 10
+    "state": "succeeded",
+    "succeeded_item_count": 11
   },
   "source_manifest": {
     "members": {
