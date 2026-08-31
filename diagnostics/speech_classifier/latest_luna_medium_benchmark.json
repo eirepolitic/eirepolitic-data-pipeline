@@ -1,0 +1,304 @@
+{
+  "failures": [
+    {
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "error_type": "JSONDecodeError",
+      "speech_id": "speech:0c902f75cc439c6cfa24a2e3"
+    },
+    {
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "error_type": "JSONDecodeError",
+      "speech_id": "speech:62b0d0e77d8c4b30664ab506"
+    },
+    {
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "error_type": "JSONDecodeError",
+      "speech_id": "speech:46512e4d7f4e89c7e523598b"
+    },
+    {
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "error_type": "JSONDecodeError",
+      "speech_id": "speech:80561516134d3e23bc7a0ec6"
+    }
+  ],
+  "legacy_agreement_improvements_vs_low": 0,
+  "medium_changed_from_low": 1,
+  "medium_control_agreement_pct_on_disagreements": 37.5,
+  "medium_legacy_agreement_pct_on_disagreements": 0.0,
+  "medium_matches_baseline_low": 23,
+  "medium_matches_control": 9,
+  "medium_matches_legacy": 0,
+  "mode": "luna_medium_disagreement_benchmark",
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "medium",
+  "results": [
+    {
+      "baseline_luna_low": "Environment",
+      "control_gpt_4_1_mini": "Environment",
+      "debate_date": "2025-12-11",
+      "legacy_label": "Agriculture",
+      "luna_medium": "Environment",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I omitted to say in my original response that I think the Minister, Deputy O'Callaghan, was not referring to the ECJ during the week but to the European Court of Human Rights, but I know the point Deputy Fitzmaurice is making, which is the same thing. It is about EU simplification. Whether it is in relation to potable water or being able to flush the toilet, it is taking too long. It is not down to a shortage of money. Anyone would tell you that, in most cases, the delivery of infrastructure now",
+      "speech_id": "speech:5344e56857c4e7fae27e9b6b"
+    },
+    {
+      "baseline_luna_low": "Housing and Community Development",
+      "control_gpt_4_1_mini": "Banking/Finance and Domestic Commerce",
+      "debate_date": "2025-02-05",
+      "legacy_label": "Banking/Finance and Domestic Commerce",
+      "luna_medium": "Housing and Community Development",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "----- or is it when it suits him? For years, no one could trust Fianna Fáil after then Ministers Noel Dempsey and Dermot Ahern could not keep a straight face when they were denying there was going to be a bailout of the banks after the economic crash. The Taoiseach worked hard to try to rebuild trust in Fianna Fáil and he is throwing that away by going into election years and making claims about 40,000 homes that he could not stack up and that the Central Bank, ESRI and CSO were not backing up. ",
+      "speech_id": "speech:b58f64a0a63edd9b98a2ff3f"
+    },
+    {
+      "baseline_luna_low": "Civil Rights, Minority Issues and Civil Liberties",
+      "control_gpt_4_1_mini": "NONE",
+      "debate_date": "2025-11-04",
+      "legacy_label": "Domestic Terrorism",
+      "luna_medium": "Civil Rights, Minority Issues and Civil Liberties",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I reject that completely. If the Deputy listened to what I have said, I have rejected the politics of the far-right, of Farage-----",
+      "speech_id": "speech:15aed38b79dc88b51db83e6b"
+    },
+    {
+      "baseline_luna_low": "Civil Rights, Minority Issues and Civil Liberties",
+      "control_gpt_4_1_mini": "Domestic Terrorism",
+      "debate_date": "2026-02-24",
+      "legacy_label": "Domestic Terrorism",
+      "luna_medium": "Civil Rights, Minority Issues and Civil Liberties",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I presume the Taoiseach saw the news ten or so days ago about the UK High Court's ruling to the effect that the proscription and banning of Palestine Action as a terror group is unlawful and disproportionate. The court also directed that it should be overturned. It was heartening to see the scenes of many protestors being released from prison. They are heroes. They are not criminals. They are people who have put their bodies on the line to try to stop the war machine responsible for a genocide i",
+      "speech_id": "speech:f107672fd38b51b7cb6e1281"
+    },
+    {
+      "baseline_luna_low": "Environment",
+      "control_gpt_4_1_mini": "Energy",
+      "debate_date": "2025-01-22",
+      "legacy_label": "Energy",
+      "luna_medium": "Environment",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "-----to let us know why he is facilitating this charade and why the Deputy beside him is. Maybe he should get an opportunity to tell the Dáil why he is going to support an increase in carbon taxes for the next five years, thereby increasing costs for people driving to work and heating their homes and for farmers, and then pretending that he is in the Opposition-----",
+      "speech_id": "speech:29e16d2170403838c073567b"
+    },
+    {
+      "baseline_luna_low": "NONE",
+      "control_gpt_4_1_mini": "Environment",
+      "debate_date": "2026-02-26",
+      "legacy_label": "Environment",
+      "luna_medium": "NONE",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I make no apology for being obsessed with this project. It is just such a potential game changer for the county on so many different levels. It is hugely important socially, culturally, economically and environmentally. It would be transformative and I welcome the fact it is now back on the agenda and back in the plans and there are euro beside it. I am concerned there will be slippage at every juncture, and there has been slippage in relation to it. As I said, in October, we said early 2006. Is",
+      "speech_id": "speech:6baf3f249c3076da962f617e"
+    },
+    {
+      "baseline_luna_low": "Government Operations",
+      "control_gpt_4_1_mini": "Health",
+      "debate_date": "2024-12-18",
+      "legacy_label": "Health",
+      "luna_medium": "Government Operations",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "The date is hard to understand given the election that has just taken place and the pressing issues people raised with us as we have been out campaigning. There is a need for urgent action to address the climate crisis. There is an urgent need to do something about children with disabilities waiting for assessments of need and waiting for services, and to address the crisis in our healthcare and our hospitals. Elderly people are left waiting on chairs for 30 hours when they are sick and unwell a",
+      "speech_id": "speech:1b43d76d4b2f365131b4b4ea"
+    },
+    {
+      "baseline_luna_low": "NONE",
+      "control_gpt_4_1_mini": "International Affairs and Foreign Aid",
+      "debate_date": "2024-12-18",
+      "legacy_label": "International Affairs and Foreign Aid",
+      "luna_medium": "NONE",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I am really honoured to be making this address today as a Social Democrat TD for Cork East in the Thirty-fourth Dáil. I thank the people who placed their trust in me in the election. I also owe a huge debt of gratitude to the party members, relatives and friends who put heroic efforts into my campaign. Ireland is a great place to live with a flourishing economy, yet so many of the basics of a modern, prosperous country are not in place. The lack of affordable housing, the neglect of our disabili",
+      "speech_id": "speech:348065bd8e3b5c8ff14922eb"
+    },
+    {
+      "baseline_luna_low": "Government Operations",
+      "control_gpt_4_1_mini": "NONE",
+      "debate_date": "2024-12-18",
+      "legacy_label": "Labor, Employment and Immigration",
+      "luna_medium": "Government Operations",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I have been in business all my life - over 30 years self-employed. We might look at all the SMEs in this country. We are breaking in my business on Friday. We are back on 6 January. Most businesses around this country are working. What is wrong with this Chamber coming back to work? This is the division between real workers and real business and this Chamber. The Government is afraid to come back to work early. Why not come back on 15 January and get the work done? Everyone else in this country ",
+      "speech_id": "speech:5fa83b713c2bfda7f09e8bfa"
+    },
+    {
+      "baseline_luna_low": "Education",
+      "control_gpt_4_1_mini": "Labor, Employment and Immigration",
+      "debate_date": "2025-12-03",
+      "legacy_label": "Labor, Employment and Immigration",
+      "luna_medium": "Education",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I thank colleagues for their contributions on the amendment. As the Minister stated, everyone is in agreement. We need apprentices. My constituency colleague Deputy Gould is right, however, in that we actually cannot get apprentices. There are people who have contacted my office and said that something broke at home, that it has been two weeks and that they cannot get somebody out to fix it. They need a joiner, for example, but they cannot seem to get one. The evidence is there that there have b",
+      "speech_id": "speech:58c010dc12dba9752bfe823a"
+    },
+    {
+      "baseline_luna_low": "Government Operations",
+      "control_gpt_4_1_mini": "Government Operations",
+      "debate_date": "2025-01-22",
+      "legacy_label": "Law/Crime and Family Issues",
+      "luna_medium": "Government Operations",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "A Cheann Comhairle, there is a massive conflict of interest here. I have done a submission on the conflict of interest for Independent Ireland. The Regional Independents nominated you as Ceann Comhairle. If this was any court in the land, a judge would not be allowed to preside over a family case.",
+      "speech_id": "speech:ef54a6d979ca354628d25fe4"
+    },
+    {
+      "baseline_luna_low": "Civil Rights, Minority Issues and Civil Liberties",
+      "control_gpt_4_1_mini": "Law/Crime and Family Issues",
+      "debate_date": "2025-11-26",
+      "legacy_label": "Law/Crime and Family Issues",
+      "luna_medium": "Civil Rights, Minority Issues and Civil Liberties",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "Again, they were not negotiated by this Government, nor are they part of the joint framework. It is our understanding that the accommodation made for witnesses should apply in the cases of all victims equally, regardless of the perspective being brought to the matter.",
+      "speech_id": "speech:120604d355856dd486686a72"
+    },
+    {
+      "baseline_luna_low": "Labor, Employment and Immigration",
+      "control_gpt_4_1_mini": "Civil Rights, Minority Issues and Civil Liberties",
+      "debate_date": "2026-02-25",
+      "legacy_label": "Law/Crime and Family Issues",
+      "luna_medium": "Labor, Employment and Immigration",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "In the first instance, a victim of trafficking will be identified by their vulnerability assessment. That is provided for under the special reception conditions. I am surprised the Minister did not know that. Given the day that we had today in the Dáil when another State apology was made, I cannot help thinking of the words of Christine Buckley. I am sure most of us around the Chamber remember the incredible work of Christine Buckley, who shone a light into one of the darkest corners in this Sta",
+      "speech_id": "speech:fce5055c991468691956cf17"
+    },
+    {
+      "baseline_luna_low": "Government Operations",
+      "control_gpt_4_1_mini": "NONE",
+      "debate_date": "2025-01-23",
+      "legacy_label": "Macroeconomics",
+      "luna_medium": "NONE",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "Is mór an onóir agus an phribhléid dom tacaíocht a thabhairt d'ainmniúchán an Teachta Mary Lou McDonald d’oifig an Taoisigh. Bheadh sí i gceannas ar Rialtas do na ghnáthdhaoine, do ghnáthoibrithe agus teaghlaigh ar fud an Stáit seo, agus is í an ceannaire a bhfuil an fhís agus an diongbháilteacht aici le todhchaí níos fearr a sholáthar d’Éireann. Deputy Mary Lou McDonald would make an excellent Taoiseach. I say that because she is Irish republican to the core. She is guided by principles of fair",
+      "speech_id": "speech:ed37403a0a3689127b6b0dc2"
+    },
+    {
+      "baseline_luna_low": "Education",
+      "control_gpt_4_1_mini": "Education",
+      "debate_date": "2025-07-03",
+      "legacy_label": "Macroeconomics",
+      "luna_medium": "Education",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "-----not only with questions on this but on many other priorities they want to see the Government make progress on. It is what we have done each year. We will need to do that now in the context of having normal budgets in a world that is becoming more uncertain and complex. We will need to look at how we can make improvements, budget by budget. That is why, as has always been the case, we will be in a position to give a clear answer to that when our budgetary work is done, and to respond to all ",
+      "speech_id": "speech:552e84b4b16ab441b93b1e5f"
+    },
+    {
+      "baseline_luna_low": "Banking/Finance and Domestic Commerce",
+      "control_gpt_4_1_mini": "Banking/Finance and Domestic Commerce",
+      "debate_date": "2026-02-19",
+      "legacy_label": "Macroeconomics",
+      "luna_medium": "Banking/Finance and Domestic Commerce",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "The question that must be asked is this: what is happening here at home? When we look globally, the Minister has named all of the initiatives he is doing but why are Irish business leaders growing even more pessimistic about the future? Confidence in projected revenue growth dropped dramatically at the end of last year, from 79% to 59% in just three months. When businesses were asked about increasing head count in 2026, the figure dropped from 59% to 46%. These figures are not abstract statistic",
+      "speech_id": "speech:ddee0bf8f43b6e8358559f4d"
+    },
+    {
+      "baseline_luna_low": "Law/Crime and Family Issues",
+      "control_gpt_4_1_mini": "Law/Crime and Family Issues",
+      "debate_date": "2025-11-05",
+      "legacy_label": "NONE",
+      "luna_medium": "Law/Crime and Family Issues",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "-----and stand up against the absolutely brutal violence such as we saw in Drogheda.",
+      "speech_id": "speech:6a37d1498f078f167f3d2bcb"
+    },
+    {
+      "baseline_luna_low": "Housing and Community Development",
+      "control_gpt_4_1_mini": "Housing and Community Development",
+      "debate_date": "2026-02-26",
+      "legacy_label": "NONE",
+      "luna_medium": "Housing and Community Development",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "Hypocrisy from Sinn Féin is not new when it comes to housing.",
+      "speech_id": "speech:fd38eb36439a599f4f946f35"
+    },
+    {
+      "baseline_luna_low": "NONE",
+      "control_gpt_4_1_mini": "NONE",
+      "debate_date": "2025-01-23",
+      "legacy_label": "Other/Miscellaneous",
+      "luna_medium": "NONE",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "Our work and our ambition for building a better, fair, equal and united Ireland has never been more important. We stick to that task with real belief, with renewed hope and refreshed determination. It is in that spirit that I accept this nomination.",
+      "speech_id": "speech:f93b1b01389174b35ffd6b74"
+    },
+    {
+      "baseline_luna_low": "Sports and Recreation",
+      "control_gpt_4_1_mini": "Sports and Recreation",
+      "debate_date": "2025-11-26",
+      "legacy_label": "Other/Miscellaneous",
+      "luna_medium": "Sports and Recreation",
+      "medium_matches_control": true,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I must now deal with a deferred division relating to the Labour Party amendment to the motion regarding the proposed approval by Dáil Éireann of the Horse and Greyhound Racing Fund regulations 2025. Today, on the question \"That the amendment be agreed to\", a division was claimed and that division must now be taken.",
+      "speech_id": "speech:7f7882743cef96ff0ab7bdf6"
+    },
+    {
+      "baseline_luna_low": "Space, Science, and Technology",
+      "control_gpt_4_1_mini": "Other/Miscellaneous",
+      "debate_date": "2026-02-19",
+      "legacy_label": "Other/Miscellaneous",
+      "luna_medium": "Space, Science, and Technology",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "I ask the Minister to outline the steps he is taking to tackle harmful AI tools and the social media platforms that host them. I invite him to give a definitive statement this morning on the concrete actions being taken to ensure enhanced protection for online users.",
+      "speech_id": "speech:733d1d433a2de3bd120f3fb5"
+    },
+    {
+      "baseline_luna_low": "Culture and Arts",
+      "control_gpt_4_1_mini": "Social Welfare",
+      "debate_date": "2025-06-26",
+      "legacy_label": "Social Welfare",
+      "luna_medium": "Culture and Arts",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "First of all, it is interesting that we do not know the net cost. We know the cost but many of these recipients were on social welfare previously. I ask the Minister to speak to the other aspect of this, namely, the impact it is having on the creative sector at present. Much of the study, and the information, has been on the 2,000 recipients but there is a control group of 6,000 other individuals who applied for this income. I would be interested to know how those in the control group are experi",
+      "speech_id": "speech:5c379ffd11f6da024a0f9bf6"
+    },
+    {
+      "baseline_luna_low": "NONE",
+      "control_gpt_4_1_mini": "Social Welfare",
+      "debate_date": "2025-11-12",
+      "legacy_label": "Social Welfare",
+      "luna_medium": "NONE",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "There are policies that the Minister is certainly responsible for, but we sometimes also have to accept that people act in good faith. That is what I am saying. We should not rush to judgment against Tusla officials.",
+      "speech_id": "speech:d27551db3f5bd7619f67364f"
+    },
+    {
+      "baseline_luna_low": "Culture and Arts",
+      "control_gpt_4_1_mini": "State and Local Government Administration",
+      "debate_date": "2025-05-08",
+      "legacy_label": "State and Local Government Administration",
+      "luna_medium": "Culture and Arts",
+      "medium_matches_control": false,
+      "medium_matches_legacy": false,
+      "speech_excerpt": "Aontaím leis an méid atá ráite ag an Teachta Ó Snodaigh maidir le cé chomh tábhachtach is atá an t-ábhar sin. Bhí ceist eile aige ar an ábhar sin ach tá an t-am caite againn. Beidh ar an Aire, an Teachta Calleary, déileáil leis an ábhar sin sa Bhille atá os comhair na Dála faoi láthair. Dúirt sé liom go mbeidh sé in ann é sin a phlé le hurlabhraithe Gaeltachta agus Gaelainne na bpáirtithe uile sa Dáil. Beidh sé in ann an obair sin a dhéanamh tar éis cruinnithe a bheith aige le hÚdarás na Gaeltac",
+      "speech_id": "speech:a0beb415dc471936b0015f2c"
+    }
+  ],
+  "sample_failed": 4,
+  "sample_requested": 28,
+  "sample_succeeded": 24,
+  "writes_performed": false
+}
