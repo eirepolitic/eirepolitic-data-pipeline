@@ -40,64 +40,6 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install 'openai>=3.6.0,<4'
 
-      - name: Enable resumable classifier in weekly refresh
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          reusable = Path('.github/workflows/oireachtas_refresh_reusable.yml')
-          text = reusable.read_text(encoding='utf-8')
-          old = '''          python -m process.oireachtas_speech_issue_classifier \\
-            --mode classify \\
-            --max-model-rows 0 \\
-            --model "${OPENAI_MODEL}" \\
-            --reasoning-effort low \\
-            --verbosity low \\
-            --bucket "${S3_BUCKET}" \\
-            --region "${AWS_REGION}" \\
-            --report-path speech_issue_classifier_report.json \\
-            --write\n'''
-          new = '''          python -m process.oireachtas_speech_issue_backfill \\
-            --model "${OPENAI_MODEL}" \\
-            --concurrency 4 \\
-            --checkpoint-every 100 \\
-            --bucket "${S3_BUCKET}" \\
-            --region "${AWS_REGION}" \\
-            --report-path speech_issue_classifier_report.json\n'''
-          if old not in text:
-              raise SystemExit('Reusable classifier invocation anchor not found')
-          reusable.write_text(text.replace(old, new, 1), encoding='utf-8')
-
-          orchestrator = Path('.github/workflows/oireachtas_refresh_validation_orchestrator.yml')
-          text = orchestrator.read_text(encoding='utf-8')
-          anchor = "      seed_from_production: ${{ steps.controls.outputs.publish_candidate == 'true' }}\n"
-          replacement = anchor + "      classify_speeches: ${{ inputs.refresh_type == 'weekly' }}\n      speech_classifier_model: gpt-5.6-luna\n"
-          if anchor not in text:
-              raise SystemExit('Orchestrator refresh-call anchor not found')
-          if 'classify_speeches:' not in text[text.find('jobs:'):]:
-              text = text.replace(anchor, replacement, 1)
-          elif replacement not in text:
-              text = text.replace(anchor, replacement, 1)
-          orchestrator.write_text(text, encoding='utf-8')
-          PY
-
-          python - <<'PY'
-          import yaml
-          from pathlib import Path
-          for name in [
-              '.github/workflows/oireachtas_refresh_reusable.yml',
-              '.github/workflows/oireachtas_refresh_validation_orchestrator.yml',
-          ]:
-              yaml.safe_load(Path(name).read_text(encoding='utf-8'))
-              print('yaml_ok', name)
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/workflows/oireachtas_refresh_reusable.yml .github/workflows/oireachtas_refresh_validation_orchestrator.yml
-          git commit -m "Run speech issue classification after weekly speech refresh" || true
-          git push
-
       - name: Run classifier unit tests
         run: |
           set -euo pipefail
@@ -136,7 +78,6 @@ jobs:
             | tee speech_classifier_seed.json
 
       - name: Run resumable full classifier
-        id: backfill
         run: |
           set -euo pipefail
           success=false
@@ -222,7 +163,6 @@ jobs:
           for file in speech_classifier_seed.json speech_issue_backfill_report.json speech_issue_candidate_validation.json speech_issue_batch_manifest.json speech_issue_promotion.json; do
             [[ -f "$file" ]] && cp "$file" diagnostics/speech_classifier/production_rollout/"$file"
           done
-          git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/speech_classifier/production_rollout
