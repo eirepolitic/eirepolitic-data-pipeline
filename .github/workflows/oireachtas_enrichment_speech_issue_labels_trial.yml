@@ -16,8 +16,6 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_BATCH_ID: speech-classifier-backfill-2026-08-31
-      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,14 +26,20 @@ jobs:
       - name: Inspect checkpoint
         run: |
           python - <<'PY'
+          import io
           import json
           from pathlib import Path
           import boto3
-          from process.oireachtas_speech_issue_classifier import ENRICHMENT_CSV_KEY, read_s3_csv
+          import pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+          batch_id = 'speech-classifier-backfill-2026-08-31'
+          logical = 'processed/oireachtas_unified/latest/csv/enrichment_speech_issue_labels.csv'
+          key = batch_key_for_production_key(logical, batch_id)
           s3 = boto3.client('s3', region_name='ca-central-1')
-          df = read_s3_csv(s3, bucket='eirepolitic-data', key=ENRICHMENT_CSV_KEY)
-          status = df['classification_status'].fillna('').value_counts().to_dict()
-          sources = df['issue_label_source'].fillna('').value_counts().to_dict()
+          obj = s3.get_object(Bucket='eirepolitic-data', Key=key)
+          df = pd.read_csv(io.BytesIO(obj['Body'].read()), dtype=str, keep_default_na=False)
+          status = df['classification_status'].value_counts().to_dict()
+          sources = df['issue_label_source'].value_counts().to_dict()
           report = {
               'rows': len(df),
               'status_counts': status,
@@ -44,6 +48,7 @@ jobs:
               'pending_rows': int((df['classification_status'] == 'pending').sum()),
               'failed_rows': int((df['classification_status'] == 'failed').sum()),
               'max_debate_date': str(df['debate_date'].max()),
+              'candidate_key': key,
           }
           Path('diagnostics/speech_classifier/backfill_checkpoint_status.json').write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
           print(json.dumps(report, indent=2, sort_keys=True))
