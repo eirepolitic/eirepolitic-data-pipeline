@@ -2,13 +2,14 @@
   "visual_id": "labour-party-share_pp",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-08-31T22:37:46.668956+00:00",
+  "created_at": "2026-08-31T22:58:17.064666+00:00",
   "input": {
     "data_origin": "real_s3",
     "source_key": "processed/debates/debate_speeches_classified.csv",
     "period_start": "2026-01-01",
     "period_end": "2026-01-31",
-    "mode": "share_pp"
+    "mode": "share_pp",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml"
   },
   "bindings": {
     "label": "label",
@@ -20,12 +21,12 @@
   "attribution": {},
   "rows_rendered": [
     {
-      "label": "Civil Rights, Minority Issues and Civil Liberties",
+      "label": "Civil Rights & Liberties",
       "value": 2.5353494508574146,
       "group": ""
     },
     {
-      "label": "Labor, Employment and Immigration",
+      "label": "Jobs & Immigration",
       "value": 2.5208433396363126,
       "group": ""
     },
@@ -35,7 +36,7 @@
       "group": ""
     },
     {
-      "label": "Law/Crime and Family Issues",
+      "label": "Law, Crime & Family",
       "value": 2.2277159185892597,
       "group": ""
     },
@@ -56,13 +57,13 @@
     }
   ],
   "plot_bounds": [
-    0.4001937984496124,
+    0.4181807170542636,
     0.14,
-    0.5698062015503875,
+    0.5518192829457365,
     0.78
   ],
   "plot_vertical_fill_ratio": 0.78,
-  "plot_area_ratio": 0.4444,
+  "plot_area_ratio": 0.4304,
   "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
@@ -74,40 +75,40 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
-    "max_wrapped_label_lines": 3,
-    "max_value_label_x_ratio": 0.9606,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9618,
     "displayed_item_count": 7,
-    "max_category_label_width_px": 371.0,
-    "plot_left_ratio": 0.4002,
+    "max_category_label_width_px": 389.56,
+    "plot_left_ratio": 0.4182,
     "category_text_clipped_count": 0,
     "value_text_clipped_count": 0,
     "truncated_label_count": 0,
     "category_text_bounds": [
       {
-        "raw_label": "Civil Rights, Minority Issues and Civil Liberties",
-        "rendered_label": "Civil Rights,\nMinority Issues\nand Civil Liberties",
-        "font_size": 18,
-        "line_count": 3,
-        "truncated": false,
-        "bbox_px": [
-          57.42,
-          955.47,
-          398.42,
-          1092.01
-        ],
-        "clipped_to_figure": false
-      },
-      {
-        "raw_label": "Labor, Employment and Immigration",
-        "rendered_label": "Labor, Employment\nand Immigration",
+        "raw_label": "Civil Rights & Liberties",
+        "rendered_label": "Civil Rights\n& Liberties",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          27.42,
-          848.62,
-          398.42,
-          939.65
+          202.98,
+          978.22,
+          416.98,
+          1069.26
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Jobs & Immigration",
+        "rendered_label": "Jobs & Immigration",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          52.98,
+          877.01,
+          416.98,
+          915.01
         ],
         "clipped_to_figure": false
       },
@@ -118,24 +119,24 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          123.93,
+          142.49,
           747.4,
-          398.42,
+          416.98,
           785.41
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Law/Crime and Family Issues",
-        "rendered_label": "Law/Crime and\nFamily Issues",
+        "raw_label": "Law, Crime & Family",
+        "rendered_label": "Law, Crime & Family",
         "font_size": 18,
-        "line_count": 2,
+        "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          113.42,
-          589.4,
-          398.42,
-          680.43
+          27.42,
+          617.79,
+          416.98,
+          655.8
         ],
         "clipped_to_figure": false
       },
@@ -146,9 +147,9 @@
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          163.07,
+          181.64,
           459.8,
-          398.42,
+          416.98,
           550.83
         ],
         "clipped_to_figure": false
@@ -160,9 +161,9 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          142.1,
+          160.67,
           358.58,
-          398.42,
+          416.98,
           396.59
         ],
         "clipped_to_figure": false
@@ -174,9 +175,9 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          80.24,
+          98.81,
           228.97,
-          398.42,
+          416.98,
           266.98
         ],
         "clipped_to_figure": false
@@ -188,9 +189,9 @@
         "text": "+2.5 pp",
         "font_size": 15,
         "bbox_px": [
-          840.89,
+          842.31,
           1014.5,
-          977.89,
+          979.31,
           1045.75
         ],
         "clipped_to_axes": false,
@@ -201,9 +202,9 @@
         "text": "+2.5 pp",
         "font_size": 15,
         "bbox_px": [
-          838.53,
+          840.06,
           884.89,
-          975.53,
+          977.06,
           916.14
         ],
         "clipped_to_axes": false,
@@ -214,9 +215,9 @@
         "text": "+2.4 pp",
         "font_size": 15,
         "bbox_px": [
-          820.21,
+          822.5,
           755.28,
-          957.21,
+          959.5,
           786.53
         ],
         "clipped_to_axes": false,
@@ -227,9 +228,9 @@
         "text": "+2.2 pp",
         "font_size": 15,
         "bbox_px": [
-          790.99,
+          794.49,
           625.68,
-          927.99,
+          931.49,
           656.93
         ],
         "clipped_to_axes": false,
@@ -240,9 +241,9 @@
         "text": "+2.1 pp",
         "font_size": 15,
         "bbox_px": [
-          776.28,
+          780.4,
           496.07,
-          913.28,
+          917.4,
           527.32
         ],
         "clipped_to_axes": false,
@@ -253,9 +254,9 @@
         "text": "+1.8 pp",
         "font_size": 15,
         "bbox_px": [
-          714.05,
+          720.77,
           366.46,
-          851.05,
+          857.77,
           397.71
         ],
         "clipped_to_axes": false,
@@ -266,9 +267,9 @@
         "text": "+0.9 pp",
         "font_size": 15,
         "bbox_px": [
-          576.31,
+          588.76,
           236.85,
-          713.31,
+          725.76,
           268.1
         ],
         "clipped_to_axes": false,

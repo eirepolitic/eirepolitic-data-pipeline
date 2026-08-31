@@ -2,13 +2,14 @@
   "visual_id": "fine-gael-share_pp",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-08-31T22:37:44.799391+00:00",
+  "created_at": "2026-08-31T22:58:14.532752+00:00",
   "input": {
     "data_origin": "real_s3",
     "source_key": "processed/debates/debate_speeches_classified.csv",
     "period_start": "2026-01-01",
     "period_end": "2026-01-31",
-    "mode": "share_pp"
+    "mode": "share_pp",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml"
   },
   "bindings": {
     "label": "label",
@@ -35,12 +36,12 @@
       "group": ""
     },
     {
-      "label": "Labor, Employment and Immigration",
+      "label": "Jobs & Immigration",
       "value": 1.4391398593729412,
       "group": ""
     },
     {
-      "label": "Banking/Finance and Domestic Commerce",
+      "label": "Finance & Commerce",
       "value": 1.3227746044809776,
       "group": ""
     },
@@ -50,19 +51,19 @@
       "group": ""
     },
     {
-      "label": "State and Local Government Administration",
+      "label": "Local Government",
       "value": 0.9037064115040532,
       "group": ""
     }
   ],
   "plot_bounds": [
-    0.42,
+    0.4166666666666667,
     0.14,
-    0.55,
+    0.5533333333333332,
     0.78
   ],
   "plot_vertical_fill_ratio": 0.78,
-  "plot_area_ratio": 0.429,
+  "plot_area_ratio": 0.4316,
   "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
@@ -74,11 +75,11 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
-    "max_wrapped_label_lines": 3,
-    "max_value_label_x_ratio": 0.962,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9617,
     "displayed_item_count": 7,
-    "max_category_label_width_px": 397.17,
-    "plot_left_ratio": 0.42,
+    "max_category_label_width_px": 388.0,
+    "plot_left_ratio": 0.4167,
     "category_text_clipped_count": 0,
     "value_text_clipped_count": 0,
     "truncated_label_count": 0,
@@ -90,9 +91,9 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          208.68,
+          205.24,
           1006.61,
-          418.86,
+          415.42,
           1044.62
         ],
         "clipped_to_figure": false
@@ -104,9 +105,9 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          293.86,
+          290.42,
           877.01,
-          418.86,
+          415.42,
           915.01
         ],
         "clipped_to_figure": false
@@ -118,37 +119,37 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          229.86,
+          226.42,
           747.4,
-          418.86,
+          415.42,
           785.41
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Labor, Employment and Immigration",
-        "rendered_label": "Labor, Employment\nand Immigration",
+        "raw_label": "Jobs & Immigration",
+        "rendered_label": "Jobs & Immigration",
         "font_size": 18,
-        "line_count": 2,
+        "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          47.86,
-          589.4,
-          418.86,
-          680.43
+          51.42,
+          617.79,
+          415.42,
+          655.8
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Banking/Finance and Domestic Commerce",
-        "rendered_label": "Banking/Finance and\nDomestic Commerce",
+        "raw_label": "Finance & Commerce",
+        "rendered_label": "Finance &\nCommerce",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          21.68,
+          209.24,
           459.8,
-          418.86,
+          415.42,
           550.83
         ],
         "clipped_to_figure": false
@@ -160,24 +161,24 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          30.86,
+          27.42,
           358.58,
-          418.86,
+          415.42,
           396.59
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "State and Local Government Administration",
-        "rendered_label": "State and Local\nGovernment\nAdministration",
+        "raw_label": "Local Government",
+        "rendered_label": "Local Government",
         "font_size": 18,
-        "line_count": 3,
+        "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          125.51,
-          177.82,
-          418.86,
-          314.37
+          69.73,
+          228.97,
+          415.42,
+          266.98
         ],
         "clipped_to_figure": false
       }
@@ -188,9 +189,9 @@
         "text": "+5.7 pp",
         "font_size": 15,
         "bbox_px": [
-          842.46,
+          842.19,
           1014.5,
-          979.46,
+          979.19,
           1045.75
         ],
         "clipped_to_axes": false,
@@ -201,9 +202,9 @@
         "text": "+5.3 pp",
         "font_size": 15,
         "bbox_px": [
-          810.8,
+          810.28,
           884.89,
-          947.8,
+          947.28,
           916.14
         ],
         "clipped_to_axes": false,
@@ -214,9 +215,9 @@
         "text": "+2.5 pp",
         "font_size": 15,
         "bbox_px": [
-          618.93,
+          616.85,
           755.28,
-          755.93,
+          753.85,
           786.53
         ],
         "clipped_to_axes": false,
@@ -227,9 +228,9 @@
         "text": "+1.4 pp",
         "font_size": 15,
         "bbox_px": [
-          548.38,
+          545.73,
           625.68,
-          685.38,
+          682.73,
           656.93
         ],
         "clipped_to_axes": false,
@@ -240,9 +241,9 @@
         "text": "+1.3 pp",
         "font_size": 15,
         "bbox_px": [
-          540.43,
+          537.72,
           496.07,
-          677.43,
+          674.72,
           527.32
         ],
         "clipped_to_axes": false,
@@ -253,9 +254,9 @@
         "text": "+1.0 pp",
         "font_size": 15,
         "bbox_px": [
-          515.51,
+          512.6,
           366.46,
-          652.51,
+          649.6,
           397.71
         ],
         "clipped_to_axes": false,
@@ -266,9 +267,9 @@
         "text": "+0.9 pp",
         "font_size": 15,
         "bbox_px": [
-          511.81,
+          508.87,
           236.85,
-          648.81,
+          645.87,
           268.1
         ],
         "clipped_to_axes": false,

@@ -1,7 +1,7 @@
 {
   "project_id": "party_issue_per_td_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_per_td_overindex_jan2026-v1-df263b5f2642",
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-e375133ed84c",
   "grain": "party",
   "item_key": "sinn-fein",
   "item_key_fields": {
@@ -19,7 +19,7 @@
       "order": 1,
       "layout_id": "title_text_media_v1",
       "path": "generated/sinn-fein/slides/01_cover.png",
-      "sha256": "53e689e8220b40fb9227d867468b61b0b9bcbe70c1ba18c3673e29d10d1d3055",
+      "sha256": "c4a95ca5ec205dec4be828635a254cc1492e22e712026305d9e29b685dad1903",
       "width": 1080,
       "height": 1350,
       "warnings": []
@@ -29,14 +29,14 @@
       "order": 2,
       "layout_id": "title_text_media_v1",
       "path": "generated/sinn-fein/slides/02_issue_profile.png",
-      "sha256": "969965e3ef508332a71d77daa93947db45b7eeb7e9f9b8dde02aeeb95f7814c9",
+      "sha256": "4c26ac60395e0afbff0ddc55088d160fa2b6520e1c51b24c4dfb637c67960d02",
       "width": 1080,
       "height": 1350,
       "warnings": []
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:37:56.776642+00:00",
+  "generated_at": "2026-08-31T22:58:30.893355+00:00",
   "visual_manifest": {
     "success": true,
     "visual_id": "sinn-fein-per_td",
@@ -47,13 +47,13 @@
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
-      0.42,
+      0.4166666666666667,
       0.14,
-      0.55,
+      0.5533333333333332,
       0.78
     ],
     "plot_vertical_fill_ratio": 0.78,
-    "plot_area_ratio": 0.429,
+    "plot_area_ratio": 0.4316,
     "readability": {
       "category_label_font_size": 18,
       "category_label_font_size_requested": 18,
@@ -66,10 +66,10 @@
       "axis_font_size": 12,
       "bar_thickness_px": 83.59,
       "max_wrapped_label_lines": 2,
-      "max_value_label_x_ratio": 0.9565,
+      "max_value_label_x_ratio": 0.9562,
       "displayed_item_count": 7,
-      "max_category_label_width_px": 397.17,
-      "plot_left_ratio": 0.42,
+      "max_category_label_width_px": 388.0,
+      "plot_left_ratio": 0.4167,
       "category_text_clipped_count": 0,
       "value_text_clipped_count": 0,
       "truncated_label_count": 0,
@@ -81,9 +81,9 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            293.86,
+            290.42,
             1006.61,
-            418.86,
+            415.42,
             1044.62
           ],
           "clipped_to_figure": false
@@ -95,23 +95,23 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            107.68,
+            104.24,
             877.01,
-            418.86,
+            415.42,
             915.01
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Public Lands and Water Management",
-          "rendered_label": "Public Lands and\nWater Management",
+          "raw_label": "Land & Water Management",
+          "rendered_label": "Land & Water\nManagement",
           "font_size": 18,
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            45.26,
+            156.82,
             719.26,
-            418.86,
+            415.42,
             809.79
           ],
           "clipped_to_figure": false
@@ -123,37 +123,37 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            208.68,
+            205.24,
             617.79,
-            418.86,
+            415.42,
             655.8
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Sports and Recreation",
-          "rendered_label": "Sports and\nRecreation",
+          "raw_label": "Sports & Recreation",
+          "rendered_label": "Sports & Recreation",
           "font_size": 18,
-          "line_count": 2,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            213.86,
-            459.8,
-            418.86,
-            550.83
+            36.93,
+            488.18,
+            415.42,
+            526.19
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Banking/Finance and Domestic Commerce",
-          "rendered_label": "Banking/Finance and\nDomestic Commerce",
+          "raw_label": "Finance & Commerce",
+          "rendered_label": "Finance &\nCommerce",
           "font_size": 18,
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            21.68,
+            209.24,
             330.19,
-            418.86,
+            415.42,
             421.22
           ],
           "clipped_to_figure": false
@@ -165,9 +165,9 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            30.86,
+            27.42,
             228.97,
-            418.86,
+            415.42,
             266.98
           ],
           "clipped_to_figure": false
@@ -179,9 +179,9 @@
           "text": "+0.38/TD",
           "font_size": 15,
           "bbox_px": [
-            814.37,
+            814.0,
             1014.5,
-            976.37,
+            976.0,
             1045.75
           ],
           "clipped_to_axes": false,
@@ -192,9 +192,9 @@
           "text": "+0.20/TD",
           "font_size": 15,
           "bbox_px": [
-            645.89,
+            644.1,
             884.89,
-            807.89,
+            806.1,
             916.14
           ],
           "clipped_to_axes": false,
@@ -205,9 +205,9 @@
           "text": "+0.18/TD",
           "font_size": 15,
           "bbox_px": [
-            621.59,
+            619.6,
             755.28,
-            783.59,
+            781.6,
             786.53
           ],
           "clipped_to_axes": false,
@@ -218,9 +218,9 @@
           "text": "+0.15/TD",
           "font_size": 15,
           "bbox_px": [
-            597.1,
+            594.9,
             625.68,
-            759.1,
+            756.9,
             656.93
           ],
           "clipped_to_axes": false,
@@ -231,9 +231,9 @@
           "text": "+0.07/TD",
           "font_size": 15,
           "bbox_px": [
-            516.83,
+            513.95,
             496.07,
-            678.83,
+            675.95,
             527.32
           ],
           "clipped_to_axes": false,
@@ -244,9 +244,9 @@
           "text": "+0.06/TD",
           "font_size": 15,
           "bbox_px": [
-            506.83,
+            503.87,
             366.46,
-            668.83,
+            665.87,
             397.71
           ],
           "clipped_to_axes": false,
@@ -257,9 +257,9 @@
           "text": "+0.02/TD",
           "font_size": 15,
           "bbox_px": [
-            465.06,
+            461.74,
             236.85,
-            627.06,
+            623.74,
             268.1
           ],
           "clipped_to_axes": false,
@@ -268,6 +268,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:37:56.580742+00:00"
+    "created_at": "2026-08-31T22:58:30.637742+00:00"
   }
 }

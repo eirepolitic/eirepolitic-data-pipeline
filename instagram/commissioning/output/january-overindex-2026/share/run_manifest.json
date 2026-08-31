@@ -1,7 +1,7 @@
 {
   "project_id": "party_issue_share_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_share_overindex_jan2026-v1-ff48c4aba419",
+  "run_id": "party_issue_share_overindex_jan2026-v1-e577f92837a7",
   "adapter_id": "party_issue_share_overindex_v1",
   "grain": "party",
   "state": "succeeded",
@@ -9,9 +9,9 @@
   "approved": false,
   "publishing_allowed": false,
   "review_state": "unreviewed",
-  "created_at": "2026-08-31T22:37:48.421051+00:00",
-  "git_sha": "7f0a6628dcfcbc0fa3ebf2ef7088a4f9e45c5cd5",
-  "workflow_run_id": "33447051080",
+  "created_at": "2026-08-31T22:58:19.293513+00:00",
+  "git_sha": "511d5377b9496b6624592348497030bb8bfb43d9",
+  "workflow_run_id": "33448590338",
   "data_source": "s3",
   "source_batch_id": "classifier-current-2026-08-31",
   "source_manifest": {
@@ -27,6 +27,7 @@
     "party_count": 11,
     "category_count": 24,
     "mode": "share_pp",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "classified_source": {
       "resolution": {
         "batch_id": "classifier-current-2026-08-31",

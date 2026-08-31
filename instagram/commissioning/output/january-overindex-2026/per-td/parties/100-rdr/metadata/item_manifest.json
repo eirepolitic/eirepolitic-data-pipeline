@@ -1,7 +1,7 @@
 {
   "project_id": "party_issue_per_td_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_per_td_overindex_jan2026-v1-df263b5f2642",
+  "run_id": "party_issue_per_td_overindex_jan2026-v1-e375133ed84c",
   "grain": "party",
   "item_key": "100-rdr",
   "item_key_fields": {
@@ -19,7 +19,7 @@
       "order": 1,
       "layout_id": "title_text_media_v1",
       "path": "generated/100-rdr/slides/01_cover.png",
-      "sha256": "a165c5915e74a13b7d91a2a92ddb791b05f35f1a8cc66ba28c8037c167d3c9bf",
+      "sha256": "3e7cf3db3c3cddbb814d646c60ef25b6ff7385bc03a975a0f0ea0d658b28b802",
       "width": 1080,
       "height": 1350,
       "warnings": []
@@ -29,14 +29,14 @@
       "order": 2,
       "layout_id": "title_text_media_v1",
       "path": "generated/100-rdr/slides/02_issue_profile.png",
-      "sha256": "e54a5873a43ad79509cc149736adda5348140a949f11380f3699af254341248f",
+      "sha256": "423611ad459249174d024774d3f60a6c29764c64139dd30cb73cc91df32b4e61",
       "width": 1080,
       "height": 1350,
       "warnings": []
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:37:52.289377+00:00",
+  "generated_at": "2026-08-31T22:58:24.826213+00:00",
   "visual_manifest": {
     "success": true,
     "visual_id": "100-rdr-per_td",
@@ -47,13 +47,13 @@
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
-      0.40270712209302323,
+      0.29127301356589147,
       0.14,
-      0.5672928779069768,
+      0.6787269864341086,
       0.78
     ],
     "plot_vertical_fill_ratio": 0.78,
-    "plot_area_ratio": 0.4425,
+    "plot_area_ratio": 0.5294,
     "readability": {
       "category_label_font_size": 18,
       "category_label_font_size_requested": 18,
@@ -65,26 +65,26 @@
       "value_label_font_shrunk": false,
       "axis_font_size": 12,
       "bar_thickness_px": 117.03,
-      "max_wrapped_label_lines": 3,
-      "max_value_label_x_ratio": 0.9581,
+      "max_wrapped_label_lines": 2,
+      "max_value_label_x_ratio": 0.9618,
       "displayed_item_count": 5,
-      "max_category_label_width_px": 373.59,
-      "plot_left_ratio": 0.4027,
+      "max_category_label_width_px": 258.59,
+      "plot_left_ratio": 0.2913,
       "category_text_clipped_count": 0,
       "value_text_clipped_count": 0,
       "truncated_label_count": 0,
       "category_text_bounds": [
         {
-          "raw_label": "Housing and Community Development",
-          "rendered_label": "Housing and\nCommunity\nDevelopment",
+          "raw_label": "Housing & Community",
+          "rendered_label": "Housing &\nCommunity",
           "font_size": 18,
-          "line_count": 3,
+          "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            147.01,
-            938.07,
-            401.01,
-            1074.62
+            66.01,
+            960.83,
+            286.01,
+            1051.86
           ],
           "clipped_to_figure": false
         },
@@ -95,23 +95,23 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            276.01,
+            161.01,
             803.51,
-            401.01,
+            286.01,
             841.51
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Public Lands and Water Management",
-          "rendered_label": "Public Lands and\nWater Management",
+          "raw_label": "Land & Water Management",
+          "rendered_label": "Land & Water\nManagement",
           "font_size": 18,
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
             27.42,
             589.66,
-            401.01,
+            286.01,
             680.18
           ],
           "clipped_to_figure": false
@@ -123,9 +123,9 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            212.01,
+            97.01,
             432.08,
-            401.01,
+            286.01,
             470.09
           ],
           "clipped_to_figure": false
@@ -137,9 +137,9 @@
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            165.67,
+            50.67,
             217.97,
-            401.01,
+            286.01,
             309.01
           ],
           "clipped_to_figure": false
@@ -151,9 +151,9 @@
           "text": "+1.95/TD",
           "font_size": 16,
           "bbox_px": [
-            804.5,
+            802.26,
             996.06,
-            976.5,
+            974.26,
             1029.4
           ],
           "clipped_to_axes": false,
@@ -164,9 +164,9 @@
           "text": "+1.30/TD",
           "font_size": 16,
           "bbox_px": [
-            680.38,
+            640.54,
             810.35,
-            852.38,
+            812.54,
             843.68
           ],
           "clipped_to_axes": false,
@@ -177,9 +177,9 @@
           "text": "+0.51/TD",
           "font_size": 16,
           "bbox_px": [
-            529.79,
+            444.34,
             624.63,
-            701.79,
+            616.34,
             657.97
           ],
           "clipped_to_axes": false,
@@ -190,9 +190,9 @@
           "text": "+0.38/TD",
           "font_size": 16,
           "bbox_px": [
-            504.34,
+            411.17,
             438.92,
-            676.34,
+            583.17,
             472.25
           ],
           "clipped_to_axes": false,
@@ -203,9 +203,9 @@
           "text": "+0.37/TD",
           "font_size": 16,
           "bbox_px": [
-            502.76,
+            409.12,
             253.2,
-            674.76,
+            581.12,
             286.54
           ],
           "clipped_to_axes": false,
@@ -214,6 +214,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:37:52.098189+00:00"
+    "created_at": "2026-08-31T22:58:24.568502+00:00"
   }
 }

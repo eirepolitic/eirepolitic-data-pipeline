@@ -19,6 +19,7 @@
     "party_count": 11,
     "category_count": 24,
     "mode": "share_pp",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "classified_source": {
       "resolution": {
         "batch_id": "classifier-current-2026-08-31",
@@ -46,6 +47,7 @@
     "party_count": 11,
     "category_count": 24,
     "mode": "per_td",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "classified_source": {
       "resolution": {
         "batch_id": "classifier-current-2026-08-31",
@@ -70,13 +72,15 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 15.846936355817032,
           "raw_count": 4,
           "actual": 0.2857142857142857,
           "baseline": 0.12724492215611538
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 9.556108548379529,
           "raw_count": 3,
@@ -84,13 +88,15 @@
           "baseline": 0.11872462880191899
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 3.6168150254343874,
           "raw_count": 1,
           "actual": 0.07142857142857142,
           "baseline": 0.03526042117422755
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 3.078339708493147,
           "raw_count": 1,
@@ -98,6 +104,7 @@
           "baseline": 0.040645174343639956
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 2.2930791809886895,
           "raw_count": 1,
@@ -105,6 +112,7 @@
           "baseline": 0.04849777961868453
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 0.6022810550221371,
           "raw_count": 1,
@@ -112,6 +120,7 @@
           "baseline": 0.06540576087835005
         },
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 0.12732027278241353,
           "raw_count": 1,
@@ -136,6 +145,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 11.405515761504217,
           "raw_count": 7,
@@ -143,13 +153,15 @@
           "baseline": 0.07015536870074729
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 7.164476424505212,
           "raw_count": 6,
           "actual": 0.15789473684210525,
           "baseline": 0.08624997259705314
         },
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 4.996949105658392,
           "raw_count": 3,
@@ -157,6 +169,7 @@
           "baseline": 0.028977877364468704
         },
         {
+          "canonical_label": "Defense",
           "label": "Defense",
           "value": 4.523864295803853,
           "raw_count": 2,
@@ -164,13 +177,15 @@
           "baseline": 0.007392935989329882
         },
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 3.0649814685989876,
           "raw_count": 6,
           "actual": 0.15789473684210525,
           "baseline": 0.12724492215611538
         },
         {
+          "canonical_label": "Macroeconomics",
           "label": "Macroeconomics",
           "value": 1.985285971811638,
           "raw_count": 1,
@@ -178,7 +193,8 @@
           "baseline": 0.006462929755567828
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 1.6530983217238755,
           "raw_count": 1,
           "actual": 0.02631578947368421,
@@ -202,6 +218,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 6.059312947222455,
           "raw_count": 84,
@@ -209,27 +226,31 @@
           "baseline": 0.04849777961868453
         },
         {
-          "label": "Sports and Recreation",
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
           "value": 4.0352496197196155,
           "raw_count": 37,
           "actual": 0.048051948051948054,
           "baseline": 0.007699451854751896
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 3.9724053376972823,
           "raw_count": 97,
           "actual": 0.12597402597402596,
           "baseline": 0.08624997259705314
         },
         {
-          "label": "International Affairs and Foreign Aid",
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
           "value": 1.072040632416861,
           "raw_count": 61,
           "actual": 0.07922077922077922,
           "baseline": 0.06850037289661061
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 0.8705475007009398,
           "raw_count": 38,
@@ -237,13 +258,15 @@
           "baseline": 0.040645174343639956
         },
         {
-          "label": "State and Local Government Administration",
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
           "value": 0.3771618263820622,
           "raw_count": 4,
           "actual": 0.005194805194805195,
           "baseline": 0.0014231869309845727
         },
         {
+          "canonical_label": "Macroeconomics",
           "label": "Macroeconomics",
           "value": 0.13292780366399642,
           "raw_count": 6,
@@ -268,6 +291,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 5.745969406075899,
           "raw_count": 61,
@@ -275,6 +299,7 @@
           "baseline": 0.07015536870074729
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 5.282348835289273,
           "raw_count": 82,
@@ -282,6 +307,7 @@
           "baseline": 0.11872462880191899
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 2.4723977703491196,
           "raw_count": 35,
@@ -289,20 +315,23 @@
           "baseline": 0.04849777961868453
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 1.4391398593729412,
           "raw_count": 43,
           "actual": 0.0899581589958159,
           "baseline": 0.07556676040208649
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 1.3227746044809776,
           "raw_count": 11,
           "actual": 0.02301255230125523,
           "baseline": 0.009784806256445455
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.9577927685161769,
           "raw_count": 6,
@@ -310,7 +339,8 @@
           "baseline": 0.002974373570068356
         },
         {
-          "label": "State and Local Government Administration",
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
           "value": 0.9037064115040532,
           "raw_count": 5,
           "actual": 0.010460251046025104,
@@ -334,6 +364,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Transportation",
           "label": "Transportation",
           "value": 26.07169367842241,
           "raw_count": 7,
@@ -341,6 +372,7 @@
           "baseline": 0.10770411584735486
         },
         {
+          "canonical_label": "Environment",
           "label": "Environment",
           "value": 22.102226682722538,
           "raw_count": 5,
@@ -348,13 +380,15 @@
           "baseline": 0.0421356279096167
         },
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 3.9225383533461944,
           "raw_count": 1,
           "actual": 0.05263157894736842,
           "baseline": 0.013406195413906476
         },
         {
+          "canonical_label": "Energy",
           "label": "Energy",
           "value": 3.294344387980394,
           "raw_count": 1,
@@ -362,14 +396,16 @@
           "baseline": 0.01968813506756448
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 2.969639749265035,
           "raw_count": 2,
           "actual": 0.10526315789473684,
           "baseline": 0.07556676040208649
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 1.90131852976837,
           "raw_count": 2,
           "actual": 0.10526315789473684,
@@ -393,6 +429,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 3.9503219299346846,
           "raw_count": 25,
@@ -400,6 +437,7 @@
           "baseline": 0.11872462880191899
         },
         {
+          "canonical_label": "Transportation",
           "label": "Transportation",
           "value": 3.153639048175906,
           "raw_count": 22,
@@ -407,6 +445,7 @@
           "baseline": 0.10770411584735486
         },
         {
+          "canonical_label": "Energy",
           "label": "Energy",
           "value": 2.461566240078995,
           "raw_count": 7,
@@ -414,6 +453,7 @@
           "baseline": 0.01968813506756448
         },
         {
+          "canonical_label": "Culture and Arts",
           "label": "Culture and Arts",
           "value": 2.220787156432501,
           "raw_count": 5,
@@ -421,6 +461,7 @@
           "baseline": 0.009437698055928161
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 2.1122473545872427,
           "raw_count": 11,
@@ -428,6 +469,7 @@
           "baseline": 0.04849777961868453
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 1.631685097281574,
           "raw_count": 9,
@@ -435,7 +477,8 @@
           "baseline": 0.040645174343639956
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 1.5372490218177512,
           "raw_count": 8,
           "actual": 0.05063291139240506,
@@ -459,6 +502,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 7.54997345758298,
           "raw_count": 7,
@@ -466,6 +510,7 @@
           "baseline": 0.028977877364468704
         },
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 6.417298950820793,
           "raw_count": 9,
@@ -473,13 +518,15 @@
           "baseline": 0.07015536870074729
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 5.42918176317426,
           "raw_count": 6,
           "actual": 0.08955223880597014,
           "baseline": 0.03526042117422755
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 3.052910254136458,
           "raw_count": 10,
@@ -487,13 +534,15 @@
           "baseline": 0.11872462880191899
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 2.891085153821202,
           "raw_count": 7,
           "actual": 0.1044776119402985,
           "baseline": 0.07556676040208649
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 2.4146477927620094,
           "raw_count": 6,
@@ -501,7 +550,8 @@
           "baseline": 0.06540576087835005
         },
         {
-          "label": "Space, Science, and Technology",
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
           "value": 0.9262869718750762,
           "raw_count": 1,
           "actual": 0.014925373134328358,
@@ -525,20 +575,23 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 2.5353494508574146,
           "raw_count": 5,
           "actual": 0.03875968992248062,
           "baseline": 0.013406195413906476
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 2.5208433396363126,
           "raw_count": 13,
           "actual": 0.10077519379844961,
           "baseline": 0.07556676040208649
         },
         {
+          "canonical_label": "Transportation",
           "label": "Transportation",
           "value": 2.4078829889079265,
           "raw_count": 17,
@@ -546,13 +599,15 @@
           "baseline": 0.10770411584735486
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 2.2277159185892597,
           "raw_count": 14,
           "actual": 0.10852713178294573,
           "baseline": 0.08624997259705314
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 2.1370329532329038,
           "raw_count": 8,
@@ -560,6 +615,7 @@
           "baseline": 0.040645174343639956
         },
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 1.753375054250804,
           "raw_count": 6,
@@ -567,6 +623,7 @@
           "baseline": 0.028977877364468704
         },
         {
+          "canonical_label": "Macroeconomics",
           "label": "Macroeconomics",
           "value": 0.904094621342442,
           "raw_count": 2,
@@ -591,20 +648,23 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "International Affairs and Foreign Aid",
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
           "value": 18.424687985064214,
           "raw_count": 23,
           "actual": 0.25274725274725274,
           "baseline": 0.06850037289661061
         },
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 4.857925366806046,
           "raw_count": 16,
           "actual": 0.17582417582417584,
           "baseline": 0.12724492215611538
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 3.3495338022748844,
           "raw_count": 9,
@@ -612,6 +672,7 @@
           "baseline": 0.06540576087835005
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 2.528889159042598,
           "raw_count": 6,
@@ -619,20 +680,23 @@
           "baseline": 0.040645174343639956
         },
         {
-          "label": "Space, Science, and Technology",
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
           "value": 1.6315518562444384,
           "raw_count": 2,
           "actual": 0.02197802197802198,
           "baseline": 0.005662503415577596
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 1.2193215721576525,
           "raw_count": 2,
           "actual": 0.02197802197802198,
           "baseline": 0.009784806256445455
         },
         {
+          "canonical_label": "Domestic Terrorism",
           "label": "Domestic Terrorism",
           "value": 0.9990009990009991,
           "raw_count": 1,
@@ -657,6 +721,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 5.324989349107463,
           "raw_count": 81,
@@ -664,6 +729,7 @@
           "baseline": 0.11872462880191899
         },
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 2.963231707419964,
           "raw_count": 47,
@@ -671,13 +737,15 @@
           "baseline": 0.07015536870074729
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 1.9941277339572876,
           "raw_count": 26,
           "actual": 0.055201698513800426,
           "baseline": 0.03526042117422755
         },
         {
+          "canonical_label": "Culture and Arts",
           "label": "Culture and Arts",
           "value": 1.8163151200972054,
           "raw_count": 13,
@@ -685,6 +753,7 @@
           "baseline": 0.009437698055928161
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 1.1027360140758224,
           "raw_count": 36,
@@ -692,14 +761,16 @@
           "baseline": 0.06540576087835005
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 0.9323473998331614,
           "raw_count": 9,
           "actual": 0.01910828025477707,
           "baseline": 0.009784806256445455
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 0.716828642630142,
           "raw_count": 44,
           "actual": 0.09341825902335456,
@@ -723,6 +794,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 8.14473859747968,
           "raw_count": 21,
@@ -730,6 +802,7 @@
           "baseline": 0.06540576087835005
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 5.639732527642036,
           "raw_count": 15,
@@ -737,34 +810,39 @@
           "baseline": 0.04849777961868453
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 5.361016726308673,
           "raw_count": 20,
           "actual": 0.13986013986013987,
           "baseline": 0.08624997259705314
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 2.932834449301841,
           "raw_count": 15,
           "actual": 0.1048951048951049,
           "baseline": 0.07556676040208649
         },
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 1.9608224697031469,
           "raw_count": 21,
           "actual": 0.14685314685314685,
           "baseline": 0.12724492215611538
         },
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 0.7572825565114504,
           "raw_count": 3,
           "actual": 0.02097902097902098,
           "baseline": 0.013406195413906476
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.4018633422938637,
           "raw_count": 1,
@@ -791,13 +869,15 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 1.9546646535282899,
           "raw_count": 4,
           "actual": 4.0,
           "baseline": 2.04533534647171
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 1.3028978597160412,
           "raw_count": 3,
@@ -805,13 +885,15 @@
           "baseline": 1.6971021402839588
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 0.5121450519177793,
           "raw_count": 1,
           "actual": 1.0,
           "baseline": 0.4878549480822208
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 0.3784832591650773,
           "raw_count": 1,
@@ -819,6 +901,7 @@
           "baseline": 0.6215167408349227
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 0.37021879635516,
           "raw_count": 1,
@@ -843,6 +926,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 2.4481484424666244,
           "raw_count": 7,
@@ -850,13 +934,15 @@
           "baseline": 1.0518515575333756
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 1.6465352828989193,
           "raw_count": 6,
           "actual": 3.0,
           "baseline": 1.3534647171010807
         },
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 1.0373887476160202,
           "raw_count": 3,
@@ -864,13 +950,15 @@
           "baseline": 0.4626112523839797
         },
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 0.9546646535282899,
           "raw_count": 6,
           "actual": 3.0,
           "baseline": 2.04533534647171
         },
         {
+          "canonical_label": "Defense",
           "label": "Defense",
           "value": 0.8570804195804196,
           "raw_count": 2,
@@ -878,6 +966,7 @@
           "baseline": 0.1429195804195804
         },
         {
+          "canonical_label": "Macroeconomics",
           "label": "Macroeconomics",
           "value": 0.38469485060394154,
           "raw_count": 1,
@@ -885,7 +974,8 @@
           "baseline": 0.11530514939605846
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 0.3283799533799534,
           "raw_count": 1,
           "actual": 0.5,
@@ -909,6 +999,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 1.1284832591650773,
           "raw_count": 84,
@@ -916,20 +1007,23 @@
           "baseline": 0.6215167408349227
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 0.6673686162322527,
           "raw_count": 97,
           "actual": 2.0208333333333335,
           "baseline": 1.3534647171010807
         },
         {
-          "label": "Sports and Recreation",
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
           "value": 0.6609186268277177,
           "raw_count": 37,
           "actual": 0.7708333333333334,
           "baseline": 0.10991470650561562
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 0.1618854630218266,
           "raw_count": 38,
@@ -937,20 +1031,23 @@
           "baseline": 0.62978120364484
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 0.12784753125662207,
           "raw_count": 58,
           "actual": 1.2083333333333333,
           "baseline": 1.0804858020767112
         },
         {
-          "label": "State and Local Government Administration",
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
           "value": 0.0641025641025641,
           "raw_count": 4,
           "actual": 0.08333333333333333,
           "baseline": 0.01923076923076923
         },
         {
+          "canonical_label": "Energy",
           "label": "Energy",
           "value": 0.041123649078194546,
           "raw_count": 16,
@@ -975,6 +1072,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 0.5122510065691885,
           "raw_count": 61,
@@ -982,6 +1080,7 @@
           "baseline": 1.0518515575333756
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 0.40546196228014386,
           "raw_count": 82,
@@ -989,6 +1088,7 @@
           "baseline": 1.6971021402839588
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 0.27591915660097477,
           "raw_count": 35,
@@ -996,6 +1096,7 @@
           "baseline": 0.6215167408349227
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.11815268065268067,
           "raw_count": 6,
@@ -1003,20 +1104,23 @@
           "baseline": 0.035693473193473185
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 0.11043123543123542,
           "raw_count": 11,
           "actual": 0.28205128205128205,
           "baseline": 0.17162004662004662
         },
         {
-          "label": "State and Local Government Administration",
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
           "value": 0.10897435897435896,
           "raw_count": 5,
           "actual": 0.1282051282051282,
           "baseline": 0.01923076923076923
         },
         {
+          "canonical_label": "Culture and Arts",
           "label": "Culture and Arts",
           "value": 0.07594299639754185,
           "raw_count": 8,
@@ -1041,6 +1145,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Transportation",
           "label": "Transportation",
           "value": 5.270634668361941,
           "raw_count": 7,
@@ -1048,6 +1153,7 @@
           "baseline": 1.729365331638059
         },
         {
+          "canonical_label": "Environment",
           "label": "Environment",
           "value": 4.215697181606273,
           "raw_count": 5,
@@ -1055,20 +1161,23 @@
           "baseline": 0.7843028183937275
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 0.9195141979232888,
           "raw_count": 2,
           "actual": 2.0,
           "baseline": 1.0804858020767112
         },
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 0.7689923712650986,
           "raw_count": 1,
           "actual": 1.0,
           "baseline": 0.23100762873490144
         },
         {
+          "canonical_label": "Energy",
           "label": "Energy",
           "value": 0.7077903157448613,
           "raw_count": 1,
@@ -1076,7 +1185,8 @@
           "baseline": 0.29220968425513877
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 0.6465352828989193,
           "raw_count": 2,
           "actual": 2.0,
@@ -1100,6 +1210,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Culture and Arts",
           "label": "Culture and Arts",
           "value": 0.18331479126933672,
           "raw_count": 5,
@@ -1107,6 +1218,7 @@
           "baseline": 0.12918520873066328
         },
         {
+          "canonical_label": "Energy",
           "label": "Energy",
           "value": 0.14529031574486123,
           "raw_count": 7,
@@ -1114,6 +1226,7 @@
           "baseline": 0.29220968425513877
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 0.0659832591650773,
           "raw_count": 11,
@@ -1121,6 +1234,7 @@
           "baseline": 0.6215167408349227
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.026806526806526815,
           "raw_count": 1,
@@ -1128,7 +1242,8 @@
           "baseline": 0.035693473193473185
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 0.012145051917779204,
           "raw_count": 8,
           "actual": 0.5,
@@ -1152,6 +1267,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 1.2873887476160202,
           "raw_count": 7,
@@ -1159,6 +1275,7 @@
           "baseline": 0.4626112523839797
         },
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 1.1981484424666244,
           "raw_count": 9,
@@ -1166,13 +1283,15 @@
           "baseline": 1.0518515575333756
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 1.0121450519177793,
           "raw_count": 6,
           "actual": 1.5,
           "baseline": 0.4878549480822208
         },
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 0.8028978597160412,
           "raw_count": 10,
@@ -1180,13 +1299,15 @@
           "baseline": 1.6971021402839588
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 0.6695141979232888,
           "raw_count": 7,
           "actual": 1.75,
           "baseline": 1.0804858020767112
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 0.4706638058910786,
           "raw_count": 6,
@@ -1194,7 +1315,8 @@
           "baseline": 1.0293361941089214
         },
         {
-          "label": "Space, Science, and Technology",
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
           "value": 0.13621794871794873,
           "raw_count": 1,
           "actual": 0.25,
@@ -1218,20 +1340,23 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 0.2235378258105531,
           "raw_count": 5,
           "actual": 0.45454545454545453,
           "baseline": 0.23100762873490144
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 0.10133237974147069,
           "raw_count": 13,
           "actual": 1.1818181818181819,
           "baseline": 1.0804858020767112
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 0.09749152362788727,
           "raw_count": 8,
@@ -1239,6 +1364,7 @@
           "baseline": 0.62978120364484
         },
         {
+          "canonical_label": "Foreign Trade",
           "label": "Foreign Trade",
           "value": 0.0828432930705657,
           "raw_count": 6,
@@ -1246,13 +1372,15 @@
           "baseline": 0.4626112523839797
         },
         {
-          "label": "Sports and Recreation",
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
           "value": 0.0719034753125662,
           "raw_count": 2,
           "actual": 0.18181818181818182,
           "baseline": 0.10991470650561562
         },
         {
+          "canonical_label": "Macroeconomics",
           "label": "Macroeconomics",
           "value": 0.06651303242212336,
           "raw_count": 2,
@@ -1260,6 +1388,7 @@
           "baseline": 0.11530514939605846
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 0.014846895528713655,
           "raw_count": 7,
@@ -1284,20 +1413,23 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
-          "label": "International Affairs and Foreign Aid",
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
           "value": 6.305639436321255,
           "raw_count": 23,
           "actual": 7.666666666666667,
           "baseline": 1.361027230345412
         },
         {
-          "label": "Housing and Community Development",
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
           "value": 3.287997986861623,
           "raw_count": 16,
           "actual": 5.333333333333333,
           "baseline": 2.04533534647171
         },
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 1.9706638058910786,
           "raw_count": 9,
@@ -1305,6 +1437,7 @@
           "baseline": 1.0293361941089214
         },
         {
+          "canonical_label": "Government Operations",
           "label": "Government Operations",
           "value": 1.37021879635516,
           "raw_count": 6,
@@ -1312,6 +1445,7 @@
           "baseline": 0.62978120364484
         },
         {
+          "canonical_label": "Transportation",
           "label": "Transportation",
           "value": 0.9373013350286075,
           "raw_count": 8,
@@ -1319,14 +1453,16 @@
           "baseline": 1.729365331638059
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 0.6465352828989193,
           "raw_count": 6,
           "actual": 2.0,
           "baseline": 1.3534647171010807
         },
         {
-          "label": "Space, Science, and Technology",
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
           "value": 0.5528846153846153,
           "raw_count": 2,
           "actual": 0.6666666666666666,
@@ -1350,6 +1486,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Health",
           "label": "Health",
           "value": 0.3798209366391183,
           "raw_count": 81,
@@ -1357,6 +1494,7 @@
           "baseline": 1.6971021402839588
         },
         {
+          "canonical_label": "Culture and Arts",
           "label": "Culture and Arts",
           "value": 0.20414812460267004,
           "raw_count": 13,
@@ -1364,13 +1502,15 @@
           "baseline": 0.12918520873066328
         },
         {
-          "label": "Public Lands and Water Management",
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
           "value": 0.17881171858444583,
           "raw_count": 26,
           "actual": 0.6666666666666666,
           "baseline": 0.4878549480822208
         },
         {
+          "canonical_label": "Agriculture",
           "label": "Agriculture",
           "value": 0.1532766475948295,
           "raw_count": 47,
@@ -1378,20 +1518,23 @@
           "baseline": 1.0518515575333756
         },
         {
-          "label": "Sports and Recreation",
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
           "value": 0.06957247298156387,
           "raw_count": 7,
           "actual": 0.1794871794871795,
           "baseline": 0.10991470650561562
         },
         {
-          "label": "Banking/Finance and Domestic Commerce",
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
           "value": 0.05914918414918416,
           "raw_count": 9,
           "actual": 0.23076923076923078,
           "baseline": 0.17162004662004662
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.015588578088578095,
           "raw_count": 2,
@@ -1416,6 +1559,7 @@
       "period_end": "2026-01-31",
       "issue_rows": [
         {
+          "canonical_label": "Social Welfare",
           "label": "Social Welfare",
           "value": 0.7206638058910786,
           "raw_count": 21,
@@ -1423,6 +1567,7 @@
           "baseline": 1.0293361941089214
         },
         {
+          "canonical_label": "Education",
           "label": "Education",
           "value": 0.6284832591650773,
           "raw_count": 15,
@@ -1430,20 +1575,23 @@
           "baseline": 0.6215167408349227
         },
         {
-          "label": "Law/Crime and Family Issues",
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
           "value": 0.313201949565586,
           "raw_count": 20,
           "actual": 1.6666666666666667,
           "baseline": 1.3534647171010807
         },
         {
-          "label": "Labor, Employment and Immigration",
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
           "value": 0.1695141979232888,
           "raw_count": 15,
           "actual": 1.25,
           "baseline": 1.0804858020767112
         },
         {
+          "canonical_label": "Other/Miscellaneous",
           "label": "Other/Miscellaneous",
           "value": 0.04763986013986014,
           "raw_count": 1,
@@ -1451,7 +1599,8 @@
           "baseline": 0.035693473193473185
         },
         {
-          "label": "Civil Rights, Minority Issues and Civil Liberties",
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
           "value": 0.018992371265098562,
           "raw_count": 3,
           "actual": 0.25,

@@ -1,7 +1,7 @@
 {
   "project_id": "party_issue_share_overindex_jan2026",
   "project_version": 1,
-  "run_id": "party_issue_share_overindex_jan2026-v1-ff48c4aba419",
+  "run_id": "party_issue_share_overindex_jan2026-v1-e577f92837a7",
   "grain": "party",
   "item_key": "fianna-fail",
   "item_key_fields": {
@@ -19,7 +19,7 @@
       "order": 1,
       "layout_id": "title_text_media_v1",
       "path": "generated/fianna-fail/slides/01_cover.png",
-      "sha256": "c6d5c65ff154a0c08094739aeb0d2c64d04731570fc4fffbdb2381f7a3e1a0a3",
+      "sha256": "7d6bb2bde847c2beaaf17381b90a94edd1f101fba2f1b758f50b1624388022ae",
       "width": 1080,
       "height": 1350,
       "warnings": []
@@ -29,14 +29,14 @@
       "order": 2,
       "layout_id": "title_text_media_v1",
       "path": "generated/fianna-fail/slides/02_issue_profile.png",
-      "sha256": "3934bee2070dcf3c83a0ca43dfb676ecb2e0188b1ba55b20d30d14d6942c75da",
+      "sha256": "33cb913a2a3249edf1ec2509251ae2204304a9c375cb7733c8c77ccbdc536d64",
       "width": 1080,
       "height": 1350,
       "warnings": []
     }
   ],
   "errors": [],
-  "generated_at": "2026-08-31T22:37:44.526684+00:00",
+  "generated_at": "2026-08-31T22:58:14.166568+00:00",
   "visual_manifest": {
     "success": true,
     "visual_id": "fianna-fail-share_pp",
@@ -47,13 +47,13 @@
     "width": 1032,
     "height": 1210,
     "plot_bounds": [
-      0.4053718507751938,
+      0.4181807170542636,
       0.14,
-      0.5646281492248062,
+      0.5518192829457365,
       0.78
     ],
     "plot_vertical_fill_ratio": 0.78,
-    "plot_area_ratio": 0.4404,
+    "plot_area_ratio": 0.4304,
     "readability": {
       "category_label_font_size": 18,
       "category_label_font_size_requested": 18,
@@ -65,11 +65,11 @@
       "value_label_font_shrunk": true,
       "axis_font_size": 12,
       "bar_thickness_px": 83.59,
-      "max_wrapped_label_lines": 3,
-      "max_value_label_x_ratio": 0.961,
+      "max_wrapped_label_lines": 2,
+      "max_value_label_x_ratio": 0.9618,
       "displayed_item_count": 7,
-      "max_category_label_width_px": 376.34,
-      "plot_left_ratio": 0.4054,
+      "max_category_label_width_px": 389.56,
+      "plot_left_ratio": 0.4182,
       "category_text_clipped_count": 0,
       "value_text_clipped_count": 0,
       "truncated_label_count": 0,
@@ -81,52 +81,52 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            214.76,
+            227.98,
             1006.61,
-            403.76,
+            416.98,
             1044.62
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Sports and Recreation",
-          "rendered_label": "Sports and\nRecreation",
+          "raw_label": "Sports & Recreation",
+          "rendered_label": "Sports & Recreation",
           "font_size": 18,
-          "line_count": 2,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            198.76,
-            848.62,
-            403.76,
-            939.65
+            38.49,
+            877.01,
+            416.98,
+            915.01
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "Law/Crime and Family Issues",
-          "rendered_label": "Law/Crime and\nFamily Issues",
+          "raw_label": "Law, Crime & Family",
+          "rendered_label": "Law, Crime & Family",
           "font_size": 18,
-          "line_count": 2,
-          "truncated": false,
-          "bbox_px": [
-            118.76,
-            719.01,
-            403.76,
-            810.04
-          ],
-          "clipped_to_figure": false
-        },
-        {
-          "raw_label": "International Affairs and Foreign Aid",
-          "rendered_label": "International Affairs\nand Foreign Aid",
-          "font_size": 18,
-          "line_count": 2,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
             27.42,
-            589.4,
-            403.76,
-            680.43
+            747.4,
+            416.98,
+            785.41
+          ],
+          "clipped_to_figure": false
+        },
+        {
+          "raw_label": "International Affairs",
+          "rendered_label": "International Affairs",
+          "font_size": 18,
+          "line_count": 1,
+          "truncated": false,
+          "bbox_px": [
+            40.64,
+            617.79,
+            416.98,
+            655.8
           ],
           "clipped_to_figure": false
         },
@@ -137,24 +137,24 @@
           "line_count": 2,
           "truncated": false,
           "bbox_px": [
-            168.42,
+            181.64,
             459.8,
-            403.76,
+            416.98,
             550.83
           ],
           "clipped_to_figure": false
         },
         {
-          "raw_label": "State and Local Government Administration",
-          "rendered_label": "State and Local\nGovernment\nAdministration",
+          "raw_label": "Local Government",
+          "rendered_label": "Local Government",
           "font_size": 18,
-          "line_count": 3,
+          "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            110.42,
-            307.43,
-            403.76,
-            443.98
+            71.29,
+            358.58,
+            416.98,
+            396.59
           ],
           "clipped_to_figure": false
         },
@@ -165,9 +165,9 @@
           "line_count": 1,
           "truncated": false,
           "bbox_px": [
-            85.59,
+            98.81,
             228.97,
-            403.76,
+            416.98,
             266.98
           ],
           "clipped_to_figure": false
@@ -179,9 +179,9 @@
           "text": "+6.1 pp",
           "font_size": 15,
           "bbox_px": [
-            841.29,
+            842.31,
             1014.5,
-            978.29,
+            979.31,
             1045.75
           ],
           "clipped_to_axes": false,
@@ -192,9 +192,9 @@
           "text": "+4.0 pp",
           "font_size": 15,
           "bbox_px": [
-            705.58,
+            710.67,
             884.89,
-            842.58,
+            847.67,
             916.14
           ],
           "clipped_to_axes": false,
@@ -205,9 +205,9 @@
           "text": "+4.0 pp",
           "font_size": 15,
           "bbox_px": [
-            701.36,
+            706.58,
             755.28,
-            838.36,
+            843.58,
             786.53
           ],
           "clipped_to_axes": false,
@@ -218,9 +218,9 @@
           "text": "+1.1 pp",
           "font_size": 15,
           "bbox_px": [
-            506.89,
+            517.95,
             625.68,
-            643.89,
+            654.95,
             656.93
           ],
           "clipped_to_axes": false,
@@ -231,9 +231,9 @@
           "text": "+0.9 pp",
           "font_size": 15,
           "bbox_px": [
-            493.38,
+            504.85,
             496.07,
-            630.38,
+            641.85,
             527.32
           ],
           "clipped_to_axes": false,
@@ -244,9 +244,9 @@
           "text": "+0.4 pp",
           "font_size": 15,
           "bbox_px": [
-            460.3,
+            472.76,
             366.46,
-            597.3,
+            609.76,
             397.71
           ],
           "clipped_to_axes": false,
@@ -257,9 +257,9 @@
           "text": "+0.1 pp",
           "font_size": 15,
           "bbox_px": [
-            443.92,
+            456.87,
             236.85,
-            580.92,
+            593.87,
             268.1
           ],
           "clipped_to_axes": false,
@@ -268,6 +268,6 @@
       ]
     },
     "warnings": [],
-    "created_at": "2026-08-31T22:37:44.333286+00:00"
+    "created_at": "2026-08-31T22:58:13.911566+00:00"
   }
 }

@@ -2,13 +2,14 @@
   "visual_id": "independent-ireland-share_pp",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-08-31T22:37:46.177028+00:00",
+  "created_at": "2026-08-31T22:58:16.415705+00:00",
   "input": {
     "data_origin": "real_s3",
     "source_key": "processed/debates/debate_speeches_classified.csv",
     "period_start": "2026-01-01",
     "period_end": "2026-01-31",
-    "mode": "share_pp"
+    "mode": "share_pp",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml"
   },
   "bindings": {
     "label": "label",
@@ -30,7 +31,7 @@
       "group": ""
     },
     {
-      "label": "Public Lands and Water Management",
+      "label": "Land & Water Management",
       "value": 5.42918176317426,
       "group": ""
     },
@@ -40,7 +41,7 @@
       "group": ""
     },
     {
-      "label": "Labor, Employment and Immigration",
+      "label": "Jobs & Immigration",
       "value": 2.891085153821202,
       "group": ""
     },
@@ -50,19 +51,19 @@
       "group": ""
     },
     {
-      "label": "Space, Science, and Technology",
+      "label": "Science & Technology",
       "value": 0.9262869718750762,
       "group": ""
     }
   ],
   "plot_bounds": [
-    0.40270712209302323,
+    0.39341085271317827,
     0.14,
-    0.5672928779069768,
+    0.5765891472868216,
     0.78
   ],
   "plot_vertical_fill_ratio": 0.78,
-  "plot_area_ratio": 0.4425,
+  "plot_area_ratio": 0.4497,
   "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
@@ -75,10 +76,10 @@
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
     "max_wrapped_label_lines": 2,
-    "max_value_label_x_ratio": 0.9608,
+    "max_value_label_x_ratio": 0.9602,
     "displayed_item_count": 7,
-    "max_category_label_width_px": 373.59,
-    "plot_left_ratio": 0.4027,
+    "max_category_label_width_px": 364.0,
+    "plot_left_ratio": 0.3934,
     "category_text_clipped_count": 0,
     "value_text_clipped_count": 0,
     "truncated_label_count": 0,
@@ -90,9 +91,9 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          144.7,
+          135.1,
           1006.61,
-          401.01,
+          391.42,
           1044.62
         ],
         "clipped_to_figure": false
@@ -104,23 +105,23 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          190.84,
+          181.24,
           877.01,
-          401.01,
+          391.42,
           915.01
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Public Lands and Water Management",
-        "rendered_label": "Public Lands and\nWater Management",
+        "raw_label": "Land & Water Management",
+        "rendered_label": "Land & Water\nManagement",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          27.42,
+          132.82,
           719.26,
-          401.01,
+          391.42,
           809.79
         ],
         "clipped_to_figure": false
@@ -132,24 +133,24 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          276.01,
+          266.42,
           617.79,
-          401.01,
+          391.42,
           655.8
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Labor, Employment and Immigration",
-        "rendered_label": "Labor, Employment\nand Immigration",
+        "raw_label": "Jobs & Immigration",
+        "rendered_label": "Jobs & Immigration",
         "font_size": 18,
-        "line_count": 2,
+        "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          30.01,
-          459.8,
-          401.01,
-          550.83
+          27.42,
+          488.18,
+          391.42,
+          526.19
         ],
         "clipped_to_figure": false
       },
@@ -160,23 +161,23 @@
         "line_count": 1,
         "truncated": false,
         "bbox_px": [
-          132.04,
+          122.45,
           358.58,
-          401.01,
+          391.42,
           396.59
         ],
         "clipped_to_figure": false
       },
       {
-        "raw_label": "Space, Science, and Technology",
-        "rendered_label": "Space, Science,\nand Technology",
+        "raw_label": "Science & Technology",
+        "rendered_label": "Science &\nTechnology",
         "font_size": 18,
         "line_count": 2,
         "truncated": false,
         "bbox_px": [
-          103.01,
+          179.79,
           200.58,
-          401.01,
+          391.42,
           291.61
         ],
         "clipped_to_figure": false
@@ -188,9 +189,9 @@
         "text": "+7.5 pp",
         "font_size": 15,
         "bbox_px": [
-          841.08,
+          840.36,
           1014.5,
-          978.08,
+          977.36,
           1045.75
         ],
         "clipped_to_axes": false,
@@ -201,9 +202,9 @@
         "text": "+6.4 pp",
         "font_size": 15,
         "bbox_px": [
-          779.75,
+          777.69,
           884.89,
-          916.75,
+          914.69,
           916.14
         ],
         "clipped_to_axes": false,
@@ -214,9 +215,9 @@
         "text": "+5.4 pp",
         "font_size": 15,
         "bbox_px": [
-          726.24,
+          723.03,
           755.28,
-          863.24,
+          860.03,
           786.53
         ],
         "clipped_to_axes": false,
@@ -227,9 +228,9 @@
         "text": "+3.1 pp",
         "font_size": 15,
         "bbox_px": [
-          597.57,
+          591.56,
           625.68,
-          734.57,
+          728.56,
           656.93
         ],
         "clipped_to_axes": false,
@@ -240,9 +241,9 @@
         "text": "+2.9 pp",
         "font_size": 15,
         "bbox_px": [
-          588.81,
+          582.61,
           496.07,
-          725.81,
+          719.61,
           527.32
         ],
         "clipped_to_axes": false,
@@ -253,9 +254,9 @@
         "text": "+2.4 pp",
         "font_size": 15,
         "bbox_px": [
-          563.01,
+          556.25,
           366.46,
-          700.01,
+          693.25,
           397.71
         ],
         "clipped_to_axes": false,
@@ -266,9 +267,9 @@
         "text": "+0.9 pp",
         "font_size": 15,
         "bbox_px": [
-          482.42,
+          473.91,
           236.85,
-          619.42,
+          610.91,
           268.1
         ],
         "clipped_to_axes": false,
