@@ -1,11 +1,19 @@
-name: Party Asset Registry Audit (Manual)
+name: Party Asset Registry Audit
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/party_assets_v1.csv"
+      - "process/party_assets.py"
+      - "tests/test_party_assets.py"
+      - ".github/workflows/party_assets_audit.yml"
 
 concurrency:
-  group: party-assets-audit
-  cancel-in-progress: false
+  group: party-assets-audit-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -32,7 +40,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install boto3
 
       - name: Validate registry contract
         run: python -m unittest tests.test_party_assets -v
