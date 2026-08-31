@@ -1,0 +1,87 @@
+name: Party Asset Review Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/party_assets_v1.csv"
+      - "process/party_assets*.py"
+      - "tests/test_party_assets*.py"
+      - ".github/workflows/party_assets_review.yml"
+
+concurrency:
+  group: party-assets-review-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate party asset layer
+        run: >-
+          python -m unittest
+          tests.test_party_assets
+          tests.test_party_assets_build
+          tests.test_party_assets_fetch
+          tests.test_party_assets_upload
+          -v
+
+      - name: Fetch direct authoritative source assets
+        run: >-
+          python process/party_assets_fetch.py
+          --staging-root generated_party_asset_review/sources
+          --allow-unresolved
+          --output generated_party_asset_review/fetch_report.json
+
+      - name: Build normalized assets and contact sheet
+        id: build
+        continue-on-error: true
+        run: >-
+          python process/party_assets_build.py
+          --source-root generated_party_asset_review/sources
+          --output-root generated_party_asset_review/build
+
+      - name: Upload party asset review artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-review
+          path: generated_party_asset_review/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Report unresolved party assets
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "Review artifact generated, but one or more party sources remain unresolved or invalid."
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          fetch = json.loads(Path("generated_party_asset_review/fetch_report.json").read_text(encoding="utf-8"))
+          print("Unresolved source parties:", ", ".join(fetch.get("unresolved_parties", [])) or "none")
+          manifest = Path("generated_party_asset_review/build/manifest.json")
+          if manifest.is_file():
+              build = json.loads(manifest.read_text(encoding="utf-8"))
+              for error in build.get("errors", []):
+                  print("-", error)
+          PY
