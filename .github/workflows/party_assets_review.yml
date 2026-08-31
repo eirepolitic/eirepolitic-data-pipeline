@@ -92,12 +92,30 @@ jobs:
               print("Build manifest missing")
           PY
 
-      - name: Upload party asset review artifact
+      - name: Package review output
+        if: always()
+        run: |
+          test -f generated_party_asset_review/fetch_report.json
+          test -f generated_party_asset_review/build/manifest.json
+          test -f generated_party_asset_review/build/contact_sheet.png
+          tar -czf party-asset-review.tar.gz generated_party_asset_review
+          cp generated_party_asset_review/build/contact_sheet.png party-asset-contact-sheet.png
+
+      - name: Upload packaged review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: party-asset-review
-          path: generated_party_asset_review/
+          name: party-asset-review-package
+          path: party-asset-review.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-contact-sheet
+          path: party-asset-contact-sheet.png
           if-no-files-found: error
           retention-days: 14
 
