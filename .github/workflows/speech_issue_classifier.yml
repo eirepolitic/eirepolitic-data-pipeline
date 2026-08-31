@@ -108,7 +108,7 @@ jobs:
           if [[ '${{ inputs.write_candidate }}' == 'true' ]]; then
             args+=(--write)
           fi
-          python process/oireachtas_speech_issue_classifier.py "${args[@]}" 2>&1 | tee speech_classifier_console.log
+          python -m process.oireachtas_speech_issue_classifier "${args[@]}" 2>&1 | tee speech_classifier_console.log
           exit_code=${PIPESTATUS[0]}
           echo "exit_code=${exit_code}" >> "${GITHUB_OUTPUT}"
           exit "${exit_code}"
