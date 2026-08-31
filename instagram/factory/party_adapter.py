@@ -95,6 +95,16 @@ def build_party_records(
 def load_party_records(data_source: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     members, speeches, source_manifest = load_source_rows(data_source)
     records, join_manifest = build_party_records(members, speeches)
+    date_field = first_field(speeches, ["Debate Date", "debate_date", "date"], "debate date")
+    dates = sorted(str(row.get(date_field) or "").strip() for row in speeches if str(row.get(date_field) or "").strip())
+    if not dates:
+        raise ValueError("No debate dates available for party issue profile period")
+    for record in records:
+        record["period_start"] = dates[0]
+        record["period_end"] = dates[-1]
+    join_manifest["date_field"] = date_field
+    join_manifest["period_start"] = dates[0]
+    join_manifest["period_end"] = dates[-1]
     annotate_current_records(records, source_manifest)
     return records, source_manifest, join_manifest
 
@@ -128,12 +138,14 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     metrics = [
         (context.get("member_count", 0), "CURRENT TDS"),
         (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),
-        (context.get("issue_count", 0), "ISSUE CATEGORIES SHOWN"),
     ]
-    centers = [255, 600, 945]
+    centers = [280, 650]
     for (value, label), center_y in zip(metrics, centers):
         draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")
         draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")
+    period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"
+    draw.text((516, 930), period, font=label_font, fill="#f4ead7", anchor="mm")
+    draw.text((516, 1000), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")
     image.save(path, format="PNG")
 
 

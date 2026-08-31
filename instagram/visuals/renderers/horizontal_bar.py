@@ -90,8 +90,10 @@ def _wrap_two_lines(
     if _text_width(renderer, label, font_size) <= max_width_px:
         return label, False, _text_width(renderer, label, font_size)
 
+    # Only wrap at word boundaries. If a label cannot fit at a valid word
+    # boundary, let the existing truncation/validation path reject it rather
+    # than silently splitting a word for visual balance.
     split_points = [index for index, character in enumerate(label) if character == " "]
-    split_points.extend(index for index in range(1, len(label)) if index not in split_points)
     best: tuple[float, str, str] | None = None
     for index in split_points:
         left = label[:index].rstrip()

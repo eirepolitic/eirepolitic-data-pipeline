@@ -19,14 +19,14 @@ granularity:
 
 period:
   mode: latest_available
-  field: null
+  field: "Debate Date"
 
 slides:
   - slide_id: cover
     order: 1
     post_type_id: title_text_media_v1
     text:
-      slide_title: "{{ party }}"
+      slide_title: "{{ party }} in the Dáil"
     media:
       main_media: cover
       type: generated_card
@@ -39,7 +39,7 @@ slides:
     order: 2
     post_type_id: title_text_media_v1
     text:
-      slide_title: "Top issues: {{ party }}"
+      slide_title: "Most discussed issues: {{ party }}"
     visual:
       visual_type_id: horizontal_bar_draft_v1
       metric_id: party_issue_counts
@@ -55,7 +55,7 @@ slides:
       item_limit: 7
       empty_data_behavior: fail
     accessibility:
-      alt_text_template: "Horizontal bar chart of classified parliamentary issues raised by current {{ party }} TDs."
+      alt_text_template: "Horizontal bar chart of the most frequent classified issue categories in Dáil speeches by current {{ party }} TDs."
     fallback_behavior:
       missing_visual: fail
 
