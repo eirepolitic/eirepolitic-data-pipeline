@@ -21,6 +21,13 @@ from .party_adapter import (
     party_media_for_slide,
     render_party_assets,
 )
+from .party_overindex_adapter import (
+    build_context as build_party_overindex_context,
+    load_party_per_td_overindex_records,
+    load_party_share_overindex_records,
+    media_for_slide as party_overindex_media_for_slide,
+    render_assets as render_party_overindex_assets,
+)
 from .validation_density import select_density_aware_category_value_scenarios
 
 HistoricalLoader = Callable[
@@ -182,6 +189,22 @@ ADAPTERS: dict[str, FactoryAdapter] = {
         render_assets=render_party_assets,
         media_for_slide=party_media_for_slide,
         load_historical_records=_party_historical,
+    ),
+    "party_issue_share_overindex_v1": FactoryAdapter(
+        adapter_id="party_issue_share_overindex_v1",
+        load_records=load_party_share_overindex_records,
+        build_context=build_party_overindex_context,
+        build_scenarios=_party_scenarios,
+        render_assets=render_party_overindex_assets,
+        media_for_slide=party_overindex_media_for_slide,
+    ),
+    "party_issue_per_td_overindex_v1": FactoryAdapter(
+        adapter_id="party_issue_per_td_overindex_v1",
+        load_records=load_party_per_td_overindex_records,
+        build_context=build_party_overindex_context,
+        build_scenarios=_party_scenarios,
+        render_assets=render_party_overindex_assets,
+        media_for_slide=party_overindex_media_for_slide,
     ),
 }
 
