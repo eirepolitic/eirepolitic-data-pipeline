@@ -33,8 +33,8 @@ jobs:
           from pathlib import Path
           path = Path('instagram/visuals/renderers/horizontal_bar.py')
           text = path.read_text(encoding='utf-8')
-          old = '''            value_format = str(params.get("value_format", "integer"))\n            for idx, value in enumerate(values):\n                value_label = f"{value:g}%" if value_format == "percent" else (f"{value:,.0f}" if math.isfinite(value) else "0")\n'''
-          new = '''            value_format = str(params.get("value_format", "integer"))\n            for idx, value in enumerate(values):\n                if not math.isfinite(value):\n                    value_label = "0"\n                elif value_format == "percent":\n                    value_label = f"{value:g}%"\n                elif value_format == "plus_pp_1":\n                    value_label = f"+{value:.1f} pp"\n                elif value_format == "plus_decimal_2":\n                    value_label = f"+{value:.2f}"\n                elif value_format == "decimal_2":\n                    value_label = f"{value:.2f}"\n                else:\n                    value_label = f"{value:,.0f}"\n'''
+          old = '''        value_format = str(params.get("value_format", "integer"))\n        for idx, value in enumerate(values):\n            value_label = f"{value:g}%" if value_format == "percent" else (f"{value:,.0f}" if math.isfinite(value) else "0")\n'''
+          new = '''        value_format = str(params.get("value_format", "integer"))\n        for idx, value in enumerate(values):\n            if not math.isfinite(value):\n                value_label = "0"\n            elif value_format == "percent":\n                value_label = f"{value:g}%"\n            elif value_format == "plus_pp_1":\n                value_label = f"+{value:.1f} pp"\n            elif value_format == "plus_decimal_2":\n                value_label = f"+{value:.2f}"\n            elif value_format == "decimal_2":\n                value_label = f"{value:.2f}"\n            else:\n                value_label = f"{value:,.0f}"\n'''
           if old not in text:
               raise SystemExit('horizontal_bar value-format insertion point not found')
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
@@ -83,7 +83,7 @@ jobs:
           python <<'PY'
           import json, math, shutil
           from pathlib import Path
-          from PIL import Image, ImageDraw, ImageFont
+          from PIL import Image, ImageDraw
 
           output_root = Path('instagram/commissioning/output/january-overindex-2026')
           if output_root.exists():
@@ -153,7 +153,6 @@ jobs:
               contact_sheet(records,mode_root,'02_issue_profile.png','contact_sheet_charts.jpg')
               combined[mode]=summary
 
-          # Compact Fianna Fáil data comparison for factual review.
           comparison={}
           for mode in ('share','per-td'):
               visual=output_root/mode/'parties'/'fianna-fail'/'metadata'/'visual.json'
