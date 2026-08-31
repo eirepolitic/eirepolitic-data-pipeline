@@ -40,9 +40,9 @@
       "type": "text",
       "placeholder": "slide_title",
       "x": 70,
-      "y": 10,
+      "y": 32,
       "w": 940,
-      "h": 140,
+      "h": 136,
       "style": {
         "font_family": "default_bold",
         "font_size": 56,
@@ -64,7 +64,7 @@
       "id": "title_rule",
       "type": "rectangle",
       "x": 112,
-      "y": 152,
+      "y": 174,
       "w": 856,
       "h": 5,
       "fill": "{palette.accent}"
@@ -74,15 +74,15 @@
       "type": "image",
       "placeholder": "main_media",
       "x": 24,
-      "y": 168,
+      "y": 190,
       "w": 1032,
-      "h": 1148,
+      "h": 1126,
       "fit": "contain",
       "background": "{palette.background}",
       "radius": 0,
       "validation": {
-        "min_vertical_fill_ratio": 0.94,
-        "min_area_fill_ratio": 0.88
+        "min_vertical_fill_ratio": 0.92,
+        "min_area_fill_ratio": 0.86
       }
     },
     {
