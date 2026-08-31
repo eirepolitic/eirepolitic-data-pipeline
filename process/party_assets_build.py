@@ -10,11 +10,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import shutil
 from pathlib import Path
 from typing import Any
 
+import cairosvg
 from PIL import Image, ImageDraw, ImageFont
 
 from process.party_assets import DEFAULT_REGISTRY, PartyAsset, load_registry
@@ -24,7 +26,7 @@ SAFE_MARGIN = 160
 CONTACT_CELL_W = 420
 CONTACT_CELL_H = 500
 CONTACT_COLUMNS = 3
-SUPPORTED_RASTER = {".png", ".jpg", ".jpeg", ".webp"}
+SUPPORTED_SOURCES = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 
 
 def sha256_file(path: Path) -> str:
@@ -49,19 +51,31 @@ def _source_for_party(source_root: Path, row: PartyAsset) -> Path | None:
         return None
     candidates = sorted(
         path for path in party_dir.iterdir()
-        if path.is_file() and path.suffix.lower() in SUPPORTED_RASTER
+        if path.is_file() and path.suffix.lower() in SUPPORTED_SOURCES
     )
     if len(candidates) > 1:
-        raise ValueError(f"{row.party_key}: expected one reviewed raster source, found {len(candidates)}")
+        raise ValueError(f"{row.party_key}: expected one reviewed source, found {len(candidates)}")
     return candidates[0] if candidates else None
 
 
-def normalize_logo(source: Path, output: Path) -> dict[str, Any]:
+def _load_source_rgba(source: Path) -> tuple[Image.Image, str, tuple[int, int]]:
+    if source.suffix.lower() == ".svg":
+        png_bytes = cairosvg.svg2png(url=str(source))
+        with Image.open(io.BytesIO(png_bytes)) as image:
+            image.load()
+            rgba = image.convert("RGBA")
+            return rgba, "SVG", image.size
+
     with Image.open(source) as image:
         image.load()
         original_format = image.format or source.suffix.lstrip(".").upper()
         original_size = image.size
         rgba = image.convert("RGBA")
+    return rgba, original_format, original_size
+
+
+def normalize_logo(source: Path, output: Path) -> dict[str, Any]:
+    rgba, original_format, original_size = _load_source_rgba(source)
 
     bbox = rgba.getbbox()
     if bbox is None:
@@ -69,7 +83,7 @@ def normalize_logo(source: Path, output: Path) -> dict[str, Any]:
     cropped = rgba.crop(bbox)
 
     max_side = CANVAS_SIZE - (SAFE_MARGIN * 2)
-    ratio = min(max_side / cropped.width, max_side / cropped.height, 1.0 if max(cropped.size) >= max_side else max_side / max(cropped.size))
+    ratio = max_side / max(cropped.width, cropped.height)
     resized = cropped.resize(
         (max(1, round(cropped.width * ratio)), max(1, round(cropped.height * ratio))),
         Image.Resampling.LANCZOS,
@@ -111,7 +125,7 @@ def validate_normalized(path: Path) -> list[str]:
                 errors.append(f"expected RGBA, got {image.mode}")
             if image.convert("RGBA").getbbox() is None:
                 errors.append("image is empty/fully transparent")
-    except Exception as exc:  # Pillow validation should report a usable error
+    except Exception as exc:
         errors.append(f"cannot open image: {exc}")
     return errors
 
