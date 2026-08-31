@@ -46,15 +46,22 @@ jobs:
         run: python -m unittest tests.test_party_assets -v
 
       - name: Audit S3 for existing party image candidates
+        id: s3_audit
+        continue-on-error: true
         run: >-
           python process/party_assets.py
           --audit-s3
           --output generated_party_asset_audit/party_asset_audit.json
 
       - name: Upload audit report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-asset-audit
           path: generated_party_asset_audit/party_asset_audit.json
           if-no-files-found: error
           retention-days: 14
+
+      - name: Fail if S3 audit failed
+        if: steps.s3_audit.outcome == 'failure'
+        run: exit 1
