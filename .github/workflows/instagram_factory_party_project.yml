@@ -51,16 +51,35 @@ jobs:
           import json
           from pathlib import Path
           from instagram.factory.party_adapter import load_party_records
+          from instagram.factory.constituency_pilot import load_source_rows
 
           root = Path("generated_party_commissioning")
           cli_report = json.loads(Path("commissioning-batch-report.json").read_text(encoding="utf-8"))
           records, source_manifest, join_manifest = load_party_records("s3")
+          _, speeches, _ = load_source_rows("s3")
+          speech_fields = sorted({str(k) for row in speeches[:100] for k in row.keys()})
+          date_fields = [
+              field for field in speech_fields
+              if any(token in field.lower() for token in ("date", "time", "sitting", "debate"))
+          ]
+          date_samples = {}
+          for field in date_fields:
+              values = [str(row.get(field) or "").strip() for row in speeches if str(row.get(field) or "").strip()]
+              date_samples[field] = {
+                  "non_empty_count": len(values),
+                  "sample": values[:5],
+                  "lexicographic_min": min(values) if values else None,
+                  "lexicographic_max": max(values) if values else None,
+              }
+
           summary = {
               "generate_exit_code": int(Path("commissioning-generate-exit-code.txt").read_text().strip()),
               "cli_success": cli_report.get("success"),
               "cli_errors": cli_report.get("errors"),
               "source_manifest": source_manifest,
               "join_manifest": join_manifest,
+              "speech_fields": speech_fields,
+              "date_field_diagnostics": date_samples,
               "party_records": [
                   {
                       "party": r.get("party"),
@@ -96,13 +115,26 @@ jobs:
                   if not manifest_path.is_file():
                       continue
                   manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                  item_errors.append({
+                  item = {
                       "slug": slug,
                       "label": manifest.get("item_label"),
                       "status": manifest.get("status"),
                       "errors": manifest.get("errors"),
                       "slide_count": len(manifest.get("slides") or []),
-                  })
+                  }
+                  if manifest.get("status") == "failed":
+                      render_metrics = []
+                      metrics_root = root / "generated" / slug / "slides" / "metadata" / "manifests"
+                      if metrics_root.exists():
+                          for path in sorted(metrics_root.glob("*.render_manifest.json")):
+                              doc = json.loads(path.read_text(encoding="utf-8"))
+                              render_metrics.append({
+                                  "file": path.name,
+                                  "warnings": doc.get("warnings"),
+                                  "text_metrics": doc.get("text_metrics"),
+                              })
+                      item["render_metrics"] = render_metrics
+                  item_errors.append(item)
               summary["items"] = item_errors
           out = Path("instagram/commissioning")
           out.mkdir(parents=True, exist_ok=True)
@@ -116,7 +148,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/commissioning/party_e2e_trial_compact.json
-          git commit -m "Record compact Instagram commissioning diagnostics" || true
+          git commit -m "Record detailed Instagram commissioning diagnostics" || true
           git push
       - name: Build review index when batch exists
         if: ${{ hashFiles('generated_party_commissioning/run_manifest.json') != '' }}
