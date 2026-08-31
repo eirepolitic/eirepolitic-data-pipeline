@@ -57,7 +57,7 @@
       "x": 70,
       "y": 10,
       "w": 940,
-      "h": 116,
+      "h": 140,
       "style": {
         "font_family": "default_bold",
         "font_size": 56,
@@ -79,7 +79,7 @@
       "id": "title_rule",
       "type": "rectangle",
       "x": 112,
-      "y": 128,
+      "y": 152,
       "w": 856,
       "h": 5,
       "fill": "{palette.accent}"
@@ -89,15 +89,15 @@
       "type": "image",
       "placeholder": "main_media",
       "x": 24,
-      "y": 144,
+      "y": 168,
       "w": 1032,
-      "h": 1172,
+      "h": 1148,
       "fit": "contain",
       "background": "{palette.background}",
       "radius": 0,
       "validation": {
-        "min_vertical_fill_ratio": 0.96,
-        "min_area_fill_ratio": 0.90
+        "min_vertical_fill_ratio": 0.94,
+        "min_area_fill_ratio": 0.88
       }
     },
     {
