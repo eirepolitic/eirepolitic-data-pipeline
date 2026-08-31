@@ -1,0 +1,84 @@
+{
+  "attempt_counts": {
+    "1": 1000
+  },
+  "average_tokens_per_speech": {
+    "cached_input": 0.0,
+    "input": 693.5,
+    "output": 35.7,
+    "reasoning": 17.2
+  },
+  "category_counts": {
+    "Agriculture": 15,
+    "Banking/Finance and Domestic Commerce": 23,
+    "Civil Rights, Minority Issues and Civil Liberties": 23,
+    "Culture and Arts": 25,
+    "Defense": 23,
+    "Domestic Terrorism": 1,
+    "Education": 94,
+    "Energy": 67,
+    "Environment": 19,
+    "Foreign Trade": 5,
+    "Government Operations": 70,
+    "Health": 113,
+    "Housing and Community Development": 98,
+    "International Affairs and Foreign Aid": 63,
+    "Labor, Employment and Immigration": 33,
+    "Law/Crime and Family Issues": 79,
+    "Macroeconomics": 30,
+    "NONE": 35,
+    "Other/Miscellaneous": 8,
+    "Public Lands and Water Management": 16,
+    "Social Welfare": 48,
+    "Space, Science, and Technology": 14,
+    "Sports and Recreation": 27,
+    "State and Local Government Administration": 4,
+    "Transportation": 67
+  },
+  "concurrency": 4,
+  "cutoff_exclusive": "2026-02-26",
+  "estimated_all_pending_cost_usd_at_sample_rate": 2.71,
+  "estimated_cost_per_1000_speeches_usd": 0.1816,
+  "estimated_remaining_recent_cost_usd_at_sample_rate": 2.21,
+  "estimated_sample_cost_usd": {
+    "cached_input_usd": 0.0,
+    "output_usd": 0.042893,
+    "total_usd": 0.181585,
+    "uncached_input_usd": 0.138692
+  },
+  "failures": [],
+  "latency_seconds": {
+    "max": 264.493,
+    "mean": 4.518,
+    "p50": 1.315,
+    "p95": 9.373
+  },
+  "max_output_tokens": 512,
+  "max_retries": 8,
+  "mode": "bulk_cost_reliability_sample",
+  "model": "gpt-5.6-luna",
+  "none_count": 35,
+  "none_pct": 3.5,
+  "pending_recent_after_cutoff": 12197,
+  "pending_total_all_dates": 14930,
+  "pricing_usd_per_million_tokens": {
+    "cached_input": 0.02,
+    "output": 1.2,
+    "uncached_input": 0.2
+  },
+  "reasoning_effort": "low",
+  "sample_attempted": 1000,
+  "sample_failed": 0,
+  "sample_requested": 1000,
+  "sample_succeeded": 1000,
+  "success_pct": 100.0,
+  "throughput_speeches_per_minute": 49.08,
+  "usage": {
+    "cached_input_tokens": 0,
+    "input_tokens": 693459,
+    "output_tokens": 35744,
+    "reasoning_tokens": 17217
+  },
+  "wall_seconds": 1222.61,
+  "writes_performed": false
+}
