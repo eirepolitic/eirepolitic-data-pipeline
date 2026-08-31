@@ -43,6 +43,7 @@ jobs:
           tests.test_party_assets_build
           tests.test_party_assets_fetch
           tests.test_party_assets_discover
+          tests.test_party_assets_candidate_review
           tests.test_party_assets_upload
           -v
 
@@ -52,6 +53,15 @@ jobs:
         run: >-
           python -m process.party_assets_discover
           --output generated_party_asset_review/discovery_report.json
+
+      - name: Build unresolved candidate contact sheet
+        id: candidate_review
+        if: steps.discover.outcome == 'success'
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_candidate_review
+          --discovery generated_party_asset_review/discovery_report.json
+          --output-root generated_party_asset_review/candidates
 
       - name: Fetch direct authoritative source assets
         id: fetch
@@ -83,9 +93,11 @@ jobs:
           fetch_path = Path("generated_party_asset_review/fetch_report.json")
           build_path = Path("generated_party_asset_review/build/manifest.json")
           discovery_path = Path("generated_party_asset_review/discovery_report.json")
+          candidate_path = Path("generated_party_asset_review/candidates/candidate_review.json")
           fetch = json.loads(fetch_path.read_text(encoding="utf-8")) if fetch_path.is_file() else {}
           build = json.loads(build_path.read_text(encoding="utf-8")) if build_path.is_file() else {}
           discovery = json.loads(discovery_path.read_text(encoding="utf-8")) if discovery_path.is_file() else {}
+          candidate = json.loads(candidate_path.read_text(encoding="utf-8")) if candidate_path.is_file() else {}
           fetch_status = {item.get("party_key"): item.get("status", "missing") for item in fetch.get("results", [])}
           build_status = {item.get("party_key"): item.get("build_status", "missing") for item in build.get("entries", [])}
           discovery_counts = {item.get("party_key"): int(item.get("candidate_count", 0)) for item in discovery.get("results", [])}
@@ -99,6 +111,7 @@ jobs:
               print(f"{safe}_fetch={fetch_status.get(key, 'missing')}")
               print(f"{safe}_build={build_status.get(key, 'missing')}")
               print(f"{safe}_candidates={discovery_counts.get(key, 0)}")
+          print(f"candidate_reviewable={candidate.get('reviewable_count', 0)}")
           PY
 
       - name: 100 RDR direct asset fetched
@@ -145,6 +158,10 @@ jobs:
         if: steps.classify.outputs.social_democrats_fetch == 'unresolved_source'
         run: echo "Social Democrats remains unresolved; advisory candidates=${{ steps.classify.outputs.social_democrats_candidates }}."
 
+      - name: Candidate review imagery available
+        if: steps.classify.outputs.candidate_reviewable != '0'
+        run: echo "High-confidence unresolved candidates are available for human review."
+
       - name: Write review inventory
         if: always()
         run: |
@@ -157,6 +174,7 @@ jobs:
           files = sorted(str(path.relative_to(root)) for path in root.rglob("*") if path.is_file())
           inventory = {
               "discover_step_outcome": "${{ steps.discover.outcome }}",
+              "candidate_review_step_outcome": "${{ steps.candidate_review.outcome }}",
               "fetch_step_outcome": "${{ steps.fetch.outcome }}",
               "build_step_outcome": "${{ steps.build.outcome }}",
               "files": files,
@@ -177,12 +195,21 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload contact sheet
+      - name: Upload approved-source contact sheet
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-asset-contact-sheet
           path: generated_party_asset_review/build/contact_sheet.png
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload unresolved candidate contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-candidate-contact-sheet
+          path: generated_party_asset_review/candidates/candidate_contact_sheet.png
           if-no-files-found: warn
           retention-days: 14
 
