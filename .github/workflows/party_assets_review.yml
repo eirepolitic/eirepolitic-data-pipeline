@@ -63,6 +63,59 @@ jobs:
           --source-root generated_party_asset_review/sources
           --output-root generated_party_asset_review/build
 
+      - name: Classify per-party review status
+        id: classify
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          fetch_path = Path("generated_party_asset_review/fetch_report.json")
+          build_path = Path("generated_party_asset_review/build/manifest.json")
+          fetch = json.loads(fetch_path.read_text(encoding="utf-8")) if fetch_path.is_file() else {}
+          build = json.loads(build_path.read_text(encoding="utf-8")) if build_path.is_file() else {}
+          fetch_status = {item.get("party_key"): item.get("status", "missing") for item in fetch.get("results", [])}
+          build_status = {item.get("party_key"): item.get("build_status", "missing") for item in build.get("entries", [])}
+          keys = [
+              "100-rdr", "aontu", "fianna-fail", "fine-gael", "green-party", "independent",
+              "independent-ireland", "labour-party", "people-before-profit-solidarity", "sinn-fein",
+              "social-democrats",
+          ]
+          for key in keys:
+              safe = key.replace("-", "_").replace("100_rdr", "rdr100")
+              print(f"{safe}_fetch={fetch_status.get(key, 'missing')}")
+              print(f"{safe}_build={build_status.get(key, 'missing')}")
+          PY
+
+      - name: Verified direct assets fetched
+        if: >-
+          steps.classify.outputs.rdr100_fetch == 'fetched' &&
+          steps.classify.outputs.aontu_fetch == 'fetched' &&
+          steps.classify.outputs.fine_gael_fetch == 'fetched' &&
+          steps.classify.outputs.green_party_fetch == 'fetched' &&
+          steps.classify.outputs.independent_ireland_fetch == 'fetched' &&
+          steps.classify.outputs.labour_party_fetch == 'fetched' &&
+          steps.classify.outputs.people_before_profit_solidarity_fetch == 'fetched'
+        run: echo "All seven pinned direct authoritative assets fetched successfully."
+
+      - name: Independent fallback confirmed
+        if: steps.classify.outputs.independent_fetch == 'fallback'
+        run: echo "Independent correctly uses the approved no-party-logo fallback."
+
+      - name: Fianna Fail unresolved source confirmed
+        if: steps.classify.outputs.fianna_fail_fetch == 'unresolved_source'
+        run: echo "Fianna Fail remains unresolved; no direct asset was guessed."
+
+      - name: Sinn Fein unresolved source confirmed
+        if: steps.classify.outputs.sinn_fein_fetch == 'unresolved_source'
+        run: echo "Sinn Fein remains unresolved; no direct asset was guessed."
+
+      - name: Social Democrats unresolved source confirmed
+        if: steps.classify.outputs.social_democrats_fetch == 'unresolved_source'
+        run: echo "Social Democrats remains unresolved; no direct asset was guessed."
+
       - name: Write review inventory
         if: always()
         run: |
@@ -78,11 +131,7 @@ jobs:
               "build_step_outcome": "${{ steps.build.outcome }}",
               "files": files,
           }
-          (root / "review_inventory.json").write_text(
-              json.dumps(inventory, indent=2) + "\n",
-              encoding="utf-8",
-          )
-          print(json.dumps(inventory, indent=2))
+          (root / "review_inventory.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
           PY
 
       - name: Package review output
@@ -96,6 +145,15 @@ jobs:
           name: party-asset-review-package
           path: party-asset-review.tar.gz
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-contact-sheet
+          path: generated_party_asset_review/build/contact_sheet.png
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Fail if fetch or build is incomplete
