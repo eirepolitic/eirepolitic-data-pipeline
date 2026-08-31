@@ -1,0 +1,86 @@
+project_id: party_issue_per_td_overindex_jan2026
+version: 1
+status: draft
+purpose: Show which classified Dáil speech issue categories each current party discussed more often per current TD than the unweighted cross-party average during January 2026.
+
+factory:
+  adapter: party_issue_per_td_overindex_v1
+
+granularity:
+  grain: party
+  key_fields: [party_key]
+  label_field: party
+  source_metric: party_issue_per_td_overindex
+  selector:
+    mode: all_complete
+  ordering:
+    field: party
+    direction: ascending
+
+period:
+  mode: fixed
+  field: "Debate Date"
+  start: "2026-01-01"
+  end: "2026-01-31"
+
+slides:
+  - slide_id: cover
+    order: 1
+    post_type_id: title_text_media_v1
+    text:
+      slide_title: "{{ party }} January Issues Per TD"
+    media:
+      main_media: cover
+      type: generated_card
+    accessibility:
+      alt_text_template: "January 2026 per-TD issue over-index cover for {{ party }}."
+    fallback_behavior:
+      missing_media: generate_placeholder
+
+  - slide_id: issue_profile
+    order: 2
+    post_type_id: title_text_media_v1
+    text:
+      slide_title: "{{ party }} Issues vs Average Per TD"
+    visual:
+      visual_type_id: horizontal_bar_draft_v1
+      metric_id: party_issue_per_td_overindex
+      bindings:
+        label: label
+        value: value
+      filters:
+        party: "{{ party }}"
+      grouping: {}
+      sort:
+        field: value
+        direction: descending
+      item_limit: 7
+      empty_data_behavior: fail
+    accessibility:
+      alt_text_template: "Horizontal bar chart of January 2026 issue categories where {{ party }} had more classified Dáil speeches per current TD than the unweighted average party rate."
+    fallback_behavior:
+      missing_visual: fail
+
+validation:
+  scenarios: [minimum, maximum, real_example]
+  real_example_selector:
+    mode: median_complexity
+  historical_search:
+    enabled: false
+    required: false
+    max_batches: 0
+  require_explicit_approval: true
+
+output:
+  local_root: generated_factory_tests/party_issue_per_td_overindex_jan2026
+  s3_prefix: processed/instagram_factory/projects/party_issue_per_td_overindex_jan2026
+  preview_branch: instagram-preview-output
+
+review:
+  require_all_items_reviewed: true
+  allow_targeted_regeneration: true
+
+schedule:
+  enabled: false
+  cadence: null
+  trigger: manual
