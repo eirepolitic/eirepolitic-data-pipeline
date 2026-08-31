@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "template_id": "title_text_media_v1",
-  "description": "Compact centered title with a near-full-height media block",
+  "description": "Flat EirePolitic title/media layout with corner ornaments",
   "width": 1080,
   "height": 1350,
   "palette": "eirepolitic_dark",
@@ -13,17 +13,55 @@
   },
   "elements": [
     {
+      "id": "ornament_tl",
+      "type": "text",
+      "text": "❦",
+      "x": 16,
+      "y": 14,
+      "w": 70,
+      "h": 70,
+      "style": {
+        "font_family": "default_regular",
+        "font_size": 54,
+        "min_font_size": 54,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "top",
+        "max_lines": 1,
+        "shrink_to_fit": false
+      }
+    },
+    {
+      "id": "ornament_tr",
+      "type": "text",
+      "text": "❧",
+      "x": 994,
+      "y": 14,
+      "w": 70,
+      "h": 70,
+      "style": {
+        "font_family": "default_regular",
+        "font_size": 54,
+        "min_font_size": 54,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "top",
+        "max_lines": 1,
+        "shrink_to_fit": false
+      }
+    },
+    {
       "id": "title",
       "type": "text",
       "placeholder": "slide_title",
-      "x": 34,
-      "y": 10,
-      "w": 1012,
-      "h": 114,
+      "x": 92,
+      "y": 12,
+      "w": 896,
+      "h": 112,
       "style": {
         "font_family": "default_bold",
         "font_size": 56,
-        "min_font_size": 42,
+        "min_font_size": 40,
         "color": "{palette.text_primary}",
         "align": "center",
         "valign": "middle",
@@ -31,26 +69,73 @@
         "shrink_to_fit": true
       },
       "validation": {
-        "min_final_font_size": 42,
+        "min_final_font_size": 40,
         "max_lines": 2,
         "allow_truncation": false,
         "allow_clipping": false
       }
     },
     {
+      "id": "title_rule",
+      "type": "rectangle",
+      "x": 112,
+      "y": 126,
+      "w": 856,
+      "h": 5,
+      "fill": "{palette.accent}"
+    },
+    {
       "id": "main_media",
       "type": "image",
       "placeholder": "main_media",
       "x": 24,
-      "y": 134,
+      "y": 142,
       "w": 1032,
-      "h": 1192,
+      "h": 1174,
       "fit": "contain",
-      "background": "{palette.panel_background}",
-      "radius": 24,
+      "background": "{palette.background}",
+      "radius": 0,
       "validation": {
         "min_vertical_fill_ratio": 0.96,
         "min_area_fill_ratio": 0.90
+      }
+    },
+    {
+      "id": "ornament_bl",
+      "type": "text",
+      "text": "❦",
+      "x": 16,
+      "y": 1272,
+      "w": 70,
+      "h": 66,
+      "style": {
+        "font_family": "default_regular",
+        "font_size": 54,
+        "min_font_size": 54,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "bottom",
+        "max_lines": 1,
+        "shrink_to_fit": false
+      }
+    },
+    {
+      "id": "ornament_br",
+      "type": "text",
+      "text": "❧",
+      "x": 994,
+      "y": 1272,
+      "w": 70,
+      "h": 66,
+      "style": {
+        "font_family": "default_regular",
+        "font_size": 54,
+        "min_font_size": 54,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "bottom",
+        "max_lines": 1,
+        "shrink_to_fit": false
       }
     }
   ]
