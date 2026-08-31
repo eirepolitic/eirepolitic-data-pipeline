@@ -60,6 +60,12 @@ tables:
       - {columns: [debate_id], references: silver_debate_records, referenced_columns: [debate_id]}
       - {columns: [debate_section_id], references: silver_debate_sections, referenced_columns: [debate_section_id], nullable: true}
       - {columns: [speaker_member_code], references: silver_members, referenced_columns: [member_code], nullable: true}
+
+  enrichment_speech_issue_labels:
+    write_strategy: rebuild
+    foreign_keys:
+      - {columns: [speech_id], references: silver_speeches, referenced_columns: [speech_id]}
+
   silver_divisions:
     write_strategy: upsert
     foreign_keys:
