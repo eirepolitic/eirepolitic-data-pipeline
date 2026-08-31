@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from instagram.visuals.renderers import horizontal_bar
 from instagram.visuals.renderers.common import load_yaml
+from process.party_assets import canonical_party_key, resolve_party
 
 from .catalogues import REPO_ROOT
 from .constituency_pilot import first_field, load_source_rows, normalize_text
@@ -63,9 +64,20 @@ def build_party_records(
         ]
         if not rows:
             continue
+
+        party_asset = resolve_party(party)
+        if party_asset is None:
+            raise ValueError(
+                f"Recognized source party {party!r} has no party asset registry entry. "
+                "Add an approved asset or explicit approved fallback before rendering."
+            )
+
         records.append({
             "party": party,
-            "party_key": normalize_text(party).replace(" ", "-"),
+            "party_key": canonical_party_key(party),
+            "party_asset_status": party_asset.asset_status,
+            "party_asset_s3_uri": party_asset.logo_s3_uri,
+            "party_asset_fallback_type": party_asset.fallback_type,
             "member_names": sorted(party_members.get(party, set())),
             "member_count": len(party_members.get(party, set())),
             "issue_rows": rows,
@@ -163,6 +175,7 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
     period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"
     draw.text((516, 1048), period, font=small_font, fill="#f4ead7", anchor="mm")
     image.save(path, format="PNG")
+
 
 def render_party_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
     assets = item_dir / "assets"
