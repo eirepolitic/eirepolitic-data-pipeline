@@ -87,7 +87,7 @@ metrics:
     measure_fields: [value]
     dimension_fields: [party, label]
     period_fields: [Debate Date]
-    mapping_config: null
+    mapping_config: instagram/visuals/data_mappings/party_issue_share_overindex.yml
     freshness_expectation: monthly
     source_note: Houses of the Oireachtas member/debate data with Eirepolitic issue classification. Zero category shares are included in the cross-party mean.
     validation_rules:
@@ -111,7 +111,7 @@ metrics:
     measure_fields: [value]
     dimension_fields: [party, label]
     period_fields: [Debate Date]
-    mapping_config: null
+    mapping_config: instagram/visuals/data_mappings/party_issue_per_td_overindex.yml
     freshness_expectation: monthly
     source_note: Houses of the Oireachtas member/debate data with Eirepolitic issue classification. Zero category rates are included in the cross-party mean.
     validation_rules:
