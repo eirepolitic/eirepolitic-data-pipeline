@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import os
+import random
 import statistics
 import threading
 import time
@@ -28,7 +29,6 @@ from process.oireachtas_speech_issue_classifier import (
     read_s3_csv,
 )
 
-# Current standard API prices for GPT-5.6 Luna as of 2026-08-31.
 INPUT_USD_PER_M = 0.20
 CACHED_INPUT_USD_PER_M = 0.02
 OUTPUT_USD_PER_M = 1.20
@@ -79,7 +79,7 @@ def estimated_cost(usage: dict[str, int]) -> dict[str, float]:
     }
 
 
-def classify_one(row: dict[str, Any], *, model: str, max_retries: int = 4) -> dict[str, Any]:
+def classify_one(row: dict[str, Any], *, model: str, max_retries: int = 8) -> dict[str, Any]:
     started = time.perf_counter()
     aggregate = {"input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0}
     attempts = 0
@@ -101,11 +101,14 @@ def classify_one(row: dict[str, Any], *, model: str, max_retries: int = 4) -> di
                         "schema": classification_schema(),
                     },
                 },
-                max_output_tokens=128,
+                max_output_tokens=512,
                 store=False,
             )
             add_usage(aggregate, usage_dict(response))
-            payload = json.loads(str(response.output_text or "").strip())
+            raw = str(response.output_text or "").strip()
+            if not raw:
+                raise ValueError("model returned empty output_text")
+            payload = json.loads(raw)
             label = canonicalize_label(payload.get("issue_label"))
             if not label:
                 raise ValueError(f"invalid issue label: {payload!r}")
@@ -126,7 +129,8 @@ def classify_one(row: dict[str, Any], *, model: str, max_retries: int = 4) -> di
         except Exception as exc:
             last_error = f"{type(exc).__name__}: {str(exc)[:500]}"
             if attempt < max_retries:
-                time.sleep(min(2.0 * attempt, 6.0))
+                delay = min(30.0, 1.5 * (2 ** (attempt - 1))) + random.uniform(0.0, 1.0)
+                time.sleep(delay)
 
     elapsed = time.perf_counter() - started
     return {
@@ -168,11 +172,11 @@ def percentile(values: list[float], p: float) -> float:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Non-writing 1000-speech Luna cost/reliability benchmark")
+    parser = argparse.ArgumentParser(description="Non-writing Luna cost/reliability benchmark")
     parser.add_argument("--count", type=int, default=1000)
     parser.add_argument("--cutoff", default="2026-02-26")
     parser.add_argument("--model", default=DEFAULT_MODEL)
-    parser.add_argument("--concurrency", type=int, default=8)
+    parser.add_argument("--concurrency", type=int, default=4)
     parser.add_argument("--bucket", default=os.getenv("S3_BUCKET", "eirepolitic-data"))
     parser.add_argument("--region", default=os.getenv("AWS_REGION", "ca-central-1"))
     parser.add_argument("--report-path", default="speech_issue_bulk_cost_sample.json")
@@ -231,6 +235,8 @@ def main() -> int:
         "reasoning_effort": "low",
         "cutoff_exclusive": args.cutoff,
         "concurrency": args.concurrency,
+        "max_output_tokens": 512,
+        "max_retries": 8,
         "writes_performed": False,
         "pending_total_all_dates": all_pending,
         "pending_recent_after_cutoff": recent_remaining,
