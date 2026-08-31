@@ -1,0 +1,71 @@
+name: Party Asset Publication Candidate Review
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/party_asset_publication_candidates_v1.csv"
+      - "process/party_assets_publication_review.py"
+      - "requirements.txt"
+      - ".github/workflows/party_assets_publication_review.yml"
+
+concurrency:
+  group: party-assets-publication-review-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build official-publication candidate review
+        id: build
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_publication_review
+          --output-root generated_party_asset_publication_review
+
+      - name: Persist browser-accessible review sheet
+        if: always()
+        run: |
+          mkdir -p review/party_assets_v1
+          if [ -f generated_party_asset_publication_review/publication_candidate_contact_sheet.png ]; then
+            cp generated_party_asset_publication_review/publication_candidate_contact_sheet.png \
+              review/party_assets_v1/publication_candidate_contact_sheet.png
+          fi
+          if [ -f generated_party_asset_publication_review/publication_review.json ]; then
+            cp generated_party_asset_publication_review/publication_review.json \
+              review/party_assets_v1/publication_review.json
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1/publication_candidate_contact_sheet.png \
+                  review/party_assets_v1/publication_review.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Publication review materials unchanged."
+          else
+            git commit -m "Update party publication candidate review [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
+
+      - name: Fail if candidate review could not complete
+        if: steps.build.outcome == 'failure'
+        run: exit 1
