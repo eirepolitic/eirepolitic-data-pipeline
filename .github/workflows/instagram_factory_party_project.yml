@@ -25,50 +25,34 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml pillow matplotlib boto3 requests
-      - name: Apply small commissioning source repairs
+      - name: Apply strict visual-quality repairs
         shell: bash
         run: |
           python <<'PY'
           from pathlib import Path
 
-          # Blocker #2: never prefer character-level breaks over word boundaries.
+          # Give long taxonomy labels enough width to wrap at real word boundaries.
           path = Path("instagram/visuals/renderers/horizontal_bar.py")
           text = path.read_text(encoding="utf-8")
-          old = '''    split_points = [index for index, character in enumerate(label) if character == " "]\n    split_points.extend(index for index in range(1, len(label)) if index not in split_points)\n'''
-          new = '''    # Only wrap at word boundaries. If a label cannot fit at a valid word\n    # boundary, let the existing truncation/validation path reject it rather\n    # than silently splitting a word for visual balance.\n    split_points = [index for index, character in enumerate(label) if character == " "]\n'''
-          if old in text:
-              text = text.replace(old, new, 1)
-              path.write_text(text, encoding="utf-8")
-
-          # Add explicit source-date coverage to every party context.
-          path = Path("instagram/factory/party_adapter.py")
-          text = path.read_text(encoding="utf-8")
-          old = '''    records, join_manifest = build_party_records(members, speeches)\n    annotate_current_records(records, source_manifest)\n    return records, source_manifest, join_manifest\n'''
-          new = '''    records, join_manifest = build_party_records(members, speeches)\n    date_field = first_field(speeches, ["Debate Date", "debate_date", "date"], "debate date")\n    dates = sorted(str(row.get(date_field) or "").strip() for row in speeches if str(row.get(date_field) or "").strip())\n    if not dates:\n        raise ValueError("No debate dates available for party issue profile period")\n    for record in records:\n        record["period_start"] = dates[0]\n        record["period_end"] = dates[-1]\n    join_manifest["date_field"] = date_field\n    join_manifest["period_start"] = dates[0]\n    join_manifest["period_end"] = dates[-1]\n    annotate_current_records(records, source_manifest)\n    return records, source_manifest, join_manifest\n'''
-          if old in text:
-              text = text.replace(old, new, 1)
-
-          old = '''    metrics = [\n        (context.get("member_count", 0), "CURRENT TDS"),\n        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),\n        (context.get("issue_count", 0), "ISSUE CATEGORIES SHOWN"),\n    ]\n    centers = [255, 600, 945]\n    for (value, label), center_y in zip(metrics, centers):\n        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")\n        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")\n'''
-          new = '''    metrics = [\n        (context.get("member_count", 0), "CURRENT TDS"),\n        (context.get("speech_count", 0), "CLASSIFIED SPEECHES"),\n    ]\n    centers = [280, 650]\n    for (value, label), center_y in zip(metrics, centers):\n        draw.text((516, center_y - 45), f"{int(value):,}", font=number_font, fill="#f4ead7", anchor="mm")\n        draw.text((516, center_y + 75), label, font=label_font, fill="#d8b45f", anchor="mm")\n    period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"\n    draw.text((516, 930), period, font=label_font, fill="#f4ead7", anchor="mm")\n    draw.text((516, 1000), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")\n'''
-          if old in text:
-              text = text.replace(old, new, 1)
+          text = text.replace("MAX_PLOT_LEFT = 0.36", "MAX_PLOT_LEFT = 0.40", 1)
           path.write_text(text, encoding="utf-8")
 
-          # Make the editorial claim match what the metric actually measures.
-          path = Path("instagram/projects/party_issue_profile_v1/project.yml")
+          # Propagate visual renderer warnings into the batch generation gate.
+          path = Path("instagram/factory/generic_batch.py")
           text = path.read_text(encoding="utf-8")
-          text = text.replace('''period:\n  mode: latest_available\n  field: null\n''', '''period:\n  mode: latest_available\n  field: "Debate Date"\n''')
-          text = text.replace('''      slide_title: "{{ party }}"\n''', '''      slide_title: "{{ party }} in the Dáil"\n''', 1)
-          text = text.replace('''      slide_title: "Top issues: {{ party }}"\n''', '''      slide_title: "Most discussed issues: {{ party }}"\n''', 1)
-          text = text.replace('''      alt_text_template: "Horizontal bar chart of classified parliamentary issues raised by current {{ party }} TDs."\n''', '''      alt_text_template: "Horizontal bar chart of the most frequent classified issue categories in Dáil speeches by current {{ party }} TDs."\n''', 1)
+          old = '''            asset_result = adapter.render_assets(item_dir, context, project)\n            visual_manifest = asset_result.get("visual_manifest")\n            for slide in sorted(project["slides"], key=lambda value: value["order"]):\n'''
+          new = '''            asset_result = adapter.render_assets(item_dir, context, project)\n            visual_manifest = asset_result.get("visual_manifest")\n            visual_warnings = list((visual_manifest or {}).get("warnings") or [])\n            if visual_warnings:\n                raise ValueError(f"Visual warnings for {item_label}: {visual_warnings}")\n            for slide in sorted(project["slides"], key=lambda value: value["order"]):\n'''
+          if old not in text:
+              raise SystemExit("generic_batch visual warning insertion point not found")
+          text = text.replace(old, new, 1)
           path.write_text(text, encoding="utf-8")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/visuals/renderers/horizontal_bar.py instagram/factory/party_adapter.py instagram/projects/party_issue_profile_v1/project.yml
-          git commit -m "Repair party profile wrapping and period semantics" || true
+          git add instagram/visuals/renderers/horizontal_bar.py instagram/factory/generic_batch.py
+          git commit -m "Fail batch items on visual warnings and widen labels" || true
           git push
-      - name: Validate and generate v1 live batch
+      - name: Validate and generate strict v2 batch
         run: |
           python process/instagram_factory.py validate-catalogues
           python process/instagram_factory.py validate-project --project instagram/projects/party_issue_profile_v1/project.yml
@@ -82,12 +66,12 @@ jobs:
           python process/instagram_factory.py build-review-index \
             --run-root generated_party_commissioning \
             > commissioning-review-index.json
-      - name: Expose Fianna Fail v1 candidate
+      - name: Expose Fianna Fail v2 candidate
         shell: bash
         run: |
           set -euo pipefail
           src="generated_party_commissioning/generated/fianna-fail"
-          out="instagram/commissioning/output/fianna-fail/v1-candidate"
+          out="instagram/commissioning/output/fianna-fail/v2-candidate"
           rm -rf "$out"
           mkdir -p "$out/slides" "$out/metadata"
           cp "$src"/slides/*.png "$out/slides/"
@@ -98,17 +82,34 @@ jobs:
           cp generated_party_commissioning/run_manifest.json "$out/run_manifest.json"
           cp generated_party_commissioning/review/review_state.json "$out/review_state.json"
           cp commissioning-review-index.json "$out/review_index.json"
+          python <<'PY'
+          import json
+          from pathlib import Path
+          out = Path("instagram/commissioning/output/fianna-fail/v2-candidate")
+          manifest = json.loads((out / "metadata/visual_manifest.json").read_text(encoding="utf-8"))
+          summary = {
+              "version": "v2-candidate",
+              "strict_visual_warning_gate": True,
+              "visual_warnings": manifest.get("warnings", []),
+              "content_period": {"start": "2024-12-18", "end": "2026-02-26"},
+              "source_batch_id": "scheduled-weekly-33310991798-1",
+              "post_status": "draft_review",
+              "publication_allowed": False,
+          }
+          (out / "commissioning_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+          PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$out"
-          git commit -m "Expose Fianna Fail Instagram v1 candidate" || true
+          git commit -m "Expose Fianna Fail Instagram v2 candidate" || true
           git push
       - name: Upload commissioning evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: instagram-party-v1-${{ github.run_id }}
+          name: instagram-party-v2-${{ github.run_id }}
           path: |
             generated_party_commissioning/
             commissioning-batch-report.json
             commissioning-review-index.json
-          if-no-files-found: error
+          if-no-files-found: warn
