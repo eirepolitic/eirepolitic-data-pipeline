@@ -1,22 +1,22 @@
 {
   "candidate_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv",
   "checkpoint_exists": true,
-  "failed_rows": 45,
+  "failed_rows": 48,
   "max_debate_date": "2026-08-28",
-  "model_rows": 3205,
-  "pending_rows": 10680,
+  "model_rows": 3452,
+  "pending_rows": 10430,
   "rows": 66192,
   "source_counts": {
-    "": 10680,
-    "classification_error:RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-5.6-luna in organization org-TUSQ3xK": 45,
+    "": 10430,
+    "classification_error:RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-5.6-luna in organization org-TUSQ3xK": 48,
     "existing_unified_enrichment": 52262,
-    "openai_model": 3205
+    "openai_model": 3452
   },
   "status_counts": {
-    "classified": 30780,
-    "failed": 45,
-    "none": 17691,
-    "pending": 10680,
+    "classified": 31016,
+    "failed": 48,
+    "none": 17702,
+    "pending": 10430,
     "skipped_short_text": 6996
   }
 }
