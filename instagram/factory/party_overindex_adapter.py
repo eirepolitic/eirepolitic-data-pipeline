@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import boto3
+import yaml
 from PIL import Image, ImageDraw, ImageFont
 
 from instagram.visuals.renderers import horizontal_bar
@@ -20,12 +21,21 @@ CLASSIFIED_KEY = "processed/debates/debate_speeches_classified.csv"
 JAN_START = "2026-01-01"
 JAN_END = "2026-01-31"
 SOURCE_BATCH_ID = "classifier-current-2026-08-31"
+PRESENTATION_LABELS_PATH = Path("instagram/reference/issue_presentation_labels.yml")
 
 
 def slugify(value: str) -> str:
     ascii_value = unicodedata.normalize("NFKD", str(value)).encode("ascii", "ignore").decode("ascii")
     value = re.sub(r"[^a-z0-9]+", "-", ascii_value.lower()).strip("-")
     return value or "unknown"
+
+
+def _load_presentation_labels() -> dict[str, str]:
+    if not PRESENTATION_LABELS_PATH.exists():
+        return {}
+    data = yaml.safe_load(PRESENTATION_LABELS_PATH.read_text(encoding="utf-8")) or {}
+    labels = data.get("labels") or {}
+    return {str(key): str(value) for key, value in labels.items()}
 
 
 def _csv_rows(body: bytes) -> list[dict[str, str]]:
@@ -65,6 +75,7 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
     s3 = boto3.client("s3")
     members = _read_s3_csv(s3, MEMBER_KEY)
     speeches = _read_s3_csv(s3, CLASSIFIED_KEY)
+    presentation_labels = _load_presentation_labels()
 
     member_party: dict[str, str] = {}
     party_member_counts: Counter[str] = Counter()
@@ -140,7 +151,8 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
                 delta = actual - baseline
             if delta > 0:
                 rows.append({
-                    "label": category,
+                    "canonical_label": category,
+                    "label": presentation_labels.get(category, category),
                     "value": delta,
                     "raw_count": count,
                     "actual": actual,
@@ -166,7 +178,6 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
 
     source_manifest = {
         "data_origin": "real_s3",
-        "source_batch_id": "classifier-current-2026-08-31",
         "source_bucket": S3_BUCKET,
         "member_key": MEMBER_KEY,
         "classified_key": CLASSIFIED_KEY,
@@ -177,6 +188,7 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
         "party_count": len(parties),
         "category_count": len(categories),
         "mode": mode,
+        "presentation_labels_path": str(PRESENTATION_LABELS_PATH),
         "classified_source": {
             "resolution": {
                 "batch_id": SOURCE_BATCH_ID,
@@ -312,6 +324,7 @@ def render_assets(item_dir: Path, context: dict[str, Any], project: dict[str, An
             "period_start": JAN_START,
             "period_end": JAN_END,
             "mode": mode,
+            "presentation_labels_path": str(PRESENTATION_LABELS_PATH),
         },
     )
     return {
