@@ -11,6 +11,7 @@ class SpeechClassifierWiringTests(unittest.TestCase):
         text = Path(".github/workflows/speech_issue_classifier.yml").read_text(encoding="utf-8")
         self.assertIn("process/oireachtas_speech_issue_classifier.py", text)
         self.assertIn("gpt-5.6-luna", text)
+        self.assertIn("openai>=3.6.0,<4", text)
         self.assertNotIn("raw/debates/debate_speeches_extracted.csv", text)
         self.assertNotIn("process/speech_issue_classifier.py", text)
 
@@ -25,6 +26,7 @@ class SpeechClassifierWiringTests(unittest.TestCase):
         self.assertIn("classify_speeches: {required: false, type: boolean, default: false}", text)
         self.assertIn("speech_classifier_model", text)
         self.assertIn("process/oireachtas_speech_issue_classifier.py", text)
+        self.assertIn("openai>=3.6.0,<4", text)
         self.assertIn("--required-table enrichment_speech_issue_labels", text)
 
     def test_enrichment_is_registered_as_rebuild_table(self) -> None:
@@ -35,9 +37,10 @@ class SpeechClassifierWiringTests(unittest.TestCase):
         self.assertEqual(table["status"], "in_progress")
         self.assertEqual(policies["enrichment_speech_issue_labels"]["write_strategy"], "rebuild")
 
-    def test_openai_sdk_is_new_enough_for_current_classifier(self) -> None:
+    def test_repository_wide_openai_requirement_is_not_major_bumped(self) -> None:
         text = Path("requirements.txt").read_text(encoding="utf-8")
-        self.assertIn("openai>=3.6.0,<4", text)
+        self.assertIn("openai>=1.99.2", text)
+        self.assertNotIn("openai>=3.6.0", text)
 
 
 if __name__ == "__main__":
