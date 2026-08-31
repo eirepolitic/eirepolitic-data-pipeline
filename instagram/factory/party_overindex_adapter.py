@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import re
+import unicodedata
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -18,10 +19,12 @@ MEMBER_KEY = "raw/members/oireachtas_members_34th_dail.csv"
 CLASSIFIED_KEY = "processed/debates/debate_speeches_classified.csv"
 JAN_START = "2026-01-01"
 JAN_END = "2026-01-31"
+SOURCE_BATCH_ID = "classifier-current-2026-08-31"
 
 
 def slugify(value: str) -> str:
-    value = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    ascii_value = unicodedata.normalize("NFKD", str(value)).encode("ascii", "ignore").decode("ascii")
+    value = re.sub(r"[^a-z0-9]+", "-", ascii_value.lower()).strip("-")
     return value or "unknown"
 
 
@@ -98,8 +101,6 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
         party_category_counts[party][category] += 1
         party_total_counts[party] += 1
 
-    # Only compare groupings with at least one current TD. Include zero values for a
-    # category when computing the cross-party mean so quiet categories are genuine zeros.
     parties = sorted(party for party, count in party_member_counts.items() if count > 0)
     categories = sorted(seen_categories)
     if not parties or not categories:
@@ -156,7 +157,7 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
             "issue_rows": rows[:7],
             "issue_count": min(7, len(rows)),
             "mode": mode,
-            "source_batch_id": "classifier-current-2026-08-31",
+            "source_batch_id": SOURCE_BATCH_ID,
             "classified_s3_key": CLASSIFIED_KEY,
             "scenario": "batch_item",
             "synthetic": False,
@@ -175,6 +176,13 @@ def _load_records(mode: str) -> tuple[list[dict[str, Any]], dict[str, Any], dict
         "party_count": len(parties),
         "category_count": len(categories),
         "mode": mode,
+        "classified_source": {
+            "resolution": {
+                "batch_id": SOURCE_BATCH_ID,
+                "bucket": S3_BUCKET,
+                "key": CLASSIFIED_KEY,
+            }
+        },
     }
     join_manifest = {
         "current_member_rows": len(members),
