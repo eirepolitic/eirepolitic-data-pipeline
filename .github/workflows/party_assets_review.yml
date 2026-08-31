@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   review:
@@ -181,6 +181,63 @@ jobs:
           }
           (root / "review_inventory.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
           PY
+
+      - name: Persist browser-accessible review materials
+        if: always()
+        run: |
+          mkdir -p review/party_assets_v1
+          if [ -f generated_party_asset_review/build/contact_sheet.png ]; then
+            cp generated_party_asset_review/build/contact_sheet.png review/party_assets_v1/contact_sheet.png
+          fi
+          if [ -f generated_party_asset_review/candidates/candidate_contact_sheet.png ]; then
+            cp generated_party_asset_review/candidates/candidate_contact_sheet.png review/party_assets_v1/candidate_contact_sheet.png
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def read_json(path):
+              path = Path(path)
+              return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+          fetch = read_json("generated_party_asset_review/fetch_report.json")
+          discovery = read_json("generated_party_asset_review/discovery_report.json")
+          candidate = read_json("generated_party_asset_review/candidates/candidate_review.json")
+          build = read_json("generated_party_asset_review/build/manifest.json")
+
+          summary = {
+              "generated_by": "party_assets_review.yml",
+              "branch": "feature/party-asset-layer-v1",
+              "fetched": {
+                  item.get("party_key"): item.get("status")
+                  for item in fetch.get("results", [])
+              },
+              "build": {
+                  item.get("party_key"): item.get("build_status")
+                  for item in build.get("entries", [])
+              },
+              "discovery_candidates": {
+                  item.get("party_key"): item.get("candidate_count", 0)
+                  for item in discovery.get("results", [])
+              },
+              "candidate_reviewable_count": candidate.get("reviewable_count", 0),
+              "contact_sheet": "review/party_assets_v1/contact_sheet.png",
+              "candidate_contact_sheet": "review/party_assets_v1/candidate_contact_sheet.png",
+          }
+          Path("review/party_assets_v1/review_summary.json").write_text(
+              json.dumps(summary, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1
+          if git diff --cached --quiet; then
+            echo "Review materials unchanged."
+          else
+            git commit -m "Update party asset review materials [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
 
       - name: Package review output
         if: always()
