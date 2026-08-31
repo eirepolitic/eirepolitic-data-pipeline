@@ -47,6 +47,7 @@ jobs:
           python -m unittest
           tests.test_party_assets
           tests.test_party_assets_build
+          tests.test_party_assets_fetch
           tests.test_party_assets_upload
           -v
 
