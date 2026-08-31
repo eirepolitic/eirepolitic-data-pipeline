@@ -163,14 +163,20 @@ def read_s3_csv(s3: Any, *, bucket: str, key: str, optional: bool = False) -> pd
         raise
 
 
-def build_legacy_lookups(
-    legacy: pd.DataFrame,
-) -> tuple[dict[tuple[str, str, str, str], str], dict[tuple[str, str], str], dict[str, int]]:
+def build_legacy_lookups(legacy: pd.DataFrame):
     if legacy.empty:
-        return {}, {}, {"legacy_rows": 0, "legacy_valid_labels": 0, "legacy_ambiguous_exact_keys": 0, "legacy_ambiguous_date_hash_keys": 0}
-
+        return {}, {}, {}, {}, {
+            "legacy_rows": 0,
+            "legacy_valid_labels": 0,
+            "legacy_ambiguous_exact_keys": 0,
+            "legacy_ambiguous_date_hash_keys": 0,
+            "legacy_ambiguous_normalized_exact_keys": 0,
+            "legacy_ambiguous_normalized_date_hash_keys": 0,
+        }
     working = pd.DataFrame(index=legacy.index)
-    working["text_hash"] = _col(legacy, "Speech Text", "speech_text").map(text_hash)
+    speech_text = _col(legacy, "Speech Text", "speech_text")
+    working["text_hash"] = speech_text.map(text_hash)
+    working["normalized_text_hash"] = speech_text.map(lambda value: text_hash(normalize_text(value)))
     working["debate_date"] = _col(legacy, "Debate Date", "debate_date", "date").map(normalize_date)
     working["speech_order"] = _col(legacy, "Speech Order", "speech_order").map(normalize_order)
     working["speaker_name"] = _col(legacy, "Speaker Name", "speaker_name", "member_name").map(normalize_name)
@@ -178,35 +184,42 @@ def build_legacy_lookups(
     working = working[working["issue_label"] != ""].copy()
     working["exact_key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["text_hash"]))
     working["date_hash_key"] = list(zip(working["debate_date"], working["text_hash"]))
-
-    exact: dict[tuple[str, str, str, str], str] = {}
-    ambiguous_exact = 0
-    for key, group in working.groupby("exact_key", sort=False):
-        labels = sorted(set(group["issue_label"].tolist()))
-        if len(labels) == 1:
-            exact[key] = labels[0]
-        else:
-            ambiguous_exact += 1
-
-    date_hash: dict[tuple[str, str], str] = {}
-    ambiguous_date_hash = 0
-    for key, group in working.groupby("date_hash_key", sort=False):
-        labels = sorted(set(group["issue_label"].tolist()))
-        if len(group) == 1 and len(labels) == 1:
-            date_hash[key] = labels[0]
-        else:
-            ambiguous_date_hash += 1
-
-    return exact, date_hash, {
+    working["normalized_exact_key"] = list(zip(working["debate_date"], working["speech_order"], working["speaker_name"], working["normalized_text_hash"]))
+    working["normalized_date_hash_key"] = list(zip(working["debate_date"], working["normalized_text_hash"]))
+    def exact_lookup(column):
+        lookup, ambiguous = {}, 0
+        for key, group in working.groupby(column, sort=False):
+            labels = sorted(set(group["issue_label"].tolist()))
+            if len(labels) == 1:
+                lookup[key] = labels[0]
+            else:
+                ambiguous += 1
+        return lookup, ambiguous
+    def unique_lookup(column):
+        lookup, ambiguous = {}, 0
+        for key, group in working.groupby(column, sort=False):
+            labels = sorted(set(group["issue_label"].tolist()))
+            if len(group) == 1 and len(labels) == 1:
+                lookup[key] = labels[0]
+            else:
+                ambiguous += 1
+        return lookup, ambiguous
+    exact, a_exact = exact_lookup("exact_key")
+    date_hash, a_date = unique_lookup("date_hash_key")
+    normalized_exact, a_norm_exact = exact_lookup("normalized_exact_key")
+    normalized_date_hash, a_norm_date = unique_lookup("normalized_date_hash_key")
+    return exact, date_hash, normalized_exact, normalized_date_hash, {
         "legacy_rows": int(len(legacy)),
         "legacy_valid_labels": int(len(working)),
-        "legacy_ambiguous_exact_keys": int(ambiguous_exact),
-        "legacy_ambiguous_date_hash_keys": int(ambiguous_date_hash),
+        "legacy_ambiguous_exact_keys": int(a_exact),
+        "legacy_ambiguous_date_hash_keys": int(a_date),
+        "legacy_ambiguous_normalized_exact_keys": int(a_norm_exact),
+        "legacy_ambiguous_normalized_date_hash_keys": int(a_norm_date),
     }
 
 
 def build_legacy_lookup(legacy: pd.DataFrame) -> tuple[dict[tuple[str, str, str, str], str], dict[str, int]]:
-    exact, _, stats = build_legacy_lookups(legacy)
+    exact, _, _, _, stats = build_legacy_lookups(legacy)
     return exact, {
         "legacy_rows": stats["legacy_rows"],
         "legacy_valid_labels": stats["legacy_valid_labels"],
@@ -255,13 +268,15 @@ def prepare_classification_plan(
         raise ValueError("silver_speeches contains duplicate speech_id values")
 
     existing_lookup = build_existing_lookup(existing)
-    legacy_exact, legacy_date_hash, legacy_stats = build_legacy_lookups(legacy)
+    legacy_exact, legacy_date_hash, legacy_normalized_exact, legacy_normalized_date_hash, legacy_stats = build_legacy_lookups(legacy)
     now = utc_now_iso()
     stats = {
         "silver_rows": int(len(silver)),
         "reused_existing": 0,
         "migrated_legacy_exact": 0,
         "migrated_legacy_date_hash_unique": 0,
+        "migrated_legacy_normalized_exact": 0,
+        "migrated_legacy_normalized_date_hash_unique": 0,
         "short_text_none": 0,
         "pending_model": 0,
         "existing_hash_mismatch": 0,
@@ -316,6 +331,22 @@ def prepare_classification_plan(
                 classification_status = "none" if issue_label == "NONE" else "classified"
                 stats["migrated_legacy_date_hash_unique"] += 1
 
+        normalized_source_hash = text_hash(normalize_text(speech_text))
+        if not issue_label:
+            issue_label = legacy_normalized_exact.get((debate_date, speech_order, normalize_name(speaker_name), normalized_source_hash), "")
+            if issue_label:
+                issue_label_source = "legacy_migration_normalized_exact"
+                model_name = "legacy_unknown"
+                classification_status = "none" if issue_label == "NONE" else "classified"
+                stats["migrated_legacy_normalized_exact"] += 1
+        if not issue_label:
+            issue_label = legacy_normalized_date_hash.get((debate_date, normalized_source_hash), "")
+            if issue_label:
+                issue_label_source = "legacy_migration_normalized_date_hash_unique"
+                model_name = "legacy_unknown"
+                classification_status = "none" if issue_label == "NONE" else "classified"
+                stats["migrated_legacy_normalized_date_hash_unique"] += 1
+
         if not issue_label and word_count < min_words:
             issue_label = "NONE"
             issue_label_source = "rule_short_text"
@@ -347,7 +378,7 @@ def prepare_classification_plan(
         )
 
     result = pd.DataFrame(rows, columns=PERSISTED_COLUMNS)
-    stats["migrated_legacy"] = stats["migrated_legacy_exact"] + stats["migrated_legacy_date_hash_unique"]
+    stats["migrated_legacy"] = (stats["migrated_legacy_exact"] + stats["migrated_legacy_date_hash_unique"] + stats["migrated_legacy_normalized_exact"] + stats["migrated_legacy_normalized_date_hash_unique"])
     stats["classified_or_none_before_model"] = int((result["issue_label"] != "").sum())
     return ClassificationPlan(rows=result, stats=stats)
 
