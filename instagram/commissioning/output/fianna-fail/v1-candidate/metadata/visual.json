@@ -1,0 +1,286 @@
+{
+  "visual_id": "party_issue_profile_batch_item",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-08-31T15:43:05.697409+00:00",
+  "input": {
+    "scenario": "batch_item",
+    "synthetic": false,
+    "data_origin": "current_real",
+    "source_batch_id": "scheduled-weekly-33310991798-1"
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {
+    "grain": "party",
+    "key": "fianna-fail"
+  },
+  "source_note": "Joined Oireachtas member and classified debate data",
+  "attribution": {
+    "source": "Houses of the Oireachtas / Eirepolitic classification"
+  },
+  "rows_rendered": [
+    {
+      "label": "Housing and Community Development",
+      "value": 1286.0,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 1135.0,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 920.0,
+      "group": ""
+    },
+    {
+      "label": "Law/Crime and Family Issues",
+      "value": 630.0,
+      "group": ""
+    },
+    {
+      "label": "Transportation",
+      "value": 571.0,
+      "group": ""
+    },
+    {
+      "label": "Government Operations",
+      "value": 549.0,
+      "group": ""
+    },
+    {
+      "label": "International Affairs and Foreign Aid",
+      "value": 542.0,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.3430232558139535,
+    0.045,
+    0.6269767441860465,
+    0.91
+  ],
+  "plot_vertical_fill_ratio": 0.91,
+  "plot_area_ratio": 0.5705,
+  "readability": {
+    "category_label_font_size": 14,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": true,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 97.53,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9627,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 312.0,
+    "plot_left_ratio": 0.343,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 1,
+    "category_text_bounds": [
+      {
+        "raw_label": "Housing and Community Development",
+        "rendered_label": "Housing and Comm…\nunity Development…",
+        "font_size": 14,
+        "line_count": 2,
+        "truncated": true,
+        "bbox_px": [
+          27.42,
+          1018.66,
+          339.42,
+          1088.67
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 14,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          244.42,
+          889.33,
+          339.42,
+          918.5
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Education",
+        "rendered_label": "Education",
+        "font_size": 14,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          196.42,
+          738.12,
+          339.42,
+          767.29
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Law/Crime and Family Issues",
+        "rendered_label": "Law/Crime and\nFamily Issues",
+        "font_size": 14,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          122.42,
+          565.03,
+          339.42,
+          635.04
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Transportation",
+        "rendered_label": "Transportation",
+        "font_size": 14,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          130.7,
+          435.7,
+          339.42,
+          464.87
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Government Operations",
+        "rendered_label": "Government\nOperations",
+        "font_size": 14,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          159.93,
+          262.61,
+          339.42,
+          332.63
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "International Affairs and Foreign Aid",
+        "rendered_label": "International Affairs\nand Foreign Aid",
+        "font_size": 14,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          52.93,
+          111.41,
+          339.42,
+          181.42
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 1286.0,
+        "text": "1,286",
+        "font_size": 15,
+        "bbox_px": [
+          876.93,
+          1043.0,
+          976.93,
+          1074.25
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1135.0,
+        "text": "1,135",
+        "font_size": 15,
+        "bbox_px": [
+          817.48,
+          891.79,
+          917.48,
+          923.04
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 920.0,
+        "text": "920",
+        "font_size": 15,
+        "bbox_px": [
+          732.84,
+          740.58,
+          798.84,
+          771.83
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 630.0,
+        "text": "630",
+        "font_size": 15,
+        "bbox_px": [
+          618.68,
+          589.38,
+          684.68,
+          620.63
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 571.0,
+        "text": "571",
+        "font_size": 15,
+        "bbox_px": [
+          595.45,
+          438.17,
+          661.45,
+          469.42
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 549.0,
+        "text": "549",
+        "font_size": 15,
+        "bbox_px": [
+          586.79,
+          286.96,
+          652.79,
+          318.21
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 542.0,
+        "text": "542",
+        "font_size": 15,
+        "bbox_px": [
+          584.04,
+          135.75,
+          650.04,
+          167.0
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": [
+    "category_labels_truncated:1"
+  ]
+}
