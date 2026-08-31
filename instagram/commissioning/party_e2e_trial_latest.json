@@ -1,0 +1,3135 @@
+{
+  "cli_report": {
+    "adapter_id": "party_issue_profile_v1",
+    "approved": false,
+    "created_at": "2026-08-31T15:24:08.936187+00:00",
+    "data_source": "s3",
+    "draft": true,
+    "expected_item_count": 11,
+    "failed_item_count": 1,
+    "failures": [
+      {
+        "error": "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']",
+        "item_label": "People Before Profit-Solidarity",
+        "item_slug": "people-before-profit-solidarity"
+      }
+    ],
+    "git_sha": "abfcfef10765bb49ea15f2587288e3283ebf64c8",
+    "grain": "party",
+    "item_order": [
+      "100-rdr",
+      "aontu",
+      "fianna-fail",
+      "fine-gael",
+      "green-party",
+      "independent",
+      "independent-ireland",
+      "labour-party",
+      "people-before-profit-solidarity",
+      "sinn-fein",
+      "social-democrats"
+    ],
+    "items": {
+      "100-rdr": {
+        "label": "100% RDR",
+        "manifest": "generated/100-rdr/item_manifest.json",
+        "status": "succeeded"
+      },
+      "aontu": {
+        "label": "Aont\u00fa",
+        "manifest": "generated/aontu/item_manifest.json",
+        "status": "succeeded"
+      },
+      "fianna-fail": {
+        "label": "Fianna F\u00e1il",
+        "manifest": "generated/fianna-fail/item_manifest.json",
+        "status": "succeeded"
+      },
+      "fine-gael": {
+        "label": "Fine Gael",
+        "manifest": "generated/fine-gael/item_manifest.json",
+        "status": "succeeded"
+      },
+      "green-party": {
+        "label": "Green Party",
+        "manifest": "generated/green-party/item_manifest.json",
+        "status": "succeeded"
+      },
+      "independent": {
+        "label": "Independent",
+        "manifest": "generated/independent/item_manifest.json",
+        "status": "succeeded"
+      },
+      "independent-ireland": {
+        "label": "Independent Ireland",
+        "manifest": "generated/independent-ireland/item_manifest.json",
+        "status": "succeeded"
+      },
+      "labour-party": {
+        "label": "Labour Party",
+        "manifest": "generated/labour-party/item_manifest.json",
+        "status": "succeeded"
+      },
+      "people-before-profit-solidarity": {
+        "label": "People Before Profit-Solidarity",
+        "manifest": "generated/people-before-profit-solidarity/item_manifest.json",
+        "status": "failed"
+      },
+      "sinn-fein": {
+        "label": "Sinn F\u00e9in",
+        "manifest": "generated/sinn-fein/item_manifest.json",
+        "status": "succeeded"
+      },
+      "social-democrats": {
+        "label": "Social Democrats",
+        "manifest": "generated/social-democrats/item_manifest.json",
+        "status": "succeeded"
+      }
+    },
+    "join_manifest": {
+      "ignored_empty_issue": 17935,
+      "issue_field": "PoliticalIssues",
+      "matched_speeches": 29233,
+      "member_name_field": "full_name",
+      "member_rows": 176,
+      "party_count": 11,
+      "party_field": "party",
+      "speaker_field": "Speaker Name",
+      "speech_rows": 47275,
+      "unmatched_speeches": 107
+    },
+    "output_root": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning",
+    "project_id": "party_issue_profile_v1",
+    "project_version": 1,
+    "publishing_allowed": false,
+    "review_state": "unreviewed",
+    "run_id": "party_issue_profile_v1-v1-14292880a3e5",
+    "source_batch_id": "scheduled-weekly-33310991798-1",
+    "source_manifest": {
+      "members": {
+        "bucket": "eirepolitic-data",
+        "checked": [
+          {
+            "available": true,
+            "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+          }
+        ],
+        "input_mode": "s3_csv_first_available",
+        "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "missing": false,
+        "region": "ca-central-1",
+        "resolution": {
+          "batch_id": "scheduled-weekly-33310991798-1",
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+          "resolution_mode": "batch_pointer",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+        },
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "row_count": 176,
+        "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      },
+      "mode": "s3",
+      "speeches": {
+        "bucket": "eirepolitic-data",
+        "checked": [
+          {
+            "available": true,
+            "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+          }
+        ],
+        "input_mode": "s3_csv_first_available",
+        "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "missing": false,
+        "region": "ca-central-1",
+        "resolution": {
+          "batch_id": "scheduled-weekly-33310991798-1",
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+          "resolution_mode": "batch_pointer",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+        },
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv",
+        "row_count": 47275,
+        "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+      }
+    },
+    "state": "partially_failed",
+    "succeeded_item_count": 10,
+    "warnings": [
+      "granularity.source_metric party_issue_counts remains draft",
+      "slides[1].post_type_id title_text_media_v1 remains draft",
+      "slides[2].post_type_id title_text_media_v1 remains draft",
+      "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+      "slides[2].visual metric party_issue_counts remains draft"
+    ],
+    "workflow_run_id": "33408169532"
+  },
+  "generate_exit_code": 1,
+  "items": [
+    {
+      "errors": [],
+      "label": "100% RDR",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/100-rdr/slides/01_cover.png",
+          "sha256": "00ab5b69192da552f2a0a8db946cfca0583a6fecd3798cdeb28580bebd2fb03d",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/100-rdr/slides/02_issue_profile.png",
+          "sha256": "904b374c7ee577c8e316be3db29feeecb2cd19ed6edfdcd362bb994f167b0545",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "100-rdr",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:00.483040+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/100-rdr/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/100-rdr/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                281.91,
+                350.42,
+                315.25
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                118.1,
+                130.7,
+                350.42,
+                164.04
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Social Welfare",
+              "rendered_label": "Social Welfare",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9575,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                929.98,
+                1043.0,
+                973.98,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "17",
+              "value": 17.0
+            },
+            {
+              "bbox_px": [
+                736.46,
+                891.79,
+                780.46,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "11",
+              "value": 11.0
+            },
+            {
+              "bbox_px": [
+                736.46,
+                740.58,
+                780.46,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "11",
+              "value": 11.0
+            },
+            {
+              "bbox_px": [
+                671.95,
+                589.38,
+                693.95,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "9",
+              "value": 9.0
+            },
+            {
+              "bbox_px": [
+                639.7,
+                438.17,
+                661.7,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "8",
+              "value": 8.0
+            },
+            {
+              "bbox_px": [
+                575.19,
+                286.96,
+                597.19,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "6",
+              "value": 6.0
+            },
+            {
+              "bbox_px": [
+                542.93,
+                135.75,
+                564.93,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "5",
+              "value": 5.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Aont\u00fa",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/aontu/slides/01_cover.png",
+          "sha256": "654b5f62a2ec993a4aef15c66247e80db9954c6e64be003fe1de881027af40b5",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/aontu/slides/02_issue_profile.png",
+          "sha256": "0902809f1da1af87e2bf177575ef615e2392fd27bc1d60b149b5a211d58e3c4e",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "aontu",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:01.157019+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/aontu/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/aontu/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                186.42,
+                1037.95,
+                350.42,
+                1071.29
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                27.42,
+                861.74,
+                350.42,
+                941.75
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                118.1,
+                281.91,
+                350.42,
+                315.25
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Social Welfare",
+              "rendered_label": "Social Welfare",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                130.7,
+                350.42,
+                164.04
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9575,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                929.98,
+                1043.0,
+                973.98,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "78",
+              "value": 78.0
+            },
+            {
+              "bbox_px": [
+                901.86,
+                891.79,
+                945.86,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "74",
+              "value": 74.0
+            },
+            {
+              "bbox_px": [
+                810.47,
+                740.58,
+                854.47,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "61",
+              "value": 61.0
+            },
+            {
+              "bbox_px": [
+                683.94,
+                589.38,
+                727.94,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "43",
+              "value": 43.0
+            },
+            {
+              "bbox_px": [
+                669.88,
+                438.17,
+                713.88,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "41",
+              "value": 41.0
+            },
+            {
+              "bbox_px": [
+                627.7,
+                286.96,
+                671.7,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "35",
+              "value": 35.0
+            },
+            {
+              "bbox_px": [
+                613.64,
+                135.75,
+                657.64,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "33",
+              "value": 33.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Fianna F\u00e1il",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/fianna-fail/slides/01_cover.png",
+          "sha256": "2f6c119e0999a4b129e27503e6a9a8bd97a32963564db6683855d88ecea7db52",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/fianna-fail/slides/02_issue_profile.png",
+          "sha256": "cbb7f1a96f219c0dd390f646eb84e2da11d0cd92387bb202efb9c87647a23e6f",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "fianna-fail",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:02.041960+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fianna-fail/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fianna-fail/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                433.12,
+                350.42,
+                466.45
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9635,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                877.84,
+                1043.0,
+                977.84,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "1,286",
+              "value": 1286.0
+            },
+            {
+              "bbox_px": [
+                819.58,
+                891.79,
+                919.58,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "1,135",
+              "value": 1135.0
+            },
+            {
+              "bbox_px": [
+                736.63,
+                740.58,
+                802.63,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "920",
+              "value": 920.0
+            },
+            {
+              "bbox_px": [
+                624.74,
+                589.38,
+                690.74,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "630",
+              "value": 630.0
+            },
+            {
+              "bbox_px": [
+                601.97,
+                438.17,
+                667.97,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "571",
+              "value": 571.0
+            },
+            {
+              "bbox_px": [
+                593.48,
+                286.96,
+                659.48,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "549",
+              "value": 549.0
+            },
+            {
+              "bbox_px": [
+                590.78,
+                135.75,
+                656.78,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "542",
+              "value": 542.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Fine Gael",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/fine-gael/slides/01_cover.png",
+          "sha256": "e6b723968724cf8d300c5bc51f346dac842768eb3d2c60b7f473190370876cb9",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/fine-gael/slides/02_issue_profile.png",
+          "sha256": "43e7d0d307b0ece4493d224d335855171c812400d6cc563dfcfc58d27616c03b",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "fine-gael",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:02.992053+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fine-gael/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/fine-gael/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                242.42,
+                1037.95,
+                350.42,
+                1071.29
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                27.42,
+                861.74,
+                350.42,
+                941.75
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "669",
+              "value": 669.0
+            },
+            {
+              "bbox_px": [
+                821.72,
+                891.79,
+                887.72,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "563",
+              "value": 563.0
+            },
+            {
+              "bbox_px": [
+                811.56,
+                740.58,
+                877.56,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "550",
+              "value": 550.0
+            },
+            {
+              "bbox_px": [
+                685.72,
+                589.38,
+                751.72,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "389",
+              "value": 389.0
+            },
+            {
+              "bbox_px": [
+                647.42,
+                438.17,
+                713.42,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "340",
+              "value": 340.0
+            },
+            {
+              "bbox_px": [
+                631.79,
+                286.96,
+                697.79,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "320",
+              "value": 320.0
+            },
+            {
+              "bbox_px": [
+                622.41,
+                135.75,
+                688.41,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "308",
+              "value": 308.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Green Party",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/green-party/slides/01_cover.png",
+          "sha256": "4b5782b7c0a8b81df3831d8040f32b9121333c3edb20ef0a884dffa435e7c954",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/green-party/slides/02_issue_profile.png",
+          "sha256": "ebe40b04be684a2d1ce995592c2a36e0df7ee556e8896bd273787d24dc6d6fed",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "green-party",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:03.723388+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/green-party/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/green-party/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                242.42,
+                1037.95,
+                350.42,
+                1071.29
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                27.42,
+                861.74,
+                350.42,
+                941.75
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                281.91,
+                350.42,
+                315.25
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9575,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                929.98,
+                1043.0,
+                973.98,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "27",
+              "value": 27.0
+            },
+            {
+              "bbox_px": [
+                747.21,
+                891.79,
+                791.21,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "18",
+              "value": 18.0
+            },
+            {
+              "bbox_px": [
+                645.67,
+                740.58,
+                689.67,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "13",
+              "value": 13.0
+            },
+            {
+              "bbox_px": [
+                625.36,
+                589.38,
+                669.36,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "12",
+              "value": 12.0
+            },
+            {
+              "bbox_px": [
+                605.05,
+                438.17,
+                649.05,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "11",
+              "value": 11.0
+            },
+            {
+              "bbox_px": [
+                564.44,
+                286.96,
+                586.44,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "9",
+              "value": 9.0
+            },
+            {
+              "bbox_px": [
+                544.13,
+                135.75,
+                566.13,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "8",
+              "value": 8.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Independent",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/independent/slides/01_cover.png",
+          "sha256": "ee9956b053d92bf82d0169a4f4c617fd5d3aa299349d1cd461e7df0edd50b593",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/independent/slides/02_issue_profile.png",
+          "sha256": "0eb4ca595cc83936f7c874e88a5bcb59a58e72a2fc95abf9801ddb896acfea8c",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "independent",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:04.550302+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/independent/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/independent/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                281.91,
+                350.42,
+                315.25
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "541",
+              "value": 541.0
+            },
+            {
+              "bbox_px": [
+                812.75,
+                891.79,
+                878.75,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "446",
+              "value": 446.0
+            },
+            {
+              "bbox_px": [
+                748.96,
+                740.58,
+                814.96,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "380",
+              "value": 380.0
+            },
+            {
+              "bbox_px": [
+                663.9,
+                589.38,
+                729.9,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "292",
+              "value": 292.0
+            },
+            {
+              "bbox_px": [
+                661.97,
+                438.17,
+                727.97,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "290",
+              "value": 290.0
+            },
+            {
+              "bbox_px": [
+                661.0,
+                286.96,
+                727.0,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "289",
+              "value": 289.0
+            },
+            {
+              "bbox_px": [
+                608.81,
+                135.75,
+                674.81,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "235",
+              "value": 235.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Independent Ireland",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/independent-ireland/slides/01_cover.png",
+          "sha256": "73e78c926d01170541b35ba2fc432b787dc6a6c21ad2db6d881e56022d3c084d",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/independent-ireland/slides/02_issue_profile.png",
+          "sha256": "2898656d65c91a5d4ce5eb7e1275e16a153279749e11d732b685333d14f55e0d",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "independent-ireland",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:05.352508+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/independent-ireland/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/independent-ireland/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                433.12,
+                350.42,
+                466.45
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9575,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                929.98,
+                1043.0,
+                973.98,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "83",
+              "value": 83.0
+            },
+            {
+              "bbox_px": [
+                890.34,
+                891.79,
+                934.34,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "77",
+              "value": 77.0
+            },
+            {
+              "bbox_px": [
+                883.73,
+                740.58,
+                927.73,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "76",
+              "value": 76.0
+            },
+            {
+              "bbox_px": [
+                718.58,
+                589.38,
+                762.58,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "51",
+              "value": 51.0
+            },
+            {
+              "bbox_px": [
+                678.94,
+                438.17,
+                722.94,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "45",
+              "value": 45.0
+            },
+            {
+              "bbox_px": [
+                672.34,
+                286.96,
+                716.34,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "44",
+              "value": 44.0
+            },
+            {
+              "bbox_px": [
+                659.12,
+                135.75,
+                703.12,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "42",
+              "value": 42.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Labour Party",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/labour-party/slides/01_cover.png",
+          "sha256": "3a06780f2a8b869dac0d96b2673683dc984025bc160dedaf26582704a27e079e",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/labour-party/slides/02_issue_profile.png",
+          "sha256": "411b584d88baa6aa5e9d80aa6463763d36e4628113f7dd844a40721754ee3ced",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "labour-party",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:06.287525+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/labour-party/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/labour-party/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                242.42,
+                1037.95,
+                350.42,
+                1071.29
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                27.42,
+                861.74,
+                350.42,
+                941.75
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "199",
+              "value": 199.0
+            },
+            {
+              "bbox_px": [
+                901.95,
+                891.79,
+                967.95,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "198",
+              "value": 198.0
+            },
+            {
+              "bbox_px": [
+                817.86,
+                740.58,
+                883.86,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "166",
+              "value": 166.0
+            },
+            {
+              "bbox_px": [
+                733.77,
+                589.38,
+                799.77,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "134",
+              "value": 134.0
+            },
+            {
+              "bbox_px": [
+                639.18,
+                438.17,
+                683.18,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "98",
+              "value": 98.0
+            },
+            {
+              "bbox_px": [
+                628.67,
+                286.96,
+                672.67,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "94",
+              "value": 94.0
+            },
+            {
+              "bbox_px": [
+                620.78,
+                135.75,
+                664.78,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "91",
+              "value": 91.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [
+        "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']"
+      ],
+      "label": "People Before Profit-Solidarity",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/people-before-profit-solidarity/slides/01_cover.png",
+          "sha256": "edc95ca6a4d1b5bf4d2d2fcf61e87a5d56b4170133322bbeba9526a4749a4053",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "people-before-profit-solidarity",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "failed",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:07.118744+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/people-before-profit-solidarity/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/people-before-profit-solidarity/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                710.53,
+                350.42,
+                790.54
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                584.33,
+                350.42,
+                617.66
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                130.7,
+                350.42,
+                164.04
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "197",
+              "value": 197.0
+            },
+            {
+              "bbox_px": [
+                803.71,
+                891.79,
+                869.71,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "159",
+              "value": 159.0
+            },
+            {
+              "bbox_px": [
+                636.48,
+                740.58,
+                680.48,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "96",
+              "value": 96.0
+            },
+            {
+              "bbox_px": [
+                620.56,
+                589.38,
+                664.56,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "90",
+              "value": 90.0
+            },
+            {
+              "bbox_px": [
+                607.29,
+                438.17,
+                651.29,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "85",
+              "value": 85.0
+            },
+            {
+              "bbox_px": [
+                599.32,
+                286.96,
+                643.32,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "82",
+              "value": 82.0
+            },
+            {
+              "bbox_px": [
+                583.4,
+                135.75,
+                627.4,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "76",
+              "value": 76.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Sinn F\u00e9in",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/sinn-fein/slides/01_cover.png",
+          "sha256": "2b4786819e1006276435d96dd53a590023504518cc0cab76ade7d23cb932c115",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/sinn-fein/slides/02_issue_profile.png",
+          "sha256": "47b655ea5c5f1acee86fcee799a26d7b0689aee291cbb1c5cdfb9e5d033258b7",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "sinn-fein",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:07.967527+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/sinn-fein/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/sinn-fein/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                408.11,
+                350.42,
+                488.13
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                52.34,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "International Affairs and Foreign Aid",
+              "rendered_label": "International Affai\nrs and Foreign Aid",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                130.7,
+                350.42,
+                164.04
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "909",
+              "value": 909.0
+            },
+            {
+              "bbox_px": [
+                838.42,
+                891.79,
+                904.42,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "794",
+              "value": 794.0
+            },
+            {
+              "bbox_px": [
+                729.12,
+                740.58,
+                795.12,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "604",
+              "value": 604.0
+            },
+            {
+              "bbox_px": [
+                622.7,
+                589.38,
+                688.7,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "419",
+              "value": 419.0
+            },
+            {
+              "bbox_px": [
+                608.89,
+                438.17,
+                674.89,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "395",
+              "value": 395.0
+            },
+            {
+              "bbox_px": [
+                607.17,
+                286.96,
+                673.17,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "392",
+              "value": 392.0
+            },
+            {
+              "bbox_px": [
+                602.56,
+                135.75,
+                668.56,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "384",
+              "value": 384.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    },
+    {
+      "errors": [],
+      "label": "Social Democrats",
+      "slides": [
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 1,
+          "path": "generated/social-democrats/slides/01_cover.png",
+          "sha256": "ff0dcddd3dea18441e939164ff2e9939ed23f6b923ae99b5d8d2c2800e09476b",
+          "slide_id": "cover",
+          "warnings": [],
+          "width": 1080
+        },
+        {
+          "height": 1350,
+          "layout_id": "title_text_media_v1",
+          "order": 2,
+          "path": "generated/social-democrats/slides/02_issue_profile.png",
+          "sha256": "254bfd54c02cde65a5c70fb65d19d3b0ba49867d6f14171c0822e580dcf7639f",
+          "slide_id": "issue_profile",
+          "warnings": [],
+          "width": 1080
+        }
+      ],
+      "slug": "social-democrats",
+      "source_batch_id": "scheduled-weekly-33310991798-1",
+      "status": "succeeded",
+      "visual_manifest": {
+        "created_at": "2026-08-31T15:24:08.787590+00:00",
+        "height": 1210,
+        "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/social-democrats/metadata/visual.json",
+        "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_party_commissioning/generated/social-democrats/assets/visual.png",
+        "plot_area_ratio": 0.5608,
+        "plot_bounds": [
+          0.3536821705426357,
+          0.045,
+          0.6163178294573644,
+          0.91
+        ],
+        "plot_vertical_fill_ratio": 0.91,
+        "readability": {
+          "axis_font_size": 12,
+          "bar_thickness_px": 97.53,
+          "category_label_font_shrunk": true,
+          "category_label_font_size": 16,
+          "category_label_font_size_minimum": 14,
+          "category_label_font_size_requested": 18,
+          "category_text_bounds": [
+            {
+              "bbox_px": [
+                27.42,
+                1012.95,
+                350.42,
+                1092.96
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Housing and Community Development",
+              "rendered_label": "Housing and Comm\nunity Development",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                242.42,
+                886.75,
+                350.42,
+                920.08
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Health",
+              "rendered_label": "Health",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                186.42,
+                735.54,
+                350.42,
+                768.87
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Education",
+              "rendered_label": "Education",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                104.42,
+                559.32,
+                350.42,
+                639.33
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Law/Crime and Family Issues",
+              "rendered_label": "Law/Crime and\nFamily Issues",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                112.31,
+                433.12,
+                350.42,
+                466.45
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 1,
+              "raw_label": "Transportation",
+              "rendered_label": "Transportation",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                41.42,
+                256.9,
+                350.42,
+                336.92
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Labor, Employment and Immigration",
+              "rendered_label": "Labor, Employmen\nt and Immigration",
+              "truncated": false
+            },
+            {
+              "bbox_px": [
+                146.42,
+                105.7,
+                350.42,
+                185.71
+              ],
+              "clipped_to_figure": false,
+              "font_size": 16,
+              "line_count": 2,
+              "raw_label": "Government Operations",
+              "rendered_label": "Governmen\nt Operations",
+              "truncated": false
+            }
+          ],
+          "category_text_clipped_count": 0,
+          "displayed_item_count": 7,
+          "max_category_label_width_px": 323.0,
+          "max_value_label_x_ratio": 0.9521,
+          "max_wrapped_label_lines": 2,
+          "plot_left_ratio": 0.3537,
+          "truncated_label_count": 0,
+          "value_label_font_shrunk": true,
+          "value_label_font_size": 15,
+          "value_label_font_size_minimum": 14,
+          "value_label_font_size_requested": 16,
+          "value_text_bounds": [
+            {
+              "bbox_px": [
+                904.57,
+                1043.0,
+                970.57,
+                1074.25
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "244",
+              "value": 244.0
+            },
+            {
+              "bbox_px": [
+                866.0,
+                891.79,
+                932.0,
+                923.04
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "226",
+              "value": 226.0
+            },
+            {
+              "bbox_px": [
+                698.84,
+                740.58,
+                764.84,
+                771.83
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "148",
+              "value": 148.0
+            },
+            {
+              "bbox_px": [
+                694.55,
+                589.38,
+                760.55,
+                620.63
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "146",
+              "value": 146.0
+            },
+            {
+              "bbox_px": [
+                645.26,
+                438.17,
+                711.26,
+                469.42
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "123",
+              "value": 123.0
+            },
+            {
+              "bbox_px": [
+                640.98,
+                286.96,
+                706.98,
+                318.21
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "121",
+              "value": 121.0
+            },
+            {
+              "bbox_px": [
+                623.83,
+                135.75,
+                689.83,
+                167.0
+              ],
+              "clipped_to_axes": false,
+              "clipped_to_figure": false,
+              "font_size": 15,
+              "text": "113",
+              "value": 113.0
+            }
+          ],
+          "value_text_clipped_count": 0
+        },
+        "renderer": "horizontal_bar",
+        "success": true,
+        "template_id": "horizontal_bar_draft_v1",
+        "visual_id": "party_issue_profile_batch_item",
+        "warnings": [],
+        "width": 1032
+      }
+    }
+  ],
+  "run": {
+    "expected_item_count": 11,
+    "failed_item_count": 1,
+    "failures": [
+      {
+        "error": "Render warnings for People Before Profit-Solidarity/issue_profile: ['text_clipped:title']",
+        "item_label": "People Before Profit-Solidarity",
+        "item_slug": "people-before-profit-solidarity"
+      }
+    ],
+    "git_sha": "abfcfef10765bb49ea15f2587288e3283ebf64c8",
+    "join_manifest": {
+      "ignored_empty_issue": 17935,
+      "issue_field": "PoliticalIssues",
+      "matched_speeches": 29233,
+      "member_name_field": "full_name",
+      "member_rows": 176,
+      "party_count": 11,
+      "party_field": "party",
+      "speaker_field": "Speaker Name",
+      "speech_rows": 47275,
+      "unmatched_speeches": 107
+    },
+    "project_id": "party_issue_profile_v1",
+    "run_id": "party_issue_profile_v1-v1-14292880a3e5",
+    "source_batch_id": "scheduled-weekly-33310991798-1",
+    "source_manifest": {
+      "members": {
+        "bucket": "eirepolitic-data",
+        "checked": [
+          {
+            "available": true,
+            "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+          }
+        ],
+        "input_mode": "s3_csv_first_available",
+        "key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "missing": false,
+        "region": "ca-central-1",
+        "resolution": {
+          "batch_id": "scheduled-weekly-33310991798-1",
+          "logical_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
+          "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+          "resolution_mode": "batch_pointer",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv"
+        },
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/members/oireachtas_members_34th_dail_compat.csv",
+        "row_count": 176,
+        "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv"
+      },
+      "mode": "s3",
+      "speeches": {
+        "bucket": "eirepolitic-data",
+        "checked": [
+          {
+            "available": true,
+            "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+            "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+          }
+        ],
+        "input_mode": "s3_csv_first_available",
+        "key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+        "missing": false,
+        "region": "ca-central-1",
+        "resolution": {
+          "batch_id": "scheduled-weekly-33310991798-1",
+          "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+          "manifest_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/manifest.json",
+          "pointer_key": "processed/oireachtas_unified/pointers/production.json",
+          "promoted_at_utc": "2026-08-30T12:24:47+00:00",
+          "resolution_mode": "batch_pointer",
+          "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv"
+        },
+        "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33310991798-1/compat/debates/debate_speeches_classified_compat.csv",
+        "row_count": 47275,
+        "source": "s3://eirepolitic-data/processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv"
+      }
+    },
+    "state": "partially_failed",
+    "succeeded_item_count": 10
+  }
+}
