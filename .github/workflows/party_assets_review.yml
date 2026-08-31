@@ -89,16 +89,33 @@ jobs:
               print(f"{safe}_build={build_status.get(key, 'missing')}")
           PY
 
-      - name: Verified direct assets fetched
-        if: >-
-          steps.classify.outputs.rdr100_fetch == 'fetched' &&
-          steps.classify.outputs.aontu_fetch == 'fetched' &&
-          steps.classify.outputs.fine_gael_fetch == 'fetched' &&
-          steps.classify.outputs.green_party_fetch == 'fetched' &&
-          steps.classify.outputs.independent_ireland_fetch == 'fetched' &&
-          steps.classify.outputs.labour_party_fetch == 'fetched' &&
-          steps.classify.outputs.people_before_profit_solidarity_fetch == 'fetched'
-        run: echo "All seven pinned direct authoritative assets fetched successfully."
+      - name: 100 RDR direct asset fetched
+        if: steps.classify.outputs.rdr100_fetch == 'fetched'
+        run: echo "100 RDR authoritative source fetched."
+
+      - name: Aontu direct asset fetched
+        if: steps.classify.outputs.aontu_fetch == 'fetched'
+        run: echo "Aontu authoritative source fetched."
+
+      - name: Fine Gael direct asset fetched
+        if: steps.classify.outputs.fine_gael_fetch == 'fetched'
+        run: echo "Fine Gael authoritative source fetched."
+
+      - name: Green Party direct asset fetched
+        if: steps.classify.outputs.green_party_fetch == 'fetched'
+        run: echo "Green Party authoritative source fetched."
+
+      - name: Independent Ireland direct asset fetched
+        if: steps.classify.outputs.independent_ireland_fetch == 'fetched'
+        run: echo "Independent Ireland authoritative source fetched."
+
+      - name: Labour Party direct asset fetched
+        if: steps.classify.outputs.labour_party_fetch == 'fetched'
+        run: echo "Labour Party authoritative source fetched."
+
+      - name: PBP Solidarity direct asset fetched
+        if: steps.classify.outputs.people_before_profit_solidarity_fetch == 'fetched'
+        run: echo "People Before Profit-Solidarity authoritative source fetched."
 
       - name: Independent fallback confirmed
         if: steps.classify.outputs.independent_fetch == 'fallback'
