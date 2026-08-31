@@ -42,8 +42,16 @@ jobs:
           tests.test_party_assets
           tests.test_party_assets_build
           tests.test_party_assets_fetch
+          tests.test_party_assets_discover
           tests.test_party_assets_upload
           -v
+
+      - name: Discover candidate files on unresolved official sites
+        id: discover
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_discover
+          --output generated_party_asset_review/discovery_report.json
 
       - name: Fetch direct authoritative source assets
         id: fetch
@@ -74,10 +82,13 @@ jobs:
 
           fetch_path = Path("generated_party_asset_review/fetch_report.json")
           build_path = Path("generated_party_asset_review/build/manifest.json")
+          discovery_path = Path("generated_party_asset_review/discovery_report.json")
           fetch = json.loads(fetch_path.read_text(encoding="utf-8")) if fetch_path.is_file() else {}
           build = json.loads(build_path.read_text(encoding="utf-8")) if build_path.is_file() else {}
+          discovery = json.loads(discovery_path.read_text(encoding="utf-8")) if discovery_path.is_file() else {}
           fetch_status = {item.get("party_key"): item.get("status", "missing") for item in fetch.get("results", [])}
           build_status = {item.get("party_key"): item.get("build_status", "missing") for item in build.get("entries", [])}
+          discovery_counts = {item.get("party_key"): int(item.get("candidate_count", 0)) for item in discovery.get("results", [])}
           keys = [
               "100-rdr", "aontu", "fianna-fail", "fine-gael", "green-party", "independent",
               "independent-ireland", "labour-party", "people-before-profit-solidarity", "sinn-fein",
@@ -87,6 +98,7 @@ jobs:
               safe = key.replace("-", "_").replace("100_rdr", "rdr100")
               print(f"{safe}_fetch={fetch_status.get(key, 'missing')}")
               print(f"{safe}_build={build_status.get(key, 'missing')}")
+              print(f"{safe}_candidates={discovery_counts.get(key, 0)}")
           PY
 
       - name: 100 RDR direct asset fetched
@@ -123,15 +135,15 @@ jobs:
 
       - name: Fianna Fail unresolved source confirmed
         if: steps.classify.outputs.fianna_fail_fetch == 'unresolved_source'
-        run: echo "Fianna Fail remains unresolved; no direct asset was guessed."
+        run: echo "Fianna Fail remains unresolved; advisory candidates=${{ steps.classify.outputs.fianna_fail_candidates }}."
 
       - name: Sinn Fein unresolved source confirmed
         if: steps.classify.outputs.sinn_fein_fetch == 'unresolved_source'
-        run: echo "Sinn Fein remains unresolved; no direct asset was guessed."
+        run: echo "Sinn Fein remains unresolved; advisory candidates=${{ steps.classify.outputs.sinn_fein_candidates }}."
 
       - name: Social Democrats unresolved source confirmed
         if: steps.classify.outputs.social_democrats_fetch == 'unresolved_source'
-        run: echo "Social Democrats remains unresolved; no direct asset was guessed."
+        run: echo "Social Democrats remains unresolved; advisory candidates=${{ steps.classify.outputs.social_democrats_candidates }}."
 
       - name: Write review inventory
         if: always()
@@ -144,6 +156,7 @@ jobs:
           root.mkdir(parents=True, exist_ok=True)
           files = sorted(str(path.relative_to(root)) for path in root.rglob("*") if path.is_file())
           inventory = {
+              "discover_step_outcome": "${{ steps.discover.outcome }}",
               "fetch_step_outcome": "${{ steps.fetch.outcome }}",
               "build_step_outcome": "${{ steps.build.outcome }}",
               "files": files,
@@ -173,6 +186,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Fail if fetch or build is incomplete
+      - name: Fail if required asset review is incomplete
         if: steps.fetch.outcome == 'failure' || steps.build.outcome == 'failure'
         run: exit 1
