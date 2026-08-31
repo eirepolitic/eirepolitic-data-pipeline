@@ -11,11 +11,11 @@ from matplotlib.font_manager import FontProperties
 
 from .common import load_palette, utc_now, write_json
 
-PLOT_BOTTOM = 0.085
+PLOT_BOTTOM = 0.12
 PLOT_RIGHT = 0.97
-PLOT_HEIGHT = 0.865
+PLOT_HEIGHT = 0.78
 MIN_PLOT_LEFT = 0.28
-MAX_PLOT_LEFT = 0.40
+MAX_PLOT_LEFT = 0.42
 MAX_CATEGORY_FONT_SIZE = 18
 MIN_CATEGORY_FONT_SIZE = 14
 MAX_VALUE_FONT_SIZE = 16

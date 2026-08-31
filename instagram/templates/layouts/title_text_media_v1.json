@@ -5,7 +5,10 @@
   "width": 1080,
   "height": 1350,
   "palette": "eirepolitic_dark",
-  "background": {"type": "solid", "color": "{palette.background}"},
+  "background": {
+    "type": "solid",
+    "color": "{palette.background}"
+  },
   "validation": {
     "max_top_whitespace_ratio": 0.08,
     "max_bottom_whitespace_ratio": 0.04,
@@ -14,41 +17,23 @@
   "elements": [
     {
       "id": "ornament_tl",
-      "type": "text",
-      "text": "❦",
-      "x": 14,
-      "y": 14,
-      "w": 54,
-      "h": 60,
-      "style": {
-        "font_family": "default_regular",
-        "font_size": 46,
-        "min_font_size": 46,
-        "color": "{palette.text_primary}",
-        "align": "left",
-        "valign": "top",
-        "max_lines": 1,
-        "shrink_to_fit": false
-      }
+      "type": "image",
+      "source": "instagram/templates/assets/corner_tl.png",
+      "x": 0,
+      "y": 0,
+      "w": 155,
+      "h": 155,
+      "fit": "contain"
     },
     {
       "id": "ornament_tr",
-      "type": "text",
-      "text": "❧",
-      "x": 1012,
-      "y": 14,
-      "w": 54,
-      "h": 60,
-      "style": {
-        "font_family": "default_regular",
-        "font_size": 46,
-        "min_font_size": 46,
-        "color": "{palette.text_primary}",
-        "align": "right",
-        "valign": "top",
-        "max_lines": 1,
-        "shrink_to_fit": false
-      }
+      "type": "image",
+      "source": "instagram/templates/assets/corner_tr.png",
+      "x": 925,
+      "y": 0,
+      "w": 155,
+      "h": 155,
+      "fit": "contain"
     },
     {
       "id": "title",
@@ -102,41 +87,23 @@
     },
     {
       "id": "ornament_bl",
-      "type": "text",
-      "text": "❦",
-      "x": 14,
-      "y": 1280,
-      "w": 54,
-      "h": 56,
-      "style": {
-        "font_family": "default_regular",
-        "font_size": 46,
-        "min_font_size": 46,
-        "color": "{palette.text_primary}",
-        "align": "left",
-        "valign": "bottom",
-        "max_lines": 1,
-        "shrink_to_fit": false
-      }
+      "type": "image",
+      "source": "instagram/templates/assets/corner_bl.png",
+      "x": 0,
+      "y": 1195,
+      "w": 155,
+      "h": 155,
+      "fit": "contain"
     },
     {
       "id": "ornament_br",
-      "type": "text",
-      "text": "❧",
-      "x": 1012,
-      "y": 1280,
-      "w": 54,
-      "h": 56,
-      "style": {
-        "font_family": "default_regular",
-        "font_size": 46,
-        "min_font_size": 46,
-        "color": "{palette.text_primary}",
-        "align": "right",
-        "valign": "bottom",
-        "max_lines": 1,
-        "shrink_to_fit": false
-      }
+      "type": "image",
+      "source": "instagram/templates/assets/corner_br.png",
+      "x": 925,
+      "y": 1195,
+      "w": 155,
+      "h": 155,
+      "fit": "contain"
     }
   ]
 }

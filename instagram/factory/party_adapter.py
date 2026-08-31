@@ -138,7 +138,7 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
         party_font = ImageFont.load_default()
         small_font = ImageFont.load_default()
 
-    cx, cy, radius = 516, 430, 225
+    cx, cy, radius = 516, 375, 225
     draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline="#d8b45f", width=10)
     party = str(context.get("party") or "").strip()
     if party == "Fianna Fáil":
@@ -153,15 +153,15 @@ def _write_party_cover(path: Path, context: dict[str, Any]) -> None:
         draw.text((cx, cy - 46), party_lines[0], font=party_font, fill="#f4ead7", anchor="mm")
         draw.text((cx, cy + 46), party_lines[1], font=party_font, fill="#f4ead7", anchor="mm")
 
-    draw.text((270, 820), f"{int(context.get('member_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
-    draw.text((270, 895), "CURRENT TDS", font=label_font, fill="#d8b45f", anchor="mm")
-    draw.text((762, 820), f"{int(context.get('speech_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
-    draw.text((762, 895), "CLASSIFIED SPEECHES", font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((270, 785), f"{int(context.get('member_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((270, 860), "CURRENT TDS", font=label_font, fill="#d8b45f", anchor="mm")
+    draw.text((762, 785), f"{int(context.get('speech_count', 0)):,}", font=number_font, fill="#f4ead7", anchor="mm")
+    draw.text((762, 860), "CLASSIFIED SPEECHES", font=label_font, fill="#d8b45f", anchor="mm")
 
-    draw.line((215, 980, 817, 980), fill="#d8b45f", width=3)
-    draw.text((516, 1035), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")
+    draw.line((215, 945, 817, 945), fill="#d8b45f", width=3)
+    draw.text((516, 1000), "DEBATE COVERAGE", font=label_font, fill="#d8b45f", anchor="mm")
     period = f"{context.get('period_start', '')} – {context.get('period_end', '')}"
-    draw.text((516, 1083), period, font=small_font, fill="#f4ead7", anchor="mm")
+    draw.text((516, 1048), period, font=small_font, fill="#f4ead7", anchor="mm")
     image.save(path, format="PNG")
 
 def render_party_assets(item_dir: Path, context: dict[str, Any], project: dict[str, Any]) -> dict[str, Any]:
