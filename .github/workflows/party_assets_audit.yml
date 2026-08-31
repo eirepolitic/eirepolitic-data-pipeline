@@ -1,0 +1,52 @@
+name: Party Asset Registry Audit (Manual)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: party-assets-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: eirepolitic-data
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate registry contract
+        run: python -m unittest tests.test_party_assets -v
+
+      - name: Audit S3 for existing party image candidates
+        run: >-
+          python process/party_assets.py
+          --audit-s3
+          --output generated_party_asset_audit/party_asset_audit.json
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-audit
+          path: generated_party_asset_audit/party_asset_audit.json
+          if-no-files-found: error
+          retention-days: 14
