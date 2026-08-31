@@ -1,0 +1,129 @@
+{
+  "adapter_id": "party_issue_share_overindex_v1",
+  "approved": false,
+  "created_at": "2026-08-31T22:32:49.115424+00:00",
+  "data_source": "s3",
+  "draft": true,
+  "expected_item_count": 11,
+  "failed_item_count": 2,
+  "failures": [
+    {
+      "error": "Visual warnings for Fianna Fáil: ['category_labels_truncated:1']",
+      "item_label": "Fianna Fáil",
+      "item_slug": "fianna-f-il"
+    },
+    {
+      "error": "Visual warnings for Fine Gael: ['category_labels_truncated:1']",
+      "item_label": "Fine Gael",
+      "item_slug": "fine-gael"
+    }
+  ],
+  "git_sha": "296c395022fddd0302aad80859466365013e518d",
+  "grain": "party",
+  "item_order": [
+    "100-rdr",
+    "aont",
+    "fianna-f-il",
+    "fine-gael",
+    "green-party",
+    "independent",
+    "independent-ireland",
+    "labour-party",
+    "people-before-profit-solidarity",
+    "sinn-f-in",
+    "social-democrats"
+  ],
+  "items": {
+    "100-rdr": {
+      "label": "100% RDR",
+      "manifest": "generated/100-rdr/item_manifest.json",
+      "status": "succeeded"
+    },
+    "aont": {
+      "label": "Aontú",
+      "manifest": "generated/aont/item_manifest.json",
+      "status": "succeeded"
+    },
+    "fianna-f-il": {
+      "label": "Fianna Fáil",
+      "manifest": "generated/fianna-f-il/item_manifest.json",
+      "status": "failed"
+    },
+    "fine-gael": {
+      "label": "Fine Gael",
+      "manifest": "generated/fine-gael/item_manifest.json",
+      "status": "failed"
+    },
+    "green-party": {
+      "label": "Green Party",
+      "manifest": "generated/green-party/item_manifest.json",
+      "status": "succeeded"
+    },
+    "independent": {
+      "label": "Independent",
+      "manifest": "generated/independent/item_manifest.json",
+      "status": "succeeded"
+    },
+    "independent-ireland": {
+      "label": "Independent Ireland",
+      "manifest": "generated/independent-ireland/item_manifest.json",
+      "status": "succeeded"
+    },
+    "labour-party": {
+      "label": "Labour Party",
+      "manifest": "generated/labour-party/item_manifest.json",
+      "status": "succeeded"
+    },
+    "people-before-profit-solidarity": {
+      "label": "People Before Profit-Solidarity",
+      "manifest": "generated/people-before-profit-solidarity/item_manifest.json",
+      "status": "succeeded"
+    },
+    "sinn-f-in": {
+      "label": "Sinn Féin",
+      "manifest": "generated/sinn-f-in/item_manifest.json",
+      "status": "succeeded"
+    },
+    "social-democrats": {
+      "label": "Social Democrats",
+      "manifest": "generated/social-democrats/item_manifest.json",
+      "status": "succeeded"
+    }
+  },
+  "join_manifest": {
+    "current_member_rows": 176,
+    "matched_classified_rows": 2378,
+    "unmatched_speaker_count": 0,
+    "unmatched_speaker_names": 0
+  },
+  "output_root": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_january_share_overindex",
+  "project_id": "party_issue_share_overindex_jan2026",
+  "project_version": 1,
+  "publishing_allowed": false,
+  "review_state": "unreviewed",
+  "run_id": "party_issue_share_overindex_jan2026-v1-a9faa47dfaf5",
+  "source_batch_id": "local-fixture",
+  "source_manifest": {
+    "category_count": 24,
+    "classified_key": "processed/debates/debate_speeches_classified.csv",
+    "data_origin": "real_s3",
+    "january_rows": 3687,
+    "matched_classified_rows": 2378,
+    "member_key": "raw/members/oireachtas_members_34th_dail.csv",
+    "mode": "share_pp",
+    "party_count": 11,
+    "period_end": "2026-01-31",
+    "period_start": "2026-01-01",
+    "source_bucket": "eirepolitic-data"
+  },
+  "state": "partially_failed",
+  "succeeded_item_count": 9,
+  "warnings": [
+    "granularity.source_metric party_issue_share_overindex remains draft",
+    "slides[1].post_type_id title_text_media_v1 remains draft",
+    "slides[2].post_type_id title_text_media_v1 remains draft",
+    "slides[2].visual type horizontal_bar_draft_v1 remains draft",
+    "slides[2].visual metric party_issue_share_overindex remains draft"
+  ],
+  "workflow_run_id": "33446672597"
+}
