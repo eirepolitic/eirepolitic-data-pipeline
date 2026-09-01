@@ -1,0 +1,44 @@
+name: Sinn Fein Exhaustive Logo Review
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/sinn_fein_search_candidates_v1.csv"
+      - "process/sinn_fein_exhaustive_review.py"
+      - ".github/workflows/sinn_fein_exhaustive_review.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install review dependencies
+        run: pip install requests pillow cairosvg pymupdf
+
+      - name: Build exhaustive Sinn Fein contact sheet
+        run: python -m process.sinn_fein_exhaustive_review
+
+      - name: Commit browser-accessible review files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1/sinn_fein
+          if git diff --cached --quiet; then
+            echo "Sinn Fein review unchanged."
+          else
+            git commit -m "Update Sinn Fein exhaustive logo review [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
