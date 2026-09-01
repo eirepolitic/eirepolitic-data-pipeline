@@ -38,6 +38,10 @@ def _read_csv(s3, logical_key: str) -> tuple[pd.DataFrame, str]:
     return frame, resolved
 
 
+def _truthy(series: pd.Series) -> pd.Series:
+    return series.astype(str).str.strip().str.lower().isin({"true", "1", "yes"})
+
+
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     s3 = boto3.client("s3", region_name=REGION)
@@ -92,11 +96,8 @@ def main() -> int:
     expected_related = set(
         speeches.loc[speeches["debate_section_id"].astype(str).isin(expected_sections), "speech_id"].astype(str)
     )
-    actual_related = set(
-        speech_context.loc[
-            speech_context["is_oral_question_related"].astype(str).str.lower().eq("true"), "speech_id"
-        ].astype(str)
-    )
+    related_mask = _truthy(speech_context["is_oral_question_related"])
+    actual_related = set(speech_context.loc[related_mask, "speech_id"].astype(str))
     if actual_related != expected_related:
         context_errors.append(
             f"related speech identity mismatch: expected {len(expected_related)}, found {len(actual_related)}"
@@ -122,7 +123,7 @@ def main() -> int:
         "derived_counts": {
             "oral_question_sections": int(len(oral_sections)),
             "oral_question_related_speeches": int(len(actual_related)),
-            "other_speeches": int((~speech_context["is_oral_question_related"].astype(bool)).sum()),
+            "other_speeches": int((~related_mask).sum()),
         },
         "validation": {
             "oral_question_sections": section_errors,
