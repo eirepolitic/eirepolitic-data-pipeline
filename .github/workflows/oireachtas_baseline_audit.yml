@@ -4,45 +4,217 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas numpy pyyaml
+      - name: Analyze advanced issue patterns
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os
+          from pathlib import Path
+          import boto3
+          import numpy as np
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          keys={
+            'issues':'processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/csv/daily_issue_activity.csv',
+            'questions':'processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv',
+            'monthly':'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
+          }
+          frames={}; resolved={}
+          for name,key in keys.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=key)
+              resolved[name]=r
+              obj=s3.get_object(Bucket=bucket,Key=r)
+              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          issues=frames['issues'].copy(); questions=frames['questions'].copy(); monthly=frames['monthly'].copy()
+          issues['activity_date']=pd.to_datetime(issues['activity_date'],errors='coerce')
+          issues['issue_speech_count']=pd.to_numeric(issues['issue_speech_count'],errors='coerce').fillna(0)
+          issues['policy_speech_count']=pd.to_numeric(issues['policy_speech_count'],errors='coerce').fillna(0)
+          questions['activity_date']=pd.to_datetime(questions['activity_date'],errors='coerce')
+          questions['question_count']=pd.to_numeric(questions['question_count'],errors='coerce').fillna(0)
+          monthly['period_end']=pd.to_datetime(monthly['period_end'],errors='coerce')
+
+          member_names={str(r.entity_id):str(r.entity_name) for r in monthly[(monthly.grain=='member') & monthly.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
+          party_names={str(r.entity_id):str(r.entity_name) for r in monthly[(monthly.grain=='party') & monthly.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
+          constituency_names={str(r.entity_id):str(r.entity_name) for r in monthly[(monthly.grain=='constituency') & monthly.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
+
+          start=pd.Timestamp('2026-07-01'); end=pd.Timestamp('2026-07-31')
+          july=issues[(issues.activity_date>=start)&(issues.activity_date<=end)].copy()
+
+          # Aggregate issue shares by entity. policy_speech_count repeats across issue rows/day,
+          # so denominator is reconstructed as sum of issue counts across mutually exclusive labels.
+          def issue_entity(grain):
+              g=july[july.grain==grain].groupby(['entity_id','issue_label'],as_index=False).issue_speech_count.sum()
+              totals=g.groupby('entity_id').issue_speech_count.transform('sum')
+              g['issue_share']=g.issue_speech_count/totals.replace({0:np.nan})
+              names={'member':member_names,'party':party_names,'constituency':constituency_names}
+              g['entity_name']=g.entity_id.astype(str).map(names.get(grain,{})).fillna(g.entity_id.astype(str))
+              g['policy_speech_total']=totals
+              return g
+
+          member=issue_entity('member'); party=issue_entity('party'); const=issue_entity('constituency')
+          national=july[july.grain=='national'].groupby('issue_label',as_index=False).issue_speech_count.sum()
+          national_total=float(national.issue_speech_count.sum())
+          national['issue_share']=national.issue_speech_count/national_total if national_total else 0
+          national=national.sort_values('issue_speech_count',ascending=False)
+
+          # Specialisation/diversity: HHI and effective number of issues.
+          def concentration(frame,min_total):
+              out=[]
+              for eid,g in frame.groupby('entity_id'):
+                  total=float(g.issue_speech_count.sum())
+                  if total<min_total: continue
+                  shares=g.issue_speech_count/total
+                  hhi=float((shares**2).sum())
+                  top=g.sort_values('issue_speech_count',ascending=False).iloc[0]
+                  out.append({
+                    'entity_id':str(eid),'entity_name':str(top.entity_name),'policy_speech_total':total,
+                    'issue_hhi':hhi,'effective_issue_count':float(1/hhi) if hhi>0 else None,
+                    'top_issue':str(top.issue_label),'top_issue_count':float(top.issue_speech_count),'top_issue_share':float(top.issue_speech_count/total),
+                    'issues_with_speeches':int((g.issue_speech_count>0).sum()),
+                  })
+              return out
+          member_conc=sorted(concentration(member,20),key=lambda r:(-r['top_issue_share'],-r['policy_speech_total']))
+          party_conc=sorted(concentration(party,20),key=lambda r:(-r['top_issue_share'],-r['policy_speech_total']))
+          const_conc=sorted(concentration(const,20),key=lambda r:(-r['top_issue_share'],-r['policy_speech_total']))
+
+          # Issue breadth: how many TDs contribute, and how concentrated each issue is among top speakers.
+          issue_breadth=[]
+          for label,g in member.groupby('issue_label'):
+              g=g[g.issue_speech_count>0].sort_values('issue_speech_count',ascending=False)
+              total=float(g.issue_speech_count.sum())
+              if total<10: continue
+              issue_breadth.append({
+                'issue_label':str(label),'td_speech_count':total,'tds_with_issue_speech':int(len(g)),
+                'top_td':str(g.iloc[0].entity_name) if len(g) else None,
+                'top_td_count':float(g.iloc[0].issue_speech_count) if len(g) else None,
+                'top_td_share':float(g.iloc[0].issue_speech_count/total) if total else None,
+                'top5_td_share':float(g.head(5).issue_speech_count.sum()/total) if total else None,
+              })
+          broadest=sorted(issue_breadth,key=lambda r:(-r['tds_with_issue_speech'],-r['td_speech_count']))
+          most_concentrated=sorted(issue_breadth,key=lambda r:(-r['top5_td_share'],-r['td_speech_count']))
+
+          # Party over-index versus national TD speech share in July.
+          national_map=dict(zip(national.issue_label.astype(str),national.issue_share))
+          party_over=[]
+          for r in party.itertuples(index=False):
+              if float(r.policy_speech_total)<20: continue
+              base=float(national_map.get(str(r.issue_label),0))
+              diff=float(r.issue_share)-base
+              party_over.append({
+                'party_name':str(r.entity_name),'party_uri':str(r.entity_id),'issue_label':str(r.issue_label),
+                'party_issue_share':float(r.issue_share),'national_issue_share':base,'difference_pp':100*diff,
+                'party_issue_speeches':float(r.issue_speech_count),'party_policy_speeches':float(r.policy_speech_total),
+              })
+          party_over_high=sorted(party_over,key=lambda r:-r['difference_pp'])[:50]
+          party_over_low=sorted(party_over,key=lambda r:r['difference_pp'])[:50]
+
+          # National monthly issue trends: identify July surges relative to prior 6 active months.
+          ni=issues[issues.grain=='national'].copy(); ni['month']=ni.activity_date.dt.to_period('M').astype(str)
+          nm=ni.groupby(['month','issue_label'],as_index=False).issue_speech_count.sum()
+          mt=nm.groupby('month').issue_speech_count.transform('sum'); nm['share']=nm.issue_speech_count/mt.replace({0:np.nan})
+          months=sorted([x for x in nm.month.dropna().unique() if x<='2026-07'])
+          july_month='2026-07'; prior=months[-7:-1] if len(months)>=7 else months[:-1]
+          trend=[]
+          july_rows=nm[nm.month==july_month]
+          for r in july_rows.itertuples(index=False):
+              hist=nm[(nm.issue_label==r.issue_label)&(nm.month.isin(prior))]
+              if float(r.issue_speech_count)<10 or hist.empty: continue
+              median=float(hist.share.median()); diff=float(r.share)-median
+              trend.append({'issue_label':str(r.issue_label),'july_count':float(r.issue_speech_count),'july_share':float(r.share),'prior_months':prior,'prior_6_median_share':median,'change_pp':100*diff})
+          surges=sorted(trend,key=lambda r:-r['change_pp'])
+          drops=sorted(trend,key=lambda r:r['change_pp'])
+
+          # Cross-channel: speech issue share vs question recipient share using only clear mappings.
+          labels=set(national.issue_label.astype(str))
+          safe_candidates={
+            'Health':'Health','Housing':'Housing','Education':'Education','Transport':'Transport',
+            'Agriculture':'Agriculture','Climate':'Climate'
+          }
+          safe_map={issue:recipient for issue,recipient in safe_candidates.items() if issue in labels}
+          qj=questions[(questions.activity_date>=start)&(questions.activity_date<=end)&(questions.dimension_name=='question_recipient')].copy()
+          party_q=qj[qj.grain=='party'].groupby(['entity_id','dimension_value'],as_index=False).question_count.sum()
+          qt=party_q.groupby('entity_id').question_count.transform('sum'); party_q['recipient_share']=party_q.question_count/qt.replace({0:np.nan})
+          cross=[]
+          for issue_label,recipient in safe_map.items():
+              ps=party[party.issue_label==issue_label][['entity_id','entity_name','issue_share','issue_speech_count','policy_speech_total']]
+              qs=party_q[party_q.dimension_value==recipient][['entity_id','recipient_share','question_count']]
+              merged=ps.merge(qs,on='entity_id',how='inner')
+              for r in merged.itertuples(index=False):
+                  if float(r.policy_speech_total)<20 or float(r.question_count)<10: continue
+                  cross.append({
+                    'party_name':str(r.entity_name),'issue_label':issue_label,'question_recipient':recipient,
+                    'speech_issue_share':float(r.issue_share),'question_recipient_share':float(r.recipient_share),
+                    'question_minus_speech_pp':100*(float(r.recipient_share)-float(r.issue_share)),
+                    'issue_speech_count':float(r.issue_speech_count),'question_count':float(r.question_count),
+                  })
+          cross_high=sorted(cross,key=lambda r:-r['question_minus_speech_pp'])
+          cross_low=sorted(cross,key=lambda r:r['question_minus_speech_pp'])
+
+          report={
+            'resolved_keys':resolved,
+            'analysis_period':'2026-07',
+            'issue_labels':sorted(labels),
+            'national_issue_distribution':national.to_dict(orient='records'),
+            'most_specialised_members_min20_policy_speeches':member_conc[:40],
+            'most_specialised_parties_min20_policy_speeches':party_conc[:20],
+            'most_specialised_constituencies_min20_policy_speeches':const_conc[:30],
+            'broadest_issues_by_distinct_tds':broadest[:30],
+            'most_concentrated_issues_by_top5_td_share':most_concentrated[:30],
+            'largest_party_overindex_vs_national':party_over_high,
+            'largest_party_underindex_vs_national':party_over_low,
+            'largest_july_issue_surges_vs_prior6_median':surges[:25],
+            'largest_july_issue_drops_vs_prior6_median':drops[:25],
+            'safe_cross_channel_mapping':safe_map,
+            'question_recipient_share_minus_speech_issue_share':cross_high[:40],
+            'speech_issue_share_minus_question_recipient_share':cross_low[:40],
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          with open('analysis/issues_advanced_opportunities.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
+          summary={
+            'analysis_period':report['analysis_period'],'issue_labels':report['issue_labels'],
+            'national_issue_distribution':report['national_issue_distribution'][:15],
+            'most_specialised_members':report['most_specialised_members_min20_policy_speeches'][:15],
+            'most_specialised_parties':report['most_specialised_parties_min20_policy_speeches'][:12],
+            'broadest_issues':report['broadest_issues_by_distinct_tds'][:15],
+            'most_concentrated_issues':report['most_concentrated_issues_by_top5_td_share'][:15],
+            'largest_party_overindex':report['largest_party_overindex_vs_national'][:20],
+            'largest_july_surges':report['largest_july_issue_surges_vs_prior6_median'][:15],
+            'largest_july_drops':report['largest_july_issue_drops_vs_prior6_median'][:15],
+            'safe_cross_channel_mapping':safe_map,
+            'question_heavier_than_speech':report['question_recipient_share_minus_speech_issue_share'][:20],
+            'speech_heavier_than_questions':report['speech_issue_share_minus_question_recipient_share'][:20],
+          }
+          with open('analysis/issues_advanced_opportunities_summary.json','w') as fp: json.dump(summary,fp,indent=2,sort_keys=True,default=str)
+          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/issues_advanced_opportunities*.json
+          git commit -m "Capture advanced issue opportunity analysis ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
