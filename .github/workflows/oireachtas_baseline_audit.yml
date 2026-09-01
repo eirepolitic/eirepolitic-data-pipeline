@@ -13,7 +13,7 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -22,27 +22,60 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
+      POLITICAL_METRICS_ISSUE_PERIOD_START: '2026-07-01'
+      POLITICAL_METRICS_ISSUE_PERIOD_END: '2026-07-31'
+      POLITICAL_METRICS_ISSUE_AUDIT_DIR: artifacts/political-metrics-issue-audit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
+          python -m pip install boto3 pandas
+      - name: Test political metrics foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
       - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
+      - name: Audit promoted issue classifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_issue_audit.py
+      - name: Publish compact issue audit results
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/political-metrics-issue-audit/summary.md ]; then
+            cat artifacts/political-metrics-issue-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f artifacts/political-metrics-issue-audit/report.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('artifacts/political-metrics-issue-audit/report.json').read_text())
+          for title,key in [('Overall issue gate','overall'),('July issue gate','period')]:
+              x=r[key]
+              print(f"::notice title={title}::ready={x.get('ready')}; rows={x.get('scope_rows')}; policy={x.get('policy_labelled_rows')}; none={x.get('none_rows')}; policy_rate={x.get('policy_label_rate',0):.6f}; missing={x.get('missing_label_rows')}; hash_mismatch={x.get('hash_mismatch_rows')}; non_final={x.get('non_final_status_rows')}; sources={json.dumps(x.get('issue_label_source_counts',{}), separators=(',',':'))}; models={json.dumps(x.get('model_name_counts',{}), separators=(',',':'))}")
+          PY
+          fi
+      - name: Upload issue audit artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
+          name: political-metrics-issue-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/oireachtas-baseline-audit/
+            artifacts/political-metrics-issue-audit/
           if-no-files-found: error
           retention-days: 30
