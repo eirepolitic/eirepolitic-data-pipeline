@@ -215,8 +215,8 @@ def _render_chart(path: Path, party: str, period: MonthlyPeriod, title_lines: li
     _draw_title(image, title_lines)
     draw = ImageDraw.Draw(image)
     meta_font, support_font, label_font, value_font, source_font = _font(22, True), _font(24), _font(27, True), _font(25, True), _font(18)
-    draw.text((86, CHART_MEDIA_Y+18), f"{party.upper()} · {period.label.upper()}", font=meta_font, fill=ACCENT, anchor="la")
-    draw.text((86, CHART_MEDIA_Y+57), supporting, font=support_font, fill=TEXT, anchor="la")
+    draw.text((540, CHART_MEDIA_Y+18), f"{party.upper()} · {period.label.upper()}", font=meta_font, fill=ACCENT, anchor="ma")
+    draw.text((540, CHART_MEDIA_Y+57), supporting, font=support_font, fill=TEXT, anchor="ma")
     chart_top, chart_bottom = CHART_MEDIA_Y+105, 1152
     row_h = (chart_bottom-chart_top)/max(1, len(rows))
     max_value = max((float(r["value"]) for r in rows), default=1.0) or 1.0
