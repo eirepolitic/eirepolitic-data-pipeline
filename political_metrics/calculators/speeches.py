@@ -21,15 +21,14 @@ def member_speech_metrics(
     date_col: str = "debate_date",
     speech_id_col: str = "speech_id",
 ) -> pd.DataFrame:
-    """Calculate the first public member-level speech measures."""
+    """Calculate the first public member-level speech measures.
+
+    When member exposure is supplied, every eligible member is retained, including
+    members with zero speeches, so zero means no recorded speeches rather than a
+    missing result.
+    """
     data = _prepare_speeches(speeches, date_col=date_col, speech_id_col=speech_id_col)
     attributable = data[data["member_code"].notna()].copy()
-    if attributable.empty:
-        return pd.DataFrame(columns=[
-            "member_code", "speech_count", "speaking_day_count",
-            "share_of_dail_speeches", "eligible_debate_days",
-            "speeches_per_eligible_debate_day",
-        ])
 
     grouped = attributable.groupby("member_code", dropna=False).agg(
         speech_count=(speech_id_col, "nunique"),
@@ -37,16 +36,32 @@ def member_speech_metrics(
     ).reset_index()
 
     total = int(attributable[speech_id_col].nunique())
-    grouped["share_of_dail_speeches"] = grouped["speech_count"] / total if total else 0.0
 
     if member_exposure is not None:
-        grouped = grouped.merge(member_exposure[["member_code", "eligible_debate_days"]], on="member_code", how="left")
+        eligible = member_exposure[["member_code", "eligible_debate_days"]].drop_duplicates("member_code").copy()
+        grouped = eligible.merge(grouped, on="member_code", how="left")
+        grouped["speech_count"] = grouped["speech_count"].fillna(0).astype(int)
+        grouped["speaking_day_count"] = grouped["speaking_day_count"].fillna(0).astype(int)
         grouped["eligible_debate_days"] = grouped["eligible_debate_days"].fillna(0).astype(int)
+    elif grouped.empty:
+        return pd.DataFrame(columns=[
+            "member_code", "speech_count", "speaking_day_count",
+            "share_of_dail_speeches", "eligible_debate_days",
+            "speeches_per_eligible_debate_day",
+        ])
+    else:
+        grouped["eligible_debate_days"] = pd.NA
+
+    if total:
+        grouped["share_of_dail_speeches"] = grouped["speech_count"] / total
+    else:
+        grouped["share_of_dail_speeches"] = pd.NA
+
+    if member_exposure is not None:
         grouped["speeches_per_eligible_debate_day"] = grouped["speech_count"].div(
             grouped["eligible_debate_days"].replace(0, pd.NA)
         ).astype("Float64")
     else:
-        grouped["eligible_debate_days"] = pd.NA
         grouped["speeches_per_eligible_debate_day"] = pd.NA
 
     return grouped.sort_values(["speech_count", "member_code"], ascending=[False, True]).reset_index(drop=True)
@@ -59,7 +74,12 @@ def grouped_speech_metrics(
     date_col: str = "debate_date",
     speech_id_col: str = "speech_id",
 ) -> pd.DataFrame:
-    """Calculate reusable party/constituency speech counts after temporal attribution."""
+    """Calculate reusable party/constituency speech counts after temporal attribution.
+
+    This function returns observed groups. Materialization should join these results
+    to the period-correct eligible party/constituency universe when explicit zero
+    rows are required.
+    """
     data = _prepare_speeches(speeches, date_col=date_col, speech_id_col=speech_id_col)
     data = data[data[group_col].notna()].copy()
     if data.empty:
@@ -70,7 +90,7 @@ def grouped_speech_metrics(
         speaking_member_count=("member_code", "nunique"),
     ).reset_index()
     total = int(data[speech_id_col].nunique())
-    grouped["share_of_dail_speeches"] = grouped["speech_count"] / total if total else 0.0
+    grouped["share_of_dail_speeches"] = grouped["speech_count"] / total if total else pd.NA
     return grouped.sort_values(["speech_count", group_col], ascending=[False, True]).reset_index(drop=True)
 
 
@@ -79,7 +99,7 @@ def national_speech_metrics(
     *,
     date_col: str = "debate_date",
     speech_id_col: str = "speech_id",
-) -> dict[str, int | float]:
+) -> dict[str, int | float | None]:
     data = _prepare_speeches(speeches, date_col=date_col, speech_id_col=speech_id_col)
     debate_days = int(data[date_col].nunique())
     speech_count = int(data[speech_id_col].nunique())
@@ -87,5 +107,5 @@ def national_speech_metrics(
         "speech_count": speech_count,
         "unique_speaker_count": int(data["member_code"].nunique()),
         "debate_day_count": debate_days,
-        "speeches_per_debate_day": (speech_count / debate_days) if debate_days else 0.0,
+        "speeches_per_debate_day": (speech_count / debate_days) if debate_days else None,
     }
