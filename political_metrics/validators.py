@@ -9,8 +9,17 @@ def validate_temporal_history(
     entity_col: str,
     start_col: str,
     end_col: str,
+    end_boundary: str = "exclusive",
 ) -> list[str]:
-    """Return validation errors for malformed or overlapping history intervals."""
+    """Return validation errors for malformed or overlapping history intervals.
+
+    Oireachtas political-history ranges default to start-inclusive/end-exclusive
+    semantics, so one row ending on the exact date the next row starts is a valid
+    transition rather than an overlap.
+    """
+    if end_boundary not in {"exclusive", "inclusive"}:
+        raise ValueError(f"unsupported end boundary: {end_boundary}")
+
     errors: list[str] = []
     if history.empty:
         return errors
@@ -23,9 +32,12 @@ def validate_temporal_history(
     if not invalid.empty:
         errors.append(f"{len(invalid)} rows have missing/invalid {start_col}")
 
-    reversed_rows = data[data[end_col].notna() & (data[end_col] < data[start_col])]
+    if end_boundary == "exclusive":
+        reversed_rows = data[data[end_col].notna() & (data[end_col] <= data[start_col])]
+    else:
+        reversed_rows = data[data[end_col].notna() & (data[end_col] < data[start_col])]
     if not reversed_rows.empty:
-        errors.append(f"{len(reversed_rows)} rows have {end_col} before {start_col}")
+        errors.append(f"{len(reversed_rows)} rows have invalid {start_col}/{end_col} ranges")
 
     for entity, group in data.dropna(subset=[start_col]).groupby(entity_col, dropna=False):
         ordered = group.sort_values(start_col)
@@ -39,7 +51,8 @@ def validate_temporal_history(
             if pd.isna(previous_end):
                 errors.append(f"{entity_col}={entity!r} has an open-ended interval followed by another interval")
                 break
-            if start <= previous_end:
+            overlaps = start < previous_end if end_boundary == "exclusive" else start <= previous_end
+            if overlaps:
                 errors.append(f"{entity_col}={entity!r} has overlapping intervals")
                 break
             previous_end = end
