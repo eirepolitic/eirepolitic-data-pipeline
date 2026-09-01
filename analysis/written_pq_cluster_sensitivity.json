@@ -1,0 +1,316 @@
+{
+  "analysis_period": "2026-07 written PQs",
+  "batch_definition": "same TD + question date + recipient",
+  "batching": {
+    "batch_count": 2779,
+    "max_batch_size": 140,
+    "median_batch_size": 2.0,
+    "p90_batch_size": 6.0,
+    "p95_batch_size": 10.0,
+    "row_share_batches_ge_10": 0.35637568555758686,
+    "row_share_batches_ge_2": 0.8466636197440585,
+    "row_share_batches_ge_20": 0.21355118829981717,
+    "row_share_batches_ge_5": 0.556101462522852,
+    "row_share_batches_ge_50": 0.015996343692870202,
+    "rows": 8752,
+    "rows_in_batches_ge_10": 3119,
+    "rows_in_batches_ge_2": 7410,
+    "rows_in_batches_ge_20": 1869,
+    "rows_in_batches_ge_5": 4867,
+    "rows_in_batches_ge_50": 140
+  },
+  "global_exact_normalized_template": {
+    "clusters": 8632,
+    "potential_call_reduction_share": 0.013711151736745886,
+    "potential_calls_saved": 120,
+    "rows": 8752
+  },
+  "important_limit": "Similarity does not prove identical issue meaning. These are upper-bound cost-saving estimates, not approved label-reuse rules.",
+  "normalization": "question numbers, numeric values, percentages, dates, money and URLs replaced; wording otherwise preserved",
+  "threshold_cluster_results": {
+    "100": {
+      "clusters_gt1": 66,
+      "components": 8640,
+      "examples": [
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2326",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2328",
+          "similarity": 100.0,
+          "text_a": "2326. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57599/26",
+          "text_b": "2328. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57601/26"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3059",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3060",
+          "similarity": 100.0,
+          "text_a": "3059. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte",
+          "text_b": "3060. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_254",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_255",
+          "similarity": 100.0,
+          "text_a": "254. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip wa",
+          "text_b": "255. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip wa"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2474",
+          "similarity": 100.0,
+          "text_a": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter.",
+          "text_b": "2474. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter."
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2475",
+          "similarity": 100.0,
+          "text_a": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the mat",
+          "text_b": "2475. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the mat"
+        }
+      ],
+      "pairs": 51860,
+      "potential_call_count_if_one_per_cluster": 8640,
+      "potential_call_reduction_share": 0.012797074954296161,
+      "potential_calls_saved": 112,
+      "qualifying_pairs": 245,
+      "reduction": 112,
+      "row_share_in_multirow_clusters": 0.020338208409506398,
+      "rows": 8752,
+      "rows_in_clusters_gt1": 178
+    },
+    "92": {
+      "clusters_gt1": 314,
+      "components": 8225,
+      "examples": [
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1466",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1529",
+          "similarity": 99.05277401894452,
+          "text_a": "1466. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred so far and expected completion costs for the project",
+          "text_b": "1529. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred to date and expected completion costs for the projec"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-08/pq_137",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-08/pq_138",
+          "similarity": 92.19858156028369,
+          "text_a": "137. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for an update on an application under EU Treaty rights (details supplied); and if he will make a statement on the matter. [51919/26",
+          "text_b": "138. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for an update on join family applications (details supplied); and if he will make a statement on the matter. [51924/26]"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3499",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3500",
+          "similarity": 93.56984478935698,
+          "text_a": "3499. Deputy Aindrias Moynihan asked the Minister for Health for the integration of community audiology services into HSE care pathways to reduce audiology waiting lists; and if she will make a statement on the matter. [",
+          "text_b": "3500. Deputy Aindrias Moynihan asked the Minister for Health for the integration of community optometry into HSE care pathways to reduce ophthalmology waiting lists; and if she will make a statement on the matter. [56614"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3663",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3664",
+          "similarity": 97.81659388646288,
+          "text_a": "3663. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Maternity Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular f",
+          "text_b": "3664. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular form. [5729"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2324",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2325",
+          "similarity": 98.39080459770115,
+          "text_a": "2324. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration the up-to-date position on join family applications (details supplied); and if he will make a statement on the matter. [57597/26]",
+          "text_b": "2325. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for the up-to-date position on a join family application (details supplied); and if he will make a statement on the matter. [57598"
+        }
+      ],
+      "pairs": 51860,
+      "potential_call_count_if_one_per_cluster": 8225,
+      "potential_call_reduction_share": 0.06021480804387568,
+      "potential_calls_saved": 527,
+      "qualifying_pairs": 1089,
+      "reduction": 527,
+      "row_share_in_multirow_clusters": 0.09609232175502742,
+      "rows": 8752,
+      "rows_in_clusters_gt1": 841
+    },
+    "95": {
+      "clusters_gt1": 257,
+      "components": 8352,
+      "examples": [
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1466",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1529",
+          "similarity": 99.05277401894452,
+          "text_a": "1466. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred so far and expected completion costs for the project",
+          "text_b": "1529. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred to date and expected completion costs for the projec"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3663",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3664",
+          "similarity": 97.81659388646288,
+          "text_a": "3663. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Maternity Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular f",
+          "text_b": "3664. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular form. [5729"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2324",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2325",
+          "similarity": 98.39080459770115,
+          "text_a": "2324. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration the up-to-date position on join family applications (details supplied); and if he will make a statement on the matter. [57597/26]",
+          "text_b": "2325. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for the up-to-date position on a join family application (details supplied); and if he will make a statement on the matter. [57598"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2326",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2328",
+          "similarity": 100.0,
+          "text_a": "2326. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57599/26",
+          "text_b": "2328. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57601/26"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3059",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3060",
+          "similarity": 100.0,
+          "text_a": "3059. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte",
+          "text_b": "3060. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte"
+        }
+      ],
+      "pairs": 51860,
+      "potential_call_count_if_one_per_cluster": 8352,
+      "potential_call_reduction_share": 0.04570383912248629,
+      "potential_calls_saved": 400,
+      "qualifying_pairs": 739,
+      "reduction": 400,
+      "row_share_in_multirow_clusters": 0.07506855575868374,
+      "rows": 8752,
+      "rows_in_clusters_gt1": 657
+    },
+    "98": {
+      "clusters_gt1": 143,
+      "components": 8543,
+      "examples": [
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1466",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1529",
+          "similarity": 99.05277401894452,
+          "text_a": "1466. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred so far and expected completion costs for the project",
+          "text_b": "1529. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred to date and expected completion costs for the projec"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+          "similarity": 100.0,
+          "text_a": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596",
+          "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2324",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2325",
+          "similarity": 98.39080459770115,
+          "text_a": "2324. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration the up-to-date position on join family applications (details supplied); and if he will make a statement on the matter. [57597/26]",
+          "text_b": "2325. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for the up-to-date position on a join family application (details supplied); and if he will make a statement on the matter. [57598"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2326",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2328",
+          "similarity": 100.0,
+          "text_a": "2326. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57599/26",
+          "text_b": "2328. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57601/26"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3059",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3060",
+          "similarity": 100.0,
+          "text_a": "3059. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte",
+          "text_b": "3060. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether inte"
+        },
+        {
+          "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_254",
+          "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_255",
+          "similarity": 100.0,
+          "text_a": "254. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip wa",
+          "text_b": "255. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip wa"
+        }
+      ],
+      "pairs": 51860,
+      "potential_call_count_if_one_per_cluster": 8543,
+      "potential_call_reduction_share": 0.023880255941499087,
+      "potential_calls_saved": 209,
+      "qualifying_pairs": 394,
+      "reduction": 209,
+      "row_share_in_multirow_clusters": 0.04021937842778794,
+      "rows": 8752,
+      "rows_in_clusters_gt1": 352
+    }
+  }
+}
