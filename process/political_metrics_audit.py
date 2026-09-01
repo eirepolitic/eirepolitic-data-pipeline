@@ -71,22 +71,25 @@ def _build_markdown(report: dict) -> str:
     ]
     if certification["ready_for_historical_public_speech_metrics"]:
         lines.append(
-            "All member-attributable speeches in this promoted batch can be assigned to a single historical party and constituency, and the history tables contain no overlapping date ranges detected by this audit."
+            "TD speeches in this promoted batch can be assigned to a single period-correct Oireachtas-listed party and constituency, with no history gaps or overlapping ranges detected under the documented date-boundary rules."
         )
     else:
         lines.append(
-            "The promoted data still contains gaps or ambiguities that could make historical party or constituency speech statistics misleading. Public historical metrics should remain uncertified until the listed checks pass."
+            "The promoted data still contains gaps or ambiguities that could make historical TD, party or constituency speech statistics misleading. Public historical metrics should remain uncertified until the listed checks pass."
         )
 
     lines.extend([
         "",
         "## Attribution coverage",
         "",
-        f"- Historical party assignment: **{_pct(attribution['party_attribution_coverage'])}** ({attribution['party_unmatched_rows']} unmatched member-attributable speech rows)",
-        f"- Historical constituency assignment: **{_pct(attribution['constituency_attribution_coverage'])}** ({attribution['constituency_unmatched_rows']} unmatched member-attributable speech rows)",
-        f"- Speech-to-member attribution overall: **{_pct(reconciliation['member_attribution_coverage'])}**",
+        f"- Eligible TD speech rows: **{attribution['eligible_td_speech_rows']}**",
+        f"- Historical Oireachtas-listed party assignment for TD speeches: **{_pct(attribution['party_attribution_coverage'])}** ({attribution['party_unmatched_rows']} unmatched)",
+        f"- Historical constituency assignment for TD speeches: **{_pct(attribution['constituency_attribution_coverage'])}** ({attribution['constituency_unmatched_rows']} unmatched)",
+        f"- Identified speakers outside the Dáil-member history: **{attribution['out_of_scope_identified_speech_rows']}**",
+        f"- Identified Dáil members with a membership-history gap on the speech date: **{attribution['membership_gap_speech_rows']}**",
+        f"- Speech-to-identified-member coverage overall: **{_pct(reconciliation['member_attribution_coverage'])}**",
         "",
-        "The final figure is not expected to prove attendance or party membership; it simply shows how many canonical speech records identify a member. Historical party/constituency coverage is assessed only for speeches that identify a member.",
+        "Speeches by identified people who are not part of the Dáil membership history remain in overall Dáil speech activity, but they are not forced into TD, party or constituency statistics.",
         "",
         "## History available",
         "",
@@ -110,6 +113,8 @@ def _build_markdown(report: dict) -> str:
     lines.extend([
         "",
         "## Important interpretation",
+        "",
+        "Party attribution means the affiliation recorded by Oireachtas data for that date. It should not be presented as proof of a party's separate internal membership or disciplinary status.",
         "",
         "Passing this audit means the promoted batch is structurally safe for the first historical speech measures. It does **not** certify issue classification, voting, attendance, questions, government/opposition status, or older periods that are not present in the promoted data.",
         "",
@@ -161,20 +166,26 @@ def main() -> int:
         ).as_dict(),
     }
 
-    attribution = speech_temporal_attribution_audit(speeches, parties, constituencies)
+    attribution = speech_temporal_attribution_audit(
+        speeches,
+        parties,
+        constituencies,
+        memberships,
+    )
     reconciliation = speech_count_reconciliation(speeches)
 
     checks = {
         "membership_history_has_no_overlaps_or_invalid_ranges": not histories["silver_member_memberships"]["validation_errors"],
         "party_history_has_no_overlaps_or_invalid_ranges": not histories["silver_member_parties"]["validation_errors"],
         "constituency_history_has_no_overlaps_or_invalid_ranges": not histories["silver_member_constituencies"]["validation_errors"],
-        "all_member_attributable_speeches_have_historical_party": attribution["party_attribution_coverage"] == 1.0,
-        "all_member_attributable_speeches_have_historical_constituency": attribution["constituency_attribution_coverage"] == 1.0,
+        "identified_dail_members_have_membership_history_on_speech_date": attribution["membership_gap_speech_rows"] == 0,
+        "all_eligible_td_speeches_have_historical_party": attribution["party_attribution_coverage"] == 1.0,
+        "all_eligible_td_speeches_have_historical_constituency": attribution["constituency_attribution_coverage"] == 1.0,
         "speech_counts_reconcile": bool(reconciliation["reconciles"]),
     }
 
     report = {
-        "audit_version": 1,
+        "audit_version": 2,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "bucket": BUCKET,
         "production_pointer": pointer,
@@ -187,7 +198,9 @@ def main() -> int:
         "certification": {
             "ready_for_historical_public_speech_metrics": all(checks.values()),
             "checks": checks,
-            "scope": "speech metrics requiring period-correct member, party and constituency context in this promoted batch",
+            "scope": "TD speech metrics requiring period-correct Oireachtas-listed party and constituency context in this promoted batch",
+            "party_affiliation_basis": "Oireachtas-listed affiliation, not independently asserted internal party membership",
+            "history_range_semantics": "start-inclusive/end-exclusive",
         },
     }
 
