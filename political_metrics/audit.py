@@ -54,6 +54,17 @@ def history_coverage(
     )
 
 
+def _unmatched_examples(joined: pd.DataFrame, history_value_col: str, *, limit: int = 10) -> list[dict]:
+    columns = [col for col in ["speech_id", "member_code", "event_date", "speaker_name"] if col in joined.columns]
+    if not columns:
+        return []
+    rows = joined.loc[joined[history_value_col].isna(), columns].head(limit).copy()
+    for col in rows.columns:
+        if pd.api.types.is_datetime64_any_dtype(rows[col]):
+            rows[col] = rows[col].dt.strftime("%Y-%m-%d")
+    return rows.where(pd.notna(rows), None).to_dict(orient="records")
+
+
 def speech_temporal_attribution_audit(
     speeches: pd.DataFrame,
     member_parties: pd.DataFrame,
@@ -76,6 +87,8 @@ def speech_temporal_attribution_audit(
         "constituency_attribution_coverage": temporal_join_coverage(constituency_joined, "constituency_uri"),
         "party_unmatched_rows": int(party_joined["party_uri"].isna().sum()),
         "constituency_unmatched_rows": int(constituency_joined["constituency_uri"].isna().sum()),
+        "party_unmatched_examples": _unmatched_examples(party_joined, "party_uri"),
+        "constituency_unmatched_examples": _unmatched_examples(constituency_joined, "constituency_uri"),
     }
 
 
