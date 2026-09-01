@@ -1,679 +1,794 @@
 {
-  "available_periods": [
-    "2024-12-31",
-    "2025-01-31",
-    "2025-02-28",
-    "2025-03-31",
-    "2025-04-30",
-    "2025-05-31",
-    "2025-06-30",
-    "2025-07-31",
-    "2025-08-31",
-    "2025-09-30",
-    "2025-10-31",
-    "2025-11-30",
-    "2025-12-31",
-    "2026-01-31",
-    "2026-02-28",
-    "2026-03-31",
-    "2026-04-30",
-    "2026-05-31",
-    "2026-06-30",
-    "2026-07-31",
-    "2026-08-31"
-  ],
-  "latest_constituency_activity": [
+  "analysis_month_constituencies_by_normalized": [
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wexford",
       "entity_name": "Wexford",
       "norm_rank": 1.0,
-      "rank_shift": 0.0,
-      "raw_rank": 1.0,
-      "raw_speeches": 8.0,
-      "speeches_per_active_rep": 2.0
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-West",
-      "entity_name": "Cork South-West",
-      "norm_rank": 2.0,
       "rank_shift": 1.0,
-      "raw_rank": 3.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_rep": 1.0
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Donegal",
-      "entity_name": "Donegal",
-      "norm_rank": 3.0,
-      "rank_shift": -1.0,
       "raw_rank": 2.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_rep": 0.8
+      "raw_speeches": 244.0,
+      "speeches_per_active_rep": 61.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-East",
-      "entity_name": "Meath East",
-      "norm_rank": 4.0,
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-Central",
+      "entity_name": "Cork South-Central",
+      "norm_rank": 2.0,
       "rank_shift": -1.0,
+      "raw_rank": 1.0,
+      "raw_speeches": 257.0,
+      "speeches_per_active_rep": 51.4
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow",
+      "entity_name": "Wicklow",
+      "norm_rank": 3.0,
+      "rank_shift": 0.0,
       "raw_rank": 3.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_rep": 0.75
+      "raw_speeches": 134.0,
+      "speeches_per_active_rep": 33.5
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-South",
+      "entity_name": "Dublin Bay South",
+      "norm_rank": 4.0,
+      "rank_shift": 1.0,
+      "raw_rank": 5.0,
+      "raw_speeches": 123.0,
+      "speeches_per_active_rep": 30.75
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Central",
       "entity_name": "Dublin Central",
       "norm_rank": 5.0,
-      "rank_shift": 0.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.5
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/D\u00fan-Laoghaire",
-      "entity_name": "D\u00fan Laoghaire",
-      "norm_rank": 5.0,
-      "rank_shift": 0.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.5
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow",
-      "entity_name": "Wicklow",
-      "norm_rank": 5.0,
-      "rank_shift": 0.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.5
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Waterford",
-      "entity_name": "Waterford",
-      "norm_rank": 5.0,
-      "rank_shift": 0.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.5
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-West",
-      "entity_name": "Dublin West",
-      "norm_rank": 9.0,
-      "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-North",
-      "entity_name": "Dublin Bay North",
-      "norm_rank": 9.0,
-      "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
-      "entity_name": "Cork North-Central",
-      "norm_rank": 9.0,
-      "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Offaly",
-      "entity_name": "Offaly",
-      "norm_rank": 12.0,
-      "rank_shift": 0.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.3333333333333333
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-West",
-      "entity_name": "Meath West",
-      "norm_rank": 12.0,
-      "rank_shift": 0.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.3333333333333333
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Limerick-County",
-      "entity_name": "Limerick County",
-      "norm_rank": 12.0,
-      "rank_shift": 0.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.3333333333333333
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow-Wexford",
-      "entity_name": "Wicklow-Wexford",
-      "norm_rank": 12.0,
-      "rank_shift": 0.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.3333333333333333
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-South",
-      "entity_name": "Dublin Bay South",
-      "norm_rank": 16.0,
-      "rank_shift": -4.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.25
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cavan-Monaghan",
-      "entity_name": "Cavan-Monaghan",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
-      "entity_name": "Dublin South-West",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Mid-West",
-      "entity_name": "Dublin Mid-West",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Longford-Westmeath",
-      "entity_name": "Longford-Westmeath",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kerry",
-      "entity_name": "Kerry",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
-      "entity_name": "Mayo",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-West",
-      "entity_name": "Cork North-West",
-      "norm_rank": 23.0,
-      "rank_shift": 0.0,
-      "raw_rank": 23.0,
-      "raw_speeches": 0.0,
-      "speeches_per_active_rep": 0.0
+      "rank_shift": 1.0,
+      "raw_rank": 6.0,
+      "raw_speeches": 113.0,
+      "speeches_per_active_rep": 28.25
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Carlow-Kilkenny",
       "entity_name": "Carlow-Kilkenny",
-      "norm_rank": 23.0,
-      "rank_shift": 0.0,
-      "raw_rank": 23.0,
-      "raw_speeches": 0.0,
-      "speeches_per_active_rep": 0.0
+      "norm_rank": 6.0,
+      "rank_shift": -3.0,
+      "raw_rank": 3.0,
+      "raw_speeches": 134.0,
+      "speeches_per_active_rep": 26.8
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-East",
-      "entity_name": "Cork East",
-      "norm_rank": 23.0,
-      "rank_shift": 0.0,
-      "raw_rank": 23.0,
-      "raw_speeches": 0.0,
-      "speeches_per_active_rep": 0.0
-    }
-  ],
-  "latest_constituency_rank_shifts": [
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cavan-Monaghan",
-      "entity_name": "Cavan-Monaghan",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-East",
+      "entity_name": "Meath East",
+      "norm_rank": 7.0,
+      "rank_shift": 1.0,
+      "raw_rank": 8.0,
+      "raw_speeches": 104.0,
+      "speeches_per_active_rep": 26.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
-      "entity_name": "Dublin South-West",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-West",
+      "entity_name": "Dublin West",
+      "norm_rank": 8.0,
+      "rank_shift": -2.0,
+      "raw_rank": 6.0,
+      "raw_speeches": 113.0,
+      "speeches_per_active_rep": 22.6
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Waterford",
+      "entity_name": "Waterford",
+      "norm_rank": 9.0,
+      "rank_shift": 2.0,
+      "raw_rank": 11.0,
+      "raw_speeches": 86.0,
+      "speeches_per_active_rep": 21.5
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-West",
+      "entity_name": "Cork South-West",
+      "norm_rank": 10.0,
+      "rank_shift": 9.0,
+      "raw_rank": 19.0,
+      "raw_speeches": 61.0,
+      "speeches_per_active_rep": 20.33333333333333
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Mid-West",
       "entity_name": "Dublin Mid-West",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
+      "norm_rank": 11.0,
+      "rank_shift": -2.0,
+      "raw_rank": 9.0,
+      "raw_speeches": 96.0,
+      "speeches_per_active_rep": 19.2
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Longford-Westmeath",
-      "entity_name": "Longford-Westmeath",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/D\u00fan-Laoghaire",
+      "entity_name": "D\u00fan Laoghaire",
+      "norm_rank": 12.0,
+      "rank_shift": 2.0,
+      "raw_rank": 14.0,
+      "raw_speeches": 76.0,
+      "speeches_per_active_rep": 19.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kerry",
-      "entity_name": "Kerry",
-      "norm_rank": 17.0,
-      "rank_shift": -5.0,
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
+      "entity_name": "Cork North-Central",
+      "norm_rank": 13.0,
+      "rank_shift": -3.0,
+      "raw_rank": 10.0,
+      "raw_speeches": 90.0,
+      "speeches_per_active_rep": 18.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Fingal-West",
+      "entity_name": "Dublin Fingal West",
+      "norm_rank": 14.0,
+      "rank_shift": 10.0,
+      "raw_rank": 24.0,
+      "raw_speeches": 51.0,
+      "speeches_per_active_rep": 17.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cavan-Monaghan",
+      "entity_name": "Cavan-Monaghan",
+      "norm_rank": 15.0,
+      "rank_shift": -3.0,
       "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
+      "raw_speeches": 83.0,
+      "speeches_per_active_rep": 16.6
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kildare-South",
+      "entity_name": "Kildare South",
+      "norm_rank": 16.0,
+      "rank_shift": 1.0,
+      "raw_rank": 17.0,
+      "raw_speeches": 66.0,
+      "speeches_per_active_rep": 16.5
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
       "entity_name": "Mayo",
       "norm_rank": 17.0,
-      "rank_shift": -5.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.2
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-West",
-      "entity_name": "Dublin West",
-      "norm_rank": 9.0,
       "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
+      "raw_rank": 13.0,
+      "raw_speeches": 77.0,
+      "speeches_per_active_rep": 15.4
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-North",
-      "entity_name": "Dublin Bay North",
-      "norm_rank": 9.0,
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Rathdown",
+      "entity_name": "Dublin Rathdown",
+      "norm_rank": 18.0,
+      "rank_shift": 1.0,
+      "raw_rank": 19.0,
+      "raw_speeches": 61.0,
+      "speeches_per_active_rep": 15.25
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
+      "entity_name": "Dublin South-West",
+      "norm_rank": 19.0,
       "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
+      "raw_rank": 15.0,
+      "raw_speeches": 75.0,
+      "speeches_per_active_rep": 15.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
-      "entity_name": "Cork North-Central",
-      "norm_rank": 9.0,
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Galway-West",
+      "entity_name": "Galway West",
+      "norm_rank": 20.0,
       "rank_shift": -4.0,
-      "raw_rank": 5.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_rep": 0.4
-    },
+      "raw_rank": 16.0,
+      "raw_speeches": 68.0,
+      "speeches_per_active_rep": 13.6
+    }
+  ],
+  "analysis_month_constituency_rank_shifts": [
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-South",
-      "entity_name": "Dublin Bay South",
-      "norm_rank": 16.0,
-      "rank_shift": -4.0,
-      "raw_rank": 12.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_rep": 0.25
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Donegal",
-      "entity_name": "Donegal",
-      "norm_rank": 3.0,
-      "rank_shift": -1.0,
-      "raw_rank": 2.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_rep": 0.8
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-East",
-      "entity_name": "Meath East",
-      "norm_rank": 4.0,
-      "rank_shift": -1.0,
-      "raw_rank": 3.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_rep": 0.75
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Fingal-West",
+      "entity_name": "Dublin Fingal West",
+      "norm_rank": 14.0,
+      "rank_shift": 10.0,
+      "raw_rank": 24.0,
+      "raw_speeches": 51.0,
+      "speeches_per_active_rep": 17.0
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-West",
       "entity_name": "Cork South-West",
-      "norm_rank": 2.0,
-      "rank_shift": 1.0,
-      "raw_rank": 3.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_rep": 1.0
+      "norm_rank": 10.0,
+      "rank_shift": 9.0,
+      "raw_rank": 19.0,
+      "raw_speeches": 61.0,
+      "speeches_per_active_rep": 20.33333333333333
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-West",
-      "entity_name": "Cork North-West",
-      "norm_rank": 23.0,
-      "rank_shift": 0.0,
-      "raw_rank": 23.0,
-      "raw_speeches": 0.0,
-      "speeches_per_active_rep": 0.0
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-North",
+      "entity_name": "Dublin Bay North",
+      "norm_rank": 35.0,
+      "rank_shift": -7.0,
+      "raw_rank": 28.0,
+      "raw_speeches": 36.0,
+      "speeches_per_active_rep": 7.2
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Clare",
-      "entity_name": "Clare",
-      "norm_rank": 23.0,
-      "rank_shift": 0.0,
-      "raw_rank": 23.0,
-      "raw_speeches": 0.0,
-      "speeches_per_active_rep": 0.0
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Louth",
+      "entity_name": "Louth",
+      "norm_rank": 27.0,
+      "rank_shift": -5.0,
+      "raw_rank": 22.0,
+      "raw_speeches": 54.0,
+      "speeches_per_active_rep": 10.8
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Longford-Westmeath",
+      "entity_name": "Longford-Westmeath",
+      "norm_rank": 26.0,
+      "rank_shift": -5.0,
+      "raw_rank": 21.0,
+      "raw_speeches": 56.0,
+      "speeches_per_active_rep": 11.2
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-North-West",
+      "entity_name": "Dublin North-West",
+      "norm_rank": 24.0,
+      "rank_shift": 5.0,
+      "raw_rank": 29.0,
+      "raw_speeches": 34.0,
+      "speeches_per_active_rep": 11.333333333333334
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Donegal",
+      "entity_name": "Donegal",
+      "norm_rank": 32.0,
+      "rank_shift": -5.0,
+      "raw_rank": 27.0,
+      "raw_speeches": 38.0,
+      "speeches_per_active_rep": 7.6
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Galway-West",
+      "entity_name": "Galway West",
+      "norm_rank": 20.0,
+      "rank_shift": -4.0,
+      "raw_rank": 16.0,
+      "raw_speeches": 68.0,
+      "speeches_per_active_rep": 13.6
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
+      "entity_name": "Dublin South-West",
+      "norm_rank": 19.0,
+      "rank_shift": -4.0,
+      "raw_rank": 15.0,
+      "raw_speeches": 75.0,
+      "speeches_per_active_rep": 15.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kildare-North",
+      "entity_name": "Kildare North",
+      "norm_rank": 22.0,
+      "rank_shift": -4.0,
+      "raw_rank": 18.0,
+      "raw_speeches": 62.0,
+      "speeches_per_active_rep": 12.4
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Galway-East",
+      "entity_name": "Galway East",
+      "norm_rank": 42.0,
+      "rank_shift": -4.0,
+      "raw_rank": 38.0,
+      "raw_speeches": 17.0,
+      "speeches_per_active_rep": 4.25
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Roscommon-Galway",
+      "entity_name": "Roscommon-Galway",
+      "norm_rank": 37.0,
+      "rank_shift": 4.0,
+      "raw_rank": 41.0,
+      "raw_speeches": 15.0,
+      "speeches_per_active_rep": 5.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
+      "entity_name": "Mayo",
+      "norm_rank": 17.0,
+      "rank_shift": -4.0,
+      "raw_rank": 13.0,
+      "raw_speeches": 77.0,
+      "speeches_per_active_rep": 15.4
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Tipperary-South",
+      "entity_name": "Tipperary South",
+      "norm_rank": 37.0,
+      "rank_shift": 4.0,
+      "raw_rank": 41.0,
+      "raw_speeches": 15.0,
+      "speeches_per_active_rep": 5.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
+      "entity_name": "Cork North-Central",
+      "norm_rank": 13.0,
+      "rank_shift": -3.0,
+      "raw_rank": 10.0,
+      "raw_speeches": 90.0,
+      "speeches_per_active_rep": 18.0
     }
   ],
-  "latest_member_concentration": {
-    "hhi": 0.06544077879935101,
-    "highest_speeches_per_speaking_day_min_3_days": [],
-    "member_count": 174,
-    "td_speech_total": 43.0,
-    "top_10_share": 0.627906976744186,
-    "top_15_members": [
+  "analysis_month_members": {
+    "highest_speeches_per_speaking_day_min_5_days": [
       {
         "entity_id": "Verona-Murphy.D.2020-02-08",
         "entity_name": "Verona Murphy",
-        "speaking_days": 1.0,
-        "speech_count": 8.0,
-        "speeches_per_eligible_debate_day": 8.0,
-        "speeches_per_speaking_day": 8.0
+        "speaking_days": 8.0,
+        "speech_count": 213.0,
+        "speeches_per_eligible_debate_day": 23.666666666666668,
+        "speeches_per_speaking_day": 26.625
       },
       {
-        "entity_id": "Gillian-Toole.D.2024-11-29",
-        "entity_name": "Gillian Toole",
-        "speaking_days": 1.0,
-        "speech_count": 3.0,
-        "speeches_per_eligible_debate_day": 3.0,
-        "speeches_per_speaking_day": 3.0
+        "entity_id": "John-McGuinness.D.1997-06-26",
+        "entity_name": "John McGuinness",
+        "speaking_days": 8.0,
+        "speech_count": 98.0,
+        "speeches_per_eligible_debate_day": 10.88888888888889,
+        "speeches_per_speaking_day": 12.25
       },
       {
-        "entity_id": "Cian-O'Callaghan.D.2020-02-08",
-        "entity_name": "Cian O'Callaghan",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Jennifer-Carroll-MacNeill.D.2020-02-08",
+        "entity_name": "Jennifer Carroll MacNeill",
+        "speaking_days": 6.0,
+        "speech_count": 60.0,
+        "speeches_per_eligible_debate_day": 6.666666666666667,
+        "speeches_per_speaking_day": 10.0
       },
       {
-        "entity_id": "Ken-O'Flynn.D.2024-11-29",
-        "entity_name": "Ken O'Flynn",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Matt-Carthy.D.2020-02-08",
+        "entity_name": "Matt Carthy",
+        "speaking_days": 6.0,
+        "speech_count": 51.0,
+        "speeches_per_eligible_debate_day": 5.666666666666667,
+        "speeches_per_speaking_day": 8.5
       },
       {
-        "entity_id": "Mary-Butler.D.2016-10-03",
-        "entity_name": "Mary Butler",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Paul-Murphy.D.2014-10-10",
+        "entity_name": "Paul Murphy",
+        "speaking_days": 7.0,
+        "speech_count": 55.0,
+        "speeches_per_eligible_debate_day": 6.111111111111111,
+        "speeches_per_speaking_day": 7.857142857142857
       },
       {
-        "entity_id": "Mary-Lou-McDonald.D.2011-03-09",
-        "entity_name": "Mary Lou McDonald",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+        "entity_name": "Donnchadh \u00d3 Laoghaire",
+        "speaking_days": 7.0,
+        "speech_count": 49.0,
+        "speeches_per_eligible_debate_day": 5.444444444444445,
+        "speeches_per_speaking_day": 7.0
       },
       {
-        "entity_id": "Michael-Collins.D.2016-10-03",
-        "entity_name": "Michael Collins",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Gary-Gannon.D.2020-02-08",
+        "entity_name": "Gary Gannon",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
       },
       {
-        "entity_id": "Pearse-Doherty.S.2007-07-23",
-        "entity_name": "Pearse Doherty",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
-      },
-      {
-        "entity_id": "Richard-Boyd-Barrett.D.2011-03-09",
-        "entity_name": "Richard Boyd Barrett",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
-      },
-      {
-        "entity_id": "Simon-Harris.D.2011-03-09",
-        "entity_name": "Simon Harris",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
-      },
-      {
-        "entity_id": "Brian-Brennan.D.2024-11-29",
-        "entity_name": "Brian Brennan",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
-      },
-      {
-        "entity_id": "Charles-Ward.D.2024-11-29",
-        "entity_name": "Charles Ward",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
-      },
-      {
-        "entity_id": "Holly-Cairns.D.2020-02-08",
-        "entity_name": "Holly Cairns",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Jennifer-Whitmore.D.2020-02-08",
+        "entity_name": "Jennifer Whitmore",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
       },
       {
         "entity_id": "Ivana-Bacik.S.2007-07-23",
         "entity_name": "Ivana Bacik",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "speaking_days": 5.0,
+        "speech_count": 29.0,
+        "speeches_per_eligible_debate_day": 3.2222222222222223,
+        "speeches_per_speaking_day": 5.8
       },
       {
-        "entity_id": "John-Clendennen.D.2024-11-29",
-        "entity_name": "John Clendennen",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Marie-Sherlock.S.2020-03-30",
+        "entity_name": "Marie Sherlock",
+        "speaking_days": 5.0,
+        "speech_count": 29.0,
+        "speeches_per_eligible_debate_day": 3.2222222222222223,
+        "speeches_per_speaking_day": 5.8
+      },
+      {
+        "entity_id": "Neale-Richmond.S.2016-04-25",
+        "entity_name": "Neale Richmond",
+        "speaking_days": 5.0,
+        "speech_count": 28.0,
+        "speeches_per_eligible_debate_day": 3.111111111111111,
+        "speeches_per_speaking_day": 5.6
+      },
+      {
+        "entity_id": "Conor-D-McGuinness.D.2024-11-29",
+        "entity_name": "Conor D. McGuinness",
+        "speaking_days": 5.0,
+        "speech_count": 26.0,
+        "speeches_per_eligible_debate_day": 2.888888888888889,
+        "speeches_per_speaking_day": 5.2
+      },
+      {
+        "entity_id": "Conor-Sheehan.D.2024-11-29",
+        "entity_name": "Conor Sheehan",
+        "speaking_days": 7.0,
+        "speech_count": 35.0,
+        "speeches_per_eligible_debate_day": 3.888888888888889,
+        "speeches_per_speaking_day": 5.0
+      },
+      {
+        "entity_id": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+        "entity_name": "Ruair\u00ed \u00d3 Murch\u00fa",
+        "speaking_days": 7.0,
+        "speech_count": 34.0,
+        "speeches_per_eligible_debate_day": 3.7777777777777777,
+        "speeches_per_speaking_day": 4.857142857142857
+      },
+      {
+        "entity_id": "Mary-Butler.D.2016-10-03",
+        "entity_name": "Mary Butler",
+        "speaking_days": 5.0,
+        "speech_count": 24.0,
+        "speeches_per_eligible_debate_day": 2.6666666666666665,
+        "speeches_per_speaking_day": 4.8
       }
     ],
-    "top_20_percent_of_members_share": 1.0,
+    "td_speech_total": 2819.0,
+    "tds_with_at_least_one_speech": 165,
+    "tds_with_zero_recorded_speeches": 9,
+    "top_10_share": 0.3401915572898191,
+    "top_20_by_speech_count": [
+      {
+        "entity_id": "Verona-Murphy.D.2020-02-08",
+        "entity_name": "Verona Murphy",
+        "speaking_days": 8.0,
+        "speech_count": 213.0,
+        "speeches_per_eligible_debate_day": 23.666666666666668,
+        "speeches_per_speaking_day": 26.625
+      },
+      {
+        "entity_id": "Miche\u00e1l-Martin.D.1989-06-29",
+        "entity_name": "Miche\u00e1l Martin",
+        "speaking_days": 4.0,
+        "speech_count": 181.0,
+        "speeches_per_eligible_debate_day": 20.11111111111111,
+        "speeches_per_speaking_day": 45.25
+      },
+      {
+        "entity_id": "John-McGuinness.D.1997-06-26",
+        "entity_name": "John McGuinness",
+        "speaking_days": 8.0,
+        "speech_count": 98.0,
+        "speeches_per_eligible_debate_day": 10.88888888888889,
+        "speeches_per_speaking_day": 12.25
+      },
+      {
+        "entity_id": "Simon-Harris.D.2011-03-09",
+        "entity_name": "Simon Harris",
+        "speaking_days": 4.0,
+        "speech_count": 94.0,
+        "speeches_per_eligible_debate_day": 10.444444444444445,
+        "speeches_per_speaking_day": 23.5
+      },
+      {
+        "entity_id": "Jim-O'Callaghan.D.2016-10-03",
+        "entity_name": "Jim O'Callaghan",
+        "speaking_days": 3.0,
+        "speech_count": 82.0,
+        "speeches_per_eligible_debate_day": 9.11111111111111,
+        "speeches_per_speaking_day": 27.333333333333332
+      },
+      {
+        "entity_id": "Helen-McEntee.D.2013-03-27",
+        "entity_name": "Helen McEntee",
+        "speaking_days": 3.0,
+        "speech_count": 65.0,
+        "speeches_per_eligible_debate_day": 7.222222222222222,
+        "speeches_per_speaking_day": 21.666666666666668
+      },
+      {
+        "entity_id": "Jack-Chambers.D.2016-10-03",
+        "entity_name": "Jack Chambers",
+        "speaking_days": 1.0,
+        "speech_count": 60.0,
+        "speeches_per_eligible_debate_day": 6.666666666666667,
+        "speeches_per_speaking_day": 60.0
+      },
+      {
+        "entity_id": "Jennifer-Carroll-MacNeill.D.2020-02-08",
+        "entity_name": "Jennifer Carroll MacNeill",
+        "speaking_days": 6.0,
+        "speech_count": 60.0,
+        "speeches_per_eligible_debate_day": 6.666666666666667,
+        "speeches_per_speaking_day": 10.0
+      },
+      {
+        "entity_id": "Paul-Murphy.D.2014-10-10",
+        "entity_name": "Paul Murphy",
+        "speaking_days": 7.0,
+        "speech_count": 55.0,
+        "speeches_per_eligible_debate_day": 6.111111111111111,
+        "speeches_per_speaking_day": 7.857142857142857
+      },
+      {
+        "entity_id": "Matt-Carthy.D.2020-02-08",
+        "entity_name": "Matt Carthy",
+        "speaking_days": 6.0,
+        "speech_count": 51.0,
+        "speeches_per_eligible_debate_day": 5.666666666666667,
+        "speeches_per_speaking_day": 8.5
+      },
+      {
+        "entity_id": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+        "entity_name": "Donnchadh \u00d3 Laoghaire",
+        "speaking_days": 7.0,
+        "speech_count": 49.0,
+        "speeches_per_eligible_debate_day": 5.444444444444445,
+        "speeches_per_speaking_day": 7.0
+      },
+      {
+        "entity_id": "Martin-Heydon.D.2011-03-09",
+        "entity_name": "Martin Heydon",
+        "speaking_days": 3.0,
+        "speech_count": 42.0,
+        "speeches_per_eligible_debate_day": 4.666666666666667,
+        "speeches_per_speaking_day": 14.0
+      },
+      {
+        "entity_id": "James-Lawless.D.2016-10-03",
+        "entity_name": "James Lawless",
+        "speaking_days": 1.0,
+        "speech_count": 40.0,
+        "speeches_per_eligible_debate_day": 4.444444444444445,
+        "speeches_per_speaking_day": 40.0
+      },
+      {
+        "entity_id": "Holly-Cairns.D.2020-02-08",
+        "entity_name": "Holly Cairns",
+        "speaking_days": 4.0,
+        "speech_count": 38.0,
+        "speeches_per_eligible_debate_day": 4.222222222222222,
+        "speeches_per_speaking_day": 9.5
+      },
+      {
+        "entity_id": "Mary-Lou-McDonald.D.2011-03-09",
+        "entity_name": "Mary Lou McDonald",
+        "speaking_days": 4.0,
+        "speech_count": 38.0,
+        "speeches_per_eligible_debate_day": 4.222222222222222,
+        "speeches_per_speaking_day": 9.5
+      },
+      {
+        "entity_id": "Dara-Calleary.D.2007-06-14",
+        "entity_name": "Dara Calleary",
+        "speaking_days": 1.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 37.0
+      },
+      {
+        "entity_id": "Eoin-\u00d3-Broin.D.2016-10-03",
+        "entity_name": "Eoin \u00d3 Broin",
+        "speaking_days": 3.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 12.333333333333334
+      },
+      {
+        "entity_id": "Gary-Gannon.D.2020-02-08",
+        "entity_name": "Gary Gannon",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
+      },
+      {
+        "entity_id": "Jennifer-Whitmore.D.2020-02-08",
+        "entity_name": "Jennifer Whitmore",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
+      },
+      {
+        "entity_id": "Conor-Sheehan.D.2024-11-29",
+        "entity_name": "Conor Sheehan",
+        "speaking_days": 7.0,
+        "speech_count": 35.0,
+        "speeches_per_eligible_debate_day": 3.888888888888889,
+        "speeches_per_speaking_day": 5.0
+      }
+    ],
+    "top_20_percent_member_share": 0.6317843206810926,
     "widest_speaking_day_coverage": [
       {
         "entity_id": "Verona-Murphy.D.2020-02-08",
         "entity_name": "Verona Murphy",
-        "speaking_days": 1.0,
-        "speech_count": 8.0,
-        "speeches_per_eligible_debate_day": 8.0,
-        "speeches_per_speaking_day": 8.0
+        "speaking_days": 8.0,
+        "speech_count": 213.0,
+        "speeches_per_eligible_debate_day": 23.666666666666668,
+        "speeches_per_speaking_day": 26.625
       },
       {
-        "entity_id": "Gillian-Toole.D.2024-11-29",
-        "entity_name": "Gillian Toole",
-        "speaking_days": 1.0,
-        "speech_count": 3.0,
+        "entity_id": "John-McGuinness.D.1997-06-26",
+        "entity_name": "John McGuinness",
+        "speaking_days": 8.0,
+        "speech_count": 98.0,
+        "speeches_per_eligible_debate_day": 10.88888888888889,
+        "speeches_per_speaking_day": 12.25
+      },
+      {
+        "entity_id": "Louise-O'Reilly.D.2016-10-03",
+        "entity_name": "Louise O'Reilly",
+        "speaking_days": 8.0,
+        "speech_count": 27.0,
         "speeches_per_eligible_debate_day": 3.0,
-        "speeches_per_speaking_day": 3.0
+        "speeches_per_speaking_day": 3.375
       },
       {
-        "entity_id": "Cian-O'Callaghan.D.2020-02-08",
-        "entity_name": "Cian O'Callaghan",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Rory-Hearne.D.2024-11-29",
+        "entity_name": "Rory Hearne",
+        "speaking_days": 8.0,
+        "speech_count": 26.0,
+        "speeches_per_eligible_debate_day": 2.888888888888889,
+        "speeches_per_speaking_day": 3.25
       },
       {
-        "entity_id": "Ken-O'Flynn.D.2024-11-29",
-        "entity_name": "Ken O'Flynn",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Paul-Murphy.D.2014-10-10",
+        "entity_name": "Paul Murphy",
+        "speaking_days": 7.0,
+        "speech_count": 55.0,
+        "speeches_per_eligible_debate_day": 6.111111111111111,
+        "speeches_per_speaking_day": 7.857142857142857
       },
       {
-        "entity_id": "Mary-Butler.D.2016-10-03",
-        "entity_name": "Mary Butler",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+        "entity_name": "Donnchadh \u00d3 Laoghaire",
+        "speaking_days": 7.0,
+        "speech_count": 49.0,
+        "speeches_per_eligible_debate_day": 5.444444444444445,
+        "speeches_per_speaking_day": 7.0
       },
       {
-        "entity_id": "Mary-Lou-McDonald.D.2011-03-09",
-        "entity_name": "Mary Lou McDonald",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Conor-Sheehan.D.2024-11-29",
+        "entity_name": "Conor Sheehan",
+        "speaking_days": 7.0,
+        "speech_count": 35.0,
+        "speeches_per_eligible_debate_day": 3.888888888888889,
+        "speeches_per_speaking_day": 5.0
       },
       {
-        "entity_id": "Michael-Collins.D.2016-10-03",
-        "entity_name": "Michael Collins",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+        "entity_name": "Ruair\u00ed \u00d3 Murch\u00fa",
+        "speaking_days": 7.0,
+        "speech_count": 34.0,
+        "speeches_per_eligible_debate_day": 3.7777777777777777,
+        "speeches_per_speaking_day": 4.857142857142857
       },
       {
-        "entity_id": "Pearse-Doherty.S.2007-07-23",
-        "entity_name": "Pearse Doherty",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Thomas-Gould.D.2020-02-08",
+        "entity_name": "Thomas Gould",
+        "speaking_days": 7.0,
+        "speech_count": 33.0,
+        "speeches_per_eligible_debate_day": 3.6666666666666665,
+        "speeches_per_speaking_day": 4.714285714285714
       },
       {
-        "entity_id": "Richard-Boyd-Barrett.D.2011-03-09",
-        "entity_name": "Richard Boyd Barrett",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Sin\u00e9ad-Gibney.D.2024-11-29",
+        "entity_name": "Sin\u00e9ad Gibney",
+        "speaking_days": 7.0,
+        "speech_count": 32.0,
+        "speeches_per_eligible_debate_day": 3.555555555555556,
+        "speeches_per_speaking_day": 4.571428571428571
       },
       {
-        "entity_id": "Simon-Harris.D.2011-03-09",
-        "entity_name": "Simon Harris",
-        "speaking_days": 1.0,
-        "speech_count": 2.0,
-        "speeches_per_eligible_debate_day": 2.0,
-        "speeches_per_speaking_day": 2.0
+        "entity_id": "Ruth-Coppinger.D.2014-05-23",
+        "entity_name": "Ruth Coppinger",
+        "speaking_days": 7.0,
+        "speech_count": 31.0,
+        "speeches_per_eligible_debate_day": 3.4444444444444446,
+        "speeches_per_speaking_day": 4.428571428571429
       },
       {
-        "entity_id": "Brian-Brennan.D.2024-11-29",
-        "entity_name": "Brian Brennan",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Paul-Lawless.D.2024-11-29",
+        "entity_name": "Paul Lawless",
+        "speaking_days": 7.0,
+        "speech_count": 15.0,
+        "speeches_per_eligible_debate_day": 1.6666666666666667,
+        "speeches_per_speaking_day": 2.142857142857143
       },
       {
-        "entity_id": "Charles-Ward.D.2024-11-29",
-        "entity_name": "Charles Ward",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Jennifer-Carroll-MacNeill.D.2020-02-08",
+        "entity_name": "Jennifer Carroll MacNeill",
+        "speaking_days": 6.0,
+        "speech_count": 60.0,
+        "speeches_per_eligible_debate_day": 6.666666666666667,
+        "speeches_per_speaking_day": 10.0
       },
       {
-        "entity_id": "Holly-Cairns.D.2020-02-08",
-        "entity_name": "Holly Cairns",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Matt-Carthy.D.2020-02-08",
+        "entity_name": "Matt Carthy",
+        "speaking_days": 6.0,
+        "speech_count": 51.0,
+        "speeches_per_eligible_debate_day": 5.666666666666667,
+        "speeches_per_speaking_day": 8.5
       },
       {
-        "entity_id": "Ivana-Bacik.S.2007-07-23",
-        "entity_name": "Ivana Bacik",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Gary-Gannon.D.2020-02-08",
+        "entity_name": "Gary Gannon",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
       },
       {
-        "entity_id": "John-Clendennen.D.2024-11-29",
-        "entity_name": "John Clendennen",
-        "speaking_days": 1.0,
-        "speech_count": 1.0,
-        "speeches_per_eligible_debate_day": 1.0,
-        "speeches_per_speaking_day": 1.0
+        "entity_id": "Jennifer-Whitmore.D.2020-02-08",
+        "entity_name": "Jennifer Whitmore",
+        "speaking_days": 6.0,
+        "speech_count": 37.0,
+        "speeches_per_eligible_debate_day": 4.111111111111111,
+        "speeches_per_speaking_day": 6.166666666666667
+      },
+      {
+        "entity_id": "Darren-O'Rourke.D.2020-02-08",
+        "entity_name": "Darren O'Rourke",
+        "speaking_days": 6.0,
+        "speech_count": 25.0,
+        "speeches_per_eligible_debate_day": 2.7777777777777777,
+        "speeches_per_speaking_day": 4.166666666666667
+      },
+      {
+        "entity_id": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+        "entity_name": "Peadar T\u00f3ib\u00edn",
+        "speaking_days": 6.0,
+        "speech_count": 24.0,
+        "speeches_per_eligible_debate_day": 2.6666666666666665,
+        "speeches_per_speaking_day": 4.0
+      },
+      {
+        "entity_id": "Shane-Moynihan.D.2024-11-29",
+        "entity_name": "Shane Moynihan",
+        "speaking_days": 6.0,
+        "speech_count": 23.0,
+        "speeches_per_eligible_debate_day": 2.555555555555556,
+        "speeches_per_speaking_day": 3.8333333333333335
+      },
+      {
+        "entity_id": "Brian-Stanley.D.2011-03-09",
+        "entity_name": "Brian Stanley",
+        "speaking_days": 6.0,
+        "speech_count": 19.0,
+        "speeches_per_eligible_debate_day": 2.111111111111111,
+        "speeches_per_speaking_day": 3.1666666666666665
       }
     ]
   },
-  "latest_party_activity": [
+  "analysis_month_parties_by_normalized": [
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
       "entity_name": "People Before Profit-Solidarity",
       "norm_rank": 1.0,
-      "rank_shift": 3.0,
-      "raw_rank": 4.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_member": 1.3333333333333333
+      "rank_shift": 6.0,
+      "raw_rank": 7.0,
+      "raw_speeches": 93.0,
+      "speeches_per_active_member": 31.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
-      "entity_name": "Independent Ireland",
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+      "entity_name": "Independent",
       "norm_rank": 2.0,
-      "rank_shift": 1.0,
-      "raw_rank": 3.0,
-      "raw_speeches": 5.0,
-      "speeches_per_active_member": 1.25
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
-      "entity_name": "100% RDR",
-      "norm_rank": 3.0,
-      "rank_shift": 6.0,
-      "raw_rank": 9.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_member": 1.0
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
-      "entity_name": "Green Party",
-      "norm_rank": 3.0,
-      "rank_shift": 6.0,
-      "raw_rank": 9.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_member": 1.0
+      "rank_shift": 2.0,
+      "raw_rank": 4.0,
+      "raw_speeches": 309.0,
+      "speeches_per_active_member": 20.6
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
@@ -681,200 +796,145 @@
       "norm_rank": 3.0,
       "rank_shift": 5.0,
       "raw_rank": 8.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_member": 1.0
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
-      "entity_name": "Independent",
-      "norm_rank": 6.0,
-      "rank_shift": -5.0,
-      "raw_rank": 1.0,
-      "raw_speeches": 13.0,
-      "speeches_per_active_member": 0.8666666666666667
+      "raw_speeches": 39.0,
+      "speeches_per_active_member": 19.5
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
       "entity_name": "Social Democrats",
-      "norm_rank": 7.0,
-      "rank_shift": -1.0,
-      "raw_rank": 6.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_member": 0.25
+      "norm_rank": 4.0,
+      "rank_shift": 1.0,
+      "raw_rank": 5.0,
+      "raw_speeches": 233.0,
+      "speeches_per_active_member": 19.416666666666668
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
-      "entity_name": "Sinn F\u00e9in",
-      "norm_rank": 8.0,
-      "rank_shift": -6.0,
-      "raw_rank": 2.0,
-      "raw_speeches": 6.0,
-      "speeches_per_active_member": 0.1538461538461538
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
-      "entity_name": "Fine Gael",
-      "norm_rank": 9.0,
-      "rank_shift": -5.0,
-      "raw_rank": 4.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_member": 0.1052631578947368
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
+      "entity_name": "Fianna F\u00e1il",
+      "norm_rank": 5.0,
+      "rank_shift": -4.0,
+      "raw_rank": 1.0,
+      "raw_speeches": 821.0,
+      "speeches_per_active_member": 17.104166666666668
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
       "entity_name": "Labour Party",
+      "norm_rank": 6.0,
+      "rank_shift": 0.0,
+      "raw_rank": 6.0,
+      "raw_speeches": 184.0,
+      "speeches_per_active_member": 16.727272727272727
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+      "entity_name": "Green Party",
+      "norm_rank": 7.0,
+      "rank_shift": 3.0,
+      "raw_rank": 10.0,
+      "raw_speeches": 16.0,
+      "speeches_per_active_member": 16.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+      "entity_name": "Fine Gael",
+      "norm_rank": 8.0,
+      "rank_shift": -6.0,
+      "raw_rank": 2.0,
+      "raw_speeches": 545.0,
+      "speeches_per_active_member": 14.342105263157896
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+      "entity_name": "Sinn F\u00e9in",
+      "norm_rank": 9.0,
+      "rank_shift": -6.0,
+      "raw_rank": 3.0,
+      "raw_speeches": 535.0,
+      "speeches_per_active_member": 13.717948717948715
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+      "entity_name": "Independent Ireland",
       "norm_rank": 10.0,
       "rank_shift": -1.0,
       "raw_rank": 9.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_member": 0.0909090909090909
+      "raw_speeches": 37.0,
+      "speeches_per_active_member": 9.25
     },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
-      "entity_name": "Fianna F\u00e1il",
-      "norm_rank": 11.0,
-      "rank_shift": -5.0,
-      "raw_rank": 6.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_member": 0.0625
-    }
-  ],
-  "latest_party_month_on_month_change": [
-    {
-      "absolute_change": -29.666666666666668,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
-      "entity_name": "People Before Profit-Solidarity",
-      "latest": 1.3333333333333333,
-      "pct_change": -0.956989247311828,
-      "previous": 31.0
-    },
-    {
-      "absolute_change": -19.733333333333334,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
-      "entity_name": "Independent",
-      "latest": 0.8666666666666667,
-      "pct_change": -0.9579288025889967,
-      "previous": 20.6
-    },
-    {
-      "absolute_change": -19.166666666666668,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
-      "entity_name": "Social Democrats",
-      "latest": 0.25,
-      "pct_change": -0.9871244635193133,
-      "previous": 19.416666666666668
-    },
-    {
-      "absolute_change": -18.5,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
-      "entity_name": "Aont\u00fa",
-      "latest": 1.0,
-      "pct_change": -0.9487179487179487,
-      "previous": 19.5
-    },
-    {
-      "absolute_change": -17.041666666666668,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
-      "entity_name": "Fianna F\u00e1il",
-      "latest": 0.0625,
-      "pct_change": -0.9963459196102314,
-      "previous": 17.104166666666668
-    },
-    {
-      "absolute_change": -16.636363636363637,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
-      "entity_name": "Labour Party",
-      "latest": 0.0909090909090909,
-      "pct_change": -0.9945652173913043,
-      "previous": 16.727272727272727
-    },
-    {
-      "absolute_change": -15.0,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
-      "entity_name": "Green Party",
-      "latest": 1.0,
-      "pct_change": -0.9375,
-      "previous": 16.0
-    },
-    {
-      "absolute_change": -14.23684210526316,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
-      "entity_name": "Fine Gael",
-      "latest": 0.1052631578947368,
-      "pct_change": -0.9926605504587156,
-      "previous": 14.342105263157896
-    },
-    {
-      "absolute_change": -13.564102564102562,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
-      "entity_name": "Sinn F\u00e9in",
-      "latest": 0.1538461538461538,
-      "pct_change": -0.9887850467289719,
-      "previous": 13.717948717948715
-    },
-    {
-      "absolute_change": -8.0,
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
-      "entity_name": "Independent Ireland",
-      "latest": 1.25,
-      "pct_change": -0.8648648648648649,
-      "previous": 9.25
-    }
-  ],
-  "latest_party_rank_shifts": [
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
       "entity_name": "100% RDR",
-      "norm_rank": 3.0,
-      "rank_shift": 6.0,
-      "raw_rank": 9.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_member": 1.0
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
-      "entity_name": "Sinn F\u00e9in",
-      "norm_rank": 8.0,
-      "rank_shift": -6.0,
-      "raw_rank": 2.0,
-      "raw_speeches": 6.0,
-      "speeches_per_active_member": 0.1538461538461538
-    },
-    {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
-      "entity_name": "Green Party",
-      "norm_rank": 3.0,
-      "rank_shift": 6.0,
-      "raw_rank": 9.0,
-      "raw_speeches": 1.0,
-      "speeches_per_active_member": 1.0
-    },
+      "norm_rank": 11.0,
+      "rank_shift": 0.0,
+      "raw_rank": 11.0,
+      "raw_speeches": 7.0,
+      "speeches_per_active_member": 7.0
+    }
+  ],
+  "analysis_month_parties_by_raw": [
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
       "entity_name": "Fianna F\u00e1il",
-      "norm_rank": 11.0,
-      "rank_shift": -5.0,
-      "raw_rank": 6.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_member": 0.0625
+      "norm_rank": 5.0,
+      "rank_shift": -4.0,
+      "raw_rank": 1.0,
+      "raw_speeches": 821.0,
+      "speeches_per_active_member": 17.104166666666668
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
       "entity_name": "Fine Gael",
+      "norm_rank": 8.0,
+      "rank_shift": -6.0,
+      "raw_rank": 2.0,
+      "raw_speeches": 545.0,
+      "speeches_per_active_member": 14.342105263157896
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+      "entity_name": "Sinn F\u00e9in",
       "norm_rank": 9.0,
-      "rank_shift": -5.0,
-      "raw_rank": 4.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_member": 0.1052631578947368
+      "rank_shift": -6.0,
+      "raw_rank": 3.0,
+      "raw_speeches": 535.0,
+      "speeches_per_active_member": 13.717948717948715
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
       "entity_name": "Independent",
+      "norm_rank": 2.0,
+      "rank_shift": 2.0,
+      "raw_rank": 4.0,
+      "raw_speeches": 309.0,
+      "speeches_per_active_member": 20.6
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+      "entity_name": "Social Democrats",
+      "norm_rank": 4.0,
+      "rank_shift": 1.0,
+      "raw_rank": 5.0,
+      "raw_speeches": 233.0,
+      "speeches_per_active_member": 19.416666666666668
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+      "entity_name": "Labour Party",
       "norm_rank": 6.0,
-      "rank_shift": -5.0,
-      "raw_rank": 1.0,
-      "raw_speeches": 13.0,
-      "speeches_per_active_member": 0.8666666666666667
+      "rank_shift": 0.0,
+      "raw_rank": 6.0,
+      "raw_speeches": 184.0,
+      "speeches_per_active_member": 16.727272727272727
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+      "entity_name": "People Before Profit-Solidarity",
+      "norm_rank": 1.0,
+      "rank_shift": 6.0,
+      "raw_rank": 7.0,
+      "raw_speeches": 93.0,
+      "speeches_per_active_member": 31.0
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
@@ -882,38 +942,140 @@
       "norm_rank": 3.0,
       "rank_shift": 5.0,
       "raw_rank": 8.0,
-      "raw_speeches": 2.0,
-      "speeches_per_active_member": 1.0
+      "raw_speeches": 39.0,
+      "speeches_per_active_member": 19.5
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+      "entity_name": "Independent Ireland",
+      "norm_rank": 10.0,
+      "rank_shift": -1.0,
+      "raw_rank": 9.0,
+      "raw_speeches": 37.0,
+      "speeches_per_active_member": 9.25
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+      "entity_name": "Green Party",
+      "norm_rank": 7.0,
+      "rank_shift": 3.0,
+      "raw_rank": 10.0,
+      "raw_speeches": 16.0,
+      "speeches_per_active_member": 16.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+      "entity_name": "100% RDR",
+      "norm_rank": 11.0,
+      "rank_shift": 0.0,
+      "raw_rank": 11.0,
+      "raw_speeches": 7.0,
+      "speeches_per_active_member": 7.0
+    }
+  ],
+  "analysis_month_party_rank_shifts": [
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+      "entity_name": "Sinn F\u00e9in",
+      "norm_rank": 9.0,
+      "rank_shift": -6.0,
+      "raw_rank": 3.0,
+      "raw_speeches": 535.0,
+      "speeches_per_active_member": 13.717948717948715
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
       "entity_name": "People Before Profit-Solidarity",
       "norm_rank": 1.0,
-      "rank_shift": 3.0,
-      "raw_rank": 4.0,
-      "raw_speeches": 4.0,
-      "speeches_per_active_member": 1.3333333333333333
+      "rank_shift": 6.0,
+      "raw_rank": 7.0,
+      "raw_speeches": 93.0,
+      "speeches_per_active_member": 31.0
     },
     {
-      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
-      "entity_name": "Independent Ireland",
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+      "entity_name": "Fine Gael",
+      "norm_rank": 8.0,
+      "rank_shift": -6.0,
+      "raw_rank": 2.0,
+      "raw_speeches": 545.0,
+      "speeches_per_active_member": 14.342105263157896
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
+      "entity_name": "Aont\u00fa",
+      "norm_rank": 3.0,
+      "rank_shift": 5.0,
+      "raw_rank": 8.0,
+      "raw_speeches": 39.0,
+      "speeches_per_active_member": 19.5
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
+      "entity_name": "Fianna F\u00e1il",
+      "norm_rank": 5.0,
+      "rank_shift": -4.0,
+      "raw_rank": 1.0,
+      "raw_speeches": 821.0,
+      "speeches_per_active_member": 17.104166666666668
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+      "entity_name": "Green Party",
+      "norm_rank": 7.0,
+      "rank_shift": 3.0,
+      "raw_rank": 10.0,
+      "raw_speeches": 16.0,
+      "speeches_per_active_member": 16.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+      "entity_name": "Independent",
       "norm_rank": 2.0,
-      "rank_shift": 1.0,
-      "raw_rank": 3.0,
-      "raw_speeches": 5.0,
-      "speeches_per_active_member": 1.25
+      "rank_shift": 2.0,
+      "raw_rank": 4.0,
+      "raw_speeches": 309.0,
+      "speeches_per_active_member": 20.6
     },
     {
       "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
       "entity_name": "Social Democrats",
-      "norm_rank": 7.0,
+      "norm_rank": 4.0,
+      "rank_shift": 1.0,
+      "raw_rank": 5.0,
+      "raw_speeches": 233.0,
+      "speeches_per_active_member": 19.416666666666668
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+      "entity_name": "Independent Ireland",
+      "norm_rank": 10.0,
       "rank_shift": -1.0,
+      "raw_rank": 9.0,
+      "raw_speeches": 37.0,
+      "speeches_per_active_member": 9.25
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+      "entity_name": "100% RDR",
+      "norm_rank": 11.0,
+      "rank_shift": 0.0,
+      "raw_rank": 11.0,
+      "raw_speeches": 7.0,
+      "speeches_per_active_member": 7.0
+    },
+    {
+      "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+      "entity_name": "Labour Party",
+      "norm_rank": 6.0,
+      "rank_shift": 0.0,
       "raw_rank": 6.0,
-      "raw_speeches": 3.0,
-      "speeches_per_active_member": 0.25
+      "raw_speeches": 184.0,
+      "speeches_per_active_member": 16.727272727272727
     }
   ],
-  "latest_period_end": "2026-08-31",
+  "analysis_period_latest_normal_month": "2026-07-31",
+  "latest_completed_period": "2026-08-31",
   "national_monthly": [
     {
       "period_end": "2024-12-31",
@@ -958,7 +1120,7 @@
     {
       "period_end": "2025-08-31",
       "speech_count": 0.0,
-      "speeches_per_debate_day": NaN
+      "speeches_per_debate_day": null
     },
     {
       "period_end": "2025-09-30",
@@ -1021,5 +1183,255 @@
       "speeches_per_debate_day": 45.0
     }
   ],
-  "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33530737534-1/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv"
+  "normal_month_rule": "national_speech_count >= 1000",
+  "resolved_key": "processed/oireachtas_unified/batches/scheduled-weekly-33530737534-1/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv",
+  "trailing_12_month_top10_share": 0.33897934386391254,
+  "trailing_12_month_top_members": [
+    {
+      "entity_id": "Miche\u00e1l-Martin.D.1989-06-29",
+      "entity_name": "Miche\u00e1l Martin",
+      "share": 0.08850546780072904,
+      "value_num": 3642.0
+    },
+    {
+      "entity_id": "Verona-Murphy.D.2020-02-08",
+      "entity_name": "Verona Murphy",
+      "share": 0.07443499392466586,
+      "value_num": 3063.0
+    },
+    {
+      "entity_id": "Simon-Harris.D.2011-03-09",
+      "entity_name": "Simon Harris",
+      "share": 0.04571081409477521,
+      "value_num": 1881.0
+    },
+    {
+      "entity_id": "John-McGuinness.D.1997-06-26",
+      "entity_name": "John McGuinness",
+      "share": 0.02993924665856622,
+      "value_num": 1232.0
+    },
+    {
+      "entity_id": "Pearse-Doherty.S.2007-07-23",
+      "entity_name": "Pearse Doherty",
+      "share": 0.02250303766707169,
+      "value_num": 926.0
+    },
+    {
+      "entity_id": "Mary-Lou-McDonald.D.2011-03-09",
+      "entity_name": "Mary Lou McDonald",
+      "share": 0.01686512758201701,
+      "value_num": 694.0
+    },
+    {
+      "entity_id": "Jim-O'Callaghan.D.2016-10-03",
+      "entity_name": "Jim O'Callaghan",
+      "share": 0.016597812879708383,
+      "value_num": 683.0
+    },
+    {
+      "entity_id": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+      "entity_name": "Ruair\u00ed \u00d3 Murch\u00fa",
+      "share": 0.015650060753341435,
+      "value_num": 644.0
+    },
+    {
+      "entity_id": "Paul-Murphy.D.2014-10-10",
+      "entity_name": "Paul Murphy",
+      "share": 0.015455650060753341,
+      "value_num": 636.0
+    },
+    {
+      "entity_id": "Ruth-Coppinger.D.2014-05-23",
+      "entity_name": "Ruth Coppinger",
+      "share": 0.013317132442284326,
+      "value_num": 548.0
+    },
+    {
+      "entity_id": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+      "entity_name": "Peadar T\u00f3ib\u00edn",
+      "share": 0.01258809234507898,
+      "value_num": 518.0
+    },
+    {
+      "entity_id": "Richard-Boyd-Barrett.D.2011-03-09",
+      "entity_name": "Richard Boyd Barrett",
+      "share": 0.012563791008505468,
+      "value_num": 517.0
+    },
+    {
+      "entity_id": "Matt-Carthy.D.2020-02-08",
+      "entity_name": "Matt Carthy",
+      "share": 0.012223572296476306,
+      "value_num": 503.0
+    },
+    {
+      "entity_id": "Dara-Calleary.D.2007-06-14",
+      "entity_name": "Dara Calleary",
+      "share": 0.01181044957472661,
+      "value_num": 486.0
+    },
+    {
+      "entity_id": "Helen-McEntee.D.2013-03-27",
+      "entity_name": "Helen McEntee",
+      "share": 0.011154313487241798,
+      "value_num": 459.0
+    },
+    {
+      "entity_id": "Ivana-Bacik.S.2007-07-23",
+      "entity_name": "Ivana Bacik",
+      "share": 0.010498177399756987,
+      "value_num": 432.0
+    },
+    {
+      "entity_id": "Darragh-O'Brien.D.2007-06-14",
+      "entity_name": "Darragh O'Brien",
+      "share": 0.010376670716889429,
+      "value_num": 427.0
+    },
+    {
+      "entity_id": "James-Browne.D.2016-10-03",
+      "entity_name": "James Browne",
+      "share": 0.010109356014580802,
+      "value_num": 416.0
+    },
+    {
+      "entity_id": "Mary-Butler.D.2016-10-03",
+      "entity_name": "Mary Butler",
+      "share": 0.009380315917375455,
+      "value_num": 386.0
+    },
+    {
+      "entity_id": "Michael-Collins.D.2016-10-03",
+      "entity_name": "Michael Collins",
+      "share": 0.009258809234507897,
+      "value_num": 381.0
+    },
+    {
+      "entity_id": "Jennifer-Carroll-MacNeill.D.2020-02-08",
+      "entity_name": "Jennifer Carroll MacNeill",
+      "share": 0.009234507897934386,
+      "value_num": 380.0
+    },
+    {
+      "entity_id": "Jack-Chambers.D.2016-10-03",
+      "entity_name": "Jack Chambers",
+      "share": 0.009137302551640341,
+      "value_num": 376.0
+    },
+    {
+      "entity_id": "Louise-O'Reilly.D.2016-10-03",
+      "entity_name": "Louise O'Reilly",
+      "share": 0.009088699878493317,
+      "value_num": 374.0
+    },
+    {
+      "entity_id": "Martin-Heydon.D.2011-03-09",
+      "entity_name": "Martin Heydon",
+      "share": 0.008748481166464156,
+      "value_num": 360.0
+    },
+    {
+      "entity_id": "Rory-Hearne.D.2024-11-29",
+      "entity_name": "Rory Hearne",
+      "share": 0.008554070473876064,
+      "value_num": 352.0
+    }
+  ],
+  "trend_highest_raw_months": [
+    {
+      "period_end": "2026-02-28 00:00:00",
+      "speech_count": 4878.0,
+      "speeches_per_debate_day": 443.45454545454544
+    },
+    {
+      "period_end": "2025-05-31 00:00:00",
+      "speech_count": 4813.0,
+      "speeches_per_debate_day": 401.0833333333333
+    },
+    {
+      "period_end": "2025-11-30 00:00:00",
+      "speech_count": 4780.0,
+      "speeches_per_debate_day": 434.54545454545456
+    },
+    {
+      "period_end": "2026-05-31 00:00:00",
+      "speech_count": 4309.0,
+      "speeches_per_debate_day": 391.7272727272728
+    },
+    {
+      "period_end": "2025-02-28 00:00:00",
+      "speech_count": 4206.0,
+      "speeches_per_debate_day": 382.3636363636364
+    },
+    {
+      "period_end": "2026-04-30 00:00:00",
+      "speech_count": 4106.0,
+      "speeches_per_debate_day": 456.22222222222223
+    }
+  ],
+  "trend_highest_speeches_per_debate_day_months": [
+    {
+      "period_end": "2025-03-31 00:00:00",
+      "speech_count": 3763.0,
+      "speeches_per_debate_day": 470.375
+    },
+    {
+      "period_end": "2026-04-30 00:00:00",
+      "speech_count": 4106.0,
+      "speeches_per_debate_day": 456.22222222222223
+    },
+    {
+      "period_end": "2025-06-30 00:00:00",
+      "speech_count": 4068.0,
+      "speeches_per_debate_day": 452.0
+    },
+    {
+      "period_end": "2026-02-28 00:00:00",
+      "speech_count": 4878.0,
+      "speeches_per_debate_day": 443.45454545454544
+    },
+    {
+      "period_end": "2025-11-30 00:00:00",
+      "speech_count": 4780.0,
+      "speeches_per_debate_day": 434.54545454545456
+    },
+    {
+      "period_end": "2025-04-30 00:00:00",
+      "speech_count": 3356.0,
+      "speeches_per_debate_day": 419.5
+    }
+  ],
+  "trend_lowest_speeches_per_debate_day_normal_months": [
+    {
+      "period_end": "2026-07-31 00:00:00",
+      "speech_count": 2839.0,
+      "speeches_per_debate_day": 315.44444444444446
+    },
+    {
+      "period_end": "2025-09-30 00:00:00",
+      "speech_count": 2327.0,
+      "speeches_per_debate_day": 332.42857142857144
+    },
+    {
+      "period_end": "2026-03-31 00:00:00",
+      "speech_count": 3040.0,
+      "speeches_per_debate_day": 380.0
+    },
+    {
+      "period_end": "2025-02-28 00:00:00",
+      "speech_count": 4206.0,
+      "speeches_per_debate_day": 382.3636363636364
+    },
+    {
+      "period_end": "2026-06-30 00:00:00",
+      "speech_count": 3858.0,
+      "speeches_per_debate_day": 385.8
+    },
+    {
+      "period_end": "2025-12-31 00:00:00",
+      "speech_count": 3514.0,
+      "speeches_per_debate_day": 390.44444444444446
+    }
+  ]
 }
