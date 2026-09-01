@@ -1,0 +1,250 @@
+version: 1
+protocol_id: instagram_visual_commissioning_v1
+status: active_commissioning_reference
+purpose: >-
+  Machine-readable rules for iterative Instagram visual commissioning,
+  human review, reusable visual implementation, and batch promotion.
+
+companion_documentation:
+  - docs/instagram_visual_commissioning_playbook.md
+  - instagram/reference/issue_presentation_labels.yml
+
+principles:
+  review_loop:
+    - generate
+    - self_review
+    - return_direct_artifact
+    - human_review
+    - capture_change_request
+    - update_reusable_implementation
+    - regenerate
+    - compare_if_needed
+    - approve
+    - batch_generate
+    - batch_qa
+  human_role: visual_editor_and_final_semantic_gate
+  agent_role: implementer_self_reviewer_and_qa_operator
+  publication_policy: review_only_until_explicit_approval
+  auto_publish_instagram: false
+
+architecture:
+  repeatable_project_rule: one_project_many_period_runs
+  month_specific_project_copies: prohibited_for_same_product
+  preferred_period_mode: last_completed_month
+  manual_period_override: supported
+  grain_change_requires_confirmation: true
+  source_lineage_required: true
+  historical_membership_snapshot_preferred: true
+
+review_states:
+  - draft
+  - rendered
+  - review_requested
+  - changes_requested
+  - visual_approved
+  - batch_generated
+  - batch_qa_passed
+  - publication_ready
+
+review_artifact_contract:
+  direct_click_link_required: true
+  self_review_required_before_return: true
+  comparison_same_scale_when_layout_tuning: true
+  identify_real_output_vs_mockup: true
+  describe_change_since_previous_iteration: true
+  preferred_delivery:
+    github_binary: raw_github_link
+    temporary_local_binary: sandbox_link
+  github_large_binary_behavior:
+    response_too_large_means_missing: false
+    fallback:
+      - raw_github_link
+      - workflow_artifact
+      - narrower_repo_query
+
+self_review_checks:
+  - clipping
+  - duplicated_text
+  - asset_contamination
+  - underline_intersects_glyphs
+  - title_corner_collision
+  - label_truncation
+  - inconsistent_scale
+  - unexpected_margins
+  - incorrect_metric_label
+  - stale_period_label
+  - wrong_analysis_grain
+  - wrong_source_snapshot
+
+visual_rules:
+  canonical_corner_assets:
+    tl: instagram/templates/assets/corner_tl.png
+    tr: instagram/templates/assets/corner_tr.png
+    bl: instagram/templates/assets/corner_bl.png
+    br: instagram/templates/assets/corner_br.png
+  corner_asset_policy:
+    crop_from_finished_slide: false
+    redraw_or_approximate: false
+    use_dedicated_assets: true
+  title:
+    divider_count: 1
+    allow_two_lines: true
+    avoid_corner_collision: true
+  glossary_term_underline:
+    method: rendered_bbox_bottom_plus_gap
+    gap_px_reference: 8
+    estimate_from_font_size_only: false
+  chart_title_spacing:
+    requested_gap_factor_vs_january_reference: 0.5
+    enlarge_visual_into_recovered_space: true
+    scope: chart_slides
+  issue_labels:
+    preserve_canonical_taxonomy: true
+    use_presentation_mapping: true
+    mapping_file: instagram/reference/issue_presentation_labels.yml
+
+consumer_language:
+  avoid_prominent_terms:
+    - normalized
+    - over-index
+    - issue-share over-index
+  approved_slide_titles:
+    raw_counts: Most Discussed Issues
+    share_vs_average: Issues Discussed More Than Average
+    per_td_vs_average: Issues Discussed More Per TD
+  approved_cover_metrics:
+    - CLASSIFIED SPEECHES
+    - AVG SPEECHES PER TD
+  preferred_units:
+    raw_counts: "{value} speeches"
+    share_vs_average: "+{value:.1f} pts vs avg"
+    per_td_vs_average: "+{value:.2f} per TD vs avg"
+  denominator_wording:
+    use: TD
+    avoid_when_denominator_is_td_count: speaker
+
+five_slide_product:
+  order:
+    - cover
+    - most_discussed_issues
+    - issues_discussed_more_than_average
+    - issues_discussed_more_per_td
+    - glossary
+  slides:
+    cover:
+      metrics:
+        - classified_speeches
+        - avg_speeches_per_td
+    most_discussed_issues:
+      supporting_label: Total classified speeches
+    issues_discussed_more_than_average:
+      party_supporting_label: Compared with the average party
+    issues_discussed_more_per_td:
+      party_supporting_label: Adjusted for party size
+    glossary:
+      required: true
+      style:
+        background: shared_post_green
+        corner_assets: canonical
+        title: Glossary
+        main_divider_count: 1
+        cards: false
+      party_terms:
+        - Issues
+        - Classified Speeches
+        - Average Party
+        - Per TD
+        - Points vs Average
+
+metric_semantics:
+  raw_counts:
+    description: classified speech-segment count by issue within entity and period
+  share_vs_average:
+    entity_share: issue_count / all_classified_speeches_for_entity
+    baseline: unweighted_mean_entity_share
+    include_zero_entity_shares: true
+    delta: entity_share_minus_baseline
+    positive_only: true
+    max_items: 7
+  per_td_vs_average:
+    entity_rate: issue_count / entity_td_count
+    baseline: unweighted_mean_entity_rate
+    include_zero_entity_rates: true
+    delta: entity_rate_minus_baseline
+    positive_only: true
+    max_items: 7
+
+political_semantics:
+  speech_frequency_does_not_imply:
+    - policy
+    - position
+    - priority
+    - sentiment
+    - endorsement
+    - intent
+  require_neutral_factual_framing: true
+
+monthly_readiness_gate:
+  required_checks:
+    - requested_period_complete
+    - classifier_coverage_reaches_period_end
+    - membership_or_grouping_data_available
+    - join_quality_passes
+    - source_snapshot_recorded
+  on_failure: fail_run
+  allow_silent_partial_period: false
+
+batch_promotion:
+  representative_visual_approval_required_first: true
+  then:
+    - generate_all_entities
+    - run_automated_qa
+    - generate_contact_sheets
+    - inspect_outliers
+    - return_batch_review_links
+  contact_sheets:
+    - covers
+    - raw_count_charts
+    - share_vs_average_charts
+    - per_td_charts
+    - optional_carousel_overview
+
+known_failure_modes:
+  - id: tool_availability_claim_without_check
+    prevention: inspect_tools_before_claiming_limitation
+  - id: finished_slide_used_as_asset_source
+    prevention: use_dedicated_repo_assets
+  - id: broken_artifact_returned_without_self_review
+    prevention: run_self_review_checks_before_return
+  - id: month_specific_project_proliferation
+    prevention: parameterize_period
+  - id: silent_analysis_grain_change
+    prevention: confirm_grain_change
+  - id: production_taxonomy_changed_for_layout
+    prevention: use_presentation_label_mapping
+  - id: speech_frequency_overinterpreted
+    prevention: preserve_semantic_disclaimer
+  - id: github_response_too_large_treated_as_missing
+    prevention: use_raw_links_or_narrower_queries
+  - id: temporary_review_logic_accumulated_in_main_workflow
+    prevention: inspect_and_refactor_workflow_before_reuse
+
+future_agent_fast_start:
+  - inspect_current_branch_and_workflow_state
+  - read_docs/instagram_visual_commissioning_playbook.md
+  - read_instagram/reference/visual_commissioning_protocol.yml
+  - read_instagram/reference/issue_presentation_labels.yml
+  - use_canonical_corner_assets
+  - confirm_grain_and_period
+  - verify_production_data_readiness
+  - render_one_representative_entity_if_visual_rules_changed
+  - return_direct_artifact_link
+  - encode_user_feedback_in_reusable_source
+  - batch_generate_only_after_visual_approval
+  - keep_publication_disabled_until_explicit_approval
+
+reference_artifacts:
+  cover_review: instagram/commissioning/output/cover-review/v1/fianna-fail-cover.png
+  glossary_review: instagram/commissioning/output/glossary-review/v5/glossary.png
+  glossary_comparison: instagram/commissioning/output/glossary-review/v5/comparison_with_actual_issue_slide.jpg
+  january_normalized_root: instagram/commissioning/output/january-overindex-2026/
