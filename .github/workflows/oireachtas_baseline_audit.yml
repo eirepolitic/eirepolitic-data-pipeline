@@ -51,88 +51,95 @@ jobs:
           }
           s=df[df['metric_id'].isin(speech_ids)].copy()
           periods=sorted(s['period_end'].dropna().unique())
-          latest=pd.Timestamp(periods[-1])
-          latest_label=latest.strftime('%Y-%m-%d')
 
-          def rows(metric, period=latest, grain=None):
+          def rows(metric, period, grain=None):
               x=s[(s.metric_id==metric)&(s.period_end==period)].copy()
               if grain is not None:
                   x=x[x.grain==grain]
               return x.sort_values('value_num',ascending=False)
 
           national=[]
+          normal_periods=[]
           for p in periods:
               count=rows('national_speech_count',p)
               rate=rows('national_speeches_per_debate_day',p)
-              national.append({
-                  'period_end':pd.Timestamp(p).strftime('%Y-%m-%d'),
-                  'speech_count':float(count.iloc[0].value_num) if len(count) else None,
-                  'speeches_per_debate_day':float(rate.iloc[0].value_num) if len(rate) else None,
-              })
+              speech_count=float(count.iloc[0].value_num) if len(count) else None
+              ppd=float(rate.iloc[0].value_num) if len(rate) and pd.notna(rate.iloc[0].value_num) else None
+              national.append({'period_end':pd.Timestamp(p).strftime('%Y-%m-%d'),'speech_count':speech_count,'speeches_per_debate_day':ppd})
+              if speech_count is not None and speech_count >= 1000:
+                  normal_periods.append(pd.Timestamp(p))
 
-          members=rows('member_speech_count')
+          analysis_period=normal_periods[-1]
+          analysis_label=analysis_period.strftime('%Y-%m-%d')
+
+          members=rows('member_speech_count',analysis_period)
           total=float(members.value_num.sum())
-          member_values=members.value_num.fillna(0)
-          top10=float(member_values.head(10).sum()/total) if total else None
-          n_top20=max(1,int((len(members)*0.20)+0.999999))
-          top20pct=float(member_values.head(n_top20).sum()/total) if total else None
-          shares=(member_values/total) if total else member_values*0
-          hhi=float((shares**2).sum()) if total else None
+          active=members[members.value_num>0].copy()
+          top10_share=float(active.value_num.head(10).sum()/total) if total else None
+          top20n=max(1,int(len(members)*0.20+0.999999))
+          top20_share=float(members.value_num.head(top20n).sum()/total) if total else None
+          zero_count=int((members.value_num==0).sum())
 
-          speaking_days=rows('member_speaking_day_count')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speaking_days'})
-          member_counts=members[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speech_count'})
-          member_rates=rows('member_speeches_per_eligible_debate_day')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_eligible_debate_day'})
-          member_join=member_counts.merge(speaking_days,on=['entity_id','entity_name'],how='left').merge(member_rates,on=['entity_id','entity_name'],how='left')
-          member_join['speeches_per_speaking_day']=member_join['speech_count']/member_join['speaking_days'].replace({0:pd.NA})
+          speaking=rows('member_speaking_day_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speaking_days'})
+          rates=rows('member_speeches_per_eligible_debate_day',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_eligible_debate_day'})
+          mj=members[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speech_count'}).merge(speaking,on=['entity_id','entity_name'],how='left').merge(rates,on=['entity_id','entity_name'],how='left')
+          mj['speeches_per_speaking_day']=mj['speech_count']/mj['speaking_days'].replace({0:pd.NA})
 
-          party_raw=rows('party_speech_count')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
-          party_norm=rows('party_speeches_per_active_member')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_member'})
+          party_raw=rows('party_speech_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
+          party_norm=rows('party_speeches_per_active_member',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_member'})
           party=party_raw.merge(party_norm,on=['entity_id','entity_name'],how='outer')
-          party['raw_rank']=party['raw_speeches'].rank(method='min',ascending=False)
-          party['norm_rank']=party['speeches_per_active_member'].rank(method='min',ascending=False)
-          party['rank_shift']=party['raw_rank']-party['norm_rank']
-          party=party.sort_values('speeches_per_active_member',ascending=False)
+          party['raw_rank']=party.raw_speeches.rank(method='min',ascending=False)
+          party['norm_rank']=party.speeches_per_active_member.rank(method='min',ascending=False)
+          party['rank_shift']=party.raw_rank-party.norm_rank
 
-          const_raw=rows('constituency_speech_count')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
-          const_norm=rows('constituency_speeches_per_active_rep')[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_rep'})
-          const=const_raw.merge(const_norm,on=['entity_id','entity_name'],how='outer')
-          const['raw_rank']=const['raw_speeches'].rank(method='min',ascending=False)
-          const['norm_rank']=const['speeches_per_active_rep'].rank(method='min',ascending=False)
-          const['rank_shift']=const['raw_rank']-const['norm_rank']
+          cr=rows('constituency_speech_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
+          cn=rows('constituency_speeches_per_active_rep',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_rep'})
+          const=cr.merge(cn,on=['entity_id','entity_name'],how='outer')
+          const['raw_rank']=const.raw_speeches.rank(method='min',ascending=False)
+          const['norm_rank']=const.speeches_per_active_rep.rank(method='min',ascending=False)
+          const['rank_shift']=const.raw_rank-const.norm_rank
 
-          # Party month-on-month normalized change, latest versus previous available month.
-          party_change=[]
-          if len(periods)>=2:
-              prev=pd.Timestamp(periods[-2])
-              a=rows('party_speeches_per_active_member',prev)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'previous'})
-              b=rows('party_speeches_per_active_member',latest)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'latest'})
-              c=a.merge(b,on=['entity_id','entity_name'],how='outer').fillna({'previous':0,'latest':0})
-              c['absolute_change']=c['latest']-c['previous']
-              c['pct_change']=c.apply(lambda r: ((r['latest']/r['previous'])-1) if r['previous']>0 else None,axis=1)
-              party_change=c.reindex(c.absolute_change.abs().sort_values(ascending=False).index).head(10).to_dict(orient='records')
+          trend=pd.DataFrame(national)
+          trend['period_end']=pd.to_datetime(trend.period_end)
+          normal=trend[trend.speech_count>=1000].copy()
+          highest_raw=normal.sort_values('speech_count',ascending=False).head(6).to_dict(orient='records')
+          highest_rate=normal.sort_values('speeches_per_debate_day',ascending=False).head(6).to_dict(orient='records')
+          lowest_rate=normal.sort_values('speeches_per_debate_day',ascending=True).head(6).to_dict(orient='records')
+
+          # Aggregate member volume across latest 12 completed months, excluding zero-activity months naturally.
+          cutoff=pd.Timestamp(periods[-1])-pd.DateOffset(months=11)
+          trailing=s[(s.metric_id=='member_speech_count')&(s.period_end>=cutoff)].copy()
+          trailing12=trailing.groupby(['entity_id','entity_name'],as_index=False).value_num.sum().sort_values('value_num',ascending=False)
+          trailing12_total=float(trailing12.value_num.sum())
+          trailing12['share']=trailing12.value_num/trailing12_total if trailing12_total else 0
 
           report={
-              'resolved_key':resolved,
-              'latest_period_end':latest_label,
-              'available_periods':[pd.Timestamp(p).strftime('%Y-%m-%d') for p in periods],
-              'national_monthly':national,
-              'latest_member_concentration':{
-                  'member_count':int(len(members)),
-                  'td_speech_total':total,
-                  'top_10_share':top10,
-                  'top_20_percent_of_members_share':top20pct,
-                  'hhi':hhi,
-                  'top_15_members':member_join.sort_values('speech_count',ascending=False).head(15).to_dict(orient='records'),
-                  'highest_speeches_per_speaking_day_min_3_days':member_join[member_join.speaking_days>=3].sort_values('speeches_per_speaking_day',ascending=False).head(15).to_dict(orient='records'),
-                  'widest_speaking_day_coverage':member_join.sort_values(['speaking_days','speech_count'],ascending=False).head(15).to_dict(orient='records'),
-              },
-              'latest_party_activity':party.to_dict(orient='records'),
-              'latest_party_rank_shifts':party.reindex(party.rank_shift.abs().sort_values(ascending=False).index).head(10).to_dict(orient='records'),
-              'latest_constituency_activity':const.sort_values('speeches_per_active_rep',ascending=False).head(25).to_dict(orient='records'),
-              'latest_constituency_rank_shifts':const.reindex(const.rank_shift.abs().sort_values(ascending=False).index).head(15).to_dict(orient='records'),
-              'latest_party_month_on_month_change':party_change,
+            'resolved_key':resolved,
+            'latest_completed_period':pd.Timestamp(periods[-1]).strftime('%Y-%m-%d'),
+            'analysis_period_latest_normal_month':analysis_label,
+            'normal_month_rule':'national_speech_count >= 1000',
+            'national_monthly':national,
+            'trend_highest_raw_months':highest_raw,
+            'trend_highest_speeches_per_debate_day_months':highest_rate,
+            'trend_lowest_speeches_per_debate_day_normal_months':lowest_rate,
+            'analysis_month_members':{
+              'td_speech_total':total,
+              'tds_with_at_least_one_speech':int((members.value_num>0).sum()),
+              'tds_with_zero_recorded_speeches':zero_count,
+              'top_10_share':top10_share,
+              'top_20_percent_member_share':top20_share,
+              'top_20_by_speech_count':mj.sort_values('speech_count',ascending=False).head(20).to_dict(orient='records'),
+              'widest_speaking_day_coverage':mj.sort_values(['speaking_days','speech_count'],ascending=False).head(20).to_dict(orient='records'),
+              'highest_speeches_per_speaking_day_min_5_days':mj[mj.speaking_days>=5].sort_values('speeches_per_speaking_day',ascending=False).head(15).to_dict(orient='records'),
+            },
+            'analysis_month_parties_by_raw':party.sort_values('raw_speeches',ascending=False).to_dict(orient='records'),
+            'analysis_month_parties_by_normalized':party.sort_values('speeches_per_active_member',ascending=False).to_dict(orient='records'),
+            'analysis_month_party_rank_shifts':party.reindex(party.rank_shift.abs().sort_values(ascending=False).index).head(12).to_dict(orient='records'),
+            'analysis_month_constituencies_by_normalized':const.sort_values('speeches_per_active_rep',ascending=False).head(20).to_dict(orient='records'),
+            'analysis_month_constituency_rank_shifts':const.reindex(const.rank_shift.abs().sort_values(ascending=False).index).head(15).to_dict(orient='records'),
+            'trailing_12_month_top_members':trailing12.head(25).to_dict(orient='records'),
+            'trailing_12_month_top10_share':float(trailing12.head(10).value_num.sum()/trailing12_total) if trailing12_total else None,
           }
-
           Path('analysis').mkdir(exist_ok=True)
           with open('analysis/speech_metric_opportunities.json','w') as f:
               json.dump(report,f,indent=2,sort_keys=True,default=str)
@@ -143,5 +150,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add analysis/speech_metric_opportunities.json
-          git commit -m "Capture promoted speech metric opportunity analysis ${GITHUB_RUN_ID}" || true
+          git commit -m "Extend promoted speech metric opportunity analysis ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
