@@ -27,14 +27,18 @@ jobs:
           python - <<'PY'
           import json, os
           import boto3
-          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_if_exists, resolve_production_key
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, resolve_production_key
           from extract.oireachtas.contracts import load_contract_config
 
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
           bucket=os.environ['S3_BUCKET']
           contracts,_=load_contract_config()
           selected=['member_photo_urls','member_summaries','constituency_images','debate_issue_labels']
-          pointer=read_json_if_exists(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          try:
+              obj=s3.get_object(Bucket=bucket,Key=PRODUCTION_POINTER_KEY)
+              pointer=json.loads(obj['Body'].read().decode('utf-8'))
+          except Exception as exc:
+              pointer={'error':f'{type(exc).__name__}: {exc}'}
           report={'production_pointer':pointer,'contracts':{}}
           for name in selected:
               logical=contracts[name].logical_key
@@ -60,6 +64,7 @@ jobs:
           os.makedirs('diagnostics',exist_ok=True)
           with open('diagnostics/aux_source_audit.json','w') as f:
               json.dump(report,f,indent=2,sort_keys=True)
+          print(json.dumps(report,indent=2,sort_keys=True))
           PY
       - name: Persist audit on temporary branch
         run: |
