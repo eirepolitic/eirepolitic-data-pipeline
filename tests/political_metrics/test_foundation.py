@@ -37,12 +37,28 @@ class TemporalJoinTests(unittest.TestCase):
         history = pd.DataFrame({
             "member_code": ["m1", "m1"],
             "party_start": ["2025-01-01", "2026-01-15"],
-            "party_end": ["2026-01-14", None],
+            "party_end": ["2026-01-15", None],
             "party_uri": ["party:A", "party:B"],
             "party_name": ["Party A", "Party B"],
         })
         joined = attach_event_party(events, history)
         self.assertEqual(joined["party_uri"].tolist(), ["party:A", "party:B"])
+
+    def test_transition_date_belongs_to_new_party(self):
+        events = pd.DataFrame({
+            "speech_id": ["s1"],
+            "member_code": ["m1"],
+            "event_date": ["2026-01-15"],
+        })
+        history = pd.DataFrame({
+            "member_code": ["m1", "m1"],
+            "party_start": ["2025-01-01", "2026-01-15"],
+            "party_end": ["2026-01-15", None],
+            "party_uri": ["party:A", "party:B"],
+            "party_name": ["Party A", "Party B"],
+        })
+        joined = attach_event_party(events, history)
+        self.assertEqual(joined.loc[0, "party_uri"], "party:B")
 
     def test_constituency_switch_is_period_correct(self):
         events = pd.DataFrame({
@@ -53,14 +69,14 @@ class TemporalJoinTests(unittest.TestCase):
         history = pd.DataFrame({
             "member_code": ["m1", "m1"],
             "represent_start": ["2025-01-01", "2026-01-15"],
-            "represent_end": ["2026-01-14", None],
+            "represent_end": ["2026-01-15", None],
             "constituency_uri": ["constituency:C1", "constituency:C2"],
             "constituency_name": ["Old", "New"],
         })
         joined = attach_event_constituency(events, history)
         self.assertEqual(joined["constituency_uri"].tolist(), ["constituency:C1", "constituency:C2"])
 
-    def test_overlapping_party_history_raises(self):
+    def test_true_overlapping_party_history_raises(self):
         events = pd.DataFrame({
             "speech_id": ["s1"],
             "member_code": ["m1"],
@@ -68,8 +84,8 @@ class TemporalJoinTests(unittest.TestCase):
         })
         history = pd.DataFrame({
             "member_code": ["m1", "m1"],
-            "party_start": ["2025-01-01", "2026-01-01"],
-            "party_end": [None, None],
+            "party_start": ["2025-01-01", "2026-01-10"],
+            "party_end": ["2026-01-20", None],
             "party_uri": ["party:A", "party:B"],
             "party_name": ["Party A", "Party B"],
         })
@@ -87,6 +103,16 @@ class ExposureTests(unittest.TestCase):
         debate_days = ["2026-01-10", "2026-01-20", "2026-01-21"]
         exposure = member_debate_day_exposure(memberships, debate_days)
         self.assertEqual(exposure.loc[0, "eligible_debate_days"], 2)
+
+    def test_membership_end_date_is_exclusive(self):
+        memberships = pd.DataFrame({
+            "member_code": ["m1"],
+            "membership_start": ["2026-01-01"],
+            "membership_end": ["2026-01-20"],
+        })
+        debate_days = ["2026-01-19", "2026-01-20"]
+        exposure = member_debate_day_exposure(memberships, debate_days)
+        self.assertEqual(exposure.loc[0, "eligible_debate_days"], 1)
 
 
 class SpeechMetricTests(unittest.TestCase):
@@ -135,7 +161,7 @@ class SpeechMetricTests(unittest.TestCase):
 
 
 class ValidationTests(unittest.TestCase):
-    def test_history_overlap_is_reported(self):
+    def test_true_history_overlap_is_reported(self):
         history = pd.DataFrame({
             "member_code": ["m1", "m1"],
             "party_start": ["2026-01-01", "2026-01-10"],
@@ -148,6 +174,20 @@ class ValidationTests(unittest.TestCase):
             end_col="party_end",
         )
         self.assertTrue(any("overlapping" in error for error in errors))
+
+    def test_same_day_transition_is_not_overlap(self):
+        history = pd.DataFrame({
+            "member_code": ["m1", "m1"],
+            "party_start": ["2026-01-01", "2026-01-15"],
+            "party_end": ["2026-01-15", None],
+        })
+        errors = validate_temporal_history(
+            history,
+            entity_col="member_code",
+            start_col="party_start",
+            end_col="party_end",
+        )
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":
