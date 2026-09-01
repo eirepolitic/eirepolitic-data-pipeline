@@ -1,105 +1,65 @@
-name: Instagram Party Cover Visual Review
+name: Instagram Party Monthly Profile Commissioning
 
 on:
   workflow_dispatch:
+    inputs:
+      period:
+        description: "Completed month to render (YYYY-MM or last_completed_month)"
+        required: true
+        default: "2026-07"
 
 permissions:
   contents: write
 
+concurrency:
+  group: instagram-party-monthly-profile-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  render-cover-review:
+  render:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      PYTHONPATH: ${{ github.workspace }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out commissioning branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install dependencies
-        run: pip install pillow
-      - name: Render revised Fianna Fail cover
-        shell: bash
+
+      - name: Install renderer dependencies
         run: |
-          python <<'PY'
-          from pathlib import Path
-          from PIL import Image, ImageDraw, ImageFont
+          python -m pip install --upgrade pip
+          pip install boto3 pillow pyyaml
 
-          W, H = 1080, 1350
-          BG = '#0f2f24'
-          TEXT = '#f4ead7'
-          ACCENT = '#d8b45f'
+      - name: Render and QA five-slide monthly party batch
+        run: |
+          python -m instagram.factory.party_monthly_profile --period "${{ inputs.period }}"
 
-          out = Path('instagram/commissioning/output/cover-review/v1')
-          out.mkdir(parents=True, exist_ok=True)
+      - name: Show run summary
+        run: |
+          cat "instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}/run_manifest.json"
 
-          def font(size, bold=False):
-              candidates = [
-                  '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf' if bold else '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-                  'DejaVuSans-Bold.ttf' if bold else 'DejaVuSans.ttf',
-              ]
-              for candidate in candidates:
-                  try:
-                      return ImageFont.truetype(candidate, size)
-                  except OSError:
-                      pass
-              return ImageFont.load_default()
-
-          # Build the same 1032x1210 cover media used by the factory.
-          media = Image.new('RGB', (1032, 1210), BG)
-          d = ImageDraw.Draw(media)
-          party_font = font(68, True)
-          number_font = font(72, True)
-          label_font = font(25, True)
-          small_font = font(24, False)
-
-          cx, cy, radius = 516, 375, 225
-          d.ellipse((cx-radius, cy-radius, cx+radius, cy+radius), outline=ACCENT, width=10)
-          d.text((cx, cy-46), 'Fianna', font=party_font, fill=TEXT, anchor='mm')
-          d.text((cx, cy+46), 'Fáil', font=party_font, fill=TEXT, anchor='mm')
-
-          # Revised cover metrics.
-          d.text((270, 785), '770', font=number_font, fill=TEXT, anchor='mm')
-          d.text((270, 852), 'CLASSIFIED SPEECHES', font=label_font, fill=ACCENT, anchor='mm')
-          d.text((762, 785), '16.0', font=number_font, fill=TEXT, anchor='mm')
-          d.text((762, 852), 'AVG SPEECHES PER TD', font=label_font, fill=ACCENT, anchor='mm')
-
-          d.line((215, 945, 817, 945), fill=ACCENT, width=3)
-          d.text((516, 1000), 'JANUARY 2026', font=label_font, fill=ACCENT, anchor='mm')
-          d.text((516, 1048), '1 Jan – 31 Jan 2026', font=small_font, fill=TEXT, anchor='mm')
-
-          # Compose with the exact current 1080x1350 layout geometry.
-          slide = Image.new('RGB', (W, H), BG)
-          sd = ImageDraw.Draw(slide)
-
-          for path, pos in [
-              ('instagram/templates/assets/corner_tl.png', (0, 0)),
-              ('instagram/templates/assets/corner_tr.png', (925, 0)),
-              ('instagram/templates/assets/corner_bl.png', (0, 1195)),
-              ('instagram/templates/assets/corner_br.png', (925, 1195)),
-          ]:
-              corner = Image.open(path).convert('RGBA').resize((155,155), Image.Resampling.LANCZOS)
-              slide.paste(corner, pos, corner)
-
-          title_font = font(56, True)
-          sd.text((540, 100), 'Fianna Fáil', font=title_font, fill=TEXT, anchor='mm')
-          sd.rectangle((112, 174, 968, 178), fill=ACCENT)
-
-          # main_media box x=24 y=190 w=1032 h=1126, fit=contain
-          fit = media.copy()
-          fit.thumbnail((1032,1126), Image.Resampling.LANCZOS)
-          px = 24 + (1032-fit.width)//2
-          py = 190 + (1126-fit.height)//2
-          slide.paste(fit, (px, py))
-
-          slide.save(out/'fianna-fail-cover.png')
-          PY
+      - name: Commit review outputs
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/output/cover-review/v1
-          git commit -m "Add revised Fianna Fail cover metric review" || true
-          git push
-      - name: Upload review artifact
+          git add "instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}"
+          git commit -m "Render party monthly profile for ${{ inputs.period }}" || true
+          git push origin "HEAD:${{ github.ref_name }}"
+
+      - name: Upload review package
         uses: actions/upload-artifact@v4
         with:
-          name: cover-review-${{ github.run_id }}
-          path: instagram/commissioning/output/cover-review/v1/
+          name: party-monthly-profile-${{ inputs.period }}-${{ github.run_id }}
+          path: instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}/
+          if-no-files-found: error
