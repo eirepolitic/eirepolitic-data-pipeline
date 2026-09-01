@@ -159,7 +159,7 @@ The approved design keeps political metrics inside the same immutable Oireachtas
 
 ### Daily/event foundations
 
-The materialization layer now supports:
+The materialization layer supports:
 
 - `daily_activity_components`
 - `daily_issue_activity`
@@ -196,11 +196,13 @@ This prevents broad Dáil totals from being accidentally mixed with TD-only comp
 
 Metrics without a dimension use the explicit sentinel values `dimension_name=none` and `dimension_value=none`; nulls are not used in the primary key.
 
+Only fully completed calendar months are included in the monthly consumer dataset. The current partial month is never emitted beside completed months as if it were directly comparable.
+
 ### Candidate-batch safety
 
 `political_metrics/candidate_publish.py` writes metric files only to immutable candidate-batch paths and records them as batch entries. It cannot update `production.json` or `previous.json`.
 
-The Oireachtas batch key mapper now supports logical metric keys under:
+The Oireachtas batch key mapper supports logical metric keys under:
 
 `processed/oireachtas_unified/latest/metrics/...`
 
@@ -208,15 +210,47 @@ which map to:
 
 `processed/oireachtas_unified/batches/<batch_id>/metrics/...`
 
-The materialization commissioning run successfully validated CSV/Parquet output, primary keys, source-batch consistency, and long-form monthly results using promoted July 2026 data.
+`process/political_metrics_materialize_candidate.py` reads canonical data from the candidate itself, validates issue-classifier completeness, rebuilds the daily/event foundations across available history, rebuilds all completed-month result rows, writes the five metric datasets into the same candidate, and records each as a validated batch entry.
 
-## Remaining refresh decision
+The candidate manifest requires all five metric entries before promotion can succeed:
 
-Weekly candidate refreshes already run the speech issue classifier. Monthly and yearly candidate refreshes currently do not.
+- `political_metrics_daily_activity_components`
+- `political_metrics_daily_issue_activity`
+- `political_metrics_division_party_vote_components`
+- `political_metrics_daily_question_dimensions`
+- `political_metrics_monthly_metric_results`
 
-Before metric candidate publishing is enabled in the scheduled refresh workflow, one policy must be chosen:
+## Approved classifier policy — A1
 
-1. classify changed/new speeches on every candidate refresh that changes speech data, keeping issue metrics fully synchronized but increasing classifier usage/cost; or
-2. keep the current weekly classifier cadence, allowing non-issue metrics to refresh on monthly/yearly candidates while issue metrics update only when a classification-complete candidate is available.
+A1 is implemented in `.github/workflows/oireachtas_refresh_reusable.yml`.
 
-The scheduled workflow has not been changed to increase classifier usage automatically.
+The normalized refresh inputs now expose whether the actual refresh table set changes `silver_speeches`.
+
+The candidate lifecycle is:
+
+1. seed the candidate from the current promoted batch;
+2. rebuild the requested canonical tables;
+3. if `silver_speeches` changed, run the speech issue classifier before metrics;
+4. rebuild political metrics from that candidate;
+5. require all political-metric entries during candidate manifest assembly;
+6. validate the complete candidate;
+7. only then allow the existing promotion workflow to update the production pointer.
+
+The manual `classify_speeches` input remains available as an explicit force-run, but a speech-changing candidate no longer depends on that flag being set correctly.
+
+With the current default refresh table sets, weekly refreshes change `silver_speeches` and therefore classify automatically. Monthly and yearly refreshes do not currently rebuild `silver_speeches`, so they reuse the candidate's already-classified seeded speech snapshot and do not incur unnecessary classifier calls. If a future monthly/yearly/custom refresh adds `silver_speeches`, A1 automatically requires classification for that candidate.
+
+## Integration validation
+
+Candidate-only integration run `33469008937` passed after regression fixes for completed-month date handling and zero-division months.
+
+The successful test:
+
+- passed the political-metrics unit suite;
+- seeded a throwaway candidate from production;
+- rebuilt full-history political metric foundations and completed-month results;
+- wrote the metric datasets only inside the throwaway candidate batch;
+- assembled a validated candidate manifest with all five metric datasets required; and
+- verified that the production pointer did not point to the throwaway candidate.
+
+The temporary integration harness was removed after the successful run. PR #42 remains the review boundary; no merge or production promotion was performed as part of this work.
