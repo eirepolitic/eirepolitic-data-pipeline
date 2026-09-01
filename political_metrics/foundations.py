@@ -49,12 +49,13 @@ def _activity_rows(
     component_id: str,
     value_col: str | None = None,
     count_distinct_col: str | None = None,
+    national_entity_id: str = "dail",
 ) -> pd.DataFrame:
     data = frame.copy()
     if data.empty:
         return pd.DataFrame(columns=["activity_date", "grain", "entity_id", "component_id", "component_value"])
     data["activity_date"] = pd.to_datetime(data[date_col], errors="coerce").dt.date.astype(str)
-    data["entity_id"] = "national" if entity_col is None else data[entity_col].astype(str)
+    data["entity_id"] = national_entity_id if entity_col is None else data[entity_col].astype(str)
     keys = ["activity_date", "entity_id"]
     if value_col is not None:
         grouped = data.groupby(keys, dropna=False)[value_col].sum().rename("component_value").reset_index()
@@ -86,25 +87,22 @@ def build_daily_activity_components(
         speeches, memberships, member_parties, member_constituencies, period
     )
     eligible_speeches = attach_issue_labels(eligible_speeches, labels)
-    policy = policy_speeches(eligible_speeches)
+    eligible_policy = policy_speeches(eligible_speeches)
 
     period_speeches = speeches.copy()
     speech_dates = pd.to_datetime(period_speeches["debate_date"], errors="coerce")
     period_speeches = period_speeches.loc[
         speech_dates.between(pd.Timestamp(period.start), pd.Timestamp(period.end), inclusive="both")
     ].copy()
+    period_speeches_with_issues = attach_issue_labels(period_speeches, labels)
+    dail_policy = policy_speeches(period_speeches_with_issues)
 
     period_debates = debate_records.copy()
     debate_dates = pd.to_datetime(period_debates["debate_date"], errors="coerce")
     period_debates = period_debates.loc[
         debate_dates.between(pd.Timestamp(period.start), pd.Timestamp(period.end), inclusive="both")
     ].copy()
-    debate_days = (
-        period_debates[["debate_date"]]
-        .dropna()
-        .drop_duplicates()
-        .assign(debate_day_count=1)
-    )
+    debate_days = period_debates[["debate_date"]].dropna().drop_duplicates().assign(debate_day_count=1)
 
     period_divisions = divisions.copy()
     division_dates = pd.to_datetime(period_divisions["division_date"], errors="coerce")
@@ -136,25 +134,27 @@ def build_daily_activity_components(
 
     rows: list[pd.DataFrame] = []
 
-    rows.append(_activity_rows(period_speeches, date_col="debate_date", grain="national", entity_col=None, component_id="speech_count", count_distinct_col="speech_id"))
+    rows.append(_activity_rows(period_speeches, date_col="debate_date", grain="national", entity_col=None, national_entity_id="dail", component_id="speech_count", count_distinct_col="speech_id"))
+    rows.append(_activity_rows(dail_policy, date_col="debate_date", grain="national", entity_col=None, national_entity_id="dail", component_id="policy_speech_count", count_distinct_col="speech_id"))
+    rows.append(_activity_rows(eligible_speeches, date_col="debate_date", grain="national", entity_col=None, national_entity_id="eligible_tds", component_id="speech_count", count_distinct_col="speech_id"))
+    rows.append(_activity_rows(eligible_policy, date_col="debate_date", grain="national", entity_col=None, national_entity_id="eligible_tds", component_id="policy_speech_count", count_distinct_col="speech_id"))
+
     for grain, col in [("member", "member_code"), ("party", "party_uri"), ("constituency", "constituency_uri")]:
         rows.append(_activity_rows(eligible_speeches, date_col="debate_date", grain=grain, entity_col=col, component_id="speech_count", count_distinct_col="speech_id"))
-        rows.append(_activity_rows(policy, date_col="debate_date", grain=grain, entity_col=col, component_id="policy_speech_count", count_distinct_col="speech_id"))
-
-    rows.append(_activity_rows(policy, date_col="debate_date", grain="national", entity_col=None, component_id="policy_speech_count", count_distinct_col="speech_id"))
+        rows.append(_activity_rows(eligible_policy, date_col="debate_date", grain=grain, entity_col=col, component_id="policy_speech_count", count_distinct_col="speech_id"))
 
     member_speaking = eligible_speeches[["debate_date", "member_code"]].drop_duplicates().assign(value=1)
     rows.append(_activity_rows(member_speaking, date_col="debate_date", grain="member", entity_col="member_code", component_id="speaking_day_count", value_col="value"))
 
-    rows.append(_activity_rows(debate_days, date_col="debate_date", grain="national", entity_col=None, component_id="debate_day_count", value_col="debate_day_count"))
+    rows.append(_activity_rows(debate_days, date_col="debate_date", grain="national", entity_col=None, national_entity_id="dail", component_id="debate_day_count", value_col="debate_day_count"))
 
     if not debate_days.empty:
-        debate_event = debate_days.rename(columns={"debate_date": "event_date"})[["event_date"]].copy()
-        debate_event["debate_day_id"] = pd.to_datetime(debate_event["event_date"]).dt.date.astype(str)
+        debate_event = debate_days.rename(columns={"debate_date": "debate_date"})[["debate_date"]].copy()
+        debate_event["debate_day_id"] = pd.to_datetime(debate_event["debate_date"]).dt.date.astype(str)
         from political_metrics.eligibility import eligible_member_events
         eligible_debate = eligible_member_events(
             memberships,
-            debate_event.rename(columns={"event_date": "debate_date"}),
+            debate_event,
             event_id_col="debate_day_id",
             event_date_col="debate_date",
         ).assign(value=1)
@@ -165,7 +165,7 @@ def build_daily_activity_components(
         rows.append(_activity_rows(party_debate, date_col="debate_date", grain="party", entity_col="party_uri", component_id="member_debate_day_exposure", value_col="value"))
         rows.append(_activity_rows(const_debate, date_col="debate_date", grain="constituency", entity_col="constituency_uri", component_id="member_debate_day_exposure", value_col="value"))
 
-    rows.append(_activity_rows(period_divisions, date_col="division_date", grain="national", entity_col=None, component_id="division_count", count_distinct_col="division_id"))
+    rows.append(_activity_rows(period_divisions, date_col="division_date", grain="national", entity_col=None, national_entity_id="dail", component_id="division_count", count_distinct_col="division_id"))
     rows.append(_activity_rows(eligible_pairs.assign(value=1), date_col="division_date", grain="member", entity_col="member_code", component_id="eligible_member_division_count", value_col="value"))
     rows.append(_activity_rows(eligible_party.assign(value=1), date_col="division_date", grain="party", entity_col="party_uri", component_id="eligible_member_division_count", value_col="value"))
     rows.append(_activity_rows(eligible_const.assign(value=1), date_col="division_date", grain="constituency", entity_col="constituency_uri", component_id="eligible_member_division_count", value_col="value"))
@@ -175,15 +175,37 @@ def build_daily_activity_components(
 
     for grain, col in [("member", "member_code"), ("party", "party_uri"), ("constituency", "constituency_uri")]:
         rows.append(_activity_rows(eligible_questions, date_col="question_date", grain=grain, entity_col=col, component_id="question_count", count_distinct_col="question_id"))
-    rows.append(_activity_rows(eligible_questions, date_col="question_date", grain="national", entity_col=None, component_id="question_count", count_distinct_col="question_id"))
+    rows.append(_activity_rows(eligible_questions, date_col="question_date", grain="national", entity_col=None, national_entity_id="eligible_tds", component_id="question_count", count_distinct_col="question_id"))
 
     combined = pd.concat(rows, ignore_index=True)
     combined = combined[combined["entity_id"].notna() & combined["entity_id"].astype(str).ne("nan")].copy()
-    combined = (
-        combined.groupby(["activity_date", "grain", "entity_id", "component_id"], as_index=False)["component_value"]
-        .sum()
-    )
+    combined = combined.groupby(["activity_date", "grain", "entity_id", "component_id"], as_index=False)["component_value"].sum()
     return _stamp(combined, source_batch_id=source_batch_id, contract_version=contract_version)[ACTIVITY_COLUMNS]
+
+
+def _issue_rows(data: pd.DataFrame, *, national_entity_id: str | None = None) -> list[pd.DataFrame]:
+    outputs: list[pd.DataFrame] = []
+    if data.empty:
+        return outputs
+    data = data.copy()
+    data["activity_date"] = pd.to_datetime(data["debate_date"], errors="coerce").dt.date.astype(str)
+    if national_entity_id is not None:
+        issue = data.groupby(["activity_date", "issue_label"])["speech_id"].nunique().rename("issue_speech_count").reset_index()
+        total = data.groupby("activity_date")["speech_id"].nunique().rename("policy_speech_count").reset_index()
+        national = issue.merge(total, on="activity_date", how="left")
+        national["grain"] = "national"
+        national["entity_id"] = national_entity_id
+        outputs.append(national[["activity_date", "grain", "entity_id", "issue_label", "issue_speech_count", "policy_speech_count"]])
+        return outputs
+
+    for grain, col in [("member", "member_code"), ("party", "party_uri"), ("constituency", "constituency_uri")]:
+        scoped = data[data[col].notna()].copy()
+        issue = scoped.groupby(["activity_date", col, "issue_label"])["speech_id"].nunique().rename("issue_speech_count").reset_index()
+        total = scoped.groupby(["activity_date", col])["speech_id"].nunique().rename("policy_speech_count").reset_index()
+        merged = issue.merge(total, on=["activity_date", col], how="left").rename(columns={col: "entity_id"})
+        merged["grain"] = grain
+        outputs.append(merged[["activity_date", "grain", "entity_id", "issue_label", "issue_speech_count", "policy_speech_count"]])
+    return outputs
 
 
 def build_daily_issue_activity(
@@ -197,29 +219,19 @@ def build_daily_issue_activity(
     source_batch_id: str,
     contract_version: int,
 ) -> pd.DataFrame:
+    dates = pd.to_datetime(speeches["debate_date"], errors="coerce")
+    period_speeches = speeches.loc[dates.between(pd.Timestamp(period.start), pd.Timestamp(period.end), inclusive="both")].copy()
+    dail_policy = policy_speeches(attach_issue_labels(period_speeches, labels))
+
     eligible = prepare_eligible_td_speeches(speeches, memberships, member_parties, member_constituencies, period)
-    eligible = attach_issue_labels(eligible, labels)
-    policy = policy_speeches(eligible)
-    if policy.empty:
+    eligible_policy = policy_speeches(attach_issue_labels(eligible, labels))
+
+    outputs = []
+    outputs.extend(_issue_rows(dail_policy, national_entity_id="dail"))
+    outputs.extend(_issue_rows(eligible_policy, national_entity_id="eligible_tds"))
+    outputs.extend(_issue_rows(eligible_policy))
+    if not outputs:
         return pd.DataFrame(columns=ISSUE_COLUMNS)
-
-    policy["activity_date"] = pd.to_datetime(policy["debate_date"], errors="coerce").dt.date.astype(str)
-    outputs: list[pd.DataFrame] = []
-    for grain, col in [("member", "member_code"), ("party", "party_uri"), ("constituency", "constituency_uri")]:
-        data = policy[policy[col].notna()].copy()
-        issue = data.groupby(["activity_date", col, "issue_label"])["speech_id"].nunique().rename("issue_speech_count").reset_index()
-        total = data.groupby(["activity_date", col])["speech_id"].nunique().rename("policy_speech_count").reset_index()
-        merged = issue.merge(total, on=["activity_date", col], how="left").rename(columns={col: "entity_id"})
-        merged["grain"] = grain
-        outputs.append(merged[["activity_date", "grain", "entity_id", "issue_label", "issue_speech_count", "policy_speech_count"]])
-
-    issue = policy.groupby(["activity_date", "issue_label"])["speech_id"].nunique().rename("issue_speech_count").reset_index()
-    total = policy.groupby("activity_date")["speech_id"].nunique().rename("policy_speech_count").reset_index()
-    national = issue.merge(total, on="activity_date", how="left")
-    national["grain"] = "national"
-    national["entity_id"] = "national"
-    outputs.append(national[["activity_date", "grain", "entity_id", "issue_label", "issue_speech_count", "policy_speech_count"]])
-
     combined = pd.concat(outputs, ignore_index=True)
     return _stamp(combined, source_batch_id=source_batch_id, contract_version=contract_version)[ISSUE_COLUMNS]
 
@@ -239,11 +251,7 @@ def build_division_party_vote_components(
     votes["event_date"] = votes["division_date"]
     votes = attach_event_party(votes, member_parties, event_date_col="event_date")
     votes = votes[votes["party_uri"].notna()].copy()
-    grouped = (
-        votes.groupby(["division_id", "division_date", "party_uri", "vote_code"], as_index=False)
-        .size()
-        .rename(columns={"size": "recorded_vote_count"})
-    )
+    grouped = votes.groupby(["division_id", "division_date", "party_uri", "vote_code"], as_index=False).size().rename(columns={"size": "recorded_vote_count"})
     return _stamp(grouped, source_batch_id=source_batch_id, contract_version=contract_version)[VOTE_COLUMNS]
 
 
@@ -272,13 +280,7 @@ def build_daily_question_dimensions(
             data = eligible[eligible[entity_col].notna() & eligible[source_col].notna()].copy()
             data[source_col] = data[source_col].astype(str).str.strip()
             data = data[data[source_col].ne("")]
-            grouped = (
-                data.groupby(["activity_date", entity_col, source_col])["question_id"]
-                .nunique()
-                .rename("question_count")
-                .reset_index()
-                .rename(columns={entity_col: "entity_id", source_col: "dimension_value"})
-            )
+            grouped = data.groupby(["activity_date", entity_col, source_col])["question_id"].nunique().rename("question_count").reset_index().rename(columns={entity_col: "entity_id", source_col: "dimension_value"})
             grouped["grain"] = grain
             grouped["dimension_name"] = dimension_name
             outputs.append(grouped[["activity_date", "grain", "entity_id", "dimension_name", "dimension_value", "question_count"]])
@@ -286,15 +288,9 @@ def build_daily_question_dimensions(
         data = eligible[eligible[source_col].notna()].copy()
         data[source_col] = data[source_col].astype(str).str.strip()
         data = data[data[source_col].ne("")]
-        grouped = (
-            data.groupby(["activity_date", source_col])["question_id"]
-            .nunique()
-            .rename("question_count")
-            .reset_index()
-            .rename(columns={source_col: "dimension_value"})
-        )
+        grouped = data.groupby(["activity_date", source_col])["question_id"].nunique().rename("question_count").reset_index().rename(columns={source_col: "dimension_value"})
         grouped["grain"] = "national"
-        grouped["entity_id"] = "national"
+        grouped["entity_id"] = "eligible_tds"
         grouped["dimension_name"] = dimension_name
         outputs.append(grouped[["activity_date", "grain", "entity_id", "dimension_name", "dimension_value", "question_count"]])
 
