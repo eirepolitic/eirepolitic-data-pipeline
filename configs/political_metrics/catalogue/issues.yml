@@ -1,0 +1,173 @@
+catalogue_version: 1
+metrics:
+  - metric_id: national_issue_speech_count
+    metric_version: 1
+    status: draft
+    public_name: Speeches about an issue
+    public_question: How many recorded Dáil speeches were mainly about this issue?
+    public_explanation: Counts policy-labelled speeches whose main classified topic is the selected issue.
+    public_interpretation: A higher number means the issue appeared more often as the main topic of recorded Dáil speeches during the period.
+    public_caveat: Each speech receives one main issue label, so a speech that mentions several subjects is counted only under its primary classified topic.
+    public_use_status: suitable_with_context
+    grain: national_issue
+    dimensions: [period, issue]
+    required_sources: [silver_speeches, enrichment_speech_issue_labels]
+    numerator: distinct policy-labelled speeches assigned to the issue
+    denominator: null
+    formula: count_distinct(speech_id where issue_label = selected_issue)
+    period_behavior: filter speeches by resolved period
+    historical_join_policy: none required for broad Dáil issue totals
+    zero_policy: return 0 when no speeches are assigned to the issue
+    missing_policy: issue metrics require the classifier quality gate to pass for the requested period
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: national_issue_share
+    metric_version: 1
+    status: draft
+    public_name: Share of policy speeches about an issue
+    public_question: What share of policy-focused Dáil speeches were mainly about this issue?
+    public_explanation: Divides speeches assigned to the selected issue by all speeches with a substantive policy label. Speeches labelled `NONE` are excluded from the denominator.
+    public_interpretation: A value of 20% means one in five policy-labelled speeches had this issue as its main topic.
+    public_caveat: This measures attention in recorded speech activity, not public importance, policy impact, or time spent debating the issue.
+    public_use_status: suitable_with_context
+    grain: national_issue
+    dimensions: [period, issue]
+    required_sources: [silver_speeches, enrichment_speech_issue_labels]
+    numerator: national_issue_speech_count
+    denominator: all policy-labelled speeches excluding issue_label = NONE
+    formula: national_issue_speech_count / national_policy_speech_count
+    period_behavior: numerator and denominator use the same resolved period
+    historical_join_policy: none required for broad Dáil issue totals
+    zero_policy: return 0 for an issue when denominator is positive and issue count is zero
+    missing_policy: null when no policy-labelled speeches exist or classifier quality gate fails
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: member_issue_share
+    metric_version: 1
+    status: draft
+    public_name: Share of a TD's policy speeches about an issue
+    public_question: How much of this TD's recorded policy speaking focused on this issue?
+    public_explanation: Divides the TD's speeches assigned to the selected issue by all of that TD's policy-labelled speeches in the period.
+    public_interpretation: A value of 25% means one in four of the TD's policy-labelled speeches had this issue as the main topic.
+    public_caveat: A high share can reflect a small number of speeches. Small totals should be shown with a reliability warning.
+    public_use_status: suitable_with_context
+    grain: member_issue
+    dimensions: [period, member, issue]
+    required_sources: [silver_speeches, silver_member_memberships, enrichment_speech_issue_labels]
+    numerator: eligible TD speeches assigned to selected issue
+    denominator: all policy-labelled speeches by the eligible TD
+    formula: member_issue_speech_count / member_policy_speech_count
+    period_behavior: numerator and denominator use the same resolved period
+    historical_join_policy: speaker must have active Dáil membership on speech date
+    zero_policy: return 0 when the TD has policy speeches but none assigned to the issue
+    missing_policy: null when the TD has no policy-labelled speeches or classifier gate fails
+    minimum_samples:
+      reliable: 20
+      caution: 10
+      insufficient_for_comparison: 0
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: party_issue_share
+    metric_version: 1
+    status: draft
+    public_name: Party focus on an issue
+    public_question: What share of this party's recorded policy speeches focused on this issue?
+    public_explanation: Divides eligible TD speeches assigned to the selected issue by all policy-labelled speeches from TDs listed under the party at the time.
+    public_interpretation: A value of 30% means three in ten of the party's policy-labelled TD speeches had this issue as the main topic.
+    public_caveat: This measures speaking emphasis, not the party's policy position or whether it supports or opposes something.
+    public_use_status: suitable_with_context
+    grain: party_issue
+    dimensions: [period, party, issue]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_parties, enrichment_speech_issue_labels]
+    affiliation_basis: oireachtas_listed_affiliation
+    numerator: eligible TD speeches assigned to the issue and attributed to the Oireachtas-listed party on the speech date
+    denominator: all policy-labelled eligible TD speeches attributed to that party
+    formula: party_issue_speech_count / party_policy_speech_count
+    period_behavior: numerator and denominator use the same resolved period
+    historical_join_policy: active Dáil membership plus event-date Oireachtas-listed party
+    zero_policy: return 0 when party denominator is positive and issue count is zero
+    missing_policy: null when party has no policy-labelled speeches or classifier/history gate fails
+    minimum_samples:
+      reliable: 20
+      caution: 10
+      insufficient_for_comparison: 0
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: party_issue_share_vs_td_national_pp
+    metric_version: 1
+    status: draft
+    public_name: Party emphasis compared with all TDs
+    public_question: Did this party focus on the issue more or less than TDs overall?
+    public_explanation: Compares the party's share of policy speeches about the issue with the equivalent share across all eligible TD policy speeches.
+    public_interpretation: A result of +8 percentage points means the issue made up 8 percentage points more of the party's policy speeches than of TD policy speeches overall.
+    public_caveat: This measures relative speaking emphasis, not agreement, policy quality, or public support. Comparative claims are suppressed for very small party speech totals.
+    public_use_status: suitable_with_context
+    grain: party_issue
+    dimensions: [period, party, issue]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_parties, enrichment_speech_issue_labels]
+    numerator: party_issue_share minus eligible_TD_national_issue_share
+    denominator: null
+    formula: 100 * (party_issue_share - td_national_issue_share)
+    baseline_population: all eligible TD policy-labelled speeches in the requested period
+    weighting: national baseline is weighted naturally by speech volume
+    historical_join_policy: active Dáil membership plus event-date Oireachtas-listed party
+    minimum_samples:
+      reliable: 20
+      caution: 10
+      insufficient_for_comparison: 0
+    output_unit: percentage_points
+    additivity: non_additive
+    refresh_frequency: source_batch
+
+  - metric_id: party_issue_share_vs_average_party_pp
+    metric_version: 1
+    status: draft
+    public_name: Party emphasis compared with the average party
+    public_question: Did this party focus on the issue more or less than a typical eligible party?
+    public_explanation: Compares the party's issue share with the unweighted average issue share across eligible parties. Each eligible party has equal influence on the baseline regardless of size.
+    public_interpretation: A result of +8 percentage points means the issue made up 8 percentage points more of this party's policy speeches than the average eligible party.
+    public_caveat: This baseline deliberately differs from the all-TD comparison. Parties with fewer than 20 policy-labelled speeches are excluded from the average-party baseline, and the synthetic Independent grouping is excluded from that baseline.
+    public_use_status: suitable_with_context
+    grain: party_issue
+    dimensions: [period, party, issue]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_parties, enrichment_speech_issue_labels]
+    numerator: party_issue_share minus unweighted mean eligible_party_issue_share
+    denominator: null
+    baseline_population: Oireachtas-listed parties with at least 20 policy-labelled eligible TD speeches, excluding the synthetic Independent grouping
+    weighting: unweighted_across_eligible_parties
+    formula: 100 * (party_issue_share - mean(eligible_party_issue_share))
+    zero_policy: eligible parties with zero speeches on the selected issue contribute a zero issue share to the baseline
+    missing_policy: parties not meeting reliability requirements may retain raw shares but comparative public claims are suppressed
+    output_unit: percentage_points
+    additivity: non_additive
+    refresh_frequency: source_batch
+
+  - metric_id: constituency_issue_share
+    metric_version: 1
+    status: draft
+    public_name: Constituency focus on an issue
+    public_question: What share of policy speeches from this constituency's TDs focused on this issue?
+    public_explanation: Divides eligible TD speeches assigned to the selected issue by all policy-labelled speeches from TDs representing the constituency at the time.
+    public_interpretation: Useful for showing which subjects featured more or less prominently in recorded speaking by a constituency's representatives.
+    public_caveat: This is a measure of Dáil speaking activity by representatives, not a measure of constituency residents' priorities or opinions.
+    public_use_status: suitable_with_context
+    grain: constituency_issue
+    dimensions: [period, constituency, issue]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_constituencies, enrichment_speech_issue_labels]
+    numerator: eligible TD speeches assigned to the issue and attributed to the constituency on the speech date
+    denominator: all policy-labelled eligible TD speeches attributed to that constituency
+    formula: constituency_issue_speech_count / constituency_policy_speech_count
+    historical_join_policy: active Dáil membership plus event-date constituency representation
+    zero_policy: return 0 when denominator is positive and issue count is zero
+    missing_policy: null when constituency has no policy-labelled speeches or classifier/history gate fails
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
