@@ -147,45 +147,76 @@ A size-adjusted **questions per TD** measure has deliberately not been defined y
 
 `.github/workflows/political_metrics_historical_audit.yml` runs the historical audit manually and writes only workflow artifacts, not S3 metric outputs.
 
-Separate non-publishing commissioning runners now exist for:
-
-- core speech metrics
-- issue metrics
-- voting metrics
-- parliamentary-question metrics
-
-Commissioning runs calculate real results from promoted canonical data, perform source and reconciliation checks, and write only temporary workflow artifacts for review.
+Separate non-publishing commissioning runners exist for core speech, issue, voting, parliamentary-question, and materialization validation.
 
 Historical certification applies only to the date range actually represented and covered in the promoted batch. A structurally correct history model does not prove that older Dáil terms have already been backfilled.
 
-## Reliability and result context
+## Approved materialization design — Option A
 
-Public/comparative metric results should carry enough context to avoid misleading claims. Depending on metric type, outputs should include:
+The approved design keeps political metrics inside the same immutable Oireachtas batch as the canonical data that produced them.
 
+`configs/political_metrics/materialization.yml` defines the contract.
+
+### Daily/event foundations
+
+The materialization layer now supports:
+
+- `daily_activity_components`
+- `daily_issue_activity`
+- `division_party_vote_components`
+- `daily_question_dimensions`
+
+These store additive components used to rebuild arbitrary date-range measures without rescanning raw source facts or averaging already-calculated percentages.
+
+National issue populations are deliberately separated:
+
+- `entity_id=dail` = all recorded Dáil speakers
+- `entity_id=eligible_tds` = speeches/questions belonging to active TDs and suitable for TD/party comparison baselines
+
+This prevents broad Dáil totals from being accidentally mixed with TD-only comparison populations.
+
+### Completed-month results
+
+`monthly_metric_results` is a long-form consumer dataset. It stores one row per metric/entity/dimension/month with:
+
+- `metric_id`
+- `metric_version`
+- period start/end
+- grain and entity
+- optional dimension such as issue, question type or question recipient
+- value
 - numerator
 - denominator
-- eligible population
-- source coverage
-- reliability status
-- warning codes
-- metric version
+- output unit
+- reliability/public-use status
+- warning code
 - source batch ID
-- period start/end
+- calculation timestamp
+- contract version
 
-The public label should remain simple even when the backend calculation is technical.
+Metrics without a dimension use the explicit sentinel values `dimension_name=none` and `dimension_value=none`; nulls are not used in the primary key.
 
-## Materialization status
+### Candidate-batch safety
 
-The foundation does **not** yet write metric outputs to S3 or alter production refresh workflows.
+`political_metrics/candidate_publish.py` writes metric files only to immutable candidate-batch paths and records them as batch entries. It cannot update `production.json` or `previous.json`.
 
-This is deliberate. Materialization affects storage, refresh behaviour, historical reproducibility, and downstream contracts, so it is a separate architecture decision.
+The Oireachtas batch key mapper now supports logical metric keys under:
 
-The recommended next design is:
+`processed/oireachtas_unified/latest/metrics/...`
 
-1. materialize small additive daily foundations inside the same validated Oireachtas candidate batch;
-2. materialize standard completed-month aggregates for common downstream use;
-3. calculate arbitrary-range comparisons, ranks, percentages and indexes from those foundations rather than rescanning raw speeches;
-4. promote metric outputs only when their source canonical batch and metric validations pass together;
-5. store `source_batch_id`, `metric_id`, `metric_version`, period, numerator/denominator and reliability metadata with every materialized result.
+which map to:
 
-No production S3 or refresh wiring should be added until this materialization contract is approved.
+`processed/oireachtas_unified/batches/<batch_id>/metrics/...`
+
+The materialization commissioning run successfully validated CSV/Parquet output, primary keys, source-batch consistency, and long-form monthly results using promoted July 2026 data.
+
+## Remaining refresh decision
+
+Weekly candidate refreshes already run the speech issue classifier. Monthly and yearly candidate refreshes currently do not.
+
+Before metric candidate publishing is enabled in the scheduled refresh workflow, one policy must be chosen:
+
+1. classify changed/new speeches on every candidate refresh that changes speech data, keeping issue metrics fully synchronized but increasing classifier usage/cost; or
+2. keep the current weekly classifier cadence, allowing non-issue metrics to refresh on monthly/yearly candidates while issue metrics update only when a classification-complete candidate is available.
+
+The scheduled workflow has not been changed to increase classifier usage automatically.
