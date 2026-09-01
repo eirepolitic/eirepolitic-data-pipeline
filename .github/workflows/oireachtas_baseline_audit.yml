@@ -13,7 +13,7 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -22,27 +22,65 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
+      POLITICAL_METRICS_PERIOD: '2026-07'
+      POLITICAL_METRICS_VOTE_COMMISSION_DIR: artifacts/political-metrics-vote-commission
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
+          python -m pip install boto3 pandas
+      - name: Test political metrics foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
       - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
+      - name: Commission July 2026 voting metrics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_vote_commission.py
+      - name: Publish compact voting commissioning results
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/political-metrics-vote-commission/summary.md ]; then
+            cat artifacts/political-metrics-vote-commission/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f artifacts/political-metrics-vote-commission/report.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('artifacts/political-metrics-vote-commission/report.json').read_text())
+          print(f"::notice title=Vote commission totals::period={r['period']['start']}..{r['period']['end']}; divisions={r['division_count']}; member_votes={r['recorded_member_vote_count']}; eligible_member_divisions={r['eligible_member_division_count']}; outside_eligibility={r['recorded_votes_outside_eligibility']}; codes={json.dumps(r['vote_code_counts'],separators=(',',':'))}")
+          members=' | '.join(f"{x['member_name']}:{x['vote_participation_pct']*100:.1f}% ({x['votes_cast_count']}/{x['eligible_division_count']})" for x in r['top_member_participation'])
+          parties=' | '.join(f"{x['party_name']}:{x['vote_participation_pct']*100:.1f}%" for x in r['party_metrics'])
+          unity=' | '.join(f"{x['party_name']}:{x['vote_cohesion_pct']*100:.1f}%/{x['qualifying_unity_divisions']}div" for x in r['party_unity'])
+          const=' | '.join(f"{x['constituency_name']}:{x['vote_participation_pct']*100:.1f}%" for x in r['top_constituency_participation'])
+          print(f"::notice title=Top TD recorded voting participation::{members}")
+          print(f"::notice title=Party recorded voting participation::{parties}")
+          print(f"::notice title=Party voting unity::{unity}")
+          print(f"::notice title=Top constituency recorded voting participation::{const}")
+          PY
+          fi
+      - name: Upload voting commissioning artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
+          name: political-metrics-vote-commission-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/oireachtas-baseline-audit/
+            artifacts/political-metrics-vote-commission/
           if-no-files-found: error
           retention-days: 30
