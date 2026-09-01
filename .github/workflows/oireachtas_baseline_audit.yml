@@ -69,6 +69,12 @@ jobs:
               f"failed_checks={[k for k,v in c['checks'].items() if not v]}"
           )
           print(f"::notice title=Political metrics historical audit::{message}")
+          diagnostic = {
+              'party_validation_errors': h['silver_member_parties']['validation_errors'][:10],
+              'party_unmatched_examples': a.get('party_unmatched_examples', [])[:10],
+              'constituency_unmatched_examples': a.get('constituency_unmatched_examples', [])[:10],
+          }
+          print(f"::notice title=Political metrics audit diagnostics::{json.dumps(diagnostic, separators=(',', ':'))}")
           PY
       - name: Add political metrics summary
         if: always()
