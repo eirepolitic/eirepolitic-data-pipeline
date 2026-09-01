@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_question_context_audit.py", line 18, in <module>
+    from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_required, resolve_production_key
+ModuleNotFoundError: No module named 'extract'
