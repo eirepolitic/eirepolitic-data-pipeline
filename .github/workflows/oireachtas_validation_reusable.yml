@@ -15,7 +15,7 @@ on:
         value: ${{ jobs.validate.outputs.status }}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -46,14 +46,30 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       - name: Stage fresh enrichment contracts into candidate batch
+        id: stage
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           python process/oireachtas_stage_downstream_contracts.py \
             --bucket "${S3_BUCKET}" \
             --region "${AWS_REGION}" \
             --batch-id "${OIREACHTAS_BATCH_ID}" \
-            | tee oireachtas_enrichment_staging.json
+            > oireachtas_enrichment_staging.log 2>&1
+          rc=$?
+          cat oireachtas_enrichment_staging.log
+          exit "$rc"
+      - name: Persist staging failure diagnostic on ops branch
+        if: failure() && steps.stage.outcome == 'failure'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cp oireachtas_enrichment_staging.log diagnostics/staging_failure.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/staging_failure.txt
+          git commit -m "Capture downstream staging failure from run ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
       - name: Build candidate compatibility adapters
         shell: bash
         run: |
@@ -124,7 +140,7 @@ jobs:
           name: oireachtas-validation-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             oireachtas_review_output/**
-            oireachtas_enrichment_staging.json
+            oireachtas_enrichment_staging.log
             oireachtas_downstream_contracts.json
             oireachtas_compat_adapters.log
             oireachtas_compat_comparison.log
