@@ -45,11 +45,12 @@ foundation_datasets:
     allowed_components:
       - speech_count
       - policy_speech_count
-      - speaking_day_flag
-      - eligible_debate_day_flag
+      - speaking_day_count
+      - debate_day_count
+      - member_debate_day_exposure
       - question_count
-      - eligible_division_count
       - recorded_vote_count
+      - eligible_member_division_count
       - division_count
 
   daily_issue_activity:
