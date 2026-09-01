@@ -4,45 +4,148 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas numpy pyyaml
+      - name: Analyze cross-metric TD profiles
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os
+          from pathlib import Path
+          import boto3
+          import numpy as np
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          logical='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv'
+          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
+          obj=s3.get_object(Bucket=bucket,Key=resolved)
+          m=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          m['period_end']=pd.to_datetime(m['period_end'],errors='coerce')
+          m['value_num']=pd.to_numeric(m['value'],errors='coerce')
+
+          period=pd.Timestamp('2026-07-31')
+          x=m[(m.period_end==period)&(m.grain=='member')].copy()
+          metric_map={
+            'member_speech_count':'speeches',
+            'member_speaking_day_count':'speaking_days',
+            'member_speeches_per_eligible_debate_day':'speeches_per_eligible_day',
+            'member_question_count':'questions',
+            'member_vote_participation_pct':'vote_participation_pct',
+          }
+          x=x[x.metric_id.isin(metric_map)].copy()
+          x['metric']=x.metric_id.map(metric_map)
+          names=x[['entity_id','entity_name']].dropna(subset=['entity_id']).drop_duplicates('entity_id')
+          wide=x.pivot_table(index='entity_id',columns='metric',values='value_num',aggfunc='first').reset_index().merge(names,on='entity_id',how='left')
+          for c in ['speeches','speaking_days','speeches_per_eligible_day','questions']:
+              if c not in wide: wide[c]=0.0
+              wide[c]=pd.to_numeric(wide[c],errors='coerce').fillna(0)
+          if 'vote_participation_pct' not in wide: wide['vote_participation_pct']=np.nan
+          wide['vote_participation_pct']=pd.to_numeric(wide['vote_participation_pct'],errors='coerce')
+
+          # Percentile ranks describe activity style; do not combine them into an overall score.
+          for c in ['speeches','speaking_days','questions','vote_participation_pct']:
+              wide[c+'_pctile']=wide[c].rank(method='average',pct=True)
+
+          # Difference between scrutiny via PQs and speaking volume.
+          wide['question_minus_speech_pctile']=wide['questions_pctile']-wide['speeches_pctile']
+          wide['speech_minus_question_pctile']=wide['speeches_pctile']-wide['questions_pctile']
+
+          # Broad non-evaluative profiles using upper/lower quartiles.
+          def profile(r):
+              s=r['speeches_pctile']; q=r['questions_pctile']; v=r['vote_participation_pct_pctile']
+              if s>=0.75 and q>=0.75: return 'high_speaking_high_questions'
+              if s>=0.75 and q<=0.25: return 'speech_heavy'
+              if q>=0.75 and s<=0.25: return 'question_heavy'
+              if s<=0.25 and q<=0.25 and pd.notna(v) and v>=0.75: return 'low_speech_question_high_recorded_voting'
+              if s<=0.25 and q<=0.25: return 'low_speech_low_questions'
+              return 'mixed'
+          wide['activity_profile']=wide.apply(profile,axis=1)
+
+          # Correlations; Spearman via percentile/rank correlation to reduce outlier effects.
+          corr=wide[['speeches','speaking_days','questions','vote_participation_pct']].corr(method='spearman').round(4).to_dict()
+
+          def records(frame,n=25):
+              cols=['entity_id','entity_name','speeches','speaking_days','questions','vote_participation_pct','speeches_pctile','questions_pctile','vote_participation_pct_pctile','question_minus_speech_pctile','speech_minus_question_pctile','activity_profile']
+              return frame[cols].head(n).to_dict(orient='records')
+
+          profiles={}
+          for label,g in wide.groupby('activity_profile'):
+              profiles[str(label)]=records(g.sort_values(['questions','speeches'],ascending=False),30)
+
+          # Extreme mismatches are useful investigative leads.
+          question_heavy=records(wide.sort_values('question_minus_speech_pctile',ascending=False),30)
+          speech_heavy=records(wide.sort_values('speech_minus_question_pctile',ascending=False),30)
+          high_both=records(wide.sort_values(['questions_pctile','speeches_pctile'],ascending=False)[(wide.questions_pctile>=.75)&(wide.speeches_pctile>=.75)],30)
+
+          # Constituency-level cross metric profiles too.
+          cx=m[(m.period_end==period)&(m.grain=='constituency') & m.metric_id.isin(['constituency_speech_count','constituency_question_count','constituency_vote_participation_pct'])].copy()
+          cmap={'constituency_speech_count':'speeches','constituency_question_count':'questions','constituency_vote_participation_pct':'vote_participation_pct'}
+          cx['metric']=cx.metric_id.map(cmap)
+          cnames=cx[['entity_id','entity_name']].drop_duplicates('entity_id')
+          cwide=cx.pivot_table(index='entity_id',columns='metric',values='value_num',aggfunc='first').reset_index().merge(cnames,on='entity_id',how='left')
+          for c in ['speeches','questions']:
+              if c not in cwide: cwide[c]=0
+              cwide[c]=pd.to_numeric(cwide[c],errors='coerce').fillna(0)
+          cwide['vote_participation_pct']=pd.to_numeric(cwide.get('vote_participation_pct'),errors='coerce')
+          cwide['speech_pctile']=cwide.speeches.rank(pct=True)
+          cwide['question_pctile']=cwide.questions.rank(pct=True)
+          cwide['question_minus_speech_pctile']=cwide.question_pctile-cwide.speech_pctile
+          cwide['speech_minus_question_pctile']=cwide.speech_pctile-cwide.question_pctile
+
+          report={
+            'resolved_key':resolved,
+            'analysis_period':'2026-07',
+            'member_count':int(len(wide)),
+            'spearman_correlations':corr,
+            'profile_counts':wide.activity_profile.value_counts().to_dict(),
+            'question_heavy_mismatches':question_heavy,
+            'speech_heavy_mismatches':speech_heavy,
+            'high_speaking_high_questions':high_both,
+            'profiles':profiles,
+            'top_constituencies_question_heavy':cwide.sort_values('question_minus_speech_pctile',ascending=False).head(20).to_dict(orient='records'),
+            'top_constituencies_speech_heavy':cwide.sort_values('speech_minus_question_pctile',ascending=False).head(20).to_dict(orient='records'),
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          with open('analysis/cross_metric_opportunities.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
+          summary={
+            'analysis_period':report['analysis_period'],
+            'member_count':report['member_count'],
+            'spearman_correlations':report['spearman_correlations'],
+            'profile_counts':report['profile_counts'],
+            'top_question_heavy_mismatches':question_heavy[:15],
+            'top_speech_heavy_mismatches':speech_heavy[:15],
+            'high_speaking_high_questions':high_both[:15],
+            'top_constituencies_question_heavy':report['top_constituencies_question_heavy'][:10],
+            'top_constituencies_speech_heavy':report['top_constituencies_speech_heavy'][:10],
+          }
+          with open('analysis/cross_metric_opportunities_summary.json','w') as fp: json.dump(summary,fp,indent=2,sort_keys=True,default=str)
+          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/cross_metric_opportunities*.json
+          git commit -m "Capture cross-metric opportunity analysis ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
