@@ -35,11 +35,39 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
+def _missing_object(exc: Exception) -> bool:
+    response = getattr(exc, "response", None)
+    if not isinstance(response, dict):
+        return False
+    error = response.get("Error")
+    if not isinstance(error, dict):
+        return False
+    return str(error.get("Code") or "") in {"404", "NoSuchKey", "NotFound"}
+
+
+def _age_days(last_modified, *, now: datetime) -> int:
+    if last_modified is None:
+        raise RuntimeError("S3 object is missing LastModified")
+    return (now.date() - last_modified.astimezone(timezone.utc).date()).days
+
+
 def _source_key(s3, *, bucket: str, logical_key: str) -> str:
+    """Prefer the promoted-batch object, falling back only when it is absent."""
     try:
-        return resolve_production_key(s3, bucket=bucket, production_key=logical_key)
+        resolved = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
     except Exception:
         return logical_key
+
+    if resolved == logical_key:
+        return logical_key
+
+    try:
+        s3.head_object(Bucket=bucket, Key=resolved)
+    except Exception as exc:
+        if _missing_object(exc):
+            return logical_key
+        raise
+    return resolved
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -58,19 +86,43 @@ def main(argv: Sequence[str] | None = None) -> int:
     results: list[dict[str, object]] = []
     for name in selected:
         contract = contracts[name]
+        target_key = batch_key_for_production_key(contract.logical_key, batch_id)
+
+        # Candidate-local enrichment builders may already have produced the
+        # exact object required by the downstream contract. Preserve it when
+        # fresh instead of overwriting it from an older production/logical
+        # source.
+        try:
+            target_head = s3.head_object(Bucket=args.bucket, Key=target_key)
+        except Exception as exc:
+            if not _missing_object(exc):
+                raise
+        else:
+            target_age_days = _age_days(target_head.get("LastModified"), now=now)
+            if target_age_days <= contract.maximum_age_days:
+                results.append(
+                    {
+                        "contract": name,
+                        "logical_key": contract.logical_key,
+                        "source_key": target_key,
+                        "target_key": target_key,
+                        "source_age_days": target_age_days,
+                        "bytes": int(target_head.get("ContentLength") or 0),
+                        "staging_mode": "candidate_existing",
+                    }
+                )
+                continue
+
         source_key = _source_key(s3, bucket=args.bucket, logical_key=contract.logical_key)
         source = s3.get_object(Bucket=args.bucket, Key=source_key)
         body = source["Body"].read()
         head = s3.head_object(Bucket=args.bucket, Key=source_key)
         modified = head.get("LastModified")
-        if modified is None:
-            raise RuntimeError(f"Missing LastModified for {source_key}")
-        age_days = (now.date() - modified.astimezone(timezone.utc).date()).days
+        age_days = _age_days(modified, now=now)
         if age_days > contract.maximum_age_days:
             raise RuntimeError(
                 f"Refusing stale enrichment {name}: age {age_days} days exceeds {contract.maximum_age_days}"
             )
-        target_key = batch_key_for_production_key(contract.logical_key, batch_id)
         s3.put_object(
             Bucket=args.bucket,
             Key=target_key,
@@ -91,6 +143,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "target_key": target_key,
                 "source_age_days": age_days,
                 "bytes": len(body),
+                "staging_mode": "copied_from_source",
             }
         )
 
