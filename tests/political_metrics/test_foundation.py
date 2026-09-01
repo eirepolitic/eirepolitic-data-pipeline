@@ -106,6 +106,21 @@ class SpeechMetricTests(unittest.TestCase):
         self.assertAlmostEqual(float(result.loc["m1", "share_of_dail_speeches"]), 2 / 3)
         self.assertAlmostEqual(float(result.loc["m1", "speeches_per_eligible_debate_day"]), 1.0)
 
+    def test_eligible_member_with_no_speeches_is_zero_not_missing(self):
+        speeches = pd.DataFrame({
+            "speech_id": ["s1"],
+            "member_code": ["m1"],
+            "debate_date": ["2026-01-10"],
+        })
+        exposure = pd.DataFrame({
+            "member_code": ["m1", "m2"],
+            "eligible_debate_days": [1, 1],
+        })
+        result = member_speech_metrics(speeches, exposure).set_index("member_code")
+        self.assertEqual(result.loc["m2", "speech_count"], 0)
+        self.assertEqual(result.loc["m2", "speaking_day_count"], 0)
+        self.assertEqual(float(result.loc["m2", "share_of_dail_speeches"]), 0.0)
+
     def test_national_metrics(self):
         speeches = pd.DataFrame({
             "speech_id": ["s1", "s2", "s3"],
