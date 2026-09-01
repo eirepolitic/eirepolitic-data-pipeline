@@ -10,7 +10,12 @@ from __future__ import annotations
 import io
 import json
 import os
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 import boto3
 import pandas as pd
@@ -22,7 +27,7 @@ from political_metrics.question_context import build_oral_question_sections, bui
 BUCKET = os.getenv("S3_BUCKET", "eirepolitic-data")
 REGION = os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or "ca-central-1"
 OUT_DIR = Path(os.getenv("POLITICAL_METRICS_AUDIT_DIR", "artifacts/political-metrics-audit"))
-CONTRACT_PATH = Path(__file__).resolve().parents[1] / "configs/political_metrics/materialization.yml"
+CONTRACT_PATH = REPO_ROOT / "configs/political_metrics/materialization.yml"
 
 KEYS = {
     "questions": "processed/oireachtas_unified/latest/csv/silver_questions.csv",
