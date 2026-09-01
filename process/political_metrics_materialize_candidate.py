@@ -32,11 +32,14 @@ from political_metrics.issue_audit import audit_issue_classification
 from political_metrics.materialize import get_dataset_contract, load_materialization_contract
 from political_metrics.monthly_results import build_monthly_results
 from political_metrics.periods import MetricPeriod
+from political_metrics.question_context import build_oral_question_sections, build_speech_question_context
 from political_metrics.sources import canonical_speeches
-from process.political_metrics_materialization_commission import TABLE_KEYS
+from process.political_metrics_materialization_commission import TABLE_KEYS as COMMISSION_TABLE_KEYS
 
 DUBLIN = ZoneInfo("Europe/Dublin")
 CONTRACT_PATH = REPO_ROOT / "configs/political_metrics/materialization.yml"
+TABLE_KEYS = dict(COMMISSION_TABLE_KEYS)
+TABLE_KEYS["sections"] = "processed/oireachtas_unified/latest/csv/silver_debate_sections.csv"
 
 
 def parser() -> argparse.ArgumentParser:
@@ -160,6 +163,19 @@ def main(argv: list[str] | None = None) -> int:
             source_batch_id=batch_id,
             contract_version=contract_version,
         ),
+        "oral_question_sections": build_oral_question_sections(
+            questions=frames["questions"],
+            speeches=frames["speeches"],
+            debate_sections=frames["sections"],
+            source_batch_id=batch_id,
+            contract_version=contract_version,
+        ),
+        "speech_question_context": build_speech_question_context(
+            speeches=frames["speeches"],
+            questions=frames["questions"],
+            source_batch_id=batch_id,
+            contract_version=contract_version,
+        ),
     }
 
     monthly_frames: list[pd.DataFrame] = []
@@ -195,6 +211,12 @@ def main(argv: list[str] | None = None) -> int:
         },
         "completed_months": [period.label for period in completed_months],
         "classifier_gate": classifier_gate,
+        "question_context_policy": {
+            "question_classifier_run": False,
+            "written_questions_are_standalone_records": True,
+            "oral_questions_anchor_debate_sections": True,
+            "speech_context_values": ["oral_question_exchange", "other"],
+        },
         "datasets": {
             name: {
                 "row_count": result["row_count"],

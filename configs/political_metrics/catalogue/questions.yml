@@ -4,10 +4,10 @@ metrics:
     metric_version: 1
     status: draft
     public_name: Parliamentary questions submitted
-    public_question: How many recorded parliamentary questions did this TD submit during the period?
-    public_explanation: Counts distinct parliamentary questions recorded for the TD while they were an active Dáil member.
-    public_interpretation: A higher number means the TD submitted more recorded parliamentary questions during the selected period.
-    public_caveat: Question volume does not by itself show effectiveness, importance, quality, or whether a satisfactory answer was received.
+    public_question: How many recorded parliamentary-question records did this TD submit during the period?
+    public_explanation: Counts distinct Oireachtas question_id records submitted by the TD while they were an active Dáil member. Written and oral question records are both included unless question_type is filtered separately.
+    public_interpretation: A higher number means the TD submitted more recorded parliamentary-question records during the selected period.
+    public_caveat: This does not count the speech interventions that may follow an oral question. Multiple oral questions can share one debate section, while written questions normally have no related transcript exchange. Question volume does not by itself show effectiveness, importance, quality, or whether a satisfactory answer was received.
     public_use_status: suitable_with_context
     grain: member
     dimensions: [period]
@@ -25,11 +25,11 @@ metrics:
   - metric_id: party_question_count
     metric_version: 1
     status: draft
-    public_name: Party parliamentary questions
-    public_question: How many recorded parliamentary questions were submitted by TDs listed under this party at the time?
-    public_explanation: Counts questions using the Oireachtas-listed party affiliation of each eligible TD on the date of the question.
-    public_interpretation: Shows the party's total recorded parliamentary-question activity during the period.
-    public_caveat: Larger parties have more TDs and therefore more opportunity to submit questions. This total should not be treated as a size-adjusted comparison between parties.
+    public_name: Party parliamentary questions submitted
+    public_question: How many recorded parliamentary-question records were submitted by TDs listed under this party at the time?
+    public_explanation: Counts distinct Oireachtas question_id records using the Oireachtas-listed party affiliation of each eligible TD on the date of the question.
+    public_interpretation: Shows the party's total recorded parliamentary-question submission activity during the period.
+    public_caveat: This counts submitted question records, not oral-question debate sections or the speech interventions within them. Larger parties have more TDs and therefore more opportunity to submit questions. This total should not be treated as a size-adjusted comparison between parties.
     public_use_status: suitable_with_context
     grain: party
     dimensions: [period]
@@ -48,11 +48,11 @@ metrics:
   - metric_id: constituency_question_count
     metric_version: 1
     status: draft
-    public_name: Parliamentary questions from constituency TDs
-    public_question: How many recorded parliamentary questions were submitted by TDs representing this constituency at the time?
-    public_explanation: Counts questions using the constituency represented by each eligible TD on the question date.
-    public_interpretation: Shows recorded parliamentary-question activity by the constituency's TDs during the period.
-    public_caveat: Constituencies can have different numbers of TDs, and question volume is not a complete measure of constituency representation work.
+    public_name: Parliamentary questions submitted by constituency TDs
+    public_question: How many recorded parliamentary-question records were submitted by TDs representing this constituency at the time?
+    public_explanation: Counts distinct Oireachtas question_id records using the constituency represented by each eligible TD on the question date.
+    public_interpretation: Shows recorded parliamentary-question submission activity by the constituency's TDs during the period.
+    public_caveat: This counts question records, not oral-question debate sections or related speeches. Constituencies can have different numbers of TDs, and question volume is not a complete measure of constituency representation work.
     public_use_status: suitable_with_context
     grain: constituency
     dimensions: [period]
@@ -70,11 +70,11 @@ metrics:
   - metric_id: question_type_share
     metric_version: 1
     status: draft
-    public_name: Share of questions by type
-    public_question: What kinds of parliamentary questions were submitted during the period?
-    public_explanation: Shows the share of recorded questions belonging to each Oireachtas question type, such as written or oral where those values are present in the source data.
-    public_interpretation: Helps describe the mix of parliamentary-question activity without treating one type as inherently better than another.
-    public_caveat: Question-type labels are taken directly from the Oireachtas source and may change or contain categories that need separate explanation.
+    public_name: Share of submitted questions by type
+    public_question: What kinds of parliamentary-question records were submitted during the period?
+    public_explanation: Shows the share of recorded question_id records belonging to each Oireachtas question type, such as Written or Oral where those values are present in the source data.
+    public_interpretation: Helps describe the mix of parliamentary-question submission activity without treating one type as inherently better than another.
+    public_caveat: Oral question records may share a debate section containing separate speech interventions. This metric counts the submitted question records themselves, not those sections or speeches. Question-type labels are taken directly from the Oireachtas source.
     public_use_status: suitable_with_context
     grain: selectable_national_member_party_or_constituency
     dimensions: [period, question_type]
@@ -92,10 +92,10 @@ metrics:
     metric_version: 1
     status: draft
     public_name: Ministers or departments questioned
-    public_question: How many different recorded ministers or departments received questions from this TD, party or constituency group?
-    public_explanation: Counts distinct recipient labels in the Oireachtas question data for the selected scope and period.
-    public_interpretation: A higher number means questions were directed across a broader range of recorded recipients.
-    public_caveat: Recipient labels may reflect ministerial titles, departments or source naming conventions and should not be interpreted as a formal diversity score.
+    public_question: How many different recorded ministers or departments received submitted parliamentary-question records from this TD, party or constituency group?
+    public_explanation: Counts distinct recipient labels in the Oireachtas question-record data for the selected scope and period.
+    public_interpretation: A higher number means submitted questions were directed across a broader range of recorded recipients.
+    public_caveat: Recipient labels may reflect ministerial titles, departments or source naming conventions and should not be interpreted as a formal diversity score. This metric describes question records, not subsequent oral-question speech exchanges.
     public_use_status: suitable_with_context
     grain: selectable_member_party_or_constituency
     dimensions: [period]
@@ -111,11 +111,11 @@ metrics:
   - metric_id: question_recipient_share
     metric_version: 1
     status: draft
-    public_name: Share of questions sent to a minister or department
-    public_question: What share of recorded questions in this scope went to a particular minister or department?
-    public_explanation: Divides questions sent to the selected recorded recipient by all questions with a populated recipient in the same scope.
-    public_interpretation: Shows which recorded recipients accounted for more or less of the parliamentary-question activity.
-    public_caveat: This measures where questions were directed, not how well they were answered or the political importance of the subject.
+    public_name: Share of submitted questions sent to a minister or department
+    public_question: What share of recorded parliamentary-question records in this scope went to a particular minister or department?
+    public_explanation: Divides submitted question records sent to the selected recorded recipient by all question records with a populated recipient in the same scope.
+    public_interpretation: Shows which recorded recipients accounted for more or less of the parliamentary-question submission activity.
+    public_caveat: This measures where submitted question records were directed, not how well they were answered, the political importance of the subject, or the amount of oral debate that followed.
     public_use_status: suitable_with_context
     grain: selectable_national_member_party_or_constituency_recipient
     dimensions: [period, recipient]
