@@ -39,7 +39,7 @@ jobs:
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
           keys={
             'foundation':'processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv',
-            'divisions':'processed/oireachtas_unified/latest/tables/silver_divisions/csv/silver_divisions.csv',
+            'divisions':'processed/oireachtas_unified/latest/csv/silver_divisions.csv',
             'monthly':'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
           }
           frames={}; resolved={}
@@ -64,17 +64,16 @@ jobs:
           for c in ['subject','division_subject','title','debate_section_title','question','motion_text']:
               if c in divisions.columns:
                   subject_col=c; break
-          div_subject={}
-          div_date={}
+          div_subject={}; div_date={}
           if 'division_id' in divisions.columns:
               for r in divisions.itertuples(index=False):
                   did=str(getattr(r,'division_id'))
-                  div_date[did]=str(getattr(r,'division_date',''))
+                  raw_date=getattr(r,'division_date','')
+                  div_date[did]='' if pd.isna(raw_date) else str(raw_date)
                   if subject_col:
                       val=getattr(r,subject_col)
                       div_subject[did]='' if pd.isna(val) else str(val)
 
-          # Overall division closeness using ta/nil only; staon retained separately.
           div_side=f.groupby(['division_id','vote_code'])['recorded_vote_count'].sum().unstack(fill_value=0)
           close=[]
           for did,row in div_side.iterrows():
@@ -82,14 +81,9 @@ jobs:
               contested=ta+nil
               if contested==0: continue
               margin=abs(ta-nil)
-              close.append({
-                'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
-                'ta':ta,'nil':nil,'staon':staon,'contested_votes':contested,
-                'margin_votes':margin,'margin_share':margin/contested,
-              })
+              close.append({'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),'ta':ta,'nil':nil,'staon':staon,'contested_votes':contested,'margin_votes':margin,'margin_share':margin/contested})
           close=sorted(close,key=lambda x:(x['margin_votes'],x['margin_share']))
 
-          # Party/division cohesion and split events.
           party_div=[]
           for (did,party),g in f.groupby(['division_id','party_uri']):
               total=int(g['recorded_vote_count'].sum())
@@ -99,32 +93,20 @@ jobs:
               majority=sorted(counts.items(),key=lambda kv:(-kv[1],kv[0]))[0][0] if counts else None
               nonzero=sum(1 for v in counts.values() if v>0)
               cohesion=modal/total if total else None
-              party_div.append({
-                'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
-                'party_uri':str(party),'party_name':party_names.get(str(party),str(party)),
-                'recorded_party_votes':total,'majority_vote_code':majority,'cohesion':cohesion,
-                'split':nonzero>1,'vote_counts':counts,
-              })
+              party_div.append({'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),'party_uri':str(party),'party_name':party_names.get(str(party),str(party)),'recorded_party_votes':total,'majority_vote_code':majority,'cohesion':cohesion,'split':nonzero>1,'vote_counts':counts})
           pdf=pd.DataFrame(party_div)
 
           party_summary=[]
           if not pdf.empty:
               for party,g in pdf.groupby('party_uri'):
-                  qualifying=len(g)
-                  split_n=int(g['split'].sum())
+                  qualifying=len(g); split_n=int(g['split'].sum())
                   weighted=(g['cohesion']*g['recorded_party_votes']).sum()/g['recorded_party_votes'].sum()
-                  party_summary.append({
-                    'party_uri':party,'party_name':party_names.get(str(party),str(party)),
-                    'qualifying_divisions':int(qualifying),'split_divisions':split_n,
-                    'split_division_share':split_n/qualifying if qualifying else None,
-                    'weighted_recorded_cohesion':float(weighted),
-                  })
+                  party_summary.append({'party_uri':party,'party_name':party_names.get(str(party),str(party)),'qualifying_divisions':int(qualifying),'split_divisions':split_n,'split_division_share':split_n/qualifying if qualifying else None,'weighted_recorded_cohesion':float(weighted)})
           party_summary=sorted(party_summary,key=lambda x:(-x['split_divisions'],x['weighted_recorded_cohesion']))
 
-          least_cohesive=sorted(party_div,key=lambda x:(x['cohesion'],-x['recorded_party_votes']))[:60]
+          least_cohesive=sorted(party_div,key=lambda x:(x['cohesion'],-x['recorded_party_votes']))
           meaningful_splits=[x for x in least_cohesive if x['recorded_party_votes']>=3 and x['cohesion']<1]
 
-          # Pairwise party majority-side alignment.
           by_div=defaultdict(dict)
           for r in party_div:
               by_div[r['division_id']][r['party_uri']]=r
@@ -134,52 +116,28 @@ jobs:
               for i,a in enumerate(ps):
                   for b in ps[i+1:]:
                       ra,rb=pmap[a],pmap[b]
-                      if ra['majority_vote_code'] not in {'ta','nil'} or rb['majority_vote_code'] not in {'ta','nil'}:
-                          continue
+                      if ra['majority_vote_code'] not in {'ta','nil'} or rb['majority_vote_code'] not in {'ta','nil'}: continue
                       st=pair[(a,b)]; st['compared']+=1
                       if ra['majority_vote_code']==rb['majority_vote_code']:
-                          st['same']+=1
-                          st['same_'+ra['majority_vote_code']]+=1
+                          st['same']+=1; st['same_'+ra['majority_vote_code']]+=1
           align=[]
           for (a,b),st in pair.items():
               if st['compared']>=10:
-                  align.append({
-                    'party_a':a,'party_a_name':party_names.get(a,a),'party_b':b,'party_b_name':party_names.get(b,b),
-                    **st,'alignment_share':st['same']/st['compared']
-                  })
+                  align.append({'party_a':a,'party_a_name':party_names.get(a,a),'party_b':b,'party_b_name':party_names.get(b,b),**st,'alignment_share':st['same']/st['compared']})
           highest_align=sorted(align,key=lambda x:(-x['alignment_share'],-x['compared']))[:30]
           lowest_align=sorted(align,key=lambda x:(x['alignment_share'],-x['compared']))[:30]
 
-          # Divisions with the most party splitting simultaneously.
           split_by_div=[]
           if not pdf.empty:
               for did,g in pdf.groupby('division_id'):
                   splits=g[g['split']]
                   if len(splits):
-                      split_by_div.append({
-                        'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
-                        'split_party_count':int(len(splits)),
-                        'split_parties':[party_names.get(str(x),str(x)) for x in splits['party_uri'].tolist()],
-                      })
+                      split_by_div.append({'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),'split_party_count':int(len(splits)),'split_parties':[party_names.get(str(x),str(x)) for x in splits['party_uri'].tolist()]})
           split_by_div=sorted(split_by_div,key=lambda x:-x['split_party_count'])
 
-          report={
-            'resolved_keys':resolved,
-            'subject_column_used':subject_col,
-            'foundation_rows':int(len(f)),
-            'division_count':int(f['division_id'].nunique()),
-            'date_min':str(f['division_date'].min().date()) if f['division_date'].notna().any() else None,
-            'date_max':str(f['division_date'].max().date()) if f['division_date'].notna().any() else None,
-            'closest_divisions':close[:40],
-            'party_split_summary':party_summary,
-            'least_cohesive_party_division_events':meaningful_splits[:50],
-            'divisions_with_most_split_parties':split_by_div[:30],
-            'highest_party_majority_alignment':highest_align,
-            'lowest_party_majority_alignment':lowest_align,
-          }
+          report={'resolved_keys':resolved,'division_columns':list(divisions.columns),'subject_column_used':subject_col,'foundation_rows':int(len(f)),'division_count':int(f['division_id'].nunique()),'date_min':str(f['division_date'].min().date()) if f['division_date'].notna().any() else None,'date_max':str(f['division_date'].max().date()) if f['division_date'].notna().any() else None,'closest_divisions':close[:40],'party_split_summary':party_summary,'least_cohesive_party_division_events':meaningful_splits[:50],'divisions_with_most_split_parties':split_by_div[:30],'highest_party_majority_alignment':highest_align,'lowest_party_majority_alignment':lowest_align}
           Path('analysis').mkdir(exist_ok=True)
-          with open('analysis/voting_opportunities.json','w') as fp:
-              json.dump(report,fp,indent=2,sort_keys=True,default=str)
+          with open('analysis/voting_opportunities.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
           print(json.dumps(report,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis on temporary branch
