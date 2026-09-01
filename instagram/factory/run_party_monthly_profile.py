@@ -48,6 +48,26 @@ def _install_member_name_aliases() -> None:
     profile._member_snapshot_for_period = wrapped
 
 
+def _install_party_display_names() -> None:
+    """Apply public-facing grouping names without changing the source data in S3."""
+    original = profile._member_snapshot_for_period
+
+    def wrapped(s3, period):
+        rows, source = original(s3, period)
+        renamed = []
+        for row in rows:
+            updated = dict(row)
+            for key in ("party", "Party", "Party Name"):
+                value = updated.get(key)
+                if str(value or "").strip().casefold() == "independent":
+                    updated[key] = "Independents"
+            renamed.append(updated)
+        source = {**source, "party_display_aliases": {"Independent": "Independents"}}
+        return renamed, source
+
+    profile._member_snapshot_for_period = wrapped
+
+
 def _install_measured_context_centering() -> None:
     """Center the two lines below the title rule by their rendered pixel bounds."""
     original = profile._render_chart
@@ -105,6 +125,7 @@ def main() -> None:
     print(f"Resolved classified source: {resolved_key}")
     profile.CLASSIFIED_KEY = resolved_key
     _install_member_name_aliases()
+    _install_party_display_names()
     _install_measured_context_centering()
     profile.main()
 
