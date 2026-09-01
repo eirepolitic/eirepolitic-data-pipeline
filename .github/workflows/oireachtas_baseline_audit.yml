@@ -6,81 +6,43 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
+
 jobs:
-  audit:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      EXPECTED_BATCH_ID: scheduled-weekly-33530737534-1
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install dependencies
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Audit promoted monthly political metrics
+          python -m pip install boto3
+      - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io, json, os
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, resolve_production_key
-          from political_metrics.catalogue import load_catalogue_metric_ids
-
-          bucket=os.environ['S3_BUCKET']
-          expected_batch=os.environ['EXPECTED_BATCH_ID']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-
-          pointer_obj=s3.get_object(Bucket=bucket,Key=PRODUCTION_POINTER_KEY)
-          pointer=json.loads(pointer_obj['Body'].read().decode('utf-8'))
-          if pointer.get('batch_id') != expected_batch:
-              raise SystemExit(f'production batch mismatch: {pointer}')
-
-          logical='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv'
-          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
-          obj=s3.get_object(Bucket=bucket,Key=resolved)
-          df=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False)
-          if df.empty:
-              raise SystemExit('monthly_metric_results is empty')
-
-          source_batches=set(df['source_batch_id'].astype(str))
-          if source_batches != {expected_batch}:
-              raise SystemExit(f'unexpected source_batch_id values: {sorted(source_batches)}')
-
-          metric_ids=set(df['metric_id'].astype(str))
-          expected_ids=load_catalogue_metric_ids()
-          if metric_ids != expected_ids:
-              raise SystemExit(f'metric catalogue mismatch missing={sorted(expected_ids-metric_ids)} extra={sorted(metric_ids-expected_ids)}')
-
-          max_period_end=max(df['period_end'].astype(str))
-          if max_period_end != '2026-08-31':
-              raise SystemExit(f'latest completed month is {max_period_end}, expected 2026-08-31')
-
-          august=df[df['period_end'].eq('2026-08-31')]
-          if august.empty:
-              raise SystemExit('August 2026 monthly metric rows are missing')
-
-          report={
-              'production_batch_id': expected_batch,
-              'resolved_key': resolved,
-              'row_count': int(len(df)),
-              'metric_count': len(metric_ids),
-              'latest_period_end': max_period_end,
-              'august_row_count': int(len(august)),
-              'august_metric_count': int(august['metric_id'].nunique()),
-          }
-          print(json.dumps(report,indent=2,sort_keys=True))
-          PY
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
