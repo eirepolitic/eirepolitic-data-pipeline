@@ -6,6 +6,27 @@ from political_metrics.eligibility import eligible_member_events
 from political_metrics.temporal_joins import attach_event_constituency, attach_event_party
 
 
+PARTY_VOTE_COLUMNS = [
+    "party_uri",
+    "eligible_member_divisions",
+    "recorded_member_votes",
+    "vote_participation_pct",
+    "qualifying_unity_divisions",
+    "unity_votes_aligned",
+    "unity_votes_total",
+    "vote_cohesion_pct",
+    "unity_reliability_status",
+    "unity_public_safe",
+]
+
+CONSTITUENCY_VOTE_COLUMNS = [
+    "constituency_uri",
+    "eligible_member_divisions",
+    "recorded_member_votes",
+    "vote_participation_pct",
+]
+
+
 def eligible_division_pairs(memberships: pd.DataFrame, divisions: pd.DataFrame) -> pd.DataFrame:
     return eligible_member_events(
         memberships,
@@ -41,7 +62,6 @@ def member_vote_participation(
 
 
 def vote_unity_reliability(qualifying_divisions: int) -> str:
-    """Reliability label used by public voting-unity comparisons."""
     if qualifying_divisions >= 10:
         return "reliable"
     if qualifying_divisions >= 5:
@@ -54,29 +74,26 @@ def party_vote_metrics(
     eligible_pairs: pd.DataFrame,
     member_parties: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Calculate party vote participation and recorded voting unity.
+    """Calculate party vote participation and recorded voting unity."""
+    if eligible_pairs.empty:
+        if not member_votes.empty:
+            raise ValueError("recorded member votes exist but no eligible member/division pairs were established")
+        return pd.DataFrame(columns=PARTY_VOTE_COLUMNS)
 
-    Unity is the weighted share of recorded party votes that match the most
-    common vote within that party for each division. Divisions with only one
-    recorded party voter are excluded from the unity denominator because they do
-    not demonstrate within-party agreement.
-    """
     eligible = eligible_pairs.copy()
     eligible["event_date"] = eligible["division_date"]
     eligible = attach_event_party(eligible, member_parties, event_date_col="event_date")
     eligible = eligible[eligible["party_uri"].notna()].copy()
 
-    votes = member_votes.copy()
-    votes["event_date"] = votes["division_date"]
-    votes = attach_event_party(votes, member_parties, event_date_col="event_date")
-    votes = votes[votes["party_uri"].notna()].copy()
+    if member_votes.empty:
+        votes = pd.DataFrame(columns=["member_code", "division_id", "division_date", "vote_code", "party_uri"])
+    else:
+        votes = member_votes.copy()
+        votes["event_date"] = votes["division_date"]
+        votes = attach_event_party(votes, member_parties, event_date_col="event_date")
+        votes = votes[votes["party_uri"].notna()].copy()
 
-    eligible_counts = (
-        eligible.groupby("party_uri")
-        .size()
-        .rename("eligible_member_divisions")
-        .reset_index()
-    )
+    eligible_counts = eligible.groupby("party_uri").size().rename("eligible_member_divisions").reset_index()
     cast_counts = votes.groupby("party_uri").size().rename("recorded_member_votes").reset_index()
 
     result = eligible_counts.merge(cast_counts, on="party_uri", how="left")
@@ -92,7 +109,7 @@ def party_vote_metrics(
         result["vote_cohesion_pct"] = pd.NA
         result["unity_reliability_status"] = "insufficient_for_comparison"
         result["unity_public_safe"] = False
-        return result
+        return result[PARTY_VOTE_COLUMNS]
 
     counts = (
         votes.groupby(["party_uri", "division_id", "vote_code"])
@@ -125,7 +142,7 @@ def party_vote_metrics(
         lambda value: vote_unity_reliability(int(value))
     )
     result["unity_public_safe"] = result["unity_reliability_status"].eq("reliable")
-    return result
+    return result[PARTY_VOTE_COLUMNS]
 
 
 def constituency_vote_participation(
@@ -133,15 +150,23 @@ def constituency_vote_participation(
     eligible_pairs: pd.DataFrame,
     member_constituencies: pd.DataFrame,
 ) -> pd.DataFrame:
+    if eligible_pairs.empty:
+        if not member_votes.empty:
+            raise ValueError("recorded member votes exist but no eligible member/division pairs were established")
+        return pd.DataFrame(columns=CONSTITUENCY_VOTE_COLUMNS)
+
     eligible = eligible_pairs.copy()
     eligible["event_date"] = eligible["division_date"]
     eligible = attach_event_constituency(eligible, member_constituencies, event_date_col="event_date")
     eligible = eligible[eligible["constituency_uri"].notna()].copy()
 
-    votes = member_votes.copy()
-    votes["event_date"] = votes["division_date"]
-    votes = attach_event_constituency(votes, member_constituencies, event_date_col="event_date")
-    votes = votes[votes["constituency_uri"].notna()].copy()
+    if member_votes.empty:
+        votes = pd.DataFrame(columns=["member_code", "division_id", "division_date", "vote_code", "constituency_uri"])
+    else:
+        votes = member_votes.copy()
+        votes["event_date"] = votes["division_date"]
+        votes = attach_event_constituency(votes, member_constituencies, event_date_col="event_date")
+        votes = votes[votes["constituency_uri"].notna()].copy()
 
     eligible_counts = eligible.groupby("constituency_uri").size().rename("eligible_member_divisions").reset_index()
     cast_counts = votes.groupby("constituency_uri").size().rename("recorded_member_votes").reset_index()
@@ -150,4 +175,4 @@ def constituency_vote_participation(
     result["vote_participation_pct"] = result["recorded_member_votes"].div(
         result["eligible_member_divisions"].replace(0, pd.NA)
     ).astype("Float64")
-    return result
+    return result[CONSTITUENCY_VOTE_COLUMNS]
