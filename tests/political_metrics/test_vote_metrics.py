@@ -7,6 +7,7 @@ from political_metrics.calculators.votes import (
     eligible_division_pairs,
     member_vote_participation,
     party_vote_metrics,
+    vote_unity_reliability,
 )
 
 
@@ -65,6 +66,8 @@ class VoteMetricTests(unittest.TestCase):
         self.assertEqual(result.loc["party:A", "unity_votes_total"], 4)
         self.assertAlmostEqual(float(result.loc["party:A", "vote_cohesion_pct"]), 0.75)
         self.assertAlmostEqual(float(result.loc["party:A", "vote_participation_pct"]), 1.0)
+        self.assertEqual(result.loc["party:A", "unity_reliability_status"], "insufficient_for_comparison")
+        self.assertFalse(bool(result.loc["party:A", "unity_public_safe"]))
 
     def test_single_party_voter_does_not_create_unity_evidence(self):
         eligible = pd.DataFrame({
@@ -88,6 +91,14 @@ class VoteMetricTests(unittest.TestCase):
         result = party_vote_metrics(votes, eligible, parties).iloc[0]
         self.assertEqual(result["qualifying_unity_divisions"], 0)
         self.assertTrue(pd.isna(result["vote_cohesion_pct"]))
+        self.assertEqual(result["unity_reliability_status"], "insufficient_for_comparison")
+        self.assertFalse(bool(result["unity_public_safe"]))
+
+    def test_unity_reliability_thresholds(self):
+        self.assertEqual(vote_unity_reliability(4), "insufficient_for_comparison")
+        self.assertEqual(vote_unity_reliability(5), "caution")
+        self.assertEqual(vote_unity_reliability(9), "caution")
+        self.assertEqual(vote_unity_reliability(10), "reliable")
 
     def test_constituency_participation_is_period_correct(self):
         eligible = pd.DataFrame({
