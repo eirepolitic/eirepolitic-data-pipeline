@@ -141,6 +141,7 @@ def main() -> int:
             entity_col="member_code",
             start_col="membership_start",
             end_col="membership_end",
+            detail_columns=["membership_id", "house_no", "chamber"],
         ).as_dict(),
         "silver_member_parties": history_coverage(
             parties,
@@ -148,6 +149,7 @@ def main() -> int:
             entity_col="member_code",
             start_col="party_start",
             end_col="party_end",
+            detail_columns=["party_uri", "party_name", "membership_id"],
         ).as_dict(),
         "silver_member_constituencies": history_coverage(
             constituencies,
@@ -155,6 +157,7 @@ def main() -> int:
             entity_col="member_code",
             start_col="represent_start",
             end_col="represent_end",
+            detail_columns=["constituency_uri", "constituency_name", "membership_id"],
         ).as_dict(),
     }
 
