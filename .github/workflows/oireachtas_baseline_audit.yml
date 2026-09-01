@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  promote:
+  audit:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -16,9 +16,7 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'true'
-      OIREACHTAS_PUBLISH_LATEST: 'true'
-      OIREACHTAS_BATCH_ID: scheduled-weekly-33530737534-1
+      EXPECTED_BATCH_ID: scheduled-weekly-33530737534-1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,51 +29,58 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Show pre-promotion status
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" status | tee pre_promotion_status.json
-      - name: Promote validated candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" promote --batch-id "$OIREACHTAS_BATCH_ID" | tee promotion_result.json
-      - name: Verify production pointer and political metric objects
+      - name: Audit promoted monthly political metrics
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os
+          import io, json, os
           import boto3
+          import pandas as pd
           from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, resolve_production_key
+          from political_metrics.catalogue import load_catalogue_metric_ids
 
           bucket=os.environ['S3_BUCKET']
-          batch=os.environ['OIREACHTAS_BATCH_ID']
+          expected_batch=os.environ['EXPECTED_BATCH_ID']
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          obj=s3.get_object(Bucket=bucket,Key=PRODUCTION_POINTER_KEY)
-          pointer=json.loads(obj['Body'].read().decode('utf-8'))
-          if pointer.get('batch_id') != batch:
-              raise SystemExit(f"production pointer mismatch: {pointer}")
 
-          logical_keys=[
-              'processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv',
-              'processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/csv/daily_issue_activity.csv',
-              'processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv',
-              'processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv',
-              'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
-          ]
-          verified=[]
-          for logical in logical_keys:
-              resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
-              head=s3.head_object(Bucket=bucket,Key=resolved)
-              if f'/batches/{batch}/' not in resolved:
-                  raise SystemExit(f'logical metric resolved outside promoted batch: {logical} -> {resolved}')
-              verified.append({'logical':logical,'resolved':resolved,'bytes':head.get('ContentLength')})
-          print(json.dumps({'production':pointer,'verified_metrics':verified},indent=2,sort_keys=True))
+          pointer_obj=s3.get_object(Bucket=bucket,Key=PRODUCTION_POINTER_KEY)
+          pointer=json.loads(pointer_obj['Body'].read().decode('utf-8'))
+          if pointer.get('batch_id') != expected_batch:
+              raise SystemExit(f'production batch mismatch: {pointer}')
+
+          logical='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv'
+          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
+          obj=s3.get_object(Bucket=bucket,Key=resolved)
+          df=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False)
+          if df.empty:
+              raise SystemExit('monthly_metric_results is empty')
+
+          source_batches=set(df['source_batch_id'].astype(str))
+          if source_batches != {expected_batch}:
+              raise SystemExit(f'unexpected source_batch_id values: {sorted(source_batches)}')
+
+          metric_ids=set(df['metric_id'].astype(str))
+          expected_ids=load_catalogue_metric_ids()
+          if metric_ids != expected_ids:
+              raise SystemExit(f'metric catalogue mismatch missing={sorted(expected_ids-metric_ids)} extra={sorted(metric_ids-expected_ids)}')
+
+          max_period_end=max(df['period_end'].astype(str))
+          if max_period_end != '2026-08-31':
+              raise SystemExit(f'latest completed month is {max_period_end}, expected 2026-08-31')
+
+          august=df[df['period_end'].eq('2026-08-31')]
+          if august.empty:
+              raise SystemExit('August 2026 monthly metric rows are missing')
+
+          report={
+              'production_batch_id': expected_batch,
+              'resolved_key': resolved,
+              'row_count': int(len(df)),
+              'metric_count': len(metric_ids),
+              'latest_period_end': max_period_end,
+              'august_row_count': int(len(august)),
+              'august_metric_count': int(august['metric_id'].nunique()),
+          }
+          print(json.dumps(report,indent=2,sort_keys=True))
           PY
-      - name: Show post-promotion status
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" status | tee post_promotion_status.json
