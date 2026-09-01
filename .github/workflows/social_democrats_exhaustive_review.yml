@@ -1,0 +1,44 @@
+name: Social Democrats Exhaustive Logo Review
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/social_democrats_search_candidates_v1.csv"
+      - "process/social_democrats_exhaustive_review.py"
+      - ".github/workflows/social_democrats_exhaustive_review.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install review dependencies
+        run: pip install requests pillow cairosvg pymupdf
+
+      - name: Build exhaustive Social Democrats contact sheet
+        run: python -m process.social_democrats_exhaustive_review
+
+      - name: Commit browser-accessible review files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1/social_democrats
+          if git diff --cached --quiet; then
+            echo "Social Democrats review unchanged."
+          else
+            git commit -m "Update Social Democrats exhaustive logo review [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
