@@ -15,7 +15,7 @@ on:
         value: ${{ jobs.validate.outputs.status }}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -45,6 +45,13 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+      - name: Build candidate-local auxiliary enrichments
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.enrichment_member_photo_urls | tee oireachtas_member_photo_enrichment.log
+          python -m extract.oireachtas.enrichment_member_summaries | tee oireachtas_member_summaries_enrichment.log
+          python -m extract.oireachtas.enrichment_constituency_images | tee oireachtas_constituency_images_enrichment.log
       - name: Stage fresh enrichment contracts into candidate batch
         shell: bash
         run: |
@@ -124,6 +131,9 @@ jobs:
           name: oireachtas-validation-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             oireachtas_review_output/**
+            oireachtas_member_photo_enrichment.log
+            oireachtas_member_summaries_enrichment.log
+            oireachtas_constituency_images_enrichment.log
             oireachtas_enrichment_staging.json
             oireachtas_downstream_contracts.json
             oireachtas_compat_adapters.log
