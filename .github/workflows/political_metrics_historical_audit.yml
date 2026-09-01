@@ -38,6 +38,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install boto3 pandas
 
+      - name: Test political metrics foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+
       - name: Run read-only historical metrics audit
         shell: bash
         run: |
