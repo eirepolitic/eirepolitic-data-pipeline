@@ -138,6 +138,8 @@ def _speech_examples(frame: pd.DataFrame, *, limit: int = 10) -> list[dict]:
 
 
 def _unmatched_examples(joined: pd.DataFrame, history_value_col: str, *, limit: int = 10) -> list[dict]:
+    if history_value_col not in joined.columns:
+        return []
     return _speech_examples(joined.loc[joined[history_value_col].isna()], limit=limit)
 
 
@@ -175,8 +177,12 @@ def speech_temporal_attribution_audit(
         membership_gap = base.iloc[0:0].copy()
         td_speeches = base.copy()
 
-    party_joined = attach_event_party(td_speeches, member_parties, event_date_col="event_date")
-    constituency_joined = attach_event_constituency(td_speeches, member_constituencies, event_date_col="event_date")
+    if td_speeches.empty:
+        party_joined = td_speeches.assign(party_uri=pd.Series(dtype="object"))
+        constituency_joined = td_speeches.assign(constituency_uri=pd.Series(dtype="object"))
+    else:
+        party_joined = attach_event_party(td_speeches, member_parties, event_date_col="event_date")
+        constituency_joined = attach_event_constituency(td_speeches, member_constituencies, event_date_col="event_date")
 
     return {
         "identified_speech_rows": int(len(base)),
