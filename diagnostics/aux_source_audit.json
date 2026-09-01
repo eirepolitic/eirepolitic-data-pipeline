@@ -1,0 +1,71 @@
+{
+  "contracts": {
+    "constituency_images": {
+      "logical": {
+        "exists": true,
+        "last_modified": "2026-07-01T21:07:37+00:00",
+        "size": 7354
+      },
+      "logical_key": "processed/oireachtas_unified/compat/media/constituency_images_compat.csv",
+      "resolve_error": null,
+      "resolved": {
+        "error_code": "404",
+        "exists": false
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/compat/media/constituency_images_compat.csv"
+    },
+    "debate_issue_labels": {
+      "logical": {
+        "exists": true,
+        "last_modified": "2026-07-03T21:24:24+00:00",
+        "size": 61391796
+      },
+      "logical_key": "processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv",
+      "resolve_error": null,
+      "resolved": {
+        "exists": true,
+        "last_modified": "2026-08-31T20:48:59+00:00",
+        "size": 87158214
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/compat/debates/debate_speeches_classified_compat.csv"
+    },
+    "member_photo_urls": {
+      "logical": {
+        "exists": true,
+        "last_modified": "2026-06-30T05:24:43+00:00",
+        "size": 23389
+      },
+      "logical_key": "processed/oireachtas_unified/compat/media/members_photo_urls_compat.csv",
+      "resolve_error": null,
+      "resolved": {
+        "error_code": "404",
+        "exists": false
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/compat/media/members_photo_urls_compat.csv"
+    },
+    "member_summaries": {
+      "logical": {
+        "exists": true,
+        "last_modified": "2026-07-03T16:34:01+00:00",
+        "size": 293657
+      },
+      "logical_key": "processed/oireachtas_unified/compat/text/members_summaries_compat.csv",
+      "resolve_error": null,
+      "resolved": {
+        "error_code": "404",
+        "exists": false
+      },
+      "resolved_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/compat/text/members_summaries_compat.csv"
+    }
+  },
+  "production_pointer": {
+    "batch_id": "speech-classifier-backfill-2026-08-31",
+    "manifest_key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "scheduled-weekly-33310991798-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-08-31T20:49:19+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "33431803802"
+  }
+}
