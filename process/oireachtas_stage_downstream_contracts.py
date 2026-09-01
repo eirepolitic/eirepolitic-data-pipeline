@@ -35,11 +35,38 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
+def _missing_object(exc: Exception) -> bool:
+    response = getattr(exc, "response", None)
+    if not isinstance(response, dict):
+        return False
+    error = response.get("Error")
+    if not isinstance(error, dict):
+        return False
+    return str(error.get("Code") or "") in {"404", "NoSuchKey", "NotFound"}
+
+
 def _source_key(s3, *, bucket: str, logical_key: str) -> str:
+    """Prefer the promoted-batch object, falling back only when it is absent.
+
+    Auxiliary compat/enrichment objects can legitimately pre-date batch capture and
+    therefore may exist at their stable logical key without existing inside the
+    currently promoted immutable batch. Other S3 failures are not masked.
+    """
     try:
-        return resolve_production_key(s3, bucket=bucket, production_key=logical_key)
+        resolved = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
     except Exception:
         return logical_key
+
+    if resolved == logical_key:
+        return logical_key
+
+    try:
+        s3.head_object(Bucket=bucket, Key=resolved)
+    except Exception as exc:
+        if _missing_object(exc):
+            return logical_key
+        raise
+    return resolved
 
 
 def main(argv: Sequence[str] | None = None) -> int:
