@@ -1,14 +1,9 @@
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/run_party_monthly_profile.py", line 23, in <module>
-    main()
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/run_party_monthly_profile.py", line 19, in main
-    profile.main()
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 523, in main
-    build(args.period, Path(args.output_root))
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 370, in build
-    raise RuntimeError(f"Member join is not publication-ready: {sum(unmatched.values())} unmatched classified rows: {preview}")
-RuntimeError: Member join is not publication-ready: 1 unmatched classified rows: Deputy Cian O’Callaghan (1)
 Resolved unified production batch: speech-classifier-backfill-2026-08-31
 Resolved classified source: processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv
+{
+  "status": "PASS",
+  "period": "2026-07",
+  "parties": 11,
+  "slides": 55,
+  "output": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07"
+}

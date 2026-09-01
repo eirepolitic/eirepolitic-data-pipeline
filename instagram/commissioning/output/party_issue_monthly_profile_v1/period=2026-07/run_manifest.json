@@ -1,0 +1,1529 @@
+{
+  "project_id": "party_issue_monthly_profile_v1",
+  "generated_at": "2026-09-01T02:54:30.214953+00:00",
+  "period": {
+    "key": "2026-07",
+    "start": "2026-07-01",
+    "end": "2026-07-31"
+  },
+  "readiness": {
+    "month_complete": true,
+    "classifier_coverage_end": "2026-08-28",
+    "classifier_covers_period_end": true,
+    "month_source_rows": 2839,
+    "classified_month_rows": 2009,
+    "matched_classified_rows": 2009,
+    "matched_by_member_code": 2008,
+    "matched_by_name_fallback": 1,
+    "unmatched_classified_rows": 0,
+    "party_count": 11,
+    "category_count": 24
+  },
+  "sources": {
+    "classified_speeches": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv",
+      "version_id": null,
+      "last_modified": "2026-08-31T20:48:55+00:00",
+      "etag": "230a25a64c896d3cfe662036d4687c23",
+      "row_count": 66192
+    },
+    "member_snapshot": {
+      "bucket": "eirepolitic-data",
+      "key": "raw/members/oireachtas_members_34th_dail.csv",
+      "version_id": null,
+      "last_modified": "2026-08-01T10:53:39+00:00",
+      "etag": "976573a4f3cdf0302bbcc8aa0a52eca4",
+      "row_count": 176,
+      "name_alias_policy": "deputy-prefix-and-apostrophe-normalization"
+    }
+  },
+  "calculation": {
+    "raw_counts": "category classified speeches for party in period; top 7",
+    "share_vs_average": "party category share minus unweighted mean category share across all parties, including zero shares; positive top 7",
+    "per_td_vs_average": "party category speeches per TD minus unweighted mean party category rate per TD across all parties, including zero rates; positive top 7"
+  },
+  "presentation_labels": "instagram/reference/issue_presentation_labels.yml",
+  "chart_geometry": {
+    "title_rule_y": 174,
+    "chart_media_y": 184,
+    "previous_main_media_y": 190
+  },
+  "parties": [
+    {
+      "party": "100% RDR",
+      "party_key": "100-rdr",
+      "period": "2026-07",
+      "td_count": 1,
+      "classified_speeches": 7,
+      "avg_speeches_per_td": 7.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 3
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 1
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 1
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 1
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 36.74500733186176,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 5.1958214890257555,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 2.745018457643948,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 2.397016406384231,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 2.34261965619245,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 2.485444479762662,
+          "raw_count": 3
+        }
+      ],
+      "slides": [
+        "parties/100-rdr/slides/01_cover.png",
+        "parties/100-rdr/slides/02_most_discussed_issues.png",
+        "parties/100-rdr/slides/03_more_than_average.png",
+        "parties/100-rdr/slides/04_more_per_td.png",
+        "parties/100-rdr/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Aontú",
+      "party_key": "aontu",
+      "period": "2026-07",
+      "td_count": 2,
+      "classified_speeches": 31,
+      "avg_speeches_per_td": 15.5,
+      "raw_counts": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 5
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 4
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 4
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 3
+        },
+        {
+          "canonical_label": "Culture and Arts",
+          "label": "Culture and Arts",
+          "value": 3
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 2
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 2
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 8.161585650899566,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Culture and Arts",
+          "label": "Culture and Arts",
+          "value": 7.50583523854968,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 5.078216132326833,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 4.322709721601836,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 4.077611221430182,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
+          "value": 2.618597005284317,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 1.9218014820729095,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 1.4500291375291374,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Culture and Arts",
+          "label": "Culture and Arts",
+          "value": 1.210161051070142,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 0.8180361305361306,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.7603438228438228,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 0.7289150243695698,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 0.6486808645899556,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 0.5142641449459631,
+          "raw_count": 4
+        }
+      ],
+      "slides": [
+        "parties/aontu/slides/01_cover.png",
+        "parties/aontu/slides/02_most_discussed_issues.png",
+        "parties/aontu/slides/03_more_than_average.png",
+        "parties/aontu/slides/04_more_per_td.png",
+        "parties/aontu/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "period": "2026-07",
+      "td_count": 48,
+      "classified_speeches": 605,
+      "avg_speeches_per_td": 12.6042,
+      "raw_counts": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 92
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 81
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 75
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 65
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 59
+        },
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 50
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 31
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 3.665915742177596,
+          "raw_count": 92
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 3.359774163961329,
+          "raw_count": 59
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 3.3068014181875034,
+          "raw_count": 75
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 1.864682655638957,
+          "raw_count": 31
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 1.445335122544282,
+          "raw_count": 81
+        },
+        {
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
+          "value": 0.7932319261498018,
+          "raw_count": 10
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.43901417602298165,
+          "raw_count": 10
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 0.5653475312566223,
+          "raw_count": 92
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.4895634668361942,
+          "raw_count": 59
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 0.48789468107649925,
+          "raw_count": 75
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 0.20449247721975,
+          "raw_count": 31
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 0.20176414494596306,
+          "raw_count": 81
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 0.07257893621529998,
+          "raw_count": 65
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 0.0683672388217843,
+          "raw_count": 10
+        }
+      ],
+      "slides": [
+        "parties/fianna-fail/slides/01_cover.png",
+        "parties/fianna-fail/slides/02_most_discussed_issues.png",
+        "parties/fianna-fail/slides/03_more_than_average.png",
+        "parties/fianna-fail/slides/04_more_per_td.png",
+        "parties/fianna-fail/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Fine Gael",
+      "party_key": "fine-gael",
+      "period": "2026-07",
+      "td_count": 39,
+      "classified_speeches": 460,
+      "avg_speeches_per_td": 11.7949,
+      "raw_counts": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 89
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 53
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 51
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 39
+        },
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 37
+        },
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 30
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 28
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 7.459128207626467,
+          "raw_count": 89
+        },
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 4.158478495734205,
+          "raw_count": 30
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 3.239667605376377,
+          "raw_count": 51
+        },
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 1.9313427355884636,
+          "raw_count": 37
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 1.0872993782860936,
+          "raw_count": 11
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 0.7613077707387318,
+          "raw_count": 11
+        },
+        {
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
+          "value": 0.7254794049948031,
+          "raw_count": 6
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 1.0004635515999152,
+          "raw_count": 89
+        },
+        {
+          "canonical_label": "Agriculture",
+          "label": "Agriculture",
+          "value": 0.43416242848061026,
+          "raw_count": 37
+        },
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 0.37314579360033906,
+          "raw_count": 30
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 0.19916825598643784,
+          "raw_count": 51
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 0.142085187539733,
+          "raw_count": 11
+        },
+        {
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
+          "value": 0.09353146853146854,
+          "raw_count": 6
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 0.07412852299215936,
+          "raw_count": 11
+        }
+      ],
+      "slides": [
+        "parties/fine-gael/slides/01_cover.png",
+        "parties/fine-gael/slides/02_most_discussed_issues.png",
+        "parties/fine-gael/slides/03_more_than_average.png",
+        "parties/fine-gael/slides/04_more_per_td.png",
+        "parties/fine-gael/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Green Party",
+      "party_key": "green-party",
+      "period": "2026-07",
+      "td_count": 1,
+      "classified_speeches": 16,
+      "avg_speeches_per_td": 16.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 4
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 3
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 2
+        },
+        {
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
+          "value": 2
+        },
+        {
+          "canonical_label": "Environment",
+          "label": "Environment",
+          "value": 2
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 1
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 17.03255339283505,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 10.902711083637247,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
+          "value": 10.158434188999397,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 10.006571783486613,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Environment",
+          "label": "Environment",
+          "value": 9.995613565352956,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 2.990715713490197,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 2.950029137529137,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 1.8914759482941301,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
+          "value": 1.6364431023521933,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Environment",
+          "label": "Environment",
+          "value": 1.6190003178639543,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 1.6101928374655647,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 0.5586591438864166,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.2603968001695275,
+          "raw_count": 1
+        }
+      ],
+      "slides": [
+        "parties/green-party/slides/01_cover.png",
+        "parties/green-party/slides/02_most_discussed_issues.png",
+        "parties/green-party/slides/03_more_than_average.png",
+        "parties/green-party/slides/04_more_per_td.png",
+        "parties/green-party/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Independent",
+      "party_key": "independent",
+      "period": "2026-07",
+      "td_count": 16,
+      "classified_speeches": 105,
+      "avg_speeches_per_td": 6.5625,
+      "raw_counts": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 18
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 14
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 14
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 8
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 8
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 8
+        },
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 7
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 10.750565191115994,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 4.41028074474572,
+          "raw_count": 6
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 1.7926375052629964,
+          "raw_count": 14
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 1.6806206278998395,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 1.444635454003279,
+          "raw_count": 14
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 1.435522127728185,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
+          "value": 0.3451715060523659,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.3853968001695275,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Public Lands and Water Management",
+          "label": "Land & Water Management",
+          "value": 0.23503390548845096,
+          "raw_count": 6
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.010343822843822875,
+          "raw_count": 4
+        }
+      ],
+      "slides": [
+        "parties/independent/slides/01_cover.png",
+        "parties/independent/slides/02_most_discussed_issues.png",
+        "parties/independent/slides/03_more_than_average.png",
+        "parties/independent/slides/04_more_per_td.png",
+        "parties/independent/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "period": "2026-07",
+      "td_count": 4,
+      "classified_speeches": 34,
+      "avg_speeches_per_td": 8.5,
+      "raw_counts": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 9
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 4
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 3
+        },
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 3
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 3
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 2
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 2
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 14.581890355964063,
+          "raw_count": 9
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 6.449527729969081,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 3.7534497595525003,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 2.6230686546666675,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
+          "value": 2.362308049496082,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 1.5677796996892626,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 1.31117989350088,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 0.9684122695486332,
+          "raw_count": 9
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 0.4789150243695698,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.26034382284382285,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Banking/Finance and Domestic Commerce",
+          "label": "Finance & Commerce",
+          "value": 0.1896853146853147,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 0.06803613053613053,
+          "raw_count": 1
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 0.05865914388641663,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 0.04207724094087731,
+          "raw_count": 1
+        }
+      ],
+      "slides": [
+        "parties/independent-ireland/slides/01_cover.png",
+        "parties/independent-ireland/slides/02_most_discussed_issues.png",
+        "parties/independent-ireland/slides/03_more_than_average.png",
+        "parties/independent-ireland/slides/04_more_per_td.png",
+        "parties/independent-ireland/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Labour Party",
+      "party_key": "labour-party",
+      "period": "2026-07",
+      "td_count": 11,
+      "classified_speeches": 134,
+      "avg_speeches_per_td": 12.1818,
+      "raw_counts": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 24
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 19
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 18
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 18
+        },
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 11
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 6
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 5
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 6.369751933123692,
+          "raw_count": 24
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 4.342943024206993,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 2.2904065982818853,
+          "raw_count": 19
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 1.7711962409051822,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 1.4897411913736878,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
+          "value": 1.3791453343155842,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 1.2379150670687022,
+          "raw_count": 5
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 0.8304990464081372,
+          "raw_count": 24
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 0.5617583174401357,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 0.44568499682136054,
+          "raw_count": 19
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.1946519389701208,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 0.15062778130959953,
+          "raw_count": 18
+        },
+        {
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
+          "value": 0.12643038779402416,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 0.10411368934096205,
+          "raw_count": 6
+        }
+      ],
+      "slides": [
+        "parties/labour-party/slides/01_cover.png",
+        "parties/labour-party/slides/02_most_discussed_issues.png",
+        "parties/labour-party/slides/03_more_than_average.png",
+        "parties/labour-party/slides/04_more_per_td.png",
+        "parties/labour-party/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "People Before Profit-Solidarity",
+      "party_key": "people-before-profit-solidarity",
+      "period": "2026-07",
+      "td_count": 3,
+      "classified_speeches": 67,
+      "avg_speeches_per_td": 22.3333,
+      "raw_counts": [
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 10
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 9
+        },
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 8
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 5
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 4
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 4
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 4
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 9.577037872762109,
+          "raw_count": 8
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 7.078084217965603,
+          "raw_count": 10
+        },
+        {
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
+          "value": 3.617951304464838,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 2.71086496722154,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
+          "value": 2.136046129297905,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 1.98418372378512,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Environment",
+          "label": "Environment",
+          "value": 1.9732255056514634,
+          "raw_count": 3
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 2.270581691036236,
+          "raw_count": 8
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 2.2248092816274636,
+          "raw_count": 10
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 1.514264144945963,
+          "raw_count": 9
+        },
+        {
+          "canonical_label": "Labor, Employment and Immigration",
+          "label": "Jobs & Immigration",
+          "value": 0.8919924772197498,
+          "raw_count": 4
+        },
+        {
+          "canonical_label": "Space, Science, and Technology",
+          "label": "Science & Technology",
+          "value": 0.8537031150667515,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Sports and Recreation",
+          "label": "Sports & Recreation",
+          "value": 0.6364431023521933,
+          "raw_count": 3
+        },
+        {
+          "canonical_label": "Environment",
+          "label": "Environment",
+          "value": 0.6190003178639543,
+          "raw_count": 3
+        }
+      ],
+      "slides": [
+        "parties/people-before-profit-solidarity/slides/01_cover.png",
+        "parties/people-before-profit-solidarity/slides/02_most_discussed_issues.png",
+        "parties/people-before-profit-solidarity/slides/03_more_than_average.png",
+        "parties/people-before-profit-solidarity/slides/04_more_per_td.png",
+        "parties/people-before-profit-solidarity/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "period": "2026-07",
+      "td_count": 39,
+      "classified_speeches": 387,
+      "avg_speeches_per_td": 9.9231,
+      "raw_counts": [
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 56
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 48
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 45
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 40
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 37
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 28
+        },
+        {
+          "canonical_label": "Transportation",
+          "label": "Transportation",
+          "value": 20
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 4.555811858831045,
+          "raw_count": 48
+        },
+        {
+          "canonical_label": "Culture and Arts",
+          "label": "Culture and Arts",
+          "value": 2.737976607225182,
+          "raw_count": 19
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 2.538014180055656,
+          "raw_count": 45
+        },
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 2.5271896082042624,
+          "raw_count": 56
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 0.9521846244498646,
+          "raw_count": 9
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.8533050765718104,
+          "raw_count": 8
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.8428501671218989,
+          "raw_count": 28
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Culture and Arts",
+          "label": "Culture and Arts",
+          "value": 0.19734053824962916,
+          "raw_count": 19
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 0.12224517906336096,
+          "raw_count": 48
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 0.07924083492265299,
+          "raw_count": 45
+        },
+        {
+          "canonical_label": "State and Local Government Administration",
+          "label": "Local Government",
+          "value": 0.05171911421911421,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Other/Miscellaneous",
+          "label": "Other/Miscellaneous",
+          "value": 0.04880536130536131,
+          "raw_count": 9
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.03614378046196229,
+          "raw_count": 8
+        }
+      ],
+      "slides": [
+        "parties/sinn-fein/slides/01_cover.png",
+        "parties/sinn-fein/slides/02_most_discussed_issues.png",
+        "parties/sinn-fein/slides/03_more_than_average.png",
+        "parties/sinn-fein/slides/04_more_per_td.png",
+        "parties/sinn-fein/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "party": "Social Democrats",
+      "party_key": "social-democrats",
+      "period": "2026-07",
+      "td_count": 12,
+      "classified_speeches": 163,
+      "avg_speeches_per_td": 13.5833,
+      "raw_counts": [
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 40
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 26
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 21
+        },
+        {
+          "canonical_label": "Education",
+          "label": "Education",
+          "value": 11
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 11
+        },
+        {
+          "canonical_label": "International Affairs and Foreign Aid",
+          "label": "International Affairs",
+          "value": 9
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 6
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 12.596782671091661,
+          "raw_count": 40
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 6.861027448710242,
+          "raw_count": 26
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 2.0509850180046696,
+          "raw_count": 6
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 0.9947377034920324,
+          "raw_count": 21
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.9385814809527167,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Defense",
+          "label": "Defense",
+          "value": 0.7042240278761103,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.6266124115855229,
+          "raw_count": 3
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Law/Crime and Family Issues",
+          "label": "Law, Crime & Family",
+          "value": 1.8475974782792965,
+          "raw_count": 40
+        },
+        {
+          "canonical_label": "Housing and Community Development",
+          "label": "Housing & Community",
+          "value": 1.0920613477431658,
+          "raw_count": 26
+        },
+        {
+          "canonical_label": "Health",
+          "label": "Health",
+          "value": 0.46841226954863324,
+          "raw_count": 21
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 0.2920772409408773,
+          "raw_count": 6
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.17706346683619412,
+          "raw_count": 11
+        },
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.17701048951048956,
+          "raw_count": 5
+        },
+        {
+          "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+          "label": "Civil Rights & Liberties",
+          "value": 0.08101557533375717,
+          "raw_count": 3
+        }
+      ],
+      "slides": [
+        "parties/social-democrats/slides/01_cover.png",
+        "parties/social-democrats/slides/02_most_discussed_issues.png",
+        "parties/social-democrats/slides/03_more_than_average.png",
+        "parties/social-democrats/slides/04_more_per_td.png",
+        "parties/social-democrats/slides/05_glossary.png"
+      ],
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    }
+  ],
+  "qa": {
+    "slide_count": 55,
+    "passed": 55,
+    "failed": 0
+  },
+  "review_state": "pending_human_review",
+  "publication_enabled": false
+}
