@@ -6,43 +6,104 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
-
 jobs:
-  inventory:
+  integration:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      TEST_BATCH_ID: test-oral-question-structure-33550145435
+      OIREACHTAS_BATCH_ID: test-oral-question-structure-33550145435
       OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python -m pip install -r requirements.txt
+      - name: Seed disposable candidate from production
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_seed_candidate.py \
+            --batch-id "$TEST_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
+            | tee seed.json
+      - name: Materialize candidate metrics and question context
+        run: |
+          python process/political_metrics_materialize_candidate.py \
+            --batch-id "$TEST_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
+            --report-path materialize.json
+      - name: Reconcile question relationships against candidate sources
+        run: |
+          python - <<'PY'
+          import io, json, os
+          import boto3, pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          bucket=os.environ['S3_BUCKET']; batch=os.environ['TEST_BATCH_ID']
+          def read(logical):
+              key=batch_key_for_production_key(logical,batch)
+              obj=s3.get_object(Bucket=bucket,Key=key)
+              return pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          q=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
+          s=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
+          oq=read('processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv')
+          sc=read('processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv')
+
+          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy()
+          expected_sections=set(oral.debate_section_id.dropna().astype(str))
+          actual_sections=set(oq.debate_section_id.dropna().astype(str))
+          assert actual_sections == expected_sections, (len(actual_sections),len(expected_sections))
+          assert oq.debate_section_id.is_unique
+
+          assert sc.speech_id.is_unique
+          assert len(sc)==s.speech_id.nunique(), (len(sc),s.speech_id.nunique())
+          expected_related=set(s.loc[s.debate_section_id.astype(str).isin(expected_sections),'speech_id'].astype(str))
+          actual_related=set(sc.loc[sc.is_oral_question_related.astype(str).str.lower().eq('true'),'speech_id'].astype(str))
+          assert actual_related == expected_related, (len(actual_related),len(expected_related))
+
+          # Written-only sections must not create oral-question sections.
+          written=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('written')]
+          written_sections=set(written.debate_section_id.dropna().astype(str))
+          written_only=written_sections-expected_sections
+          assert not (actual_sections & written_only)
+
+          # Section speech totals are counted once per section, not multiplied by number of oral questions.
+          source_counts=s[s.debate_section_id.astype(str).isin(expected_sections)].groupby('debate_section_id').speech_id.nunique().astype(int)
+          materialized_counts=oq.set_index('debate_section_id').related_speech_count.astype(int)
+          for sid,count in source_counts.items():
+              assert int(materialized_counts.loc[str(sid)])==int(count)
+
+          report={
+            'batch_id':batch,
+            'question_rows':len(q),
+            'oral_question_rows':len(oral),
+            'oral_question_sections':len(oq),
+            'speech_rows':len(s),
+            'oral_question_related_speeches':len(actual_related),
+            'question_classifier_calls':0,
+            'status':'pass'
+          }
+          print(json.dumps(report,indent=2,sort_keys=True))
+          PY
+      - name: Verify seven required metric entries can assemble
+        run: |
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py \
+            --bucket "$S3_BUCKET" --region "$AWS_REGION" assemble --batch-id "$TEST_BATCH_ID" \
+            --required-table political_metrics_daily_activity_components \
+            --required-table political_metrics_daily_issue_activity \
+            --required-table political_metrics_division_party_vote_components \
+            --required-table political_metrics_daily_question_dimensions \
+            --required-table political_metrics_oral_question_sections \
+            --required-table political_metrics_speech_question_context \
+            --required-table political_metrics_monthly_metric_results \
+            | tee assembled.json
