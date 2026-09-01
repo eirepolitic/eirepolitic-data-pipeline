@@ -5,12 +5,10 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/run_party_monthly_profile.py", line 19, in main
     profile.main()
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 295, in main
-    parser=argparse.ArgumentParser(description="Render the reusable monthly party issue profile carousel batch"); parser.add_argument("--period",default="last_completed_month",help="YYYY-MM or last_completed_month"); parser.add_argument("--output-root",default=f"instagram/commissioning/output/{PROJECT_ID}"); args=parser.parse_args(); build(args.period,Path(args.output_root))
-                                                                                                                                                                                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 263, in build
-    preview = ", ".join(f"{k} ({v})" for k, v in unmatched.most_common(10)); raise RuntimeError(f"Member join is not publication-ready: {sum(unmatched.values())} unmatched classified rows: {preview}")
-                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-RuntimeError: Member join is not publication-ready: 2009 unmatched classified rows: The Taoiseach (109), The Tánaiste (64), Deputy Jim O'Callaghan (59), Deputy Jack Chambers (51), Deputy Jennifer Carroll MacNeill (47), Deputy Helen McEntee (46), Deputy Paul Murphy (43), Deputy James Lawless (39), Deputy Donnchadh Ó Laoghaire (37), Deputy Matt Carthy (36)
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 523, in main
+    build(args.period, Path(args.output_root))
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 370, in build
+    raise RuntimeError(f"Member join is not publication-ready: {sum(unmatched.values())} unmatched classified rows: {preview}")
+RuntimeError: Member join is not publication-ready: 1 unmatched classified rows: Deputy Cian O’Callaghan (1)
 Resolved unified production batch: speech-classifier-backfill-2026-08-31
 Resolved classified source: processed/oireachtas_unified/batches/speech-classifier-backfill-2026-08-31/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv
