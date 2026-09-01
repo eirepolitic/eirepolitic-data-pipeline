@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 554, in <module>
+    main()
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 550, in main
+    build(args.period, Path(args.output_root))
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 367, in build
+    raise RuntimeError(f"Classifier coverage ends {coverage_end}; requested period ends {period.end}")
+RuntimeError: Classifier coverage ends 2026-02-26; requested period ends 2026-07-31
