@@ -7,40 +7,9 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
-      OIREACHTAS_BATCH_ID: scheduled-weekly-33530737534-1
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'true'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Stage photos plus summaries
-        continue-on-error: true
-        run: |
-          python process/oireachtas_stage_downstream_contracts.py --bucket "$S3_BUCKET" --region "$AWS_REGION" --batch-id "$OIREACHTAS_BATCH_ID" --contract member_photo_urls --contract member_summaries
-      - name: Stage first three
-        continue-on-error: true
-        run: |
-          python process/oireachtas_stage_downstream_contracts.py --bucket "$S3_BUCKET" --region "$AWS_REGION" --batch-id "$OIREACHTAS_BATCH_ID" --contract member_photo_urls --contract member_summaries --contract constituency_images
-      - name: Stage all four explicitly
-        continue-on-error: true
-        run: |
-          python process/oireachtas_stage_downstream_contracts.py --bucket "$S3_BUCKET" --region "$AWS_REGION" --batch-id "$OIREACHTAS_BATCH_ID" --contract member_photo_urls --contract member_summaries --contract constituency_images --contract debate_issue_labels
-      - name: Stage default all four
-        continue-on-error: true
-        run: |
-          python process/oireachtas_stage_downstream_contracts.py --bucket "$S3_BUCKET" --region "$AWS_REGION" --batch-id "$OIREACHTAS_BATCH_ID"
+  validate:
+    uses: ./.github/workflows/oireachtas_validation_reusable.yml
+    with:
+      batch_id: scheduled-weekly-33530737534-1
+      run_consumers: true
+    secrets: inherit
