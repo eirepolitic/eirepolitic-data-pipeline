@@ -36,7 +36,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3 pandas
+          python -m pip install -r requirements.txt
 
       - name: Test political metrics foundation
         shell: bash
