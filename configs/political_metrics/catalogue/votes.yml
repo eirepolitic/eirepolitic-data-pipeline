@@ -1,0 +1,116 @@
+catalogue_version: 1
+metrics:
+  - metric_id: member_vote_participation_pct
+    metric_version: 1
+    status: draft
+    public_name: Recorded voting participation
+    public_question: In what share of eligible Dáil divisions does this TD have a recorded vote?
+    public_explanation: Compares the number of divisions in which a yes, no or abstain vote is recorded for the TD with the divisions that took place while they were an active Dáil member.
+    public_interpretation: A value of 90% means a recorded vote appears for the TD in nine out of ten divisions for which they were eligible during the period.
+    public_caveat: A missing recorded vote is not proof that the TD was physically absent. This is a voting-record measure, not an attendance measure.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_divisions, silver_member_votes, silver_member_memberships]
+    numerator: distinct eligible divisions with a recorded member vote
+    denominator: distinct divisions whose division_date falls within the TD's active Dáil membership interval
+    formula: votes_cast_count / eligible_division_count
+    historical_join_policy: active Dáil membership on division date; history ranges are start-inclusive/end-exclusive
+    zero_policy: return 0 when eligible_division_count is positive and no recorded votes exist
+    missing_policy: null when there are no eligible divisions; recorded votes outside eligibility are a validation failure
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: party_vote_participation_pct
+    metric_version: 1
+    status: draft
+    public_name: Party recorded voting participation
+    public_question: How often did this party's TDs have a recorded vote in divisions they were eligible for?
+    public_explanation: Compares recorded member votes with all member-division opportunities for TDs listed under the party on each division date.
+    public_interpretation: Useful for comparing recorded voting participation while allowing for party size and membership changes during the period.
+    public_caveat: This does not prove physical attendance. Oireachtas-listed party affiliation is used for the date of each division.
+    public_use_status: suitable_with_context
+    grain: party
+    dimensions: [period]
+    required_sources: [silver_divisions, silver_member_votes, silver_member_memberships, silver_member_parties]
+    affiliation_basis: oireachtas_listed_affiliation
+    numerator: recorded member votes attributed to the party on each division date
+    denominator: eligible member-division opportunities attributed to the party on each division date
+    formula: recorded_member_votes / eligible_member_divisions
+    historical_join_policy: active Dáil membership plus event-date Oireachtas-listed party
+    zero_policy: return 0 when denominator is positive and no member votes are recorded
+    missing_policy: null when denominator is zero; votes outside eligibility or party history are validation failures
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: party_vote_cohesion_pct
+    metric_version: 1
+    status: draft
+    public_name: Party voting unity
+    public_question: When party TDs cast recorded votes, how often did they vote the same way?
+    public_explanation: For each qualifying division, finds the most common recorded vote among the party's participating TDs and measures the share of recorded party votes that matched it. Results are combined across divisions using the number of recorded votes as the weight.
+    public_interpretation: A higher percentage means recorded party votes were more often aligned with the party's most common vote in those divisions.
+    public_caveat: This is a descriptive measure of recorded voting agreement, not a judgement about party discipline, policy quality or whether dissent is good or bad. Divisions with fewer than two recorded party voters do not provide evidence of within-party agreement and are excluded.
+    public_use_status: suitable_with_context
+    grain: party
+    dimensions: [period]
+    required_sources: [silver_member_votes, silver_member_memberships, silver_member_parties]
+    numerator: sum of modal recorded party-vote counts across qualifying divisions
+    denominator: all recorded party votes across qualifying divisions
+    formula: unity_votes_aligned / unity_votes_total
+    filters: qualifying divisions require at least two recorded votes from the party
+    historical_join_policy: event-date Oireachtas-listed party affiliation
+    zero_policy: null when no divisions qualify
+    missing_policy: null when no qualifying recorded party votes exist
+    minimum_samples:
+      reliable_divisions: 10
+      caution_divisions: 5
+      insufficient_for_comparison: 0
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: constituency_vote_participation_pct
+    metric_version: 1
+    status: draft
+    public_name: Constituency representatives' recorded voting participation
+    public_question: How often did this constituency's TDs have a recorded vote in divisions they were eligible for?
+    public_explanation: Compares recorded votes by the constituency's representatives with all member-division opportunities for TDs representing the constituency on each division date.
+    public_interpretation: Useful for comparing the recorded voting activity of constituency delegations while allowing for representation changes.
+    public_caveat: This is not an attendance measure and should not be treated as a complete measure of constituency representation work.
+    public_use_status: suitable_with_context
+    grain: constituency
+    dimensions: [period]
+    required_sources: [silver_divisions, silver_member_votes, silver_member_memberships, silver_member_constituencies]
+    numerator: recorded member votes attributed to the constituency on division date
+    denominator: eligible member-division opportunities attributed to the constituency on division date
+    formula: recorded_member_votes / eligible_member_divisions
+    historical_join_policy: active Dáil membership plus event-date constituency representation
+    zero_policy: return 0 when denominator is positive and no votes are recorded
+    missing_policy: null when denominator is zero; invalid historical attribution is a validation failure
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: national_division_count
+    metric_version: 1
+    status: draft
+    public_name: Dáil divisions
+    public_question: How many recorded Dáil divisions took place during the period?
+    public_explanation: Counts distinct recorded division events in the selected period.
+    public_interpretation: Shows how many formal recorded voting events took place.
+    public_caveat: The number of divisions does not by itself measure legislative importance or parliamentary workload.
+    public_use_status: suitable_with_context
+    grain: national
+    dimensions: [period]
+    required_sources: [silver_divisions]
+    numerator: distinct division_id
+    denominator: null
+    formula: count_distinct(division_id)
+    period_behavior: filter by division_date within resolved period
+    zero_policy: return 0 when no divisions occurred
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
