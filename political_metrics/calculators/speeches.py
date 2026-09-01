@@ -117,15 +117,31 @@ def grouped_speech_metrics(
 def national_speech_metrics(
     speeches: pd.DataFrame,
     *,
+    debate_days: pd.Series | list | None = None,
     date_col: str = "debate_date",
     speech_id_col: str = "speech_id",
 ) -> dict[str, int | float | None]:
+    """Calculate national speech totals and a debate-day-normalized activity rate.
+
+    When an authoritative debate-day universe is supplied (normally from
+    `silver_debate_records`), it is used for the denominator even if a debate date
+    contains no canonical speech rows. Without it, the function falls back to
+    distinct dates present in the speech data for isolated/unit-test use.
+    """
     data = _prepare_speeches(speeches, date_col=date_col, speech_id_col=speech_id_col)
-    debate_days = int(data[date_col].nunique())
+    if debate_days is None:
+        debate_day_count = int(data[date_col].nunique())
+    else:
+        debate_day_count = int(
+            pd.Series(pd.to_datetime(list(debate_days), errors="coerce"))
+            .dropna()
+            .dt.normalize()
+            .nunique()
+        )
     speech_count = int(data[speech_id_col].nunique())
     return {
         "speech_count": speech_count,
         "unique_speaker_count": int(data["member_code"].nunique()),
-        "debate_day_count": debate_days,
-        "speeches_per_debate_day": (speech_count / debate_days) if debate_days else None,
+        "debate_day_count": debate_day_count,
+        "speeches_per_debate_day": (speech_count / debate_day_count) if debate_day_count else None,
     }
