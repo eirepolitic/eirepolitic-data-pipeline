@@ -24,6 +24,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       PYTHONPATH: ${{ github.workspace }}
+      OUTPUT_DIR: instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}
     steps:
       - name: Check out commissioning branch
         uses: actions/checkout@v4
@@ -42,24 +43,40 @@ jobs:
           pip install boto3 pillow pyyaml
 
       - name: Render and QA five-slide monthly party batch
+        id: render_batch
+        continue-on-error: true
+        shell: bash
         run: |
-          python -m instagram.factory.party_monthly_profile --period "${{ inputs.period }}"
+          mkdir -p "$OUTPUT_DIR"
+          set -o pipefail
+          python -m instagram.factory.party_monthly_profile --period "${{ inputs.period }}" 2>&1 | tee "$OUTPUT_DIR/run.log"
 
-      - name: Show run summary
+      - name: Show run summary when available
+        if: always()
         run: |
-          cat "instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}/run_manifest.json"
+          if [ -f "$OUTPUT_DIR/run_manifest.json" ]; then
+            cat "$OUTPUT_DIR/run_manifest.json"
+          else
+            cat "$OUTPUT_DIR/run.log"
+          fi
 
-      - name: Commit review outputs
+      - name: Commit review outputs and diagnostics
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}"
+          git add "$OUTPUT_DIR"
           git commit -m "Render party monthly profile for ${{ inputs.period }}" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Upload review package
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: party-monthly-profile-${{ inputs.period }}-${{ github.run_id }}
-          path: instagram/commissioning/output/party_issue_monthly_profile_v1/period=${{ inputs.period }}/
+          path: ${{ env.OUTPUT_DIR }}/
           if-no-files-found: error
+
+      - name: Enforce render result
+        if: steps.render_batch.outcome != 'success'
+        run: exit 1
