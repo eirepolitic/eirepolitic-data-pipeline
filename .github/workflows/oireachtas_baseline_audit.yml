@@ -4,162 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  audit:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Audit question versus speech volume
+          cache: pip
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io, json, os, re
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={
-            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
-            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
-          }
-          frames={}; resolved={}
-          for name,key in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=key)
-              resolved[name]=r
-              obj=s3.get_object(Bucket=bucket,Key=r)
-              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-
-          q=frames['questions'].copy(); s=frames['speeches'].copy()
-          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
-          s['debate_date']=pd.to_datetime(s['debate_date'],errors='coerce')
-
-          def normalize_text(x):
-              if pd.isna(x): return ''
-              return re.sub(r'\s+',' ',str(x)).strip().lower()
-
-          q['question_text_norm']=q['question_text'].map(normalize_text) if 'question_text' in q.columns else ''
-          q['answer_text_norm']=q['answer_text'].map(normalize_text) if 'answer_text' in q.columns else ''
-          q['question_type_norm']=q['question_type'].astype(str).str.strip().str.lower() if 'question_type' in q.columns else ''
-
-          # July comparison, matching earlier metric investigation.
-          qj=q[(q.question_date>=pd.Timestamp('2026-07-01'))&(q.question_date<=pd.Timestamp('2026-07-31'))].copy()
-          sj=s[(s.debate_date>=pd.Timestamp('2026-07-01'))&(s.debate_date<=pd.Timestamp('2026-07-31'))].copy()
-
-          # Basic uniqueness and duplicate diagnostics.
-          qid='question_id'
-          duplicate_question_ids=int(qj.duplicated(subset=[qid],keep=False).sum()) if qid in qj.columns else None
-          unique_question_ids=int(qj[qid].nunique()) if qid in qj.columns else None
-          duplicate_text_rows=int(qj[qj.question_text_norm.ne('')].duplicated(subset=['question_text_norm'],keep=False).sum())
-          duplicate_member_date_text_rows=None
-          if {'asked_by_member_code','question_date'}.issubset(qj.columns):
-              duplicate_member_date_text_rows=int(qj[qj.question_text_norm.ne('')].duplicated(subset=['asked_by_member_code','question_date','question_text_norm'],keep=False).sum())
-
-          # Type distribution and daily volume.
-          type_counts=(qj['question_type'].fillna('UNKNOWN').value_counts().rename_axis('question_type').reset_index(name='count').to_dict(orient='records') if 'question_type' in qj.columns else [])
-          daily_q=qj.groupby('question_date').size().rename('questions').reset_index().sort_values('question_date')
-          daily_s=sj.groupby('debate_date').size().rename('speeches').reset_index().sort_values('debate_date')
-
-          # Oral/written identification using actual observed labels.
-          oral_mask=qj['question_type_norm'].str.contains('oral',na=False)
-          written_mask=qj['question_type_norm'].str.contains('written',na=False)
-          oral_q=qj[oral_mask]
-          written_q=qj[written_mask]
-
-          # Question number/source diagnostics if present.
-          interesting_cols=[c for c in q.columns if any(k in c.lower() for k in ['number','type','section','source','debate','house','status','recipient','minister','answer'])]
-          col_samples={}
-          for c in interesting_cols:
-              vals=qj[c].dropna().astype(str).value_counts().head(15)
-              col_samples[c]=vals.to_dict()
-
-          # Repeated exact text across distinct IDs: measure groups, not just rows.
-          repeated_text_groups=[]
-          if 'question_id' in qj.columns:
-              g=qj[qj.question_text_norm.ne('')].groupby('question_text_norm').agg(rows=('question_id','size'),unique_ids=('question_id','nunique'))
-              g=g[(g.rows>1)|(g.unique_ids>1)].sort_values(['unique_ids','rows'],ascending=False).head(30).reset_index()
-              for r in g.itertuples(index=False):
-                  sample=qj[qj.question_text_norm==r.question_text_norm].head(10)
-                  repeated_text_groups.append({
-                    'rows':int(r.rows),'unique_ids':int(r.unique_ids),'question_text_excerpt':str(r.question_text_norm)[:300],
-                    'ids':sample['question_id'].astype(str).tolist(),
-                    'members':sample['asked_by_member_code'].astype(str).tolist() if 'asked_by_member_code' in sample.columns else [],
-                    'dates':[str(x.date()) if pd.notna(x) else None for x in sample['question_date']],
-                    'types':sample['question_type'].astype(str).tolist() if 'question_type' in sample.columns else [],
-                  })
-
-          # Full available history volume for context.
-          hist={
-            'question_rows':int(len(q)),
-            'unique_question_ids':int(q.question_id.nunique()) if 'question_id' in q.columns else None,
-            'question_date_min':str(q.question_date.min().date()) if q.question_date.notna().any() else None,
-            'question_date_max':str(q.question_date.max().date()) if q.question_date.notna().any() else None,
-            'speech_rows':int(len(s)),
-            'speech_date_min':str(s.debate_date.min().date()) if s.debate_date.notna().any() else None,
-            'speech_date_max':str(s.debate_date.max().date()) if s.debate_date.notna().any() else None,
-          }
-
-          # Compare counts per active date rather than assuming question date == debate day.
-          report={
-            'resolved_keys':resolved,
-            'question_columns':list(q.columns),
-            'speech_columns':list(s.columns),
-            'history':hist,
-            'july_2026':{
-              'question_rows':int(len(qj)),
-              'unique_question_ids':unique_question_ids,
-              'duplicate_question_id_rows':duplicate_question_ids,
-              'duplicate_exact_question_text_rows':duplicate_text_rows,
-              'duplicate_same_member_date_text_rows':duplicate_member_date_text_rows,
-              'question_types':type_counts,
-              'oral_question_rows':int(len(oral_q)),
-              'written_question_rows':int(len(written_q)),
-              'other_or_unknown_question_rows':int(len(qj)-len(oral_q)-len(written_q)),
-              'speech_rows':int(len(sj)),
-              'question_active_dates':int(qj.question_date.nunique()),
-              'speech_active_dates':int(sj.debate_date.nunique()),
-              'questions_per_active_question_date':float(len(qj)/qj.question_date.nunique()) if qj.question_date.nunique() else None,
-              'oral_questions_per_active_question_date':float(len(oral_q)/oral_q.question_date.nunique()) if oral_q.question_date.nunique() else None,
-              'speeches_per_active_debate_date':float(len(sj)/sj.debate_date.nunique()) if sj.debate_date.nunique() else None,
-              'daily_question_counts':daily_q.to_dict(orient='records'),
-              'daily_speech_counts':daily_s.to_dict(orient='records'),
-              'column_value_samples':col_samples,
-              'repeated_exact_text_groups':repeated_text_groups,
-            }
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          with open('analysis/question_volume_audit.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
-          summary={
-            'history':hist,
-            'july_2026':{k:report['july_2026'][k] for k in [
-              'question_rows','unique_question_ids','duplicate_question_id_rows','duplicate_exact_question_text_rows','duplicate_same_member_date_text_rows','question_types','oral_question_rows','written_question_rows','other_or_unknown_question_rows','speech_rows','question_active_dates','speech_active_dates','questions_per_active_question_date','oral_questions_per_active_question_date','speeches_per_active_debate_date']},
-            'top_repeated_exact_text_groups':repeated_text_groups[:15],
-            'column_value_samples':col_samples,
-          }
-          with open('analysis/question_volume_audit_summary.json','w') as fp: json.dump(summary,fp,indent=2,sort_keys=True,default=str)
-          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist audit
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_volume_audit*.json
-          git commit -m "Capture parliamentary question volume audit ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
