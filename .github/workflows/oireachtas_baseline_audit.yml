@@ -4,45 +4,165 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Analyze promoted voting data
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os
+          from collections import defaultdict
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+          from political_metrics.temporal_joins import attach_event_party
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+
+          logical={
+            'divisions':'processed/oireachtas_unified/latest/tables/silver_divisions/csv/silver_divisions.csv',
+            'votes':'processed/oireachtas_unified/latest/tables/silver_member_votes/csv/silver_member_votes.csv',
+            'parties':'processed/oireachtas_unified/latest/tables/silver_member_parties/csv/silver_member_parties.csv',
+            'members':'processed/oireachtas_unified/latest/tables/silver_members/csv/silver_members.csv',
+          }
+          frames={}
+          resolved={}
+          for name,key in logical.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=key)
+              resolved[name]=r
+              obj=s3.get_object(Bucket=bucket,Key=r)
+              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          divisions=frames['divisions'].copy()
+          votes=frames['votes'].copy()
+          parties=frames['parties'].copy()
+          members=frames['members'].copy()
+
+          divisions['division_date']=pd.to_datetime(divisions['division_date'],errors='coerce')
+          votes['division_date']=pd.to_datetime(votes['division_date'],errors='coerce')
+          votes=attach_event_party(votes,parties,event_date_col='division_date',member_col='member_code')
+
+          # Member display names when available.
+          name_col=None
+          for c in ['display_name','member_name','full_name','name']:
+              if c in members.columns:
+                  name_col=c; break
+          member_names={}
+          if name_col and 'member_code' in members.columns:
+              member_names=dict(zip(members['member_code'].astype(str),members[name_col].astype(str)))
+
+          # Normalize vote codes to the two observed recorded sides plus other.
+          votes['vote_code']=votes['vote_code'].astype(str)
+          side_counts=votes['vote_code'].value_counts().to_dict()
+
+          # Division subject-like field.
+          subject_col=None
+          for c in ['subject','division_subject','title','debate_section_title','question']:
+              if c in divisions.columns:
+                  subject_col=c; break
+
+          # Compute recorded side totals ourselves to avoid relying on optional tally field names.
+          side_by_div=votes.groupby(['division_id','vote_code']).size().unstack(fill_value=0)
+          div_records=[]
+          for div_id,row in side_by_div.iterrows():
+              vals=sorted([(str(col),int(row[col])) for col in side_by_div.columns],key=lambda x:x[1],reverse=True)
+              top=vals[0][1] if vals else 0
+              second=vals[1][1] if len(vals)>1 else 0
+              total=sum(v for _,v in vals)
+              margin=abs(top-second) if len(vals)>1 else top
+              d=divisions[divisions['division_id'].astype(str)==str(div_id)]
+              date=str(d.iloc[0]['division_date'].date()) if len(d) and pd.notna(d.iloc[0]['division_date']) else None
+              subject=str(d.iloc[0][subject_col]) if len(d) and subject_col and pd.notna(d.iloc[0][subject_col]) else ''
+              div_records.append({'division_id':str(div_id),'date':date,'subject':subject,'recorded_votes':total,'margin':margin,'margin_share':margin/total if total else None,'side_totals':dict(vals)})
+          close=sorted(div_records,key=lambda x:(x['margin_share'] if x['margin_share'] is not None else 1,x['margin']))[:25]
+
+          # Party cohesion per division and dissenting member names.
+          division_party=[]
+          dissenters=[]
+          for (div_id,party_uri),g in votes.dropna(subset=['party_uri']).groupby(['division_id','party_uri']):
+              vc=g['vote_code'].value_counts()
+              n=int(vc.sum())
+              if n<2: continue
+              majority_code=str(vc.index[0])
+              majority_n=int(vc.iloc[0])
+              cohesion=majority_n/n
+              division_party.append({'division_id':str(div_id),'party_uri':str(party_uri),'recorded_party_votes':n,'majority_vote_code':majority_code,'cohesion':cohesion})
+              if cohesion<1:
+                  for r in g[g['vote_code']!=majority_code].itertuples(index=False):
+                      code=str(getattr(r,'member_code'))
+                      dissenters.append({'division_id':str(div_id),'party_uri':str(party_uri),'member_code':code,'member_name':member_names.get(code,code),'member_vote_code':str(getattr(r,'vote_code')),'party_majority_vote_code':majority_code,'party_cohesion':cohesion})
+          lowest_cohesion=sorted(division_party,key=lambda x:(x['cohesion'],-x['recorded_party_votes']))[:40]
+
+          # Pairwise party alignment: same majority side in divisions where both have >=2 recorded voters.
+          by_div=defaultdict(dict)
+          for rec in division_party:
+              by_div[rec['division_id']][rec['party_uri']]=rec
+          pair_stats=defaultdict(lambda:{'same':0,'compared':0})
+          for div_id,pmap in by_div.items():
+              ps=sorted(pmap)
+              for i,a in enumerate(ps):
+                  for b in ps[i+1:]:
+                      key=(a,b)
+                      pair_stats[key]['compared']+=1
+                      if pmap[a]['majority_vote_code']==pmap[b]['majority_vote_code']:
+                          pair_stats[key]['same']+=1
+          align=[]
+          for (a,b),st in pair_stats.items():
+              if st['compared']>=5:
+                  align.append({'party_a':a,'party_b':b,'same_majority_side':st['same'],'compared_divisions':st['compared'],'alignment_share':st['same']/st['compared']})
+          highest_align=sorted(align,key=lambda x:(-x['alignment_share'],-x['compared_divisions']))[:30]
+          lowest_align=sorted(align,key=lambda x:(x['alignment_share'],-x['compared_divisions']))[:30]
+
+          # Dissent counts by member, only where their party had a defined majority among >=2 voters.
+          diss_df=pd.DataFrame(dissenters)
+          if not diss_df.empty:
+              member_dissent=(diss_df.groupby(['member_code','member_name','party_uri'],as_index=False).size().rename(columns={'size':'dissent_divisions'}).sort_values('dissent_divisions',ascending=False))
+              top_member_dissent=member_dissent.head(30).to_dict(orient='records')
+          else:
+              top_member_dissent=[]
+
+          report={
+            'resolved_keys':resolved,
+            'vote_code_counts':side_counts,
+            'division_count':int(votes['division_id'].nunique()),
+            'vote_record_count':int(len(votes)),
+            'subject_column_used':subject_col,
+            'closest_divisions':close,
+            'lowest_party_cohesion_divisions':lowest_cohesion,
+            'dissenting_member_events_sample':dissenters[:100],
+            'top_members_by_party_dissent_events':top_member_dissent,
+            'highest_party_majority_alignment':highest_align,
+            'lowest_party_majority_alignment':lowest_align,
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          with open('analysis/voting_opportunities.json','w') as f:
+              json.dump(report,f,indent=2,sort_keys=True,default=str)
+          print(json.dumps(report,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis on temporary branch
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/voting_opportunities.json
+          git commit -m "Capture promoted voting opportunity analysis ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
