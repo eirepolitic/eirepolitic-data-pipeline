@@ -45,6 +45,31 @@ jobs:
         run: |
           set -euo pipefail
           python process/political_metrics_audit.py
+      - name: Publish compact audit result
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('artifacts/political-metrics-audit/report.json').read_text())
+          a = r['speech_temporal_attribution']
+          s = r['speech_reconciliation']
+          c = r['certification']
+          d = r['speech_date_range']
+          h = r['history_coverage']
+          message = (
+              f"ready={c['ready_for_historical_public_speech_metrics']}; "
+              f"speech_dates={d['min']}..{d['max']}; "
+              f"party_coverage={a['party_attribution_coverage']:.6f}; party_unmatched={a['party_unmatched_rows']}; "
+              f"constituency_coverage={a['constituency_attribution_coverage']:.6f}; constituency_unmatched={a['constituency_unmatched_rows']}; "
+              f"member_coverage={s['member_attribution_coverage']:.6f}; "
+              f"membership_start={h['silver_member_memberships']['min_start']}; "
+              f"party_start={h['silver_member_parties']['min_start']}; "
+              f"constituency_start={h['silver_member_constituencies']['min_start']}; "
+              f"failed_checks={[k for k,v in c['checks'].items() if not v]}"
+          )
+          print(f"::notice title=Political metrics historical audit::{message}")
+          PY
       - name: Add political metrics summary
         if: always()
         shell: bash
