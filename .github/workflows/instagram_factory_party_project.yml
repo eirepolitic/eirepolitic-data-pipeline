@@ -1,4 +1,4 @@
-name: Instagram Glossary Visual Review
+name: Instagram Party Cover Visual Review
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  render-glossary-review:
+  render-cover-review:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -17,7 +17,7 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install pillow
-      - name: Render glossary with canonical corner assets
+      - name: Render revised Fianna Fail cover
         shell: bash
         run: |
           python <<'PY'
@@ -26,10 +26,10 @@ jobs:
 
           W, H = 1080, 1350
           BG = '#0f2f24'
-          WHITE = '#f4ead7'
+          TEXT = '#f4ead7'
           ACCENT = '#d8b45f'
 
-          out = Path('instagram/commissioning/output/glossary-review/v5')
+          out = Path('instagram/commissioning/output/cover-review/v1')
           out.mkdir(parents=True, exist_ok=True)
 
           def font(size, bold=False):
@@ -44,101 +44,62 @@ jobs:
                       pass
               return ImageFont.load_default()
 
+          # Build the same 1032x1210 cover media used by the factory.
+          media = Image.new('RGB', (1032, 1210), BG)
+          d = ImageDraw.Draw(media)
+          party_font = font(68, True)
+          number_font = font(72, True)
+          label_font = font(25, True)
+          small_font = font(24, False)
+
+          cx, cy, radius = 516, 375, 225
+          d.ellipse((cx-radius, cy-radius, cx+radius, cy+radius), outline=ACCENT, width=10)
+          d.text((cx, cy-46), 'Fianna', font=party_font, fill=TEXT, anchor='mm')
+          d.text((cx, cy+46), 'Fáil', font=party_font, fill=TEXT, anchor='mm')
+
+          # Revised cover metrics.
+          d.text((270, 785), '770', font=number_font, fill=TEXT, anchor='mm')
+          d.text((270, 852), 'CLASSIFIED SPEECHES', font=label_font, fill=ACCENT, anchor='mm')
+          d.text((762, 785), '16.0', font=number_font, fill=TEXT, anchor='mm')
+          d.text((762, 852), 'AVG SPEECHES PER TD', font=label_font, fill=ACCENT, anchor='mm')
+
+          d.line((215, 945, 817, 945), fill=ACCENT, width=3)
+          d.text((516, 1000), 'JANUARY 2026', font=label_font, fill=ACCENT, anchor='mm')
+          d.text((516, 1048), '1 Jan – 31 Jan 2026', font=small_font, fill=TEXT, anchor='mm')
+
+          # Compose with the exact current 1080x1350 layout geometry.
+          slide = Image.new('RGB', (W, H), BG)
+          sd = ImageDraw.Draw(slide)
+
+          for path, pos in [
+              ('instagram/templates/assets/corner_tl.png', (0, 0)),
+              ('instagram/templates/assets/corner_tr.png', (925, 0)),
+              ('instagram/templates/assets/corner_bl.png', (0, 1195)),
+              ('instagram/templates/assets/corner_br.png', (925, 1195)),
+          ]:
+              corner = Image.open(path).convert('RGBA').resize((155,155), Image.Resampling.LANCZOS)
+              slide.paste(corner, pos, corner)
+
           title_font = font(56, True)
-          term_font = font(29, True)
-          body_font = font(25, False)
+          sd.text((540, 100), 'Fianna Fáil', font=title_font, fill=TEXT, anchor='mm')
+          sd.rectangle((112, 174, 968, 178), fill=ACCENT)
 
-          canvas = Image.new('RGB', (W, H), BG)
-          draw = ImageDraw.Draw(canvas)
+          # main_media box x=24 y=190 w=1032 h=1126, fit=contain
+          fit = media.copy()
+          fit.thumbnail((1032,1126), Image.Resampling.LANCZOS)
+          px = 24 + (1032-fit.width)//2
+          py = 190 + (1126-fit.height)//2
+          slide.paste(fit, (px, py))
 
-          # Exact working assets and exact placement used by current post layout.
-          corner_specs = {
-              'tl': ('instagram/templates/assets/corner_tl.png', (0, 0)),
-              'tr': ('instagram/templates/assets/corner_tr.png', (925, 0)),
-              'bl': ('instagram/templates/assets/corner_bl.png', (0, 1195)),
-              'br': ('instagram/templates/assets/corner_br.png', (925, 1195)),
-          }
-          for _, (path, pos) in corner_specs.items():
-              ornament = Image.open(path).convert('RGBA').resize((155, 155), Image.Resampling.LANCZOS)
-              canvas.paste(ornament, pos, ornament)
-
-          # Same title band geometry as the current post layout.
-          title_y = 100
-          draw.text((W // 2, title_y), 'Glossary', font=title_font, fill=WHITE, anchor='mm')
-          draw.rectangle((112, 174, 968, 178), fill=ACCENT)
-
-          entries = [
-              ('Issues', 'Dáil speech segments are grouped into political issue categories based on what each segment is mainly about.'),
-              ('Classified Speeches', 'Speech segments assigned to one of the issue categories. Counts show how often an issue was discussed, not a party’s position on it.'),
-              ('Average Party', 'We calculate the result for each party and then take the simple average across parties, so larger parties do not count more heavily.'),
-              ('Per TD', 'The number of classified speeches is divided by the number of TDs in that party. This adjusts the comparison for party size.'),
-              ('Points vs Average', 'Shows how far above the average party a result is. For example, +6.1 pts means that issue made up 6.1 percentage points more of a party’s speeches than average.'),
-          ]
-
-          LEFT, RIGHT = 96, 984
-          y = 220
-          UNDERLINE_GAP = 8
-          BODY_GAP = 7
-          ENTRY_GAP = 24
-
-          def wrap_text(text, fnt, max_width):
-              words = text.split()
-              lines, current = [], ''
-              for word in words:
-                  candidate = f'{current} {word}'.strip()
-                  box = draw.textbbox((0, 0), candidate, font=fnt)
-                  if box[2] - box[0] <= max_width:
-                      current = candidate
-                  else:
-                      if current:
-                          lines.append(current)
-                      current = word
-              if current:
-                  lines.append(current)
-              return lines
-
-          for term, body in entries:
-              heading = term + ':'
-              draw.text((LEFT, y), heading, font=term_font, fill=WHITE, anchor='la')
-              # Standard underline rule: actual rendered glyph bbox + fixed gap.
-              bbox = draw.textbbox((LEFT, y), heading, font=term_font, anchor='la')
-              underline_y = bbox[3] + UNDERLINE_GAP
-              draw.line((bbox[0], underline_y, bbox[2], underline_y), fill=WHITE, width=2)
-              y = underline_y + 13
-
-              for line in wrap_text(body, body_font, RIGHT - LEFT):
-                  draw.text((LEFT, y), line, font=body_font, fill=WHITE)
-                  lb = draw.textbbox((LEFT, y), line, font=body_font)
-                  y = lb[3] + BODY_GAP
-              y += ENTRY_GAP
-
-          glossary_path = out / 'glossary.png'
-          canvas.save(glossary_path)
-
-          # Compare to an actual generated issue chart slide from this branch.
-          actual_path = Path('instagram/commissioning/output/january-overindex-2026/share/parties/fianna-fail/slides/02_issue_profile.png')
-          actual = Image.open(actual_path).convert('RGB')
-          if actual.size != (W, H):
-              actual = actual.resize((W, H), Image.Resampling.LANCZOS)
-
-          gutter = 32
-          label_h = 54
-          comparison = Image.new('RGB', (W * 2 + gutter, H + label_h), '#e8e8e8')
-          comparison.paste(canvas, (0, label_h))
-          comparison.paste(actual, (W + gutter, label_h))
-          cd = ImageDraw.Draw(comparison)
-          label_font = font(24, True)
-          cd.text((W // 2, 27), 'Glossary', font=label_font, fill='#222222', anchor='mm')
-          cd.text((W + gutter + W // 2, 27), 'Actual Generated Issue Slide', font=label_font, fill='#222222', anchor='mm')
-          comparison.save(out / 'comparison_with_actual_issue_slide.jpg', 'JPEG', quality=88, optimize=True)
+          slide.save(out/'fianna-fail-cover.png')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/output/glossary-review/v5
-          git commit -m "Add glossary visual comparison with actual issue slide" || true
+          git add instagram/commissioning/output/cover-review/v1
+          git commit -m "Add revised Fianna Fail cover metric review" || true
           git push
-      - name: Upload review artifacts
+      - name: Upload review artifact
         uses: actions/upload-artifact@v4
         with:
-          name: glossary-review-${{ github.run_id }}
-          path: instagram/commissioning/output/glossary-review/v5/
+          name: cover-review-${{ github.run_id }}
+          path: instagram/commissioning/output/cover-review/v1/
