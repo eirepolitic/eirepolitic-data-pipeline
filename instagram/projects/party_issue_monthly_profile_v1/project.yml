@@ -18,8 +18,8 @@ period:
 sources:
   classified_speeches:
     bucket: eirepolitic-data
-    key: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
-    category_field: PoliticalIssues
+    key: processed/oireachtas_unified/latest/csv/enrichment_speech_issue_labels.csv
+    category_field: issue_label
     producer: unified_speech_issue_classifier
   members:
     bucket: eirepolitic-data
