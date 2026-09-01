@@ -1,8 +1,10 @@
 {
   "party_key": "fianna-fail",
-  "candidate_count": 21,
-  "reviewable_count": 21,
-  "errors": [],
+  "candidate_count": 12,
+  "reviewable_count": 11,
+  "errors": [
+    "ff_historical_7080: 429 Client Error: Too many requests (f061ab2) for url: https://upload.wikimedia.org/wikipedia/commons/6/6e/Fianna_F%C3%A1il_logo_circa_1970s%2C_1980s.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original"
+  ],
   "entries": [
     {
       "candidate_id": "ff_2024",
@@ -46,11 +48,8 @@
       "source_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Fianna%20F%C3%A1il%20logo%20circa%201970s%2C%201980s.png",
       "source_kind": "wikimedia_historical",
       "notes": "Historical identity only.",
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/ff_historical_7080.png",
-      "final_url": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Fianna_F%C3%A1il_logo_circa_1970s%2C_1980s.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
-      "width": 317,
-      "height": 320
+      "status": "error",
+      "error": "429 Client Error: Too many requests (f061ab2) for url: https://upload.wikimedia.org/wikipedia/commons/6/6e/Fianna_F%C3%A1il_logo_circa_1970s%2C_1980s.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original"
     },
     {
       "candidate_id": "ff_1987_campaign",
@@ -114,7 +113,7 @@
     },
     {
       "candidate_id": "official_site_01",
-      "label": "Official-site candidate 1",
+      "label": "Current official-site logo 1",
       "source_url": "https://www.fiannafail.ie/hubfs/FFLogo_March25.svg",
       "source_kind": "official_site_discovery",
       "notes": "contains_logo; svg_source; party_token:fail; party_token:fianna",
@@ -127,146 +126,29 @@
     },
     {
       "candidate_id": "official_site_02",
-      "label": "Official-site candidate 2",
-      "source_url": "https://www.fiannafail.ie/hubfs/fianna-theme/footer/OgraNYCLogos.svg",
-      "source_kind": "official_site_discovery",
-      "notes": "contains_logo; svg_source; party_token:fail; party_token:fianna",
-      "score": 12,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_02.png",
-      "final_url": "https://www.fiannafail.ie/hubfs/fianna-theme/footer/OgraNYCLogos.svg",
-      "width": 79,
-      "height": 46
-    },
-    {
-      "candidate_id": "official_site_03",
-      "label": "Official-site candidate 3",
-      "source_url": "https://www.fiannafail.ie/hubfs/fianna-theme/footer/Renew%20Europe%20Logo%20Square%20White.svg",
-      "source_kind": "official_site_discovery",
-      "notes": "contains_logo; svg_source; party_token:fail; party_token:fianna",
-      "score": 12,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_03.png",
-      "final_url": "https://www.fiannafail.ie/hubfs/fianna-theme/footer/Renew%20Europe%20Logo%20Square%20White.svg",
-      "width": 99,
-      "height": 43
-    },
-    {
-      "candidate_id": "official_site_04",
-      "label": "Official-site candidate 4",
+      "label": "Current official-site logo 2",
       "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/FF_Logo_Reverse_WebsiteMain-2-1.png?width=125&height=31&name=FF_Logo_Reverse_WebsiteMain-2-1.png",
       "source_kind": "official_site_discovery",
       "notes": "contains_logo; party_token:fail; party_token:fianna",
       "score": 10,
       "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_04.png",
+      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_02.png",
       "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/FF_Logo_Reverse_WebsiteMain-2-1.png?width=125&height=31&name=FF_Logo_Reverse_WebsiteMain-2-1.png",
       "width": 125,
       "height": 30
     },
     {
-      "candidate_id": "official_site_10",
-      "label": "Official-site candidate 10",
+      "candidate_id": "official_site_08",
+      "label": "Current official-site logo 8",
       "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/FF_Logo_WebsiteMain-2-1.png?width=12518&height=3117&name=FF_Logo_WebsiteMain-2-1.png",
       "source_kind": "official_site_discovery",
       "notes": "contains_logo; party_token:fail; party_token:fianna",
       "score": 10,
       "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_10.png",
+      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_08.png",
       "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/FF_Logo_WebsiteMain-2-1.png?width=12518&height=3117&name=FF_Logo_WebsiteMain-2-1.png",
       "width": 410,
       "height": 100
-    },
-    {
-      "candidate_id": "official_site_16",
-      "label": "Official-site candidate 16",
-      "source_url": "https://www.fiannafail.ie/hubfs/alde-cor-logo-footer%5B2%5D.png",
-      "source_kind": "official_site_discovery",
-      "notes": "contains_logo; party_token:fail; party_token:fianna",
-      "score": 10,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_16.png",
-      "final_url": "https://www.fiannafail.ie/hubfs/alde-cor-logo-footer%5B2%5D.png",
-      "width": 410,
-      "height": 150
-    },
-    {
-      "candidate_id": "official_site_17",
-      "label": "Official-site candidate 17",
-      "source_url": "https://www.fiannafail.ie/hubfs/fianna-theme/arrow-next-purple.svg",
-      "source_kind": "official_site_discovery",
-      "notes": "svg_source; party_token:fail; party_token:fianna",
-      "score": 4,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_17.png",
-      "final_url": "https://www.fiannafail.ie/hubfs/fianna-theme/arrow-next-purple.svg",
-      "width": 34,
-      "height": 11
-    },
-    {
-      "candidate_id": "official_site_18",
-      "label": "Official-site candidate 18",
-      "source_url": "https://www.fiannafail.ie/hubfs/fianna-theme/icons/arrow-next%20(1).svg",
-      "source_kind": "official_site_discovery",
-      "notes": "svg_source; party_token:fail; party_token:fianna",
-      "score": 4,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_18.png",
-      "final_url": "https://www.fiannafail.ie/hubfs/fianna-theme/icons/arrow-next%20(1).svg",
-      "width": 36,
-      "height": 11
-    },
-    {
-      "candidate_id": "official_site_19",
-      "label": "Official-site candidate 19",
-      "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/159.jpg?width=1200&length=1200&name=159.jpg",
-      "source_kind": "official_site_discovery",
-      "notes": "party_token:fail; party_token:fianna",
-      "score": 2,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_19.png",
-      "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/159.jpg?width=1200&length=1200&name=159.jpg",
-      "width": 256,
-      "height": 320
-    },
-    {
-      "candidate_id": "official_site_25",
-      "label": "Official-site candidate 25",
-      "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/MEP-1.jpg?width=1200&length=1200&name=MEP-1.jpg",
-      "source_kind": "official_site_discovery",
-      "notes": "party_token:fail; party_token:fianna",
-      "score": 2,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_25.png",
-      "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/MEP-1.jpg?width=1200&length=1200&name=MEP-1.jpg",
-      "width": 256,
-      "height": 320
-    },
-    {
-      "candidate_id": "official_site_31",
-      "label": "Official-site candidate 31",
-      "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/Podcast.jpg?width=1200&length=1200&name=Podcast.jpg",
-      "source_kind": "official_site_discovery",
-      "notes": "party_token:fail; party_token:fianna",
-      "score": 2,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_31.png",
-      "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/Podcast.jpg?width=1200&length=1200&name=Podcast.jpg",
-      "width": 410,
-      "height": 239
-    },
-    {
-      "candidate_id": "official_site_37",
-      "label": "Official-site candidate 37",
-      "source_url": "https://www.fiannafail.ie/hs-fs/hubfs/Senator.jpg?width=1200&length=1200&name=Senator.jpg",
-      "source_kind": "official_site_discovery",
-      "notes": "party_token:fail; party_token:fianna",
-      "score": 2,
-      "status": "reviewable",
-      "preview": "review/party_assets_v1/fianna_fail/previews/official_site_37.png",
-      "final_url": "https://www.fiannafail.ie/hs-fs/hubfs/Senator.jpg?width=1200&length=1200&name=Senator.jpg",
-      "width": 256,
-      "height": 320
     }
   ],
   "contact_sheet": "review/party_assets_v1/fianna_fail/contact_sheet.png"
