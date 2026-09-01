@@ -38,11 +38,11 @@ class TemporalJoinTests(unittest.TestCase):
             "member_code": ["m1", "m1"],
             "party_start": ["2025-01-01", "2026-01-15"],
             "party_end": ["2026-01-14", None],
-            "party_code": ["A", "B"],
+            "party_uri": ["party:A", "party:B"],
             "party_name": ["Party A", "Party B"],
         })
         joined = attach_event_party(events, history)
-        self.assertEqual(joined["party_code"].tolist(), ["A", "B"])
+        self.assertEqual(joined["party_uri"].tolist(), ["party:A", "party:B"])
 
     def test_constituency_switch_is_period_correct(self):
         events = pd.DataFrame({
@@ -54,11 +54,11 @@ class TemporalJoinTests(unittest.TestCase):
             "member_code": ["m1", "m1"],
             "represent_start": ["2025-01-01", "2026-01-15"],
             "represent_end": ["2026-01-14", None],
-            "constituency_code": ["C1", "C2"],
+            "constituency_uri": ["constituency:C1", "constituency:C2"],
             "constituency_name": ["Old", "New"],
         })
         joined = attach_event_constituency(events, history)
-        self.assertEqual(joined["constituency_code"].tolist(), ["C1", "C2"])
+        self.assertEqual(joined["constituency_uri"].tolist(), ["constituency:C1", "constituency:C2"])
 
     def test_overlapping_party_history_raises(self):
         events = pd.DataFrame({
@@ -70,7 +70,7 @@ class TemporalJoinTests(unittest.TestCase):
             "member_code": ["m1", "m1"],
             "party_start": ["2025-01-01", "2026-01-01"],
             "party_end": [None, None],
-            "party_code": ["A", "B"],
+            "party_uri": ["party:A", "party:B"],
             "party_name": ["Party A", "Party B"],
         })
         with self.assertRaises(ValueError):
