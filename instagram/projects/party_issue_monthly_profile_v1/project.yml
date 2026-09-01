@@ -18,8 +18,9 @@ period:
 sources:
   classified_speeches:
     bucket: eirepolitic-data
-    key: processed/debates/debate_speeches_classified.csv
+    key: processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv
     category_field: PoliticalIssues
+    producer: unified_speech_issue_classifier
   members:
     bucket: eirepolitic-data
     key: raw/members/oireachtas_members_34th_dail.csv
@@ -60,7 +61,7 @@ slides:
 methodology:
   raw_counts: Category classified speeches for the party during the requested period.
   share_vs_average: Party category share minus the unweighted mean category share across parties, including zero shares; positive values only.
-  per_td_vs_average: Party category speeches per TD minus the unweighted mean party category rate per TD, including zero rates; positive values only.
+  per_td_vs_average: Party category speeches per TD minus the unweighted mean party category rate per TD across parties, including zero rates; positive values only.
   semantic_scope: Speech activity only; results do not establish party policy, position, endorsement, sentiment, intent, or political priority.
 
 visuals:
