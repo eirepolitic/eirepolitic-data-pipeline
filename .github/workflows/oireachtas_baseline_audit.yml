@@ -13,7 +13,7 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -22,64 +22,27 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
-      POLITICAL_METRICS_PERIOD: '2026-07'
-      POLITICAL_METRICS_COMMISSION_DIR: artifacts/political-metrics-commission
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install dependencies
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3 pandas
-      - name: Test political metrics foundation
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+          python -m pip install boto3
       - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
-      - name: Commission July 2026 political metrics
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/political_metrics_commission.py
-      - name: Publish compact commissioning results
-        if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/political-metrics-commission/summary.md ]; then
-            cat artifacts/political-metrics-commission/summary.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -f artifacts/political-metrics-commission/report.json ]; then
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          r=json.loads(Path('artifacts/political-metrics-commission/report.json').read_text())
-          n=r['national']; q=r['reconciliation']
-          print(f"::notice title=Commission totals::period={r['period']['start']}..{r['period']['end']}; dail_speeches={n['speech_count']}; eligible_td_speeches={q['eligible_td_distinct_speeches']}; debate_days={n['debate_day_count']}; speeches_per_debate_day={n['speeches_per_debate_day']:.3f}; all_reconciliations={all(v for k,v in q.items() if k.endswith('_matches') or k=='national_calculator_matches')}")
-          members=' | '.join(f"{x['member_name']}:{x['speech_count']}" for x in r['top_members'])
-          parties=' | '.join(f"{x['party_name']}:{x['speech_count']} ({x['speeches_per_active_member']:.2f}/TD)" for x in r['top_parties'])
-          constituencies=' | '.join(f"{x['constituency_name']}:{x['speech_count']} ({x['speeches_per_active_member']:.2f}/rep)" for x in r['top_constituencies'])
-          print(f"::notice title=Top TD speech counts::{members}")
-          print(f"::notice title=Party speech counts::{parties}")
-          print(f"::notice title=Constituency speech counts::{constituencies}")
-          PY
-          fi
-      - name: Upload commissioning artifacts
-        if: always()
+      - name: Upload baseline audit
         uses: actions/upload-artifact@v4
         with:
-          name: political-metrics-commission-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            artifacts/oireachtas-baseline-audit/
-            artifacts/political-metrics-commission/
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
           if-no-files-found: error
           retention-days: 30
