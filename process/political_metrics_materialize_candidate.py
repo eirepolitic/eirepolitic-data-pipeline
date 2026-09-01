@@ -30,9 +30,10 @@ from political_metrics.foundations import (
 )
 from political_metrics.issue_audit import audit_issue_classification
 from political_metrics.materialize import get_dataset_contract, load_materialization_contract
+from political_metrics.monthly_results import build_monthly_results
 from political_metrics.periods import MetricPeriod
 from political_metrics.sources import canonical_speeches
-from process.political_metrics_materialization_commission import TABLE_KEYS, build_monthly_results
+from process.political_metrics_materialization_commission import TABLE_KEYS
 
 DUBLIN = ZoneInfo("Europe/Dublin")
 CONTRACT_PATH = REPO_ROOT / "configs/political_metrics/materialization.yml"
