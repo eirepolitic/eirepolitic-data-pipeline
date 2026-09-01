@@ -13,7 +13,7 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -28,21 +28,79 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
+          python -m pip install -r requirements.txt
+      - name: Test political metrics foundation
         shell: bash
         run: |
           set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+      - name: Set throwaway candidate ID
+        id: batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "batch_id=metrics-integration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - name: Seed throwaway candidate from production
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_seed_candidate.py \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            | tee oireachtas_seed_candidate.json
+      - name: Build metrics inside throwaway candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_materialize_candidate.py \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --report-path political_metrics_candidate_report.json
+      - name: Assemble throwaway candidate with metric requirements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            assemble \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --required-table political_metrics_daily_activity_components \
+            --required-table political_metrics_daily_issue_activity \
+            --required-table political_metrics_division_party_vote_components \
+            --required-table political_metrics_daily_question_dimensions \
+            --required-table political_metrics_monthly_metric_results \
+            | tee oireachtas_batch_manifest.json
+      - name: Prove production pointer was not changed by test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import boto3, json, os
+          s3=boto3.client('s3', region_name=os.environ['AWS_REGION'])
+          key='processed/oireachtas_unified/pointers/production.json'
+          obj=s3.get_object(Bucket=os.environ['S3_BUCKET'], Key=key)
+          pointer=json.loads(obj['Body'].read().decode('utf-8'))
+          test_batch='${{ steps.batch.outputs.batch_id }}'
+          if pointer.get('batch_id') == test_batch:
+              raise SystemExit('throwaway candidate was unexpectedly promoted')
+          print(f"::notice title=Candidate integration safety::throwaway_batch={test_batch}; production_batch={pointer.get('batch_id')}; promoted=false")
+          PY
+      - name: Upload integration evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
+          name: political-metrics-candidate-integration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_seed_candidate.json
+            political_metrics_candidate_report.json
+            oireachtas_batch_manifest.json
+          if-no-files-found: warn
           retention-days: 30
