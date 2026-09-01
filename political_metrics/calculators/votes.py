@@ -40,6 +40,15 @@ def member_vote_participation(
     return result
 
 
+def vote_unity_reliability(qualifying_divisions: int) -> str:
+    """Reliability label used by public voting-unity comparisons."""
+    if qualifying_divisions >= 10:
+        return "reliable"
+    if qualifying_divisions >= 5:
+        return "caution"
+    return "insufficient_for_comparison"
+
+
 def party_vote_metrics(
     member_votes: pd.DataFrame,
     eligible_pairs: pd.DataFrame,
@@ -81,6 +90,8 @@ def party_vote_metrics(
         result["unity_votes_aligned"] = 0
         result["unity_votes_total"] = 0
         result["vote_cohesion_pct"] = pd.NA
+        result["unity_reliability_status"] = "insufficient_for_comparison"
+        result["unity_public_safe"] = False
         return result
 
     counts = (
@@ -110,6 +121,10 @@ def party_vote_metrics(
     result["vote_cohesion_pct"] = result["unity_votes_aligned"].div(
         result["unity_votes_total"].replace(0, pd.NA)
     ).astype("Float64")
+    result["unity_reliability_status"] = result["qualifying_unity_divisions"].map(
+        lambda value: vote_unity_reliability(int(value))
+    )
+    result["unity_public_safe"] = result["unity_reliability_status"].eq("reliable")
     return result
 
 
