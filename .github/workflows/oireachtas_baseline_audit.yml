@@ -4,152 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  audit:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas rapidfuzz pyyaml
-      - name: Measure written PQ clustering savings
+          cache: pip
+      - name: Install audit dependencies
+        shell: bash
         run: |
-          python - <<'PY'
-          import io, json, os, re
-          from collections import Counter
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from rapidfuzz.fuzz import ratio
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          logical='processed/oireachtas_unified/latest/csv/silver_questions.csv'
-          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
-          obj=s3.get_object(Bucket=bucket,Key=resolved)
-          q=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
-          q['question_type_norm']=q['question_type'].fillna('').astype(str).str.lower().str.strip()
-          w=q[q.question_type_norm.str.contains('written',na=False)].copy()
-          july=w[(w.question_date>=pd.Timestamp('2026-07-01'))&(w.question_date<=pd.Timestamp('2026-07-31'))].copy()
-
-          def normalize(x):
-              x='' if pd.isna(x) else str(x).lower()
-              x=re.sub(r'https?://\S+',' <url> ',x)
-              x=re.sub(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',' <date> ',x)
-              x=re.sub(r'€\s?[\d,]+(?:\.\d+)?',' <money> ',x)
-              x=re.sub(r'\b\d+(?:[.,]\d+)?%',' <percent> ',x)
-              x=re.sub(r'\b\d+(?:[.,]\d+)?\b',' <num> ',x)
-              x=re.sub(r'[^a-zà-ÿ<> ]+',' ',x)
-              return re.sub(r'\s+',' ',x).strip()
-          july['norm']=july.question_text.map(normalize)
-
-          batch_cols=['asked_by_member_code','question_date','to_minister_or_department']
-          sizes=july.groupby(batch_cols,dropna=False).size().rename('batch_size').reset_index()
-          # Correct row-weighted batching shares.
-          size_lookup=july.groupby(batch_cols,dropna=False)['question_id'].transform('size')
-          batching={
-            'rows':int(len(july)),
-            'batch_count':int(len(sizes)),
-            'median_batch_size':float(sizes.batch_size.median()),
-            'p90_batch_size':float(sizes.batch_size.quantile(.9)),
-            'p95_batch_size':float(sizes.batch_size.quantile(.95)),
-            'max_batch_size':int(sizes.batch_size.max()),
-          }
-          for n in [2,5,10,20,50]:
-              count=int((size_lookup>=n).sum())
-              batching[f'rows_in_batches_ge_{n}']=count
-              batching[f'row_share_batches_ge_{n}']=count/len(july) if len(july) else None
-
-          thresholds=[92,95,98,100]
-          stats={t:{'pairs':0,'qualifying_pairs':0,'components':0,'rows':0,'clusters_gt1':0,'rows_in_clusters_gt1':0,'reduction':0} for t in thresholds}
-          examples={t:[] for t in thresholds}
-
-          class UF:
-              def __init__(self,n): self.p=list(range(n)); self.sz=[1]*n
-              def find(self,x):
-                  while self.p[x]!=x:
-                      self.p[x]=self.p[self.p[x]]; x=self.p[x]
-                  return x
-              def union(self,a,b):
-                  a=self.find(a); b=self.find(b)
-                  if a==b:return
-                  if self.sz[a]<self.sz[b]:a,b=b,a
-                  self.p[b]=a; self.sz[a]+=self.sz[b]
-
-          for key,g in july.groupby(batch_cols,dropna=False):
-              if len(g)==0: continue
-              rows=list(g[['question_id','norm','question_text']].sort_values('question_id').itertuples(index=False,name=None))
-              n=len(rows)
-              ufs={t:UF(n) for t in thresholds}
-              for i in range(n):
-                  for j in range(i+1,n):
-                      score=ratio(rows[i][1],rows[j][1]) if rows[i][1] and rows[j][1] else 0
-                      for t in thresholds:
-                          stats[t]['pairs']+=1
-                          if score>=t:
-                              stats[t]['qualifying_pairs']+=1
-                              ufs[t].union(i,j)
-                              if len(examples[t])<8:
-                                  examples[t].append({'similarity':float(score),'question_id_a':str(rows[i][0]),'question_id_b':str(rows[j][0]),'text_a':str(rows[i][2])[:220],'text_b':str(rows[j][2])[:220]})
-              for t in thresholds:
-                  roots=[ufs[t].find(i) for i in range(n)]
-                  counts=Counter(roots)
-                  components=len(counts)
-                  multi=[v for v in counts.values() if v>1]
-                  stats[t]['rows']+=n
-                  stats[t]['components']+=components
-                  stats[t]['clusters_gt1']+=len(multi)
-                  stats[t]['rows_in_clusters_gt1']+=sum(multi)
-                  stats[t]['reduction']+=n-components
-
-          result={}
-          for t in thresholds:
-              st=stats[t]
-              result[str(t)]={
-                **st,
-                'potential_call_count_if_one_per_cluster':st['components'],
-                'potential_calls_saved':st['reduction'],
-                'potential_call_reduction_share':st['reduction']/st['rows'] if st['rows'] else None,
-                'row_share_in_multirow_clusters':st['rows_in_clusters_gt1']/st['rows'] if st['rows'] else None,
-                'examples':examples[t],
-              }
-
-          # Exact normalized-template clustering across July independent of batch.
-          template_counts=july['norm'].value_counts()
-          exact_components=int(len(template_counts))
-          exact_saved=int(len(july)-exact_components)
-
-          out={
-            'analysis_period':'2026-07 written PQs',
-            'batch_definition':'same TD + question date + recipient',
-            'normalization':'question numbers, numeric values, percentages, dates, money and URLs replaced; wording otherwise preserved',
-            'batching':batching,
-            'threshold_cluster_results':result,
-            'global_exact_normalized_template':{
-              'rows':int(len(july)),'clusters':exact_components,'potential_calls_saved':exact_saved,'potential_call_reduction_share':exact_saved/len(july) if len(july) else None
-            },
-            'important_limit':'Similarity does not prove identical issue meaning. These are upper-bound cost-saving estimates, not approved label-reuse rules.'
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/written_pq_cluster_sensitivity.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist audit
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/written_pq_cluster_sensitivity.json
-          git commit -m "Capture written PQ cluster sensitivity ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
