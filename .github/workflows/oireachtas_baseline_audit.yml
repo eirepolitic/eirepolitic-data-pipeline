@@ -13,7 +13,7 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -22,68 +22,27 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
-      POLITICAL_METRICS_PERIOD: '2026-07'
-      POLITICAL_METRICS_QUESTION_COMMISSION_DIR: artifacts/political-metrics-question-commission
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install dependencies
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3 pandas
-      - name: Test political metrics foundation
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+          python -m pip install boto3
       - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
-      - name: Commission July 2026 parliamentary question metrics
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/political_metrics_question_commission.py
-      - name: Publish compact question commissioning results
-        if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/political-metrics-question-commission/summary.md ]; then
-            cat artifacts/political-metrics-question-commission/summary.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -f artifacts/political-metrics-question-commission/report.json ]; then
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          r=json.loads(Path('artifacts/political-metrics-question-commission/report.json').read_text())
-          n=r['national']
-          print(f"::notice title=Question commission totals::period={r['period']['start']}..{r['period']['end']}; source={r['source_question_count']}; eligible={r['eligible_question_count']}; excluded={r['excluded_question_count']}; asking_members={n['asking_member_count']}; question_days={n['question_day_count']}; types={n['question_type_count']}; recipients={n['recipient_count']}")
-          members=' | '.join(f"{x['member_name']}:{x['question_count']}" for x in r['top_members'])
-          parties=' | '.join(f"{x['party_name']}:{x['question_count']} ({x['asking_member_count']} TDs)" for x in r['party_metrics'])
-          const=' | '.join(f"{x['constituency_name']}:{x['question_count']}" for x in r['top_constituencies'])
-          types=' | '.join(f"{x['question_type']}:{x['question_count']} ({x['question_type_share']*100:.1f}%)" for x in r['question_types'])
-          recipients=' | '.join(f"{x['to_minister_or_department']}:{x['question_count']} ({x['question_share']*100:.1f}%)" for x in r['top_recipients'])
-          print(f"::notice title=Top TD question counts::{members}")
-          print(f"::notice title=Party question totals::{parties}")
-          print(f"::notice title=Top constituency question totals::{const}")
-          print(f"::notice title=Question types::{types}")
-          print(f"::notice title=Top question recipients::{recipients}")
-          PY
-          fi
-      - name: Upload question commissioning artifacts
-        if: always()
+      - name: Upload baseline audit
         uses: actions/upload-artifact@v4
         with:
-          name: political-metrics-question-commission-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            artifacts/oireachtas-baseline-audit/
-            artifacts/political-metrics-question-commission/
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
           if-no-files-found: error
           retention-days: 30
