@@ -4,45 +4,194 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas rapidfuzz pyyaml
+      - name: Audit written parliamentary question structure
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os, re, statistics
+          from collections import Counter
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+          from rapidfuzz.fuzz import ratio
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          logical='processed/oireachtas_unified/latest/csv/silver_questions.csv'
+          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
+          obj=s3.get_object(Bucket=bucket,Key=resolved)
+          q=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
+          q['question_type_norm']=q['question_type'].fillna('').astype(str).str.lower().str.strip()
+          w=q[q.question_type_norm.str.contains('written',na=False)].copy()
+
+          def norm_text(x):
+              if pd.isna(x): return ''
+              x=str(x).lower()
+              x=re.sub(r'https?://\S+',' <url> ',x)
+              x=re.sub(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',' <date> ',x)
+              x=re.sub(r'€\s?[\d,]+(?:\.\d+)?',' <money> ',x)
+              x=re.sub(r'\b\d+(?:[.,]\d+)?%',' <percent> ',x)
+              x=re.sub(r'\b\d+(?:[.,]\d+)?\b',' <num> ',x)
+              x=re.sub(r'[^a-zà-ÿ<> ]+',' ',x)
+              x=re.sub(r'\s+',' ',x).strip()
+              return x
+
+          w['text_norm']=w['question_text'].map(lambda x: re.sub(r'\s+',' ',str(x).lower()).strip() if not pd.isna(x) else '')
+          w['template_norm']=w['question_text'].map(norm_text)
+
+          def scope_stats(df,label):
+              rows=int(len(df))
+              exact_unique=int(df.text_norm.nunique())
+              template_unique=int(df.template_norm.nunique())
+              template_counts=df.template_norm.value_counts()
+              recurring=template_counts[template_counts>1]
+              recurring_rows=int(recurring.sum())
+              top_templates=[]
+              for templ,count in recurring.head(15).items():
+                  sample=df[df.template_norm==templ].head(5)
+                  top_templates.append({
+                    'template_count':int(count),
+                    'template_excerpt':str(templ)[:350],
+                    'members':sample['asked_by_member_code'].astype(str).tolist() if 'asked_by_member_code' in sample.columns else [],
+                    'dates':[str(x.date()) if pd.notna(x) else None for x in sample.question_date],
+                    'recipients':sample['to_minister_or_department'].astype(str).tolist() if 'to_minister_or_department' in sample.columns else [],
+                    'question_ids':sample['question_id'].astype(str).tolist() if 'question_id' in sample.columns else [],
+                  })
+              return {
+                'label':label,'rows':rows,'exact_unique_texts':exact_unique,'exact_unique_share':exact_unique/rows if rows else None,
+                'numeric_template_unique':template_unique,'numeric_template_unique_share':template_unique/rows if rows else None,
+                'rows_in_repeated_numeric_templates':recurring_rows,'repeated_numeric_template_row_share':recurring_rows/rows if rows else None,
+                'top_numeric_templates':top_templates,
+              }
+
+          july=w[(w.question_date>=pd.Timestamp('2026-07-01'))&(w.question_date<=pd.Timestamp('2026-07-31'))].copy()
+
+          # Batches: same TD, date, recipient. These are plausible submission bundles.
+          batch_cols=['asked_by_member_code','question_date','to_minister_or_department']
+          batch_cols=[c for c in batch_cols if c in w.columns]
+          bg=w.groupby(batch_cols,dropna=False).size().rename('batch_size').reset_index()
+          july_bg=july.groupby(batch_cols,dropna=False).size().rename('batch_size').reset_index()
+
+          def batch_summary(bg,df):
+              sizes=bg.batch_size.astype(int).tolist()
+              rows=len(df)
+              out={
+                'batch_count':int(len(bg)),
+                'median_batch_size':float(statistics.median(sizes)) if sizes else None,
+                'p90_batch_size':float(pd.Series(sizes).quantile(.9)) if sizes else None,
+                'p95_batch_size':float(pd.Series(sizes).quantile(.95)) if sizes else None,
+                'max_batch_size':int(max(sizes)) if sizes else None,
+              }
+              for n in [2,5,10,20,50]:
+                  qualifying=bg[bg.batch_size>=n]
+                  keyset=set(tuple(str(v) for v in row) for row in qualifying[batch_cols].itertuples(index=False,name=None))
+                  if keyset:
+                      mask=df[batch_cols].astype(str).apply(tuple,axis=1).isin(keyset)
+                      count=int(mask.sum())
+                  else: count=0
+                  out[f'rows_in_batches_ge_{n}']=count
+                  out[f'row_share_batches_ge_{n}']=count/rows if rows else None
+              out['largest_batches']=bg.sort_values('batch_size',ascending=False).head(20).to_dict(orient='records')
+              return out
+
+          # High-threshold near-duplicate audit inside July submission batches.
+          # For each batch, compare each question with every other question up to 80 rows;
+          # larger batches use a deterministic first-80 sample. We count a row as near-duplicate
+          # when it has another row >=92% character similarity after conservative normalization.
+          near_dup_rows=set(); pair_examples=[]; checked_pairs=0; batches_checked=0
+          if batch_cols:
+              for key,g in july.groupby(batch_cols,dropna=False):
+                  if len(g)<2: continue
+                  batches_checked+=1
+                  gg=g.sort_values('question_id').head(80)
+                  records=list(gg[['question_id','template_norm','question_text']].itertuples(index=False,name=None))
+                  for i in range(len(records)):
+                      for j in range(i+1,len(records)):
+                          checked_pairs+=1
+                          ida,ta,rawa=records[i]; idb,tb,rawb=records[j]
+                          if not ta or not tb: continue
+                          score=ratio(ta,tb)
+                          if score>=92:
+                              near_dup_rows.add(str(ida)); near_dup_rows.add(str(idb))
+                              if len(pair_examples)<25:
+                                  pair_examples.append({'question_id_a':str(ida),'question_id_b':str(idb),'similarity':float(score),'text_a':str(rawa)[:350],'text_b':str(rawb)[:350]})
+
+          # Same-day same-member recipient breadth and volume.
+          member_day=july.groupby(['asked_by_member_code','question_date']).agg(
+              question_count=('question_id','size'),
+              recipient_count=('to_minister_or_department','nunique')
+          ).reset_index() if {'asked_by_member_code','to_minister_or_department'}.issubset(july.columns) else pd.DataFrame()
+
+          # Recipient concentration inside largest batches.
+          recipient_counts=july['to_minister_or_department'].fillna('UNKNOWN').value_counts().head(20).rename_axis('recipient').reset_index(name='count').to_dict(orient='records') if 'to_minister_or_department' in july.columns else []
+
+          report={
+            'resolved_key':resolved,
+            'written_history_date_min':str(w.question_date.min().date()) if w.question_date.notna().any() else None,
+            'written_history_date_max':str(w.question_date.max().date()) if w.question_date.notna().any() else None,
+            'history':scope_stats(w,'all_written_history'),
+            'july_2026':scope_stats(july,'july_2026_written'),
+            'history_batching':batch_summary(bg,w),
+            'july_batching':batch_summary(july_bg,july),
+            'july_near_duplicate_audit':{
+              'batches_checked':batches_checked,
+              'pairs_checked':checked_pairs,
+              'near_duplicate_question_rows':int(len(near_dup_rows)),
+              'near_duplicate_row_share':len(near_dup_rows)/len(july) if len(july) else None,
+              'threshold':'rapidfuzz ratio >= 92 after conservative numeric/date normalization',
+              'pair_examples':pair_examples,
+            },
+            'july_member_day_patterns':{
+              'member_day_count':int(len(member_day)) if len(member_day) else 0,
+              'top_member_days_by_question_count':member_day.sort_values('question_count',ascending=False).head(25).to_dict(orient='records') if len(member_day) else [],
+              'median_questions_per_member_day':float(member_day.question_count.median()) if len(member_day) else None,
+              'median_recipients_per_member_day':float(member_day.recipient_count.median()) if len(member_day) else None,
+            },
+            'july_top_recipients':recipient_counts,
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/written_pq_structure_audit.json').write_text(json.dumps(report,indent=2,sort_keys=True,default=str)+'\n')
+          summary={
+            'written_history_date_min':report['written_history_date_min'],'written_history_date_max':report['written_history_date_max'],
+            'history':{k:v for k,v in report['history'].items() if k!='top_numeric_templates'},
+            'july_2026':{k:v for k,v in report['july_2026'].items() if k!='top_numeric_templates'},
+            'history_batching':{k:v for k,v in report['history_batching'].items() if k!='largest_batches'},
+            'july_batching':{k:v for k,v in report['july_batching'].items() if k!='largest_batches'},
+            'largest_july_batches':report['july_batching']['largest_batches'][:12],
+            'july_near_duplicate_audit':report['july_near_duplicate_audit'],
+            'july_member_day_patterns':report['july_member_day_patterns'],
+            'july_top_recipients':recipient_counts,
+            'top_july_numeric_templates':report['july_2026']['top_numeric_templates'][:10],
+          }
+          Path('analysis/written_pq_structure_audit_summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist audit
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/written_pq_structure_audit*.json
+          git commit -m "Capture written PQ structure audit ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
