@@ -4,12 +4,78 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  validate:
-    uses: ./.github/workflows/oireachtas_validation_reusable.yml
-    with:
-      batch_id: scheduled-weekly-33530737534-1
-      run_consumers: true
-    secrets: inherit
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'true'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+      OIREACHTAS_BATCH_ID: scheduled-weekly-33530737534-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Show pre-promotion status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" status | tee pre_promotion_status.json
+      - name: Promote validated candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" promote --batch-id "$OIREACHTAS_BATCH_ID" | tee promotion_result.json
+      - name: Verify production pointer and political metric objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          import boto3
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          batch=os.environ['OIREACHTAS_BATCH_ID']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          obj=s3.get_object(Bucket=bucket,Key=PRODUCTION_POINTER_KEY)
+          pointer=json.loads(obj['Body'].read().decode('utf-8'))
+          if pointer.get('batch_id') != batch:
+              raise SystemExit(f"production pointer mismatch: {pointer}")
+
+          logical_keys=[
+              'processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv',
+              'processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/csv/daily_issue_activity.csv',
+              'processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv',
+              'processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv',
+              'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
+          ]
+          verified=[]
+          for logical in logical_keys:
+              resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
+              head=s3.head_object(Bucket=bucket,Key=resolved)
+              if f'/batches/{batch}/' not in resolved:
+                  raise SystemExit(f'logical metric resolved outside promoted batch: {logical} -> {resolved}')
+              verified.append({'logical':logical,'resolved':resolved,'bytes':head.get('ContentLength')})
+          print(json.dumps({'production':pointer,'verified_metrics':verified},indent=2,sort_keys=True))
+          PY
+      - name: Show post-promotion status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py --bucket "$S3_BUCKET" --region "$AWS_REGION" status | tee post_promotion_status.json
