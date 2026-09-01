@@ -7,149 +7,76 @@ permissions:
   contents: write
 
 jobs:
-  analyze:
+  summarize:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Analyze promoted parliamentary question foundations
-        shell: bash
+      - name: Build compact research summary
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import io, json, os
+          import json
           from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
 
-          bucket=os.environ['S3_BUCKET']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={
-            'activity':'processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv',
-            'dimensions':'processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv',
-            'monthly':'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
+          src=json.loads(Path('analysis/question_opportunities.json').read_text())
+
+          # Top recipient per party, but keep useful absolute counts.
+          party_best={}
+          for r in src.get('party_recipient_specialisation',[]):
+              key=str(r.get('entity_id'))
+              if key not in party_best:
+                  party_best[key]=r
+
+          # Question type rows grouped compactly by party.
+          party_types={}
+          for r in src.get('party_question_type_mix',[]):
+              name=r.get('entity_name') or r.get('entity_id')
+              party_types.setdefault(str(name),[]).append({
+                  'type':r.get('dimension_value'),
+                  'count':r.get('question_count'),
+                  'share':r.get('dimension_share'),
+              })
+
+          # For recent months, retain top 5 recipients per month only.
+          monthly={}
+          for r in src.get('recipient_monthly_latest_12',[]):
+              month=str(r.get('month'))
+              if len(monthly.setdefault(month,[]))<5:
+                  monthly[month].append({
+                      'recipient':r.get('dimension_value'),
+                      'count':r.get('question_count'),
+                      'share':r.get('share'),
+                  })
+
+          out={
+              'analysis_period':src.get('analysis_period'),
+              'member_question_total':src.get('member_question_total'),
+              'members_with_questions':src.get('members_with_questions'),
+              'top10_member_question_share':src.get('top10_member_question_share'),
+              'top20_percent_member_question_share':src.get('top20_percent_member_question_share'),
+              'top_members_by_question_count':src.get('top_members_by_question_count',[])[:15],
+              'widest_question_day_coverage':src.get('widest_question_day_coverage',[])[:15],
+              'highest_questions_per_question_day_min_3_days':src.get('highest_questions_per_question_day_min_3_days',[])[:15],
+              'party_question_counts':src.get('party_question_counts',[]),
+              'top_constituencies_by_question_count':src.get('constituency_question_counts',[])[:15],
+              'national_recipient_distribution':src.get('national_recipient_distribution',[])[:15],
+              'national_question_type_distribution':src.get('national_question_type_distribution',[]),
+              'strongest_member_recipient_specialisation':src.get('member_recipient_specialisation',[])[:20],
+              'member_recipient_concentration':src.get('member_recipient_concentration',[])[:20],
+              'top_recipient_per_party':list(party_best.values()),
+              'strongest_constituency_recipient_specialisation':src.get('constituency_recipient_specialisation',[])[:20],
+              'party_question_type_mix':party_types,
+              'monthly_top_recipients':monthly,
           }
-          frames={}; resolved={}
-          for name,key in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=key)
-              resolved[name]=r
-              obj=s3.get_object(Bucket=bucket,Key=r)
-              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-
-          a=frames['activity'].copy(); d=frames['dimensions'].copy(); m=frames['monthly'].copy()
-          a['activity_date']=pd.to_datetime(a['activity_date'],errors='coerce')
-          a['component_value']=pd.to_numeric(a['component_value'],errors='coerce').fillna(0)
-          d['activity_date']=pd.to_datetime(d['activity_date'],errors='coerce')
-          d['question_count']=pd.to_numeric(d['question_count'],errors='coerce').fillna(0)
-          m['period_end']=pd.to_datetime(m['period_end'],errors='coerce')
-          m['value_num']=pd.to_numeric(m['value'],errors='coerce')
-
-          member_names={str(r.entity_id):str(r.entity_name) for r in m[(m.grain=='member') & m.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
-          party_names={str(r.entity_id):str(r.entity_name) for r in m[(m.grain=='party') & m.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
-          constituency_names={str(r.entity_id):str(r.entity_name) for r in m[(m.grain=='constituency') & m.entity_name.notna()][['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False)}
-
-          start=pd.Timestamp('2026-07-01'); end=pd.Timestamp('2026-07-31')
-          qa=a[(a.component_id=='question_count')&(a.activity_date>=start)&(a.activity_date<=end)].copy()
-          qd=d[(d.activity_date>=start)&(d.activity_date<=end)].copy()
-
-          def aggregate_activity(grain):
-              x=qa[qa.grain==grain].groupby('entity_id',as_index=False).component_value.sum().rename(columns={'component_value':'question_count'})
-              names={'member':member_names,'party':party_names,'constituency':constituency_names}
-              x['entity_name']=x.entity_id.astype(str).map(names.get(grain,{})).fillna(x.entity_id.astype(str))
-              return x.sort_values('question_count',ascending=False)
-
-          members=aggregate_activity('member'); parties=aggregate_activity('party'); consts=aggregate_activity('constituency')
-          total=float(members.question_count.sum())
-          top10_share=float(members.head(10).question_count.sum()/total) if total else None
-          top20n=max(1,int(len(members)*0.20+0.999999))
-          top20_share=float(members.head(top20n).question_count.sum()/total) if total else None
-
-          member_days=qa[(qa.grain=='member')&(qa.component_value>0)].groupby('entity_id')['activity_date'].nunique().rename('question_days').reset_index()
-          mp=members.merge(member_days,on='entity_id',how='left').fillna({'question_days':0})
-          mp['questions_per_question_day']=mp.question_count/mp.question_days.replace({0:pd.NA})
-
-          # Dimension summaries for a grain; denominator is only questions with the dimension populated.
-          def dim_summary(grain, dimension_name, min_count=1):
-              x=qd[(qd.grain==grain)&(qd.dimension_name==dimension_name)].copy()
-              g=x.groupby(['entity_id','dimension_value'],as_index=False).question_count.sum()
-              totals=g.groupby('entity_id').question_count.transform('sum')
-              g['dimension_share']=g.question_count/totals
-              names={'member':member_names,'party':party_names,'constituency':constituency_names}
-              g['entity_name']=g.entity_id.astype(str).map(names.get(grain,{})).fillna(g.entity_id.astype(str))
-              return g[g.question_count>=min_count]
-
-          national_rec=qd[(qd.grain=='national')&(qd.dimension_name=='question_recipient')].groupby('dimension_value',as_index=False).question_count.sum().sort_values('question_count',ascending=False)
-          national_rec['share']=national_rec.question_count/national_rec.question_count.sum() if national_rec.question_count.sum() else 0
-          national_type=qd[(qd.grain=='national')&(qd.dimension_name=='question_type')].groupby('dimension_value',as_index=False).question_count.sum().sort_values('question_count',ascending=False)
-          national_type['share']=national_type.question_count/national_type.question_count.sum() if national_type.question_count.sum() else 0
-
-          member_rec=dim_summary('member','question_recipient',10).sort_values(['dimension_share','question_count'],ascending=False)
-          party_rec=dim_summary('party','question_recipient',10).sort_values(['dimension_share','question_count'],ascending=False)
-          const_rec=dim_summary('constituency','question_recipient',10).sort_values(['dimension_share','question_count'],ascending=False)
-          party_type=dim_summary('party','question_type',1).sort_values(['entity_id','question_count'],ascending=[True,False])
-
-          # Recipient concentration per member using HHI, restricted to >=25 populated-recipient questions.
-          mr_all=dim_summary('member','question_recipient',1)
-          special=[]
-          for eid,g in mr_all.groupby('entity_id'):
-              n=float(g.question_count.sum())
-              if n<25: continue
-              shares=g.question_count/n
-              hhi=float((shares**2).sum())
-              top=g.sort_values('question_count',ascending=False).iloc[0]
-              special.append({'entity_id':str(eid),'entity_name':member_names.get(str(eid),str(eid)),'recipient_question_count':n,'recipient_hhi':hhi,'top_recipient':str(top.dimension_value),'top_recipient_count':float(top.question_count),'top_recipient_share':float(top.question_count/n),'distinct_recipients':int(len(g))})
-          special=sorted(special,key=lambda x:(-x['top_recipient_share'],-x['recipient_question_count']))
-
-          # Monthly national recipient trends over the latest 12 months.
-          dt=d[(d.grain=='national')&(d.dimension_name=='question_recipient')].copy()
-          dt['month']=dt.activity_date.dt.to_period('M').astype(str)
-          rm=dt.groupby(['month','dimension_value'],as_index=False).question_count.sum()
-          mt=rm.groupby('month').question_count.transform('sum')
-          rm['share']=rm.question_count/mt
-          months=sorted(rm.month.dropna().unique())[-12:]
-          recent_rec=rm[rm.month.isin(months)].sort_values(['month','question_count'],ascending=[True,False])
-
-          report={
-            'resolved_keys':resolved,
-            'analysis_period':'2026-07',
-            'member_question_total':total,
-            'members_with_questions':int(len(members)),
-            'top10_member_question_share':top10_share,
-            'top20_percent_member_question_share':top20_share,
-            'top_members_by_question_count':mp.head(30).to_dict(orient='records'),
-            'widest_question_day_coverage':mp.sort_values(['question_days','question_count'],ascending=False).head(30).to_dict(orient='records'),
-            'highest_questions_per_question_day_min_3_days':mp[mp.question_days>=3].sort_values('questions_per_question_day',ascending=False).head(30).to_dict(orient='records'),
-            'party_question_counts':parties.to_dict(orient='records'),
-            'constituency_question_counts':consts.head(30).to_dict(orient='records'),
-            'national_recipient_distribution':national_rec.to_dict(orient='records'),
-            'national_question_type_distribution':national_type.to_dict(orient='records'),
-            'member_recipient_specialisation':member_rec.head(80).to_dict(orient='records'),
-            'member_recipient_concentration':special[:50],
-            'party_recipient_specialisation':party_rec.head(80).to_dict(orient='records'),
-            'constituency_recipient_specialisation':const_rec.head(80).to_dict(orient='records'),
-            'party_question_type_mix':party_type.to_dict(orient='records'),
-            'recipient_monthly_latest_12':recent_rec.to_dict(orient='records'),
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          with open('analysis/question_opportunities.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
-          print(json.dumps(report,indent=2,sort_keys=True,default=str))
+          Path('analysis/question_opportunities_summary.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis on temporary branch
+      - name: Persist compact summary
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_opportunities.json
-          git commit -m "Capture promoted parliamentary question opportunity analysis ${GITHUB_RUN_ID}" || true
+          git add analysis/question_opportunities_summary.json
+          git commit -m "Summarize parliamentary question opportunity analysis ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
