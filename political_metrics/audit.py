@@ -17,9 +17,67 @@ class HistoryCoverage:
     max_end: str | None
     open_ended_rows: int
     validation_errors: list[str]
+    overlap_examples: list[dict]
 
     def as_dict(self) -> dict:
         return asdict(self)
+
+
+def _serialize_records(frame: pd.DataFrame, columns: list[str], *, limit: int = 10) -> list[dict]:
+    existing = [col for col in columns if col in frame.columns]
+    if not existing:
+        return []
+    rows = frame[existing].head(limit).copy()
+    for col in rows.columns:
+        if pd.api.types.is_datetime64_any_dtype(rows[col]):
+            rows[col] = rows[col].dt.strftime("%Y-%m-%d")
+    return rows.where(pd.notna(rows), None).to_dict(orient="records")
+
+
+def temporal_overlap_examples(
+    history: pd.DataFrame,
+    *,
+    entity_col: str,
+    start_col: str,
+    end_col: str,
+    detail_columns: list[str] | None = None,
+    limit: int = 10,
+) -> list[dict]:
+    """Return rows involved in overlapping temporal intervals for diagnosis."""
+    if history.empty:
+        return []
+    data = history.copy()
+    data[start_col] = pd.to_datetime(data[start_col], errors="coerce").dt.normalize()
+    data[end_col] = pd.to_datetime(data[end_col], errors="coerce").dt.normalize()
+    output: list[dict] = []
+    detail_columns = detail_columns or []
+
+    for entity, group in data.dropna(subset=[start_col]).groupby(entity_col, dropna=False):
+        ordered = group.sort_values(start_col)
+        rows = list(ordered.to_dict(orient="records"))
+        for idx, current in enumerate(rows):
+            current_start = current[start_col]
+            current_end = current[end_col]
+            for later in rows[idx + 1 :]:
+                later_start = later[start_col]
+                later_end = later[end_col]
+                overlaps = pd.isna(current_end) or later_start <= current_end
+                if not overlaps:
+                    break
+                record = {entity_col: entity}
+                for prefix, source in (("left", current), ("right", later)):
+                    record[f"{prefix}_{start_col}"] = source[start_col].strftime("%Y-%m-%d") if pd.notna(source[start_col]) else None
+                    record[f"{prefix}_{end_col}"] = source[end_col].strftime("%Y-%m-%d") if pd.notna(source[end_col]) else None
+                    for col in detail_columns:
+                        if col in source:
+                            value = source[col]
+                            if isinstance(value, pd.Timestamp):
+                                value = value.strftime("%Y-%m-%d")
+                            record[f"{prefix}_{col}"] = None if pd.isna(value) else value
+                output.append(record)
+                if len(output) >= limit:
+                    return output
+    return output
 
 
 def history_coverage(
@@ -29,10 +87,11 @@ def history_coverage(
     entity_col: str,
     start_col: str,
     end_col: str,
+    detail_columns: list[str] | None = None,
 ) -> HistoryCoverage:
     """Summarise temporal coverage without claiming completeness beyond the data."""
     if history.empty:
-        return HistoryCoverage(dataset, 0, 0, None, None, 0, [])
+        return HistoryCoverage(dataset, 0, 0, None, None, 0, [], [])
 
     data = history.copy()
     starts = pd.to_datetime(data[start_col], errors="coerce")
@@ -43,6 +102,13 @@ def history_coverage(
         start_col=start_col,
         end_col=end_col,
     )
+    overlaps = temporal_overlap_examples(
+        data,
+        entity_col=entity_col,
+        start_col=start_col,
+        end_col=end_col,
+        detail_columns=detail_columns,
+    )
     return HistoryCoverage(
         dataset=dataset,
         row_count=int(len(data)),
@@ -51,18 +117,16 @@ def history_coverage(
         max_end=ends.max().date().isoformat() if ends.notna().any() else None,
         open_ended_rows=int(ends.isna().sum()),
         validation_errors=errors,
+        overlap_examples=overlaps,
     )
 
 
 def _unmatched_examples(joined: pd.DataFrame, history_value_col: str, *, limit: int = 10) -> list[dict]:
-    columns = [col for col in ["speech_id", "member_code", "event_date", "speaker_name"] if col in joined.columns]
-    if not columns:
-        return []
-    rows = joined.loc[joined[history_value_col].isna(), columns].head(limit).copy()
-    for col in rows.columns:
-        if pd.api.types.is_datetime64_any_dtype(rows[col]):
-            rows[col] = rows[col].dt.strftime("%Y-%m-%d")
-    return rows.where(pd.notna(rows), None).to_dict(orient="records")
+    columns = [
+        "speech_id", "debate_id", "member_code", "event_date", "speaker_name",
+        "speaker_ref", "speaker_match_method", "speaker_match_confidence",
+    ]
+    return _serialize_records(joined.loc[joined[history_value_col].isna()], columns, limit=limit)
 
 
 def speech_temporal_attribution_audit(
