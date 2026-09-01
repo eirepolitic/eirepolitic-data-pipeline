@@ -4,45 +4,58 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_BATCH_ID: structure-question-context-33550915907-1
       OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python -m pip install -r requirements.txt
+      - name: Seed candidate from current production
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_seed_candidate.py \
+            --batch-id "$OIREACHTAS_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
+            | tee seed.json
+      - name: Materialize seven political metric datasets
+        run: |
+          python process/political_metrics_materialize_candidate.py \
+            --batch-id "$OIREACHTAS_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
+            --report-path materialize.json
+      - name: Assemble candidate requiring all seven metric datasets
+        run: |
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py \
+            --bucket "$S3_BUCKET" --region "$AWS_REGION" assemble --batch-id "$OIREACHTAS_BATCH_ID" \
+            --required-table political_metrics_daily_activity_components \
+            --required-table political_metrics_daily_issue_activity \
+            --required-table political_metrics_division_party_vote_components \
+            --required-table political_metrics_daily_question_dimensions \
+            --required-table political_metrics_oral_question_sections \
+            --required-table political_metrics_speech_question_context \
+            --required-table political_metrics_monthly_metric_results \
+            | tee assembled.json
+
+  validate:
+    needs: build
+    uses: ./.github/workflows/oireachtas_validation_reusable.yml
+    with:
+      batch_id: structure-question-context-33550915907-1
+      run_consumers: true
+    secrets: inherit
