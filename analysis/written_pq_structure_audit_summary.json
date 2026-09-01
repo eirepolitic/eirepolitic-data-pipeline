@@ -1,0 +1,829 @@
+{
+  "history": {
+    "exact_unique_share": 1.0,
+    "exact_unique_texts": 117695,
+    "label": "all_written_history",
+    "numeric_template_unique": 115277,
+    "numeric_template_unique_share": 0.9794553719359361,
+    "repeated_numeric_template_row_share": 0.035345596669357236,
+    "rows": 117695,
+    "rows_in_repeated_numeric_templates": 4160
+  },
+  "history_batching": {
+    "batch_count": 46324,
+    "max_batch_size": 299,
+    "median_batch_size": 1.0,
+    "p90_batch_size": 5.0,
+    "p95_batch_size": 8.0,
+    "row_share_batches_ge_10": 0.0,
+    "row_share_batches_ge_2": 0.0,
+    "row_share_batches_ge_20": 0.0,
+    "row_share_batches_ge_5": 0.0,
+    "row_share_batches_ge_50": 0.0,
+    "rows_in_batches_ge_10": 0,
+    "rows_in_batches_ge_2": 0,
+    "rows_in_batches_ge_20": 0,
+    "rows_in_batches_ge_5": 0,
+    "rows_in_batches_ge_50": 0
+  },
+  "july_2026": {
+    "exact_unique_share": 1.0,
+    "exact_unique_texts": 8752,
+    "label": "july_2026_written",
+    "numeric_template_unique": 8632,
+    "numeric_template_unique_share": 0.9862888482632541,
+    "repeated_numeric_template_row_share": 0.02170932358318099,
+    "rows": 8752,
+    "rows_in_repeated_numeric_templates": 190
+  },
+  "july_batching": {
+    "batch_count": 2779,
+    "max_batch_size": 140,
+    "median_batch_size": 2.0,
+    "p90_batch_size": 6.0,
+    "p95_batch_size": 10.0,
+    "row_share_batches_ge_10": 0.0,
+    "row_share_batches_ge_2": 0.0,
+    "row_share_batches_ge_20": 0.0,
+    "row_share_batches_ge_5": 0.0,
+    "row_share_batches_ge_50": 0.0,
+    "rows_in_batches_ge_10": 0,
+    "rows_in_batches_ge_2": 0,
+    "rows_in_batches_ge_20": 0,
+    "rows_in_batches_ge_5": 0,
+    "rows_in_batches_ge_50": 0
+  },
+  "july_member_day_patterns": {
+    "median_questions_per_member_day": 4.0,
+    "median_recipients_per_member_day": 2.0,
+    "member_day_count": 860,
+    "top_member_days_by_question_count": [
+      {
+        "asked_by_member_code": "John-Brady.D.2016-10-03",
+        "question_count": 239,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "Aindrias-Moynihan.D.2016-10-03",
+        "question_count": 223,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "Conor-D-McGuinness.D.2024-11-29",
+        "question_count": 176,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 16
+      },
+      {
+        "asked_by_member_code": "Barry-Ward.S.2020-03-30",
+        "question_count": 174,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 15
+      },
+      {
+        "asked_by_member_code": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+        "question_count": 162,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "P\u00e1draig-Rice.D.2024-11-29",
+        "question_count": 159,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 10
+      },
+      {
+        "asked_by_member_code": "Ken-O'Flynn.D.2024-11-29",
+        "question_count": 151,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 14
+      },
+      {
+        "asked_by_member_code": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+        "question_count": 130,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 14
+      },
+      {
+        "asked_by_member_code": "Pa-Daly.D.2020-02-08",
+        "question_count": 125,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "Emer-Currie.S.2020-06-29",
+        "question_count": 111,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "Ken-O'Flynn.D.2024-11-29",
+        "question_count": 100,
+        "question_date": "2026-07-02 00:00:00",
+        "recipient_count": 6
+      },
+      {
+        "asked_by_member_code": "Erin-McGreehan.S.2020-06-29",
+        "question_count": 99,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 10
+      },
+      {
+        "asked_by_member_code": "Michael-Cahill.D.2024-11-29",
+        "question_count": 98,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 16
+      },
+      {
+        "asked_by_member_code": "Pa-Daly.D.2020-02-08",
+        "question_count": 91,
+        "question_date": "2026-07-02 00:00:00",
+        "recipient_count": 5
+      },
+      {
+        "asked_by_member_code": "Peter-Roche.D.2024-11-29",
+        "question_count": 87,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 17
+      },
+      {
+        "asked_by_member_code": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+        "question_count": 84,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 10
+      },
+      {
+        "asked_by_member_code": "Barry-Heneghan.D.2024-11-29",
+        "question_count": 84,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 12
+      },
+      {
+        "asked_by_member_code": "John-Clendennen.D.2024-11-29",
+        "question_count": 81,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 10
+      },
+      {
+        "asked_by_member_code": "Richard-Boyd-Barrett.D.2011-03-09",
+        "question_count": 68,
+        "question_date": "2026-07-07 00:00:00",
+        "recipient_count": 12
+      },
+      {
+        "asked_by_member_code": "Liam-Quaide.D.2024-11-29",
+        "question_count": 68,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 7
+      },
+      {
+        "asked_by_member_code": "Thomas-Gould.D.2020-02-08",
+        "question_count": 68,
+        "question_date": "2026-07-15 00:00:00",
+        "recipient_count": 12
+      },
+      {
+        "asked_by_member_code": "Pa-Daly.D.2020-02-08",
+        "question_count": 66,
+        "question_date": "2026-07-16 00:00:00",
+        "recipient_count": 17
+      },
+      {
+        "asked_by_member_code": "Roderic-O'Gorman.D.2020-02-08",
+        "question_count": 65,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 13
+      },
+      {
+        "asked_by_member_code": "Eoin-Hayes.D.2024-11-29",
+        "question_count": 63,
+        "question_date": "2026-07-07 00:00:00",
+        "recipient_count": 18
+      },
+      {
+        "asked_by_member_code": "P\u00e1draig-O'Sullivan.D.2019-11-29",
+        "question_count": 63,
+        "question_date": "2026-07-28 00:00:00",
+        "recipient_count": 16
+      }
+    ]
+  },
+  "july_near_duplicate_audit": {
+    "batches_checked": 1437,
+    "near_duplicate_question_rows": 823,
+    "near_duplicate_row_share": 0.09403564899451554,
+    "pair_examples": [
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1466",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1529",
+        "similarity": 99.05277401894452,
+        "text_a": "1466. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred so far and expected completion costs for the projects included in the National Development Plan as they relate to the National Cultural Institutions; and the reasons for delays or co",
+        "text_b": "1529. Deputy Aengus \u00d3 Snodaigh asked the Minister for Culture, Communications and Sport to provide an update on the progress, estimated completion date, costs incurred to date and expected completion costs for the projects included in the National Development Plan as they relate to the National Cultural Institutions; and the reasons for delays or c"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-08/pq_137",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-08/pq_138",
+        "similarity": 92.19858156028369,
+        "text_a": "137. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for an update on an application under EU Treaty rights (details supplied); and if he will make a statement on the matter. [51919/26]",
+        "text_b": "138. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for an update on join family applications (details supplied); and if he will make a statement on the matter. [51924/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3499",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3500",
+        "similarity": 93.56984478935698,
+        "text_a": "3499. Deputy Aindrias Moynihan asked the Minister for Health for the integration of community audiology services into HSE care pathways to reduce audiology waiting lists; and if she will make a statement on the matter. [56613/26]",
+        "text_b": "3500. Deputy Aindrias Moynihan asked the Minister for Health for the integration of community optometry into HSE care pathways to reduce ophthalmology waiting lists; and if she will make a statement on the matter. [56614/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3663",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3664",
+        "similarity": 97.81659388646288,
+        "text_a": "3663. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Maternity Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular form [57293/26]",
+        "text_b": "3664. Deputy Aindrias Moynihan asked the Minister for Health the number of staff WTE employed in Cork University Hospital in May 2026 and in December 2019 in medical, dental, nursing and midwifery, in tabular form. [57294/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+        "similarity": 100.0,
+        "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595/26]",
+        "text_b": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+        "similarity": 100.0,
+        "text_a": "2322. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57595/26]",
+        "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327",
+        "similarity": 100.0,
+        "text_a": "2323. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57596/26]",
+        "text_b": "2327. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when an application for naturalisation will be completed (details supplied); and if he will make a statement on the matter. [57600/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2324",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2325",
+        "similarity": 98.39080459770115,
+        "text_a": "2324. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration the up-to-date position on join family applications (details supplied); and if he will make a statement on the matter. [57597/26]",
+        "text_b": "2325. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration for the up-to-date position on a join family application (details supplied); and if he will make a statement on the matter. [57598/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2326",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2328",
+        "similarity": 100.0,
+        "text_a": "2326. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57599/26]",
+        "text_b": "2328. Deputy Aindrias Moynihan asked the Minister for Justice, Home Affairs and Migration when a stamp 4, spouse of an Irish citizen will issue (details supplied); and if he will make a statement on the matter. [57601/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3059",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_3060",
+        "similarity": 100.0,
+        "text_a": "3059. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether international models have been reviewed; and if she will make a statement on the matter. [59540/26]",
+        "text_b": "3060. Deputy Barry Heneghan asked the Minister for Children, Disability and Equality whether she has examined the introduction of additional targeted supports for families facing significant childcare costs; whether international models have been reviewed; and if she will make a statement on the matter. [59542/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_254",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_255",
+        "similarity": 100.0,
+        "text_a": "254. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip was for work purposes; if it is required that employers report these instances to the Health and Safety Authority under the Safety, ",
+        "text_b": "255. Deputy Barry Ward asked the Minister for Enterprise, Tourism and Employment the position regarding the reporting requirements for people that die or are seriously injured in road traffic incidents when their trip was for work purposes; if it is required that employers report these instances to the Health and Safety Authority under the Safety, "
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2470",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+        "similarity": 99.13419913419914,
+        "text_a": "2470. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding any research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57248/26]",
+        "text_b": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57249/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2470",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+        "similarity": 96.56652360515021,
+        "text_a": "2470. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding any research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57248/26]",
+        "text_b": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57250/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2470",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2473",
+        "similarity": 96.32829373650108,
+        "text_a": "2470. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding any research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57248/26]",
+        "text_b": "2473. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on waterways; and if he will make a statement on the matter. [57251/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2470",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2474",
+        "similarity": 99.13419913419914,
+        "text_a": "2470. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding any research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57248/26]",
+        "text_b": "2474. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57252/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2470",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2475",
+        "similarity": 96.56652360515021,
+        "text_a": "2470. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding any research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57248/26]",
+        "text_b": "2475. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57253/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+        "similarity": 97.40259740259741,
+        "text_a": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57249/26]",
+        "text_b": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57250/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2473",
+        "similarity": 97.1677559912854,
+        "text_a": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57249/26]",
+        "text_b": "2473. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on waterways; and if he will make a statement on the matter. [57251/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2474",
+        "similarity": 100.0,
+        "text_a": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57249/26]",
+        "text_b": "2474. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57252/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2471",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2475",
+        "similarity": 97.40259740259741,
+        "text_a": "2471. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57249/26]",
+        "text_b": "2475. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57253/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2473",
+        "similarity": 96.76025917926566,
+        "text_a": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57250/26]",
+        "text_b": "2473. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on waterways; and if he will make a statement on the matter. [57251/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2474",
+        "similarity": 97.40259740259741,
+        "text_a": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57250/26]",
+        "text_b": "2474. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57252/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2472",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2475",
+        "similarity": 100.0,
+        "text_a": "2472. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57250/26]",
+        "text_b": "2475. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57253/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2473",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2474",
+        "similarity": 97.1677559912854,
+        "text_a": "2473. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on waterways; and if he will make a statement on the matter. [57251/26]",
+        "text_b": "2474. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on wildlife; and if he will make a statement on the matter. [57252/26]"
+      },
+      {
+        "question_id_a": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2473",
+        "question_id_b": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2475",
+        "similarity": 96.76025917926566,
+        "text_a": "2473. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on waterways; and if he will make a statement on the matter. [57251/26]",
+        "text_b": "2475. Deputy Barry Ward asked the Minister for Agriculture, Food and the Marine the position regarding research ongoing into the impact of the use of herbicides on biodiversity; and if he will make a statement on the matter. [57253/26]"
+      }
+    ],
+    "pairs_checked": 45290,
+    "threshold": "rapidfuzz ratio >= 92 after conservative numeric/date normalization"
+  },
+  "july_top_recipients": [
+    {
+      "count": 2152,
+      "recipient": "Health"
+    },
+    {
+      "count": 837,
+      "recipient": "Education"
+    },
+    {
+      "count": 771,
+      "recipient": "Justice"
+    },
+    {
+      "count": 687,
+      "recipient": "Children"
+    },
+    {
+      "count": 668,
+      "recipient": "Transport"
+    },
+    {
+      "count": 639,
+      "recipient": "Housing"
+    },
+    {
+      "count": 409,
+      "recipient": "Agriculture"
+    },
+    {
+      "count": 354,
+      "recipient": "Finance"
+    },
+    {
+      "count": 317,
+      "recipient": "Social"
+    },
+    {
+      "count": 300,
+      "recipient": "Climate"
+    },
+    {
+      "count": 264,
+      "recipient": "Enterprise"
+    },
+    {
+      "count": 245,
+      "recipient": "Foreign"
+    },
+    {
+      "count": 242,
+      "recipient": "Further and Higher Education"
+    },
+    {
+      "count": 240,
+      "recipient": "Public Expenditure"
+    },
+    {
+      "count": 181,
+      "recipient": "Rural"
+    },
+    {
+      "count": 172,
+      "recipient": "Defence"
+    },
+    {
+      "count": 153,
+      "recipient": "Culture"
+    },
+    {
+      "count": 121,
+      "recipient": "Taoiseach"
+    }
+  ],
+  "largest_july_batches": [
+    {
+      "asked_by_member_code": "P\u00e1draig-Rice.D.2024-11-29",
+      "batch_size": 140,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Ken-O'Flynn.D.2024-11-29",
+      "batch_size": 48,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Justice"
+    },
+    {
+      "asked_by_member_code": "Barry-Ward.S.2020-03-30",
+      "batch_size": 47,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Children"
+    },
+    {
+      "asked_by_member_code": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+      "batch_size": 46,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Ken-O'Flynn.D.2024-11-29",
+      "batch_size": 45,
+      "question_date": "2026-07-02 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Conor-D-McGuinness.D.2024-11-29",
+      "batch_size": 45,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Housing"
+    },
+    {
+      "asked_by_member_code": "Pa-Daly.D.2020-02-08",
+      "batch_size": 45,
+      "question_date": "2026-07-02 00:00:00",
+      "to_minister_or_department": "Transport"
+    },
+    {
+      "asked_by_member_code": "Ken-O'Flynn.D.2024-11-29",
+      "batch_size": 45,
+      "question_date": "2026-07-07 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+      "batch_size": 40,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+      "batch_size": 39,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Justice"
+    },
+    {
+      "asked_by_member_code": "David-Cullinane.S.2011-05-25",
+      "batch_size": 39,
+      "question_date": "2026-07-16 00:00:00",
+      "to_minister_or_department": "Health"
+    },
+    {
+      "asked_by_member_code": "Conor-D-McGuinness.D.2024-11-29",
+      "batch_size": 39,
+      "question_date": "2026-07-28 00:00:00",
+      "to_minister_or_department": "Health"
+    }
+  ],
+  "top_july_numeric_templates": [
+    {
+      "dates": [
+        "2026-07-14",
+        "2026-07-14",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "John-Clendennen.D.2024-11-29",
+        "John-Clendennen.D.2024-11-29",
+        "John-Clendennen.D.2024-11-29",
+        "John-Clendennen.D.2024-11-29",
+        "John-Clendennen.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_353",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_355",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1307",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1308",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1309"
+      ],
+      "recipients": [
+        "Education",
+        "Education",
+        "Education",
+        "Education",
+        "Education"
+      ],
+      "template_count": 17,
+      "template_excerpt": "<num> deputy john clendennen asked the minister for education and youth for an update on the additional school accommodation project for a school details supplied and if she will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-14",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "Conor-D-McGuinness.D.2024-11-29",
+        "Conor-D-McGuinness.D.2024-11-29",
+        "Conor-D-McGuinness.D.2024-11-29",
+        "Conor-D-McGuinness.D.2024-11-29",
+        "Conor-D-McGuinness.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-14/pq_313",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1149",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1150",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1151",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1195"
+      ],
+      "recipients": [
+        "Education",
+        "Education",
+        "Education",
+        "Education",
+        "Education"
+      ],
+      "template_count": 6,
+      "template_excerpt": "<num> deputy conor d mcguinness asked the minister for education and youth the school transport options available to a student details supplied and if she will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "Catherine-Callaghan.D.2024-11-29",
+        "Catherine-Callaghan.D.2024-11-29",
+        "Catherine-Callaghan.D.2024-11-29",
+        "Catherine-Callaghan.D.2024-11-29",
+        "Catherine-Callaghan.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1294",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1295",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1296",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1297",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_1298"
+      ],
+      "recipients": [
+        "Education",
+        "Education",
+        "Education",
+        "Education",
+        "Education"
+      ],
+      "template_count": 5,
+      "template_excerpt": "<num> deputy catherine callaghan asked the minister for education and youth for an update on the progress made to date on the planning application for works at a school details supplied and if she will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-02",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "Aindrias-Moynihan.D.2016-10-03",
+        "Aindrias-Moynihan.D.2016-10-03",
+        "Aindrias-Moynihan.D.2016-10-03",
+        "Aindrias-Moynihan.D.2016-10-03"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-02/pq_376",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2322",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2323",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2327"
+      ],
+      "recipients": [
+        "Justice",
+        "Justice",
+        "Justice",
+        "Justice"
+      ],
+      "template_count": 4,
+      "template_excerpt": "<num> deputy aindrias moynihan asked the minister for justice home affairs and migration when an application for naturalisation will be completed details supplied and if he will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2027",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2028",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2029",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2030"
+      ],
+      "recipients": [
+        "Social",
+        "Social",
+        "Social",
+        "Social"
+      ],
+      "template_count": 4,
+      "template_excerpt": "<num> deputy emer currie asked the minister for social protection the estimated full year cost of increasing parent s benefit to <money> per week and if he will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29",
+        "Emer-Currie.S.2020-06-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2887",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2888",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2889",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_2890"
+      ],
+      "recipients": [
+        "Children",
+        "Children",
+        "Children",
+        "Children"
+      ],
+      "template_count": 4,
+      "template_excerpt": "<num> deputy emer currie asked the minister for children disability and equality based on current numbers the estimated full year cost of increasing the universal subsidy available under the national childcare scheme by <money> to <money> per hour for a maximum of <num> hours per week and if she will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "members": [
+        "P\u00e1draig-Rice.D.2024-11-29",
+        "P\u00e1draig-Rice.D.2024-11-29",
+        "P\u00e1draig-Rice.D.2024-11-29",
+        "P\u00e1draig-Rice.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_4118",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_4119",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_4120",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-28/pq_4121"
+      ],
+      "recipients": [
+        "Health",
+        "Health",
+        "Health",
+        "Health"
+      ],
+      "template_count": 4,
+      "template_excerpt": "<num> deputy p\u00e1draig rice asked the minister for health the number of persons waiting for diagnostic imaging tests at the end of quarter <num> <num> in tabular form <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-07",
+        "2026-07-07",
+        "2026-07-07"
+      ],
+      "members": [
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_87",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_88",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_89"
+      ],
+      "recipients": [
+        "Taoiseach",
+        "Taoiseach",
+        "Taoiseach"
+      ],
+      "template_count": 3,
+      "template_excerpt": "<num> deputy eoin hayes asked the taoiseach the total cost of engagement with a company details supplied in each of the years <num> to <num> across his department by project year and value <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-07",
+        "2026-07-07",
+        "2026-07-07"
+      ],
+      "members": [
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_120",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_121",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_122"
+      ],
+      "recipients": [
+        "Foreign",
+        "Foreign",
+        "Foreign"
+      ],
+      "template_count": 3,
+      "template_excerpt": "<num> deputy eoin hayes asked the minister for foreign affairs and trade the total cost of engagement with a company details supplied in each of the years <num> to <num> across her department by project year and value and if she will make a statement on the matter <num> <num>"
+    },
+    {
+      "dates": [
+        "2026-07-07",
+        "2026-07-07",
+        "2026-07-07"
+      ],
+      "members": [
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29",
+        "Eoin-Hayes.D.2024-11-29"
+      ],
+      "question_ids": [
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_145",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_146",
+        "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_147"
+      ],
+      "recipients": [
+        "Climate",
+        "Climate",
+        "Climate"
+      ],
+      "template_count": 3,
+      "template_excerpt": "<num> deputy eoin hayes asked the minister for climate energy and the environment the total cost of engagement with a company details supplied in each of the years <num> to <num> across his department by project year and value and if he will make a statement on the matter <num> <num>"
+    }
+  ],
+  "written_history_date_max": "2026-07-28",
+  "written_history_date_min": "2025-01-22"
+}
