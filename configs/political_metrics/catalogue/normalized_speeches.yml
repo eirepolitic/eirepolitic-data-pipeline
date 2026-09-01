@@ -4,21 +4,22 @@ metrics:
     metric_version: 1
     status: draft
     public_name: Speeches per TD
-    public_question: How much speaking activity did this party have after allowing for the number of TDs it had during the period?
-    public_explanation: Divides the party's recorded speeches by its period-adjusted number of active TDs.
+    public_question: How much speaking activity did this party have after allowing for the number of TDs listed under it during the period?
+    public_explanation: Divides eligible TD speeches attributed to the party by its period-adjusted number of active TDs, using the affiliation recorded by Oireachtas data for each date.
     public_interpretation: This makes comparisons between large and small parties fairer than comparing total speeches alone.
-    public_caveat: Small parties can still produce volatile results, and more speeches do not necessarily mean greater influence or effectiveness.
+    public_caveat: Small parties can still produce volatile results, and more speeches do not necessarily mean greater influence or effectiveness. Oireachtas-listed affiliation may not always describe a party's separate internal membership or disciplinary status.
     public_use_status: suitable_with_context
     grain: party
     dimensions: [period]
-    required_sources: [silver_speeches, silver_member_parties, silver_debate_records]
-    numerator: party_speech_count using event-date party affiliation
-    denominator: party active-member equivalent based on member-debate-day exposure
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_parties, silver_debate_records]
+    affiliation_basis: oireachtas_listed_affiliation
+    numerator: party_speech_count using eligible TD speeches and event-date Oireachtas-listed party affiliation
+    denominator: party active-member equivalent based on party member-debate-day exposure
     formula: party_speech_count / party_active_member_equivalent
     period_behavior: numerator and denominator use the same resolved period and debate-day universe
-    historical_join_policy: party affiliation and exposure are split across party changes using event dates
+    historical_join_policy: require active Dáil membership; affiliation and exposure are split across Oireachtas-listed party changes using start-inclusive/end-exclusive history ranges
     zero_policy: return 0 when the party is eligible and has a positive denominator but no speeches
-    missing_policy: null when a valid denominator cannot be established
+    missing_policy: null when a valid denominator cannot be established; missing historical party context is a validation gap and is never replaced with current affiliation
     output_unit: speeches_per_active_member
     additivity: non_additive_recalculate_from_components
     refresh_frequency: source_batch
@@ -28,20 +29,20 @@ metrics:
     status: draft
     public_name: Speeches per TD representing the constituency
     public_question: How much speaking activity came from this constituency after allowing for how many TDs represented it during the period?
-    public_explanation: Divides speeches from the constituency's representatives by its period-adjusted number of active representatives.
+    public_explanation: Divides eligible TD speeches from the constituency's representatives by its period-adjusted number of active representatives.
     public_interpretation: This helps compare constituencies with different numbers of TDs or changes in representation during the selected period.
     public_caveat: The measure reflects recorded Dáil speaking activity only and should not be treated as a complete measure of constituency representation work.
     public_use_status: suitable_with_context
     grain: constituency
     dimensions: [period]
-    required_sources: [silver_speeches, silver_member_constituencies, silver_debate_records]
-    numerator: constituency_speech_count using event-date constituency representation
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_constituencies, silver_debate_records]
+    numerator: constituency_speech_count using eligible TD speeches and event-date constituency representation
     denominator: constituency active-representative equivalent based on representative-debate-day exposure
     formula: constituency_speech_count / constituency_active_rep_equivalent
     period_behavior: numerator and denominator use the same resolved period and debate-day universe
-    historical_join_policy: constituency attribution and exposure use representation valid on each date
+    historical_join_policy: require active Dáil membership; constituency attribution and exposure use representation valid on each date with start-inclusive/end-exclusive history ranges
     zero_policy: return 0 when the constituency is eligible and has a positive denominator but no speeches
-    missing_policy: null when a valid denominator cannot be established
+    missing_policy: null when a valid denominator cannot be established; missing historical constituency context is a validation gap and is never replaced with current representation
     output_unit: speeches_per_active_representative
     additivity: non_additive_recalculate_from_components
     refresh_frequency: source_batch
