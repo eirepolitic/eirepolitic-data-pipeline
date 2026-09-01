@@ -4,151 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  analyze:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Analyze promoted speech metrics
+          cache: pip
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io, json, os
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          logical='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv'
-          resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
-          obj=s3.get_object(Bucket=bucket,Key=resolved)
-          df=pd.read_csv(io.BytesIO(obj['Body'].read()))
-          df['value_num']=pd.to_numeric(df['value'],errors='coerce')
-          df['period_end']=pd.to_datetime(df['period_end'],errors='coerce')
-
-          speech_ids={
-            'member_speech_count','member_speaking_day_count','member_speeches_per_eligible_debate_day',
-            'member_share_of_national_speeches','party_speech_count','constituency_speech_count',
-            'national_speech_count','national_speeches_per_debate_day','party_speeches_per_active_member',
-            'constituency_speeches_per_active_rep'
-          }
-          s=df[df['metric_id'].isin(speech_ids)].copy()
-          periods=sorted(s['period_end'].dropna().unique())
-
-          def rows(metric, period, grain=None):
-              x=s[(s.metric_id==metric)&(s.period_end==period)].copy()
-              if grain is not None:
-                  x=x[x.grain==grain]
-              return x.sort_values('value_num',ascending=False)
-
-          national=[]
-          normal_periods=[]
-          for p in periods:
-              count=rows('national_speech_count',p)
-              rate=rows('national_speeches_per_debate_day',p)
-              speech_count=float(count.iloc[0].value_num) if len(count) else None
-              ppd=float(rate.iloc[0].value_num) if len(rate) and pd.notna(rate.iloc[0].value_num) else None
-              national.append({'period_end':pd.Timestamp(p).strftime('%Y-%m-%d'),'speech_count':speech_count,'speeches_per_debate_day':ppd})
-              if speech_count is not None and speech_count >= 1000:
-                  normal_periods.append(pd.Timestamp(p))
-
-          analysis_period=normal_periods[-1]
-          analysis_label=analysis_period.strftime('%Y-%m-%d')
-
-          members=rows('member_speech_count',analysis_period)
-          total=float(members.value_num.sum())
-          active=members[members.value_num>0].copy()
-          top10_share=float(active.value_num.head(10).sum()/total) if total else None
-          top20n=max(1,int(len(members)*0.20+0.999999))
-          top20_share=float(members.value_num.head(top20n).sum()/total) if total else None
-          zero_count=int((members.value_num==0).sum())
-
-          speaking=rows('member_speaking_day_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speaking_days'})
-          rates=rows('member_speeches_per_eligible_debate_day',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_eligible_debate_day'})
-          mj=members[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speech_count'}).merge(speaking,on=['entity_id','entity_name'],how='left').merge(rates,on=['entity_id','entity_name'],how='left')
-          mj['speeches_per_speaking_day']=mj['speech_count']/mj['speaking_days'].replace({0:pd.NA})
-
-          party_raw=rows('party_speech_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
-          party_norm=rows('party_speeches_per_active_member',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_member'})
-          party=party_raw.merge(party_norm,on=['entity_id','entity_name'],how='outer')
-          party['raw_rank']=party.raw_speeches.rank(method='min',ascending=False)
-          party['norm_rank']=party.speeches_per_active_member.rank(method='min',ascending=False)
-          party['rank_shift']=party.raw_rank-party.norm_rank
-
-          cr=rows('constituency_speech_count',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'raw_speeches'})
-          cn=rows('constituency_speeches_per_active_rep',analysis_period)[['entity_id','entity_name','value_num']].rename(columns={'value_num':'speeches_per_active_rep'})
-          const=cr.merge(cn,on=['entity_id','entity_name'],how='outer')
-          const['raw_rank']=const.raw_speeches.rank(method='min',ascending=False)
-          const['norm_rank']=const.speeches_per_active_rep.rank(method='min',ascending=False)
-          const['rank_shift']=const.raw_rank-const.norm_rank
-
-          trend=pd.DataFrame(national)
-          trend['period_end']=pd.to_datetime(trend.period_end)
-          normal=trend[trend.speech_count>=1000].copy()
-          highest_raw=normal.sort_values('speech_count',ascending=False).head(6).to_dict(orient='records')
-          highest_rate=normal.sort_values('speeches_per_debate_day',ascending=False).head(6).to_dict(orient='records')
-          lowest_rate=normal.sort_values('speeches_per_debate_day',ascending=True).head(6).to_dict(orient='records')
-
-          # Aggregate member volume across latest 12 completed months, excluding zero-activity months naturally.
-          cutoff=pd.Timestamp(periods[-1])-pd.DateOffset(months=11)
-          trailing=s[(s.metric_id=='member_speech_count')&(s.period_end>=cutoff)].copy()
-          trailing12=trailing.groupby(['entity_id','entity_name'],as_index=False).value_num.sum().sort_values('value_num',ascending=False)
-          trailing12_total=float(trailing12.value_num.sum())
-          trailing12['share']=trailing12.value_num/trailing12_total if trailing12_total else 0
-
-          report={
-            'resolved_key':resolved,
-            'latest_completed_period':pd.Timestamp(periods[-1]).strftime('%Y-%m-%d'),
-            'analysis_period_latest_normal_month':analysis_label,
-            'normal_month_rule':'national_speech_count >= 1000',
-            'national_monthly':national,
-            'trend_highest_raw_months':highest_raw,
-            'trend_highest_speeches_per_debate_day_months':highest_rate,
-            'trend_lowest_speeches_per_debate_day_normal_months':lowest_rate,
-            'analysis_month_members':{
-              'td_speech_total':total,
-              'tds_with_at_least_one_speech':int((members.value_num>0).sum()),
-              'tds_with_zero_recorded_speeches':zero_count,
-              'top_10_share':top10_share,
-              'top_20_percent_member_share':top20_share,
-              'top_20_by_speech_count':mj.sort_values('speech_count',ascending=False).head(20).to_dict(orient='records'),
-              'widest_speaking_day_coverage':mj.sort_values(['speaking_days','speech_count'],ascending=False).head(20).to_dict(orient='records'),
-              'highest_speeches_per_speaking_day_min_5_days':mj[mj.speaking_days>=5].sort_values('speeches_per_speaking_day',ascending=False).head(15).to_dict(orient='records'),
-            },
-            'analysis_month_parties_by_raw':party.sort_values('raw_speeches',ascending=False).to_dict(orient='records'),
-            'analysis_month_parties_by_normalized':party.sort_values('speeches_per_active_member',ascending=False).to_dict(orient='records'),
-            'analysis_month_party_rank_shifts':party.reindex(party.rank_shift.abs().sort_values(ascending=False).index).head(12).to_dict(orient='records'),
-            'analysis_month_constituencies_by_normalized':const.sort_values('speeches_per_active_rep',ascending=False).head(20).to_dict(orient='records'),
-            'analysis_month_constituency_rank_shifts':const.reindex(const.rank_shift.abs().sort_values(ascending=False).index).head(15).to_dict(orient='records'),
-            'trailing_12_month_top_members':trailing12.head(25).to_dict(orient='records'),
-            'trailing_12_month_top10_share':float(trailing12.head(10).value_num.sum()/trailing12_total) if trailing12_total else None,
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          with open('analysis/speech_metric_opportunities.json','w') as f:
-              json.dump(report,f,indent=2,sort_keys=True,default=str)
-          print(json.dumps(report,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist analysis on temporary branch
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/speech_metric_opportunities.json
-          git commit -m "Extend promoted speech metric opportunity analysis ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
