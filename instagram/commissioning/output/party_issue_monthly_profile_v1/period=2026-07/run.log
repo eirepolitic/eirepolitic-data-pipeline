@@ -1,10 +1,13 @@
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 554, in <module>
-    main()
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 550, in main
-    build(args.period, Path(args.output_root))
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 367, in build
-    raise RuntimeError(f"Classifier coverage ends {coverage_end}; requested period ends {period.end}")
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 335, in <module>
+    if __name__ == "__main__": main()
+                               ^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 332, in main
+    parser=argparse.ArgumentParser(description="Render the reusable monthly party issue profile carousel batch"); parser.add_argument("--period",default="last_completed_month",help="YYYY-MM or last_completed_month"); parser.add_argument("--output-root",default=f"instagram/commissioning/output/{PROJECT_ID}"); args=parser.parse_args(); build(args.period,Path(args.output_root))
+                                                                                                                                                                                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 272, in build
+    if coverage_end < period.end: raise RuntimeError(f"Classifier coverage ends {coverage_end}; requested period ends {period.end}")
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 RuntimeError: Classifier coverage ends 2026-02-26; requested period ends 2026-07-31
