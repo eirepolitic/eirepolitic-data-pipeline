@@ -282,9 +282,9 @@ def rollback_batch(
 def rollback_previous(
     s3: Any,
     *,
+    bucket: str,
     actor: str = "",
     workflow_run_id: str = "",
-    bucket: str,
 ) -> dict[str, Any]:
     """Rollback to the target recorded in the previous pointer."""
     previous = read_json_required(s3, bucket=bucket, key=PREVIOUS_POINTER_KEY)
