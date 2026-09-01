@@ -1,16 +1,17 @@
 {
   "party_key": "social-democrats",
-  "candidate_id": "sd_boxed_clean_derived_v2",
-  "label": "Clean boxed white treatment \u2014 corrected foreground extraction",
+  "candidate_id": "sd_boxed_purple_selected_v1",
+  "label": "Selected purple-backed boxed Social Democrats treatment",
   "source_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Social%20Democrats%20%28Ireland%29%20logo.svg",
-  "source_type": "derived_from_clean_vector_to_match_official_publication_treatment",
-  "official_publication_evidence": [
-    "Social Democrats General Election Manifesto 2024",
-    "Social Democrats Code of Conduct",
-    "Social Democrats Emergency Winter Payment 2026"
+  "source_type": "user_selected_derived_official_treatment",
+  "purple_rgb": [
+    115,
+    46,
+    138
   ],
-  "asset": "review/party_assets_v1/social_democrats/boxed_clean.png",
-  "preview": "review/party_assets_v1/social_democrats/boxed_clean_preview.png",
+  "transparent_asset": "review/party_assets_v1/social_democrats/boxed_clean.png",
+  "selected_asset": "review/party_assets_v1/social_democrats/boxed_purple_selected.png",
+  "preview": "review/party_assets_v1/social_democrats/boxed_purple_selected_preview.png",
   "canonical": false,
-  "notes": "Corrected standalone reconstruction: purple source background removed; foreground Social Democrats logo shapes retained and recoloured white; no publication pixels retained."
+  "notes": "User selected the boxed treatment specifically on purple. Purple is taken from the dominant background colour of the clean source vector; no manifesto pixels retained."
 }
