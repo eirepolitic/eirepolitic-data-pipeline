@@ -22,6 +22,7 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
+      POLITICAL_METRICS_AUDIT_DIR: artifacts/political-metrics-audit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,16 +34,30 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3
+          python -m pip install boto3 pandas
       - name: Create read-only inventory
         shell: bash
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
+      - name: Run read-only political metrics audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_audit.py
+      - name: Add political metrics summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/political-metrics-audit/summary.md ]; then
+            cat artifacts/political-metrics-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload baseline audit
         uses: actions/upload-artifact@v4
         with:
           name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
+          path: |
+            artifacts/oireachtas-baseline-audit/
+            artifacts/political-metrics-audit/
           if-no-files-found: error
           retention-days: 30
