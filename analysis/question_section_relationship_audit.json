@@ -1,0 +1,867 @@
+{
+  "all_history": {
+    "by_question_type": [
+      {
+        "median_related_speech_rows_when_present": null,
+        "question_rows": 117695,
+        "question_type": "written",
+        "questions_with_related_speech_rows": 0,
+        "related_speech_rows_sum": 0,
+        "share_with_related_speech_rows": 0.0,
+        "unique_debate_sections": 96675,
+        "unique_question_ids": 117695
+      },
+      {
+        "median_related_speech_rows_when_present": 9.0,
+        "question_rows": 3660,
+        "question_type": "oral",
+        "questions_with_related_speech_rows": 3660,
+        "related_speech_rows_sum": 66994,
+        "share_with_related_speech_rows": 1.0,
+        "unique_debate_sections": 2127,
+        "unique_question_ids": 3660
+      }
+    ],
+    "distinct_question_sections_with_speeches": 2127,
+    "label": "all_history",
+    "largest_question_sections": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-20/writtens/dbsect_274",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 120,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-14/writtens/dbsect_459",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 90,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-19/writtens/dbsect_173",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 77,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-28/writtens/dbsect_779",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 60,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-26/writtens/dbsect_905",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 56,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/writtens/dbsect_1469",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 42,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-18/writtens/dbsect_152",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 38,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-18/writtens/dbsect_448",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 35,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/writtens/dbsect_700",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 34,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-28/writtens/dbsect_576",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 31,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-05/writtens/dbsect_458",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 30,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-10/debate/dbsect_11",
+        "distinct_speakers": 12,
+        "heading": "Cabinet Committees",
+        "question_rows_in_section": 25,
+        "speech_rows_in_section": 81
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-01/writtens/dbsect_146",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 25,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-15/writtens/dbsect_490",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 25,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-26/debate/dbsect_16",
+        "distinct_speakers": 20,
+        "heading": "Cabinet Committees",
+        "question_rows_in_section": 24,
+        "speech_rows_in_section": 54
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_16",
+        "distinct_speakers": 16,
+        "heading": "Taoiseach's Meetings and Engagements",
+        "question_rows_in_section": 23,
+        "speech_rows_in_section": 77
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/writtens/dbsect_160",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 23,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-26/debate/dbsect_17",
+        "distinct_speakers": 10,
+        "heading": "Departmental Programmes",
+        "question_rows_in_section": 22,
+        "speech_rows_in_section": 38
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/dbsect_17",
+        "distinct_speakers": 20,
+        "heading": "Programme for Government",
+        "question_rows_in_section": 22,
+        "speech_rows_in_section": 37
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-15/debate/dbsect_15",
+        "distinct_speakers": 12,
+        "heading": "Cabinet Committees",
+        "question_rows_in_section": 21,
+        "speech_rows_in_section": 60
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-12/debate/dbsect_14",
+        "distinct_speakers": 17,
+        "heading": "Cabinet Committees",
+        "question_rows_in_section": 21,
+        "speech_rows_in_section": 43
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/writtens/dbsect_709",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 21,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/dbsect_16",
+        "distinct_speakers": 15,
+        "heading": "Cabinet Committees",
+        "question_rows_in_section": 20,
+        "speech_rows_in_section": 55
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-17/debate/dbsect_11",
+        "distinct_speakers": 9,
+        "heading": "National Economic and Social Council",
+        "question_rows_in_section": 20,
+        "speech_rows_in_section": 39
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_17",
+        "distinct_speakers": 12,
+        "heading": "Artificial Intelligence",
+        "question_rows_in_section": 20,
+        "speech_rows_in_section": 34
+      }
+    ],
+    "question_rows": 121355,
+    "question_rows_in_multiquestion_sections": 32806,
+    "question_rows_with_related_speech_rows": 3660,
+    "questions_per_unique_section": 1.2282646100281371,
+    "related_speech_rows_sum_over_question_rows": 66994,
+    "sections_with_multiple_question_rows": 10253,
+    "share_question_rows_with_related_speech_rows": 0.0301594495488443,
+    "unique_debate_sections": 98802,
+    "unique_question_ids": 121355
+  },
+  "july_2026": {
+    "by_question_type": [
+      {
+        "median_related_speech_rows_when_present": null,
+        "question_rows": 8752,
+        "question_type": "written",
+        "questions_with_related_speech_rows": 0,
+        "related_speech_rows_sum": 0,
+        "share_with_related_speech_rows": 0.0,
+        "unique_debate_sections": 7094,
+        "unique_question_ids": 8752
+      },
+      {
+        "median_related_speech_rows_when_present": 7.0,
+        "question_rows": 159,
+        "question_type": "oral",
+        "questions_with_related_speech_rows": 159,
+        "related_speech_rows_sum": 1727,
+        "share_with_related_speech_rows": 1.0,
+        "unique_debate_sections": 116,
+        "unique_question_ids": 159
+      }
+    ],
+    "distinct_question_sections_with_speeches": 116,
+    "label": "july_2026",
+    "largest_question_sections": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_47",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 20,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_45",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 17,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/debate/dbsect_17",
+        "distinct_speakers": 10,
+        "heading": "Urban Development",
+        "question_rows_in_section": 16,
+        "speech_rows_in_section": 24
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/writtens/dbsect_117",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 15,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/debate/dbsect_16",
+        "distinct_speakers": 11,
+        "heading": "Taoiseach's Meetings and Engagements",
+        "question_rows_in_section": 14,
+        "speech_rows_in_section": 22
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2495",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 14,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1691",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 13,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2204",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 12,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1921",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 11,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/writtens/dbsect_451",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1344",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1899",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_819",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/writtens/dbsect_116",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/writtens/dbsect_413",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_49",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1061",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1980",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2170",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2327",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_3005",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/writtens/dbsect_248",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/writtens/dbsect_463",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/writtens/dbsect_515",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/writtens/dbsect_486",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      }
+    ],
+    "question_rows": 8911,
+    "question_rows_in_multiquestion_sections": 2491,
+    "question_rows_with_related_speech_rows": 159,
+    "questions_per_unique_section": 1.2359223300970874,
+    "related_speech_rows_sum_over_question_rows": 1727,
+    "sections_with_multiple_question_rows": 790,
+    "share_question_rows_with_related_speech_rows": 0.017843115250813602,
+    "unique_debate_sections": 7210,
+    "unique_question_ids": 8911
+  },
+  "july_oral": {
+    "by_question_type": [
+      {
+        "median_related_speech_rows_when_present": 7.0,
+        "question_rows": 159,
+        "question_type": "oral",
+        "questions_with_related_speech_rows": 159,
+        "related_speech_rows_sum": 1727,
+        "share_with_related_speech_rows": 1.0,
+        "unique_debate_sections": 116,
+        "unique_question_ids": 159
+      }
+    ],
+    "distinct_question_sections_with_speeches": 116,
+    "label": "july_oral",
+    "largest_question_sections": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/debate/dbsect_17",
+        "distinct_speakers": 10,
+        "heading": "Urban Development",
+        "question_rows_in_section": 16,
+        "speech_rows_in_section": 24
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/debate/dbsect_16",
+        "distinct_speakers": 11,
+        "heading": "Taoiseach's Meetings and Engagements",
+        "question_rows_in_section": 14,
+        "speech_rows_in_section": 22
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_7",
+        "distinct_speakers": 4,
+        "heading": "Middle East",
+        "question_rows_in_section": 6,
+        "speech_rows_in_section": 9
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/dbsect_31",
+        "distinct_speakers": 7,
+        "heading": "Military Neutrality",
+        "question_rows_in_section": 4,
+        "speech_rows_in_section": 29
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/dbsect_30",
+        "distinct_speakers": 5,
+        "heading": "Strategic Infrastructure",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 13
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_9",
+        "distinct_speakers": 3,
+        "heading": "Irish Prisoners Abroad",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 10
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_12",
+        "distinct_speakers": 2,
+        "heading": "Overseas Development Aid",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 6
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_25",
+        "distinct_speakers": 2,
+        "heading": "Education and Training Provision",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 6
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_30",
+        "distinct_speakers": 2,
+        "heading": "EU Directives",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 6
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_31",
+        "distinct_speakers": 3,
+        "heading": "Healthcare Policy",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 5
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_13",
+        "distinct_speakers": 3,
+        "heading": "Middle East",
+        "question_rows_in_section": 2,
+        "speech_rows_in_section": 3
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/dbsect_21",
+        "distinct_speakers": 3,
+        "heading": "Military Neutrality",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 29
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/debate/dbsect_27",
+        "distinct_speakers": 4,
+        "heading": "Gaeltacht Policy",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 21
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_7",
+        "distinct_speakers": 2,
+        "heading": "Bord Bia",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 18
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/dbsect_28",
+        "distinct_speakers": 3,
+        "heading": "EU Presidency",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 14
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/debate/dbsect_20",
+        "distinct_speakers": 2,
+        "heading": "International Agreements",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 12
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/debate/dbsect_25",
+        "distinct_speakers": 2,
+        "heading": "Prison Service",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 12
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/debate/dbsect_22",
+        "distinct_speakers": 3,
+        "heading": "Social Enterprise Sector",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 12
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/debate/dbsect_20",
+        "distinct_speakers": 3,
+        "heading": "Public Transport",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 11
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/debate/dbsect_22",
+        "distinct_speakers": 2,
+        "heading": "EU Presidency",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 10
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/debate/dbsect_30",
+        "distinct_speakers": 2,
+        "heading": "Domestic Violence",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 10
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/debate/dbsect_28",
+        "distinct_speakers": 4,
+        "heading": "Rural Schemes",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 10
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/debate/dbsect_31",
+        "distinct_speakers": 4,
+        "heading": "Gaeltacht Policy",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 10
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/debate/dbsect_32",
+        "distinct_speakers": 3,
+        "heading": "Child Protection",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 9
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_26",
+        "distinct_speakers": 3,
+        "heading": "Research Funding",
+        "question_rows_in_section": 1,
+        "speech_rows_in_section": 9
+      }
+    ],
+    "question_rows": 159,
+    "question_rows_in_multiquestion_sections": 54,
+    "question_rows_with_related_speech_rows": 159,
+    "questions_per_unique_section": 1.3706896551724137,
+    "related_speech_rows_sum_over_question_rows": 1727,
+    "sections_with_multiple_question_rows": 11,
+    "share_question_rows_with_related_speech_rows": 1.0,
+    "unique_debate_sections": 116,
+    "unique_question_ids": 159
+  },
+  "july_speech_side": {
+    "question_linked_sections_represented_in_speeches": 116,
+    "share_speech_rows_in_question_linked_sections": 0.3170130327580134,
+    "speech_rows": 2839,
+    "speech_rows_in_question_linked_sections": 900
+  },
+  "july_written": {
+    "by_question_type": [
+      {
+        "median_related_speech_rows_when_present": null,
+        "question_rows": 8752,
+        "question_type": "written",
+        "questions_with_related_speech_rows": 0,
+        "related_speech_rows_sum": 0,
+        "share_with_related_speech_rows": 0.0,
+        "unique_debate_sections": 7094,
+        "unique_question_ids": 8752
+      }
+    ],
+    "distinct_question_sections_with_speeches": 0,
+    "label": "july_written",
+    "largest_question_sections": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_47",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 20,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_45",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 17,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/writtens/dbsect_117",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 15,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2495",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 14,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1691",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 13,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2204",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 12,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1921",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 11,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/writtens/dbsect_451",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1344",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1899",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_819",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 10,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/writtens/dbsect_116",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/writtens/dbsect_413",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_49",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1061",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_1980",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2170",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_2327",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-28/writtens/dbsect_3005",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 9,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-01/writtens/dbsect_248",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/writtens/dbsect_463",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/writtens/dbsect_515",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-14/writtens/dbsect_486",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_254",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-15/writtens/dbsect_268",
+        "distinct_speakers": 0,
+        "heading": "",
+        "question_rows_in_section": 8,
+        "speech_rows_in_section": 0
+      }
+    ],
+    "question_rows": 8752,
+    "question_rows_in_multiquestion_sections": 2437,
+    "question_rows_with_related_speech_rows": 0,
+    "questions_per_unique_section": 1.2337186354665914,
+    "related_speech_rows_sum_over_question_rows": 0,
+    "sections_with_multiple_question_rows": 779,
+    "share_question_rows_with_related_speech_rows": 0.0,
+    "unique_debate_sections": 7094,
+    "unique_question_ids": 8752
+  },
+  "resolved_keys": {
+    "questions": "processed/oireachtas_unified/batches/scheduled-weekly-33530737534-1/tables/silver_questions/csv/silver_questions.csv",
+    "sections": "processed/oireachtas_unified/batches/scheduled-weekly-33530737534-1/tables/silver_debate_sections/csv/silver_debate_sections.csv",
+    "speeches": "processed/oireachtas_unified/batches/scheduled-weekly-33530737534-1/tables/silver_speeches/csv/silver_speeches.csv"
+  },
+  "source_xml_stats": {
+    "all_questions": {
+      "rows": 121355,
+      "rows_per_unique_source_xml_url": 1.2282646100281371,
+      "unique_debate_section_ids": 98802,
+      "unique_source_xml_urls": 98802
+    },
+    "july": {
+      "rows": 8911,
+      "rows_per_unique_source_xml_url": 1.2359223300970874,
+      "unique_debate_section_ids": 7210,
+      "unique_source_xml_urls": 7210
+    },
+    "july_oral": {
+      "rows": 159,
+      "rows_per_unique_source_xml_url": 1.3706896551724137,
+      "unique_debate_section_ids": 116,
+      "unique_source_xml_urls": 116
+    },
+    "july_written": {
+      "rows": 8752,
+      "rows_per_unique_source_xml_url": 1.2337186354665914,
+      "unique_debate_section_ids": 7094,
+      "unique_source_xml_urls": 7094
+    }
+  }
+}
