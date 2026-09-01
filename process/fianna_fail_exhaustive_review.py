@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Build an exhaustive review-only Fianna Fáil logo contact sheet.
 
-Sources include explicit candidate files plus every plausible same-site image candidate
-from the current official homepage. Nothing produced here is canonical and nothing is
-written to S3.
+Sources include explicit candidate files plus plausible current Fianna Fáil logo assets
+from the official site. Nothing produced here is canonical and nothing is written to S3.
 """
 
 from __future__ import annotations
@@ -43,6 +42,18 @@ def load_explicit() -> list[dict]:
         return list(csv.DictReader(handle))
 
 
+def _plausible_official_logo(url: str) -> bool:
+    lowered = url.lower()
+    filename = Path(urlparse(url).path).name.lower()
+    return (
+        "fflogo" in filename
+        or "ff_logo" in filename
+        or "fianna-fail-logo" in filename
+        or "fianna_fail_logo" in filename
+        or ("logo" in filename and ("fianna" in filename or filename.startswith("ff")))
+    )
+
+
 def official_discovery() -> list[dict]:
     row = PartyAsset(
         party_key="fianna-fail",
@@ -56,12 +67,15 @@ def official_discovery() -> list[dict]:
         asset_status="source_identified_pending_ingest",
         fallback_type="",
     )
-    result = discover_row(row, limit=40)
+    result = discover_row(row, limit=60)
     candidates = []
-    for index, item in enumerate(result.get("candidates", []), start=1):
+    for item in result.get("candidates", []):
+        if not _plausible_official_logo(item["url"]):
+            continue
+        index = len(candidates) + 1
         candidates.append({
             "candidate_id": f"official_site_{index:02d}",
-            "label": f"Official-site candidate {index}",
+            "label": f"Current official-site logo {index}",
             "source_url": item["url"],
             "source_kind": "official_site_discovery",
             "notes": "; ".join(item.get("reasons", [])),
