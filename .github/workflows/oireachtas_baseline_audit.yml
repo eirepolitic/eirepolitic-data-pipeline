@@ -23,7 +23,7 @@ jobs:
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
       POLITICAL_METRICS_PERIOD: '2026-07'
-      POLITICAL_METRICS_VOTE_COMMISSION_DIR: artifacts/political-metrics-vote-commission
+      POLITICAL_METRICS_QUESTION_COMMISSION_DIR: artifacts/political-metrics-question-commission
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -46,41 +46,44 @@ jobs:
         run: |
           set -euo pipefail
           python process/oireachtas_audit_inventory.py
-      - name: Commission July 2026 voting metrics
+      - name: Commission July 2026 parliamentary question metrics
         shell: bash
         run: |
           set -euo pipefail
-          python process/political_metrics_vote_commission.py
-      - name: Publish compact voting commissioning results
+          python process/political_metrics_question_commission.py
+      - name: Publish compact question commissioning results
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/political-metrics-vote-commission/summary.md ]; then
-            cat artifacts/political-metrics-vote-commission/summary.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/political-metrics-question-commission/summary.md ]; then
+            cat artifacts/political-metrics-question-commission/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ -f artifacts/political-metrics-vote-commission/report.json ]; then
+          if [ -f artifacts/political-metrics-question-commission/report.json ]; then
             python - <<'PY'
           import json
           from pathlib import Path
-          r=json.loads(Path('artifacts/political-metrics-vote-commission/report.json').read_text())
-          print(f"::notice title=Vote commission totals::period={r['period']['start']}..{r['period']['end']}; divisions={r['division_count']}; member_votes={r['recorded_member_vote_count']}; eligible_member_divisions={r['eligible_member_division_count']}; outside_eligibility={r['recorded_votes_outside_eligibility']}; codes={json.dumps(r['vote_code_counts'],separators=(',',':'))}")
-          members=' | '.join(f"{x['member_name']}:{x['vote_participation_pct']*100:.1f}% ({x['votes_cast_count']}/{x['eligible_division_count']})" for x in r['top_member_participation'])
-          parties=' | '.join(f"{x['party_name']}:{x['vote_participation_pct']*100:.1f}%" for x in r['party_metrics'])
-          unity=' | '.join(f"{x['party_name']}:{x['vote_cohesion_pct']*100:.1f}%/{x['qualifying_unity_divisions']}div" for x in r['party_unity'])
-          const=' | '.join(f"{x['constituency_name']}:{x['vote_participation_pct']*100:.1f}%" for x in r['top_constituency_participation'])
-          print(f"::notice title=Top TD recorded voting participation::{members}")
-          print(f"::notice title=Party recorded voting participation::{parties}")
-          print(f"::notice title=Party voting unity::{unity}")
-          print(f"::notice title=Top constituency recorded voting participation::{const}")
+          r=json.loads(Path('artifacts/political-metrics-question-commission/report.json').read_text())
+          n=r['national']
+          print(f"::notice title=Question commission totals::period={r['period']['start']}..{r['period']['end']}; source={r['source_question_count']}; eligible={r['eligible_question_count']}; excluded={r['excluded_question_count']}; asking_members={n['asking_member_count']}; question_days={n['question_day_count']}; types={n['question_type_count']}; recipients={n['recipient_count']}")
+          members=' | '.join(f"{x['member_name']}:{x['question_count']}" for x in r['top_members'])
+          parties=' | '.join(f"{x['party_name']}:{x['question_count']} ({x['asking_member_count']} TDs)" for x in r['party_metrics'])
+          const=' | '.join(f"{x['constituency_name']}:{x['question_count']}" for x in r['top_constituencies'])
+          types=' | '.join(f"{x['question_type']}:{x['question_count']} ({x['question_type_share']*100:.1f}%)" for x in r['question_types'])
+          recipients=' | '.join(f"{x['to_minister_or_department']}:{x['question_count']} ({x['question_share']*100:.1f}%)" for x in r['top_recipients'])
+          print(f"::notice title=Top TD question counts::{members}")
+          print(f"::notice title=Party question totals::{parties}")
+          print(f"::notice title=Top constituency question totals::{const}")
+          print(f"::notice title=Question types::{types}")
+          print(f"::notice title=Top question recipients::{recipients}")
           PY
           fi
-      - name: Upload voting commissioning artifacts
+      - name: Upload question commissioning artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: political-metrics-vote-commission-${{ github.run_id }}-${{ github.run_attempt }}
+          name: political-metrics-question-commission-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             artifacts/oireachtas-baseline-audit/
-            artifacts/political-metrics-vote-commission/
+            artifacts/political-metrics-question-commission/
           if-no-files-found: error
           retention-days: 30
