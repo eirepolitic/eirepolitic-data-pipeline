@@ -13,21 +13,122 @@ concurrency:
 jobs:
   inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      - name: Install test dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install boto3 pandas pyarrow pyyaml
+          python -m pip install -r requirements.txt
       - name: Test political metrics foundation
         shell: bash
         run: |
           set -euo pipefail
           python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+      - name: Set throwaway candidate ID
+        id: batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "batch_id=metrics-reconcile-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - name: Seed throwaway candidate from production
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_seed_candidate.py \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            | tee oireachtas_seed_candidate.json
+      - name: Build reconciled metrics inside throwaway candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_materialize_candidate.py \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --report-path political_metrics_candidate_report.json
+      - name: Assemble throwaway candidate with metric requirements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_batch_control.py \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            assemble \
+            --batch-id '${{ steps.batch.outputs.batch_id }}' \
+            --required-table political_metrics_daily_activity_components \
+            --required-table political_metrics_daily_issue_activity \
+            --required-table political_metrics_division_party_vote_components \
+            --required-table political_metrics_daily_question_dimensions \
+            --required-table political_metrics_monthly_metric_results \
+            | tee oireachtas_batch_manifest.json
+      - name: Verify reconciled consumer catalogue coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import boto3, io, os, pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+          from political_metrics.catalogue import load_catalogue_metric_ids
+          batch='${{ steps.batch.outputs.batch_id }}'
+          logical='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv'
+          key=batch_key_for_production_key(logical,batch)
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          obj=s3.get_object(Bucket=os.environ['S3_BUCKET'],Key=key)
+          df=pd.read_csv(io.BytesIO(obj['Body'].read()))
+          actual=set(df['metric_id'].dropna().astype(str))
+          expected=load_catalogue_metric_ids()
+          if actual != expected:
+              raise SystemExit(f'catalogue mismatch missing={sorted(expected-actual)} extra={sorted(actual-expected)}')
+          scoped=df[df['metric_id'].isin(['question_type_share','question_recipient_share'])]
+          expected_grains={'national','member','party','constituency'}
+          for metric_id in ['question_type_share','question_recipient_share']:
+              grains=set(scoped.loc[scoped['metric_id'].eq(metric_id),'grain'].dropna().astype(str))
+              if grains != expected_grains:
+                  raise SystemExit(f'{metric_id} grains={sorted(grains)} expected={sorted(expected_grains)}')
+              if scoped.loc[scoped['metric_id'].eq(metric_id),'denominator'].isna().any():
+                  raise SystemExit(f'{metric_id} has null denominators')
+          print(f"::notice title=Catalogue reconciliation::metrics={len(actual)}; monthly_rows={len(df)}; question_grains={sorted(expected_grains)}")
+          PY
+      - name: Prove production pointer was not changed by test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import boto3, json, os
+          s3=boto3.client('s3', region_name=os.environ['AWS_REGION'])
+          key='processed/oireachtas_unified/pointers/production.json'
+          obj=s3.get_object(Bucket=os.environ['S3_BUCKET'], Key=key)
+          pointer=json.loads(obj['Body'].read().decode('utf-8'))
+          test_batch='${{ steps.batch.outputs.batch_id }}'
+          if pointer.get('batch_id') == test_batch:
+              raise SystemExit('throwaway candidate was unexpectedly promoted')
+          print(f"::notice title=Candidate reconciliation safety::throwaway_batch={test_batch}; production_batch={pointer.get('batch_id')}; promoted=false")
+          PY
+      - name: Upload reconciliation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: political-metrics-reconciliation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            oireachtas_seed_candidate.json
+            political_metrics_candidate_report.json
+            oireachtas_batch_manifest.json
+          if-no-files-found: warn
+          retention-days: 30
