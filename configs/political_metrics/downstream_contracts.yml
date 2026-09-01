@@ -1,0 +1,65 @@
+contract_version: 1
+
+logical_keys:
+  monthly_metric_results:
+    csv: processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv
+    parquet: processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/parquet/monthly_metric_results.parquet
+  daily_activity_components:
+    csv: processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv
+    parquet: processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/parquet/daily_activity_components.parquet
+  daily_issue_activity:
+    csv: processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/csv/daily_issue_activity.csv
+    parquet: processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/parquet/daily_issue_activity.parquet
+  division_party_vote_components:
+    csv: processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/parquet/division_party_vote_components.parquet
+  daily_question_dimensions:
+    csv: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv
+    parquet: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/parquet/daily_question_dimensions.parquet
+
+consumer_dataset: monthly_metric_results
+consumer_rules:
+  - resolve the logical key through the promoted Oireachtas production pointer; do not hard-code a batch ID
+  - filter by metric_id and metric_version before interpreting value
+  - filter by period_start and period_end; only completed calendar months are materialized
+  - treat grain and entity_id as part of the result identity
+  - for dimensional metrics also filter dimension_name and dimension_value
+  - do not sum or average materialized proportions, percentage points, rates, or ranks across months
+  - use numerator and denominator to recompute combined-period rates when needed
+  - respect reliability_status, public_use_status, and warning_code before public display
+  - never treat missing recorded votes as proof of attendance or absence
+  - never replace historical party or constituency attribution with current affiliation
+  - keep entity_id=dail and entity_id=eligible_tds as distinct national populations
+
+recommended_consumer_patterns:
+  appsmith:
+    default_format: csv
+    use_for:
+      - metric cards
+      - public tables
+      - simple filters by month, entity, issue, question type, or recipient
+  power_bi:
+    default_format: parquet
+    use_for:
+      - monthly trend models
+      - party and constituency comparisons
+      - issue dashboards
+      - voting and question dashboards
+    modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
+  api:
+    default_format: parquet
+    use_for:
+      - precomputed completed-month endpoints
+      - entity profiles
+      - issue comparison endpoints
+    response_note: expose reliability/public-use metadata alongside value
+
+primary_key:
+  - metric_id
+  - metric_version
+  - period_start
+  - period_end
+  - grain
+  - entity_id
+  - dimension_name
+  - dimension_value
