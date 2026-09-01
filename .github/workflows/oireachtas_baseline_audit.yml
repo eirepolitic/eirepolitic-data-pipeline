@@ -4,79 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  summarize:
+  inventory:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build compact research summary
+          cache: pip
+      - name: Install audit dependencies
+        shell: bash
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          src=json.loads(Path('analysis/question_opportunities.json').read_text())
-
-          # Top recipient per party, but keep useful absolute counts.
-          party_best={}
-          for r in src.get('party_recipient_specialisation',[]):
-              key=str(r.get('entity_id'))
-              if key not in party_best:
-                  party_best[key]=r
-
-          # Question type rows grouped compactly by party.
-          party_types={}
-          for r in src.get('party_question_type_mix',[]):
-              name=r.get('entity_name') or r.get('entity_id')
-              party_types.setdefault(str(name),[]).append({
-                  'type':r.get('dimension_value'),
-                  'count':r.get('question_count'),
-                  'share':r.get('dimension_share'),
-              })
-
-          # For recent months, retain top 5 recipients per month only.
-          monthly={}
-          for r in src.get('recipient_monthly_latest_12',[]):
-              month=str(r.get('month'))
-              if len(monthly.setdefault(month,[]))<5:
-                  monthly[month].append({
-                      'recipient':r.get('dimension_value'),
-                      'count':r.get('question_count'),
-                      'share':r.get('share'),
-                  })
-
-          out={
-              'analysis_period':src.get('analysis_period'),
-              'member_question_total':src.get('member_question_total'),
-              'members_with_questions':src.get('members_with_questions'),
-              'top10_member_question_share':src.get('top10_member_question_share'),
-              'top20_percent_member_question_share':src.get('top20_percent_member_question_share'),
-              'top_members_by_question_count':src.get('top_members_by_question_count',[])[:15],
-              'widest_question_day_coverage':src.get('widest_question_day_coverage',[])[:15],
-              'highest_questions_per_question_day_min_3_days':src.get('highest_questions_per_question_day_min_3_days',[])[:15],
-              'party_question_counts':src.get('party_question_counts',[]),
-              'top_constituencies_by_question_count':src.get('constituency_question_counts',[])[:15],
-              'national_recipient_distribution':src.get('national_recipient_distribution',[])[:15],
-              'national_question_type_distribution':src.get('national_question_type_distribution',[]),
-              'strongest_member_recipient_specialisation':src.get('member_recipient_specialisation',[])[:20],
-              'member_recipient_concentration':src.get('member_recipient_concentration',[])[:20],
-              'top_recipient_per_party':list(party_best.values()),
-              'strongest_constituency_recipient_specialisation':src.get('constituency_recipient_specialisation',[])[:20],
-              'party_question_type_mix':party_types,
-              'monthly_top_recipients':monthly,
-          }
-          Path('analysis/question_opportunities_summary.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist compact summary
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_opportunities_summary.json
-          git commit -m "Summarize parliamentary question opportunity analysis ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
