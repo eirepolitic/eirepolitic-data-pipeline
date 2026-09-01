@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           python process/political_metrics_commission.py
-      - name: Publish commissioning summary
+      - name: Publish compact commissioning results
         if: always()
         shell: bash
         run: |
@@ -63,7 +63,14 @@ jobs:
           import json
           from pathlib import Path
           r=json.loads(Path('artifacts/political-metrics-commission/report.json').read_text())
-          print(f"::notice title=Political metrics commissioning::{json.dumps(r, separators=(',', ':'))}")
+          n=r['national']; q=r['reconciliation']
+          print(f"::notice title=Commission totals::period={r['period']['start']}..{r['period']['end']}; dail_speeches={n['speech_count']}; eligible_td_speeches={q['eligible_td_distinct_speeches']}; debate_days={n['debate_day_count']}; speeches_per_debate_day={n['speeches_per_debate_day']:.3f}; all_reconciliations={all(v for k,v in q.items() if k.endswith('_matches') or k=='national_calculator_matches')}")
+          members=' | '.join(f"{x['member_name']}:{x['speech_count']}" for x in r['top_members'])
+          parties=' | '.join(f"{x['party_name']}:{x['speech_count']} ({x['speeches_per_active_member']:.2f}/TD)" for x in r['top_parties'])
+          constituencies=' | '.join(f"{x['constituency_name']}:{x['speech_count']} ({x['speeches_per_active_member']:.2f}/rep)" for x in r['top_constituencies'])
+          print(f"::notice title=Top TD speech counts::{members}")
+          print(f"::notice title=Party speech counts::{parties}")
+          print(f"::notice title=Constituency speech counts::{constituencies}")
           PY
           fi
       - name: Upload commissioning artifacts
