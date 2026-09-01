@@ -18,7 +18,7 @@ def temporal_join(
 
     Intervals are treated as inclusive at both ends. Open-ended history rows are
     supported. Ambiguous overlapping matches raise rather than silently choosing
-    a political affiliation/constituency.
+    a political affiliation or constituency.
     """
     if events.empty:
         return events.copy()
@@ -34,6 +34,10 @@ def temporal_join(
     for col in history_columns or []:
         if col not in keep:
             keep.append(col)
+
+    missing_history_columns = [col for col in keep if col not in right.columns]
+    if missing_history_columns:
+        raise ValueError(f"history missing required columns: {missing_history_columns}")
 
     merged = left.merge(right[keep], how="left", on=entity_col, suffixes=("", "__history"))
     event_date = merged[event_date_col]
@@ -78,7 +82,7 @@ def attach_event_party(
         entity_col=member_col,
         history_start_col="party_start",
         history_end_col="party_end",
-        history_columns=["party_code", "party_name"],
+        history_columns=["party_uri", "party_name"],
     )
 
 
@@ -96,5 +100,5 @@ def attach_event_constituency(
         entity_col=member_col,
         history_start_col="represent_start",
         history_end_col="represent_end",
-        history_columns=["constituency_code", "constituency_name"],
+        history_columns=["constituency_uri", "constituency_name"],
     )
