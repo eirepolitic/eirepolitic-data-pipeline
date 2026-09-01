@@ -123,6 +123,20 @@ class VoteMetricTests(unittest.TestCase):
         self.assertEqual(float(result.loc["const:C1", "vote_participation_pct"]), 0.0)
         self.assertEqual(float(result.loc["const:C2", "vote_participation_pct"]), 1.0)
 
+    def test_zero_division_month_returns_empty_party_and_constituency_results(self):
+        empty_votes = pd.DataFrame(columns=["member_code", "division_id", "division_date", "vote_code"])
+        empty_eligible = pd.DataFrame(columns=["member_code", "division_id", "division_date"])
+        parties = pd.DataFrame(columns=["member_code", "party_start", "party_end", "party_uri", "party_name"])
+        constituencies = pd.DataFrame(columns=["member_code", "represent_start", "represent_end", "constituency_uri", "constituency_name"])
+
+        party = party_vote_metrics(empty_votes, empty_eligible, parties)
+        constituency = constituency_vote_participation(empty_votes, empty_eligible, constituencies)
+
+        self.assertTrue(party.empty)
+        self.assertIn("vote_cohesion_pct", party.columns)
+        self.assertTrue(constituency.empty)
+        self.assertIn("vote_participation_pct", constituency.columns)
+
 
 if __name__ == "__main__":
     unittest.main()
