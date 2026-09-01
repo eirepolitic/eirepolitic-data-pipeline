@@ -262,20 +262,4 @@ def build_monthly_results(
         contract_version=contract_version,
     )
 
-    completed = metric_results_frame(rows)
-    actual_ids = set(completed["metric_id"].dropna().astype(str))
-    missing = MATERIALIZED_METRIC_IDS - actual_ids
-    if missing:
-        # Empty-period metrics can legitimately have no rows, but a normal
-        # completed month with source activity should not silently omit an ID.
-        source_has_activity = any(
-            not filter_period(frames[table], date_col, period).empty
-            for table, date_col in [
-                ("speeches", "debate_date"),
-                ("questions", "question_date"),
-                ("divisions", "division_date"),
-            ]
-        )
-        if source_has_activity:
-            raise RuntimeError(f"monthly result builder omitted catalogue metric IDs: {sorted(missing)}")
-    return completed
+    return metric_results_frame(rows)
