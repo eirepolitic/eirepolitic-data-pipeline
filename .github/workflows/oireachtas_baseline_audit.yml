@@ -4,45 +4,154 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Analyze promoted legislation tables
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          table_names=['silver_bills','silver_bill_stages','silver_bill_sponsors','silver_bill_debates','silver_bill_events']
+          frames={}; resolved={}
+          for name in table_names:
+              logical=f'processed/oireachtas_unified/latest/csv/{name}.csv'
+              r=resolve_production_key(s3,bucket=bucket,production_key=logical)
+              resolved[name]=r
+              obj=s3.get_object(Bucket=bucket,Key=r)
+              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          bills=frames['silver_bills'].copy(); stages=frames['silver_bill_stages'].copy(); sponsors=frames['silver_bill_sponsors'].copy(); debates=frames['silver_bill_debates'].copy(); events=frames['silver_bill_events'].copy()
+          for df,col in [(bills,'introduced_date'),(bills,'last_event_date'),(stages,'stage_date'),(debates,'debate_date'),(events,'event_date')]:
+              if col in df.columns: df[col]=pd.to_datetime(df[col],errors='coerce')
+          if 'order_in_bill' in stages.columns: stages['order_num']=pd.to_numeric(stages['order_in_bill'],errors='coerce')
+
+          status_counts=bills['status'].fillna('UNKNOWN').value_counts().rename_axis('status').reset_index(name='bill_count').to_dict(orient='records')
+          type_counts=bills['bill_type'].fillna('UNKNOWN').value_counts().rename_axis('bill_type').reset_index(name='bill_count').to_dict(orient='records')
+          years=bills['bill_year'].fillna('UNKNOWN').value_counts().sort_index().rename_axis('bill_year').reset_index(name='bill_count').to_dict(orient='records')
+
+          # Aggregate structural progression per bill.
+          stage_agg=stages.groupby('bill_id').agg(stage_count=('bill_stage_id','nunique'),first_stage=('stage_date','min'),last_stage=('stage_date','max')).reset_index() if len(stages) else pd.DataFrame(columns=['bill_id','stage_count','first_stage','last_stage'])
+          if 'order_num' in stages.columns:
+              max_order=stages.groupby('bill_id')['order_num'].max().rename('max_stage_order').reset_index()
+              stage_agg=stage_agg.merge(max_order,on='bill_id',how='left')
+          debate_agg=debates.groupby('bill_id').agg(debate_count=('bill_debate_id','nunique'),first_debate=('debate_date','min'),last_debate=('debate_date','max')).reset_index() if len(debates) else pd.DataFrame(columns=['bill_id','debate_count','first_debate','last_debate'])
+          event_agg=events.groupby('bill_id').agg(event_count=('bill_event_id','nunique'),first_event=('event_date','min'),last_event=('event_date','max')).reset_index() if len(events) else pd.DataFrame(columns=['bill_id','event_count','first_event','last_event'])
+          x=bills.merge(stage_agg,on='bill_id',how='left').merge(debate_agg,on='bill_id',how='left').merge(event_agg,on='bill_id',how='left')
+          for c in ['stage_count','debate_count','event_count','max_stage_order']:
+              if c in x.columns: x[c]=pd.to_numeric(x[c],errors='coerce').fillna(0)
+          x['days_introduced_to_last_event']=(x['last_event_date']-x['introduced_date']).dt.days
+          x['days_introduced_to_last_stage']=(x['last_stage']-x['introduced_date']).dt.days
+
+          # Primary sponsor summaries.
+          ps=sponsors.copy()
+          if 'is_primary' in ps.columns:
+              primary_mask=ps['is_primary'].astype(str).str.lower().isin(['true','1','yes'])
+              primary=ps[primary_mask].copy()
+              if primary.empty: primary=ps.copy()
+          else:
+              primary=ps.copy()
+          primary=primary.sort_values(['bill_id','sponsor_order'] if 'sponsor_order' in primary.columns else ['bill_id']).drop_duplicates('bill_id')
+          sp=x.merge(primary[['bill_id','sponsor_name','sponsor_role_name']].drop_duplicates('bill_id'),on='bill_id',how='left')
+
+          sponsor_summary=[]
+          if 'sponsor_name' in sp.columns:
+              for sponsor,g in sp.dropna(subset=['sponsor_name']).groupby('sponsor_name'):
+                  sponsor_summary.append({
+                    'sponsor_name':str(sponsor),
+                    'bill_count':int(len(g)),
+                    'statuses':g['status'].fillna('UNKNOWN').value_counts().to_dict(),
+                    'median_stage_count':float(g['stage_count'].median()) if len(g) else None,
+                    'median_debate_count':float(g['debate_count'].median()) if len(g) else None,
+                    'max_stage_order_median':float(g['max_stage_order'].median()) if 'max_stage_order' in g else None,
+                  })
+          sponsor_summary=sorted(sponsor_summary,key=lambda r:(-r['bill_count'],-r['median_stage_count']))
+
+          # Bills with most debates/stages, useful as "most parliamentary attention" leads.
+          keep_cols=['bill_id','bill_year','bill_no','short_title','title','bill_type','status','introduced_date','last_event_date','stage_count','max_stage_order','debate_count','event_count','days_introduced_to_last_event','days_introduced_to_last_stage']
+          keep_cols=[c for c in keep_cols if c in x.columns]
+          most_debated=x.sort_values(['debate_count','stage_count'],ascending=False)[keep_cols].head(30)
+          most_stages=x.sort_values(['stage_count','debate_count'],ascending=False)[keep_cols].head(30)
+
+          # Slow-moving bills: introduced >=180 days before dataset snapshot, still with limited stage progression.
+          asof=max([d for d in [bills['last_event_date'].max(),stages['stage_date'].max() if len(stages) else pd.NaT] if pd.notna(d)])
+          x['age_days_at_asof']=(asof-x['introduced_date']).dt.days
+          slow=x[(x['age_days_at_asof']>=180)&(x['stage_count']<=2)].sort_values(['age_days_at_asof','stage_count'],ascending=[False,True])[keep_cols+['age_days_at_asof']].head(40)
+
+          # Fast progression: bills with >=3 stages, shortest introduced-to-last-stage interval.
+          fast=x[(x['stage_count']>=3)&x['days_introduced_to_last_stage'].notna()&x['days_introduced_to_last_stage'].ge(0)].sort_values('days_introduced_to_last_stage')[keep_cols].head(30)
+
+          # Stage names/outcomes frequency.
+          stage_names=stages['stage_name'].fillna('UNKNOWN').value_counts().rename_axis('stage_name').reset_index(name='count').head(30).to_dict(orient='records') if 'stage_name' in stages else []
+          stage_outcomes=stages['stage_outcome'].fillna('UNKNOWN').value_counts().rename_axis('stage_outcome').reset_index(name='count').head(30).to_dict(orient='records') if 'stage_outcome' in stages else []
+          event_names=events['event_name'].fillna('UNKNOWN').value_counts().rename_axis('event_name').reset_index(name='count').head(30).to_dict(orient='records') if 'event_name' in events else []
+
+          # Bills introduced by month for trend view.
+          bt=bills.dropna(subset=['introduced_date']).copy(); bt['month']=bt['introduced_date'].dt.to_period('M').astype(str)
+          month_counts=bt.groupby('month').size().rename('introduced_bills').reset_index().sort_values('month').to_dict(orient='records')
+
+          report={
+            'resolved_keys':resolved,
+            'as_of':str(asof.date()) if pd.notna(asof) else None,
+            'bill_count':int(len(bills)),
+            'stage_count':int(len(stages)),
+            'sponsor_rows':int(len(sponsors)),
+            'debate_links':int(len(debates)),
+            'event_rows':int(len(events)),
+            'bill_status_distribution':status_counts,
+            'bill_type_distribution':type_counts,
+            'bill_year_distribution':years,
+            'stage_name_distribution':stage_names,
+            'stage_outcome_distribution':stage_outcomes,
+            'event_name_distribution':event_names,
+            'bill_introductions_by_month':month_counts,
+            'top_primary_sponsors':sponsor_summary[:40],
+            'most_debated_bills':most_debated.to_dict(orient='records'),
+            'most_stage_events_bills':most_stages.to_dict(orient='records'),
+            'slow_moving_bills':slow.to_dict(orient='records'),
+            'fast_progressing_bills':fast.to_dict(orient='records'),
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          with open('analysis/legislation_opportunities.json','w') as fp: json.dump(report,fp,indent=2,sort_keys=True,default=str)
+          # compact summary
+          summary={k:report[k] for k in ['as_of','bill_count','stage_count','sponsor_rows','debate_links','event_rows','bill_status_distribution','bill_type_distribution','stage_outcome_distribution']}
+          summary.update({
+            'top_primary_sponsors':report['top_primary_sponsors'][:15],
+            'most_debated_bills':report['most_debated_bills'][:15],
+            'slow_moving_bills':report['slow_moving_bills'][:15],
+            'fast_progressing_bills':report['fast_progressing_bills'][:15],
+          })
+          with open('analysis/legislation_opportunities_summary.json','w') as fp: json.dump(summary,fp,indent=2,sort_keys=True,default=str)
+          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/legislation_opportunities*.json
+          git commit -m "Capture promoted legislation opportunity analysis ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
