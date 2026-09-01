@@ -9,7 +9,7 @@ import json
 import os
 import sys
 from calendar import monthrange
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -77,8 +77,7 @@ def _source_date_range(frames: dict[str, pd.DataFrame]) -> MetricPeriod:
 
 def _completed_month_periods(start: date, *, today: date) -> list[MetricPeriod]:
     first_this_month = today.replace(day=1)
-    last_completed_day = first_this_month - pd.Timedelta(days=1)
-    last_completed = last_completed_day.date()
+    last_completed = first_this_month - timedelta(days=1)
     cursor = start.replace(day=1)
     periods: list[MetricPeriod] = []
     while cursor <= last_completed:
