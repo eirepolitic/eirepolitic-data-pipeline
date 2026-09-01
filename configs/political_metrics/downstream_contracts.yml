@@ -16,6 +16,20 @@ logical_keys:
   daily_question_dimensions:
     csv: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv
     parquet: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/parquet/daily_question_dimensions.parquet
+  oral_question_sections:
+    csv: processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/oral_question_sections/parquet/oral_question_sections.parquet
+  speech_question_context:
+    csv: processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/speech_question_context/parquet/speech_question_context.parquet
+
+question_semantics:
+  parliamentary_question_record: A distinct Oireachtas question_id submitted by an eligible TD. Written and oral question records are both counted here.
+  written_parliamentary_question: A question record with Oireachtas question_type Written. It does not imply a transcript speech exchange.
+  oral_parliamentary_question: A question record with Oireachtas question_type Oral. Multiple oral question records can anchor the same debate_section_id.
+  oral_question_section: One debate section linked to one or more oral parliamentary-question records. It is the container for the related transcript exchange.
+  oral_question_related_speech: A normal silver_speeches transcript intervention whose debate_section_id is linked to at least one oral question record.
+  counting_rule: Never multiply a section's speech interventions by the number of oral question records sharing that section.
 
 consumer_dataset: monthly_metric_results
 consumer_rules:
@@ -30,6 +44,9 @@ consumer_rules:
   - never treat missing recorded votes as proof of attendance or absence
   - never replace historical party or constituency attribution with current affiliation
   - keep entity_id=dail and entity_id=eligible_tds as distinct national populations
+  - interpret question_count as distinct submitted parliamentary-question records, not question-led debate sections or speech interventions
+  - use oral_question_sections when the unit of analysis is the oral-question exchange rather than the submitted oral question record
+  - use speech_question_context to identify speech interventions occurring inside oral-question exchanges
 
 recommended_consumer_patterns:
   appsmith:
@@ -38,6 +55,7 @@ recommended_consumer_patterns:
       - metric cards
       - public tables
       - simple filters by month, entity, issue, question type, or recipient
+      - oral-question exchange drilldowns
   power_bi:
     default_format: parquet
     use_for:
@@ -45,6 +63,7 @@ recommended_consumer_patterns:
       - party and constituency comparisons
       - issue dashboards
       - voting and question dashboards
+      - oral-question section and related-speech models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -52,6 +71,7 @@ recommended_consumer_patterns:
       - precomputed completed-month endpoints
       - entity profiles
       - issue comparison endpoints
+      - oral-question exchange endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:
