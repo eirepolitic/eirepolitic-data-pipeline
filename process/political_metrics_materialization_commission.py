@@ -108,13 +108,14 @@ def _reliability_columns(frame: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def _monthly_results(
+def build_monthly_results(
     *,
     frames: dict[str, pd.DataFrame],
     period,
     source_batch_id: str,
     contract_version: int,
 ) -> pd.DataFrame:
+    """Build one completed calendar month's long-form public metric results."""
     speeches = canonical_speeches(frames["speeches"])
     period_speeches = filter_period(speeches, "debate_date", period)
     period_debates = filter_period(frames["debates"], "debate_date", period)
@@ -264,7 +265,7 @@ def main() -> int:
             contract_version=contract_version,
         ),
     }
-    monthly = _monthly_results(
+    monthly = build_monthly_results(
         frames=frames, period=period, source_batch_id=source_batch_id, contract_version=contract_version
     )
     foundations["monthly_metric_results"] = monthly
