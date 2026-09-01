@@ -24,9 +24,8 @@ def member_debate_day_exposure(
 ) -> pd.DataFrame:
     """Return eligible debate-day exposure for each member.
 
-    A member is eligible on a debate day when the day falls within at least one
-    active membership interval. Duplicate/overlapping membership rows do not
-    double-count the same member-day.
+    Oireachtas ranges are treated as start-inclusive/end-exclusive. A member is
+    eligible when ``start <= debate_day < end`` or the end is open.
     """
     days = _normalise_days(debate_days)
     if memberships.empty or days.empty:
@@ -46,7 +45,7 @@ def member_debate_day_exposure(
                 continue
             mask = days >= start
             if pd.notna(end):
-                mask &= days <= end
+                mask &= days < end
             eligible_dates.update(days[mask].tolist())
         records.append({member_col: member, "eligible_debate_days": len(eligible_dates)})
 
@@ -64,10 +63,8 @@ def group_member_debate_day_exposure(
 ) -> pd.DataFrame:
     """Calculate period-correct member-day exposure for a party or constituency.
 
-    The output deliberately includes both the raw number of member-debate-days
-    and a full-period member equivalent. A member who belongs to a group for half
-    of a 20-debate-day period contributes 10 member-debate-days, or 0.5 active
-    member equivalents.
+    Ranges are start-inclusive/end-exclusive. The output includes both raw
+    member-debate-days and full-period active-member equivalents.
     """
     days = _normalise_days(debate_days)
     columns = [group_col, "member_debate_days", "active_member_equivalent", "active_member_count"]
@@ -92,7 +89,7 @@ def group_member_debate_day_exposure(
         end = getattr(row, end_col)
         mask = days >= start
         if pd.notna(end):
-            mask &= days <= end
+            mask &= days < end
         member_days.setdefault((group, member), set()).update(days[mask].tolist())
 
     records: list[dict] = []
