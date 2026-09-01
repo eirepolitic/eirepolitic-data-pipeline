@@ -4,7 +4,7 @@ from dataclasses import dataclass, asdict
 
 import pandas as pd
 
-from .temporal_joins import attach_event_constituency, attach_event_party
+from .temporal_joins import attach_event_constituency, attach_event_membership, attach_event_party
 from .validators import temporal_join_coverage, validate_temporal_history
 
 
@@ -42,8 +42,11 @@ def temporal_overlap_examples(
     end_col: str,
     detail_columns: list[str] | None = None,
     limit: int = 10,
+    end_boundary: str = "exclusive",
 ) -> list[dict]:
-    """Return rows involved in overlapping temporal intervals for diagnosis."""
+    """Return rows involved in true temporal overlaps for diagnosis."""
+    if end_boundary not in {"exclusive", "inclusive"}:
+        raise ValueError(f"unsupported end boundary: {end_boundary}")
     if history.empty:
         return []
     data = history.copy()
@@ -56,12 +59,15 @@ def temporal_overlap_examples(
         ordered = group.sort_values(start_col)
         rows = list(ordered.to_dict(orient="records"))
         for idx, current in enumerate(rows):
-            current_start = current[start_col]
             current_end = current[end_col]
             for later in rows[idx + 1 :]:
                 later_start = later[start_col]
-                later_end = later[end_col]
-                overlaps = pd.isna(current_end) or later_start <= current_end
+                if pd.isna(current_end):
+                    overlaps = True
+                elif end_boundary == "exclusive":
+                    overlaps = later_start < current_end
+                else:
+                    overlaps = later_start <= current_end
                 if not overlaps:
                     break
                 record = {entity_col: entity}
@@ -101,6 +107,7 @@ def history_coverage(
         entity_col=entity_col,
         start_col=start_col,
         end_col=end_col,
+        end_boundary="exclusive",
     )
     overlaps = temporal_overlap_examples(
         data,
@@ -108,6 +115,7 @@ def history_coverage(
         start_col=start_col,
         end_col=end_col,
         detail_columns=detail_columns,
+        end_boundary="exclusive",
     )
     return HistoryCoverage(
         dataset=dataset,
@@ -121,32 +129,62 @@ def history_coverage(
     )
 
 
-def _unmatched_examples(joined: pd.DataFrame, history_value_col: str, *, limit: int = 10) -> list[dict]:
+def _speech_examples(frame: pd.DataFrame, *, limit: int = 10) -> list[dict]:
     columns = [
         "speech_id", "debate_id", "member_code", "event_date", "speaker_name",
         "speaker_ref", "speaker_match_method", "speaker_match_confidence",
     ]
-    return _serialize_records(joined.loc[joined[history_value_col].isna()], columns, limit=limit)
+    return _serialize_records(frame, columns, limit=limit)
+
+
+def _unmatched_examples(joined: pd.DataFrame, history_value_col: str, *, limit: int = 10) -> list[dict]:
+    return _speech_examples(joined.loc[joined[history_value_col].isna()], limit=limit)
 
 
 def speech_temporal_attribution_audit(
     speeches: pd.DataFrame,
     member_parties: pd.DataFrame,
     member_constituencies: pd.DataFrame,
+    member_memberships: pd.DataFrame | None = None,
     *,
     speech_date_col: str = "debate_date",
 ) -> dict:
-    """Measure how completely speeches can be assigned to historical political context."""
+    """Measure how completely TD speeches receive historical political context.
+
+    Identified speakers who never appear in the Dáil membership history are kept
+    as out-of-scope identified speakers rather than forced into TD statistics.
+    Identified members who do exist in the membership table but lack a membership
+    covering the speech date are treated as history gaps.
+    """
     base = speeches.copy()
     base = base[base["member_code"].notna()].copy()
     base["event_date"] = base[speech_date_col]
 
-    party_joined = attach_event_party(base, member_parties, event_date_col="event_date")
-    constituency_joined = attach_event_constituency(base, member_constituencies, event_date_col="event_date")
+    if member_memberships is not None:
+        known_dail_codes = set(member_memberships["member_code"].dropna().astype(str))
+        base_codes = base["member_code"].astype(str)
+        out_of_scope = base.loc[~base_codes.isin(known_dail_codes)].copy()
+        candidate_td = base.loc[base_codes.isin(known_dail_codes)].copy()
+        membership_joined = attach_event_membership(candidate_td, member_memberships, event_date_col="event_date")
+        membership_gap = membership_joined.loc[membership_joined["membership_id"].isna()].copy()
+        td_speeches = membership_joined.loc[membership_joined["membership_id"].notna()].copy()
+        if "chamber" in td_speeches.columns:
+            td_speeches = td_speeches[td_speeches["chamber"].fillna("").str.lower().eq("dail")].copy()
+    else:
+        out_of_scope = base.iloc[0:0].copy()
+        membership_gap = base.iloc[0:0].copy()
+        td_speeches = base.copy()
 
-    total_rows = int(len(base))
+    party_joined = attach_event_party(td_speeches, member_parties, event_date_col="event_date")
+    constituency_joined = attach_event_constituency(td_speeches, member_constituencies, event_date_col="event_date")
+
     return {
-        "attributable_speech_rows": total_rows,
+        "identified_speech_rows": int(len(base)),
+        "eligible_td_speech_rows": int(len(td_speeches)),
+        "out_of_scope_identified_speech_rows": int(len(out_of_scope)),
+        "membership_gap_speech_rows": int(len(membership_gap)),
+        "out_of_scope_identified_speech_examples": _speech_examples(out_of_scope),
+        "membership_gap_speech_examples": _speech_examples(membership_gap),
         "party_attribution_coverage": temporal_join_coverage(party_joined, "party_uri"),
         "constituency_attribution_coverage": temporal_join_coverage(constituency_joined, "constituency_uri"),
         "party_unmatched_rows": int(party_joined["party_uri"].isna().sum()),
@@ -161,15 +199,15 @@ def speech_count_reconciliation(
     *,
     speech_id_col: str = "speech_id",
 ) -> dict:
-    """Reconcile national speech totals with attributable and unattributed member speech rows."""
+    """Reconcile national speech totals with identified and unidentified speech rows."""
     total = int(speeches[speech_id_col].dropna().nunique()) if speech_id_col in speeches.columns else 0
     attributable = speeches.loc[speeches["member_code"].notna(), speech_id_col].dropna().nunique() if "member_code" in speeches.columns else 0
     attributable = int(attributable)
     unattributed = total - attributable
     return {
         "national_distinct_speeches": total,
-        "attributable_member_speeches": attributable,
-        "unattributed_speeches": unattributed,
+        "identified_member_speeches": attributable,
+        "unidentified_speeches": unattributed,
         "member_attribution_coverage": (attributable / total) if total else 1.0,
         "reconciles": total == attributable + unattributed,
     }
