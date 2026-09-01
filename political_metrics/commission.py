@@ -88,7 +88,7 @@ def calculate_core_speech_metrics(
         group_col="constituency_uri",
         group_exposure=constituency_exposure,
     )
-    national = national_speech_metrics(period_speeches)
+    national = national_speech_metrics(period_speeches, debate_days=debate_days)
 
     return {
         "period_speeches": period_speeches,
