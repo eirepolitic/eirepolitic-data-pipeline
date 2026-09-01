@@ -35,6 +35,11 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install boto3 pandas
+      - name: Test political metrics foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
       - name: Create read-only inventory
         shell: bash
         run: |
@@ -60,14 +65,22 @@ jobs:
           message = (
               f"ready={c['ready_for_historical_public_speech_metrics']}; "
               f"speech_dates={d['min']}..{d['max']}; "
-              f"party_coverage={a['party_attribution_coverage']:.6f}; party_unmatched={a['party_unmatched_rows']}; "
-              f"constituency_coverage={a['constituency_attribution_coverage']:.6f}; constituency_unmatched={a['constituency_unmatched_rows']}; "
-              f"member_coverage={s['member_attribution_coverage']:.6f}; "
+              f"eligible_td_speeches={a['eligible_td_speech_rows']}; "
+              f"out_of_scope_identified={a['out_of_scope_identified_speech_rows']}; "
+              f"membership_gaps={a['membership_gap_speech_rows']}; "
+              f"party_coverage={a['party_attribution_coverage']:.6f}; "
+              f"constituency_coverage={a['constituency_attribution_coverage']:.6f}; "
+              f"identified_speaker_coverage={s['member_attribution_coverage']:.6f}; "
+              f"membership_start={h['silver_member_memberships']['min_start']}; "
+              f"party_start={h['silver_member_parties']['min_start']}; "
+              f"constituency_start={h['silver_member_constituencies']['min_start']}; "
               f"failed_checks={[k for k,v in c['checks'].items() if not v]}"
           )
           print(f"::notice title=Political metrics historical audit::{message}")
           diagnostic = {
               'party_overlap_examples': h['silver_member_parties'].get('overlap_examples', [])[:10],
+              'membership_gap_examples': a.get('membership_gap_speech_examples', [])[:10],
+              'out_of_scope_identified_examples': a.get('out_of_scope_identified_speech_examples', [])[:10],
               'party_unmatched_examples': a.get('party_unmatched_examples', [])[:10],
               'constituency_unmatched_examples': a.get('constituency_unmatched_examples', [])[:10],
           }
@@ -81,6 +94,7 @@ jobs:
             cat artifacts/political-metrics-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Upload baseline audit
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
