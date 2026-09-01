@@ -71,26 +71,46 @@ def grouped_speech_metrics(
     speeches: pd.DataFrame,
     *,
     group_col: str,
+    group_exposure: pd.DataFrame | None = None,
     date_col: str = "debate_date",
     speech_id_col: str = "speech_id",
 ) -> pd.DataFrame:
-    """Calculate reusable party/constituency speech counts after temporal attribution.
+    """Calculate party/constituency speech measures after temporal attribution.
 
-    This function returns observed groups. Materialization should join these results
-    to the period-correct eligible party/constituency universe when explicit zero
-    rows are required.
+    If exposure is supplied, eligible groups with no speeches are retained with a
+    zero speech count and an exposure-adjusted speeches-per-active-member value.
     """
     data = _prepare_speeches(speeches, date_col=date_col, speech_id_col=speech_id_col)
-    data = data[data[group_col].notna()].copy()
-    if data.empty:
-        return pd.DataFrame(columns=[group_col, "speech_count", "speaking_member_count", "share_of_dail_speeches"])
+    observed = data[data[group_col].notna()].copy()
 
-    grouped = data.groupby(group_col, dropna=False).agg(
+    grouped = observed.groupby(group_col, dropna=False).agg(
         speech_count=(speech_id_col, "nunique"),
         speaking_member_count=("member_code", "nunique"),
     ).reset_index()
-    total = int(data[speech_id_col].nunique())
-    grouped["share_of_dail_speeches"] = grouped["speech_count"] / total if total else pd.NA
+
+    if group_exposure is not None:
+        required = {group_col, "active_member_equivalent", "active_member_count"}
+        missing = sorted(required - set(group_exposure.columns))
+        if missing:
+            raise ValueError(f"group exposure missing required columns: {missing}")
+        eligible = group_exposure.copy()
+        grouped = eligible.merge(grouped, on=group_col, how="left")
+        grouped["speech_count"] = grouped["speech_count"].fillna(0).astype(int)
+        grouped["speaking_member_count"] = grouped["speaking_member_count"].fillna(0).astype(int)
+        grouped["speeches_per_active_member"] = grouped["speech_count"].div(
+            grouped["active_member_equivalent"].replace(0, pd.NA)
+        ).astype("Float64")
+    elif grouped.empty:
+        return pd.DataFrame(columns=[
+            group_col, "speech_count", "speaking_member_count",
+            "share_of_dail_speeches", "speeches_per_active_member",
+        ])
+    else:
+        grouped["speeches_per_active_member"] = pd.NA
+
+    total = int(observed[speech_id_col].nunique())
+    grouped["share_of_dail_speeches"] = (grouped["speech_count"] / total) if total else pd.NA
+
     return grouped.sort_values(["speech_count", group_col], ascending=[False, True]).reset_index(drop=True)
 
 
