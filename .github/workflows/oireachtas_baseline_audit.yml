@@ -4,154 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  audit:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Audit question and speech section relationships
+          cache: pip
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io, json, os
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={
-            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
-            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
-            'sections':'processed/oireachtas_unified/latest/csv/silver_debate_sections.csv',
-          }
-          frames={}; resolved={}
-          for name,key in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=key)
-              resolved[name]=r
-              obj=s3.get_object(Bucket=bucket,Key=r)
-              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-
-          q=frames['questions'].copy(); s=frames['speeches'].copy(); sec=frames['sections'].copy()
-          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
-          s['debate_date']=pd.to_datetime(s['debate_date'],errors='coerce')
-          q['question_type_norm']=q['question_type'].fillna('').astype(str).str.lower().str.strip()
-
-          speech_by_section=s.groupby('debate_section_id').agg(
-              speech_rows=('speech_id','size'),
-              distinct_speakers=('speaker_member_code','nunique'),
-              first_debate_date=('debate_date','min'),
-          ).reset_index()
-          section_heading={}
-          if 'debate_section_id' in sec.columns:
-              heading_col='show_as' if 'show_as' in sec.columns else ('heading' if 'heading' in sec.columns else None)
-              if heading_col:
-                  section_heading=dict(zip(sec['debate_section_id'].astype(str),sec[heading_col].fillna('').astype(str)))
-
-          def scope(df,label):
-              x=df.merge(speech_by_section,on='debate_section_id',how='left')
-              x['speech_rows']=pd.to_numeric(x['speech_rows'],errors='coerce').fillna(0).astype(int)
-              x['has_related_speeches']=x['speech_rows']>0
-              sec_counts=df.groupby('debate_section_id').size().rename('question_rows_in_section').reset_index()
-              unique_sections=int(df['debate_section_id'].nunique())
-              multi=sec_counts[sec_counts.question_rows_in_section>1]
-              by_type=[]
-              for typ,g in x.groupby('question_type',dropna=False):
-                  by_type.append({
-                    'question_type':None if pd.isna(typ) else str(typ),
-                    'question_rows':int(len(g)),
-                    'unique_question_ids':int(g.question_id.nunique()),
-                    'unique_debate_sections':int(g.debate_section_id.nunique()),
-                    'questions_with_related_speech_rows':int(g.has_related_speeches.sum()),
-                    'share_with_related_speech_rows':float(g.has_related_speeches.mean()) if len(g) else None,
-                    'related_speech_rows_sum':int(g.speech_rows.sum()),
-                    'median_related_speech_rows_when_present':float(g.loc[g.speech_rows>0,'speech_rows'].median()) if (g.speech_rows>0).any() else None,
-                  })
-              largest=[]
-              joined=sec_counts.merge(speech_by_section,on='debate_section_id',how='left').fillna({'speech_rows':0,'distinct_speakers':0})
-              joined['heading']=joined.debate_section_id.astype(str).map(section_heading).fillna('')
-              for r in joined.sort_values(['question_rows_in_section','speech_rows'],ascending=False).head(25).itertuples(index=False):
-                  largest.append({
-                    'debate_section_id':str(r.debate_section_id),
-                    'heading':str(r.heading),
-                    'question_rows_in_section':int(r.question_rows_in_section),
-                    'speech_rows_in_section':int(r.speech_rows),
-                    'distinct_speakers':int(r.distinct_speakers),
-                  })
-              return {
-                'label':label,
-                'question_rows':int(len(df)),
-                'unique_question_ids':int(df.question_id.nunique()),
-                'unique_debate_sections':unique_sections,
-                'questions_per_unique_section':float(len(df)/unique_sections) if unique_sections else None,
-                'sections_with_multiple_question_rows':int(len(multi)),
-                'question_rows_in_multiquestion_sections':int(multi.question_rows_in_section.sum()),
-                'question_rows_with_related_speech_rows':int(x.has_related_speeches.sum()),
-                'share_question_rows_with_related_speech_rows':float(x.has_related_speeches.mean()) if len(x) else None,
-                'distinct_question_sections_with_speeches':int(x.loc[x.has_related_speeches,'debate_section_id'].nunique()),
-                'related_speech_rows_sum_over_question_rows':int(x.speech_rows.sum()),
-                'by_question_type':sorted(by_type,key=lambda z:-(z['question_rows'] or 0)),
-                'largest_question_sections':largest,
-              }
-
-          july=q[(q.question_date>=pd.Timestamp('2026-07-01'))&(q.question_date<=pd.Timestamp('2026-07-31'))].copy()
-          oral=july[july.question_type_norm.str.contains('oral',na=False)].copy()
-          written=july[july.question_type_norm.str.contains('written',na=False)].copy()
-
-          # Speech-side view: how many speech rows sit in any question-linked debate section.
-          q_sections=set(q.debate_section_id.dropna().astype(str))
-          july_q_sections=set(july.debate_section_id.dropna().astype(str))
-          sj=s[(s.debate_date>=pd.Timestamp('2026-07-01'))&(s.debate_date<=pd.Timestamp('2026-07-31'))].copy()
-          sj['in_question_linked_section']=sj.debate_section_id.astype(str).isin(july_q_sections)
-
-          # Test whether source XML URLs are question-specific or heavily shared.
-          source_stats={}
-          for name,df in [('all_questions',q),('july',july),('july_oral',oral),('july_written',written)]:
-              source_stats[name]={
-                'rows':int(len(df)),
-                'unique_source_xml_urls':int(df.source_xml_url.nunique()) if 'source_xml_url' in df.columns else None,
-                'rows_per_unique_source_xml_url':float(len(df)/df.source_xml_url.nunique()) if 'source_xml_url' in df.columns and df.source_xml_url.nunique() else None,
-                'unique_debate_section_ids':int(df.debate_section_id.nunique()),
-              }
-
-          report={
-            'resolved_keys':resolved,
-            'all_history':scope(q,'all_history'),
-            'july_2026':scope(july,'july_2026'),
-            'july_oral':scope(oral,'july_oral'),
-            'july_written':scope(written,'july_written'),
-            'july_speech_side':{
-              'speech_rows':int(len(sj)),
-              'speech_rows_in_question_linked_sections':int(sj.in_question_linked_section.sum()),
-              'share_speech_rows_in_question_linked_sections':float(sj.in_question_linked_section.mean()) if len(sj) else None,
-              'question_linked_sections_represented_in_speeches':int(sj.loc[sj.in_question_linked_section,'debate_section_id'].nunique()),
-            },
-            'source_xml_stats':source_stats,
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/question_section_relationship_audit.json').write_text(json.dumps(report,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(report,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist audit
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_section_relationship_audit.json
-          git commit -m "Capture question section relationship audit ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
