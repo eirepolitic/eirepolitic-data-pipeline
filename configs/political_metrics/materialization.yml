@@ -1,0 +1,151 @@
+contract_version: 1
+batch_root: processed/oireachtas_unified/batches
+
+principles:
+  - metric outputs belong to the same immutable Oireachtas batch as their canonical source data
+  - daily foundations contain additive components, not presentation wording
+  - completed-month results contain validated metric values and their calculation components
+  - arbitrary date ranges are recalculated from foundations rather than summed from percentages or ranks
+  - promotion must never mix a metric output with a different source_batch_id
+
+reliability_values:
+  - reliable
+  - caution
+  - insufficient_for_comparison
+  - not_applicable
+
+public_use_values:
+  - suitable
+  - suitable_with_context
+  - internal_only
+  - not_certified
+
+common_provenance_columns:
+  - source_batch_id
+  - calculated_at_utc
+  - contract_version
+
+foundation_datasets:
+  daily_activity_components:
+    description: Additive daily counts and exposure components used for speech, question and recorded-voting activity metrics.
+    cadence: daily
+    formats: [csv, parquet]
+    primary_key: [activity_date, grain, entity_id, component_id]
+    columns:
+      - activity_date
+      - grain
+      - entity_id
+      - component_id
+      - component_value
+      - source_batch_id
+      - component_version
+      - calculated_at_utc
+      - contract_version
+    allowed_grains: [member, party, constituency, national]
+    allowed_components:
+      - speech_count
+      - policy_speech_count
+      - speaking_day_count
+      - debate_day_count
+      - member_debate_day_exposure
+      - question_count
+      - recorded_vote_count
+      - eligible_member_division_count
+      - division_count
+
+  daily_issue_activity:
+    description: Additive daily issue counts by supported political grain.
+    cadence: daily
+    formats: [csv, parquet]
+    primary_key: [activity_date, grain, entity_id, issue_label]
+    columns:
+      - activity_date
+      - grain
+      - entity_id
+      - issue_label
+      - issue_speech_count
+      - policy_speech_count
+      - source_batch_id
+      - component_version
+      - calculated_at_utc
+      - contract_version
+    allowed_grains: [member, party, constituency, national]
+
+  division_party_vote_components:
+    description: Division-level party vote distributions required to recompute party voting unity for arbitrary periods.
+    cadence: event
+    formats: [csv, parquet]
+    primary_key: [division_id, party_uri, vote_code]
+    columns:
+      - division_id
+      - division_date
+      - party_uri
+      - vote_code
+      - recorded_vote_count
+      - source_batch_id
+      - component_version
+      - calculated_at_utc
+      - contract_version
+    allowed_vote_codes: [ta, nil, staon]
+
+  daily_question_dimensions:
+    description: Additive daily parliamentary-question counts by question type and recorded recipient.
+    cadence: daily
+    formats: [csv, parquet]
+    primary_key: [activity_date, grain, entity_id, dimension_name, dimension_value]
+    columns:
+      - activity_date
+      - grain
+      - entity_id
+      - dimension_name
+      - dimension_value
+      - question_count
+      - source_batch_id
+      - component_version
+      - calculated_at_utc
+      - contract_version
+    allowed_grains: [member, party, constituency, national]
+    allowed_dimension_names: [question_type, question_recipient]
+
+result_datasets:
+  monthly_metric_results:
+    description: Long-form completed-calendar-month metric results for dashboards, APIs, Appsmith, Power BI and other consumers.
+    cadence: completed_month
+    formats: [csv, parquet]
+    primary_key:
+      - metric_id
+      - metric_version
+      - period_start
+      - period_end
+      - grain
+      - entity_id
+      - dimension_name
+      - dimension_value
+    columns:
+      - metric_id
+      - metric_version
+      - period_type
+      - period_start
+      - period_end
+      - grain
+      - entity_id
+      - entity_name
+      - dimension_name
+      - dimension_value
+      - value
+      - numerator
+      - denominator
+      - output_unit
+      - reliability_status
+      - public_use_status
+      - warning_code
+      - source_batch_id
+      - calculated_at_utc
+      - contract_version
+    period_type: calendar_month
+
+storage:
+  batch_key_template: processed/oireachtas_unified/batches/{batch_id}/metrics/{cadence}/{dataset}/{format}/{dataset}.{extension}
+  entry_name_template: political_metrics_{dataset}
+  monthly_results_are_rebuilt: true
+  daily_foundations_are_rebuilt_from_batch_sources: true

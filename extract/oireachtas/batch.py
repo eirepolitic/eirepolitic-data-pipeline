@@ -21,6 +21,11 @@ _BATCH_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _LATEST_PATTERN = re.compile(
     r"^processed/oireachtas_unified/latest/(?P<format>csv|parquet)/(?P<table>[^/]+)\.(?P<extension>csv|parquet)$"
 )
+_METRICS_LATEST_PATTERN = re.compile(
+    r"^processed/oireachtas_unified/latest/metrics/(?P<cadence>daily|event|completed_month)/"
+    r"(?P<dataset>[A-Za-z0-9][A-Za-z0-9._-]*)/(?P<format>csv|parquet)/"
+    r"(?P<filename>[A-Za-z0-9][A-Za-z0-9._-]*)\.(?P<extension>csv|parquet)$"
+)
 _REVIEW_LATEST_PATTERN = re.compile(
     r"^processed/oireachtas_unified/review/(?P<table>[^/]+)/latest/(?P<filename>[^/]+)$"
 )
@@ -58,6 +63,17 @@ def batch_key_for_production_key(key: str, batch_id: str) -> str:
         return (
             f"{BATCH_ROOT}/{batch_id}/tables/{latest.group('table')}/"
             f"{latest.group('format')}/{latest.group('table')}.{latest.group('extension')}"
+        )
+    metrics = _METRICS_LATEST_PATTERN.fullmatch(key)
+    if metrics:
+        if metrics.group("filename") != metrics.group("dataset"):
+            raise ValueError(f"Metric filename must match dataset name: {key!r}")
+        if metrics.group("format") != metrics.group("extension"):
+            raise ValueError(f"Metric extension must match format: {key!r}")
+        return (
+            f"{BATCH_ROOT}/{batch_id}/metrics/{metrics.group('cadence')}/"
+            f"{metrics.group('dataset')}/{metrics.group('format')}/"
+            f"{metrics.group('dataset')}.{metrics.group('extension')}"
         )
     compat_prefix = "processed/oireachtas_unified/compat/"
     if key.startswith(compat_prefix):

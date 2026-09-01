@@ -137,18 +137,13 @@ jobs:
               2>&1 | tee -a oireachtas_refresh.log
           done
       - name: Classify unified speech issue enrichment
-        if: inputs.classify_speeches
+        if: inputs.publish_candidate && (inputs.classify_speeches || steps.inputs.outputs.changes_speeches == 'true')
         shell: bash
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ inputs.speech_classifier_model }}
-          TABLES: ${{ steps.inputs.outputs.tables }}
         run: |
           set -euo pipefail
-          case ",${TABLES}," in
-            *,silver_speeches,*) ;;
-            *) echo 'classify_speeches requires silver_speeches in the refresh table set' >&2; exit 2 ;;
-          esac
           python -m pip install 'openai>=3.6.0,<4'
           success=false
           for pass in 1 2 3 4; do
@@ -166,6 +161,16 @@ jobs:
             echo "Classifier pass ${pass} left failed rows; resuming from checkpoint."
           done
           [[ "$success" == true ]]
+      - name: Build political metrics inside candidate batch
+        if: inputs.publish_candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_materialize_candidate.py \
+            --batch-id "${OIREACHTAS_BATCH_ID}" \
+            --bucket "${S3_BUCKET}" \
+            --region "${AWS_REGION}" \
+            --report-path political_metrics_candidate_report.json
       - name: Assemble candidate batch manifest
         if: inputs.publish_candidate
         shell: bash
@@ -179,9 +184,14 @@ jobs:
             table="${table//[[:space:]]/}"
             args+=(--required-table "${table}")
           done
-          if [[ '${{ inputs.classify_speeches }}' == 'true' ]]; then
+          if [[ '${{ inputs.classify_speeches }}' == 'true' || '${{ steps.inputs.outputs.changes_speeches }}' == 'true' ]]; then
             args+=(--required-table enrichment_speech_issue_labels)
           fi
+          args+=(--required-table political_metrics_daily_activity_components)
+          args+=(--required-table political_metrics_daily_issue_activity)
+          args+=(--required-table political_metrics_division_party_vote_components)
+          args+=(--required-table political_metrics_daily_question_dimensions)
+          args+=(--required-table political_metrics_monthly_metric_results)
           OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas_batch_manifest.json
       - name: Record workflow result
         id: result
@@ -202,8 +212,10 @@ jobs:
             echo "- Batch ID: `${OIREACHTAS_BATCH_ID}`"
             echo "- Candidate publishing: `${{ inputs.publish_candidate }}`"
             echo "- Seeded from production: `${{ inputs.seed_from_production }}`"
-            echo "- Speech classification: `${{ inputs.classify_speeches }}`"
+            echo "- Speech data changed: `${{ steps.inputs.outputs.changes_speeches || 'unknown' }}`"
+            echo "- Speech classification force-run: `${{ inputs.classify_speeches }}`"
             echo "- Speech classifier model: `${{ inputs.speech_classifier_model }}`"
+            echo "- Political metrics required in candidate: `${{ inputs.publish_candidate }}`"
             echo "- Tables refreshed: `${{ steps.inputs.outputs.table_count || 'unknown' }}`"
             echo
             echo '```text'
@@ -222,5 +234,6 @@ jobs:
             oireachtas_refresh_inputs.json
             oireachtas_batch_manifest.json
             speech_issue_classifier_report.json
+            political_metrics_candidate_report.json
           if-no-files-found: warn
           retention-days: 90

@@ -1,0 +1,189 @@
+catalogue_version: 1
+metrics:
+  - metric_id: member_speech_count
+    metric_version: 1
+    status: draft
+    public_name: Speeches
+    public_question: How many recorded Dáil speeches did this TD make in the selected period?
+    public_explanation: Counts the TD's distinct recorded speeches during the selected period.
+    public_interpretation: A higher number means the TD spoke more often in recorded Dáil debate during the period.
+    public_caveat: Speaking more often does not by itself show effectiveness, influence, attendance, or quality.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships]
+    numerator: distinct eligible speech_id for the member
+    denominator: null
+    formula: count_distinct(speech_id)
+    period_behavior: filter speeches by debate_date within the inclusive resolved period
+    historical_join_policy: speaker must have an active Dáil membership on the speech date; Oireachtas history ranges use start-inclusive/end-exclusive dates
+    zero_policy: return 0 for an eligible active member with no speeches
+    missing_policy: speeches by identified non-TDs remain in national activity but are excluded from TD results; missing TD history is a validation failure
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+    validation_rules:
+      - speech_id must be unique at canonical speech grain
+      - member attribution coverage must be reported
+
+  - metric_id: member_speaking_day_count
+    metric_version: 1
+    status: draft
+    public_name: Speaking days
+    public_question: On how many Dáil debate days did this TD speak?
+    public_explanation: Counts distinct debate dates on which the TD made at least one recorded speech while they were an active Dáil member.
+    public_interpretation: A higher number means the TD spoke on more separate debate days.
+    public_caveat: This is not an attendance measure; a TD can attend without speaking.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships]
+    numerator: distinct debate_date with at least one eligible TD speech
+    denominator: null
+    formula: count_distinct(debate_date)
+    period_behavior: filter by resolved period
+    historical_join_policy: speaker must have an active Dáil membership on the speech date
+    zero_policy: return 0 for an eligible active member with no speaking days
+    missing_policy: speeches by identified non-TDs do not contribute to TD metrics
+    output_unit: days
+    additivity: non_additive_when_periods_overlap
+    refresh_frequency: source_batch
+
+  - metric_id: member_speeches_per_eligible_debate_day
+    metric_version: 1
+    status: draft
+    public_name: Speeches per available debate day
+    public_question: How frequently did this TD speak relative to the Dáil debate days when they were an active member?
+    public_explanation: Divides the TD's speech count by the number of Dáil debate days that fell within their active membership period.
+    public_interpretation: This makes comparisons fairer for TDs who joined or left during the selected period.
+    public_caveat: An eligible debate day is not proof that the TD attended that day.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships, silver_debate_records]
+    numerator: member_speech_count
+    denominator: member_eligible_debate_day_count
+    formula: member_speech_count / member_eligible_debate_day_count
+    period_behavior: denominator uses distinct Dáil debate dates inside both the selected period and member membership interval
+    historical_join_policy: period-correct Dáil membership required; source history ranges use start-inclusive/end-exclusive dates
+    zero_policy: null when denominator is zero
+    missing_policy: null when membership history cannot establish eligibility
+    output_unit: speeches_per_day
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: member_share_of_national_speeches
+    metric_version: 1
+    status: draft
+    public_name: Share of TD speeches
+    public_question: What share of recorded TD speeches came from this TD?
+    public_explanation: Shows the TD's share of recorded speeches made by people who were active Dáil members on the speech date.
+    public_interpretation: A value of 5% means one in twenty eligible TD speeches came from that TD.
+    public_caveat: This measures speaking volume, not the importance or length of speeches. Speeches by non-TD participants are outside this denominator.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships]
+    numerator: member_speech_count
+    denominator: distinct eligible TD speeches nationally
+    formula: member_speech_count / national_eligible_td_speech_count
+    period_behavior: numerator and denominator use the same resolved period
+    historical_join_policy: speaker must have an active Dáil membership on speech date
+    zero_policy: return 0 for eligible members when national denominator is positive
+    missing_policy: null when national denominator is zero
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: party_speech_count
+    metric_version: 1
+    status: draft
+    public_name: Party speeches
+    public_question: How many recorded Dáil speeches were made by TDs listed by the Oireachtas under this party at the time?
+    public_explanation: Counts eligible TD speeches using the party affiliation recorded by Oireachtas data for the date of each speech.
+    public_interpretation: A higher number means TDs listed under the party collectively spoke more often in recorded Dáil debate.
+    public_caveat: Oireachtas-listed affiliation is used for consistent historical statistics and may not always describe a party's separate internal membership or disciplinary status. Larger parties also have more opportunities to produce speeches.
+    public_use_status: suitable_with_context
+    grain: party
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_parties]
+    affiliation_basis: oireachtas_listed_affiliation
+    numerator: distinct eligible TD speeches attributed using the Oireachtas-listed party valid on the speech date
+    denominator: null
+    formula: count_distinct(speech_id)
+    period_behavior: filter speeches by resolved period
+    historical_join_policy: require active Dáil membership and event-date Oireachtas-listed party; source history ranges use start-inclusive/end-exclusive dates; current affiliation must never overwrite historical affiliation
+    zero_policy: return 0 for an eligible party with no speeches
+    missing_policy: a TD speech without a valid historical party match is a validation gap and is not silently assigned using current affiliation
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: constituency_speech_count
+    metric_version: 1
+    status: draft
+    public_name: Constituency speeches
+    public_question: How many recorded Dáil speeches were made by TDs representing this constituency at the time?
+    public_explanation: Counts eligible TD speeches using the constituency each TD represented on the date of the speech.
+    public_interpretation: A higher number means the constituency's representatives collectively spoke more often in recorded Dáil debate.
+    public_caveat: Constituencies with more representatives can naturally record more speeches, so per-representative comparisons may be fairer.
+    public_use_status: suitable_with_context
+    grain: constituency
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_member_memberships, silver_member_constituencies]
+    numerator: distinct eligible TD speeches attributed using constituency representation valid on speech date
+    denominator: null
+    formula: count_distinct(speech_id)
+    period_behavior: filter speeches by resolved period
+    historical_join_policy: require active Dáil membership and event-date constituency representation; source history ranges use start-inclusive/end-exclusive dates; current constituency must never overwrite historical representation
+    zero_policy: return 0 for an eligible constituency with no speeches
+    missing_policy: a TD speech without a valid historical constituency match is a validation gap and is not silently assigned using current representation
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: national_speech_count
+    metric_version: 1
+    status: draft
+    public_name: Dáil speeches
+    public_question: How many recorded speeches were made in the Dáil during the selected period?
+    public_explanation: Counts distinct canonical speech records in the selected period, including recorded contributions by participants who are not TDs.
+    public_interpretation: Useful for showing overall parliamentary speaking activity and comparing periods.
+    public_caveat: This is broader than TD-only measures. Changes in the number or length of debate days can also affect totals.
+    public_use_status: suitable_with_context
+    grain: national
+    dimensions: [period]
+    required_sources: [silver_speeches]
+    numerator: distinct speech_id
+    denominator: null
+    formula: count_distinct(speech_id)
+    period_behavior: filter by debate_date within resolved period
+    historical_join_policy: none required for national count
+    zero_policy: return 0 when the period contains no speeches
+    missing_policy: canonical source validation applies
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: national_speeches_per_debate_day
+    metric_version: 1
+    status: draft
+    public_name: Speeches per debate day
+    public_question: How much recorded speaking activity occurred on an average Dáil debate day?
+    public_explanation: Divides all recorded speeches by the number of distinct Dáil debate dates in the period.
+    public_interpretation: Useful for comparing activity across periods of different lengths.
+    public_caveat: Debate days can differ greatly in duration and agenda, so this is a simple activity rate rather than a measure of workload or productivity.
+    public_use_status: suitable_with_context
+    grain: national
+    dimensions: [period]
+    required_sources: [silver_speeches, silver_debate_records]
+    numerator: national_speech_count
+    denominator: distinct Dáil debate dates
+    formula: national_speech_count / period_debate_day_count
+    period_behavior: numerator and denominator use the same resolved period
+    historical_join_policy: none required
+    zero_policy: return null when denominator is zero
+    missing_policy: null when debate-day coverage is unavailable
+    output_unit: speeches_per_day
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch

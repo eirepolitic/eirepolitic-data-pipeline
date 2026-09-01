@@ -96,6 +96,7 @@ def normalize(args: argparse.Namespace) -> dict[str, object]:
         "page_size": page_size,
         "sample_rows": sample_rows,
         "table_count": len(requested),
+        "changes_speeches": "true" if "silver_speeches" in requested else "false",
     }
 
 

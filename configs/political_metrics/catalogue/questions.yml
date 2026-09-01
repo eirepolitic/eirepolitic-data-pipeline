@@ -1,0 +1,128 @@
+catalogue_version: 1
+metrics:
+  - metric_id: member_question_count
+    metric_version: 1
+    status: draft
+    public_name: Parliamentary questions submitted
+    public_question: How many recorded parliamentary questions did this TD submit during the period?
+    public_explanation: Counts distinct parliamentary questions recorded for the TD while they were an active Dáil member.
+    public_interpretation: A higher number means the TD submitted more recorded parliamentary questions during the selected period.
+    public_caveat: Question volume does not by itself show effectiveness, importance, quality, or whether a satisfactory answer was received.
+    public_use_status: suitable_with_context
+    grain: member
+    dimensions: [period]
+    required_sources: [silver_questions, silver_member_memberships]
+    numerator: distinct question_id submitted by the eligible TD
+    denominator: null
+    formula: count_distinct(question_id)
+    historical_join_policy: asker must have active Dáil membership on question_date
+    zero_policy: return 0 for an eligible TD with no recorded questions when the eligible-member universe is materialized
+    missing_policy: questions from a known TD outside valid membership history are a validation failure
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: party_question_count
+    metric_version: 1
+    status: draft
+    public_name: Party parliamentary questions
+    public_question: How many recorded parliamentary questions were submitted by TDs listed under this party at the time?
+    public_explanation: Counts questions using the Oireachtas-listed party affiliation of each eligible TD on the date of the question.
+    public_interpretation: Shows the party's total recorded parliamentary-question activity during the period.
+    public_caveat: Larger parties have more TDs and therefore more opportunity to submit questions. This total should not be treated as a size-adjusted comparison between parties.
+    public_use_status: suitable_with_context
+    grain: party
+    dimensions: [period]
+    required_sources: [silver_questions, silver_member_memberships, silver_member_parties]
+    affiliation_basis: oireachtas_listed_affiliation
+    numerator: distinct eligible TD questions attributed to event-date party
+    denominator: null
+    formula: count_distinct(question_id)
+    historical_join_policy: active Dáil membership plus Oireachtas-listed party on question_date
+    zero_policy: return 0 for eligible parties with no questions when the eligible-party universe is materialized
+    missing_policy: missing historical party context is a validation failure and is never replaced with current affiliation
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: constituency_question_count
+    metric_version: 1
+    status: draft
+    public_name: Parliamentary questions from constituency TDs
+    public_question: How many recorded parliamentary questions were submitted by TDs representing this constituency at the time?
+    public_explanation: Counts questions using the constituency represented by each eligible TD on the question date.
+    public_interpretation: Shows recorded parliamentary-question activity by the constituency's TDs during the period.
+    public_caveat: Constituencies can have different numbers of TDs, and question volume is not a complete measure of constituency representation work.
+    public_use_status: suitable_with_context
+    grain: constituency
+    dimensions: [period]
+    required_sources: [silver_questions, silver_member_memberships, silver_member_constituencies]
+    numerator: distinct eligible TD questions attributed to event-date constituency
+    denominator: null
+    formula: count_distinct(question_id)
+    historical_join_policy: active Dáil membership plus constituency representation on question_date
+    zero_policy: return 0 for eligible constituencies with no questions when the eligible-constituency universe is materialized
+    missing_policy: missing historical constituency context is a validation failure
+    output_unit: count
+    additivity: additive_across_non_overlapping_periods
+    refresh_frequency: source_batch
+
+  - metric_id: question_type_share
+    metric_version: 1
+    status: draft
+    public_name: Share of questions by type
+    public_question: What kinds of parliamentary questions were submitted during the period?
+    public_explanation: Shows the share of recorded questions belonging to each Oireachtas question type, such as written or oral where those values are present in the source data.
+    public_interpretation: Helps describe the mix of parliamentary-question activity without treating one type as inherently better than another.
+    public_caveat: Question-type labels are taken directly from the Oireachtas source and may change or contain categories that need separate explanation.
+    public_use_status: suitable_with_context
+    grain: selectable_national_member_party_or_constituency
+    dimensions: [period, question_type]
+    required_sources: [silver_questions]
+    numerator: distinct questions of selected type
+    denominator: distinct questions with a populated question type in the same comparison scope
+    formula: question_type_count / typed_question_count
+    zero_policy: return 0 when denominator is positive and selected type has no questions
+    missing_policy: questions without a populated type are excluded from this distribution and their count should be reported as coverage context
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch
+
+  - metric_id: question_recipient_count
+    metric_version: 1
+    status: draft
+    public_name: Ministers or departments questioned
+    public_question: How many different recorded ministers or departments received questions from this TD, party or constituency group?
+    public_explanation: Counts distinct recipient labels in the Oireachtas question data for the selected scope and period.
+    public_interpretation: A higher number means questions were directed across a broader range of recorded recipients.
+    public_caveat: Recipient labels may reflect ministerial titles, departments or source naming conventions and should not be interpreted as a formal diversity score.
+    public_use_status: suitable_with_context
+    grain: selectable_member_party_or_constituency
+    dimensions: [period]
+    required_sources: [silver_questions]
+    numerator: distinct populated to_minister_or_department values
+    denominator: null
+    formula: count_distinct(to_minister_or_department)
+    zero_policy: return 0 when no populated recipients are present
+    output_unit: count
+    additivity: non_additive_across_periods_due_to_repeat_recipients
+    refresh_frequency: source_batch
+
+  - metric_id: question_recipient_share
+    metric_version: 1
+    status: draft
+    public_name: Share of questions sent to a minister or department
+    public_question: What share of recorded questions in this scope went to a particular minister or department?
+    public_explanation: Divides questions sent to the selected recorded recipient by all questions with a populated recipient in the same scope.
+    public_interpretation: Shows which recorded recipients accounted for more or less of the parliamentary-question activity.
+    public_caveat: This measures where questions were directed, not how well they were answered or the political importance of the subject.
+    public_use_status: suitable_with_context
+    grain: selectable_national_member_party_or_constituency_recipient
+    dimensions: [period, recipient]
+    required_sources: [silver_questions]
+    numerator: distinct questions sent to selected recorded recipient
+    denominator: distinct questions with populated recipient in same scope
+    formula: recipient_question_count / recipient_populated_question_count
+    output_unit: proportion
+    additivity: non_additive_recalculate_from_components
+    refresh_frequency: source_batch

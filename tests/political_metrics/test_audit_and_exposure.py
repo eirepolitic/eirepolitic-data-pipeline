@@ -1,0 +1,189 @@
+import unittest
+
+import pandas as pd
+
+from political_metrics.audit import history_coverage, speech_count_reconciliation, speech_temporal_attribution_audit
+from political_metrics.calculators.speeches import grouped_speech_metrics
+from political_metrics.eligibility import constituency_debate_day_exposure, party_debate_day_exposure
+
+
+class GroupExposureTests(unittest.TestCase):
+    def test_party_switch_splits_exposure(self):
+        history = pd.DataFrame({
+            "member_code": ["m1", "m1"],
+            "party_uri": ["party:A", "party:B"],
+            "party_start": ["2026-01-01", "2026-01-15"],
+            "party_end": ["2026-01-15", None],
+        })
+        debate_days = ["2026-01-10", "2026-01-20"]
+        result = party_debate_day_exposure(history, debate_days).set_index("party_uri")
+        self.assertEqual(result.loc["party:A", "member_debate_days"], 1)
+        self.assertEqual(result.loc["party:B", "member_debate_days"], 1)
+        self.assertAlmostEqual(result.loc["party:A", "active_member_equivalent"], 0.5)
+        self.assertAlmostEqual(result.loc["party:B", "active_member_equivalent"], 0.5)
+
+    def test_constituency_exposure_counts_distinct_member_days(self):
+        history = pd.DataFrame({
+            "member_code": ["m1", "m2"],
+            "constituency_uri": ["constituency:C", "constituency:C"],
+            "represent_start": ["2026-01-01", "2026-01-01"],
+            "represent_end": [None, None],
+        })
+        debate_days = ["2026-01-10", "2026-01-20"]
+        result = constituency_debate_day_exposure(history, debate_days).set_index("constituency_uri")
+        self.assertEqual(result.loc["constituency:C", "member_debate_days"], 4)
+        self.assertEqual(result.loc["constituency:C", "active_member_equivalent"], 2.0)
+        self.assertEqual(result.loc["constituency:C", "active_member_count"], 2)
+
+    def test_party_speeches_per_active_member_uses_exposure(self):
+        attributed_speeches = pd.DataFrame({
+            "speech_id": ["s1", "s2", "s3"],
+            "member_code": ["m1", "m1", "m2"],
+            "party_uri": ["party:A", "party:A", "party:B"],
+            "debate_date": ["2026-01-10", "2026-01-10", "2026-01-20"],
+        })
+        exposure = pd.DataFrame({
+            "party_uri": ["party:A", "party:B", "party:C"],
+            "member_debate_days": [1, 1, 2],
+            "active_member_equivalent": [0.5, 0.5, 1.0],
+            "active_member_count": [1, 1, 1],
+        })
+        result = grouped_speech_metrics(
+            attributed_speeches,
+            group_col="party_uri",
+            group_exposure=exposure,
+        ).set_index("party_uri")
+        self.assertAlmostEqual(float(result.loc["party:A", "speeches_per_active_member"]), 4.0)
+        self.assertAlmostEqual(float(result.loc["party:B", "speeches_per_active_member"]), 2.0)
+        self.assertEqual(result.loc["party:C", "speech_count"], 0)
+        self.assertEqual(float(result.loc["party:C", "speeches_per_active_member"]), 0.0)
+
+
+class AuditTests(unittest.TestCase):
+    def test_history_coverage_reports_range(self):
+        history = pd.DataFrame({
+            "member_code": ["m1", "m2"],
+            "party_start": ["2025-01-01", "2026-01-01"],
+            "party_end": ["2025-12-31", None],
+        })
+        result = history_coverage(
+            history,
+            dataset="silver_member_parties",
+            entity_col="member_code",
+            start_col="party_start",
+            end_col="party_end",
+        )
+        self.assertEqual(result.row_count, 2)
+        self.assertEqual(result.entity_count, 2)
+        self.assertEqual(result.min_start, "2025-01-01")
+        self.assertEqual(result.max_end, "2025-12-31")
+        self.assertEqual(result.open_ended_rows, 1)
+
+    def test_speech_reconciliation(self):
+        speeches = pd.DataFrame({
+            "speech_id": ["s1", "s2", "s3"],
+            "member_code": ["m1", None, "m2"],
+        })
+        result = speech_count_reconciliation(speeches)
+        self.assertEqual(result["national_distinct_speeches"], 3)
+        self.assertEqual(result["identified_member_speeches"], 2)
+        self.assertEqual(result["unidentified_speeches"], 1)
+        self.assertTrue(result["reconciles"])
+
+    def test_temporal_attribution_coverage_without_membership_filter(self):
+        speeches = pd.DataFrame({
+            "speech_id": ["s1", "s2"],
+            "member_code": ["m1", "m2"],
+            "debate_date": ["2026-01-10", "2026-01-10"],
+        })
+        parties = pd.DataFrame({
+            "member_code": ["m1"],
+            "party_start": ["2026-01-01"],
+            "party_end": [None],
+            "party_uri": ["party:A"],
+            "party_name": ["Party A"],
+        })
+        constituencies = pd.DataFrame({
+            "member_code": ["m1", "m2"],
+            "represent_start": ["2026-01-01", "2026-01-01"],
+            "represent_end": [None, None],
+            "constituency_uri": ["constituency:C1", "constituency:C2"],
+            "constituency_name": ["C1", "C2"],
+        })
+        result = speech_temporal_attribution_audit(speeches, parties, constituencies)
+        self.assertEqual(result["party_attribution_coverage"], 0.5)
+        self.assertEqual(result["constituency_attribution_coverage"], 1.0)
+        self.assertEqual(result["party_unmatched_rows"], 1)
+
+    def test_non_td_identified_speaker_is_out_of_scope_not_history_failure(self):
+        speeches = pd.DataFrame({
+            "speech_id": ["s1", "s2"],
+            "member_code": ["td1", "senator1"],
+            "debate_date": ["2026-01-10", "2026-01-10"],
+            "speaker_name": ["TD One", "Guest Speaker"],
+        })
+        memberships = pd.DataFrame({
+            "member_code": ["td1"],
+            "membership_id": ["membership:td1"],
+            "house_uri": ["house:dail:34"],
+            "house_no": ["34"],
+            "chamber": ["dail"],
+            "membership_start": ["2025-01-01"],
+            "membership_end": [None],
+        })
+        parties = pd.DataFrame({
+            "member_code": ["td1"],
+            "party_start": ["2025-01-01"],
+            "party_end": [None],
+            "party_uri": ["party:A"],
+            "party_name": ["Party A"],
+        })
+        constituencies = pd.DataFrame({
+            "member_code": ["td1"],
+            "represent_start": ["2025-01-01"],
+            "represent_end": [None],
+            "constituency_uri": ["constituency:C"],
+            "constituency_name": ["C"],
+        })
+        result = speech_temporal_attribution_audit(
+            speeches,
+            parties,
+            constituencies,
+            memberships,
+        )
+        self.assertEqual(result["eligible_td_speech_rows"], 1)
+        self.assertEqual(result["out_of_scope_identified_speech_rows"], 1)
+        self.assertEqual(result["membership_gap_speech_rows"], 0)
+        self.assertEqual(result["party_attribution_coverage"], 1.0)
+        self.assertEqual(result["constituency_attribution_coverage"], 1.0)
+
+    def test_known_td_without_membership_on_speech_date_is_gap(self):
+        speeches = pd.DataFrame({
+            "speech_id": ["s1"],
+            "member_code": ["td1"],
+            "debate_date": ["2026-01-10"],
+        })
+        memberships = pd.DataFrame({
+            "member_code": ["td1"],
+            "membership_id": ["membership:td1"],
+            "house_uri": ["house:dail:34"],
+            "house_no": ["34"],
+            "chamber": ["dail"],
+            "membership_start": ["2026-02-01"],
+            "membership_end": [None],
+        })
+        parties = pd.DataFrame(columns=["member_code", "party_start", "party_end", "party_uri", "party_name"])
+        constituencies = pd.DataFrame(columns=["member_code", "represent_start", "represent_end", "constituency_uri", "constituency_name"])
+        result = speech_temporal_attribution_audit(
+            speeches,
+            parties,
+            constituencies,
+            memberships,
+        )
+        self.assertEqual(result["eligible_td_speech_rows"], 0)
+        self.assertEqual(result["membership_gap_speech_rows"], 1)
+        self.assertEqual(result["out_of_scope_identified_speech_rows"], 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
