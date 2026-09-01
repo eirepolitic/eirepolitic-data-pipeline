@@ -1,13 +1,24 @@
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 335, in <module>
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 298, in <module>
     if __name__ == "__main__": main()
                                ^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 332, in main
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 295, in main
     parser=argparse.ArgumentParser(description="Render the reusable monthly party issue profile carousel batch"); parser.add_argument("--period",default="last_completed_month",help="YYYY-MM or last_completed_month"); parser.add_argument("--output-root",default=f"instagram/commissioning/output/{PROJECT_ID}"); args=parser.parse_args(); build(args.period,Path(args.output_root))
                                                                                                                                                                                                                                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 272, in build
-    if coverage_end < period.end: raise RuntimeError(f"Classifier coverage ends {coverage_end}; requested period ends {period.end}")
-                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-RuntimeError: Classifier coverage ends 2026-02-26; requested period ends 2026-07-31
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 242, in build
+    period = resolve_monthly_period(period_value); labels = _load_labels(); s3 = boto3.client("s3"); speeches, speech_source = _s3_csv(s3, CLASSIFIED_KEY); members, member_source = _member_snapshot_for_period(s3, period)
+                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/factory/party_monthly_profile.py", line 88, in _s3_csv
+    obj = s3.get_object(**kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
