@@ -3,6 +3,7 @@ import unittest
 import pandas as pd
 
 from political_metrics.audit import history_coverage, speech_count_reconciliation, speech_temporal_attribution_audit
+from political_metrics.calculators.speeches import grouped_speech_metrics
 from political_metrics.eligibility import constituency_debate_day_exposure, party_debate_day_exposure
 
 
@@ -33,6 +34,29 @@ class GroupExposureTests(unittest.TestCase):
         self.assertEqual(result.loc["constituency:C", "member_debate_days"], 4)
         self.assertEqual(result.loc["constituency:C", "active_member_equivalent"], 2.0)
         self.assertEqual(result.loc["constituency:C", "active_member_count"], 2)
+
+    def test_party_speeches_per_active_member_uses_exposure(self):
+        attributed_speeches = pd.DataFrame({
+            "speech_id": ["s1", "s2", "s3"],
+            "member_code": ["m1", "m1", "m2"],
+            "party_uri": ["party:A", "party:A", "party:B"],
+            "debate_date": ["2026-01-10", "2026-01-10", "2026-01-20"],
+        })
+        exposure = pd.DataFrame({
+            "party_uri": ["party:A", "party:B", "party:C"],
+            "member_debate_days": [1, 1, 2],
+            "active_member_equivalent": [0.5, 0.5, 1.0],
+            "active_member_count": [1, 1, 1],
+        })
+        result = grouped_speech_metrics(
+            attributed_speeches,
+            group_col="party_uri",
+            group_exposure=exposure,
+        ).set_index("party_uri")
+        self.assertAlmostEqual(float(result.loc["party:A", "speeches_per_active_member"]), 4.0)
+        self.assertAlmostEqual(float(result.loc["party:B", "speeches_per_active_member"]), 2.0)
+        self.assertEqual(result.loc["party:C", "speech_count"], 0)
+        self.assertEqual(float(result.loc["party:C", "speeches_per_active_member"]), 0.0)
 
 
 class AuditTests(unittest.TestCase):
