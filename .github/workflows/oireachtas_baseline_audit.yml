@@ -23,7 +23,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas pyyaml
-      - name: Analyze promoted voting data
+      - name: Analyze promoted voting foundation
         shell: bash
         run: |
           set -euo pipefail
@@ -34,129 +34,152 @@ jobs:
           import boto3
           import pandas as pd
           from extract.oireachtas.batch import resolve_production_key
-          from political_metrics.temporal_joins import attach_event_party
 
           bucket=os.environ['S3_BUCKET']
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-
-          logical={
+          keys={
+            'foundation':'processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv',
             'divisions':'processed/oireachtas_unified/latest/tables/silver_divisions/csv/silver_divisions.csv',
-            'votes':'processed/oireachtas_unified/latest/tables/silver_member_votes/csv/silver_member_votes.csv',
-            'parties':'processed/oireachtas_unified/latest/tables/silver_member_parties/csv/silver_member_parties.csv',
-            'members':'processed/oireachtas_unified/latest/tables/silver_members/csv/silver_members.csv',
+            'monthly':'processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv',
           }
-          frames={}
-          resolved={}
-          for name,key in logical.items():
+          frames={}; resolved={}
+          for name,key in keys.items():
               r=resolve_production_key(s3,bucket=bucket,production_key=key)
               resolved[name]=r
               obj=s3.get_object(Bucket=bucket,Key=r)
               frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
 
+          f=frames['foundation'].copy()
+          f['recorded_vote_count']=pd.to_numeric(f['recorded_vote_count'],errors='coerce').fillna(0).astype(int)
+          f['division_date']=pd.to_datetime(f['division_date'],errors='coerce')
           divisions=frames['divisions'].copy()
-          votes=frames['votes'].copy()
-          parties=frames['parties'].copy()
-          members=frames['members'].copy()
+          monthly=frames['monthly'].copy()
 
-          divisions['division_date']=pd.to_datetime(divisions['division_date'],errors='coerce')
-          votes['division_date']=pd.to_datetime(votes['division_date'],errors='coerce')
-          votes=attach_event_party(votes,parties,event_date_col='division_date',member_col='member_code')
+          party_names={}
+          pm=monthly[(monthly['grain']=='party') & monthly['entity_id'].notna() & monthly['entity_name'].notna()]
+          for r in pm[['entity_id','entity_name']].drop_duplicates('entity_id').itertuples(index=False):
+              party_names[str(r.entity_id)]=str(r.entity_name)
 
-          # Member display names when available.
-          name_col=None
-          for c in ['display_name','member_name','full_name','name']:
-              if c in members.columns:
-                  name_col=c; break
-          member_names={}
-          if name_col and 'member_code' in members.columns:
-              member_names=dict(zip(members['member_code'].astype(str),members[name_col].astype(str)))
-
-          # Normalize vote codes to the two observed recorded sides plus other.
-          votes['vote_code']=votes['vote_code'].astype(str)
-          side_counts=votes['vote_code'].value_counts().to_dict()
-
-          # Division subject-like field.
           subject_col=None
-          for c in ['subject','division_subject','title','debate_section_title','question']:
+          for c in ['subject','division_subject','title','debate_section_title','question','motion_text']:
               if c in divisions.columns:
                   subject_col=c; break
+          div_subject={}
+          div_date={}
+          if 'division_id' in divisions.columns:
+              for r in divisions.itertuples(index=False):
+                  did=str(getattr(r,'division_id'))
+                  div_date[did]=str(getattr(r,'division_date',''))
+                  if subject_col:
+                      val=getattr(r,subject_col)
+                      div_subject[did]='' if pd.isna(val) else str(val)
 
-          # Compute recorded side totals ourselves to avoid relying on optional tally field names.
-          side_by_div=votes.groupby(['division_id','vote_code']).size().unstack(fill_value=0)
-          div_records=[]
-          for div_id,row in side_by_div.iterrows():
-              vals=sorted([(str(col),int(row[col])) for col in side_by_div.columns],key=lambda x:x[1],reverse=True)
-              top=vals[0][1] if vals else 0
-              second=vals[1][1] if len(vals)>1 else 0
-              total=sum(v for _,v in vals)
-              margin=abs(top-second) if len(vals)>1 else top
-              d=divisions[divisions['division_id'].astype(str)==str(div_id)]
-              date=str(d.iloc[0]['division_date'].date()) if len(d) and pd.notna(d.iloc[0]['division_date']) else None
-              subject=str(d.iloc[0][subject_col]) if len(d) and subject_col and pd.notna(d.iloc[0][subject_col]) else ''
-              div_records.append({'division_id':str(div_id),'date':date,'subject':subject,'recorded_votes':total,'margin':margin,'margin_share':margin/total if total else None,'side_totals':dict(vals)})
-          close=sorted(div_records,key=lambda x:(x['margin_share'] if x['margin_share'] is not None else 1,x['margin']))[:25]
+          # Overall division closeness using ta/nil only; staon retained separately.
+          div_side=f.groupby(['division_id','vote_code'])['recorded_vote_count'].sum().unstack(fill_value=0)
+          close=[]
+          for did,row in div_side.iterrows():
+              ta=int(row.get('ta',0)); nil=int(row.get('nil',0)); staon=int(row.get('staon',0))
+              contested=ta+nil
+              if contested==0: continue
+              margin=abs(ta-nil)
+              close.append({
+                'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
+                'ta':ta,'nil':nil,'staon':staon,'contested_votes':contested,
+                'margin_votes':margin,'margin_share':margin/contested,
+              })
+          close=sorted(close,key=lambda x:(x['margin_votes'],x['margin_share']))
 
-          # Party cohesion per division and dissenting member names.
-          division_party=[]
-          dissenters=[]
-          for (div_id,party_uri),g in votes.dropna(subset=['party_uri']).groupby(['division_id','party_uri']):
-              vc=g['vote_code'].value_counts()
-              n=int(vc.sum())
-              if n<2: continue
-              majority_code=str(vc.index[0])
-              majority_n=int(vc.iloc[0])
-              cohesion=majority_n/n
-              division_party.append({'division_id':str(div_id),'party_uri':str(party_uri),'recorded_party_votes':n,'majority_vote_code':majority_code,'cohesion':cohesion})
-              if cohesion<1:
-                  for r in g[g['vote_code']!=majority_code].itertuples(index=False):
-                      code=str(getattr(r,'member_code'))
-                      dissenters.append({'division_id':str(div_id),'party_uri':str(party_uri),'member_code':code,'member_name':member_names.get(code,code),'member_vote_code':str(getattr(r,'vote_code')),'party_majority_vote_code':majority_code,'party_cohesion':cohesion})
-          lowest_cohesion=sorted(division_party,key=lambda x:(x['cohesion'],-x['recorded_party_votes']))[:40]
+          # Party/division cohesion and split events.
+          party_div=[]
+          for (did,party),g in f.groupby(['division_id','party_uri']):
+              total=int(g['recorded_vote_count'].sum())
+              if total<2: continue
+              counts={str(r.vote_code):int(r.recorded_vote_count) for r in g.itertuples(index=False)}
+              modal=max(counts.values()) if counts else 0
+              majority=sorted(counts.items(),key=lambda kv:(-kv[1],kv[0]))[0][0] if counts else None
+              nonzero=sum(1 for v in counts.values() if v>0)
+              cohesion=modal/total if total else None
+              party_div.append({
+                'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
+                'party_uri':str(party),'party_name':party_names.get(str(party),str(party)),
+                'recorded_party_votes':total,'majority_vote_code':majority,'cohesion':cohesion,
+                'split':nonzero>1,'vote_counts':counts,
+              })
+          pdf=pd.DataFrame(party_div)
 
-          # Pairwise party alignment: same majority side in divisions where both have >=2 recorded voters.
+          party_summary=[]
+          if not pdf.empty:
+              for party,g in pdf.groupby('party_uri'):
+                  qualifying=len(g)
+                  split_n=int(g['split'].sum())
+                  weighted=(g['cohesion']*g['recorded_party_votes']).sum()/g['recorded_party_votes'].sum()
+                  party_summary.append({
+                    'party_uri':party,'party_name':party_names.get(str(party),str(party)),
+                    'qualifying_divisions':int(qualifying),'split_divisions':split_n,
+                    'split_division_share':split_n/qualifying if qualifying else None,
+                    'weighted_recorded_cohesion':float(weighted),
+                  })
+          party_summary=sorted(party_summary,key=lambda x:(-x['split_divisions'],x['weighted_recorded_cohesion']))
+
+          least_cohesive=sorted(party_div,key=lambda x:(x['cohesion'],-x['recorded_party_votes']))[:60]
+          meaningful_splits=[x for x in least_cohesive if x['recorded_party_votes']>=3 and x['cohesion']<1]
+
+          # Pairwise party majority-side alignment.
           by_div=defaultdict(dict)
-          for rec in division_party:
-              by_div[rec['division_id']][rec['party_uri']]=rec
-          pair_stats=defaultdict(lambda:{'same':0,'compared':0})
-          for div_id,pmap in by_div.items():
+          for r in party_div:
+              by_div[r['division_id']][r['party_uri']]=r
+          pair=defaultdict(lambda:{'same':0,'compared':0,'same_ta':0,'same_nil':0})
+          for did,pmap in by_div.items():
               ps=sorted(pmap)
               for i,a in enumerate(ps):
                   for b in ps[i+1:]:
-                      key=(a,b)
-                      pair_stats[key]['compared']+=1
-                      if pmap[a]['majority_vote_code']==pmap[b]['majority_vote_code']:
-                          pair_stats[key]['same']+=1
+                      ra,rb=pmap[a],pmap[b]
+                      if ra['majority_vote_code'] not in {'ta','nil'} or rb['majority_vote_code'] not in {'ta','nil'}:
+                          continue
+                      st=pair[(a,b)]; st['compared']+=1
+                      if ra['majority_vote_code']==rb['majority_vote_code']:
+                          st['same']+=1
+                          st['same_'+ra['majority_vote_code']]+=1
           align=[]
-          for (a,b),st in pair_stats.items():
-              if st['compared']>=5:
-                  align.append({'party_a':a,'party_b':b,'same_majority_side':st['same'],'compared_divisions':st['compared'],'alignment_share':st['same']/st['compared']})
-          highest_align=sorted(align,key=lambda x:(-x['alignment_share'],-x['compared_divisions']))[:30]
-          lowest_align=sorted(align,key=lambda x:(x['alignment_share'],-x['compared_divisions']))[:30]
+          for (a,b),st in pair.items():
+              if st['compared']>=10:
+                  align.append({
+                    'party_a':a,'party_a_name':party_names.get(a,a),'party_b':b,'party_b_name':party_names.get(b,b),
+                    **st,'alignment_share':st['same']/st['compared']
+                  })
+          highest_align=sorted(align,key=lambda x:(-x['alignment_share'],-x['compared']))[:30]
+          lowest_align=sorted(align,key=lambda x:(x['alignment_share'],-x['compared']))[:30]
 
-          # Dissent counts by member, only where their party had a defined majority among >=2 voters.
-          diss_df=pd.DataFrame(dissenters)
-          if not diss_df.empty:
-              member_dissent=(diss_df.groupby(['member_code','member_name','party_uri'],as_index=False).size().rename(columns={'size':'dissent_divisions'}).sort_values('dissent_divisions',ascending=False))
-              top_member_dissent=member_dissent.head(30).to_dict(orient='records')
-          else:
-              top_member_dissent=[]
+          # Divisions with the most party splitting simultaneously.
+          split_by_div=[]
+          if not pdf.empty:
+              for did,g in pdf.groupby('division_id'):
+                  splits=g[g['split']]
+                  if len(splits):
+                      split_by_div.append({
+                        'division_id':str(did),'division_date':div_date.get(str(did),''),'subject':div_subject.get(str(did),''),
+                        'split_party_count':int(len(splits)),
+                        'split_parties':[party_names.get(str(x),str(x)) for x in splits['party_uri'].tolist()],
+                      })
+          split_by_div=sorted(split_by_div,key=lambda x:-x['split_party_count'])
 
           report={
             'resolved_keys':resolved,
-            'vote_code_counts':side_counts,
-            'division_count':int(votes['division_id'].nunique()),
-            'vote_record_count':int(len(votes)),
             'subject_column_used':subject_col,
-            'closest_divisions':close,
-            'lowest_party_cohesion_divisions':lowest_cohesion,
-            'dissenting_member_events_sample':dissenters[:100],
-            'top_members_by_party_dissent_events':top_member_dissent,
+            'foundation_rows':int(len(f)),
+            'division_count':int(f['division_id'].nunique()),
+            'date_min':str(f['division_date'].min().date()) if f['division_date'].notna().any() else None,
+            'date_max':str(f['division_date'].max().date()) if f['division_date'].notna().any() else None,
+            'closest_divisions':close[:40],
+            'party_split_summary':party_summary,
+            'least_cohesive_party_division_events':meaningful_splits[:50],
+            'divisions_with_most_split_parties':split_by_div[:30],
             'highest_party_majority_alignment':highest_align,
             'lowest_party_majority_alignment':lowest_align,
           }
           Path('analysis').mkdir(exist_ok=True)
-          with open('analysis/voting_opportunities.json','w') as f:
-              json.dump(report,f,indent=2,sort_keys=True,default=str)
+          with open('analysis/voting_opportunities.json','w') as fp:
+              json.dump(report,fp,indent=2,sort_keys=True,default=str)
           print(json.dumps(report,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis on temporary branch
