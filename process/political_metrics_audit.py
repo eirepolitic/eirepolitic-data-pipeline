@@ -19,6 +19,7 @@ import pandas as pd
 
 from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_required, resolve_production_key
 from political_metrics.audit import history_coverage, speech_count_reconciliation, speech_temporal_attribution_audit
+from political_metrics.sources import canonical_speeches
 
 BUCKET = os.getenv("S3_BUCKET", "eirepolitic-data")
 OUT_DIR = Path(os.getenv("POLITICAL_METRICS_AUDIT_DIR", "artifacts/political-metrics-audit"))
@@ -128,7 +129,7 @@ def main() -> int:
     for table, logical_key in TABLE_KEYS.items():
         frames[table], resolved_keys[table] = _read_csv(s3, logical_key)
 
-    speeches = frames["silver_speeches"]
+    speeches = canonical_speeches(frames["silver_speeches"])
     memberships = frames["silver_member_memberships"]
     parties = frames["silver_member_parties"]
     constituencies = frames["silver_member_constituencies"]
