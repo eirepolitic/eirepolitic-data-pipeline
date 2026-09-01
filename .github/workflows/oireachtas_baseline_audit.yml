@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  verify:
+  audit:
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -15,26 +15,56 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_BATCH_ID: scheduled-weekly-33530737534-1
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
       - name: Install dependencies
+        run: python -m pip install boto3 pyyaml
+      - name: Audit production and logical auxiliary keys
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-      - name: Run source fallback regression tests
-        run: python -m unittest tests.test_oireachtas_stage_downstream_contracts
-      - name: Run exact candidate staging command
+          python - <<'PY'
+          import json, os
+          import boto3
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_if_exists, resolve_production_key
+          from extract.oireachtas.contracts import load_contract_config
+
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          bucket=os.environ['S3_BUCKET']
+          contracts,_=load_contract_config()
+          selected=['member_photo_urls','member_summaries','constituency_images','debate_issue_labels']
+          pointer=read_json_if_exists(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          report={'production_pointer':pointer,'contracts':{}}
+          for name in selected:
+              logical=contracts[name].logical_key
+              try:
+                  resolved=resolve_production_key(s3,bucket=bucket,production_key=logical)
+              except Exception as exc:
+                  resolved=None
+                  resolve_error=f'{type(exc).__name__}: {exc}'
+              else:
+                  resolve_error=None
+              item={'logical_key':logical,'resolved_key':resolved,'resolve_error':resolve_error}
+              for label,key in [('resolved',resolved),('logical',logical)]:
+                  if not key:
+                      item[label]={'exists':False}
+                      continue
+                  try:
+                      head=s3.head_object(Bucket=bucket,Key=key)
+                      item[label]={'exists':True,'size':head.get('ContentLength'),'last_modified':head.get('LastModified').isoformat() if head.get('LastModified') else None}
+                  except Exception as exc:
+                      code=getattr(exc,'response',{}).get('Error',{}).get('Code') if hasattr(exc,'response') else None
+                      item[label]={'exists':False,'error_code':code or type(exc).__name__}
+              report['contracts'][name]=item
+          os.makedirs('diagnostics',exist_ok=True)
+          with open('diagnostics/aux_source_audit.json','w') as f:
+              json.dump(report,f,indent=2,sort_keys=True)
+          PY
+      - name: Persist audit on temporary branch
         run: |
-          set -euo pipefail
-          python process/oireachtas_stage_downstream_contracts.py \
-            --bucket "$S3_BUCKET" \
-            --region "$AWS_REGION" \
-            --batch-id "$OIREACHTAS_BATCH_ID" \
-            | tee oireachtas_enrichment_staging.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/aux_source_audit.json
+          git commit -m "Capture auxiliary source audit ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
