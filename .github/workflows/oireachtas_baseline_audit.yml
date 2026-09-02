@@ -4,40 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  summarize:
+  inventory:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build compact refined digest
+          cache: pip
+      - name: Install audit dependencies
+        shell: bash
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          src=json.loads(Path('analysis/question_taking_audit_refined.json').read_text())
-          out={
-            'exchange_count':src.get('exchange_count'),
-            'oral_question_count':src.get('oral_question_count'),
-            'exchange_status_counts':src.get('exchange_status_counts'),
-            'question_status_counts':src.get('question_status_counts'),
-            'safe_single_question_substitute_relationships':src.get('safe_single_question_substitute_relationships'),
-            'first_non_officeholder_is_submitter_when_submitter_present':src.get('first_non_officeholder_is_submitter_when_submitter_present'),
-            'recommended_rule':src.get('recommended_rule'),
-            'safe_relationship_examples':src.get('safe_relationship_examples',[])[:12],
-            'non_submitter_examples':src.get('non_submitter_examples',[])[:10],
-          }
-          Path('analysis/question_taking_audit_refined_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist digest
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_taking_audit_refined_digest.json
-          git commit -m "Summarize refined question-taking audit ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
