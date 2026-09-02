@@ -1,0 +1,1151 @@
+{
+  "guardrails": [
+    "Profiles use event-date attribution already certified in daily_question_dimensions.",
+    "Channel share is descriptive and is not a measure of effectiveness.",
+    "Entities with fewer than 50 total questions are excluded from oral-share extremes."
+  ],
+  "inventory": {
+    "dimension_names": {
+      "question_recipient": 101999,
+      "question_type": 28594
+    },
+    "grains": {
+      "constituency": 43893,
+      "member": 64797,
+      "national": 3121,
+      "party": 18782
+    },
+    "question_type_raw_values": {
+      "oral": 5533,
+      "written": 23061
+    }
+  },
+  "production_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "profiles": {
+    "constituency": {
+      "entity_count": 43,
+      "highest_oral_share_min50": [
+        {
+          "Oral": 124,
+          "Total": 1875,
+          "Written": 1751,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-East",
+          "oral_share": 0.06613333333333334,
+          "written_to_oral_ratio": 14.120967741935484
+        },
+        {
+          "Oral": 241,
+          "Total": 3875,
+          "Written": 3634,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Louth",
+          "oral_share": 0.06219354838709677,
+          "written_to_oral_ratio": 15.078838174273859
+        },
+        {
+          "Oral": 151,
+          "Total": 2597,
+          "Written": 2446,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
+          "oral_share": 0.058144012321909896,
+          "written_to_oral_ratio": 16.198675496688743
+        },
+        {
+          "Oral": 163,
+          "Total": 3063,
+          "Written": 2900,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
+          "oral_share": 0.053215801501795626,
+          "written_to_oral_ratio": 17.791411042944784
+        },
+        {
+          "Oral": 120,
+          "Total": 2614,
+          "Written": 2494,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-East",
+          "oral_share": 0.045906656465187455,
+          "written_to_oral_ratio": 20.783333333333335
+        },
+        {
+          "Oral": 74,
+          "Total": 1642,
+          "Written": 1568,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Rathdown",
+          "oral_share": 0.04506699147381242,
+          "written_to_oral_ratio": 21.18918918918919
+        },
+        {
+          "Oral": 205,
+          "Total": 4623,
+          "Written": 4418,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-North",
+          "oral_share": 0.04434349989184512,
+          "written_to_oral_ratio": 21.55121951219512
+        },
+        {
+          "Oral": 109,
+          "Total": 2492,
+          "Written": 2383,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Galway-West",
+          "oral_share": 0.04373996789727127,
+          "written_to_oral_ratio": 21.862385321100916
+        },
+        {
+          "Oral": 117,
+          "Total": 2858,
+          "Written": 2741,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-Central",
+          "oral_share": 0.040937718684394685,
+          "written_to_oral_ratio": 23.427350427350426
+        },
+        {
+          "Oral": 49,
+          "Total": 1233,
+          "Written": 1184,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-North-West",
+          "oral_share": 0.039740470397404706,
+          "written_to_oral_ratio": 24.163265306122447
+        },
+        {
+          "Oral": 92,
+          "Total": 2340,
+          "Written": 2248,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-South",
+          "oral_share": 0.039316239316239315,
+          "written_to_oral_ratio": 24.434782608695652
+        },
+        {
+          "Oral": 114,
+          "Total": 2927,
+          "Written": 2813,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Mid-West",
+          "oral_share": 0.03894772804919713,
+          "written_to_oral_ratio": 24.67543859649123
+        },
+        {
+          "Oral": 83,
+          "Total": 2156,
+          "Written": 2073,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-Central",
+          "oral_share": 0.03849721706864564,
+          "written_to_oral_ratio": 24.97590361445783
+        },
+        {
+          "Oral": 74,
+          "Total": 1948,
+          "Written": 1874,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Carlow-Kilkenny",
+          "oral_share": 0.037987679671457907,
+          "written_to_oral_ratio": 25.324324324324323
+        },
+        {
+          "Oral": 76,
+          "Total": 2036,
+          "Written": 1960,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow",
+          "oral_share": 0.03732809430255403,
+          "written_to_oral_ratio": 25.789473684210527
+        }
+      ],
+      "lowest_oral_share_min50": [
+        {
+          "Oral": 6,
+          "Total": 2322,
+          "Written": 2316,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Longford-Westmeath",
+          "oral_share": 0.002583979328165375,
+          "written_to_oral_ratio": 386.0
+        },
+        {
+          "Oral": 5,
+          "Total": 787,
+          "Written": 782,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-West",
+          "oral_share": 0.0063532401524777635,
+          "written_to_oral_ratio": 156.4
+        },
+        {
+          "Oral": 5,
+          "Total": 527,
+          "Written": 522,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wexford",
+          "oral_share": 0.009487666034155597,
+          "written_to_oral_ratio": 104.4
+        },
+        {
+          "Oral": 137,
+          "Total": 13347,
+          "Written": 13210,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
+          "oral_share": 0.010264478909118155,
+          "written_to_oral_ratio": 96.42335766423358
+        },
+        {
+          "Oral": 89,
+          "Total": 6565,
+          "Written": 6476,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kerry",
+          "oral_share": 0.013556740289413557,
+          "written_to_oral_ratio": 72.76404494382022
+        },
+        {
+          "Oral": 4,
+          "Total": 282,
+          "Written": 278,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Limerick-County",
+          "oral_share": 0.014184397163120567,
+          "written_to_oral_ratio": 69.5
+        },
+        {
+          "Oral": 34,
+          "Total": 2035,
+          "Written": 2001,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Tipperary-North",
+          "oral_share": 0.016707616707616706,
+          "written_to_oral_ratio": 58.85294117647059
+        },
+        {
+          "Oral": 29,
+          "Total": 1383,
+          "Written": 1354,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Tipperary-South",
+          "oral_share": 0.02096890817064353,
+          "written_to_oral_ratio": 46.689655172413794
+        },
+        {
+          "Oral": 55,
+          "Total": 2606,
+          "Written": 2551,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kildare-South",
+          "oral_share": 0.02110514198004605,
+          "written_to_oral_ratio": 46.38181818181818
+        },
+        {
+          "Oral": 34,
+          "Total": 1554,
+          "Written": 1520,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Limerick-City",
+          "oral_share": 0.021879021879021878,
+          "written_to_oral_ratio": 44.705882352941174
+        },
+        {
+          "Oral": 60,
+          "Total": 2597,
+          "Written": 2537,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow-Wexford",
+          "oral_share": 0.023103581055063535,
+          "written_to_oral_ratio": 42.28333333333333
+        },
+        {
+          "Oral": 85,
+          "Total": 3492,
+          "Written": 3407,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Fingal-West",
+          "oral_share": 0.02434135166093929,
+          "written_to_oral_ratio": 40.082352941176474
+        },
+        {
+          "Oral": 71,
+          "Total": 2858,
+          "Written": 2787,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Clare",
+          "oral_share": 0.02484254723582925,
+          "written_to_oral_ratio": 39.25352112676056
+        },
+        {
+          "Oral": 144,
+          "Total": 5775,
+          "Written": 5631,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/D\u00fan-Laoghaire",
+          "oral_share": 0.024935064935064935,
+          "written_to_oral_ratio": 39.104166666666664
+        },
+        {
+          "Oral": 46,
+          "Total": 1811,
+          "Written": 1765,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Laois",
+          "oral_share": 0.025400331308669245,
+          "written_to_oral_ratio": 38.369565217391305
+        }
+      ],
+      "top_by_volume": [
+        {
+          "Oral": 137,
+          "Total": 13347,
+          "Written": 13210,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-North-Central",
+          "oral_share": 0.010264478909118155,
+          "written_to_oral_ratio": 96.42335766423358
+        },
+        {
+          "Oral": 89,
+          "Total": 6565,
+          "Written": 6476,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kerry",
+          "oral_share": 0.013556740289413557,
+          "written_to_oral_ratio": 72.76404494382022
+        },
+        {
+          "Oral": 180,
+          "Total": 6013,
+          "Written": 5833,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-West",
+          "oral_share": 0.02993514052885415,
+          "written_to_oral_ratio": 32.40555555555556
+        },
+        {
+          "Oral": 144,
+          "Total": 5775,
+          "Written": 5631,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/D\u00fan-Laoghaire",
+          "oral_share": 0.024935064935064935,
+          "written_to_oral_ratio": 39.104166666666664
+        },
+        {
+          "Oral": 205,
+          "Total": 4623,
+          "Written": 4418,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Bay-North",
+          "oral_share": 0.04434349989184512,
+          "written_to_oral_ratio": 21.55121951219512
+        },
+        {
+          "Oral": 123,
+          "Total": 4363,
+          "Written": 4240,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cavan-Monaghan",
+          "oral_share": 0.02819161127664451,
+          "written_to_oral_ratio": 34.47154471544715
+        },
+        {
+          "Oral": 241,
+          "Total": 3875,
+          "Written": 3634,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Louth",
+          "oral_share": 0.06219354838709677,
+          "written_to_oral_ratio": 15.078838174273859
+        },
+        {
+          "Oral": 85,
+          "Total": 3492,
+          "Written": 3407,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Fingal-West",
+          "oral_share": 0.02434135166093929,
+          "written_to_oral_ratio": 40.082352941176474
+        },
+        {
+          "Oral": 95,
+          "Total": 3124,
+          "Written": 3029,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Meath-West",
+          "oral_share": 0.030409731113956465,
+          "written_to_oral_ratio": 31.88421052631579
+        },
+        {
+          "Oral": 163,
+          "Total": 3063,
+          "Written": 2900,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-South-West",
+          "oral_share": 0.053215801501795626,
+          "written_to_oral_ratio": 17.791411042944784
+        },
+        {
+          "Oral": 93,
+          "Total": 3054,
+          "Written": 2961,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kildare-North",
+          "oral_share": 0.030451866404715127,
+          "written_to_oral_ratio": 31.838709677419356
+        },
+        {
+          "Oral": 89,
+          "Total": 3051,
+          "Written": 2962,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Waterford",
+          "oral_share": 0.02917076368403802,
+          "written_to_oral_ratio": 33.28089887640449
+        },
+        {
+          "Oral": 114,
+          "Total": 2927,
+          "Written": 2813,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Dublin-Mid-West",
+          "oral_share": 0.03894772804919713,
+          "written_to_oral_ratio": 24.67543859649123
+        },
+        {
+          "Oral": 90,
+          "Total": 2898,
+          "Written": 2808,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Galway-East",
+          "oral_share": 0.031055900621118012,
+          "written_to_oral_ratio": 31.2
+        },
+        {
+          "Oral": 117,
+          "Total": 2858,
+          "Written": 2741,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-South-Central",
+          "oral_share": 0.040937718684394685,
+          "written_to_oral_ratio": 23.427350427350426
+        },
+        {
+          "Oral": 71,
+          "Total": 2858,
+          "Written": 2787,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Clare",
+          "oral_share": 0.02484254723582925,
+          "written_to_oral_ratio": 39.25352112676056
+        },
+        {
+          "Oral": 120,
+          "Total": 2614,
+          "Written": 2494,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Cork-East",
+          "oral_share": 0.045906656465187455,
+          "written_to_oral_ratio": 20.783333333333335
+        },
+        {
+          "Oral": 55,
+          "Total": 2606,
+          "Written": 2551,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Kildare-South",
+          "oral_share": 0.02110514198004605,
+          "written_to_oral_ratio": 46.38181818181818
+        },
+        {
+          "Oral": 151,
+          "Total": 2597,
+          "Written": 2446,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Mayo",
+          "oral_share": 0.058144012321909896,
+          "written_to_oral_ratio": 16.198675496688743
+        },
+        {
+          "Oral": 60,
+          "Total": 2597,
+          "Written": 2537,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34/constituency/Wicklow-Wexford",
+          "oral_share": 0.023103581055063535,
+          "written_to_oral_ratio": 42.28333333333333
+        }
+      ]
+    },
+    "member": {
+      "entity_count": 157,
+      "highest_oral_share_min50": [
+        {
+          "Oral": 34,
+          "Total": 178,
+          "Written": 144,
+          "entity_id": "Mary-Lou-McDonald.D.2011-03-09",
+          "oral_share": 0.19101123595505617,
+          "written_to_oral_ratio": 4.235294117647059
+        },
+        {
+          "Oral": 94,
+          "Total": 512,
+          "Written": 418,
+          "entity_id": "Rose-Conway-Walsh.S.2016-04-25",
+          "oral_share": 0.18359375,
+          "written_to_oral_ratio": 4.446808510638298
+        },
+        {
+          "Oral": 47,
+          "Total": 303,
+          "Written": 256,
+          "entity_id": "Tony-McCormack.D.2024-11-29",
+          "oral_share": 0.1551155115511551,
+          "written_to_oral_ratio": 5.446808510638298
+        },
+        {
+          "Oral": 68,
+          "Total": 532,
+          "Written": 464,
+          "entity_id": "Donnchadh-\u00d3-Laoghaire.D.2016-10-03",
+          "oral_share": 0.12781954887218044,
+          "written_to_oral_ratio": 6.823529411764706
+        },
+        {
+          "Oral": 149,
+          "Total": 1173,
+          "Written": 1024,
+          "entity_id": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+          "oral_share": 0.12702472293265132,
+          "written_to_oral_ratio": 6.87248322147651
+        },
+        {
+          "Oral": 29,
+          "Total": 259,
+          "Written": 230,
+          "entity_id": "Catherine-Ardagh.S.2016-04-25",
+          "oral_share": 0.11196911196911197,
+          "written_to_oral_ratio": 7.931034482758621
+        },
+        {
+          "Oral": 93,
+          "Total": 869,
+          "Written": 776,
+          "entity_id": "Ruth-Coppinger.D.2014-05-23",
+          "oral_share": 0.10701956271576525,
+          "written_to_oral_ratio": 8.344086021505376
+        },
+        {
+          "Oral": 26,
+          "Total": 250,
+          "Written": 224,
+          "entity_id": "Edward-Timmins.D.2024-11-29",
+          "oral_share": 0.104,
+          "written_to_oral_ratio": 8.615384615384615
+        },
+        {
+          "Oral": 128,
+          "Total": 1480,
+          "Written": 1352,
+          "entity_id": "Paul-Murphy.D.2014-10-10",
+          "oral_share": 0.08648648648648649,
+          "written_to_oral_ratio": 10.5625
+        },
+        {
+          "Oral": 23,
+          "Total": 274,
+          "Written": 251,
+          "entity_id": "Shay-Brennan.D.2024-11-29",
+          "oral_share": 0.08394160583941605,
+          "written_to_oral_ratio": 10.91304347826087
+        },
+        {
+          "Oral": 52,
+          "Total": 637,
+          "Written": 585,
+          "entity_id": "Ivana-Bacik.S.2007-07-23",
+          "oral_share": 0.08163265306122448,
+          "written_to_oral_ratio": 11.25
+        },
+        {
+          "Oral": 33,
+          "Total": 407,
+          "Written": 374,
+          "entity_id": "Catherine-Connolly.D.2016-10-03",
+          "oral_share": 0.08108108108108109,
+          "written_to_oral_ratio": 11.333333333333334
+        },
+        {
+          "Oral": 34,
+          "Total": 473,
+          "Written": 439,
+          "entity_id": "S\u00e9amus-McGrath.D.2024-11-29",
+          "oral_share": 0.07188160676532769,
+          "written_to_oral_ratio": 12.911764705882353
+        },
+        {
+          "Oral": 53,
+          "Total": 743,
+          "Written": 690,
+          "entity_id": "Shane-Moynihan.D.2024-11-29",
+          "oral_share": 0.07133243606998654,
+          "written_to_oral_ratio": 13.018867924528301
+        },
+        {
+          "Oral": 57,
+          "Total": 811,
+          "Written": 754,
+          "entity_id": "Cian-O'Callaghan.D.2020-02-08",
+          "oral_share": 0.07028360049321825,
+          "written_to_oral_ratio": 13.228070175438596
+        }
+      ],
+      "lowest_oral_share_min50": [
+        {
+          "Oral": 0,
+          "Total": 952,
+          "Written": 952,
+          "entity_id": "John-Brady.D.2016-10-03",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 933,
+          "Written": 933,
+          "entity_id": "Niamh-Smyth.D.2016-10-03",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 570,
+          "Written": 570,
+          "entity_id": "Paul-Donnelly.D.2020-02-08",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 443,
+          "Written": 443,
+          "entity_id": "Pat-Buckley.D.2016-10-03",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 436,
+          "Written": 436,
+          "entity_id": "Holly-Cairns.D.2020-02-08",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 368,
+          "Written": 368,
+          "entity_id": "Robert-Troy.D.2011-03-09",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 338,
+          "Written": 338,
+          "entity_id": "Fionnt\u00e1n-\u00d3-S\u00failleabh\u00e1in.D.2024-11-29",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 290,
+          "Written": 290,
+          "entity_id": "Ann-Graves.D.2024-11-29",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 239,
+          "Written": 239,
+          "entity_id": "Denise-Mitchell.D.2016-10-03",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 210,
+          "Written": 210,
+          "entity_id": "Niall-Collins.D.2007-06-14",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 167,
+          "Written": 167,
+          "entity_id": "M\u00e1ire-Devine.S.2016-04-25",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 160,
+          "Written": 160,
+          "entity_id": "Johnny-Mythen.D.2020-02-08",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 102,
+          "Written": 102,
+          "entity_id": "Timmy-Dooley.S.2002-09-12",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 97,
+          "Written": 97,
+          "entity_id": "Michael-Lowry.D.1987-03-10",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        },
+        {
+          "Oral": 0,
+          "Total": 70,
+          "Written": 70,
+          "entity_id": "Jennifer-Murnane-O'Connor.S.2016-04-25",
+          "oral_share": 0.0,
+          "written_to_oral_ratio": NaN
+        }
+      ],
+      "top_by_volume": [
+        {
+          "Oral": 4,
+          "Total": 8361,
+          "Written": 8357,
+          "entity_id": "Ken-O'Flynn.D.2024-11-29",
+          "oral_share": 0.00047841167324482717,
+          "written_to_oral_ratio": 2089.25
+        },
+        {
+          "Oral": 34,
+          "Total": 3487,
+          "Written": 3453,
+          "entity_id": "Barry-Ward.S.2020-03-30",
+          "oral_share": 0.009750501864066534,
+          "written_to_oral_ratio": 101.55882352941177
+        },
+        {
+          "Oral": 20,
+          "Total": 3143,
+          "Written": 3123,
+          "entity_id": "Michael-Cahill.D.2024-11-29",
+          "oral_share": 0.006363347120585428,
+          "written_to_oral_ratio": 156.15
+        },
+        {
+          "Oral": 35,
+          "Total": 2784,
+          "Written": 2749,
+          "entity_id": "Emer-Currie.S.2020-06-29",
+          "oral_share": 0.01257183908045977,
+          "written_to_oral_ratio": 78.54285714285714
+        },
+        {
+          "Oral": 67,
+          "Total": 2420,
+          "Written": 2353,
+          "entity_id": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+          "oral_share": 0.02768595041322314,
+          "written_to_oral_ratio": 35.11940298507463
+        },
+        {
+          "Oral": 67,
+          "Total": 2360,
+          "Written": 2293,
+          "entity_id": "Pa-Daly.D.2020-02-08",
+          "oral_share": 0.028389830508474576,
+          "written_to_oral_ratio": 34.223880597014926
+        },
+        {
+          "Oral": 85,
+          "Total": 2199,
+          "Written": 2114,
+          "entity_id": "Barry-Heneghan.D.2024-11-29",
+          "oral_share": 0.03865393360618463,
+          "written_to_oral_ratio": 24.870588235294118
+        },
+        {
+          "Oral": 56,
+          "Total": 1892,
+          "Written": 1836,
+          "entity_id": "Matt-Carthy.D.2020-02-08",
+          "oral_share": 0.02959830866807611,
+          "written_to_oral_ratio": 32.785714285714285
+        },
+        {
+          "Oral": 56,
+          "Total": 1839,
+          "Written": 1783,
+          "entity_id": "Malcolm-Byrne.D.2019-11-29",
+          "oral_share": 0.030451332245785754,
+          "written_to_oral_ratio": 31.839285714285715
+        },
+        {
+          "Oral": 48,
+          "Total": 1837,
+          "Written": 1789,
+          "entity_id": "Paul-Lawless.D.2024-11-29",
+          "oral_share": 0.0261295590636908,
+          "written_to_oral_ratio": 37.270833333333336
+        },
+        {
+          "Oral": 15,
+          "Total": 1832,
+          "Written": 1817,
+          "entity_id": "P\u00e1draig-Rice.D.2024-11-29",
+          "oral_share": 0.008187772925764192,
+          "written_to_oral_ratio": 121.13333333333334
+        },
+        {
+          "Oral": 52,
+          "Total": 1790,
+          "Written": 1738,
+          "entity_id": "Roderic-O'Gorman.D.2020-02-08",
+          "oral_share": 0.02905027932960894,
+          "written_to_oral_ratio": 33.42307692307692
+        },
+        {
+          "Oral": 30,
+          "Total": 1788,
+          "Written": 1758,
+          "entity_id": "Grace-Boland.D.2024-11-29",
+          "oral_share": 0.016778523489932886,
+          "written_to_oral_ratio": 58.6
+        },
+        {
+          "Oral": 122,
+          "Total": 1741,
+          "Written": 1619,
+          "entity_id": "Darren-O'Rourke.D.2020-02-08",
+          "oral_share": 0.0700746697300402,
+          "written_to_oral_ratio": 13.270491803278688
+        },
+        {
+          "Oral": 4,
+          "Total": 1673,
+          "Written": 1669,
+          "entity_id": "Sorca-Clarke.D.2020-02-08",
+          "oral_share": 0.002390914524805738,
+          "written_to_oral_ratio": 417.25
+        },
+        {
+          "Oral": 37,
+          "Total": 1571,
+          "Written": 1534,
+          "entity_id": "David-Cullinane.S.2011-05-25",
+          "oral_share": 0.023551877784850413,
+          "written_to_oral_ratio": 41.45945945945946
+        },
+        {
+          "Oral": 39,
+          "Total": 1509,
+          "Written": 1470,
+          "entity_id": "Albert-Dolan.D.2024-11-29",
+          "oral_share": 0.02584493041749503,
+          "written_to_oral_ratio": 37.69230769230769
+        },
+        {
+          "Oral": 4,
+          "Total": 1509,
+          "Written": 1505,
+          "entity_id": "Carol-Nolan.D.2016-10-03",
+          "oral_share": 0.0026507620941020544,
+          "written_to_oral_ratio": 376.25
+        },
+        {
+          "Oral": 128,
+          "Total": 1480,
+          "Written": 1352,
+          "entity_id": "Paul-Murphy.D.2014-10-10",
+          "oral_share": 0.08648648648648649,
+          "written_to_oral_ratio": 10.5625
+        },
+        {
+          "Oral": 52,
+          "Total": 1474,
+          "Written": 1422,
+          "entity_id": "Conor-D-McGuinness.D.2024-11-29",
+          "oral_share": 0.035278154681139755,
+          "written_to_oral_ratio": 27.346153846153847
+        }
+      ]
+    },
+    "national": {
+      "entity_count": 1,
+      "highest_oral_share_min50": [
+        {
+          "Oral": 3660,
+          "Total": 121355,
+          "Written": 117695,
+          "entity_id": "eligible_tds",
+          "oral_share": 0.0301594495488443,
+          "written_to_oral_ratio": 32.15710382513661
+        }
+      ],
+      "lowest_oral_share_min50": [
+        {
+          "Oral": 3660,
+          "Total": 121355,
+          "Written": 117695,
+          "entity_id": "eligible_tds",
+          "oral_share": 0.0301594495488443,
+          "written_to_oral_ratio": 32.15710382513661
+        }
+      ],
+      "top_by_volume": [
+        {
+          "Oral": 3660,
+          "Total": 121355,
+          "Written": 117695,
+          "entity_id": "eligible_tds",
+          "oral_share": 0.0301594495488443,
+          "written_to_oral_ratio": 32.15710382513661
+        }
+      ]
+    },
+    "party": {
+      "entity_count": 11,
+      "highest_oral_share_min50": [
+        {
+          "Oral": 311,
+          "Total": 3806,
+          "Written": 3495,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+          "oral_share": 0.08171308460325802,
+          "written_to_oral_ratio": 11.237942122186496
+        },
+        {
+          "Oral": 1101,
+          "Total": 30748,
+          "Written": 29647,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+          "oral_share": 0.03580720697281124,
+          "written_to_oral_ratio": 26.927338782924615
+        },
+        {
+          "Oral": 929,
+          "Total": 26251,
+          "Written": 25322,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
+          "oral_share": 0.03538912803321778,
+          "written_to_oral_ratio": 27.257265877287406
+        },
+        {
+          "Oral": 12,
+          "Total": 364,
+          "Written": 352,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+          "oral_share": 0.03296703296703297,
+          "written_to_oral_ratio": 29.333333333333332
+        },
+        {
+          "Oral": 288,
+          "Total": 9763,
+          "Written": 9475,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+          "oral_share": 0.029499129365973573,
+          "written_to_oral_ratio": 32.89930555555556
+        },
+        {
+          "Oral": 52,
+          "Total": 1790,
+          "Written": 1738,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+          "oral_share": 0.02905027932960894,
+          "written_to_oral_ratio": 33.42307692307692
+        },
+        {
+          "Oral": 115,
+          "Total": 4257,
+          "Written": 4142,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
+          "oral_share": 0.027014329339910735,
+          "written_to_oral_ratio": 36.017391304347825
+        },
+        {
+          "Oral": 234,
+          "Total": 9089,
+          "Written": 8855,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+          "oral_share": 0.02574540653537243,
+          "written_to_oral_ratio": 37.84188034188034
+        },
+        {
+          "Oral": 167,
+          "Total": 7131,
+          "Written": 6964,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+          "oral_share": 0.02341887533305287,
+          "written_to_oral_ratio": 41.70059880239521
+        },
+        {
+          "Oral": 436,
+          "Total": 18978,
+          "Written": 18542,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+          "oral_share": 0.02297396985983771,
+          "written_to_oral_ratio": 42.527522935779814
+        },
+        {
+          "Oral": 15,
+          "Total": 9178,
+          "Written": 9163,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+          "oral_share": 0.0016343429941163652,
+          "written_to_oral_ratio": 610.8666666666667
+        }
+      ],
+      "lowest_oral_share_min50": [
+        {
+          "Oral": 15,
+          "Total": 9178,
+          "Written": 9163,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+          "oral_share": 0.0016343429941163652,
+          "written_to_oral_ratio": 610.8666666666667
+        },
+        {
+          "Oral": 436,
+          "Total": 18978,
+          "Written": 18542,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+          "oral_share": 0.02297396985983771,
+          "written_to_oral_ratio": 42.527522935779814
+        },
+        {
+          "Oral": 167,
+          "Total": 7131,
+          "Written": 6964,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+          "oral_share": 0.02341887533305287,
+          "written_to_oral_ratio": 41.70059880239521
+        },
+        {
+          "Oral": 234,
+          "Total": 9089,
+          "Written": 8855,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+          "oral_share": 0.02574540653537243,
+          "written_to_oral_ratio": 37.84188034188034
+        },
+        {
+          "Oral": 115,
+          "Total": 4257,
+          "Written": 4142,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
+          "oral_share": 0.027014329339910735,
+          "written_to_oral_ratio": 36.017391304347825
+        },
+        {
+          "Oral": 52,
+          "Total": 1790,
+          "Written": 1738,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+          "oral_share": 0.02905027932960894,
+          "written_to_oral_ratio": 33.42307692307692
+        },
+        {
+          "Oral": 288,
+          "Total": 9763,
+          "Written": 9475,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+          "oral_share": 0.029499129365973573,
+          "written_to_oral_ratio": 32.89930555555556
+        },
+        {
+          "Oral": 12,
+          "Total": 364,
+          "Written": 352,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+          "oral_share": 0.03296703296703297,
+          "written_to_oral_ratio": 29.333333333333332
+        },
+        {
+          "Oral": 929,
+          "Total": 26251,
+          "Written": 25322,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
+          "oral_share": 0.03538912803321778,
+          "written_to_oral_ratio": 27.257265877287406
+        },
+        {
+          "Oral": 1101,
+          "Total": 30748,
+          "Written": 29647,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+          "oral_share": 0.03580720697281124,
+          "written_to_oral_ratio": 26.927338782924615
+        },
+        {
+          "Oral": 311,
+          "Total": 3806,
+          "Written": 3495,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+          "oral_share": 0.08171308460325802,
+          "written_to_oral_ratio": 11.237942122186496
+        }
+      ],
+      "top_by_volume": [
+        {
+          "Oral": 1101,
+          "Total": 30748,
+          "Written": 29647,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_F\u00e9in",
+          "oral_share": 0.03580720697281124,
+          "written_to_oral_ratio": 26.927338782924615
+        },
+        {
+          "Oral": 929,
+          "Total": 26251,
+          "Written": 25322,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_F\u00e1il",
+          "oral_share": 0.03538912803321778,
+          "written_to_oral_ratio": 27.257265877287406
+        },
+        {
+          "Oral": 436,
+          "Total": 18978,
+          "Written": 18542,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+          "oral_share": 0.02297396985983771,
+          "written_to_oral_ratio": 42.527522935779814
+        },
+        {
+          "Oral": 288,
+          "Total": 9763,
+          "Written": 9475,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+          "oral_share": 0.029499129365973573,
+          "written_to_oral_ratio": 32.89930555555556
+        },
+        {
+          "Oral": 15,
+          "Total": 9178,
+          "Written": 9163,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+          "oral_share": 0.0016343429941163652,
+          "written_to_oral_ratio": 610.8666666666667
+        },
+        {
+          "Oral": 234,
+          "Total": 9089,
+          "Written": 8855,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+          "oral_share": 0.02574540653537243,
+          "written_to_oral_ratio": 37.84188034188034
+        },
+        {
+          "Oral": 167,
+          "Total": 7131,
+          "Written": 6964,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+          "oral_share": 0.02341887533305287,
+          "written_to_oral_ratio": 41.70059880239521
+        },
+        {
+          "Oral": 115,
+          "Total": 4257,
+          "Written": 4142,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aont\u00fa",
+          "oral_share": 0.027014329339910735,
+          "written_to_oral_ratio": 36.017391304347825
+        },
+        {
+          "Oral": 311,
+          "Total": 3806,
+          "Written": 3495,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+          "oral_share": 0.08171308460325802,
+          "written_to_oral_ratio": 11.237942122186496
+        },
+        {
+          "Oral": 52,
+          "Total": 1790,
+          "Written": 1738,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+          "oral_share": 0.02905027932960894,
+          "written_to_oral_ratio": 33.42307692307692
+        },
+        {
+          "Oral": 12,
+          "Total": 364,
+          "Written": 352,
+          "entity_id": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+          "oral_share": 0.03296703296703297,
+          "written_to_oral_ratio": 29.333333333333332
+        }
+      ]
+    }
+  },
+  "resolved_key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv"
+}
