@@ -4,16 +4,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  profile:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -27,22 +23,183 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas rapidfuzz
+      - name: Profile live oral question headings
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os,re,unicodedata
+          from collections import Counter,defaultdict
+          from pathlib import Path
+          import boto3,pandas as pd
+          from rapidfuzz.fuzz import ratio, token_sort_ratio
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          def read(logical):
+              key=resolve_production_key(s3,bucket=bucket,production_key=logical)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=['']),key
+          sections,sections_key=read('processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv')
+          questions,questions_key=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
+          sections['debate_date_dt']=pd.to_datetime(sections.debate_date,errors='coerce')
+          sections['section_heading']=sections.section_heading.fillna('').astype(str).str.strip()
+          sections['oral_question_count_num']=pd.to_numeric(sections.oral_question_count,errors='coerce').fillna(0).astype(int)
+          sections['grouped_exchange_bool']=sections.grouped_exchange.astype(str).str.lower().isin({'true','1','yes'}) if 'grouped_exchange' in sections.columns else sections.oral_question_count_num.gt(1)
+          questions=questions[questions.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy()
+          questions['debate_section_id']=questions.debate_section_id.astype(str)
+
+          recipient_col=next((c for c in ['to_minister_or_department','recipient','question_recipient'] if c in questions.columns),None)
+          if recipient_col:
+              questions['recipient_clean']=questions[recipient_col].fillna('').astype(str).str.strip()
+          else:
+              questions['recipient_clean']=''
+
+          def norm_basic(text):
+              t=unicodedata.normalize('NFKC',str(text or '')).casefold().strip()
+              t=t.replace('&',' and ')
+              t=re.sub(r'[\u2010-\u2015]','-',t)
+              t=re.sub(r'[^\w\s-]',' ',t,flags=re.UNICODE)
+              t=re.sub(r'[-_]+',' ',t)
+              return re.sub(r'\s+',' ',t).strip()
+
+          def norm_conservative(text):
+              # Safe candidate normalization only: case, punctuation, ampersand, whitespace.
+              return norm_basic(text)
+
+          sections['heading_norm']=sections.section_heading.map(norm_conservative)
+          counts=sections.section_heading.value_counts(dropna=False)
+          norm_counts=sections.heading_norm.value_counts(dropna=False)
+
+          # Exact normalization collisions: raw headings that become same after case/punctuation/spacing only.
+          collision_groups=[]
+          for n,g in sections.groupby('heading_norm'):
+              raws=sorted(set(g.section_heading.astype(str)))
+              if n and len(raws)>1:
+                  collision_groups.append({'normalized_heading':n,'raw_headings':raws,'exchange_count':int(len(g))})
+          collision_groups=sorted(collision_groups,key=lambda x:(-x['exchange_count'],x['normalized_heading']))
+
+          # Near-equivalent candidates. Do NOT treat as safe normalization automatically.
+          unique_raw=sorted(h for h in sections.section_heading.unique() if h)
+          candidates=[]
+          for i,a in enumerate(unique_raw):
+              na=norm_basic(a)
+              if len(na)<6: continue
+              for b in unique_raw[i+1:]:
+                  nb=norm_basic(b)
+                  if len(nb)<6: continue
+                  # Cheap blocking: first character and length ratio.
+                  if na[:1]!=nb[:1]: continue
+                  lr=min(len(na),len(nb))/max(len(na),len(nb))
+                  if lr<0.72: continue
+                  r=ratio(na,nb); ts=token_sort_ratio(na,nb)
+                  if max(r,ts)>=88 and na!=nb:
+                      candidates.append({'heading_a':a,'heading_b':b,'ratio':round(r,1),'token_sort_ratio':round(ts,1),'count_a':int(counts.get(a,0)),'count_b':int(counts.get(b,0))})
+          candidates=sorted(candidates,key=lambda x:(-max(x['ratio'],x['token_sort_ratio']),-(x['count_a']+x['count_b'])))[:80]
+
+          # Procedural/non-topical candidate patterns: descriptive audit only.
+          procedural_patterns={
+            'taoiseach_meetings':r"taoiseach(?:'s)? meetings|taoiseach.*engagements",
+            'cabinet_committees':r'cabinet committees?',
+            'departmental_questions_generic':r'questions? to (?:the )?minister|ministerial questions?',
+            'business_of_house':r'business of the dáil|business of the house|order of business',
+            'priority_questions':r'priority questions?',
+            'oral_questions_generic':r'^oral questions?$|^questions?$',
+          }
+          procedural_hits={}
+          for name,pat in procedural_patterns.items():
+              m=sections.section_heading.str.contains(pat,case=False,regex=True,na=False)
+              procedural_hits[name]={'exchange_count':int(m.sum()),'headings':sections.loc[m,'section_heading'].value_counts().head(15).to_dict()}
+
+          # Heading reuse / concentration.
+          heading_count_dist=counts.value_counts().sort_index()
+          singleton_headings=int((counts==1).sum())
+          repeated_headings=int((counts>1).sum())
+          exchanges_under_repeated=int(sections.section_heading.isin(counts[counts>1].index).sum())
+
+          # Recipient concentration per heading.
+          qr=questions[['debate_section_id','recipient_clean']].copy()
+          heading_rec=sections[['debate_section_id','section_heading','heading_norm']].merge(qr,on='debate_section_id',how='left')
+          recipient_profiles=[]
+          for h,g in heading_rec.groupby('section_heading'):
+              rc=g.recipient_clean.replace('',pd.NA).dropna().value_counts()
+              total=int(rc.sum())
+              if total==0: continue
+              top=str(rc.index[0]); top_n=int(rc.iloc[0])
+              recipient_profiles.append({'section_heading':h,'exchange_count':int((sections.section_heading==h).sum()),'question_records_with_recipient':total,'distinct_recipients':int(len(rc)),'top_recipient':top,'top_recipient_share':top_n/total,'top_recipients':rc.head(5).to_dict()})
+          recipient_profiles=sorted(recipient_profiles,key=lambda x:(-x['exchange_count'],x['section_heading']))
+
+          # Temporal stability by heading: first/last date, distinct months, distinct years, occurrences.
+          stability=[]
+          for h,g in sections.groupby('section_heading'):
+              dates=g.debate_date_dt.dropna()
+              stability.append({'section_heading':h,'exchange_count':int(len(g)),'first_date':dates.min().date().isoformat() if len(dates) else None,'last_date':dates.max().date().isoformat() if len(dates) else None,'distinct_months':int(dates.dt.to_period('M').nunique()) if len(dates) else 0,'distinct_years':int(dates.dt.year.nunique()) if len(dates) else 0,'grouped_share':float(g.grouped_exchange_bool.mean()),'median_questions_per_exchange':float(g.oral_question_count_num.median())})
+          stability=sorted(stability,key=lambda x:(-x['exchange_count'],x['section_heading']))
+
+          # Year overlap: headings used in both 2025 and 2026.
+          sections['year']=sections.debate_date_dt.dt.year
+          years_by_heading=sections.groupby('section_heading').year.apply(lambda x:set(int(v) for v in x.dropna())).to_dict()
+          both_years=[h for h,ys in years_by_heading.items() if 2025 in ys and 2026 in ys]
+
+          # Top headings with recipient and stability details.
+          rec_map={x['section_heading']:x for x in recipient_profiles}
+          stab_map={x['section_heading']:x for x in stability}
+          top=[]
+          for h,n in counts.head(40).items():
+              x={'section_heading':h,'exchange_count':int(n)}
+              x.update({k:v for k,v in stab_map[h].items() if k not in {'section_heading','exchange_count'}})
+              rp=rec_map.get(h)
+              if rp:
+                  x.update({'distinct_recipients':rp['distinct_recipients'],'top_recipient':rp['top_recipient'],'top_recipient_share':rp['top_recipient_share']})
+              top.append(x)
+
+          # Candidate normalization impact if ONLY conservative exact normalization is used.
+          safe_unique=int(sections.heading_norm.nunique())
+          raw_unique=int(sections.section_heading.nunique())
+          safe_reduction=raw_unique-safe_unique
+
+          out={
+            'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode')),
+            'resolved_keys':{'oral_question_sections':sections_key,'questions':questions_key},
+            'exchange_count':int(len(sections)),
+            'raw_heading_unique_count':raw_unique,
+            'blank_heading_exchange_count':int(sections.section_heading.eq('').sum()),
+            'singleton_heading_count':singleton_headings,
+            'repeated_heading_count':repeated_headings,
+            'exchange_share_under_repeated_heading':exchanges_under_repeated/len(sections) if len(sections) else None,
+            'headings_used_in_both_2025_and_2026_count':len(both_years),
+            'conservative_normalized_unique_count':safe_unique,
+            'conservative_safe_unique_reduction':safe_reduction,
+            'exact_normalization_collision_group_count':len(collision_groups),
+            'exact_normalization_collision_groups':collision_groups[:50],
+            'near_equivalent_candidates':candidates,
+            'procedural_candidate_profiles':procedural_hits,
+            'top_headings':top,
+            'recipient_profiles_top_60':recipient_profiles[:60],
+            'stability_top_60':stability[:60],
+            'heading_frequency_distribution':{str(k):int(v) for k,v in heading_count_dist.items()},
+            'guardrails':[
+              'Conservative normalization only changes case, punctuation, ampersand and whitespace.',
+              'Near-equivalent fuzzy pairs are review candidates only and are not safe merges by themselves.',
+              'Section headings are source-generated labels and are not the EirePolitic issue taxonomy.',
+              'Procedural-like patterns are descriptive candidates and require manual/source review before any public category is created.'
+            ]
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/oral_section_heading_profile.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          digest={k:v for k,v in out.items() if k not in ['recipient_profiles_top_60','stability_top_60','heading_frequency_distribution']}
+          digest['top_headings']=top[:25]
+          digest['exact_normalization_collision_groups']=collision_groups[:20]
+          digest['near_equivalent_candidates']=candidates[:30]
+          Path('analysis/oral_section_heading_profile_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/oral_section_heading_profile*.json
+          git commit -m "Capture oral section heading profile ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
