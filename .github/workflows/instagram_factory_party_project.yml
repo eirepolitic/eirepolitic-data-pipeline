@@ -59,8 +59,8 @@ jobs:
           for item in manifest['covers']:
               assert item['party_asset_registry'] == 'configs/reference/party_assets_v1.csv'
               asset = item['party_asset']
-              assert asset['validated_dimensions'] == [1600, 1600], asset
-              assert asset['s3_uri'].endswith(f"/{item['party_key']}/logo.png"), asset['s3_uri']
+              assert asset['dimensions'] == [1600, 1600], asset
+              assert asset['logo_s3_uri'].endswith(f"/{item['party_key']}/logo.png"), asset['logo_s3_uri']
           print('PASS: 11 covers, 11 lineage files, registry-backed 1600x1600 logos, contact sheet present')
           PY
 
