@@ -4,6 +4,7 @@
 Safe defaults:
 - dry-run unless --apply is provided
 - refuses to upload if manifest success is false
+- validates party_count when the build manifest provides it
 - refuses to overwrite existing S3 objects
 - uploads the complete deterministic v1 reference bundle
 """
@@ -62,8 +63,11 @@ def upload_build(build_root: Path, bucket: str, prefix: str, apply: bool, client
     if not manifest_path.is_file():
         raise ValueError(f"Missing build manifest: {manifest_path}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if not manifest.get("success") or manifest.get("party_count") != 11:
-        raise ValueError("Refusing upload: build manifest is not a successful 11-party build")
+    if not manifest.get("success"):
+        raise ValueError("Refusing upload: build manifest is not successful")
+    party_count = manifest.get("party_count")
+    if party_count is not None and party_count != 11:
+        raise ValueError(f"Refusing upload: expected 11 parties, manifest has {party_count}")
 
     client = client or boto3.client("s3", region_name=os.getenv("AWS_REGION", "ca-central-1"))
     uploads = collect_uploads(build_root, prefix)
