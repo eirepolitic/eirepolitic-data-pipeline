@@ -4,21 +4,22 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-candidate:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      REVIEW_OUTPUT_ROOT: oireachtas_review_output
       OIREACHTAS_BATCH_ID: structure-oral-exchange-participants-20260902-1
       OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,11 +34,11 @@ jobs:
       - name: Seed exact production snapshot
         run: |
           set -euo pipefail
-          python process/oireachtas_seed_candidate.py --batch-id "${OIREACHTAS_BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" | tee candidate_seed.json
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_seed_candidate.py --batch-id "${OIREACHTAS_BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" | tee candidate_seed.json
       - name: Materialize merged-main political metrics
         run: |
           set -euo pipefail
-          python process/political_metrics_materialize_candidate.py --batch-id "${OIREACHTAS_BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --report-path political_metrics_candidate_report.json
+          OIREACHTAS_PUBLISH_LATEST=false python process/political_metrics_materialize_candidate.py --batch-id "${OIREACHTAS_BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --report-path political_metrics_candidate_report.json
       - name: Reconcile exchange and participant foundations
         run: |
           set -euo pipefail
@@ -72,7 +73,7 @@ jobs:
       - name: Assemble eight-dataset manifest
         run: |
           set -euo pipefail
-          python process/oireachtas_batch_control.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" assemble --batch-id "${OIREACHTAS_BATCH_ID}" \
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" assemble --batch-id "${OIREACHTAS_BATCH_ID}" \
             --required-table political_metrics_daily_activity_components \
             --required-table political_metrics_daily_issue_activity \
             --required-table political_metrics_division_party_vote_components \
@@ -81,21 +82,64 @@ jobs:
             --required-table political_metrics_oral_question_exchange_participants \
             --required-table political_metrics_speech_question_context \
             --required-table political_metrics_monthly_metric_results | tee candidate_manifest.json
-      - name: Upload build evidence
+      - name: Build candidate-local auxiliary enrichments
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.enrichment_member_photo_urls | tee oireachtas_member_photo_enrichment.log
+          python -m extract.oireachtas.enrichment_member_summaries | tee oireachtas_member_summaries_enrichment.log
+          python -m extract.oireachtas.enrichment_constituency_images | tee oireachtas_constituency_images_enrichment.log
+      - name: Stage fresh enrichment contracts into candidate batch
+        run: |
+          set -euo pipefail
+          python process/oireachtas_stage_downstream_contracts.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --batch-id "${OIREACHTAS_BATCH_ID}" | tee oireachtas_enrichment_staging.json
+      - name: Build candidate compatibility adapters
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.downstream_compat | tee oireachtas_compat_adapters.log
+      - name: Validate candidate downstream contracts
+        run: |
+          set -euo pipefail
+          python process/oireachtas_validate_downstream_contracts.py --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --contract members_compat --contract member_votes_compat --contract member_photo_urls --contract member_summaries --contract constituency_images --contract debate_issue_labels --output oireachtas_downstream_contracts.json
+      - name: Run strict compatibility and mismatch validation
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.compat_comparison | tee oireachtas_compat_comparison.log
+          python -m extract.oireachtas.mismatch_review | tee oireachtas_mismatch_review.log
+      - name: Build year-aware member metrics
+        run: |
+          set -euo pipefail
+          export TARGET_YEAR="$(date -u -d '1 year ago' +%Y)"
+          python process/build_member_profile_metrics.py | tee member_profile_metrics.json
+          echo "TARGET_YEAR=${TARGET_YEAR}" >> "${GITHUB_ENV}"
+      - name: Run candidate-only Instagram HTML smoke test
+        run: |
+          set -euo pipefail
+          python process/oireachtas_consumer_smoke.py --batch-id "${OIREACHTAS_BATCH_ID}" --target-year "${TARGET_YEAR}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --output consumer_smoke | tee oireachtas_consumer_smoke.log
+      - name: Reassemble final candidate manifest
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_reassemble_candidate.py --batch-id "${OIREACHTAS_BATCH_ID}" --bucket "${S3_BUCKET}" --region "${AWS_REGION}" --require compat_downstream_adapters | tee oireachtas_final_batch_manifest.json
+      - name: Upload validation evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oral-exchange-participant-merged-main-build-${{ github.run_id }}
+          name: oral-exchange-participant-merged-main-${{ github.run_id }}
           path: |
             candidate_seed.json
             political_metrics_candidate_report.json
             candidate_manifest.json
-          if-no-files-found: error
-          retention-days: 30
-
-  validate-candidate:
-    needs: build-candidate
-    uses: ./.github/workflows/oireachtas_validation_reusable.yml
-    with:
-      batch_id: structure-oral-exchange-participants-20260902-1
-      run_consumers: true
-    secrets: inherit
+            oireachtas_review_output/**
+            oireachtas_member_photo_enrichment.log
+            oireachtas_member_summaries_enrichment.log
+            oireachtas_constituency_images_enrichment.log
+            oireachtas_enrichment_staging.json
+            oireachtas_downstream_contracts.json
+            oireachtas_compat_adapters.log
+            oireachtas_compat_comparison.log
+            oireachtas_mismatch_review.log
+            member_profile_metrics.json
+            oireachtas_consumer_smoke.log
+            consumer_smoke/**
+            oireachtas_final_batch_manifest.json
+          if-no-files-found: warn
+          retention-days: 90
