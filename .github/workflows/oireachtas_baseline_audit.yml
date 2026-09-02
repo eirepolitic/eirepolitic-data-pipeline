@@ -4,45 +4,282 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas numpy pyyaml
+      - name: Analyze oral question exchange participation and structure
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os, re
+          from pathlib import Path
+          import boto3
+          import numpy as np
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          keys={
+            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
+            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
+            'oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
+            'speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
+            'offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv',
+            'members':'processed/oireachtas_unified/latest/csv/silver_members.csv',
+          }
+          frames={}; resolved={}
+          for name,key in keys.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=key)
+              resolved[name]=r
+              obj=s3.get_object(Bucket=bucket,Key=r)
+              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          q=frames['questions'].copy(); s=frames['speeches'].copy(); oq=frames['oral_sections'].copy(); sc=frames['speech_context'].copy(); offices=frames['offices'].copy(); members=frames['members'].copy()
+          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
+          s['debate_date']=pd.to_datetime(s['debate_date'],errors='coerce')
+          s['word_count']=pd.to_numeric(s['word_count'],errors='coerce').fillna(0).astype(int)
+          oq['debate_date']=pd.to_datetime(oq['debate_date'],errors='coerce')
+          for c in ['oral_question_count','asking_member_count','related_speech_count','related_speaker_count']:
+              oq[c]=pd.to_numeric(oq[c],errors='coerce').fillna(0).astype(int)
+          offices['office_start']=pd.to_datetime(offices['office_start'],errors='coerce')
+          offices['office_end']=pd.to_datetime(offices['office_end'],errors='coerce')
+
+          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy()
+          oral['debate_section_id']=oral.debate_section_id.astype(str)
+          related_ids=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
+          rs=s[s.speech_id.astype(str).isin(related_ids)].copy()
+          rs['debate_section_id']=rs.debate_section_id.astype(str)
+          rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str)
+          rs['speaker_name']=rs.speaker_name.fillna('').astype(str)
+
+          member_names={str(r.member_code):str(r.display_name or r.full_name or r.member_code) for r in members.itertuples(index=False)}
+
+          # Build date-aware office role map. We classify only directly evidenced role names.
+          def role_class(name):
+              t='' if pd.isna(name) else str(name).strip().lower()
+              if not t: return None
+              if 'ceann comhairle' in t or 'leas-cheann comhairle' in t or 'cathaoirleach' in t: return 'chair'
+              if 'taoiseach' in t or 'tánaiste' in t or 'minister' in t or 'attorney general' in t: return 'ministerial'
+              return 'other_office'
+
+          offices['role_class']=offices.office_name.map(role_class)
+          office_names=offices.office_name.dropna().astype(str).value_counts().head(40).rename_axis('office_name').reset_index(name='rows').to_dict(orient='records')
+
+          # For each speech, identify active role(s) on debate date.
+          def active_roles(member_code, date):
+              if not member_code or pd.isna(date): return []
+              g=offices[offices.member_code.astype(str).eq(str(member_code))]
+              if g.empty: return []
+              mask=(g.office_start.isna() | g.office_start.le(date)) & (g.office_end.isna() | g.office_end.gt(date))
+              return sorted(set(x for x in g.loc[mask,'role_class'].dropna().astype(str)))
+
+          role_cache={}
+          speech_roles=[]
+          for r in rs[['speaker_member_code','debate_date']].drop_duplicates().itertuples(index=False):
+              key=(str(r.speaker_member_code),pd.Timestamp(r.debate_date) if pd.notna(r.debate_date) else pd.NaT)
+              role_cache[key]=active_roles(key[0],key[1])
+          for r in rs.itertuples(index=False):
+              key=(str(r.speaker_member_code),pd.Timestamp(r.debate_date) if pd.notna(r.debate_date) else pd.NaT)
+              roles=role_cache.get(key,[])
+              # Fallback to explicit transcript role labels only for clearly procedural chair names.
+              name=str(r.speaker_name).lower()
+              transcript_chair=('ceann comhairle' in name or 'leas-cheann comhairle' in name)
+              speech_roles.append('chair' if ('chair' in roles or transcript_chair) else ('ministerial' if 'ministerial' in roles else ('member_other' if str(r.speaker_member_code) else 'unmatched_other')))
+          rs['role_bucket']=speech_roles
+
+          section_records=[]
+          for sid, sec in oq.groupby('debate_section_id'):
+              row=sec.iloc[0]
+              qg=oral[oral.debate_section_id.eq(str(sid))].copy()
+              sg=rs[rs.debate_section_id.eq(str(sid))].copy()
+              asker_codes=sorted(set(qg.asked_by_member_code.dropna().astype(str))) if 'asked_by_member_code' in qg.columns else []
+              asker_codes=[x for x in asker_codes if x and x.lower()!='nan']
+              speaker_codes=sorted(set(x for x in sg.speaker_member_code.astype(str) if x))
+              participating_askers=sorted(set(asker_codes)&set(speaker_codes))
+              other_member_speakers=sorted(set(speaker_codes)-set(asker_codes))
+              sg=sg.copy(); sg['is_submitter']=sg.speaker_member_code.astype(str).isin(set(asker_codes))
+              total_words=int(sg.word_count.sum()); total_interventions=int(len(sg))
+              role_words=sg.groupby('role_bucket').word_count.sum().to_dict()
+              role_interventions=sg.role_bucket.value_counts().to_dict()
+              submitter_words=int(sg.loc[sg.is_submitter,'word_count'].sum())
+              submitter_interventions=int(sg.is_submitter.sum())
+              top_speaker=None; top_speaker_words=0; top_speaker_share=None
+              if len(sg):
+                  byspeaker=sg.groupby(['speaker_member_code','speaker_name'],dropna=False).word_count.sum().sort_values(ascending=False)
+                  if len(byspeaker):
+                      idx=byspeaker.index[0]; top_speaker_words=int(byspeaker.iloc[0]); top_speaker_share=(top_speaker_words/total_words if total_words else None)
+                      top_speaker=str(idx[1] or member_names.get(str(idx[0]),str(idx[0])))
+              section_records.append({
+                'debate_section_id':str(sid),
+                'debate_date':str(pd.Timestamp(row.debate_date).date()) if pd.notna(row.debate_date) else None,
+                'section_heading':str(row.section_heading),
+                'recipient_count':int(qg.to_minister_or_department.dropna().astype(str).nunique()) if 'to_minister_or_department' in qg.columns else 0,
+                'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],
+                'oral_question_count':int(row.oral_question_count),
+                'asker_count':len(asker_codes),
+                'grouped_exchange':int(row.oral_question_count)>1,
+                'participating_asker_count':len(participating_askers),
+                'asker_participation_share':len(participating_askers)/len(asker_codes) if asker_codes else None,
+                'non_submitting_member_speaker_count':len(other_member_speakers),
+                'speech_interventions':total_interventions,
+                'distinct_speakers':int(sg[['speaker_member_code','speaker_name']].drop_duplicates().shape[0]) if len(sg) else 0,
+                'total_words':total_words,
+                'median_intervention_words':float(sg.word_count.median()) if len(sg) else None,
+                'mean_intervention_words':float(sg.word_count.mean()) if len(sg) else None,
+                'max_intervention_words':int(sg.word_count.max()) if len(sg) else 0,
+                'submitter_interventions':submitter_interventions,
+                'submitter_intervention_share':submitter_interventions/total_interventions if total_interventions else None,
+                'submitter_words':submitter_words,
+                'submitter_word_share':submitter_words/total_words if total_words else None,
+                'ministerial_interventions':int(role_interventions.get('ministerial',0)),
+                'ministerial_words':int(role_words.get('ministerial',0)),
+                'ministerial_word_share':int(role_words.get('ministerial',0))/total_words if total_words else None,
+                'chair_interventions':int(role_interventions.get('chair',0)),
+                'chair_words':int(role_words.get('chair',0)),
+                'chair_intervention_share':int(role_interventions.get('chair',0))/total_interventions if total_interventions else None,
+                'other_member_interventions':int(role_interventions.get('member_other',0)),
+                'unmatched_other_interventions':int(role_interventions.get('unmatched_other',0)),
+                'top_speaker':top_speaker,
+                'top_speaker_words':top_speaker_words,
+                'top_speaker_word_share':top_speaker_share,
+                'question_ids':sorted(set(qg.question_id.astype(str))),
+                'asker_codes':asker_codes,
+                'participating_asker_codes':participating_askers,
+                'other_member_speaker_codes':other_member_speakers,
+              })
+          ex=pd.DataFrame(section_records)
+
+          def quantiles(series):
+              series=pd.to_numeric(series,errors='coerce').dropna()
+              return {k:float(series.quantile(v)) for k,v in [('p10',.1),('p25',.25),('median',.5),('p75',.75),('p90',.9),('p95',.95)]} if len(series) else {}
+
+          grouped=ex[ex.grouped_exchange]; single=ex[~ex.grouped_exchange]
+          def cohort(df,label):
+              return {
+                'label':label,'exchange_count':int(len(df)),
+                'median_questions':float(df.oral_question_count.median()) if len(df) else None,
+                'median_askers':float(df.asker_count.median()) if len(df) else None,
+                'median_speech_interventions':float(df.speech_interventions.median()) if len(df) else None,
+                'median_total_words':float(df.total_words.median()) if len(df) else None,
+                'median_distinct_speakers':float(df.distinct_speakers.median()) if len(df) else None,
+                'median_asker_participation_share':float(df.asker_participation_share.median()) if len(df) else None,
+                'median_submitter_word_share':float(df.submitter_word_share.median()) if len(df) else None,
+                'median_ministerial_word_share':float(df.ministerial_word_share.median()) if len(df) else None,
+                'median_chair_intervention_share':float(df.chair_intervention_share.median()) if len(df) else None,
+                'share_with_non_submitting_member_speaker':float((df.non_submitting_member_speaker_count>0).mean()) if len(df) else None,
+                'share_all_submitters_participate':float(df.asker_participation_share.eq(1).mean()) if len(df) else None,
+                'share_no_submitter_participates':float(df.asker_participation_share.eq(0).mean()) if len(df) else None,
+              }
+
+          # Recipient summary.
+          recipient_rows=[]
+          exploded=[]
+          for r in section_records:
+              for recipient in r['recipients']:
+                  exploded.append({**{k:r[k] for k in ['debate_section_id','grouped_exchange','oral_question_count','speech_interventions','total_words','asker_participation_share','submitter_word_share','ministerial_word_share','chair_intervention_share']},'recipient':recipient})
+          er=pd.DataFrame(exploded)
+          if len(er):
+              for rec,g in er.groupby('recipient'):
+                  if len(g)<5: continue
+                  recipient_rows.append({
+                    'recipient':str(rec),'exchange_count':int(len(g)),
+                    'grouped_exchange_share':float(g.grouped_exchange.mean()),
+                    'median_questions_per_exchange':float(g.oral_question_count.median()),
+                    'median_speech_interventions':float(g.speech_interventions.median()),
+                    'median_words':float(g.total_words.median()),
+                    'median_submitter_word_share':float(g.submitter_word_share.median()),
+                    'median_ministerial_word_share':float(g.ministerial_word_share.median()),
+                  })
+          recipient_rows=sorted(recipient_rows,key=lambda r:(-r['exchange_count'],r['recipient']))
+
+          # Interesting deterministic outliers.
+          cols=['debate_section_id','debate_date','section_heading','recipients','oral_question_count','asker_count','participating_asker_count','asker_participation_share','non_submitting_member_speaker_count','speech_interventions','distinct_speakers','total_words','median_intervention_words','submitter_word_share','ministerial_word_share','chair_intervention_share','top_speaker','top_speaker_word_share']
+          highest_words=ex.sort_values('total_words',ascending=False)[cols].head(20).to_dict(orient='records')
+          deepest_single=single.sort_values(['total_words','speech_interventions'],ascending=False)[cols].head(20).to_dict(orient='records')
+          broadest_grouped=grouped.sort_values(['asker_count','distinct_speakers','total_words'],ascending=False)[cols].head(20).to_dict(orient='records')
+          low_asker_part=ex[ex.asker_count>0].sort_values(['asker_participation_share','oral_question_count','total_words'],ascending=[True,False,False])[cols].head(30).to_dict(orient='records')
+          high_other_part=ex.sort_values(['non_submitting_member_speaker_count','total_words'],ascending=False)[cols].head(30).to_dict(orient='records')
+
+          # Heading-level recurring structure.
+          heading_summary=[]
+          for heading,g in ex[ex.section_heading.astype(str).str.strip().ne('')].groupby('section_heading'):
+              if len(g)<5: continue
+              heading_summary.append({
+                'heading':str(heading),'exchange_count':int(len(g)),
+                'grouped_share':float(g.grouped_exchange.mean()),
+                'median_questions':float(g.oral_question_count.median()),
+                'median_interventions':float(g.speech_interventions.median()),
+                'median_words':float(g.total_words.median()),
+                'median_asker_participation_share':float(g.asker_participation_share.median()),
+              })
+          heading_summary=sorted(heading_summary,key=lambda r:-r['exchange_count'])
+
+          report={
+            'resolved_keys':resolved,
+            'exchange_count':int(len(ex)),
+            'office_name_sample':office_names,
+            'cohorts':{
+              'single_question':cohort(single,'single_question'),
+              'grouped_questions':cohort(grouped,'grouped_questions'),
+              'all':cohort(ex,'all'),
+            },
+            'distribution_quantiles':{
+              'oral_question_count':quantiles(ex.oral_question_count),
+              'speech_interventions':quantiles(ex.speech_interventions),
+              'total_words':quantiles(ex.total_words),
+              'distinct_speakers':quantiles(ex.distinct_speakers),
+              'asker_participation_share':quantiles(ex.asker_participation_share),
+              'submitter_word_share':quantiles(ex.submitter_word_share),
+              'ministerial_word_share':quantiles(ex.ministerial_word_share),
+              'chair_intervention_share':quantiles(ex.chair_intervention_share),
+            },
+            'recipient_summary':recipient_rows,
+            'heading_summary':heading_summary,
+            'highest_word_volume_exchanges':highest_words,
+            'deepest_single_question_exchanges':deepest_single,
+            'broadest_grouped_exchanges':broadest_grouped,
+            'lowest_submitter_participation_exchanges':low_asker_part,
+            'highest_non_submitting_member_participation':high_other_part,
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/oral_exchange_participation_analysis.json').write_text(json.dumps(report,indent=2,sort_keys=True,default=str)+'\n')
+          digest={
+            'exchange_count':report['exchange_count'],
+            'cohorts':report['cohorts'],
+            'distribution_quantiles':report['distribution_quantiles'],
+            'top_recipients':report['recipient_summary'][:15],
+            'top_headings':report['heading_summary'][:15],
+            'highest_word_volume_exchanges':highest_words[:10],
+            'deepest_single_question_exchanges':deepest_single[:10],
+            'broadest_grouped_exchanges':broadest_grouped[:10],
+            'lowest_submitter_participation_exchanges':low_asker_part[:12],
+            'highest_non_submitting_member_participation':high_other_part[:12],
+          }
+          Path('analysis/oral_exchange_participation_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/oral_exchange_participation_*.json
+          git commit -m "Capture oral question exchange participation analysis ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
