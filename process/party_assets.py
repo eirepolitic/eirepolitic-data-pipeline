@@ -27,6 +27,7 @@ DEFAULT_ASSET_PREFIX = "processed/reference/party_assets/v1/assets/"
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 VALID_STATUSES = {"approved", "approved_fallback", "source_identified_pending_ingest", "pending_review"}
 GENERATED_SOURCE_TYPES = {"eirepolitic_generated_standin"}
+USER_SUPPLIED_SOURCE_TYPES = {"user_supplied_final_asset"}
 
 
 @dataclass(frozen=True)
@@ -131,6 +132,9 @@ def validate_registry(rows: Iterable[PartyAsset]) -> list[str]:
                 errors.append(f"{row.party_key}: generated stand-in must not claim an external source_url")
             if not row.fallback_type:
                 errors.append(f"{row.party_key}: generated stand-in requires fallback_type")
+        elif row.source_type in USER_SUPPLIED_SOURCE_TYPES:
+            if row.source_url:
+                errors.append(f"{row.party_key}: user-supplied source should not claim an external source_url")
         elif not row.source_url.startswith("https://"):
             errors.append(f"{row.party_key}: external-source row requires HTTPS source_url")
 
