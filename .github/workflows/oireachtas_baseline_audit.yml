@@ -9,7 +9,7 @@ permissions:
 jobs:
   analyse:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -25,149 +25,57 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas
-      - name: Compare Oral and Written question channels
+      - name: Build party constituency and member question-channel profiles
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import io,json,os,math
+          import io,json,os
           from pathlib import Path
           import boto3,pandas as pd
           from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
-
           bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
           pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
-          def read(logical):
-              key=resolve_production_key(s3,bucket=bucket,production_key=logical)
-              df=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-              return df,key
-
-          q,qkey=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
-          sec,seckey=read('processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv')
-          dims,dimkey=read('processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv')
-
-          q['question_type_clean']=q.question_type.fillna('').astype(str).str.strip().str.title()
-          q=q[q.question_type_clean.isin(['Oral','Written'])].copy()
-          q['question_date_dt']=pd.to_datetime(q.question_date,errors='coerce')
-          q['debate_section_id']=q.debate_section_id.fillna('').astype(str)
-          recipient_col=next((c for c in ['to_minister_or_department','recipient','question_recipient'] if c in q.columns),None)
-          q['recipient_clean']=q[recipient_col].fillna('').astype(str).str.strip() if recipient_col else ''
-          q['member_code']=q.asked_by_member_code.fillna('').astype(str).str.strip() if 'asked_by_member_code' in q.columns else ''
-          sec['debate_section_id']=sec.debate_section_id.astype(str)
-          sec['related_speech_word_count_num']=pd.to_numeric(sec.related_speech_word_count,errors='coerce').fillna(0)
-          sec['related_speech_count_num']=pd.to_numeric(sec.related_speech_count,errors='coerce').fillna(0)
-          sec['grouped_bool']=sec.grouped_exchange.astype(str).str.lower().isin({'true','1','yes'})
-
-          type_counts=q.question_type_clean.value_counts().to_dict()
-          total=len(q); oral_n=int(type_counts.get('Oral',0)); written_n=int(type_counts.get('Written',0))
-
-          # By year.
-          by_year=(q.assign(year=q.question_date_dt.dt.year).groupby(['year','question_type_clean']).question_id.nunique().unstack(fill_value=0).reset_index())
-
-          # Recipient channel mix by submitted question record.
-          rec=(q[q.recipient_clean.ne('')].groupby(['recipient_clean','question_type_clean']).question_id.nunique().unstack(fill_value=0))
-          for c in ['Oral','Written']:
-              if c not in rec.columns: rec[c]=0
-          rec['Total']=rec['Oral']+rec['Written']; rec['oral_share']=rec['Oral']/rec['Total']; rec['written_to_oral_ratio']=rec['Written']/rec['Oral'].replace(0,pd.NA)
-          rec=rec.reset_index().rename(columns={'recipient_clean':'recipient'})
-
-          # Oral exchange recipient structure. Detect sections with one vs multiple recipients.
-          oral=q[q.question_type_clean.eq('Oral')].copy()
-          section_recipients=(oral[oral.recipient_clean.ne('')].groupby('debate_section_id').recipient_clean.apply(lambda x:sorted(set(x))).to_dict())
-          multi_recipient_sections={sid:rs for sid,rs in section_recipients.items() if len(rs)>1}
-          single_recipient_sections={sid:rs[0] for sid,rs in section_recipients.items() if len(rs)==1}
-          sec['single_recipient']=sec.debate_section_id.map(single_recipient_sections)
-          sec['recipient_count']=sec.debate_section_id.map(lambda sid:len(section_recipients.get(sid,[])))
-          oral_exchange_by_rec=[]
-          for recipient,g in sec[sec.single_recipient.notna()].groupby('single_recipient'):
-              oral_exchange_by_rec.append({
-                'recipient':recipient,'single_recipient_exchange_count':int(len(g)),'grouped_share':float(g.grouped_bool.mean()),
-                'median_words':float(g.related_speech_word_count_num.median()),'total_words':int(g.related_speech_word_count_num.sum()),
-                'median_interventions':float(g.related_speech_count_num.median()),'total_interventions':int(g.related_speech_count_num.sum())
-              })
-          exrec=pd.DataFrame(oral_exchange_by_rec)
-          if exrec.empty: exrec=pd.DataFrame(columns=['recipient','single_recipient_exchange_count','grouped_share','median_words','total_words','median_interventions','total_interventions'])
-          rec2=rec.merge(exrec,on='recipient',how='left').fillna({'single_recipient_exchange_count':0,'grouped_share':0,'median_words':0,'total_words':0,'median_interventions':0,'total_interventions':0})
-          rec2['oral_questions_per_exchange']=rec2['Oral']/rec2['single_recipient_exchange_count'].replace(0,pd.NA)
-          rec2['oral_exchange_share_of_all_questions']=rec2['single_recipient_exchange_count']/rec2['Total'].replace(0,pd.NA)
-
-          # Member channel use directly from source question records.
-          mq=(q[q.member_code.ne('')].groupby(['member_code','question_type_clean']).question_id.nunique().unstack(fill_value=0))
-          for c in ['Oral','Written']:
-              if c not in mq.columns: mq[c]=0
-          mq['Total']=mq.Oral+mq.Written; mq['oral_share']=mq.Oral/mq.Total
-          member_count=len(mq)
-          both_channels=int(((mq.Oral>0)&(mq.Written>0)).sum())
-          written_only=int(((mq.Oral==0)&(mq.Written>0)).sum())
-          oral_only=int(((mq.Oral>0)&(mq.Written==0)).sum())
-          high_volume=mq[mq.Total.ge(20)].copy()
-          oral_specialists=high_volume.sort_values(['oral_share','Oral','Total'],ascending=[False,False,False]).head(20).reset_index()
-          written_specialists=high_volume.sort_values(['oral_share','Written','Total'],ascending=[True,False,False]).head(20).reset_index()
-
-          # Party and constituency channel profiles from already-certified daily_question_dimensions.
+          logical='processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv'
+          key=resolve_production_key(s3,bucket=bucket,production_key=logical)
+          dims=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
           dims['question_count_num']=pd.to_numeric(dims.question_count,errors='coerce').fillna(0)
-          qt=dims[(dims.dimension_name=='question_type') & dims.dimension_value.isin(['Oral','Written'])].copy()
+          dims['dimension_name_norm']=dims.dimension_name.fillna('').astype(str).str.strip().str.casefold()
+          dims['dimension_value_norm']=dims.dimension_value.fillna('').astype(str).str.strip().str.casefold()
+          inventory={
+            'dimension_names':dims.dimension_name.value_counts().to_dict(),
+            'question_type_raw_values':dims.loc[dims.dimension_name_norm.eq('question_type'),'dimension_value'].value_counts().to_dict(),
+            'grains':dims.grain.value_counts().to_dict(),
+          }
+          qt=dims[dims.dimension_name_norm.eq('question_type') & dims.dimension_value_norm.isin(['oral','written'])].copy()
+          qt['channel']=qt.dimension_value_norm.map({'oral':'Oral','written':'Written'})
           profiles={}
           for grain in ['party','constituency','member','national']:
-              g=qt[qt.grain.eq(grain)]
+              g=qt[qt.grain.astype(str).str.casefold().eq(grain)]
               if g.empty: continue
-              p=g.groupby(['entity_id','dimension_value']).question_count_num.sum().unstack(fill_value=0)
+              p=g.groupby(['entity_id','channel']).question_count_num.sum().unstack(fill_value=0)
               for c in ['Oral','Written']:
                   if c not in p.columns:p[c]=0
-              p['Total']=p.Oral+p.Written;p['oral_share']=p.Oral/p.Total.replace(0,pd.NA)
+              p['Total']=p.Oral+p.Written;p['oral_share']=p.Oral/p.Total.replace(0,pd.NA);p['written_to_oral_ratio']=p.Written/p.Oral.replace(0,pd.NA)
               p=p.sort_values('Total',ascending=False).reset_index()
-              profiles[grain]=p.head(50).to_dict(orient='records')
-
-          # Cross-channel recipient ranking / imbalance. Require at least 50 total questions for stable ranking descriptions.
-          eligible=rec2[rec2.Total.ge(50)].copy()
-          oral_skew=eligible.sort_values(['oral_share','Oral'],ascending=[False,False]).head(20)
-          written_skew=eligible.sort_values(['oral_share','Written'],ascending=[True,False]).head(20)
-
-          # Simple concentration metrics.
-          def hhi(values):
-              s=sum(values)
-              return sum((v/s)**2 for v in values) if s else None
-          oral_rec_counts=rec2.Oral[rec2.Oral.gt(0)].tolist(); written_rec_counts=rec2.Written[rec2.Written.gt(0)].tolist()
-
-          out={
-            'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode')),
-            'resolved_keys':{'questions':qkey,'oral_sections':seckey,'daily_question_dimensions':dimkey},
-            'overall':{'question_records':total,'oral':oral_n,'written':written_n,'oral_share':oral_n/total if total else None,'written_share':written_n/total if total else None,'written_to_oral_ratio':written_n/oral_n if oral_n else None},
-            'by_year':by_year.to_dict(orient='records'),
-            'recipient_structure':{
-              'recipient_count':int(len(rec2)),'oral_recipient_hhi':hhi(oral_rec_counts),'written_recipient_hhi':hhi(written_rec_counts),
-              'oral_sections_total':int(len(sec)),'single_recipient_oral_sections':int(sec.recipient_count.eq(1).sum()),'multi_recipient_oral_sections':int(sec.recipient_count.gt(1).sum()),'no_recipient_oral_sections':int(sec.recipient_count.eq(0).sum()),
-              'multi_recipient_section_examples':[{'debate_section_id':sid,'recipients':rs} for sid,rs in list(sorted(multi_recipient_sections.items()))[:20]],
-            },
-            'top_recipients_by_total':rec2.sort_values('Total',ascending=False).head(25).to_dict(orient='records'),
-            'oral_skew_recipients_min50':oral_skew.to_dict(orient='records'),
-            'written_skew_recipients_min50':written_skew.to_dict(orient='records'),
-            'member_channel_use':{'members_with_questions':member_count,'both_channels':both_channels,'written_only':written_only,'oral_only':oral_only,'high_volume_threshold':20,'oral_specialists_high_volume':oral_specialists.to_dict(orient='records'),'written_specialists_high_volume':written_specialists.to_dict(orient='records')},
-            'grain_profiles':profiles,
-            'guardrails':[
-              'Question counts are distinct submitted Oireachtas question records.',
-              'Oral exchange counts are distinct debate_section_id values, not question records.',
-              'Exchange word/intervention totals are assigned to recipient only for sections with exactly one recorded recipient; multi-recipient sections are not duplicated across recipients.',
-              'Oral share describes channel use, not effectiveness or scrutiny quality.',
-              'Party and constituency profiles use event-date attribution already certified in daily_question_dimensions.'
-            ]
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/oral_vs_written_questions.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          digest={k:v for k,v in out.items() if k not in ['grain_profiles']}
-          digest['top_recipients_by_total']=out['top_recipients_by_total'][:15]
-          digest['oral_skew_recipients_min50']=out['oral_skew_recipients_min50'][:12]
-          digest['written_skew_recipients_min50']=out['written_skew_recipients_min50'][:12]
-          digest['member_channel_use']['oral_specialists_high_volume']=out['member_channel_use']['oral_specialists_high_volume'][:10]
-          digest['member_channel_use']['written_specialists_high_volume']=out['member_channel_use']['written_specialists_high_volume'][:10]
-          digest['grain_profiles']={k:v[:15] for k,v in profiles.items()}
-          Path('analysis/oral_vs_written_questions_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+              profiles[grain]=p.to_dict(orient='records')
+          # Compact comparisons; no ranking interpretation beyond channel mix.
+          summary={}
+          for grain,rows in profiles.items():
+              d=pd.DataFrame(rows)
+              summary[grain]={
+                'entity_count':len(d),
+                'top_by_volume':d.head(20).to_dict(orient='records'),
+                'highest_oral_share_min50':d[d.Total.ge(50)].sort_values(['oral_share','Oral'],ascending=[False,False]).head(15).to_dict(orient='records'),
+                'lowest_oral_share_min50':d[d.Total.ge(50)].sort_values(['oral_share','Written'],ascending=[True,False]).head(15).to_dict(orient='records'),
+              }
+          out={'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode')),'resolved_key':key,'inventory':inventory,'profiles':summary,'guardrails':['Profiles use event-date attribution already certified in daily_question_dimensions.','Channel share is descriptive and is not a measure of effectiveness.','Entities with fewer than 50 total questions are excluded from oral-share extremes.']}
+          Path('analysis').mkdir(exist_ok=True); Path('analysis/oral_vs_written_grain_profiles.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/oral_vs_written_questions*.json
-          git commit -m "Capture Oral versus Written question analysis ${GITHUB_RUN_ID}" || true
+          git add analysis/oral_vs_written_grain_profiles.json
+          git commit -m "Capture Oral versus Written grain profiles ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
