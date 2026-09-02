@@ -1,0 +1,44 @@
+{
+  "review_type": "v2_logo_cover_all_party_review",
+  "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/independent/manifest.json",
+  "source_party_name": "Independent",
+  "display_party_name": "Independents",
+  "party_key": "independent",
+  "period": "2026-07",
+  "classified_speeches": 105,
+  "td_count": 16,
+  "avg_speeches_per_td": 6.5625,
+  "output": "instagram/commissioning/output/party-logo-cover-v2-review/independent-cover.png",
+  "rendered_dimensions": [
+    1080,
+    1350
+  ],
+  "logo_geometry": {
+    "size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true
+  },
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "party_asset": {
+    "party_key": "independent",
+    "registry_party_name": "Independent",
+    "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent/logo.png",
+    "bucket": "eirepolitic-data",
+    "key": "processed/reference/party_assets/v1/assets/independent/logo.png",
+    "etag": "02d23e6b2cd2622ec446054ec9b960d9",
+    "version_id": null,
+    "last_modified": "2026-09-02T18:03:40+00:00",
+    "dimensions": [
+      1600,
+      1600
+    ],
+    "asset_status": "approved",
+    "source_type": "eirepolitic_generated_standin",
+    "fallback_type": "eirepolitic_neutral_standin"
+  },
+  "publication_enabled": false,
+  "review_state": "review_requested"
+}

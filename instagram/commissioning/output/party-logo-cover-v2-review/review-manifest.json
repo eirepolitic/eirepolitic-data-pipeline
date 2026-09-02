@@ -1,0 +1,509 @@
+{
+  "review_type": "v2_logo_cover_all_party_review",
+  "project_id": "party_issue_monthly_profile_v2",
+  "period": "2026-07",
+  "party_count": 11,
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "logo_contract": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png",
+  "logo_source_dimensions": [
+    1600,
+    1600
+  ],
+  "cover_logo_geometry": {
+    "size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true
+  },
+  "covers": [
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/100-rdr/manifest.json",
+      "source_party_name": "100% RDR",
+      "display_party_name": "100% RDR",
+      "party_key": "100-rdr",
+      "period": "2026-07",
+      "classified_speeches": 7,
+      "td_count": 1,
+      "avg_speeches_per_td": 7.0,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/100-rdr-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "100-rdr",
+        "registry_party_name": "100% RDR",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/100-rdr/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/100-rdr/logo.png",
+        "etag": "cbcbc18985c180b63599997a548b2dfa",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:37+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/aontu/manifest.json",
+      "source_party_name": "Aontú",
+      "display_party_name": "Aontú",
+      "party_key": "aontu",
+      "period": "2026-07",
+      "classified_speeches": 31,
+      "td_count": 2,
+      "avg_speeches_per_td": 15.5,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/aontu-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "aontu",
+        "registry_party_name": "Aontú",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/aontu/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/aontu/logo.png",
+        "etag": "1ccc89164376b9b753164bac70b09e42",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:38+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fianna-fail/manifest.json",
+      "source_party_name": "Fianna Fáil",
+      "display_party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "period": "2026-07",
+      "classified_speeches": 605,
+      "td_count": 48,
+      "avg_speeches_per_td": 12.604166666666666,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/fianna-fail-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "fianna-fail",
+        "registry_party_name": "Fianna Fáil",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/fianna-fail/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/fianna-fail/logo.png",
+        "etag": "1eb8109ff4470c7978780ae09b633825",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:38+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_manifesto_derived_logo",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fine-gael/manifest.json",
+      "source_party_name": "Fine Gael",
+      "display_party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "period": "2026-07",
+      "classified_speeches": 460,
+      "td_count": 39,
+      "avg_speeches_per_td": 11.794871794871796,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/fine-gael-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "fine-gael",
+        "registry_party_name": "Fine Gael",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/fine-gael/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/fine-gael/logo.png",
+        "etag": "fa4ecdecea76c1d6f1fb69c0a5ff9bff",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:39+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_derived_official_treatment",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/green-party/manifest.json",
+      "source_party_name": "Green Party",
+      "display_party_name": "Green Party",
+      "party_key": "green-party",
+      "period": "2026-07",
+      "classified_speeches": 16,
+      "td_count": 1,
+      "avg_speeches_per_td": 16.0,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/green-party-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "green-party",
+        "registry_party_name": "Green Party",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/green-party/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/green-party/logo.png",
+        "etag": "d7c97685001aa475f92b5d74a5c90cde",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:40+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_derived_official_treatment",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/independent-ireland/manifest.json",
+      "source_party_name": "Independent Ireland",
+      "display_party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "period": "2026-07",
+      "classified_speeches": 34,
+      "td_count": 4,
+      "avg_speeches_per_td": 8.5,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/independent-ireland-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "independent-ireland",
+        "registry_party_name": "Independent Ireland",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent-ireland/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/independent-ireland/logo.png",
+        "etag": "430300dc4da53ccc65c5b77c20391360",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:41+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "electoral_commission_registered_emblem_asset",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/independent/manifest.json",
+      "source_party_name": "Independent",
+      "display_party_name": "Independents",
+      "party_key": "independent",
+      "period": "2026-07",
+      "classified_speeches": 105,
+      "td_count": 16,
+      "avg_speeches_per_td": 6.5625,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/independent-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "independent",
+        "registry_party_name": "Independent",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/independent/logo.png",
+        "etag": "02d23e6b2cd2622ec446054ec9b960d9",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:40+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "eirepolitic_generated_standin",
+        "fallback_type": "eirepolitic_neutral_standin"
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/labour-party/manifest.json",
+      "source_party_name": "Labour Party",
+      "display_party_name": "Labour Party",
+      "party_key": "labour-party",
+      "period": "2026-07",
+      "classified_speeches": 134,
+      "td_count": 11,
+      "avg_speeches_per_td": 12.181818181818182,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/labour-party-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "labour-party",
+        "registry_party_name": "Labour Party",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/labour-party/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/labour-party/logo.png",
+        "etag": "3c8785d9f707a3cf609fd83921523dab",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:42+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset_svg",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/people-before-profit-solidarity/manifest.json",
+      "source_party_name": "People Before Profit-Solidarity",
+      "display_party_name": "People Before Profit-Solidarity",
+      "party_key": "people-before-profit-solidarity",
+      "period": "2026-07",
+      "classified_speeches": 67,
+      "td_count": 3,
+      "avg_speeches_per_td": 22.333333333333332,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/people-before-profit-solidarity-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "people-before-profit-solidarity",
+        "registry_party_name": "People Before Profit-Solidarity",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/people-before-profit-solidarity/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/people-before-profit-solidarity/logo.png",
+        "etag": "b3b9663a43bc11acc8c905f2b20e1ac5",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:42+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "electoral_commission_registered_emblem_asset",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/sinn-fein/manifest.json",
+      "source_party_name": "Sinn Féin",
+      "display_party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "period": "2026-07",
+      "classified_speeches": 387,
+      "td_count": 39,
+      "avg_speeches_per_td": 9.923076923076923,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/sinn-fein-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "sinn-fein",
+        "registry_party_name": "Sinn Féin",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+        "etag": "333746b6abf62b764ff35934cfed3bdf",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:43+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_official_site_derived_wordmark",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    },
+    {
+      "review_type": "v2_logo_cover_all_party_review",
+      "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/social-democrats/manifest.json",
+      "source_party_name": "Social Democrats",
+      "display_party_name": "Social Democrats",
+      "party_key": "social-democrats",
+      "period": "2026-07",
+      "classified_speeches": 163,
+      "td_count": 12,
+      "avg_speeches_per_td": 13.583333333333334,
+      "output": "instagram/commissioning/output/party-logo-cover-v2-review/social-democrats-cover.png",
+      "rendered_dimensions": [
+        1080,
+        1350
+      ],
+      "logo_geometry": {
+        "size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "centered": true
+      },
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "social-democrats",
+        "registry_party_name": "Social Democrats",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+        "etag": "e9556b9363ef48850fb622bdb4a34d8b",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:44+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_derived_official_treatment",
+        "fallback_type": ""
+      },
+      "publication_enabled": false,
+      "review_state": "review_requested"
+    }
+  ],
+  "contact_sheet": "instagram/commissioning/output/party-logo-cover-v2-review/all-party-covers-contact-sheet.png",
+  "publication_enabled": false,
+  "review_state": "review_requested"
+}

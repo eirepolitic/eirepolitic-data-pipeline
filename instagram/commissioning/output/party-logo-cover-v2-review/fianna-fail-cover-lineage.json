@@ -1,11 +1,18 @@
 {
-  "review_type": "v2_logo_cover_representative",
+  "review_type": "v2_logo_cover_all_party_review",
   "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fianna-fail/manifest.json",
-  "party": "Fianna Fáil",
+  "source_party_name": "Fianna Fáil",
+  "display_party_name": "Fianna Fáil",
+  "party_key": "fianna-fail",
   "period": "2026-07",
   "classified_speeches": 605,
   "td_count": 48,
   "avg_speeches_per_td": 12.604166666666666,
+  "output": "instagram/commissioning/output/party-logo-cover-v2-review/fianna-fail-cover.png",
+  "rendered_dimensions": [
+    1080,
+    1350
+  ],
   "logo_geometry": {
     "size": [
       500,
@@ -14,6 +21,7 @@
     "top": 300,
     "centered": true
   },
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
   "party_asset": {
     "party_key": "fianna-fail",
     "registry_party_name": "Fianna Fáil",
@@ -30,5 +38,7 @@
     "asset_status": "approved",
     "source_type": "user_selected_manifesto_derived_logo",
     "fallback_type": ""
-  }
+  },
+  "publication_enabled": false,
+  "review_state": "review_requested"
 }

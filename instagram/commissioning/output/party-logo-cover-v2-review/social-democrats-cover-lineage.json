@@ -1,0 +1,44 @@
+{
+  "review_type": "v2_logo_cover_all_party_review",
+  "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/social-democrats/manifest.json",
+  "source_party_name": "Social Democrats",
+  "display_party_name": "Social Democrats",
+  "party_key": "social-democrats",
+  "period": "2026-07",
+  "classified_speeches": 163,
+  "td_count": 12,
+  "avg_speeches_per_td": 13.583333333333334,
+  "output": "instagram/commissioning/output/party-logo-cover-v2-review/social-democrats-cover.png",
+  "rendered_dimensions": [
+    1080,
+    1350
+  ],
+  "logo_geometry": {
+    "size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true
+  },
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "party_asset": {
+    "party_key": "social-democrats",
+    "registry_party_name": "Social Democrats",
+    "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+    "bucket": "eirepolitic-data",
+    "key": "processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+    "etag": "e9556b9363ef48850fb622bdb4a34d8b",
+    "version_id": null,
+    "last_modified": "2026-09-02T18:03:44+00:00",
+    "dimensions": [
+      1600,
+      1600
+    ],
+    "asset_status": "approved",
+    "source_type": "user_selected_derived_official_treatment",
+    "fallback_type": ""
+  },
+  "publication_enabled": false,
+  "review_state": "review_requested"
+}
