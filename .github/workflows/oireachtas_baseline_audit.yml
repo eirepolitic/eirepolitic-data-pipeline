@@ -7,112 +7,45 @@ permissions:
   contents: write
 
 jobs:
-  inspect:
+  summarize:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Inspect first-speaker ordering exceptions
-        shell: bash
+      - name: Summarize exception cases
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import io, json, os, re
+          import json,re
           from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv','speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv','oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv','speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv','offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv'}
-          F={}
-          for n,k in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=k)
-              F[n]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          q=F['questions']; s=F['speeches']; oq=F['oral_sections']; sc=F['speech_context']; offices=F['offices']
-          q['question_date']=pd.to_datetime(q.question_date,errors='coerce'); s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce'); s['speech_order_num']=pd.to_numeric(s.get('speech_order'),errors='coerce')
-          offices['office_start']=pd.to_datetime(offices.office_start,errors='coerce'); offices['office_end']=pd.to_datetime(offices.office_end,errors='coerce')
-          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
-          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
-          rs=s[s.speech_id.astype(str).isin(related)].copy(); rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
-
-          chair_re=re.compile(r'ceann comhairle|leas-cheann comhairle|cathaoirleach|acting chair(?:man|person)?|chairman|chairperson',re.I)
-          minister_re=re.compile(r'\bminister\b|\btaoiseach\b|\btánaiste\b|attorney general',re.I)
-          cache={}
-          def role(code,date,name):
-              if chair_re.search(str(name)): return 'chair'
-              if minister_re.search(str(name)): return 'ministerial'
-              key=(str(code),pd.Timestamp(date) if pd.notna(date) else pd.NaT)
-              if key not in cache:
-                  g=offices[offices.member_code.astype(str).eq(str(code))]
-                  if g.empty: cache[key]='ordinary_member'
-                  else:
-                      mask=(g.office_start.isna()|g.office_start.le(key[1]))&(g.office_end.isna()|g.office_end.gt(key[1]))
-                      names=' '.join(g.loc[mask,'office_name'].dropna().astype(str))
-                      if chair_re.search(names): cache[key]='chair'
-                      elif minister_re.search(names): cache[key]='ministerial'
-                      else: cache[key]='ordinary_member'
-              return cache[key]
-
-          exceptions=[]
-          for sid,row in oq.drop_duplicates('debate_section_id').set_index('debate_section_id').iterrows():
-              qg=oral[oral.debate_section_id.eq(str(sid))]
-              sg=rs[rs.debate_section_id.eq(str(sid))].sort_values(['speech_order_num','speech_id'],na_position='last')
-              submitters=set(x for x in qg.asked_by_member_code.dropna().astype(str) if x)
-              speakers=set(x for x in sg.speaker_member_code.astype(str) if x)
-              if not (submitters & speakers):
-                  continue
-              ordinary=[r for r in sg.itertuples(index=False) if str(r.speaker_member_code) and role(r.speaker_member_code,r.debate_date,r.speaker_name)=='ordinary_member']
-              if not ordinary: continue
-              first=ordinary[0]
-              if str(first.speaker_member_code) in submitters:
-                  continue
-              # Locate first actual submitter speech index and nearby sequence.
-              seq=[]; first_submitter_pos=None
-              for idx,r in enumerate(sg.itertuples(index=False)):
-                  rr=role(r.speaker_member_code,r.debate_date,r.speaker_name)
-                  is_submitter=str(r.speaker_member_code) in submitters
-                  if first_submitter_pos is None and is_submitter:
-                      first_submitter_pos=idx
-                  seq.append({'pos':idx,'speech_order':None if pd.isna(r.speech_order_num) else int(r.speech_order_num),'speaker_name':str(r.speaker_name),'member_code':str(r.speaker_member_code),'role':rr,'is_submitter':is_submitter,'text':str(r.speech_text)[:500]})
-              exceptions.append({
-                'debate_section_id':str(sid),'date':str(pd.Timestamp(row.debate_date).date()) if pd.notna(row.debate_date) else None,'heading':str(row.section_heading),
-                'question_count':int(row.oral_question_count),'submitter_count':len(submitters),'submitters':sorted(submitters),
-                'first_ordinary_member_code':str(first.speaker_member_code),'first_ordinary_speaker_name':str(first.speaker_name),
-                'first_actual_submitter_position':first_submitter_pos,
-                'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],
-                'question_texts':[str(x)[:500] for x in qg.question_text.dropna().astype(str).head(8)],
-                'speech_sequence':seq[:20],
+          src=json.loads(Path('analysis/question_taking_order_exceptions.json').read_text())
+          rows=[]
+          for ex in src['exceptions']:
+              seq=ex.get('speech_sequence',[])
+              first=seq[0] if seq else {}
+              submit_pos=ex.get('first_actual_submitter_position')
+              first_text=first.get('text','')
+              note=[]
+              if ex.get('question_count',0)>1: note.append('grouped')
+              if len(first_text.split())<=35: note.append('short_first_intervention')
+              if submit_pos is not None and submit_pos<=2: note.append('submitter_appears_immediately')
+              if re.search(r'on behalf|covering for|thar ceann|faoi choinne|á tógáil ag',first_text,re.I): note.append('proxy_language')
+              rows.append({
+                'date':ex.get('date'),'heading':ex.get('heading'),'question_count':ex.get('question_count'),'submitter_count':ex.get('submitter_count'),
+                'submitters':ex.get('submitters'),'first_ordinary_member_code':ex.get('first_ordinary_member_code'),'first_ordinary_speaker_name':ex.get('first_ordinary_speaker_name'),
+                'first_actual_submitter_position':submit_pos,'first_speaker_text':first_text[:260],'second_speaker':seq[1].get('speaker_name') if len(seq)>1 else None,
+                'second_is_submitter':seq[1].get('is_submitter') if len(seq)>1 else None,'third_speaker':seq[2].get('speaker_name') if len(seq)>2 else None,
+                'third_is_submitter':seq[2].get('is_submitter') if len(seq)>2 else None,'clues':note,
               })
-
-          # Deterministic clue extraction for exception classes.
-          for ex in exceptions:
-              early=' '.join(x['text'] for x in ex['speech_sequence'][:6]).lower()
-              ex['clues']={
-                'early_mentions_on_behalf': bool(re.search(r'on behalf|covering for|taking .* question|thar ceann|faoi choinne|á tógáil ag',early,re.I)),
-                'first_speaker_short_interjection': len(ex['speech_sequence'][0]['text'].split()) <= 35 if ex['speech_sequence'] else False,
-                'first_submitter_within_first_3_rows': ex['first_actual_submitter_position'] is not None and ex['first_actual_submitter_position'] <= 2,
-                'grouped_exchange': ex['question_count'] > 1,
-              }
-
-          out={'exception_count':len(exceptions),'exceptions':exceptions}
-          Path('analysis').mkdir(exist_ok=True); Path('analysis/question_taking_order_exceptions.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps(out,indent=2,sort_keys=True,default=str))
+          out={'exception_count':src.get('exception_count'),'exceptions':rows}
+          Path('analysis/question_taking_order_exceptions_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis
+      - name: Persist digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_taking_order_exceptions.json
-          git commit -m "Capture oral question taker ordering exceptions ${GITHUB_RUN_ID}" || true
+          git add analysis/question_taking_order_exceptions_digest.json
+          git commit -m "Summarize question taker ordering exceptions ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
