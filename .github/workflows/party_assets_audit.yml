@@ -1,0 +1,135 @@
+name: Party Asset Registry Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/party_assets_v1.csv"
+      - "process/party_assets*.py"
+      - "tests/test_party_assets*.py"
+      - ".github/workflows/party_assets_audit.yml"
+
+concurrency:
+  group: party-assets-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: eirepolitic-data
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate party asset layer
+        run: >-
+          python -m unittest
+          tests.test_party_assets
+          tests.test_party_assets_build
+          tests.test_party_assets_fetch
+          tests.test_party_assets_upload
+          -v
+
+      - name: Audit S3 for existing party image candidates
+        id: s3_audit
+        continue-on-error: true
+        run: >-
+          python process/party_assets.py
+          --audit-s3
+          --output generated_party_asset_audit/party_asset_audit.json
+
+      - name: Classify S3 audit result
+        id: classify
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          path = Path("generated_party_asset_audit/party_asset_audit.json")
+          status = "report_missing"
+          if path.is_file():
+              report = json.loads(path.read_text(encoding="utf-8"))
+              error = report.get("s3_audit_error")
+              if not error:
+                  status = "success"
+              else:
+                  message = (error.get("message") or "").lower()
+                  error_type = (error.get("type") or "").lower()
+                  if "accessdenied" in message or "access denied" in message:
+                      status = "access_denied"
+                  elif "invalidaccesskeyid" in message:
+                      status = "invalid_access_key"
+                  elif "signaturedoesnotmatch" in message:
+                      status = "signature_mismatch"
+                  elif "nocredential" in error_type or "unable to locate credentials" in message:
+                      status = "credentials_missing"
+                  elif "endpoint" in message or "connection" in message:
+                      status = "connection_error"
+                  else:
+                      status = "other_error"
+          print(f"status={status}")
+          PY
+
+      - name: S3 audit status - success
+        if: steps.classify.outputs.status == 'success'
+        run: echo "Read-only S3 audit completed."
+
+      - name: S3 audit status - access denied
+        if: steps.classify.outputs.status == 'access_denied'
+        run: echo "Read-only S3 ListBucket permission is denied."
+
+      - name: S3 audit status - credentials missing
+        if: steps.classify.outputs.status == 'credentials_missing'
+        run: echo "AWS credentials are not available to this workflow."
+
+      - name: S3 audit status - invalid access key
+        if: steps.classify.outputs.status == 'invalid_access_key'
+        run: echo "The configured AWS access key is not accepted."
+
+      - name: S3 audit status - signature mismatch
+        if: steps.classify.outputs.status == 'signature_mismatch'
+        run: echo "AWS request signature validation failed."
+
+      - name: S3 audit status - connection error
+        if: steps.classify.outputs.status == 'connection_error'
+        run: echo "The workflow could not connect to the S3 endpoint."
+
+      - name: S3 audit status - other error
+        if: steps.classify.outputs.status == 'other_error' || steps.classify.outputs.status == 'report_missing'
+        run: echo "S3 audit failed with an unclassified error; inspect the retained audit artifact."
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-audit
+          path: generated_party_asset_audit/party_asset_audit.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Fail if S3 audit failed
+        if: steps.s3_audit.outcome == 'failure'
+        run: exit 1

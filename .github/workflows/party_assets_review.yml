@@ -1,0 +1,275 @@
+name: Party Asset Review Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "configs/reference/party_assets_v1.csv"
+      - "process/party_assets*.py"
+      - "tests/test_party_assets*.py"
+      - ".github/workflows/party_assets_review.yml"
+
+concurrency:
+  group: party-assets-review-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate party asset layer
+        run: >-
+          python -m unittest
+          tests.test_party_assets
+          tests.test_party_assets_build
+          tests.test_party_assets_fetch
+          tests.test_party_assets_discover
+          tests.test_party_assets_candidate_review
+          tests.test_party_assets_upload
+          -v
+
+      - name: Discover candidate files on unresolved official sites
+        id: discover
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_discover
+          --output generated_party_asset_review/discovery_report.json
+
+      - name: Build unresolved candidate contact sheet
+        id: candidate_review
+        if: steps.discover.outcome == 'success'
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_candidate_review
+          --discovery generated_party_asset_review/discovery_report.json
+          --output-root generated_party_asset_review/candidates
+
+      - name: Fetch direct authoritative source assets
+        id: fetch
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_fetch
+          --staging-root generated_party_asset_review/sources
+          --allow-unresolved
+          --output generated_party_asset_review/fetch_report.json
+
+      - name: Build normalized assets and contact sheet
+        id: build
+        if: always()
+        continue-on-error: true
+        run: >-
+          python -m process.party_assets_build
+          --source-root generated_party_asset_review/sources
+          --output-root generated_party_asset_review/build
+
+      - name: Classify per-party review status
+        id: classify
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          fetch_path = Path("generated_party_asset_review/fetch_report.json")
+          build_path = Path("generated_party_asset_review/build/manifest.json")
+          discovery_path = Path("generated_party_asset_review/discovery_report.json")
+          candidate_path = Path("generated_party_asset_review/candidates/candidate_review.json")
+          fetch = json.loads(fetch_path.read_text(encoding="utf-8")) if fetch_path.is_file() else {}
+          build = json.loads(build_path.read_text(encoding="utf-8")) if build_path.is_file() else {}
+          discovery = json.loads(discovery_path.read_text(encoding="utf-8")) if discovery_path.is_file() else {}
+          candidate = json.loads(candidate_path.read_text(encoding="utf-8")) if candidate_path.is_file() else {}
+          fetch_status = {item.get("party_key"): item.get("status", "missing") for item in fetch.get("results", [])}
+          build_status = {item.get("party_key"): item.get("build_status", "missing") for item in build.get("entries", [])}
+          discovery_counts = {item.get("party_key"): int(item.get("candidate_count", 0)) for item in discovery.get("results", [])}
+          keys = [
+              "100-rdr", "aontu", "fianna-fail", "fine-gael", "green-party", "independent",
+              "independent-ireland", "labour-party", "people-before-profit-solidarity", "sinn-fein",
+              "social-democrats",
+          ]
+          for key in keys:
+              safe = key.replace("-", "_").replace("100_rdr", "rdr100")
+              print(f"{safe}_fetch={fetch_status.get(key, 'missing')}")
+              print(f"{safe}_build={build_status.get(key, 'missing')}")
+              print(f"{safe}_candidates={discovery_counts.get(key, 0)}")
+          print(f"candidate_reviewable={candidate.get('reviewable_count', 0)}")
+          PY
+
+      - name: 100 RDR direct asset fetched
+        if: steps.classify.outputs.rdr100_fetch == 'fetched'
+        run: echo "100 RDR authoritative source fetched."
+
+      - name: Aontu direct asset fetched
+        if: steps.classify.outputs.aontu_fetch == 'fetched'
+        run: echo "Aontu authoritative source fetched."
+
+      - name: Fine Gael direct asset fetched
+        if: steps.classify.outputs.fine_gael_fetch == 'fetched'
+        run: echo "Fine Gael authoritative source fetched."
+
+      - name: Green Party direct asset fetched
+        if: steps.classify.outputs.green_party_fetch == 'fetched'
+        run: echo "Green Party authoritative source fetched."
+
+      - name: Independent Ireland direct asset fetched
+        if: steps.classify.outputs.independent_ireland_fetch == 'fetched'
+        run: echo "Independent Ireland authoritative source fetched."
+
+      - name: Labour Party direct asset fetched
+        if: steps.classify.outputs.labour_party_fetch == 'fetched'
+        run: echo "Labour Party authoritative source fetched."
+
+      - name: PBP Solidarity direct asset fetched
+        if: steps.classify.outputs.people_before_profit_solidarity_fetch == 'fetched'
+        run: echo "People Before Profit-Solidarity authoritative source fetched."
+
+      - name: Independent fallback confirmed
+        if: steps.classify.outputs.independent_fetch == 'fallback'
+        run: echo "Independent correctly uses the approved no-party-logo fallback."
+
+      - name: Fianna Fail unresolved source confirmed
+        if: steps.classify.outputs.fianna_fail_fetch == 'unresolved_source'
+        run: echo "Fianna Fail remains unresolved; advisory candidates=${{ steps.classify.outputs.fianna_fail_candidates }}."
+
+      - name: Sinn Fein unresolved source confirmed
+        if: steps.classify.outputs.sinn_fein_fetch == 'unresolved_source'
+        run: echo "Sinn Fein remains unresolved; advisory candidates=${{ steps.classify.outputs.sinn_fein_candidates }}."
+
+      - name: Social Democrats unresolved source confirmed
+        if: steps.classify.outputs.social_democrats_fetch == 'unresolved_source'
+        run: echo "Social Democrats remains unresolved; advisory candidates=${{ steps.classify.outputs.social_democrats_candidates }}."
+
+      - name: Candidate review imagery available
+        if: steps.classify.outputs.candidate_reviewable != '0'
+        run: echo "High-confidence unresolved candidates are available for human review."
+
+      - name: Write review inventory
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("generated_party_asset_review")
+          root.mkdir(parents=True, exist_ok=True)
+          files = sorted(str(path.relative_to(root)) for path in root.rglob("*") if path.is_file())
+          inventory = {
+              "discover_step_outcome": "${{ steps.discover.outcome }}",
+              "candidate_review_step_outcome": "${{ steps.candidate_review.outcome }}",
+              "fetch_step_outcome": "${{ steps.fetch.outcome }}",
+              "build_step_outcome": "${{ steps.build.outcome }}",
+              "files": files,
+          }
+          (root / "review_inventory.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Persist browser-accessible review materials
+        if: always()
+        run: |
+          mkdir -p review/party_assets_v1
+          if [ -f generated_party_asset_review/build/contact_sheet.png ]; then
+            cp generated_party_asset_review/build/contact_sheet.png review/party_assets_v1/contact_sheet.png
+          fi
+          if [ -f generated_party_asset_review/candidates/candidate_contact_sheet.png ]; then
+            cp generated_party_asset_review/candidates/candidate_contact_sheet.png review/party_assets_v1/candidate_contact_sheet.png
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def read_json(path):
+              path = Path(path)
+              return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+          fetch = read_json("generated_party_asset_review/fetch_report.json")
+          discovery = read_json("generated_party_asset_review/discovery_report.json")
+          candidate = read_json("generated_party_asset_review/candidates/candidate_review.json")
+          build = read_json("generated_party_asset_review/build/manifest.json")
+
+          summary = {
+              "generated_by": "party_assets_review.yml",
+              "branch": "feature/party-asset-layer-v1",
+              "fetched": {
+                  item.get("party_key"): item.get("status")
+                  for item in fetch.get("results", [])
+              },
+              "build": {
+                  item.get("party_key"): item.get("build_status")
+                  for item in build.get("entries", [])
+              },
+              "discovery_candidates": {
+                  item.get("party_key"): item.get("candidate_count", 0)
+                  for item in discovery.get("results", [])
+              },
+              "candidate_reviewable_count": candidate.get("reviewable_count", 0),
+              "contact_sheet": "review/party_assets_v1/contact_sheet.png",
+              "candidate_contact_sheet": "review/party_assets_v1/candidate_contact_sheet.png",
+          }
+          Path("review/party_assets_v1/review_summary.json").write_text(
+              json.dumps(summary, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1
+          if git diff --cached --quiet; then
+            echo "Review materials unchanged."
+          else
+            git commit -m "Update party asset review materials [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
+
+      - name: Package review output
+        if: always()
+        run: tar -czf party-asset-review.tar.gz generated_party_asset_review
+
+      - name: Upload packaged review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-review-package
+          path: party-asset-review.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload approved-source contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-contact-sheet
+          path: generated_party_asset_review/build/contact_sheet.png
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload unresolved candidate contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-asset-candidate-contact-sheet
+          path: generated_party_asset_review/candidates/candidate_contact_sheet.png
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail if required asset review is incomplete
+        if: steps.fetch.outcome == 'failure' || steps.build.outcome == 'failure'
+        run: exit 1

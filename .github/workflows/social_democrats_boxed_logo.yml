@@ -1,0 +1,45 @@
+name: Social Democrats Boxed Logo Preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/party-asset-layer-v1
+    paths:
+      - "process/social_democrats_boxed_logo.py"
+      - ".github/workflows/social_democrats_boxed_logo.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests pillow cairosvg
+
+      - name: Generate clean boxed treatment
+        run: python -m process.social_democrats_boxed_logo
+
+      - name: Commit browser-accessible preview
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review/party_assets_v1/social_democrats/boxed_clean.png \
+                  review/party_assets_v1/social_democrats/boxed_clean_preview.png \
+                  review/party_assets_v1/social_democrats/boxed_clean_review.json
+          if git diff --cached --quiet; then
+            echo "Boxed logo preview unchanged."
+          else
+            git commit -m "Update Social Democrats boxed logo preview [skip ci]"
+            git push origin HEAD:feature/party-asset-layer-v1
+          fi
