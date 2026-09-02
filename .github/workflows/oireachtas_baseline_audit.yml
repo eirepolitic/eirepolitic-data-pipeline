@@ -7,9 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  diagnose:
+  inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -23,35 +23,67 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas pyyaml
-      - name: Run source inspection and capture traceback
+      - name: Compare parsed speaker attribution with raw XML
         shell: bash
         run: |
-          mkdir -p diagnostics/question-order-source
-          set +e
-          python - <<'PY' > diagnostics/question-order-source/stdout.txt 2> diagnostics/question-order-source/stderr.txt
-          import io,json,os
+          set -euo pipefail
+          python - <<'PY'
+          import io,json,os,re,xml.etree.ElementTree as ET
           from pathlib import Path
           import boto3,pandas as pd
           from extract.oireachtas.batch import resolve_production_key
+
           bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
           def read(key):
               r=resolve_production_key(s3,bucket=bucket,production_key=key)
               return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          s=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
-          q=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
-          dig=json.loads(Path('analysis/question_taking_order_exceptions_digest.json').read_text())
-          print('speech cols',list(s.columns))
-          for ex in dig['exceptions']:
-              qq=q[(q.question_type.fillna('').astype(str).str.lower().eq('oral')) & (q.question_date.astype(str).str.startswith(ex['date']))]
-              secs=set(qq[qq.asked_by_member_code.astype(str).isin(ex['submitters'])].debate_section_id.dropna().astype(str))
-              ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.debate_section_id.astype(str).isin(secs))].copy()
-              print(ex['date'],ex['heading'],len(ss),sorted(secs))
+          speeches=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
+          original=json.loads(Path('analysis/question_taking_order_exceptions.json').read_text())
+          targets=[]
+          for ex in original['exceptions']:
+              sid=ex['debate_section_id']
+              sec=speeches[speeches.debate_section_id.astype(str).eq(str(sid))].copy()
+              sec['speech_order_num']=pd.to_numeric(sec.speech_order,errors='coerce')
+              sec=sec.sort_values(['speech_order_num','speech_id'])
+              if sec.empty: continue
+              first=sec.iloc[0]
+              prefix=str(first.speech_text)[:120]
+              suspicious=('i propose to take questions' in str(first.speech_text).lower() or 'i propose to take question' in str(first.speech_text).lower())
+              # Also include all 11 first rows so source consistency can be checked broadly.
+              xml_key=str(first.xml_source_key)
+              xml_bytes=s3.get_object(Bucket=bucket,Key=xml_key)['Body'].read()
+              root=ET.fromstring(xml_bytes)
+              matched=[]
+              for el in root.iter():
+                  local=el.tag.rsplit('}',1)[-1]
+                  if local!='speech': continue
+                  parts=[]
+                  if el.text: parts.append(el.text)
+                  for ch in list(el):
+                      cl=ch.tag.rsplit('}',1)[-1]
+                      if cl not in {'from','recordedTime'}: parts.extend(ch.itertext())
+                      if ch.tail: parts.append(ch.tail)
+                  txt=re.sub(r'\s+',' ',' '.join(parts)).strip()
+                  if txt.startswith(prefix[:80]):
+                      child_speakers=[]
+                      for ch in list(el):
+                          cl=ch.tag.rsplit('}',1)[-1]
+                          if cl in {'from','speaker','docProponent'}:
+                              child_speakers.append({'tag':cl,'attrs':dict(ch.attrib),'text':re.sub(r'\s+',' ',' '.join(ch.itertext())).strip()})
+                      matched.append({'speech_attrs':dict(el.attrib),'child_speakers':child_speakers,'text_prefix':txt[:300]})
+              targets.append({
+                'date':ex['date'],'heading':ex['heading'],'debate_section_id':sid,'suspicious_group_answer_intro':suspicious,
+                'parsed_first_speech_id':str(first.speech_id),'parsed_speaker_name':str(first.speaker_name),'parsed_member_code':str(first.speaker_member_code),
+                'parsed_speaker_ref':str(first.speaker_ref),'xml_source_key':xml_key,'raw_xml_matches':matched[:3]
+              })
+          out={'cases':targets}
+          Path('analysis/question_taking_xml_speaker_check.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-          echo $? > diagnostics/question-order-source/exit_code.txt
-      - name: Persist diagnostics
+      - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f diagnostics/question-order-source
-          git commit -m "Capture question order source diagnostics ${GITHUB_RUN_ID}" || true
+          git add analysis/question_taking_xml_speaker_check.json
+          git commit -m "Capture raw XML speaker attribution checks ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
