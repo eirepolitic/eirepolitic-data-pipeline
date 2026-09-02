@@ -4,45 +4,190 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas rapidfuzz pyyaml
+      - name: Audit submitted-question text against opening TD speech
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os,re,unicodedata
+          from pathlib import Path
+          import boto3,pandas as pd
+          from rapidfuzz.fuzz import ratio, token_set_ratio
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          keys={
+            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
+            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
+            'oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
+            'speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
+            'offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv',
+          }
+          F={}
+          for n,k in keys.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=k)
+              F[n]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          q=F['questions']; s=F['speeches']; oq=F['oral_sections']; sc=F['speech_context']; offices=F['offices']
+          q['question_date']=pd.to_datetime(q.question_date,errors='coerce')
+          s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce')
+          s['speech_order_num']=pd.to_numeric(s.get('speech_order'),errors='coerce')
+          offices['office_start']=pd.to_datetime(offices.office_start,errors='coerce'); offices['office_end']=pd.to_datetime(offices.office_end,errors='coerce')
+          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
+          single_sections=set(oq[pd.to_numeric(oq.oral_question_count,errors='coerce').fillna(0).eq(1)].debate_section_id.astype(str))
+          oral=oral[oral.debate_section_id.isin(single_sections)].copy()
+          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
+          rs=s[s.speech_id.astype(str).isin(related) & s.debate_section_id.astype(str).isin(single_sections)].copy()
+          rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
+
+          chair_re=re.compile(r'ceann comhairle|leas-cheann comhairle|cathaoirleach|acting chair(?:man|person)?|chairman|chairperson',re.I)
+          minister_re=re.compile(r'\bminister\b|\btaoiseach\b|\btánaiste\b|attorney general',re.I)
+          cache={}
+          def role(code,date,name):
+              if chair_re.search(str(name)): return 'chair'
+              if minister_re.search(str(name)): return 'ministerial'
+              key=(str(code),pd.Timestamp(date) if pd.notna(date) else pd.NaT)
+              if key not in cache:
+                  g=offices[offices.member_code.astype(str).eq(str(code))]
+                  if g.empty: cache[key]='ordinary_member'
+                  else:
+                      mask=(g.office_start.isna()|g.office_start.le(key[1]))&(g.office_end.isna()|g.office_end.gt(key[1]))
+                      names=' '.join(g.loc[mask,'office_name'].dropna().astype(str))
+                      if chair_re.search(names): cache[key]='chair'
+                      elif minister_re.search(names): cache[key]='ministerial'
+                      else: cache[key]='ordinary_member'
+              return cache[key]
+
+          procedural_prefixes=[
+            r'^to ask the .*? whether', r'^to ask the .*? if', r'^to ask the .*? for', r'^to ask the .*? the',
+            r'^to ask .*? whether', r'^to ask .*? if', r'^to ask .*? for',
+            r'^i ask the .*? whether', r'^i ask the .*? if', r'^i ask the .*? to',
+            r'^i want to ask', r'^i wish to ask', r'^i would like to ask',
+          ]
+          prefix_re=re.compile('|'.join(procedural_prefixes),re.I)
+          proxy_intro_re=re.compile(r'^(?:thank you.*?\.\s*)?(?:i am|i\'m|i will be|i shall be)?\s*(?:taking|asking|putting) (?:this|the) question .*?(?:on behalf of|for) .*?[\.;:]\s*',re.I)
+
+          stop=set('the a an and or of to in on for with that this is are was were be been being by from at as it its their his her our your my we they he she i you if whether what when where how who which will would should could can may might do does did have has had'.split())
+          def norm(txt):
+              txt=unicodedata.normalize('NFKC',str(txt or '')).lower()
+              txt=txt.replace('’',"'").replace('–','-').replace('—','-')
+              txt=re.sub(r'https?://\S+',' ',txt)
+              txt=re.sub(r'\bquestion\s+no\.?\s*\d+\b',' ',txt)
+              txt=re.sub(r'\b\d+[\d,.:/%€$£-]*\b',' <num> ',txt)
+              txt=re.sub(r'[^a-z0-9áéíóúàèìòùäëïöüñç<>\' -]+',' ',txt)
+              txt=re.sub(r'\s+',' ',txt).strip()
+              return txt
+          def content_tokens(txt):
+              return [t for t in norm(txt).split() if len(t)>=3 and t not in stop and t!='<num>']
+          def strip_opening(txt):
+              t=str(txt or '').strip()
+              t=proxy_intro_re.sub('',t)
+              # Remove common courtesy/filler first sentence when very short.
+              t=re.sub(r'^(thank you,? (?:chairman|cathaoirleach|ceann comhairle)\.?\s*)','',t,flags=re.I)
+              return t
+          def scores(question,speech):
+              qn=norm(question); sn=norm(strip_opening(speech))
+              qt=set(content_tokens(question)); st=set(content_tokens(strip_opening(speech)))
+              overlap=len(qt&st)/len(qt) if qt else 0.0
+              jacc=len(qt&st)/len(qt|st) if (qt|st) else 0.0
+              return {
+                'ratio':ratio(qn,sn),
+                'token_set_ratio':token_set_ratio(qn,sn),
+                'question_token_coverage':overlap*100,
+                'jaccard':jacc*100,
+              }
+
+          rows=[]
+          for sid,qg in oral.groupby('debate_section_id'):
+              qr=qg.iloc[0]
+              sg=rs[rs.debate_section_id.eq(str(sid))].sort_values(['speech_order_num','speech_id'],na_position='last')
+              ordinary=[]
+              for r in sg.itertuples(index=False):
+                  if str(r.speaker_member_code) and role(r.speaker_member_code,r.debate_date,r.speaker_name)=='ordinary_member': ordinary.append(r)
+              if not ordinary: continue
+              first=ordinary[0]
+              submitter=str(qr.asked_by_member_code or '')
+              first_is_submitter=str(first.speaker_member_code)==submitter
+              scs=scores(qr.question_text,first.speech_text)
+              # Best among first up to 5 ordinary member speakers gives a discrimination benchmark.
+              cand=[]
+              for idx,r in enumerate(ordinary[:5]):
+                  z=scores(qr.question_text,r.speech_text)
+                  cand.append({'idx':idx,'member_code':str(r.speaker_member_code),'speaker_name':str(r.speaker_name),'is_submitter':str(r.speaker_member_code)==submitter,**z})
+              best=max(cand,key=lambda x:(x['question_token_coverage'],x['token_set_ratio'])) if cand else None
+              rows.append({
+                'question_id':str(qr.question_id),'debate_section_id':str(sid),'date':str(pd.Timestamp(qr.question_date).date()) if pd.notna(qr.question_date) else None,
+                'submitter_code':submitter,'first_ordinary_code':str(first.speaker_member_code),'first_ordinary_name':str(first.speaker_name),'first_is_submitter':first_is_submitter,
+                'question_text_len':len(str(qr.question_text)),'speech_text_len':len(str(first.speech_text)),**scs,
+                'best_candidate_code':best['member_code'] if best else None,'best_candidate_name':best['speaker_name'] if best else None,'best_candidate_is_submitter':best['is_submitter'] if best else None,
+                'best_candidate_index':best['idx'] if best else None,'best_candidate_coverage':best['question_token_coverage'] if best else None,'best_candidate_token_set_ratio':best['token_set_ratio'] if best else None,
+                'question_excerpt':str(qr.question_text)[:300],'first_speech_excerpt':str(first.speech_text)[:300],
+              })
+          df=pd.DataFrame(rows)
+
+          # Threshold performance on known self-taken proxy: first ordinary speaker == submitter.
+          known=df[df.first_is_submitter].copy(); alt=df[~df.first_is_submitter].copy()
+          thresholds=[]
+          for cov in [20,30,40,50,60,70,80]:
+              for ts in [40,50,60,70,80,90]:
+                  km=(known.question_token_coverage.ge(cov)&known.token_set_ratio.ge(ts))
+                  am=(alt.question_token_coverage.ge(cov)&alt.token_set_ratio.ge(ts))
+                  thresholds.append({'coverage_threshold':cov,'token_set_threshold':ts,'known_self_pass':int(km.sum()),'known_self_total':int(len(known)),'known_self_recall':float(km.mean()) if len(known) else None,'non_submitter_first_pass':int(am.sum()),'non_submitter_first_total':int(len(alt)),'non_submitter_first_pass_share':float(am.mean()) if len(alt) else None})
+
+          # Distribution summaries.
+          def qs(frame,col):
+              x=pd.to_numeric(frame[col],errors='coerce').dropna()
+              return {k:float(x.quantile(v)) for k,v in [('p10',.1),('p25',.25),('median',.5),('p75',.75),('p90',.9)]} if len(x) else {}
+          dist={}
+          for label,frame in [('known_self',known),('first_not_submitter',alt)]:
+              dist[label]={c:qs(frame,c) for c in ['question_token_coverage','token_set_ratio','ratio','jaccard']}
+
+          # Best candidate identification benchmark among first five ordinary speakers.
+          best_submitter_share=float(known.best_candidate_is_submitter.mean()) if len(known) else None
+
+          out={
+            'single_question_exchanges_with_ordinary_speaker':int(len(df)),
+            'known_self_taken_proxy_count':int(len(known)),
+            'first_not_submitter_count':int(len(alt)),
+            'score_distributions':dist,
+            'threshold_grid':thresholds,
+            'best_candidate_is_submitter_share_in_known_self_cases':best_submitter_share,
+            'first_not_submitter_cases':alt.sort_values(['question_token_coverage','token_set_ratio'],ascending=False).head(40).to_dict(orient='records'),
+            'lowest_scoring_known_self_cases':known.sort_values(['question_token_coverage','token_set_ratio']).head(40).to_dict(orient='records'),
+            'method':'Single-question oral exchanges only. Compare normalized official question text with first non-ministerial/non-chair member speech. Scores are descriptive and are not production attribution rules.'
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/question_text_taker_match_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          digest={k:v for k,v in out.items() if k not in ['threshold_grid','first_not_submitter_cases','lowest_scoring_known_self_cases']}
+          digest['selected_thresholds']=[x for x in thresholds if (x['coverage_threshold'],x['token_set_threshold']) in [(30,60),(40,60),(40,70),(50,70),(60,70),(60,80)]]
+          digest['first_not_submitter_cases']=out['first_not_submitter_cases'][:15]
+          digest['lowest_scoring_known_self_cases']=out['lowest_scoring_known_self_cases'][:10]
+          Path('analysis/question_text_taker_match_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist audit
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/question_text_taker_match_*.json
+          git commit -m "Capture question text taker match audit ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
