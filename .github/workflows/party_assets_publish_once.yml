@@ -50,7 +50,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p review/party_assets_v1/publish_diagnostics
-          python process/party_assets_finalize.py --output-root generated_party_assets_v1 \
+          python -m process.party_assets_finalize --output-root generated_party_assets_v1 \
             2>&1 | tee review/party_assets_v1/publish_diagnostics/latest_build.log
 
       - name: Persist build diagnostics on failure
