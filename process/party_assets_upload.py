@@ -5,7 +5,7 @@ Safe defaults:
 - dry-run unless --apply is provided
 - refuses to upload if manifest success is false
 - refuses to overwrite existing S3 objects
-- uploads only the deterministic v1 asset tree, manifest and contact sheet
+- uploads the complete deterministic v1 reference bundle
 """
 
 from __future__ import annotations
@@ -35,12 +35,17 @@ def object_exists(client, bucket: str, key: str) -> bool:
 
 
 def collect_uploads(build_root: Path, prefix: str) -> list[tuple[Path, str]]:
-    allowed_roots = [build_root / "assets"]
     files: list[Path] = []
-    for root in allowed_roots:
-        if root.exists():
-            files.extend(path for path in root.rglob("*") if path.is_file())
-    for name in ("manifest.json", "contact_sheet.png"):
+    assets_root = build_root / "assets"
+    if assets_root.exists():
+        files.extend(path for path in assets_root.rglob("*") if path.is_file())
+    for name in (
+        "manifest.json",
+        "party_assets.csv",
+        "party_assets.parquet",
+        "contact_sheet.png",
+        "contact_sheet_green.png",
+    ):
         path = build_root / name
         if path.is_file():
             files.append(path)
@@ -57,8 +62,8 @@ def upload_build(build_root: Path, bucket: str, prefix: str, apply: bool, client
     if not manifest_path.is_file():
         raise ValueError(f"Missing build manifest: {manifest_path}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if not manifest.get("success"):
-        raise ValueError("Refusing upload: build manifest is not successful")
+    if not manifest.get("success") or manifest.get("party_count") != 11:
+        raise ValueError("Refusing upload: build manifest is not a successful 11-party build")
 
     client = client or boto3.client("s3", region_name=os.getenv("AWS_REGION", "ca-central-1"))
     uploads = collect_uploads(build_root, prefix)
@@ -86,12 +91,7 @@ def upload_build(build_root: Path, bucket: str, prefix: str, apply: bool, client
 
     for path, key in uploads:
         content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
-        client.upload_file(
-            str(path),
-            bucket,
-            key,
-            ExtraArgs={"ContentType": content_type},
-        )
+        client.upload_file(str(path), bucket, key, ExtraArgs={"ContentType": content_type})
     return report
 
 
@@ -102,7 +102,6 @@ def main() -> int:
     parser.add_argument("--prefix", default=DEFAULT_PREFIX)
     parser.add_argument("--apply", action="store_true", help="perform upload; default is dry-run")
     args = parser.parse_args()
-
     report = upload_build(Path(args.build_root), args.bucket, args.prefix, args.apply)
     print(json.dumps(report, indent=2))
     return 0
