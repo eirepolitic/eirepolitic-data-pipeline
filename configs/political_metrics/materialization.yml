@@ -9,6 +9,7 @@ principles:
   - promotion must never mix a metric output with a different source_batch_id
   - parliamentary question records are distinct from transcript speech interventions
   - oral parliamentary questions may anchor debate sections containing separate speech interventions
+  - oral-question exchange participation describes observed transcript participation and does not imply question-taker attribution
 
 reliability_values:
   - reliable
@@ -110,7 +111,7 @@ foundation_datasets:
     allowed_dimension_names: [question_type, question_recipient]
 
   oral_question_sections:
-    description: One deterministic record per debate section anchored by one or more Oireachtas oral parliamentary-question records, with counts of linked questions and transcript speech interventions.
+    description: One deterministic record per debate section anchored by one or more Oireachtas oral parliamentary-question records, including exchange participation and transcript-volume components.
     cadence: event
     formats: [csv, parquet]
     primary_key: [debate_section_id]
@@ -121,12 +122,47 @@ foundation_datasets:
       - oral_question_count
       - question_ids_json
       - asking_member_count
+      - participating_submitting_member_count
+      - participating_submitter_share
+      - ordinary_non_submitter_td_count
+      - grouped_exchange
       - related_speech_count
       - related_speaker_count
+      - related_speech_word_count
+      - ministerial_intervention_count
+      - ministerial_word_count
+      - ministerial_word_share
+      - chair_intervention_count
+      - chair_word_count
+      - ordinary_member_intervention_count
+      - ordinary_member_word_count
+      - collective_or_unidentified_intervention_count
+      - collective_or_unidentified_word_count
       - source_batch_id
       - component_version
       - calculated_at_utc
       - contract_version
+
+  oral_question_exchange_participants:
+    description: Deterministic observed participation inside oral-question exchanges at exchange + participant + role grain. This does not assert who formally took a submitted question.
+    cadence: event
+    formats: [csv, parquet]
+    primary_key: [debate_section_id, participant_key, participant_role]
+    columns:
+      - debate_section_id
+      - debate_date
+      - participant_key
+      - member_code
+      - speaker_name
+      - participant_role
+      - is_recorded_submitter
+      - intervention_count
+      - word_count
+      - source_batch_id
+      - component_version
+      - calculated_at_utc
+      - contract_version
+    allowed_participant_roles: [ministerial, chair, ordinary_member, collective_or_unidentified]
 
   speech_question_context:
     description: Deterministic speech-level relationship showing whether each transcript intervention belongs to a debate section anchored by one or more oral parliamentary questions.

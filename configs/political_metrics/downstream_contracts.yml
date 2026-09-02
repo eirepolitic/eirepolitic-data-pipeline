@@ -19,6 +19,9 @@ logical_keys:
   oral_question_sections:
     csv: processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/oral_question_sections/parquet/oral_question_sections.parquet
+  oral_question_exchange_participants:
+    csv: processed/oireachtas_unified/latest/metrics/event/oral_question_exchange_participants/csv/oral_question_exchange_participants.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/oral_question_exchange_participants/parquet/oral_question_exchange_participants.parquet
   speech_question_context:
     csv: processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/speech_question_context/parquet/speech_question_context.parquet
@@ -29,6 +32,9 @@ question_semantics:
   oral_parliamentary_question: A question record with Oireachtas question_type Oral. Multiple oral question records can anchor the same debate_section_id.
   oral_question_section: One debate section linked to one or more oral parliamentary-question records. It is the container for the related transcript exchange.
   oral_question_related_speech: A normal silver_speeches transcript intervention whose debate_section_id is linked to at least one oral question record.
+  oral_question_exchange_participant: An observed participant-role contribution inside an oral-question exchange. It does not assert who formally took a submitted question.
+  participant_role_rule: A single identified member may have more than one participant role in one exchange, for example ordinary member and acting chair; preserve separate role rows.
+  collective_speaker_rule: Collective or unidentified transcript speakers remain in exchange totals but are never counted as identified TD participants.
   counting_rule: Never multiply a section's speech interventions by the number of oral question records sharing that section.
 
 consumer_dataset: monthly_metric_results
@@ -46,6 +52,8 @@ consumer_rules:
   - keep entity_id=dail and entity_id=eligible_tds as distinct national populations
   - interpret question_count as distinct submitted parliamentary-question records, not question-led debate sections or speech interventions
   - use oral_question_sections when the unit of analysis is the oral-question exchange rather than the submitted oral question record
+  - use oral_question_exchange_participants for observed member/role participation, intervention counts and word counts inside an exchange
+  - do not infer question-taker attribution from oral_question_exchange_participants
   - use speech_question_context to identify speech interventions occurring inside oral-question exchanges
 
 recommended_consumer_patterns:
@@ -56,6 +64,7 @@ recommended_consumer_patterns:
       - public tables
       - simple filters by month, entity, issue, question type, or recipient
       - oral-question exchange drilldowns
+      - oral-question participant drilldowns
   power_bi:
     default_format: parquet
     use_for:
@@ -63,7 +72,7 @@ recommended_consumer_patterns:
       - party and constituency comparisons
       - issue dashboards
       - voting and question dashboards
-      - oral-question section and related-speech models
+      - oral-question section, participant and related-speech models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -72,6 +81,7 @@ recommended_consumer_patterns:
       - entity profiles
       - issue comparison endpoints
       - oral-question exchange endpoints
+      - oral-question exchange participant endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:

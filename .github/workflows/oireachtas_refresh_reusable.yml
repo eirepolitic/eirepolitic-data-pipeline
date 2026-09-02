@@ -192,6 +192,7 @@ jobs:
           args+=(--required-table political_metrics_division_party_vote_components)
           args+=(--required-table political_metrics_daily_question_dimensions)
           args+=(--required-table political_metrics_oral_question_sections)
+          args+=(--required-table political_metrics_oral_question_exchange_participants)
           args+=(--required-table political_metrics_speech_question_context)
           args+=(--required-table political_metrics_monthly_metric_results)
           OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas_batch_manifest.json
