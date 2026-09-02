@@ -7,185 +7,49 @@ permissions:
   contents: write
 
 jobs:
-  analyze:
+  summarize:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Profile live question structure and content
-        shell: bash
+      - name: Build compact digest
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import io, json, os
+          import json
           from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={
-            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
-            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
-            'sections':'processed/oireachtas_unified/latest/csv/silver_debate_sections.csv',
-            'oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
-            'speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
-          }
-          frames={}; resolved={}
-          for name,key in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=key)
-              resolved[name]=r
-              obj=s3.get_object(Bucket=bucket,Key=r)
-              frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-
-          q=frames['questions'].copy(); s=frames['speeches'].copy(); oq=frames['oral_sections'].copy(); sc=frames['speech_context'].copy()
-          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
-          s['debate_date']=pd.to_datetime(s['debate_date'],errors='coerce')
-          oq['debate_date']=pd.to_datetime(oq['debate_date'],errors='coerce')
-          for c in ['oral_question_count','asking_member_count','related_speech_count','related_speaker_count']:
-              oq[c]=pd.to_numeric(oq[c],errors='coerce').fillna(0)
-
-          qtype=q['question_type'].fillna('UNKNOWN').astype(str)
-          type_counts=qtype.value_counts().rename_axis('question_type').reset_index(name='count')
-          type_counts['share']=type_counts['count']/len(q) if len(q) else 0
-
-          # Per-year counts for question records by type.
-          q['year']=q.question_date.dt.year
-          by_year=(q.groupby(['year','question_type']).size().rename('count').reset_index().sort_values(['year','question_type']))
-
-          # Oral section structure distributions.
-          oq_stats={
-            'section_count':int(len(oq)),
-            'oral_question_records_sum':int(oq.oral_question_count.sum()),
-            'median_questions_per_section':float(oq.oral_question_count.median()) if len(oq) else None,
-            'p90_questions_per_section':float(oq.oral_question_count.quantile(.9)) if len(oq) else None,
-            'max_questions_per_section':int(oq.oral_question_count.max()) if len(oq) else None,
-            'median_speeches_per_section':float(oq.related_speech_count.median()) if len(oq) else None,
-            'p90_speeches_per_section':float(oq.related_speech_count.quantile(.9)) if len(oq) else None,
-            'max_speeches_per_section':int(oq.related_speech_count.max()) if len(oq) else None,
-            'median_speakers_per_section':float(oq.related_speaker_count.median()) if len(oq) else None,
-            'p90_speakers_per_section':float(oq.related_speaker_count.quantile(.9)) if len(oq) else None,
-            'max_speakers_per_section':int(oq.related_speaker_count.max()) if len(oq) else None,
-          }
-          oq['speeches_per_question']=oq.related_speech_count/oq.oral_question_count.replace({0:pd.NA})
-          oq['speakers_per_question']=oq.related_speaker_count/oq.oral_question_count.replace({0:pd.NA})
-
-          largest_q=oq.sort_values(['oral_question_count','related_speech_count'],ascending=False).head(20)
-          largest_s=oq.sort_values(['related_speech_count','oral_question_count'],ascending=False).head(20)
-          longest_ratio=oq[oq.oral_question_count>0].sort_values('speeches_per_question',ascending=False).head(20)
-
-          # Attach oral question metadata to sections.
-          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy()
-          oral['debate_section_id']=oral.debate_section_id.astype(str)
-          section_question_meta=[]
-          for sid,g in oral.groupby('debate_section_id'):
-              section_question_meta.append({
-                'debate_section_id':sid,
-                'question_count':int(g.question_id.nunique()),
-                'question_numbers':sorted(set(g.question_no.dropna().astype(str)))[:25] if 'question_no' in g.columns else [],
-                'asker_codes':sorted(set(g.asked_by_member_code.dropna().astype(str))) if 'asked_by_member_code' in g.columns else [],
-                'recipients':sorted(set(g.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in g.columns else [],
-                'question_text_excerpts':[str(x)[:350] for x in g.question_text.dropna().astype(str).head(5)] if 'question_text' in g.columns else [],
-              })
-          sqm=pd.DataFrame(section_question_meta)
-          detail=oq.merge(sqm,on='debate_section_id',how='left')
-
-          # Speech composition inside oral-question exchanges.
-          related=sc[sc.speech_context.astype(str).eq('oral_question_exchange')][['speech_id','debate_section_id']]
-          rs=s.merge(related,on=['speech_id','debate_section_id'],how='inner')
-          speaker_summary=(rs.groupby('speaker_member_code').size().rename('speech_interventions').reset_index().sort_values('speech_interventions',ascending=False) if 'speaker_member_code' in rs.columns else pd.DataFrame())
-
-          # July sample exchanges with question text and first several speech interventions.
-          july_sections=detail[(detail.debate_date>=pd.Timestamp('2026-07-01'))&(detail.debate_date<=pd.Timestamp('2026-07-31'))].copy()
-          selected=pd.concat([
-              july_sections.sort_values('oral_question_count',ascending=False).head(4),
-              july_sections.sort_values('related_speech_count',ascending=False).head(4),
-              july_sections.sort_values('speeches_per_question',ascending=False).head(4),
-          ]).drop_duplicates('debate_section_id').head(10)
-
+          src=json.loads(Path('analysis/question_structure_content_summary.json').read_text())
           examples=[]
-          for r in selected.itertuples(index=False):
-              sid=str(r.debate_section_id)
-              qrows=oral[oral.debate_section_id==sid].sort_values('question_id')
-              srows=rs[rs.debate_section_id.astype(str)==sid].sort_values('speech_order' if 'speech_order' in rs.columns else 'speech_id')
+          for e in src.get('representative_july_exchange_examples',[])[:3]:
               examples.append({
-                'debate_section_id':sid,
-                'date':str(r.debate_date.date()) if pd.notna(r.debate_date) else None,
-                'heading':str(r.section_heading),
-                'oral_question_count':int(r.oral_question_count),
-                'related_speech_count':int(r.related_speech_count),
-                'related_speaker_count':int(r.related_speaker_count),
-                'recipients':sorted(set(qrows.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qrows.columns else [],
-                'questions':[
-                  {
-                    'question_id':str(x.question_id),
-                    'question_no':str(getattr(x,'question_no','')),
-                    'asker_code':str(getattr(x,'asked_by_member_code','')),
-                    'text':str(getattr(x,'question_text',''))[:800],
-                  }
-                  for x in qrows.head(8).itertuples(index=False)
-                ],
-                'speech_sample':[
-                  {
-                    'speech_id':str(x.speech_id),
-                    'speaker_member_code':str(getattr(x,'speaker_member_code','')),
-                    'speaker_name':str(getattr(x,'speaker_name','')),
-                    'speech_text':str(getattr(x,'speech_text',''))[:700],
-                  }
-                  for x in srows.head(12).itertuples(index=False)
-                ],
+                  'date':e.get('date'),
+                  'heading':e.get('heading'),
+                  'oral_question_count':e.get('oral_question_count'),
+                  'related_speech_count':e.get('related_speech_count'),
+                  'related_speaker_count':e.get('related_speaker_count'),
+                  'recipients':e.get('recipients'),
+                  'questions':e.get('questions',[])[:4],
+                  'speech_sample':e.get('speech_sample',[])[:6],
               })
-
-          # How often oral section headings are reused.
-          heading_counts=oq.section_heading.fillna('').astype(str).value_counts().rename_axis('heading').reset_index(name='section_count')
-          heading_counts=heading_counts[heading_counts.heading.str.strip().ne('')]
-
-          report={
-            'resolved_keys':resolved,
-            'question_columns':list(q.columns),
-            'speech_columns':list(s.columns),
-            'question_type_distribution':type_counts.to_dict(orient='records'),
-            'question_counts_by_year_and_type':by_year.to_dict(orient='records'),
-            'oral_section_structure':oq_stats,
-            'largest_sections_by_question_count':detail.sort_values(['oral_question_count','related_speech_count'],ascending=False).head(20).to_dict(orient='records'),
-            'largest_sections_by_speech_count':detail.sort_values(['related_speech_count','oral_question_count'],ascending=False).head(20).to_dict(orient='records'),
-            'highest_speeches_per_question_sections':detail[detail.oral_question_count>0].sort_values('speeches_per_question',ascending=False).head(20).to_dict(orient='records'),
-            'most_reused_oral_section_headings':heading_counts.head(30).to_dict(orient='records'),
-            'top_speakers_inside_oral_question_exchanges':speaker_summary.head(30).to_dict(orient='records') if len(speaker_summary) else [],
-            'representative_july_exchange_examples':examples,
+          out={
+              'question_type_distribution':src.get('question_type_distribution'),
+              'question_counts_by_year_and_type':src.get('question_counts_by_year_and_type'),
+              'oral_section_structure':src.get('oral_section_structure'),
+              'largest_sections_by_question_count':src.get('largest_sections_by_question_count',[])[:5],
+              'largest_sections_by_speech_count':src.get('largest_sections_by_speech_count',[])[:5],
+              'highest_speeches_per_question_sections':src.get('highest_speeches_per_question_sections',[])[:5],
+              'most_reused_oral_section_headings':src.get('most_reused_oral_section_headings',[])[:10],
+              'top_speakers_inside_oral_question_exchanges':src.get('top_speakers_inside_oral_question_exchanges',[])[:10],
+              'representative_july_exchange_examples':examples,
           }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/question_structure_content.json').write_text(json.dumps(report,indent=2,sort_keys=True,default=str)+'\n')
-          summary={
-            'question_type_distribution':report['question_type_distribution'],
-            'question_counts_by_year_and_type':report['question_counts_by_year_and_type'],
-            'oral_section_structure':report['oral_section_structure'],
-            'largest_sections_by_question_count':report['largest_sections_by_question_count'][:10],
-            'largest_sections_by_speech_count':report['largest_sections_by_speech_count'][:10],
-            'highest_speeches_per_question_sections':report['highest_speeches_per_question_sections'][:10],
-            'most_reused_oral_section_headings':report['most_reused_oral_section_headings'][:15],
-            'top_speakers_inside_oral_question_exchanges':report['top_speakers_inside_oral_question_exchanges'][:15],
-            'representative_july_exchange_examples':examples,
-          }
-          Path('analysis/question_structure_content_summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(summary,indent=2,sort_keys=True,default=str))
+          Path('analysis/question_structure_content_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis
+      - name: Persist digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_structure_content*.json
-          git commit -m "Capture question structure and content analysis ${GITHUB_RUN_ID}" || true
+          git add analysis/question_structure_content_digest.json
+          git commit -m "Summarize question structure analysis ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
