@@ -47,7 +47,7 @@ jobs:
           -v
 
       - name: Build reviewed 11-party reference bundle
-        run: python process/party_assets_finalize.py --output-root generated_party_assets_v1
+        run: python -m process.party_assets_finalize --output-root generated_party_assets_v1
 
       - name: Verify bundle contract
         shell: bash
