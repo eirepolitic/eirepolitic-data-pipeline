@@ -1,0 +1,320 @@
+{
+  "existing_explicit_single_question_relationships_in_scan": 58,
+  "guardrail": "All new rules require a single-question exchange, a different first ordinary member, and explicit chair/procedural text tied to the numbered question or an explicit subbing/covering statement.",
+  "new_method_counts": [
+    {
+      "method": "chair_question_is_being_taken_by",
+      "question_count": 3
+    },
+    {
+      "method": "chair_named_member_on_question_number",
+      "question_count": 2
+    },
+    {
+      "method": "explicit_subbing_for",
+      "question_count": 1
+    },
+    {
+      "method": "covering_questions_for",
+      "question_count": 1
+    }
+  ],
+  "new_relationships": [
+    {
+      "candidate_speaker_name": "Deputy Ruair\u00ed \u00d3 Murch\u00fa",
+      "candidate_taken_by_code": "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+      "date": "2025-10-02",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Ruair\u00ed \u00d3 Murch\u00fa",
+          "text": "I ask the Minister to set out the level of funding allocated to League of Ireland clubs for academies and to state whether such funding will be increased in the budget. Sinn F\u00e9in very much supports the Global Findings Report recommendations produced by Double Pass as part of its audit of the League "
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Patrick O'Donovan",
+          "text": "Sorry, what question are we on?"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Ruair\u00ed \u00d3 Murch\u00fa",
+          "text": "T\u00e1 br\u00f3n orm. T\u00e1imid ar Ceist Uimh. 7."
+        },
+        {
+          "role": "chair",
+          "speaker": "Acting Chairman (Deputy Conor Sheehan)",
+          "text": "Deputy \u00d3 Murch\u00fa is substituting for Deputy Ward on Question No. 7."
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Ruair\u00ed \u00d3 Murch\u00fa",
+          "text": "Within the context of the question, I will ask a supplementary question about a training programme in Dundalk."
+        }
+      ],
+      "hits": [
+        "chair_named_member_on_question_number"
+      ],
+      "method": "chair_named_member_on_question_number",
+      "new_strict_rule": true,
+      "qno_in_early": true,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-10-02/pq_7",
+      "question_no": "7",
+      "submitter_code": "Mark-Ward.D.2019-11-29"
+    },
+    {
+      "candidate_speaker_name": "Deputy George Lawlor",
+      "candidate_taken_by_code": "George-Lawlor.D.2024-11-29",
+      "date": "2025-10-14",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "chair",
+          "speaker": "An Cathaoirleach Gn\u00edomhach (Deputy Liam Quaide)",
+          "text": "Deputy George Lawlor on Question No. 103"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy George Lawlor",
+          "text": "This question is to ask whether the Minister will outline the measures being taken to strengthen existing animal welfare laws and enforcement mechanisms and whether his Department intends to engage with campaign representatives to progress the aims of the proposed Stout's law and if he will make a s"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Martin Heydon",
+          "text": "I thank the Deputy. Neglect of, or causing unnecessary suffering to, animals is not acceptable in our society in any circumstances. The programme for Government places a positive emphasis on animal welfare and specifically commits to the continued robust enforcement of the Animal Health and Welfare "
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy George Lawlor",
+          "text": "I thank the Minister for his supportive words. This proposed campaign was inspired by a young pup called Stout who suffered from severe health difficulties arising from malnutrition, poor breeding practice and the unsanitary conditions that he was kept in. The campaign is led by two people in Wexfor"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Martin Heydon",
+          "text": "My Department is committed to reviewing all legislation relating to dogs, and in this regard it will be guided by the recommendations of the dog control stakeholder group. I expect the group to revert to me with recommendations on the matter in due course. In the meantime, I am fully committed to pr"
+        }
+      ],
+      "hits": [
+        "chair_named_member_on_question_number"
+      ],
+      "method": "chair_named_member_on_question_number",
+      "new_strict_rule": true,
+      "qno_in_early": true,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-10-14/pq_103",
+      "question_no": "103",
+      "submitter_code": "Robert-O'Donoghue.D.2024-11-29"
+    },
+    {
+      "candidate_speaker_name": "Deputy George Lawlor",
+      "candidate_taken_by_code": "George-Lawlor.D.2024-11-29",
+      "date": "2025-10-16",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy George Lawlor",
+          "text": "Having regard to the firm commitments made to establish a new constituent campus in Wexford town for the Southeast Technological University, when does the Minister expect specific capital funding to be allocated and announced for this project? When will the masterplan for the site be published? When"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy James Lawless",
+          "text": "Is the Deputy subbing for Deputy Kenny?"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy George Lawlor",
+          "text": "No. It is about Wexford."
+        },
+        {
+          "role": "chair",
+          "speaker": "An Cathaoirleach Gn\u00edomhach (Deputy David Maxwell)",
+          "text": "Yes. He is subbing for the Deputy."
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy George Lawlor",
+          "text": "I apologise. I thought the Minister said Kilkenny."
+        }
+      ],
+      "hits": [
+        "explicit_subbing_for",
+        "chair_confirms_subbing"
+      ],
+      "method": "explicit_subbing_for",
+      "new_strict_rule": true,
+      "qno_in_early": false,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-10-16/pq_2",
+      "question_no": "2",
+      "submitter_code": "Eoghan-Kenny.D.2024-11-29"
+    },
+    {
+      "candidate_speaker_name": "Deputy Joe Neville",
+      "candidate_taken_by_code": "Joe-Neville.D.2024-11-29",
+      "date": "2025-11-05",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "chair",
+          "speaker": "An Leas-Cheann Comhairle",
+          "text": "Question No. 4 is being taken by Deputy Neville."
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Joe Neville",
+          "text": "My question is to ask the Minister for Public Expenditure, Infrastructure, Public Service Reform and Digitalisation the position regarding a departmental review into the way in which the OPW manages projects to ensure value for money for the taxpayer and if he will make a statement on the matter."
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Minister of State at the Department of Public Expenditure, Infrastructure, Public Service Reform and Digitalisation (Deputy Kevin Boxer Moran)",
+          "text": "Securing value for money is a central priority for both this Government as well as the Office of Public Works, OPW. It is at the heart of all decision-making at every stage of a policy, project or programme's lifecycle, as it should be. Securing value for money is both a priority as well as our duty"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Joe Neville",
+          "text": "I thank the Minister of State for his reply. I raise this in the context of the OPW being an organisation that has its hands on many properties around the country and manages a huge portfolio of different properties. One that is closest to my heart is Castletown House, which has been a key amenity i"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Kevin Boxer Moran",
+          "text": "As the Deputy is aware, the OPW is a significant and large organisation with a wide-ranging remit. It is currently processing 100 flood scheme projects and maintains 11,500 km of channel and 800 km of earth embankments. It maintains over 2,000 properties, including offices, Garda stations, parks, ga"
+        }
+      ],
+      "hits": [
+        "chair_question_is_being_taken_by"
+      ],
+      "method": "chair_question_is_being_taken_by",
+      "new_strict_rule": true,
+      "qno_in_early": true,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-11-05/pq_4",
+      "question_no": "4",
+      "submitter_code": "Barry-Ward.S.2020-03-30"
+    },
+    {
+      "candidate_speaker_name": "Deputy Tony McCormack",
+      "candidate_taken_by_code": "Tony-McCormack.D.2024-11-29",
+      "date": "2026-03-26",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "chair",
+          "speaker": "An Leas-Cheann Comhairle",
+          "text": "Question No. 75 is in the name of Deputy James O'Connor and is being taken by Deputy McCormack."
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Tony McCormack",
+          "text": "As the atmosphere grows here in Ireland but also out in Prague, I wish the Irish team and the management all the best as they try to qualify for the world cup. We all remember the previous competitions we qualified for and the pride it brought to our great country. I am back to the day job now so I "
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Helen McEntee",
+          "text": "From what I have seen, it looks like half of the island has left without a ticket but I am sure they will enjoy the match either way. I wish best of luck to our team, of course. The Government Action Plan on Market Diversification was developed jointly by my Department and the Department of Enterpri"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Tony McCormack",
+          "text": "I thank the Minister. I welcome the continued focus on market diversification, particularly given the increasingly uncertain global trading environment in which Irish businesses are operating. Recent progress on the EU-Australia trade agreement demonstrates the opportunities that exist for Ireland t"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Helen McEntee",
+          "text": "I too will take this opportunity on the floor to welcome the agreement of the EU-Australia trade deal this week. This is something that will open up Irish markets to a substantial economy and one where we are very much aligned. We see Australia as trusted trading partners. There is further explorati"
+        }
+      ],
+      "hits": [
+        "chair_question_is_being_taken_by"
+      ],
+      "method": "chair_question_is_being_taken_by",
+      "new_strict_rule": true,
+      "qno_in_early": true,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2026-03-26/pq_75",
+      "question_no": "75",
+      "submitter_code": "James-O'Connor.D.2020-02-08"
+    },
+    {
+      "candidate_speaker_name": "Deputy Pa Daly",
+      "candidate_taken_by_code": "Pa-Daly.D.2020-02-08",
+      "date": "2026-06-16",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Pa Daly",
+          "text": "I am covering the questions for Deputy Conway-Walsh. I ask the Minister to provide an update on any engagement with Covalen regarding recent job losses and redundancies announced by the company and to make a statement about it."
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Minister of State at the Department of Enterprise, Tourism and Employment (Deputy Alan Dillon)",
+          "text": "The Minister, Deputy Peter Burke, is making his way back from Strasbourg and he should be joining us shortly. I will take some of the priority questions in his absence but he will be here later in Question Time. As the Deputy will be aware, on 27 April 2026 Covalen informed its employees of its inte"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Pa Daly",
+          "text": "I appreciate what the Minister of State has said about IDA but he will be aware that over 700 employees at the Meta contractor were told that they would lose their jobs which will be replaced by AI. They have written to the Minister requesting intervention. I want to know what engagement the Ministe"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Alan Dillon",
+          "text": "As I said earlier, my first and overriding concern in this situation is for the workers affected and their families who are facing a very uncertain time. IDA has been very active and proactive in its engagements at senior level with this company. That is very much with the clear focus of exploring a"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Pa Daly",
+          "text": "These are vulnerable workers. Covalen had turnover of \u20ac722 million and a profit of \u20ac26.2 million and despite that is offering statutory redundancy, which is an absolute scandal. The parent company works on many other public sector accounts for the Government. An employer that treats employees like t"
+        }
+      ],
+      "hits": [
+        "covering_questions_for"
+      ],
+      "method": "covering_questions_for",
+      "new_strict_rule": true,
+      "qno_in_early": false,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2026-06-16/pq_137",
+      "question_no": "137",
+      "submitter_code": "Rose-Conway-Walsh.S.2016-04-25"
+    },
+    {
+      "candidate_speaker_name": "Deputy Malcolm Byrne",
+      "candidate_taken_by_code": "Malcolm-Byrne.D.2019-11-29",
+      "date": "2026-07-07",
+      "existing_rule": false,
+      "first_rows": [
+        {
+          "role": "chair",
+          "speaker": "An Cathaoirleach Gn\u00edomhach (Deputy Aindrias Moynihan)",
+          "text": "Question No. 7 in the name of Deputy \u00d3 Cear\u00fail is being taken by Deputy Malcolm Byrne."
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Malcolm Byrne",
+          "text": "I ask the Minister for Public Expenditure; Infrastructure; Public Service Reform and Digitalisation the criteria applied in assessing projects under the digital public service transformation fund, including the way in which service improvement, efficiency gains and potential for wider roll-out are c"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Jack Chambers",
+          "text": "The public service digital transformation fund, PSDTF, was established to support the delivery of Government priorities under the Digital Public Services Plan 2030. The digital public services plan is the Government's roadmap for delivering seamless, inclusive and user-centred public services throug"
+        },
+        {
+          "role": "ordinary_member",
+          "speaker": "Deputy Malcolm Byrne",
+          "text": "I welcome in particular the moves towards the digitalisation of life events. I commend the work of the Office of the Government Chief Information Officer on everything that is being done there. It is also very important not just to have the business case but that there is also the technological know"
+        },
+        {
+          "role": "ministerial",
+          "speaker": "Deputy Jack Chambers",
+          "text": "I do not have a specific update here with me on digital or electronic health records. We have taken the leap as a Government, with the Minister, Deputy Carroll MacNeill, to put significant capital funding aside to digitalise our health system, which is the correct strategic move in the context of Ir"
+        }
+      ],
+      "hits": [
+        "chair_question_is_being_taken_by"
+      ],
+      "method": "chair_question_is_being_taken_by",
+      "new_strict_rule": true,
+      "qno_in_early": true,
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2026-07-07/pq_7",
+      "question_no": "7",
+      "submitter_code": "Naoise-\u00d3-Cear\u00fail.D.2024-11-29"
+    }
+  ],
+  "new_strict_relationships_not_previously_caught": 7
+}
