@@ -7,115 +7,32 @@ permissions:
   contents: write
 
 jobs:
-  inspect:
+  summarize:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas rapidfuzz pyyaml
-      - name: Inspect high-match unresolved single-question cases
-        shell: bash
+      - name: Build compact digest
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import io,json,os,re,unicodedata
+          import json
           from pathlib import Path
-          import boto3,pandas as pd
-          from rapidfuzz.fuzz import token_set_ratio
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv','speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv','oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv','speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv','offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv'}
-          F={}
-          for n,k in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=k)
-              F[n]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          q=F['questions']; s=F['speeches']; oq=F['oral_sections']; sc=F['speech_context']; offices=F['offices']
-          q['question_date']=pd.to_datetime(q.question_date,errors='coerce'); s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce'); s['speech_order_num']=pd.to_numeric(s.get('speech_order'),errors='coerce')
-          offices['office_start']=pd.to_datetime(offices.office_start,errors='coerce'); offices['office_end']=pd.to_datetime(offices.office_end,errors='coerce')
-          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
-          single=set(oq[pd.to_numeric(oq.oral_question_count,errors='coerce').fillna(0).eq(1)].debate_section_id.astype(str)); oral=oral[oral.debate_section_id.isin(single)]
-          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str)); rs=s[s.speech_id.astype(str).isin(related)&s.debate_section_id.astype(str).isin(single)].copy()
-          rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
-
-          chair_re=re.compile(r'ceann comhairle|leas-cheann comhairle|cathaoirleach|acting chair(?:man|person)?|chairman|chairperson',re.I)
-          minister_re=re.compile(r'\bminister\b|\btaoiseach\b|\btánaiste\b|attorney general',re.I)
-          known_proxy_re=re.compile('|'.join([r'\bon behalf of deputy\b',r'\bon behalf of the deputy\b',r'\bon behalf of my colleague\b',r'\bi am covering for deputy\b',r'\bi am standing in for deputy\b',r'\bi am taking (?:this|the|this parliamentary) question .*?(?:for|on behalf of)\b',r'\bi am asking (?:this|the) question .*?(?:for|on behalf of)\b',r'\bi ask (?:this|the) question on behalf of\b',r'\bi am asking this for deputy\b',r'\bthe question is being taken by\b',r'\bquestion .*? will be taken by\b',r'\btá mé ag tógáil na ceiste seo thar ceann\b',r'\bag glacadh ceist .*? faoi choinne an teachta\b',r'\bá tógáil ag an teachta\b',r'\bthar ceann an teachta\b']),re.I)
-          cache={}
-          def role(code,date,name):
-              if chair_re.search(str(name)): return 'chair'
-              if minister_re.search(str(name)): return 'ministerial'
-              key=(str(code),pd.Timestamp(date) if pd.notna(date) else pd.NaT)
-              if key not in cache:
-                  g=offices[offices.member_code.astype(str).eq(str(code))]
-                  if g.empty: cache[key]='ordinary_member'
-                  else:
-                      mask=(g.office_start.isna()|g.office_start.le(key[1]))&(g.office_end.isna()|g.office_end.gt(key[1])); names=' '.join(g.loc[mask,'office_name'].dropna().astype(str))
-                      if chair_re.search(names): cache[key]='chair'
-                      elif minister_re.search(names): cache[key]='ministerial'
-                      else: cache[key]='ordinary_member'
-              return cache[key]
-          stop=set('the a an and or of to in on for with that this is are was were be been being by from at as it its their his her our your my we they he she i you if whether what when where how who which will would should could can may might do does did have has had'.split())
-          def norm(txt):
-              txt=unicodedata.normalize('NFKC',str(txt or '')).lower().replace('’',"'"); txt=re.sub(r'\b\d+[\d,.:/%€$£-]*\b',' <num> ',txt); txt=re.sub(r'[^a-z0-9áéíóúàèìòùäëïöüñç<>\' -]+',' ',txt); return re.sub(r'\s+',' ',txt).strip()
-          def toks(txt): return set(t for t in norm(txt).split() if len(t)>=3 and t not in stop and t!='<num>')
-          def score(qt,st):
-              a=toks(qt); b=toks(st); return (len(a&b)/len(a)*100 if a else 0), token_set_ratio(norm(qt),norm(st))
-
-          cases=[]
-          for sid,qg in oral.groupby('debate_section_id'):
-              qr=qg.iloc[0]; sg=rs[rs.debate_section_id.eq(str(sid))].sort_values(['speech_order_num','speech_id'],na_position='last')
-              ordinary=[r for r in sg.itertuples(index=False) if str(r.speaker_member_code) and role(r.speaker_member_code,r.debate_date,r.speaker_name)=='ordinary_member']
-              if not ordinary: continue
-              first=ordinary[0]; submitter=str(qr.asked_by_member_code or '')
-              if str(first.speaker_member_code)==submitter: continue
-              early=' '.join(sg.speech_text.astype(str).head(10))
-              if known_proxy_re.search(early): continue
-              cov,ts=score(qr.question_text,first.speech_text)
-              if cov < 50 and ts < 75: continue
-              cases.append({
-                'question_id':str(qr.question_id),'date':str(pd.Timestamp(qr.question_date).date()) if pd.notna(qr.question_date) else None,'heading':str(qr.get('debate_section_heading','') if hasattr(qr,'get') else ''),
-                'submitter_code':submitter,'first_member_code':str(first.speaker_member_code),'first_speaker_name':str(first.speaker_name),'coverage':cov,'token_set_ratio':ts,
-                'question_text':str(qr.question_text)[:500],
-                'speech_sequence':[{'pos':i,'speaker_name':str(r.speaker_name),'member_code':str(r.speaker_member_code),'role':role(r.speaker_member_code,r.debate_date,r.speaker_name),'text':str(r.speech_text)[:500]} for i,r in enumerate(sg.head(10).itertuples(index=False))]
-              })
-          cases=sorted(cases,key=lambda x:(-x['coverage'],-x['token_set_ratio']))
-
-          # Extract recurring literal phrases around submitter names / proxy semantics for manual pattern discovery.
-          phrase_hits={}
-          candidate_regexes={
-            'apology_for_submitter':r'(apolog(?:y|ies|ise|ize)|regret).*?deputy',
-            'substitute_name_by_chair':r'(deputy\s+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóú\' -]+).*?(take|taking|ask|question)',
-            'covering_questions':r'cover(?:ing)? (?:the )?questions? (?:for|of)',
-            'taking_for_colleague':r'tak(?:e|ing) (?:this|the)? ?question .*?(?:for|my colleague|deputy)',
-            'ask_for_colleague':r'ask(?:ing)? (?:this|the)? ?question .*?(?:for|my colleague|deputy)',
-            'sitting_in':r'(sitting|standing) in for deputy',
-            'proxy_generic':r'(on behalf of|for deputy|for my colleague|covering for)',
+          src=json.loads(Path('analysis/unresolved_question_substitution_patterns.json').read_text())
+          out={
+            'high_match_unresolved_case_count':src.get('high_match_unresolved_case_count'),
+            'candidate_phrase_hit_counts':src.get('candidate_phrase_hit_counts'),
+            'guardrail':src.get('guardrail'),
+            'cases':src.get('cases',[])[:12],
           }
-          for name,pat in candidate_regexes.items():
-              c=0
-              rx=re.compile(pat,re.I)
-              for case in cases:
-                  joined=' '.join(x['text'] for x in case['speech_sequence'][:6])
-                  if rx.search(joined): c+=1
-              phrase_hits[name]=c
-          out={'high_match_unresolved_case_count':len(cases),'candidate_phrase_hit_counts':phrase_hits,'cases':cases[:60],'guardrail':'These are prioritized unresolved cases only. Pattern discovery must seek explicit evidence; high text match is not itself substitute proof.'}
-          Path('analysis').mkdir(exist_ok=True); Path('analysis/unresolved_question_substitution_patterns.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps({'high_match_unresolved_case_count':len(cases),'candidate_phrase_hit_counts':phrase_hits},indent=2,sort_keys=True))
+          Path('analysis/unresolved_question_substitution_patterns_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis
+      - name: Persist digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/unresolved_question_substitution_patterns.json
-          git commit -m "Capture unresolved substitution pattern analysis ${GITHUB_RUN_ID}" || true
+          git add analysis/unresolved_question_substitution_patterns_digest.json
+          git commit -m "Summarize unresolved substitution patterns ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
