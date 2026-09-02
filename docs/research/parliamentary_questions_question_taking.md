@@ -32,72 +32,55 @@ However, the remaining **11 exceptions** show that ordering alone is not safe en
 
 ### Explicit substitution/proxy-taking is demonstrable
 
-The refined deterministic rules now recognize both English and Irish formulations, including examples equivalent to:
+The deterministic rules now recognize both English and Irish formulations, plus explicit chair/procedural assignment language, including examples equivalent to:
 
 - "I am taking this question on behalf of Deputy ...";
 - "I am covering for Deputy ...";
 - "I ask this question on behalf of ...";
-- chair announcements that a named TD is taking another TD's question;
+- "Question No. 4 is being taken by Deputy Neville";
+- "Question No. 75 is in the name of Deputy O'Connor and is being taken by Deputy McCormack";
+- "Deputy Lawlor on Question No. 103" when the official question record names a different submitter;
+- "He is subbing for the Deputy";
+- "I am covering the questions for Deputy ...";
 - Irish chair language such as a TD `ag glacadh Ceist ... faoi choinne an Teachta ...`;
 - Irish wording where a question is `á tógáil ag an Teachta ...`.
 
-The refined audit found:
-
-- **59 exchanges (2.77%)** with explicit substitution/proxy evidence and an identifiable ordinary-member candidate;
-- **65 Oral question records (1.78%)** inside those exchanges.
-
 Because grouped exchanges can contain several submitted questions, an exchange-level substitute candidate must not automatically be assigned to every question in that section.
 
-### Safe question-level relationships
+### Strictly certified single-question substitute relationships
 
-Using a deliberately strict rule:
+The current strict rule is:
 
-> single-question exchange + explicit substitution/proxy language + identifiable first non-ministerial/non-chair member speaker
+> single-question exchange + different first ordinary-member speaker + explicit substitution/proxy/procedural assignment evidence tied to that question.
 
-we can safely derive **57 question-level substitute relationships**.
+Under the expanded evidence rules, **65 single-question substitute relationships** are now strictly certifiable.
 
-Examples include:
+This supersedes the earlier figure of 57, which reflected the narrower initial phrase set.
 
-- Naoise Ó Cearúil's question taken by Martin Daly after an Irish chair announcement;
-- Pádraig O'Sullivan's question taken by John Connolly;
-- Cathal Crowe's question taken by John Connolly;
-- Naoise Ó Cearúil's question taken by Aindrias Moynihan;
-- Brendan Smith's question taken by Shane Moynihan;
-- Ciarán Ahern's question taken by Conor Sheehan;
-- Mark Wall's question taken by Eoghan Kenny;
-- Roderic O'Gorman's question taken by Paul Murphy;
-- Ryan O'Meara's question taken by Brendan Smith;
-- Darren O'Rourke's question taken by Mark Ward.
+The latest pass added **7 relationships** that had previously remained unresolved:
+
+- Ruairí Ó Murchú taking Mark Ward's Question No. 7 after the chair explicitly stated that he was substituting for Deputy Ward;
+- George Lawlor taking Robert O'Donoghue's Question No. 103 after the chair called "Deputy George Lawlor on Question No. 103";
+- George Lawlor taking Eoghan Kenny's Question No. 2 after the Minister asked if he was subbing and the chair confirmed that he was;
+- Joe Neville taking Barry Ward's Question No. 4 after the Leas-Cheann Comhairle explicitly said it was being taken by Deputy Neville;
+- Tony McCormack taking James O'Connor's Question No. 75 after the chair explicitly stated that the question was in Deputy O'Connor's name and being taken by Deputy McCormack;
+- Pa Daly taking Rose Conway-Walsh's Question No. 137 after stating that he was covering the questions for Deputy Conway-Walsh;
+- Malcolm Byrne taking Naoise Ó Cearúil's Question No. 7 after the chair explicitly stated that it was being taken by Deputy Malcolm Byrne.
 
 These are examples of a real parliamentary mechanism rather than anomalous data.
 
 ## Remaining unresolved structure
 
-After the refined rules:
+The single-question text-matching audit identified **207** cases where the first ordinary-member speaker was not the official submitter.
 
-### Exchange-level status
+With the expanded strict evidence rules:
 
-| Status | Exchanges | Share |
-| --- | ---: | ---: |
-| submitter present | 1,906 | 89.61% |
-| unresolved with ordinary-member candidate | 156 | 7.33% |
-| explicit substitute candidate | 59 | 2.77% |
-| unresolved with no ordinary-member candidate | 5 | 0.24% |
-| procedural/interrupted | 1 | 0.05% |
+- **65** are now explicitly certified substitute-taken questions;
+- **142** remain unresolved and should stay `unknown` unless stronger evidence is found.
 
-### Question-record status
+The unresolved cases should **not** be treated as erroneous. Many may be genuine substitutions, but the current evidence is insufficient to publish that attribution as fact.
 
-| Status | Oral question records | Share |
-| --- | ---: | ---: |
-| submitter present | 3,410 | 93.17% |
-| unresolved with ordinary-member candidate | 168 | 4.59% |
-| explicit substitute candidate | 65 | 1.78% |
-| procedural/interrupted | 11 | 0.30% |
-| unresolved with no ordinary-member candidate | 6 | 0.16% |
-
-The unresolved-with-candidate group should **not** be treated as erroneous. Manual examples strongly suggest that many are also substitutions where the transcript does not contain one of the currently certified phrases.
-
-Examples include cases where a different TD clearly conducts the entire exchange while the official submitted question belongs to another TD.
+At the broader exchange level, grouped oral-question exchanges remain structurally different and often do not support question-level taker attribution at all.
 
 ## Role-detection correction made during this investigation
 
@@ -135,20 +118,6 @@ The exceptions break down structurally as:
 - **2 single-question exchanges with explicit substitute-taking**, where the substitute spoke first even though the original submitter later appeared in the same exchange;
 - **1 single-question exchange with a likely substitute/alternate taker but no currently certified explicit proxy phrase**.
 
-Representative cases include:
-
-- `Middle East`, 13 February 2025: Pearse Doherty spoke before either of the two recorded submitters; Pa Daly appeared shortly afterwards.
-- `Military Neutrality`, 26 February 2025: Richard Boyd Barrett spoke before the recorded submitters in a four-question grouped exchange.
-- `Cabinet Committees`, 19 March 2025: the Taoiseach opened the grouped answer, then Paul Lawless spoke before the first recorded submitter.
-- `Financial Instruments`, 3 April 2025: Paul Murphy spoke before the recorded submitters in a grouped exchange.
-- `Cabinet Committees`, 24 June 2025: the Taoiseach opened the grouped answer, then Marie Sherlock spoke before the first recorded submitter.
-- `Fishing Industry`, 3 July 2025: Conor D. McGuinness explicitly stated that he was asking the question on behalf of Pádraig Mac Lochlainn; Mac Lochlainn later spoke in the same exchange.
-- `Just Transition`, 18 December 2025: the Leas-Cheann Comhairle announced the grouped questions, and Réada Cronin participated well before the first recorded submitter.
-- `Job Creation`, 13 January 2026: Erin McGreehan opened a single-question exchange whose official submitted question belonged to Aisling Dempsey; the current rules do not contain explicit enough substitution evidence to certify the relationship.
-- `General Practitioner Services`, 5 March 2026: Martin Daly spoke before the two recorded submitters in a grouped exchange.
-- `Disease Management`, 5 March 2026: Martin Daly explicitly said he was taking the question on behalf of Deputy Byrne; the original submitter later appeared.
-- `Trade Agreements`, 21 May 2026: Malcolm Byrne spoke before the recorded submitters in a six-question grouped exchange.
-
 ### Consequence for the ordering rule
 
 The 99.42% figure remains useful as a **validation statistic**, but the first ordinary-member speaker cannot be treated as the question taker by default.
@@ -168,84 +137,28 @@ Transcript order should remain supporting evidence only unless combined with str
 
 A second deterministic signal was tested on **single-question oral exchanges only**.
 
-The idea was to compare the official submitted `question_text` with the first non-ministerial/non-chair member speech and determine whether a sufficiently strong text match could certify who actually took the question.
-
-### Scope
-
 The audit found **1,856 single-question exchanges** with an identifiable ordinary-member opening speaker:
 
 - **1,649** where the opening ordinary-member speaker was the official submitter;
 - **207** where the opening ordinary-member speaker was not the official submitter.
 
-A follow-up benchmark separated the non-submitter openings into:
-
-- **58 explicit substitute cases** under the expanded proxy-language rules;
-- **149 unresolved non-submitter-first cases**.
-
 ### Main result: text similarity does not distinguish self from substitute
 
 The official question wording is often repeated or closely paraphrased by whoever takes the question in the chamber.
 
-That means a substitute can match the official question **more closely** than the original submitter does in many self-taken cases.
-
-Median normalized question-token coverage:
+Median normalized question-token coverage in the benchmark was approximately:
 
 - self-first cases: **35.0%**;
 - explicit substitutes: **52.6%**;
 - unresolved non-submitter-first cases: **35.3%**.
 
-Median token-set similarity:
+Median token-set similarity was approximately:
 
 - self-first cases: **63.1**;
 - explicit substitutes: **74.9**;
 - unresolved non-submitter-first cases: **63.2**.
 
-This is the opposite of what would be needed for a safe rule that distinguishes submitters from substitutes.
-
-### Threshold tests do not provide a safe separator
-
-For example, requiring at least **60% question-token coverage and 80 token-set similarity** passed:
-
-- about **10.1%** of self-first cases;
-- about **34.5%** of explicit substitute cases;
-- about **14.1%** of unresolved non-submitter-first cases.
-
-At the stricter **75% coverage / 90 token-set** threshold, it still passed:
-
-- about **2.1%** of self-first cases;
-- about **17.2%** of explicit substitutes;
-- about **2.7%** of unresolved non-submitter-first cases.
-
-These results show that high similarity can support the proposition that a speaker is **voicing the formal question**, but cannot establish whether they are the official submitter or a substitute.
-
-### Low text similarity also does not rule out a real taker
-
-Many known self-taken and explicit substitute cases have low similarity because the speaker:
-
-- begins with acknowledgements or procedural remarks;
-- paraphrases rather than repeats the official wording;
-- expands immediately into political/contextual argument;
-- speaks in Irish while the question record is in English;
-- starts with a short intervention before later stating the substance;
-- receives or responds to a procedural interjection before the substantive wording appears.
-
-Examples of explicit substitutes with low opening-text overlap included cases where the first speech merely said that the TD was taking the question on behalf of another member, with the substance appearing later.
-
-### High-match unresolved cases are useful review candidates
-
-The unresolved non-submitter-first set contains many cases where the opening TD speech closely reproduces the official question despite lacking a currently certified proxy phrase.
-
-Examples include cases where:
-
-- Joe Neville closely voiced a Barry Ward question;
-- John Connolly closely voiced a Tony McCormack question;
-- Louis O'Hara closely voiced a Pa Daly question;
-- Malcolm Byrne closely voiced a Naoise Ó Cearúil question;
-- Thomas Gould closely voiced a Mark Ward question;
-- Sorca Clarke closely voiced a David Cullinane question;
-- Cathy Bennett closely voiced another David Cullinane question.
-
-These are strong candidates for further deterministic substitution-pattern research, but the text match itself is not enough to publish `taken_by_member_code` as fact.
+A substitute can therefore match the official wording more closely than the original submitter does in many self-taken cases.
 
 ### Decision on text matching
 
@@ -261,20 +174,86 @@ It should **not** be treated as:
 - proof that the speaker was an authorized substitute;
 - a standalone production `taken_by_member_code` rule.
 
-The proposed `substitute_text_match` status is therefore **not certified** and should not be added to production at this stage.
+The proposed `substitute_text_match` status is therefore **not certified**.
+
+## High-match unresolved-case pattern discovery
+
+Text similarity was then used only to prioritize unresolved cases for manual/deterministic pattern discovery.
+
+This produced **53 high-match unresolved single-question cases** under the review threshold used for the exploratory pass.
+
+The review uncovered several explicit procedural patterns that the earlier proxy rules had missed.
+
+### Most useful new source signal: chair assignment by question number
+
+The strongest newly identified pattern is the chair explicitly assigning a numbered question to a TD who is different from the official submitter.
+
+Examples include:
+
+- `Question No. 4 is being taken by Deputy Neville.`
+- `Question No. 75 is in the name of Deputy James O'Connor and is being taken by Deputy McCormack.`
+- `Question No. 7 in the name of Deputy Ó Cearúil is being taken by Deputy Malcolm Byrne.`
+- `Deputy George Lawlor on Question No. 103` where Question No. 103 belongs to Robert O'Donoghue in the official question record.
+
+For a **single-question exchange**, when the chair names a different TD against the exact official question number, this is strong deterministic evidence that the named TD is taking that question.
+
+### Other new explicit formulations
+
+Additional certifiable wording included:
+
+- `Deputy Ó Murchú is substituting for Deputy Ward on Question No. 7.`
+- a Minister asking whether a TD is `subbing for` the official submitter, followed by the chair explicitly confirming that they are;
+- `I am covering the questions for Deputy Conway-Walsh.`
+
+### Pattern-audit result
+
+The strict follow-up scan found:
+
+- **58** single-question relationships already covered by the expanded existing explicit rules used in that scan;
+- **7 additional relationships** caught only by the newly identified chair/subbing/covering rules;
+- **65 total strict single-question substitute relationships** after combining the evidence classes.
+
+The 7 newly recovered relationships were supported by:
+
+- 3 `question ... is being taken by ...` chair assignments;
+- 2 chair/member-on-question-number assignments;
+- 1 explicit `subbing for` confirmation;
+- 1 explicit `covering the questions for` statement.
+
+### Important guardrail
+
+The phrase discovery was driven by high-match cases, but **text similarity did not certify any relationship**.
+
+Certification came only from explicit procedural/substitution evidence.
 
 ## Current methodological decision
 
-A production `question_taking_relationships` foundation is **promising but not yet approved**.
+Question-taking attribution is now **deliberately bounded** rather than pursued toward full coverage.
 
-The currently certified safe rule is:
+The certified rules are:
 
 - Do not infer `taken_by_member_code` from submitter presence alone.
-- Do not infer `taken_by_member_code` from first ordinary-member transcript position alone.
-- Do not infer `taken_by_member_code` from question-text similarity alone.
-- For a **single-question exchange**, if explicit substitution/proxy language is present and the first non-ministerial/non-chair member speaker is identifiable, that member may be recorded as a deterministic `taken_by_member_code` candidate.
+- Do not infer it from first ordinary-member transcript position alone.
+- Do not infer it from question-text similarity alone.
+- For a **single-question exchange**, an explicit substitution/proxy statement or explicit chair assignment tied to that numbered question may certify a substitute taker.
 - For grouped exchanges, do not assign one exchange-level participant to every grouped question.
-- For unresolved cases, retain `unknown`; absence of the submitter or high textual similarity alone is not evidence of certified substitution.
+- For unresolved cases, retain `unknown`.
+
+The current certified subset is **65 single-question substitute relationships**.
+
+The remaining **142 single-question non-submitter-first cases** should remain unresolved unless new explicit evidence emerges naturally from future work.
+
+### Production-foundation decision
+
+A dedicated `question_taking_relationships` production foundation is **not yet necessary** solely for these 65 records.
+
+The evidence model is now clear enough to implement later if a downstream consumer needs it, but continuing to optimize regex coverage has diminishing analytical value.
+
+The useful structural lesson has been established:
+
+> official submitter, in-chamber question taker, and exchange participant are distinct concepts.
+
+The research effort should now move back to exchange-level participant metrics, where the coverage and analytical value are much larger.
 
 ## Evidence
 
@@ -288,80 +267,68 @@ Important runs for this follow-up:
 - compact exception digest: **33579257409**;
 - raw XML speaker-attribution check: **33579429125**;
 - single-question text-match audit: **33579960048**;
-- explicit-substitute/unresolved text-match benchmark: **33580045161**.
+- explicit-substitute/unresolved text-match benchmark: **33580045161**;
+- high-match unresolved substitution-pattern review: **33580298794**;
+- compact unresolved-pattern digest: **33580355636**;
+- strict chair/procedural assignment audit: **33580414547**.
 
-No production pipeline or production data was changed during this investigation.
+No production pipeline or production data was changed during these investigations.
 
 ## Revised next-steps plan
 
-### 1. Use high-match unresolved cases to discover additional deterministic substitution wording
+### 1. Certify reusable oral-question exchange participant metrics
 
 This is now the immediate next task.
 
-The text-match experiment should not become an attribution rule, but it gives us an efficient way to prioritize the unresolved cases most likely to contain real substitution/proxy-taking.
+The taker-attribution problem is sufficiently bounded for current purposes. The next higher-value work is to convert the already observed exchange structure into reusable deterministic measures.
 
-Investigate the highest-match unresolved non-submitter-first cases for:
+Investigate and certify:
 
-- additional English formulations such as "my question is..." when another TD is named elsewhere in the section;
-- wording such as "I am covering the questions for..." not captured by current patterns;
-- chair announcements before the member's first substantive speech;
-- Irish substitution announcements outside the current regex set;
-- references to the named submitter elsewhere in the first few interventions;
-- whether the substitute's identity can be extracted from explicit chair text rather than inferred from order.
+- `participating_submitting_member_count`;
+- `participating_submitter_share`;
+- `ordinary_non_submitter_td_count`;
+- `related_speech_word_count`;
+- `ministerial_intervention_count`;
+- `ministerial_word_count`;
+- `ministerial_word_share`;
+- `chair_intervention_count`;
+- `chair_word_count`;
+- `grouped_exchange`;
+- `questions_per_exchange`.
 
-Goal: expand **explicit-evidence coverage**, not create a similarity-based inference rule.
+Before materialization:
 
-### 2. Separate unresolved single-question and grouped-question cases
+- validate event-date minister/chair role attribution;
+- validate transcript word-count completeness;
+- define ordinary non-submitting TD precisely;
+- establish additive/non-additive semantics;
+- decide which measures belong directly in `oral_question_sections` and which require a participant-level foundation.
 
-The remaining unresolved population should be split structurally.
+### 2. Design exchange-participant structure if needed
 
-For single-question exchanges:
+If exchange-level aggregates are insufficient for downstream analysis, consider a separate participant foundation keyed by:
 
-- explicit substitution wording may allow safe question-level attribution;
-- high text similarity can prioritize review;
-- unknown remains unknown without explicit evidence.
-
-For grouped exchanges:
-
-- question-level taker attribution may be inherently ambiguous;
-- focus on exchange-level participation unless the transcript explicitly maps individual questions to speakers.
-
-### 3. Reassess whether a production foundation is worth building
-
-After the additional deterministic wording pass, decide whether the certified coverage is high enough to justify `question_taking_relationships`.
-
-A possible foundation would include:
-
-- `question_id`;
 - `debate_section_id`;
-- `submitted_by_member_code`;
-- `taken_by_member_code` when certified;
-- `is_substitute`;
-- `relationship_status`;
-- `evidence_method`;
-- `evidence_speech_id` or section evidence reference;
-- provenance/version fields.
+- `member_code` / participant identity;
+- participant role category;
+- submitted-question relationship;
+- intervention count;
+- word count;
+- provenance.
 
-Recommended status values remain conservative:
+This would support richer analysis without forcing question-level taker attribution.
 
-- `substitute_explicit`;
-- `unknown`;
-- `procedural_or_interrupted`.
+### 3. Preserve question-taker evidence rules for future use
 
-A separate `self_confirmed` status should only be introduced if a robust rule for actual self-taking, rather than mere submitter presence, is certified.
+Do not discard the certified evidence model.
 
-Do **not** add `substitute_text_match` as a factual status based on the current evidence.
+If a future consumer needs `taken_by_member_code`, implement only the explicit evidence rules documented here and leave all other cases unknown.
 
-### 4. Then return to exchange participant metrics
+Do not resume broad regex expansion unless there is a concrete downstream requirement.
 
-Once question-taking attribution is settled or deliberately bounded, continue the parent plan by certifying reusable exchange measures such as:
+### 4. Then investigate section-heading normalization
 
-- participating submitter count/share;
-- ordinary non-submitting TD participants;
-- respondent/minister word share;
-- chair intervention count;
-- exchange word volume;
-- grouped vs single-question exchange.
+After exchange participant metrics are settled, return to the parent plan and determine whether Oireachtas section headings can provide a useful no-AI topic hierarchy for Oral questions.
 
 ### 5. Question issue classification remains deferred
 
