@@ -7,9 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  inspect:
+  diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -23,11 +23,12 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas pyyaml
-      - name: Inspect source rows for ordering exceptions
+      - name: Run source inspection and capture traceback
         shell: bash
         run: |
-          set -euo pipefail
-          python - <<'PY'
+          mkdir -p diagnostics/question-order-source
+          set +e
+          python - <<'PY' > diagnostics/question-order-source/stdout.txt 2> diagnostics/question-order-source/stderr.txt
           import io,json,os
           from pathlib import Path
           import boto3,pandas as pd
@@ -39,40 +40,18 @@ jobs:
           s=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
           q=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
           dig=json.loads(Path('analysis/question_taking_order_exceptions_digest.json').read_text())
-          cases=[]
+          print('speech cols',list(s.columns))
           for ex in dig['exceptions']:
-              # Locate section via date+heading+submitters from questions, then dump exact speech metadata.
-              qq=q[(q.question_type.fillna('').str.lower().eq('oral')) & (q.question_date.astype(str).str.startswith(ex['date']))]
-              # Candidate sections matching heading through speech section_heading.
-              ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.section_heading.fillna('').astype(str).eq(ex['heading']))].copy()
-              if ss.empty:
-                  # fallback by submitter-linked section IDs
-                  secs=set(qq[qq.asked_by_member_code.astype(str).isin(ex['submitters'])].debate_section_id.dropna().astype(str))
-                  ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.debate_section_id.astype(str).isin(secs))].copy()
-              ss['speech_order_num']=pd.to_numeric(ss.get('speech_order'),errors='coerce')
-              ss=ss.sort_values(['debate_section_id','speech_order_num','speech_id'],na_position='last')
-              rows=[]
-              for r in ss.head(25).itertuples(index=False):
-                  rows.append({
-                    'speech_id':str(getattr(r,'speech_id','')),
-                    'debate_section_id':str(getattr(r,'debate_section_id','')),
-                    'speech_order':str(getattr(r,'speech_order','')),
-                    'speaker_member_code':str(getattr(r,'speaker_member_code','')),
-                    'speaker_name':str(getattr(r,'speaker_name','')),
-                    'speaker_role':str(getattr(r,'speaker_role','')),
-                    'section_heading':str(getattr(r,'section_heading','')),
-                    'speech_text':str(getattr(r,'speech_text',''))[:500],
-                    'source_xml_url':str(getattr(r,'source_xml_url','')),
-                  })
-              cases.append({'date':ex['date'],'heading':ex['heading'],'submitters':ex['submitters'],'speech_rows':rows})
-          out={'cases':cases}
-          Path('analysis/question_taking_order_exception_source_rows.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
+              qq=q[(q.question_type.fillna('').astype(str).str.lower().eq('oral')) & (q.question_date.astype(str).str.startswith(ex['date']))]
+              secs=set(qq[qq.asked_by_member_code.astype(str).isin(ex['submitters'])].debate_section_id.dropna().astype(str))
+              ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.debate_section_id.astype(str).isin(secs))].copy()
+              print(ex['date'],ex['heading'],len(ss),sorted(secs))
           PY
-      - name: Persist analysis
+          echo $? > diagnostics/question-order-source/exit_code.txt
+      - name: Persist diagnostics
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_taking_order_exception_source_rows.json
-          git commit -m "Capture source rows for question taker ordering exceptions ${GITHUB_RUN_ID}" || true
+          git add -f diagnostics/question-order-source
+          git commit -m "Capture question order source diagnostics ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
