@@ -7,32 +7,113 @@ permissions:
   contents: write
 
 jobs:
-  summarize:
+  audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build compact digest
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Quantify strict chair-assignment substitute evidence
+        shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
-          import json
+          import io,json,os,re
           from pathlib import Path
-          src=json.loads(Path('analysis/unresolved_question_substitution_patterns.json').read_text())
-          out={
-            'high_match_unresolved_case_count':src.get('high_match_unresolved_case_count'),
-            'candidate_phrase_hit_counts':src.get('candidate_phrase_hit_counts'),
-            'guardrail':src.get('guardrail'),
-            'cases':src.get('cases',[])[:12],
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          keys={'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv','speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv','oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv','speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv','offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv'}
+          F={}
+          for n,k in keys.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=k)
+              F[n]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          q=F['questions']; s=F['speeches']; oq=F['oral_sections']; sc=F['speech_context']; offices=F['offices']
+          q['question_date']=pd.to_datetime(q.question_date,errors='coerce'); s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce'); s['speech_order_num']=pd.to_numeric(s.get('speech_order'),errors='coerce')
+          offices['office_start']=pd.to_datetime(offices.office_start,errors='coerce'); offices['office_end']=pd.to_datetime(offices.office_end,errors='coerce')
+          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
+          single=set(oq[pd.to_numeric(oq.oral_question_count,errors='coerce').fillna(0).eq(1)].debate_section_id.astype(str)); oral=oral[oral.debate_section_id.isin(single)]
+          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str)); rs=s[s.speech_id.astype(str).isin(related)&s.debate_section_id.astype(str).isin(single)].copy()
+          rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
+
+          chair_re=re.compile(r'ceann comhairle|leas-cheann comhairle|cathaoirleach|acting chair(?:man|person)?|chairman|chairperson',re.I)
+          minister_re=re.compile(r'\bminister\b|\btaoiseach\b|\btánaiste\b|attorney general',re.I)
+          cache={}
+          def role(code,date,name):
+              if chair_re.search(str(name)): return 'chair'
+              if minister_re.search(str(name)): return 'ministerial'
+              key=(str(code),pd.Timestamp(date) if pd.notna(date) else pd.NaT)
+              if key not in cache:
+                  g=offices[offices.member_code.astype(str).eq(str(code))]
+                  if g.empty: cache[key]='ordinary_member'
+                  else:
+                      mask=(g.office_start.isna()|g.office_start.le(key[1]))&(g.office_end.isna()|g.office_end.gt(key[1])); names=' '.join(g.loc[mask,'office_name'].dropna().astype(str))
+                      if chair_re.search(names): cache[key]='chair'
+                      elif minister_re.search(names): cache[key]='ministerial'
+                      else: cache[key]='ordinary_member'
+              return cache[key]
+
+          # Existing strict proxy evidence from prior pass.
+          existing_re=re.compile('|'.join([r'\bon behalf of deputy\b',r'\bon behalf of the deputy\b',r'\bon behalf of my colleague\b',r'\bi am covering for deputy\b',r'\bi am standing in for deputy\b',r'\bi am taking (?:this|the|this parliamentary) question .*?(?:for|on behalf of)\b',r'\bi am asking (?:this|the) question .*?(?:for|on behalf of)\b',r'\bi ask (?:this|the) question on behalf of\b',r'\bi am asking this for deputy\b',r'\bthe question is being taken by\b',r'\bquestion .*? will be taken by\b',r'\btá mé ag tógáil na ceiste seo thar ceann\b',r'\bag glacadh ceist .*? faoi choinne an teachta\b',r'\bá tógáil ag an teachta\b',r'\bthar ceann an teachta\b']),re.I)
+
+          # New strict evidence classes. These require a single-question exchange and a different first ordinary member.
+          patterns={
+            'chair_question_is_being_taken_by':re.compile(r'question\s+no\.?\s*\d+.*?\bis being taken by\s+deputy\b',re.I),
+            'chair_named_member_on_question_number':re.compile(r'\bdeputy\s+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóú\' -]+\s+on\s+question\s+no\.?\s*\d+',re.I),
+            'explicit_subbing_for':re.compile(r'\bsubb(?:ing|ed)\s+for\s+(?:the\s+)?deputy\b|\bsubb(?:ing|ed)\s+for\s+deputy\b',re.I),
+            'chair_confirms_subbing':re.compile(r'\b(?:he|she|the deputy)\s+is\s+subb(?:ing)?\s+for\s+(?:the\s+)?deputy\b',re.I),
+            'covering_questions_for':re.compile(r'\bcover(?:ing)?\s+(?:the\s+)?questions?\s+(?:for|on behalf of)\b',re.I),
           }
-          Path('analysis/unresolved_question_substitution_patterns_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
+
+          rows=[]
+          for sid,qg in oral.groupby('debate_section_id'):
+              qr=qg.iloc[0]; sg=rs[rs.debate_section_id.eq(str(sid))].sort_values(['speech_order_num','speech_id'],na_position='last')
+              ordinary=[r for r in sg.itertuples(index=False) if str(r.speaker_member_code) and role(r.speaker_member_code,r.debate_date,r.speaker_name)=='ordinary_member']
+              if not ordinary: continue
+              first=ordinary[0]; submitter=str(qr.asked_by_member_code or '')
+              if str(first.speaker_member_code)==submitter: continue
+              early_rows=list(sg.head(8).itertuples(index=False)); early=' '.join(str(r.speech_text) for r in early_rows)
+              old=bool(existing_re.search(early))
+              hits=[name for name,rx in patterns.items() if rx.search(early)]
+              # Require the chair/member assignment to concern the actual question number where available.
+              qno=str(getattr(qr,'question_no','') or '')
+              qno_in_early=bool(qno and re.search(r'question\s+no\.?\s*'+re.escape(qno)+r'\b',early,re.I))
+              strict_new=False; method=None
+              if 'chair_question_is_being_taken_by' in hits and qno_in_early:
+                  strict_new=True; method='chair_question_is_being_taken_by'
+              elif 'chair_named_member_on_question_number' in hits and qno_in_early:
+                  strict_new=True; method='chair_named_member_on_question_number'
+              elif 'chair_confirms_subbing' in hits or 'explicit_subbing_for' in hits:
+                  strict_new=True; method='explicit_subbing_for'
+              elif 'covering_questions_for' in hits:
+                  strict_new=True; method='covering_questions_for'
+              if strict_new and old: method='already_covered_existing_rule'
+              if old or strict_new:
+                  rows.append({'question_id':str(qr.question_id),'date':str(pd.Timestamp(qr.question_date).date()) if pd.notna(qr.question_date) else None,'question_no':qno,'submitter_code':submitter,'candidate_taken_by_code':str(first.speaker_member_code),'candidate_speaker_name':str(first.speaker_name),'existing_rule':old,'new_strict_rule':strict_new,'method':method,'hits':hits,'qno_in_early':qno_in_early,'first_rows':[{'speaker':str(r.speaker_name),'role':role(r.speaker_member_code,r.debate_date,r.speaker_name),'text':str(r.speech_text)[:300]} for r in early_rows[:5]]})
+
+          df=pd.DataFrame(rows)
+          existing_count=int(df.existing_rule.sum()) if len(df) else 0
+          strict_count=int(df.new_strict_rule.sum()) if len(df) else 0
+          new_only=df[(~df.existing_rule)&df.new_strict_rule] if len(df) else pd.DataFrame()
+          method_counts=new_only.method.value_counts().rename_axis('method').reset_index(name='question_count').to_dict(orient='records') if len(new_only) else []
+          out={'existing_explicit_single_question_relationships_in_scan':existing_count,'new_strict_relationships_not_previously_caught':int(len(new_only)),'new_method_counts':method_counts,'new_relationships':new_only.to_dict(orient='records') if len(new_only) else [],'guardrail':'All new rules require a single-question exchange, a different first ordinary member, and explicit chair/procedural text tied to the numbered question or an explicit subbing/covering statement.'}
+          Path('analysis').mkdir(exist_ok=True); Path('analysis/question_taking_chair_assignment_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps({k:v for k,v in out.items() if k!='new_relationships'},indent=2,sort_keys=True))
           PY
-      - name: Persist digest
+      - name: Persist audit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/unresolved_question_substitution_patterns_digest.json
-          git commit -m "Summarize unresolved substitution patterns ${GITHUB_RUN_ID}" || true
+          git add analysis/question_taking_chair_assignment_audit.json
+          git commit -m "Capture strict chair assignment taker audit ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
