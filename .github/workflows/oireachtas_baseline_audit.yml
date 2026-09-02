@@ -4,79 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  analyze:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas pyyaml
-      - name: Classify no-submitter oral exchanges deterministically
+          cache: pip
+      - name: Install audit dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io, json, os, re
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from extract.oireachtas.batch import resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          keys={'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv','speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv','oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv','speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv'}
-          frames={}
-          for name,key in keys.items():
-              r=resolve_production_key(s3,bucket=bucket,production_key=key)
-              frames[name]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          q=frames['questions']; s=frames['speeches']; oq=frames['oral_sections']; sc=frames['speech_context']
-          q['question_date']=pd.to_datetime(q.question_date,errors='coerce'); s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce')
-          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
-          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
-          rs=s[s.speech_id.astype(str).isin(related)].copy(); rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
-          proxy_re=re.compile(r'\bon behalf of\b|\btaking (?:this )?question .*?(?:for|on behalf)\b|\bquestion .*? on behalf\b|\bcovering for\b|\bfor deputy\b|\bask(?:ing)? .*? on behalf of\b|\bput(?:ting)? .*? on behalf of\b|\btake .*? on behalf of\b',re.I)
-          proc_re=re.compile(r'\badjourn\b|\bresume their seats\b|\border of business\b|\btime is up\b|\bquestion(?:s)? not reached\b',re.I)
-          records=[]; examples={'proxy_or_substitute':[],'procedural_or_interrupted':[],'unexplained':[]}
-          for sid,row in oq.drop_duplicates('debate_section_id').set_index('debate_section_id').iterrows():
-              qg=oral[oral.debate_section_id.eq(str(sid))]; sg=rs[rs.debate_section_id.eq(str(sid))]
-              askers=set(x for x in qg.asked_by_member_code.dropna().astype(str) if x); speakers=set(x for x in sg.speaker_member_code.astype(str) if x)
-              if askers & speakers: continue
-              texts=sg.speech_text.astype(str).tolist(); joined=' '.join(texts[:6])
-              proxy=bool(proxy_re.search(joined)); procedural=bool(proc_re.search(joined))
-              category='proxy_or_substitute' if proxy else ('procedural_or_interrupted' if procedural else 'unexplained')
-              candidates=[]
-              for r in sg.head(8).itertuples(index=False):
-                  nm=str(r.speaker_name).lower()
-                  if 'minister' not in nm and 'taoiseach' not in nm and 'ceann comhairle' not in nm and 'cathaoirleach' not in nm and str(r.speaker_member_code):
-                      candidates.append({'member_code':str(r.speaker_member_code),'speaker_name':str(r.speaker_name),'speech_text':str(r.speech_text)[:260]})
-              rec={'debate_section_id':str(sid),'date':str(pd.Timestamp(row.debate_date).date()) if pd.notna(row.debate_date) else None,'heading':str(row.section_heading),'question_count':int(row.oral_question_count),'asker_count':len(askers),'asker_codes':sorted(askers),'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],'category':category,'speech_interventions':int(len(sg)),'likely_substitute_speakers':candidates[:4],'first_speech_texts':[str(x)[:300] for x in texts[:4]]}
-              records.append(rec)
-              if len(examples[category])<8: examples[category].append(rec)
-          df=pd.DataFrame(records)
-          cats=df.category.value_counts().rename_axis('category').reset_index(name='exchange_count'); cats['share_of_no_submitter']=cats.exchange_count/len(df) if len(df) else 0
-          qcat=df.groupby('category').question_count.sum().rename('question_records').reset_index(); cats=cats.merge(qcat,on='category',how='left')
-          proxy_df=df[df.category.eq('proxy_or_substitute')]; substitute_counts={}
-          for rec in proxy_df.to_dict(orient='records'):
-              if rec['likely_substitute_speakers']:
-                  name=rec['likely_substitute_speakers'][0]['speaker_name']; substitute_counts[name]=substitute_counts.get(name,0)+1
-          out={'total_oral_exchanges':int(len(oq)),'no_submitter_exchanges':int(len(df)),'no_submitter_share':len(df)/len(oq) if len(oq) else None,'category_counts':cats.to_dict(orient='records'),'top_likely_substitute_speakers':sorted([{'speaker_name':k,'proxy_exchange_count':v} for k,v in substitute_counts.items()],key=lambda x:-x['proxy_exchange_count'])[:15],'examples':examples,'important_limit':'Conservative transcript phrase rules. Unexplained does not imply an error.'}
-          Path('analysis').mkdir(exist_ok=True); Path('analysis/oral_exchange_proxy_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps(out,indent=2,sort_keys=True,default=str))
-          PY
-      - name: Persist analysis
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/oral_exchange_proxy_audit.json
-          git commit -m "Capture oral exchange proxy audit ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
