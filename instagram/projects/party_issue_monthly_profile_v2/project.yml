@@ -1,0 +1,122 @@
+project_id: party_issue_monthly_profile_v2
+version: 2
+status: commissioning
+purpose: Reusable monthly five-slide profile of classified Dáil speech activity for each party/grouping, with approved registry-backed party logos on covers.
+
+factory:
+  runner: instagram.factory.run_party_monthly_profile_v2
+  grouping: party
+
+period:
+  mode: runtime
+  default: last_completed_month
+  manual_format: YYYY-MM
+  require_complete_month: true
+  require_classifier_coverage_through_period_end: true
+  member_snapshot_policy: first_period_appropriate_snapshot_after_month_end
+
+sources:
+  classified_speeches:
+    bucket: eirepolitic-data
+    key: processed/oireachtas_unified/latest/csv/enrichment_speech_issue_labels.csv
+    category_field: issue_label
+    producer: unified_speech_issue_classifier
+    resolution: promoted_production_batch_pointer
+  members:
+    bucket: eirepolitic-data
+    key: raw/members/oireachtas_members_34th_dail.csv
+  party_assets:
+    registry: configs/reference/party_assets_v1.csv
+    logo_contract: s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png
+    require_asset_status: approved
+    require_dimensions: [1600, 1600]
+  presentation_labels: instagram/reference/issue_presentation_labels.yml
+
+slides:
+  - order: 1
+    slide_id: cover
+    title: entity_name
+    hero: approved_party_logo
+    logo_scope: cover_only
+    metrics:
+      - classified_speeches
+      - avg_speeches_per_td
+  - order: 2
+    slide_id: most_discussed_issues
+    title: Most Discussed Issues
+    supporting_label: Total classified speeches
+    metric: raw_issue_counts
+    item_limit: 7
+  - order: 3
+    slide_id: more_than_average
+    title: Issues Discussed More Than Average
+    supporting_label: Compared with the average party
+    metric: share_vs_unweighted_average_party
+    value_format: +X.X pts vs avg
+    item_limit: 7
+  - order: 4
+    slide_id: more_per_td
+    title: Issues Discussed More Per TD
+    supporting_label: Adjusted for party size
+    metric: per_td_vs_unweighted_average_party
+    value_format: +X.XX per TD vs avg
+    item_limit: 7
+  - order: 5
+    slide_id: glossary
+    title: Glossary
+    content: approved_party_glossary_v1
+
+presentation:
+  party_display_aliases:
+    Independent: Independents
+  context_block:
+    alignment: centered
+    position: between_title_divider_and_visual
+  issue_labels: instagram/reference/issue_presentation_labels.yml
+
+methodology:
+  raw_counts: Category classified speeches for the party during the requested period.
+  share_vs_average: Party category share minus the unweighted mean category share across parties, including zero shares; positive values only.
+  per_td_vs_average: Party category speeches per TD minus the unweighted mean party category rate per TD across parties, including zero rates; positive values only.
+  semantic_scope: Speech activity only; results do not establish party policy, position, endorsement, sentiment, intent, or political priority.
+
+visuals:
+  canvas: [1080, 1350]
+  corner_assets:
+    - instagram/templates/assets/corner_tl.png
+    - instagram/templates/assets/corner_tr.png
+    - instagram/templates/assets/corner_bl.png
+    - instagram/templates/assets/corner_br.png
+  cover_logo:
+    source_dimensions: [1600, 1600]
+    render_size: [500, 500]
+    horizontal_alignment: centered
+    top: 300
+  title_rule_y: 174
+  chart_media_y: 184
+  glossary_underline: actual_text_bbox_bottom_plus_8px
+
+qa:
+  require_all_slides: true
+  require_dimensions: [1080, 1350]
+  require_zero_unmatched_classified_speakers: true
+  require_approved_logo_for_each_grouping: true
+  require_logo_dimensions: [1600, 1600]
+  require_asset_lineage: true
+  require_human_review: true
+
+output:
+  root: instagram/commissioning/output/party_issue_monthly_profile_v2
+  partitioning: period=YYYY-MM
+  retain_lineage_manifest: true
+  retain_party_manifests: true
+  retain_contact_sheets: true
+
+publication:
+  enabled: false
+  review_state: pending_human_review
+
+schedule:
+  enabled: false
+  future_period: last_completed_month
+  trigger: manual_during_commissioning
