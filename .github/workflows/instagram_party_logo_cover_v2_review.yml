@@ -33,26 +33,43 @@ jobs:
           python -m pip install --upgrade pip
           pip install boto3 pillow pyyaml
 
-      - name: Render representative Fianna Fáil v2 cover
+      - name: Render all-party July 2026 v2 cover review
         run: python -m instagram.commissioning.render_party_logo_cover_v2
 
-      - name: Validate rendered review asset
+      - name: Validate rendered review package
         run: |
           python - <<'PY'
-          from PIL import Image
+          import json
           from pathlib import Path
-          p = Path('instagram/commissioning/output/party-logo-cover-v2-review/fianna-fail-cover.png')
-          im = Image.open(p)
-          assert im.size == (1080, 1350), im.size
-          print(f'PASS {p} {im.size}')
+          from PIL import Image
+
+          root = Path('instagram/commissioning/output/party-logo-cover-v2-review')
+          manifest = json.loads((root / 'review-manifest.json').read_text(encoding='utf-8'))
+          assert manifest['party_count'] == 11, manifest['party_count']
+          covers = sorted(root.glob('*-cover.png'))
+          lineage = sorted(root.glob('*-cover-lineage.json'))
+          assert len(covers) == 11, len(covers)
+          assert len(lineage) == 11, len(lineage)
+          for p in covers:
+              with Image.open(p) as im:
+                  assert im.size == (1080, 1350), (p, im.size)
+          sheet = root / 'all-party-covers-contact-sheet.png'
+          with Image.open(sheet) as im:
+              assert im.size[0] > 0 and im.size[1] > 0, im.size
+          for item in manifest['covers']:
+              assert item['party_asset_registry'] == 'configs/reference/party_assets_v1.csv'
+              asset = item['party_asset']
+              assert asset['validated_dimensions'] == [1600, 1600], asset
+              assert asset['s3_uri'].endswith(f"/{item['party_key']}/logo.png"), asset['s3_uri']
+          print('PASS: 11 covers, 11 lineage files, registry-backed 1600x1600 logos, contact sheet present')
           PY
 
-      - name: Commit review output
+      - name: Commit review outputs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/commissioning/output/party-logo-cover-v2-review
-          git commit -m "Render Fianna Fáil v2 logo cover review" || true
+          git commit -m "Render all-party July 2026 v2 logo cover review" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Upload review artifact
