@@ -18,11 +18,27 @@ CONTACT_SHEET = OUTPUT_ROOT / "all-party-covers-contact-sheet.png"
 REVIEW_MANIFEST = OUTPUT_ROOT / "review-manifest.json"
 LOGO_SIZE = 500
 LOGO_TOP = 300
+LOGO_BORDER_WIDTH = 6
 EXPECTED_PARTY_COUNT = 11
+LOGO_SCALE_OVERRIDES = {
+    "fine-gael": 1.10,
+    "independent-ireland": 1.10,
+    "labour-party": 1.10,
+}
 
 
 def _display_party_name(party: str) -> str:
     return "Independents" if party == "Independent" else party
+
+
+def _prepare_logo(logo: Image.Image, party_key: str) -> tuple[Image.Image, float]:
+    scale = LOGO_SCALE_OVERRIDES.get(party_key, 1.0)
+    if scale > 1.0:
+        crop_size = round(logo.width / scale)
+        left = (logo.width - crop_size) // 2
+        top = (logo.height - crop_size) // 2
+        logo = logo.crop((left, top, left + crop_size, top + crop_size))
+    return logo.resize((LOGO_SIZE, LOGO_SIZE), Image.Resampling.LANCZOS), scale
 
 
 def _render_cover(data: dict, s3) -> tuple[Path, dict]:
@@ -39,13 +55,20 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
             f"Registry party_key mismatch for {party!r}: manifest={party_key!r}, registry={asset.party_key!r}"
         )
     logo, asset_lineage = fetch_logo(s3, asset)
-    logo = logo.resize((LOGO_SIZE, LOGO_SIZE), Image.Resampling.LANCZOS)
+    logo, logo_scale = _prepare_logo(logo, party_key)
 
     image = profile._base_slide()
     profile._draw_title(image, [party])
     draw = ImageDraw.Draw(image)
     logo_left = (profile.W - LOGO_SIZE) // 2
+    logo_right = logo_left + LOGO_SIZE - 1
+    logo_bottom = LOGO_TOP + LOGO_SIZE - 1
     image.paste(logo, (logo_left, LOGO_TOP))
+    draw.rectangle(
+        (logo_left, LOGO_TOP, logo_right, logo_bottom),
+        outline=profile.ACCENT,
+        width=LOGO_BORDER_WIDTH,
+    )
 
     number_font = profile._font(72, True)
     label_font = profile._font(25, True)
@@ -76,7 +99,18 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
         "avg_speeches_per_td": avg,
         "output": str(output),
         "rendered_dimensions": [profile.W, profile.H],
-        "logo_geometry": {"size": [LOGO_SIZE, LOGO_SIZE], "top": LOGO_TOP, "centered": True},
+        "logo_geometry": {
+            "square_size": [LOGO_SIZE, LOGO_SIZE],
+            "top": LOGO_TOP,
+            "centered": True,
+            "artwork_scale": logo_scale,
+            "border": {
+                "enabled": True,
+                "color": profile.ACCENT,
+                "width_px": LOGO_BORDER_WIDTH,
+                "position": "inside_square",
+            },
+        },
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "party_asset": asset_lineage,
         "publication_enabled": False,
@@ -134,7 +168,18 @@ def main() -> None:
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "logo_contract": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png",
         "logo_source_dimensions": [1600, 1600],
-        "cover_logo_geometry": {"size": [LOGO_SIZE, LOGO_SIZE], "top": LOGO_TOP, "centered": True},
+        "cover_logo_geometry": {
+            "square_size": [LOGO_SIZE, LOGO_SIZE],
+            "top": LOGO_TOP,
+            "centered": True,
+            "border": {
+                "enabled": True,
+                "color": profile.ACCENT,
+                "width_px": LOGO_BORDER_WIDTH,
+                "position": "inside_square",
+            },
+            "artwork_scale_overrides": LOGO_SCALE_OVERRIDES,
+        },
         "covers": [lineage for _, lineage in rendered],
         "contact_sheet": str(CONTACT_SHEET),
         "publication_enabled": False,
