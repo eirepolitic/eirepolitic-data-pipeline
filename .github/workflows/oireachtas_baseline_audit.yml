@@ -9,7 +9,7 @@ permissions:
 jobs:
   profile:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,182 +24,90 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: python -m pip install boto3 pandas rapidfuzz
-      - name: Profile live oral question headings
+        run: python -m pip install boto3 pandas
+      - name: Profile heading stability and recipient drift
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import io,json,os,re,unicodedata
-          from collections import Counter,defaultdict
+          import io,json,math,os
           from pathlib import Path
           import boto3,pandas as pd
-          from rapidfuzz.fuzz import ratio, token_sort_ratio
           from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
-
           bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
           pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
           def read(logical):
               key=resolve_production_key(s3,bucket=bucket,production_key=logical)
-              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=['']),key
-          sections,sections_key=read('processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv')
-          questions,questions_key=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
-          sections['debate_date_dt']=pd.to_datetime(sections.debate_date,errors='coerce')
-          sections['section_heading']=sections.section_heading.fillna('').astype(str).str.strip()
-          sections['oral_question_count_num']=pd.to_numeric(sections.oral_question_count,errors='coerce').fillna(0).astype(int)
-          sections['grouped_exchange_bool']=sections.grouped_exchange.astype(str).str.lower().isin({'true','1','yes'}) if 'grouped_exchange' in sections.columns else sections.oral_question_count_num.gt(1)
-          questions=questions[questions.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy()
-          questions['debate_section_id']=questions.debate_section_id.astype(str)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          sec=read('processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv')
+          q=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
+          sec['debate_date_dt']=pd.to_datetime(sec.debate_date,errors='coerce'); sec['year']=sec.debate_date_dt.dt.year
+          sec['section_heading']=sec.section_heading.fillna('').astype(str).str.strip(); sec['question_count']=pd.to_numeric(sec.oral_question_count,errors='coerce').fillna(0).astype(int)
+          q=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); q['debate_section_id']=q.debate_section_id.astype(str)
+          rc=next((c for c in ['to_minister_or_department','recipient','question_recipient'] if c in q.columns),None)
+          q['recipient']=q[rc].fillna('').astype(str).str.strip() if rc else ''
+          joined=sec[['debate_section_id','section_heading','year']].merge(q[['debate_section_id','recipient']],on='debate_section_id',how='left')
 
-          recipient_col=next((c for c in ['to_minister_or_department','recipient','question_recipient'] if c in questions.columns),None)
-          if recipient_col:
-              questions['recipient_clean']=questions[recipient_col].fillna('').astype(str).str.strip()
-          else:
-              questions['recipient_clean']=''
+          profiles=[]
+          for h,sg in sec.groupby('section_heading'):
+              qg=joined[joined.section_heading.eq(h)]
+              rec=qg.recipient.replace('',pd.NA).dropna().value_counts()
+              total=int(rec.sum()); distinct=int(len(rec))
+              top_share=float(rec.iloc[0]/total) if total else None
+              probs=[x/total for x in rec.values] if total else []
+              entropy=-sum(p*math.log2(p) for p in probs if p>0) if probs else None
+              year_tops={}
+              for y,yg in qg.groupby('year'):
+                  vc=yg.recipient.replace('',pd.NA).dropna().value_counts()
+                  if len(vc): year_tops[str(int(y))]={'top_recipient':str(vc.index[0]),'top_share':float(vc.iloc[0]/vc.sum()),'distinct_recipients':int(len(vc)),'question_count':int(vc.sum())}
+              top_changed=len({v['top_recipient'] for v in year_tops.values()})>1
+              profiles.append({
+                'heading':h,'exchange_count':int(len(sg)),'question_records':total,'distinct_recipients':distinct,'top_recipient':str(rec.index[0]) if total else None,'top_recipient_share':top_share,'recipient_entropy_bits':entropy,
+                'years':sorted(int(x) for x in sg.year.dropna().unique()),'top_recipient_changed_between_years':top_changed,'year_profiles':year_tops,
+                'grouped_share':float((sg.question_count>1).mean()),'median_questions_per_exchange':float(sg.question_count.median()),
+              })
+          p=pd.DataFrame(profiles)
 
-          def norm_basic(text):
-              t=unicodedata.normalize('NFKC',str(text or '')).casefold().strip()
-              t=t.replace('&',' and ')
-              t=re.sub(r'[\u2010-\u2015]','-',t)
-              t=re.sub(r'[^\w\s-]',' ',t,flags=re.UNICODE)
-              t=re.sub(r'[-_]+',' ',t)
-              return re.sub(r'\s+',' ',t).strip()
+          repeated=p[p.exchange_count.gt(1)].copy()
+          stable5=p[p.exchange_count.ge(5)].copy()
+          stable10=p[p.exchange_count.ge(10)].copy()
+          both=p[p.years.map(lambda ys:2025 in ys and 2026 in ys)].copy()
 
-          def norm_conservative(text):
-              # Safe candidate normalization only: case, punctuation, ampersand, whitespace.
-              return norm_basic(text)
-
-          sections['heading_norm']=sections.section_heading.map(norm_conservative)
-          counts=sections.section_heading.value_counts(dropna=False)
-          norm_counts=sections.heading_norm.value_counts(dropna=False)
-
-          # Exact normalization collisions: raw headings that become same after case/punctuation/spacing only.
-          collision_groups=[]
-          for n,g in sections.groupby('heading_norm'):
-              raws=sorted(set(g.section_heading.astype(str)))
-              if n and len(raws)>1:
-                  collision_groups.append({'normalized_heading':n,'raw_headings':raws,'exchange_count':int(len(g))})
-          collision_groups=sorted(collision_groups,key=lambda x:(-x['exchange_count'],x['normalized_heading']))
-
-          # Near-equivalent candidates. Do NOT treat as safe normalization automatically.
-          unique_raw=sorted(h for h in sections.section_heading.unique() if h)
-          candidates=[]
-          for i,a in enumerate(unique_raw):
-              na=norm_basic(a)
-              if len(na)<6: continue
-              for b in unique_raw[i+1:]:
-                  nb=norm_basic(b)
-                  if len(nb)<6: continue
-                  # Cheap blocking: first character and length ratio.
-                  if na[:1]!=nb[:1]: continue
-                  lr=min(len(na),len(nb))/max(len(na),len(nb))
-                  if lr<0.72: continue
-                  r=ratio(na,nb); ts=token_sort_ratio(na,nb)
-                  if max(r,ts)>=88 and na!=nb:
-                      candidates.append({'heading_a':a,'heading_b':b,'ratio':round(r,1),'token_sort_ratio':round(ts,1),'count_a':int(counts.get(a,0)),'count_b':int(counts.get(b,0))})
-          candidates=sorted(candidates,key=lambda x:(-max(x['ratio'],x['token_sort_ratio']),-(x['count_a']+x['count_b'])))[:80]
-
-          # Procedural/non-topical candidate patterns: descriptive audit only.
-          procedural_patterns={
-            'taoiseach_meetings':r"taoiseach(?:'s)? meetings|taoiseach.*engagements",
-            'cabinet_committees':r'cabinet committees?',
-            'departmental_questions_generic':r'questions? to (?:the )?minister|ministerial questions?',
-            'business_of_house':r'business of the dáil|business of the house|order of business',
-            'priority_questions':r'priority questions?',
-            'oral_questions_generic':r'^oral questions?$|^questions?$',
-          }
-          procedural_hits={}
-          for name,pat in procedural_patterns.items():
-              m=sections.section_heading.str.contains(pat,case=False,regex=True,na=False)
-              procedural_hits[name]={'exchange_count':int(m.sum()),'headings':sections.loc[m,'section_heading'].value_counts().head(15).to_dict()}
-
-          # Heading reuse / concentration.
-          heading_count_dist=counts.value_counts().sort_index()
-          singleton_headings=int((counts==1).sum())
-          repeated_headings=int((counts>1).sum())
-          exchanges_under_repeated=int(sections.section_heading.isin(counts[counts>1].index).sum())
-
-          # Recipient concentration per heading.
-          qr=questions[['debate_section_id','recipient_clean']].copy()
-          heading_rec=sections[['debate_section_id','section_heading','heading_norm']].merge(qr,on='debate_section_id',how='left')
-          recipient_profiles=[]
-          for h,g in heading_rec.groupby('section_heading'):
-              rc=g.recipient_clean.replace('',pd.NA).dropna().value_counts()
-              total=int(rc.sum())
-              if total==0: continue
-              top=str(rc.index[0]); top_n=int(rc.iloc[0])
-              recipient_profiles.append({'section_heading':h,'exchange_count':int((sections.section_heading==h).sum()),'question_records_with_recipient':total,'distinct_recipients':int(len(rc)),'top_recipient':top,'top_recipient_share':top_n/total,'top_recipients':rc.head(5).to_dict()})
-          recipient_profiles=sorted(recipient_profiles,key=lambda x:(-x['exchange_count'],x['section_heading']))
-
-          # Temporal stability by heading: first/last date, distinct months, distinct years, occurrences.
-          stability=[]
-          for h,g in sections.groupby('section_heading'):
-              dates=g.debate_date_dt.dropna()
-              stability.append({'section_heading':h,'exchange_count':int(len(g)),'first_date':dates.min().date().isoformat() if len(dates) else None,'last_date':dates.max().date().isoformat() if len(dates) else None,'distinct_months':int(dates.dt.to_period('M').nunique()) if len(dates) else 0,'distinct_years':int(dates.dt.year.nunique()) if len(dates) else 0,'grouped_share':float(g.grouped_exchange_bool.mean()),'median_questions_per_exchange':float(g.oral_question_count_num.median())})
-          stability=sorted(stability,key=lambda x:(-x['exchange_count'],x['section_heading']))
-
-          # Year overlap: headings used in both 2025 and 2026.
-          sections['year']=sections.debate_date_dt.dt.year
-          years_by_heading=sections.groupby('section_heading').year.apply(lambda x:set(int(v) for v in x.dropna())).to_dict()
-          both_years=[h for h,ys in years_by_heading.items() if 2025 in ys and 2026 in ys]
-
-          # Top headings with recipient and stability details.
-          rec_map={x['section_heading']:x for x in recipient_profiles}
-          stab_map={x['section_heading']:x for x in stability}
-          top=[]
-          for h,n in counts.head(40).items():
-              x={'section_heading':h,'exchange_count':int(n)}
-              x.update({k:v for k,v in stab_map[h].items() if k not in {'section_heading','exchange_count'}})
-              rp=rec_map.get(h)
-              if rp:
-                  x.update({'distinct_recipients':rp['distinct_recipients'],'top_recipient':rp['top_recipient'],'top_recipient_share':rp['top_recipient_share']})
-              top.append(x)
-
-          # Candidate normalization impact if ONLY conservative exact normalization is used.
-          safe_unique=int(sections.heading_norm.nunique())
-          raw_unique=int(sections.section_heading.nunique())
-          safe_reduction=raw_unique-safe_unique
-
-          out={
+          summary={
             'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode')),
-            'resolved_keys':{'oral_question_sections':sections_key,'questions':questions_key},
-            'exchange_count':int(len(sections)),
-            'raw_heading_unique_count':raw_unique,
-            'blank_heading_exchange_count':int(sections.section_heading.eq('').sum()),
-            'singleton_heading_count':singleton_headings,
-            'repeated_heading_count':repeated_headings,
-            'exchange_share_under_repeated_heading':exchanges_under_repeated/len(sections) if len(sections) else None,
-            'headings_used_in_both_2025_and_2026_count':len(both_years),
-            'conservative_normalized_unique_count':safe_unique,
-            'conservative_safe_unique_reduction':safe_reduction,
-            'exact_normalization_collision_group_count':len(collision_groups),
-            'exact_normalization_collision_groups':collision_groups[:50],
-            'near_equivalent_candidates':candidates,
-            'procedural_candidate_profiles':procedural_hits,
-            'top_headings':top,
-            'recipient_profiles_top_60':recipient_profiles[:60],
-            'stability_top_60':stability[:60],
-            'heading_frequency_distribution':{str(k):int(v) for k,v in heading_count_dist.items()},
-            'guardrails':[
-              'Conservative normalization only changes case, punctuation, ampersand and whitespace.',
-              'Near-equivalent fuzzy pairs are review candidates only and are not safe merges by themselves.',
-              'Section headings are source-generated labels and are not the EirePolitic issue taxonomy.',
-              'Procedural-like patterns are descriptive candidates and require manual/source review before any public category is created.'
-            ]
+            'heading_count':int(len(p)),
+            'repeated_heading_count':int(len(repeated)),
+            'headings_5plus_exchanges':int(len(stable5)),
+            'headings_10plus_exchanges':int(len(stable10)),
+            'headings_used_both_years':int(len(both)),
+            'recipient_concentration':{
+              'all_single_recipient_heading_share':float(p.distinct_recipients.eq(1).mean()),
+              'repeated_single_recipient_heading_share':float(repeated.distinct_recipients.eq(1).mean()),
+              '5plus_top_recipient_90pct_share':float(stable5.top_recipient_share.fillna(0).ge(.9).mean()),
+              '10plus_top_recipient_90pct_share':float(stable10.top_recipient_share.fillna(0).ge(.9).mean()),
+              '5plus_top_recipient_75pct_share':float(stable5.top_recipient_share.fillna(0).ge(.75).mean()),
+            },
+            'recipient_drift':{
+              'headings_both_years_top_recipient_changed':int(both.top_recipient_changed_between_years.sum()),
+              'share_both_years_changed':float(both.top_recipient_changed_between_years.mean()) if len(both) else None,
+            },
+            'generic_or_cross_portfolio_candidates':stable5.sort_values(['distinct_recipients','recipient_entropy_bits','exchange_count'],ascending=[False,False,False]).head(30).to_dict(orient='records'),
+            'recipient_drift_candidates':both[both.top_recipient_changed_between_years].sort_values('exchange_count',ascending=False).head(40).to_dict(orient='records'),
+            'highly_stable_heading_candidates':stable5[(stable5.top_recipient_share.fillna(0).ge(.9)) & stable5.years.map(lambda ys:2025 in ys and 2026 in ys)].sort_values('exchange_count',ascending=False).head(60).to_dict(orient='records'),
+            'public_filter_candidate_rule':{
+              'source_heading_can_be_used_raw':True,
+              'safe_normalization_needed':False,
+              'recommended_public_label':'Oireachtas section heading',
+              'not_issue_taxonomy':True,
+              'recipient_should_remain_separate_dimension':True
+            }
           }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/oral_section_heading_profile.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          digest={k:v for k,v in out.items() if k not in ['recipient_profiles_top_60','stability_top_60','heading_frequency_distribution']}
-          digest['top_headings']=top[:25]
-          digest['exact_normalization_collision_groups']=collision_groups[:20]
-          digest['near_equivalent_candidates']=candidates[:30]
-          Path('analysis/oral_section_heading_profile_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+          Path('analysis').mkdir(exist_ok=True); Path('analysis/oral_section_heading_stability.json').write_text(json.dumps(summary,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps(summary,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/oral_section_heading_profile*.json
-          git commit -m "Capture oral section heading profile ${GITHUB_RUN_ID}" || true
+          git add analysis/oral_section_heading_stability.json
+          git commit -m "Capture oral section heading stability ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
