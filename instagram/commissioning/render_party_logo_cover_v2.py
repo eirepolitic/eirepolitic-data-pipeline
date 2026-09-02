@@ -20,6 +20,7 @@ LOGO_SIZE = 500
 LOGO_TOP = 300
 LOGO_BORDER_WIDTH = 6
 EXPECTED_PARTY_COUNT = 11
+COVER_TITLE = "Party Speech Breakdown"
 LOGO_SCALE_OVERRIDES = {
     "fine-gael": 1.10,
     "independent-ireland": 1.10,
@@ -58,7 +59,7 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
     logo, logo_scale = _prepare_logo(logo, party_key)
 
     image = profile._base_slide()
-    profile._draw_title(image, ["Party Speech Breakdown", period.label])
+    profile._draw_title(image, [COVER_TITLE, period.label])
     draw = ImageDraw.Draw(image)
     logo_left = (profile.W - LOGO_SIZE) // 2
     logo_right = logo_left + LOGO_SIZE - 1
@@ -94,7 +95,8 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
         "display_party_name": party,
         "party_key": party_key,
         "period": data["period"],
-        "cover_title": ["Party Speech Breakdown", period.label],
+        "cover_title": COVER_TITLE,
+        "cover_title_period": period.label,
         "classified_speeches": speech_count,
         "td_count": td_count,
         "avg_speeches_per_td": avg,
@@ -166,7 +168,7 @@ def main() -> None:
         "project_id": "party_issue_monthly_profile_v2",
         "period": PERIOD,
         "party_count": len(rendered),
-        "cover_title": ["Party Speech Breakdown", profile.resolve_monthly_period(PERIOD).label],
+        "cover_title": COVER_TITLE,
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "logo_contract": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png",
         "logo_source_dimensions": [1600, 1600],
