@@ -26,9 +26,9 @@ After excluding ministers and chair/procedural speakers using both dated office 
 - **1,890 of 1,901 eligible submitter-present exchanges**;
 - **99.42%**.
 
-This is strong evidence that transcript order is useful for identifying the person taking the question.
+This is strong evidence that transcript order is useful supporting evidence for identifying the person taking a question.
 
-However, the remaining **11 exceptions** mean ordering alone is not yet safe enough to materialize `taken_by_member_code` universally.
+However, the remaining **11 exceptions** show that ordering alone is not safe enough to materialize `taken_by_member_code` universally.
 
 ### Explicit substitution/proxy-taking is demonstrable
 
@@ -39,7 +39,7 @@ The refined deterministic rules now recognize both English and Irish formulation
 - "I ask this question on behalf of ...";
 - chair announcements that a named TD is taking another TD's question;
 - Irish chair language such as a TD `ag glacadh Ceist ... faoi choinne an Teachta ...`;
-- Irish wording where a question `á tógáil ag an Teachta ...`.
+- Irish wording where a question is `á tógáil ag an Teachta ...`.
 
 The refined audit found:
 
@@ -115,15 +115,65 @@ This improved the validation of the transcript-order rule from approximately **9
 
 This is another reason source transcript role labels should supplement office history when classifying procedural speakers.
 
+## Investigation of the 11 transcript-order exceptions
+
+All 11 exceptions were inspected individually, including a raw-XML check of the first speech in each affected debate section.
+
+### Raw XML result
+
+The parsed first-speaker attribution matched the Oireachtas XML in all 11 cases examined.
+
+This rules out the suspected general speaker/text alignment bug in `silver_speeches` for these cases.
+
+Two apparently suspicious grouped-answer introductions were correctly attributed in the raw XML to the Taoiseach. The earlier compact exception digest had shown the **first ordinary-member candidate** separately from the **first speech text**, which made those rows look mismatched. The underlying production speech records were correct.
+
+### What the 11 exceptions actually represent
+
+The exceptions break down structurally as:
+
+- **8 grouped-question exchanges** where an ordinary TD who was not one of the recorded submitters spoke before the first recorded submitter;
+- **2 single-question exchanges with explicit substitute-taking**, where the substitute spoke first even though the original submitter later appeared in the same exchange;
+- **1 single-question exchange with a likely substitute/alternate taker but no currently certified explicit proxy phrase**.
+
+Representative cases include:
+
+- `Middle East`, 13 February 2025: Pearse Doherty spoke before either of the two recorded submitters; Pa Daly appeared shortly afterwards.
+- `Military Neutrality`, 26 February 2025: Richard Boyd Barrett spoke before the recorded submitters in a four-question grouped exchange.
+- `Cabinet Committees`, 19 March 2025: the Taoiseach opened the grouped answer, then Paul Lawless spoke before the first recorded submitter.
+- `Financial Instruments`, 3 April 2025: Paul Murphy spoke before the recorded submitters in a grouped exchange.
+- `Cabinet Committees`, 24 June 2025: the Taoiseach opened the grouped answer, then Marie Sherlock spoke before the first recorded submitter.
+- `Fishing Industry`, 3 July 2025: Conor D. McGuinness explicitly stated that he was asking the question on behalf of Pádraig Mac Lochlainn; Mac Lochlainn later spoke in the same exchange.
+- `Just Transition`, 18 December 2025: the Leas-Cheann Comhairle announced the grouped questions, and Réada Cronin participated well before the first recorded submitter.
+- `Job Creation`, 13 January 2026: Erin McGreehan opened a single-question exchange whose official submitted question belonged to Aisling Dempsey; the current rules do not contain explicit enough substitution evidence to certify the relationship.
+- `General Practitioner Services`, 5 March 2026: Martin Daly spoke before the two recorded submitters in a grouped exchange.
+- `Disease Management`, 5 March 2026: Martin Daly explicitly said he was taking the question on behalf of Deputy Byrne; the original submitter later appeared.
+- `Trade Agreements`, 21 May 2026: Malcolm Byrne spoke before the recorded submitters in a six-question grouped exchange.
+
+### Consequence for the ordering rule
+
+The 99.42% figure remains useful as a **validation statistic**, but the first ordinary-member speaker cannot be treated as the question taker by default.
+
+There are two reasons:
+
+1. grouped oral-question exchanges can contain other TD participants before any recorded submitter speaks;
+2. an explicit substitute can take the question first even when the original submitter later participates.
+
+Therefore:
+
+> `submitter_present` is not equivalent to `submitter_took_question`, and `first ordinary speaker` is not equivalent to `taken_by_member_code`.
+
+Transcript order should remain supporting evidence only unless combined with question-level textual or explicit procedural evidence.
+
 ## Current methodological decision
 
 A production `question_taking_relationships` foundation is **promising but not yet approved**.
 
 The currently certified safe rule is:
 
-- If the recorded submitter is present, retain the official submitter relationship; do not create a substitute relationship solely from ordering.
+- Do not infer `taken_by_member_code` from submitter presence alone.
+- Do not infer `taken_by_member_code` from first ordinary-member transcript position alone.
 - For a **single-question exchange**, if explicit substitution/proxy language is present and the first non-ministerial/non-chair member speaker is identifiable, that member may be recorded as a deterministic `taken_by_member_code` candidate.
-- For grouped exchanges, do not assign one exchange-level candidate to every grouped question.
+- For grouped exchanges, do not assign one exchange-level participant to every grouped question.
 - For unresolved cases, retain `unknown`; absence of the submitter alone is not evidence of substitution.
 
 ## Evidence
@@ -133,30 +183,37 @@ Important runs for this follow-up:
 - initial deterministic question-taking audit: **33578667504**;
 - compact initial audit digest: **33578749629**;
 - refined chair-role + Irish-language substitution audit: **33578804943**;
-- refined compact digest: **33578865429**.
+- refined compact digest: **33578865429**;
+- 11-case transcript-order exception extraction: **33579196132**;
+- compact exception digest: **33579257409**;
+- raw XML speaker-attribution check: **33579429125**.
 
-The refined audit corrected temporary-chair identification and expanded explicit substitution language. No production pipeline or production data was changed during this investigation.
+The raw XML check confirmed that the production speech parser's first-speaker attribution was consistent with the Oireachtas XML for all 11 exception cases examined.
+
+No production pipeline or production data was changed during this investigation.
 
 ## Revised next-steps plan
 
-### 1. Investigate the 11 transcript-order exceptions
+### 1. Test question-text to opening-speech matching for single-question exchanges
 
 This is now the immediate next task.
 
-For each of the 11 submitter-present exchanges where the first non-officeholder member speaker is not one of the recorded submitters:
+Reason: the 11-case review shows that ordering alone is not enough, but a single-question exchange provides a much stronger opportunity to match the official submitted question text to the opening ordinary-member speech.
 
-- inspect transcript order;
-- check whether the first speaker is another participating TD before the actual question taker;
-- check section boundary/order issues;
-- check temporary office/chair-role gaps;
-- check grouped-question procedure;
-- determine whether the ordering rule can be refined deterministically.
+Investigate:
 
-Target: determine whether the 99.42% rule can become effectively certified, or whether ordering must remain supporting evidence only.
+- exact normalized inclusion/matching between `question_text` and the first ordinary-member speech;
+- high-threshold text similarity after removing procedural introductions;
+- validation on normal self-taken questions where the submitter is known to be present;
+- validation on the 57 explicit substitute relationships;
+- whether the unresolved `Job Creation` example and similar cases become safely identifiable;
+- false positives caused by short/generic question wording.
+
+Target: determine whether question text provides a certified deterministic taker signal for **single-question exchanges**.
 
 ### 2. Review the 156 unresolved-with-candidate exchanges
 
-Prioritize deterministic patterns rather than manual one-by-one attribution.
+Use the text-matching result first, then prioritize deterministic patterns rather than manual one-by-one attribution.
 
 Investigate:
 
@@ -165,7 +222,7 @@ Investigate:
 - chair announcements not captured by current regexes;
 - apology/absence formulations that imply another TD is taking the question;
 - whether named substitute extraction can be performed from chair text;
-- whether the first ordinary-member speaker is consistently the substitute in these cases.
+- how many unresolved cases are grouped exchanges where question-level taker attribution is inherently ambiguous.
 
 Unknown must remain unknown where explicit evidence cannot be established.
 
@@ -187,6 +244,7 @@ Recommended status values would distinguish at least:
 
 - `self_confirmed`;
 - `substitute_explicit`;
+- `substitute_text_match` only if separately certified;
 - `unknown`;
 - `procedural_or_interrupted`.
 
