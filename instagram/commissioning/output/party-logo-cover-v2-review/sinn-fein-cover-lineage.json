@@ -14,12 +14,19 @@
     1350
   ],
   "logo_geometry": {
-    "size": [
+    "square_size": [
       500,
       500
     ],
     "top": 300,
-    "centered": true
+    "centered": true,
+    "artwork_scale": 1.0,
+    "border": {
+      "enabled": true,
+      "color": "#d8b45f",
+      "width_px": 6,
+      "position": "inside_square"
+    }
   },
   "party_asset_registry": "configs/reference/party_assets_v1.csv",
   "party_asset": {

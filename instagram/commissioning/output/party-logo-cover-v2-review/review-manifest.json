@@ -10,12 +10,23 @@
     1600
   ],
   "cover_logo_geometry": {
-    "size": [
+    "square_size": [
       500,
       500
     ],
     "top": 300,
-    "centered": true
+    "centered": true,
+    "border": {
+      "enabled": true,
+      "color": "#d8b45f",
+      "width_px": 6,
+      "position": "inside_square"
+    },
+    "artwork_scale_overrides": {
+      "fine-gael": 1.1,
+      "independent-ireland": 1.1,
+      "labour-party": 1.1
+    }
   },
   "covers": [
     {
@@ -34,12 +45,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -78,12 +96,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -122,12 +147,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -166,12 +198,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -210,12 +249,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -254,12 +300,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -298,12 +351,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -342,12 +402,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -386,12 +453,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -430,12 +504,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
@@ -474,12 +555,19 @@
         1350
       ],
       "logo_geometry": {
-        "size": [
+        "square_size": [
           500,
           500
         ],
         "top": 300,
-        "centered": true
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
       },
       "party_asset_registry": "configs/reference/party_assets_v1.csv",
       "party_asset": {
