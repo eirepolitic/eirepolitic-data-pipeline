@@ -1,0 +1,63 @@
+name: Instagram Party Logo Cover v2 Review
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - name: Check out v2 commissioning branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install renderer dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install boto3 pillow pyyaml
+
+      - name: Render representative Fianna Fáil v2 cover
+        run: python -m instagram.commissioning.render_party_logo_cover_v2
+
+      - name: Validate rendered review asset
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p = Path('instagram/commissioning/output/party-logo-cover-v2-review/fianna-fail-cover.png')
+          im = Image.open(p)
+          assert im.size == (1080, 1350), im.size
+          print(f'PASS {p} {im.size}')
+          PY
+
+      - name: Commit review output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add instagram/commissioning/output/party-logo-cover-v2-review
+          git commit -m "Render Fianna Fáil v2 logo cover review" || true
+          git push origin "HEAD:${{ github.ref_name }}"
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: party-logo-cover-v2-review-${{ github.run_id }}
+          path: instagram/commissioning/output/party-logo-cover-v2-review/
+          if-no-files-found: error
