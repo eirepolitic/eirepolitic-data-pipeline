@@ -22,13 +22,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: python -m pip install boto3 pandas numpy pyyaml
-      - name: Refine exchange participant roles
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Classify no-submitter oral exchanges deterministically
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import io, json, os
+          import io, json, os, re
           from pathlib import Path
           import boto3
           import pandas as pd
@@ -40,7 +40,6 @@ jobs:
             'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
             'oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
             'speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
-            'offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv',
           }
           frames={}
           for name,key in keys.items():
@@ -48,110 +47,83 @@ jobs:
               obj=s3.get_object(Bucket=bucket,Key=r)
               frames[name]=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
 
-          q=frames['questions']; s=frames['speeches']; oq=frames['oral_sections']; sc=frames['speech_context']; offices=frames['offices']
-          q['question_date']=pd.to_datetime(q['question_date'],errors='coerce')
-          s['debate_date']=pd.to_datetime(s['debate_date'],errors='coerce'); s['word_count']=pd.to_numeric(s['word_count'],errors='coerce').fillna(0).astype(int)
-          oq['debate_date']=pd.to_datetime(oq['debate_date'],errors='coerce')
-          offices['office_start']=pd.to_datetime(offices['office_start'],errors='coerce'); offices['office_end']=pd.to_datetime(offices['office_end'],errors='coerce')
-
+          q=frames['questions']; s=frames['speeches']; oq=frames['oral_sections']; sc=frames['speech_context']
+          q['question_date']=pd.to_datetime(q.question_date,errors='coerce'); s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce')
           oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
           related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
-          rs=s[s.speech_id.astype(str).isin(related)].copy(); rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str)
+          rs=s[s.speech_id.astype(str).isin(related)].copy(); rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
 
-          def role_class(name):
-              t='' if pd.isna(name) else str(name).strip().lower()
-              if 'ceann comhairle' in t or 'leas-cheann comhairle' in t or 'cathaoirleach' in t: return 'chair'
-              if 'taoiseach' in t or 'tánaiste' in t or 'minister' in t or 'attorney general' in t: return 'ministerial'
-              return None
-          offices['role_class']=offices.office_name.map(role_class)
+          proxy_patterns=[
+            r'\bon behalf of\b', r'\btaking (?:this )?question .*?(?:for|on behalf)\b', r'\bquestion .*? on behalf\b',
+            r'\bcovering for\b', r'\bfor deputy\b', r'\bfaoi choinne an teachta\b', r'\b\u00e1 t\u00f3g\u00e1il ag an teachta\b',
+            r'\bask(?:ing)? .*? on behalf of\b', r'\bput(?:ting)? .*? on behalf of\b', r'\btake .*? on behalf of\b'
+          ]
+          procedural_patterns=[
+            r'\badjourn\b', r'\bresume their seats\b', r'\border of business\b', r'\btime is up\b', r'\bquestion(?:s)? not reached\b'
+          ]
+          proxy_re=re.compile('|'.join(proxy_patterns),re.I); proc_re=re.compile('|'.join(procedural_patterns),re.I)
 
-          cache={}
-          def role_for(code,date,name):
-              key=(str(code),pd.Timestamp(date) if pd.notna(date) else pd.NaT)
-              if key not in cache:
-                  g=offices[offices.member_code.astype(str).eq(str(code))]
-                  if len(g):
-                      mask=(g.office_start.isna()|g.office_start.le(key[1]))&(g.office_end.isna()|g.office_end.gt(key[1]))
-                      cache[key]=set(g.loc[mask,'role_class'].dropna().astype(str))
-                  else: cache[key]=set()
-              roles=cache[key]; lname=str(name).lower()
-              if 'chair' in roles or 'ceann comhairle' in lname or 'leas-cheann comhairle' in lname: return 'chair'
-              if 'ministerial' in roles: return 'ministerial'
-              return 'ordinary_member' if str(code) else 'unmatched'
-          rs['role_bucket']=[role_for(r.speaker_member_code,r.debate_date,r.speaker_name) for r in rs.itertuples(index=False)]
-
-          records=[]; absent_examples=[]
+          records=[]; examples={'proxy':[],'procedural_or_interrupted':[],'unexplained':[]}
           for sid,row in oq.drop_duplicates('debate_section_id').set_index('debate_section_id').iterrows():
               qg=oral[oral.debate_section_id.eq(str(sid))]; sg=rs[rs.debate_section_id.eq(str(sid))].copy()
               askers=set(x for x in qg.asked_by_member_code.dropna().astype(str) if x)
               speakers=set(x for x in sg.speaker_member_code.astype(str) if x)
               participating=askers&speakers
-              ordinary_other=set(sg.loc[(sg.role_bucket=='ordinary_member') & (~sg.speaker_member_code.isin(askers)),'speaker_member_code'].astype(str))
-              role_counts=sg.role_bucket.value_counts().to_dict(); total_words=int(sg.word_count.sum())
-              ordinary_other_words=int(sg.loc[(sg.role_bucket=='ordinary_member') & (~sg.speaker_member_code.isin(askers)),'word_count'].sum())
+              if participating: continue
+              texts=sg.speech_text.astype(str).tolist(); joined=' '.join(texts[:6])
+              proxy=bool(proxy_re.search(joined))
+              procedural=bool(proc_re.search(joined))
+              if proxy: category='proxy_or_substitute'
+              elif procedural: category='procedural_or_interrupted'
+              else: category='unexplained'
+              nonminister_candidates=[]
+              for r in sg.head(8).itertuples(index=False):
+                  nm=str(r.speaker_name).lower()
+                  if 'minister' not in nm and 'taoiseach' not in nm and 'ceann comhairle' not in nm and 'cathaoirleach' not in nm and str(r.speaker_member_code):
+                      nonminister_candidates.append({'member_code':str(r.speaker_member_code),'speaker_name':str(r.speaker_name),'speech_text':str(r.speech_text)[:300]})
               rec={
-                'debate_section_id':str(sid),'date':str(pd.Timestamp(row.debate_date).date()) if pd.notna(row.debate_date) else None,'heading':str(row.section_heading),
-                'question_count':int(row.oral_question_count),'asker_count':len(askers),'participating_asker_count':len(participating),
-                'asker_participation_share':len(participating)/len(askers) if askers else None,
-                'ordinary_non_submitter_td_count':len(ordinary_other),'ordinary_non_submitter_interventions':int(((sg.role_bucket=='ordinary_member') & (~sg.speaker_member_code.isin(askers))).sum()),
-                'ordinary_non_submitter_words':ordinary_other_words,'ordinary_non_submitter_word_share':ordinary_other_words/total_words if total_words else None,
-                'ministerial_interventions':int(role_counts.get('ministerial',0)),'chair_interventions':int(role_counts.get('chair',0)),
-                'speech_interventions':int(len(sg)),'total_words':total_words,
-                'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],
+                'debate_section_id':str(sid),'date':str(pd.Timestamp(row.debate_date).date()) if pd.notna(row.debate_date) else None,
+                'heading':str(row.section_heading),'question_count':int(row.oral_question_count),'asker_count':len(askers),
+                'asker_codes':sorted(askers),'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],
+                'category':category,'speech_interventions':int(len(sg)),'proxy_phrase_detected':proxy,'procedural_phrase_detected':procedural,
+                'likely_substitute_speakers':nonminister_candidates[:4],
+                'question_texts':[str(x)[:350] for x in qg.question_text.dropna().astype(str).head(4)],
+                'first_speech_texts':[str(x)[:350] for x in texts[:5]],
               }
               records.append(rec)
-              if askers and not participating and len(absent_examples)<40:
-                  absent_examples.append({**rec,
-                    'askers':sorted(askers),
-                    'question_texts':[str(x)[:450] for x in qg.question_text.dropna().astype(str).head(5)],
-                    'speech_speakers':[{'code':str(r.speaker_member_code),'name':str(r.speaker_name),'role':str(r.role_bucket),'words':int(r.word_count),'text':str(r.speech_text)[:300]} for r in sg.head(12).itertuples(index=False)]
-                  })
-          ex=pd.DataFrame(records)
-          single=ex[ex.question_count.eq(1)]; grouped=ex[ex.question_count.gt(1)]
-          def cohort(df):
-              return {
-                'exchange_count':int(len(df)),
-                'share_with_any_ordinary_non_submitter_td':float(df.ordinary_non_submitter_td_count.gt(0).mean()) if len(df) else None,
-                'median_ordinary_non_submitter_td_count':float(df.ordinary_non_submitter_td_count.median()) if len(df) else None,
-                'median_ordinary_non_submitter_word_share':float(df.ordinary_non_submitter_word_share.median()) if len(df) else None,
-                'share_no_submitter_in_transcript':float(df.asker_participation_share.eq(0).mean()) if len(df) else None,
-                'share_all_submitters_in_transcript':float(df.asker_participation_share.eq(1).mean()) if len(df) else None,
-              }
-          # Counts by role across all exchange speech rows.
-          role_summary=[]
-          for role,g in rs.groupby('role_bucket'):
-              role_summary.append({'role':role,'interventions':int(len(g)),'words':int(g.word_count.sum()),'intervention_share':float(len(g)/len(rs)),'word_share':float(g.word_count.sum()/rs.word_count.sum()) if rs.word_count.sum() else None,'distinct_speakers':int(g.speaker_member_code.replace('',pd.NA).nunique())})
-          role_summary=sorted(role_summary,key=lambda x:-x['words'])
+              if len(examples[category])<12: examples[category].append(rec)
+          df=pd.DataFrame(records)
+          cats=df.category.value_counts().rename_axis('category').reset_index(name='exchange_count'); cats['share_of_no_submitter']=cats.exchange_count/len(df) if len(df) else 0
 
-          # No-submitter cases by recipient and heading frequency.
-          absent=ex[ex.asker_participation_share.eq(0)]
-          absent_rec=[]
-          exploded=[]
-          for r in absent.to_dict(orient='records'):
-              for rec in r['recipients']: exploded.append({'recipient':rec,'section':r['debate_section_id']})
-          if exploded:
-              adf=pd.DataFrame(exploded); absent_rec=adf.groupby('recipient').section.nunique().sort_values(ascending=False).head(20).rename('exchange_count').reset_index().to_dict(orient='records')
-          absent_head=absent.heading.value_counts().head(20).rename_axis('heading').reset_index(name='exchange_count').to_dict(orient='records')
+          # Question records covered by each category, since grouped sections can contain many questions.
+          qcat=df.groupby('category').question_count.sum().rename('question_records').reset_index() if len(df) else pd.DataFrame()
+          cats=cats.merge(qcat,on='category',how='left') if len(cats) else cats
+
+          # Proxy frequency across all exchanges, and likely substitute diversity.
+          proxy_df=df[df.category.eq('proxy_or_substitute')]
+          substitute_counts={}
+          for rec in proxy_df.to_dict(orient='records'):
+              for sp in rec['likely_substitute_speakers'][:1]:
+                  name=sp['speaker_name']; substitute_counts[name]=substitute_counts.get(name,0)+1
+          top_substitutes=sorted([{'speaker_name':k,'proxy_exchange_count':v} for k,v in substitute_counts.items()],key=lambda x:-x['proxy_exchange_count'])[:20]
 
           out={
-            'exchange_count':int(len(ex)),
-            'role_summary_all_oral_exchange_speeches':role_summary,
-            'single_question':cohort(single),
-            'grouped_questions':cohort(grouped),
-            'all':cohort(ex),
-            'no_submitter_exchange_count':int(len(absent)),
-            'no_submitter_top_recipients':absent_rec,
-            'no_submitter_top_headings':absent_head,
-            'no_submitter_examples':absent_examples[:15],
-            'largest_ordinary_non_submitter_participation':ex.sort_values(['ordinary_non_submitter_td_count','ordinary_non_submitter_words'],ascending=False).head(20).to_dict(orient='records'),
+            'total_oral_exchanges':int(len(oq)),
+            'no_submitter_exchanges':int(len(df)),
+            'no_submitter_share':len(df)/len(oq) if len(oq) else None,
+            'classification_rule':'Conservative text rules over first six transcript interventions; proxy/substitution language takes precedence over procedural language.',
+            'category_counts':cats.to_dict(orient='records'),
+            'top_likely_substitute_speakers':top_substitutes,
+            'examples':examples,
+            'important_limit':'Unexplained does not mean erroneous. It only means the conservative transcript phrases did not establish proxy-taking or procedural interruption automatically.'
           }
-          Path('analysis').mkdir(exist_ok=True); Path('analysis/oral_exchange_participant_roles_corrected.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          Path('analysis').mkdir(exist_ok=True); Path('analysis/oral_exchange_proxy_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
           print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/oral_exchange_participant_roles_corrected.json
-          git commit -m "Refine oral exchange participant roles ${GITHUB_RUN_ID}" || true
+          git add analysis/oral_exchange_proxy_audit.json
+          git commit -m "Capture oral exchange proxy audit ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
