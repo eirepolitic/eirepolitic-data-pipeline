@@ -28,6 +28,7 @@ Do not promote exploratory conclusions into production metrics until their denom
 ## Topics
 
 - [Parliamentary questions](parliamentary_questions_investigation.md) — main durable record covering submitted question records, written vs oral questions, oral-question sections/exchanges, transcript interventions, grouped questions, participant roles, substitution/proxy-taking, batching, recipient patterns, and future metrics/enrichments.
-- [Parliamentary question-taking certification](parliamentary_questions_question_taking.md) — current follow-up on submitted-by vs actually-taken-by attribution, transcript ordering, explicit substitution evidence, unresolved cases, and the revised immediate next-steps plan.
+- [Parliamentary question-taking certification](parliamentary_questions_question_taking.md) — submitted-by vs actually-taken-by attribution, transcript ordering, explicit substitution evidence, bounded unresolved cases, and the conservative evidence model.
+- [Oral-question exchange participant metrics](parliamentary_questions_exchange_metrics.md) — certified exchange word/intervention components, submitter participation, minister/chair/ordinary-member roles, mixed-role and anonymous-speaker edge cases, recommended participant foundation, and production implementation plan.
 
 Future investigations should get their own topic documents here, for example voting behaviour, legislation, speech structure, issue analysis, constituency representation and cross-metric profiles.
