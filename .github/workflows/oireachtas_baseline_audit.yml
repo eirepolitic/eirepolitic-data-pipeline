@@ -7,45 +7,72 @@ permissions:
   contents: write
 
 jobs:
-  summarize:
+  inspect:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Summarize exception cases
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Inspect source rows for ordering exceptions
+        shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
-          import json,re
+          import io,json,os
           from pathlib import Path
-          src=json.loads(Path('analysis/question_taking_order_exceptions.json').read_text())
-          rows=[]
-          for ex in src['exceptions']:
-              seq=ex.get('speech_sequence',[])
-              first=seq[0] if seq else {}
-              submit_pos=ex.get('first_actual_submitter_position')
-              first_text=first.get('text','')
-              note=[]
-              if ex.get('question_count',0)>1: note.append('grouped')
-              if len(first_text.split())<=35: note.append('short_first_intervention')
-              if submit_pos is not None and submit_pos<=2: note.append('submitter_appears_immediately')
-              if re.search(r'on behalf|covering for|thar ceann|faoi choinne|á tógáil ag',first_text,re.I): note.append('proxy_language')
-              rows.append({
-                'date':ex.get('date'),'heading':ex.get('heading'),'question_count':ex.get('question_count'),'submitter_count':ex.get('submitter_count'),
-                'submitters':ex.get('submitters'),'first_ordinary_member_code':ex.get('first_ordinary_member_code'),'first_ordinary_speaker_name':ex.get('first_ordinary_speaker_name'),
-                'first_actual_submitter_position':submit_pos,'first_speaker_text':first_text[:260],'second_speaker':seq[1].get('speaker_name') if len(seq)>1 else None,
-                'second_is_submitter':seq[1].get('is_submitter') if len(seq)>1 else None,'third_speaker':seq[2].get('speaker_name') if len(seq)>2 else None,
-                'third_is_submitter':seq[2].get('is_submitter') if len(seq)>2 else None,'clues':note,
-              })
-          out={'exception_count':src.get('exception_count'),'exceptions':rows}
-          Path('analysis/question_taking_order_exceptions_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          def read(key):
+              r=resolve_production_key(s3,bucket=bucket,production_key=key)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          s=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
+          q=read('processed/oireachtas_unified/latest/csv/silver_questions.csv')
+          dig=json.loads(Path('analysis/question_taking_order_exceptions_digest.json').read_text())
+          cases=[]
+          for ex in dig['exceptions']:
+              # Locate section via date+heading+submitters from questions, then dump exact speech metadata.
+              qq=q[(q.question_type.fillna('').str.lower().eq('oral')) & (q.question_date.astype(str).str.startswith(ex['date']))]
+              # Candidate sections matching heading through speech section_heading.
+              ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.section_heading.fillna('').astype(str).eq(ex['heading']))].copy()
+              if ss.empty:
+                  # fallback by submitter-linked section IDs
+                  secs=set(qq[qq.asked_by_member_code.astype(str).isin(ex['submitters'])].debate_section_id.dropna().astype(str))
+                  ss=s[(s.debate_date.astype(str).str.startswith(ex['date'])) & (s.debate_section_id.astype(str).isin(secs))].copy()
+              ss['speech_order_num']=pd.to_numeric(ss.get('speech_order'),errors='coerce')
+              ss=ss.sort_values(['debate_section_id','speech_order_num','speech_id'],na_position='last')
+              rows=[]
+              for r in ss.head(25).itertuples(index=False):
+                  rows.append({
+                    'speech_id':str(getattr(r,'speech_id','')),
+                    'debate_section_id':str(getattr(r,'debate_section_id','')),
+                    'speech_order':str(getattr(r,'speech_order','')),
+                    'speaker_member_code':str(getattr(r,'speaker_member_code','')),
+                    'speaker_name':str(getattr(r,'speaker_name','')),
+                    'speaker_role':str(getattr(r,'speaker_role','')),
+                    'section_heading':str(getattr(r,'section_heading','')),
+                    'speech_text':str(getattr(r,'speech_text',''))[:500],
+                    'source_xml_url':str(getattr(r,'source_xml_url','')),
+                  })
+              cases.append({'date':ex['date'],'heading':ex['heading'],'submitters':ex['submitters'],'speech_rows':rows})
+          out={'cases':cases}
+          Path('analysis/question_taking_order_exception_source_rows.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
           print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist digest
+      - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/question_taking_order_exceptions_digest.json
-          git commit -m "Summarize question taker ordering exceptions ${GITHUB_RUN_ID}" || true
+          git add analysis/question_taking_order_exception_source_rows.json
+          git commit -m "Capture source rows for question taker ordering exceptions ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
