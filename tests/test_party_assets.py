@@ -44,7 +44,7 @@ class PartyAssetTests(unittest.TestCase):
     def test_independent_uses_explicit_generated_non_official_standin(self):
         row = resolve_party("Independent")
         self.assertIsNotNone(row)
-        self.assertEqual(row.asset_status, "pending_review")
+        self.assertEqual(row.asset_status, "approved")
         self.assertEqual(row.source_type, "eirepolitic_generated_standin")
         self.assertEqual(row.fallback_type, "eirepolitic_neutral_standin")
         self.assertEqual(
