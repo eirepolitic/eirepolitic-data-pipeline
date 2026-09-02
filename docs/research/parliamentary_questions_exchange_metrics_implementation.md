@@ -1,10 +1,10 @@
 # Oral-question exchange participant implementation
 
-Status: **Implemented and candidate-validated; pending merge and production promotion**  
+Status: **Live in production and audited**  
 Date: **2 September 2026**  
 Parent research: [Oral-question exchange participant metrics](parliamentary_questions_exchange_metrics.md)
 
-This note records the implementation and isolated-candidate validation of the exchange participant architecture certified in the preceding research.
+This note records the implementation, candidate validation, production deployment and current next-step plan for the deterministic Oral Parliamentary Question exchange participant architecture.
 
 ## Implemented structure
 
@@ -21,13 +21,13 @@ The existing one-row-per-exchange foundation now includes deterministic exchange
 - ordinary-member intervention/word components;
 - collective/unidentified intervention/word components.
 
-The primary key remains:
+Primary key:
 
 `debate_section_id`
 
-### New `oral_question_exchange_participants`
+### `oral_question_exchange_participants`
 
-A new deterministic foundation records observed participation at:
+The participant foundation records observed participation at:
 
 `debate_section_id + participant_key + participant_role`
 
@@ -44,28 +44,26 @@ Fields include:
 - `word_count`;
 - standard provenance/version fields.
 
-Certified role values:
+Certified roles:
 
 - `ministerial`;
 - `chair`;
 - `ordinary_member`;
 - `collective_or_unidentified`.
 
-The role is part of the primary key because an identified TD can genuinely contribute as an ordinary member and later act as chair in the same exchange.
+Role remains part of the primary key because one TD can genuinely contribute as an ordinary member and later act as chair in the same exchange.
 
-### Explicit separation from question-taker attribution
+### Question-taker attribution remains separate
 
-This implementation describes **observed transcript participation only**.
+This foundation records **observed transcript participation only**.
 
 It does not materialize `taken_by_member_code` and does not infer who formally took a submitted question.
 
-The previously researched question-taker evidence remains separate and bounded.
+The separately researched substitute/question-taker evidence remains bounded to explicit evidence and is not required for exchange participation metrics.
 
 ## Materialization and consumer contracts
 
-The materialization contract now includes the new participant foundation.
-
-The candidate political-metrics manifest therefore requires **eight datasets**:
+The political-metrics manifest now requires **eight datasets**:
 
 1. `daily_activity_components`
 2. `daily_issue_activity`
@@ -76,187 +74,234 @@ The candidate political-metrics manifest therefore requires **eight datasets**:
 7. `speech_question_context`
 8. `monthly_metric_results`
 
-Downstream logical paths were added for CSV and Parquet participant outputs.
+CSV and Parquet logical paths exist for the participant dataset.
 
-Consumer rules explicitly state that the participant foundation describes observed exchange participation and must not be used to infer question-taker attribution.
+Consumer contracts state explicitly that exchange participants represent observed participation and cannot be used as a question-taker inference.
 
-## Regression coverage
+## Regression and permanent audit coverage
 
-Unit/regression tests now cover:
+Tests and audits protect the following invariants:
 
-- grouped oral questions count exchange speeches once;
-- exchange word/intervention components reconcile;
-- participating submitter count/share;
-- ordinary non-submitting TD counts;
-- ministerial, chair, ordinary-member and collective/unidentified partitions;
-- participant primary-key uniqueness at exchange + participant + role grain;
-- the same member may occupy both ordinary-member and chair roles in one exchange;
-- collective/unidentified transcript speakers retain no identified `member_code`;
+- grouped oral questions count each exchange speech once;
+- exchange intervention/word totals reconcile to source `silver_speeches`;
+- participant intervention/word totals reconcile to the same source rows;
+- participant PK is unique at exchange + participant + role grain;
+- the same member may hold ordinary-member and chair roles within one exchange;
+- collective/unidentified speakers retain no identified `member_code`;
 - written questions do not create oral-question exchanges;
-- speech-question context remains one row per source speech.
+- `speech_question_context` remains one row per source speech;
+- role partitions reconcile to total interventions and words;
+- question-taker attribution is not materialized;
+- question-classifier calls remain zero.
 
-## Feature validation
+`process/political_metrics_question_context_audit.py` permanently validates these rules against production.
 
-Feature audit run **33655165749** passed:
+## Pre-merge validation evidence
+
+Feature audit **33655165749** passed:
 
 - political-metrics unit/regression tests;
 - historical metrics audit;
 - production parliamentary-question/speech relationship audit.
 
-A later permanent-audit enhancement adds the participant foundation itself to the production relationship audit, including exact intervention/word reconciliation and role validation.
-
-## Disposable production-seeded candidate
-
-Candidate batch:
+Disposable feature-branch candidate:
 
 `oral-exchange-participants-33655165749-1`
 
-Workflow run:
+Run **33655415884** passed:
 
-**33655415884**
+- production snapshot seed;
+- political-metrics materialization;
+- exact exchange/participant reconciliation;
+- eight-dataset manifest assembly;
+- candidate-local auxiliary enrichments;
+- downstream staging;
+- compatibility adapters;
+- downstream contracts;
+- strict compatibility/mismatch checks;
+- year-aware member metrics;
+- consumer smoke;
+- final manifest reassembly.
 
-The candidate was seeded from the exact current production snapshot.
+Enhanced permanent audit **33656105298** also passed before merge.
+
+PR **#53** merged the implementation to `main`.
+
+No source refresh or question classifier was used in these validation runs.
+
+## Merged-main deployment validation
+
+A fresh candidate was created after merge from the then-current production snapshot.
+
+Candidate batch:
+
+`structure-oral-exchange-participants-20260902-1`
+
+Merged-main validation run:
+
+**33678027849** — **SUCCESS**
+
+The first temporary wrapper attempt, run **33677930521**, failed at workflow startup before any job or S3 operation. It was an orchestration-wrapper issue only; no candidate or production data was changed. The validation steps were then run directly in the temporary wrapper.
+
+### Merged-main candidate checks passed
+
+Run 33678027849 passed:
+
+- exact production snapshot seed;
+- merged-main political-metrics materialization;
+- exact exchange/participant reconciliation;
+- participant PK uniqueness;
+- allowed participant-role validation;
+- collective/unidentified attribution guardrail;
+- eight-dataset manifest assembly;
+- candidate-local auxiliary enrichments;
+- downstream staging;
+- compatibility adapters;
+- downstream contracts;
+- strict compatibility/mismatch validation;
+- year-aware member metrics;
+- candidate-only Instagram consumer smoke;
+- final manifest reassembly.
+
+Materialization completed in approximately **1 minute 55 seconds** in this deployment candidate.
 
 No source refresh was performed.
 
 No speech classifier was run.
 
-No question classifier was built or run.
+No question classifier was run.
 
-The production pointer was not changed.
+## Production promotion
 
-### Candidate build checks
+Promotion run:
 
-The following all passed:
+**33678430937** — **SUCCESS**
 
-- production snapshot seed;
-- revised political-metrics materialization;
-- exact exchange/participant reconciliation against candidate source speeches;
-- participant primary-key uniqueness;
-- allowed participant-role validation;
-- collective/unidentified member-code validation;
-- eight-dataset political-metrics manifest assembly.
+The exact validated candidate was promoted:
 
-The full political-metrics materializer completed in approximately **2 minutes 12 seconds** on the production-sized candidate snapshot. This is acceptable for the current pipeline cadence and does not require optimization before merge.
+`structure-oral-exchange-participants-20260902-1`
 
-### Exact reconciliation checks
+Post-promotion verification in the same run confirmed:
 
-The candidate validation asserted that:
+- the production pointer resolves to the exact validated candidate;
+- all **eight** political-metrics logical paths resolve inside that production batch;
+- participant PK remains unique;
+- participant role values remain limited to the certified set;
+- collective/unidentified participant rows do not carry identified TD member codes;
+- question-classifier calls remain zero.
 
-- sum of `oral_question_sections.related_speech_count` equals unique source speech IDs in oral-question sections;
-- sum of participant `intervention_count` equals the same unique source speech count;
-- sum of exchange `related_speech_word_count` equals source oral-exchange speech words;
-- sum of participant `word_count` equals the same source word total;
-- participant roles are limited to the certified set;
-- collective/unidentified rows do not carry an identified member code.
+## Live production counts
 
-All assertions passed.
+Read-only live-count verification run:
 
-### Full downstream validation
+**33678761232** — **SUCCESS**
 
-The same candidate then passed the normal downstream validation stack in run **33655415884**:
+Current production counts for the new question-exchange structures:
 
-- candidate-local auxiliary enrichments;
-- downstream staging;
-- compatibility adapters;
-- downstream contract checks;
-- strict compatibility and mismatch validation;
-- year-aware member metrics;
-- candidate-only Instagram consumer smoke test;
-- final candidate manifest reassembly.
+- `oral_question_sections`: **2,127 rows**;
+- `oral_question_exchange_participants`: **6,133 rows**;
+- `speech_question_context`: **66,192 rows**;
+- participant primary key unique: **yes**.
 
-This provides evidence that the new metric foundation does not break existing downstream consumers.
+Participant-role rows:
 
-## Permanent audit requirement
+| Role | Rows |
+| --- | ---: |
+| ordinary_member | **3,432** |
+| ministerial | **2,180** |
+| chair | **517** |
+| collective_or_unidentified | **4** |
 
-Before merge, `process/political_metrics_question_context_audit.py` was extended so future production audits also validate:
+The participant-role row count differs from raw intervention count because each row aggregates one participant-role combination within one exchange.
 
-- `oral_question_exchange_participants` against its materialization contract;
-- participant primary-key uniqueness;
-- participant role values;
-- participant intervention totals against source oral-exchange speech IDs;
-- participant word totals against source oral-exchange word counts;
-- exchange intervention/word totals against the same source data;
-- exchange role partitions;
-- collective/unidentified rows remaining outside identified-member attribution;
-- zero question-classifier calls;
-- no question-taker attribution materialization.
+## Post-promotion production audits
 
-This prevents the candidate-only reconciliation from becoming a one-off check.
+### Production inventory
 
-## Implementation decisions preserved
+Run **33678504760** — **SUCCESS**.
+
+### Political metrics historical + question relationship audit
+
+Run **33678513654** — **SUCCESS**.
+
+This passed:
+
+- political-metrics tests;
+- read-only historical metrics audit;
+- live parliamentary-question / speech relationship audit;
+- new exchange-participant reconciliation against production;
+- audit summary/artifact creation.
+
+The production deployment is therefore considered certified and complete.
+
+## Decisions preserved
 
 1. **Observed participation is separate from question-taking.**
-2. **Role is part of participant grain.** A member can change role inside one exchange.
-3. **Anonymous/collective transcript speakers stay in totals but not TD counts.**
-4. **Word and intervention components are additive; shares must be recomputed from components.**
+2. **Role is part of participant grain.**
+3. **Anonymous/collective transcript speakers remain in totals but outside identified-TD counts.**
+4. **Word/intervention components are additive; shares must be recomputed from components.**
 5. **Grouped questions never multiply section speech rows.**
-6. **Question classification remains deferred.**
+6. **Question issue classification remains deferred.**
+7. Production deployment must continue to use seed → candidate → reconciliation → downstream validation → promotion → production audit rather than writing metrics directly to live paths.
 
-## Revised next-steps plan
+## Living next-steps plan
 
-### 1. Merge the validated implementation to `main`
+### 1. Investigate section-heading normalization
 
-Only after the enhanced permanent audit passes on the feature branch.
+This is now the immediate research task.
 
-The merge should include:
+Goal: determine whether Oireachtas debate-section headings provide a stable, useful **deterministic topical layer for Oral question exchanges** without pretending to be the EirePolitic issue taxonomy.
 
-- code;
-- contracts;
-- regression tests;
-- eight-dataset manifest requirement;
-- enhanced permanent production audit;
-- this implementation evidence.
+Measure:
 
-### 2. Run a fresh structure-only candidate from merged `main`
+- total heading uniqueness and reuse;
+- heading frequency distribution;
+- spelling/capitalization/punctuation variants;
+- near-equivalent headings that can be normalized safely;
+- headings that are procedural rather than topical;
+- relationship between headings and question recipient/department;
+- heading stability across time;
+- grouped versus single-question behaviour by heading;
+- whether recurring headings support useful public filters and post formats.
 
-Do not promote the feature-branch disposable candidate.
+Do not use AI classification in this phase.
 
-After merge:
+### 2. Decide whether a deterministic heading dimension is worthwhile
 
-- seed a new candidate from the then-current production batch;
-- run the merged-main materializer;
-- require all eight political-metrics datasets;
-- run exact participant/exchange reconciliation;
-- run the full downstream validation/consumer stack;
-- verify no classifier calls and no source refresh.
+If normalization is stable, consider a small foundation/dimension with:
 
-This ensures the deployable candidate is produced by the exact merged code.
+- raw section heading;
+- normalized heading;
+- normalization rule/version;
+- optional broader source-derived family only where deterministic;
+- provenance.
 
-### 3. Promote only that merged-main candidate
+Do not force headings into the existing speech issue taxonomy.
 
-If the merged-main candidate passes all checks:
+### 3. Compare Oral and Written scrutiny
 
-- promote the exact candidate;
-- verify the production pointer;
-- verify all eight logical metric paths resolve into the promoted batch;
-- verify participant PK uniqueness and allowed role values;
-- rerun production inventory and political-metrics relationship audits.
+Once the Oral exchange layer is settled, compare:
 
-### 4. Update research after promotion
+- recipient mix;
+- TD use of Oral versus Written questions;
+- portfolio specialization;
+- grouped Oral participation;
+- departments receiving high Written PQ volume but comparatively little Oral exchange activity, and vice versa;
+- member/party/constituency channel profiles.
 
-Record:
+### 4. Continue broader speech-context work
 
-- merged PR/commit;
-- validation run;
-- promotion run;
-- new production batch ID;
-- final production audit runs;
-- confirmed live row counts for sections and participant-role rows.
+Return to deterministic context categories only where section/source metadata can prove them safely, such as:
 
-### 5. Continue investigation with section-heading normalization
+- Leaders' Questions;
+- legislation/Bills;
+- motions;
+- statements;
+- procedural/business;
+- other.
 
-Once the participant foundation is live, investigate whether Oireachtas section headings can provide a stable deterministic topical hierarchy for Oral questions.
+### 5. Question issue classification remains deferred
 
-The investigation should measure:
+The deterministic question structure continues to produce useful analytical value without classifier cost.
 
-- heading uniqueness/reuse;
-- spelling and formatting variants;
-- normalization opportunities;
-- relationship to recipients;
-- stability over time;
-- whether headings support useful public filters without pretending to be the EirePolitic issue taxonomy.
-
-### 6. Question issue classification remains deferred
-
-The deterministic structure continues to produce useful analytical value. Do not classify the full question history unless a concrete unmet use case later justifies the cost.
+Do not classify the full ~121k question history until a concrete unmet use case justifies the backfill and ongoing cost.
