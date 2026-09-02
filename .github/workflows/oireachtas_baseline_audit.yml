@@ -1,13 +1,17 @@
-name: Capture live oral participant counts
+name: Oireachtas baseline audit
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  count:
+  inventory:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -23,39 +27,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas
-      - name: Capture live counts
+          cache: pip
+      - name: Install audit dependencies
+        shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import io,json,os
-          from pathlib import Path
-          import boto3,pandas as pd
-          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
-          paths={
-            'sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
-            'participants':'processed/oireachtas_unified/latest/metrics/event/oral_question_exchange_participants/csv/oral_question_exchange_participants.csv',
-            'context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
-          }
-          out={'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode'))}
-          for name,logical in paths.items():
-              key=resolve_production_key(s3,bucket=bucket,production_key=logical)
-              df=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-              out[name+'_rows']=len(df)
-          ptkey=resolve_production_key(s3,bucket=bucket,production_key=paths['participants'])
-          pt=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=ptkey)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          out['participant_role_counts']=pt.participant_role.value_counts().to_dict()
-          out['participant_pk_unique']=not pt.duplicated(['debate_section_id','participant_key','participant_role']).any()
-          Path('analysis').mkdir(exist_ok=True); Path('analysis/live_oral_participant_counts.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True))
-          PY
-      - name: Persist counts
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/live_oral_participant_counts.json
-          git commit -m "Capture live oral participant counts ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
