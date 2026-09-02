@@ -1,0 +1,1946 @@
+{
+  "blank_heading_exchange_count": 0,
+  "conservative_normalized_unique_count": 493,
+  "conservative_safe_unique_reduction": 0,
+  "exact_normalization_collision_group_count": 0,
+  "exact_normalization_collision_groups": [],
+  "exchange_count": 2127,
+  "exchange_share_under_repeated_heading": 0.921955806299953,
+  "guardrails": [
+    "Conservative normalization only changes case, punctuation, ampersand and whitespace.",
+    "Near-equivalent fuzzy pairs are review candidates only and are not safe merges by themselves.",
+    "Section headings are source-generated labels and are not the EirePolitic issue taxonomy.",
+    "Procedural-like patterns are descriptive candidates and require manual/source review before any public category is created."
+  ],
+  "heading_frequency_distribution": {
+    "1": 166,
+    "10": 9,
+    "11": 3,
+    "12": 1,
+    "13": 5,
+    "14": 6,
+    "15": 7,
+    "16": 2,
+    "17": 2,
+    "18": 2,
+    "19": 4,
+    "2": 108,
+    "20": 1,
+    "24": 1,
+    "25": 1,
+    "28": 1,
+    "3": 49,
+    "31": 2,
+    "33": 1,
+    "38": 1,
+    "4": 34,
+    "46": 1,
+    "5": 20,
+    "57": 1,
+    "6": 22,
+    "7": 20,
+    "8": 17,
+    "9": 6
+  },
+  "headings_used_in_both_2025_and_2026_count": 234,
+  "near_equivalent_candidates": [
+    {
+      "count_a": 1,
+      "count_b": 2,
+      "heading_a": "Budget 2026",
+      "heading_b": "Budget 2027",
+      "ratio": 90.9,
+      "token_sort_ratio": 90.9
+    }
+  ],
+  "procedural_candidate_profiles": {
+    "business_of_house": {
+      "exchange_count": 0,
+      "headings": {}
+    },
+    "cabinet_committees": {
+      "exchange_count": 46,
+      "headings": {
+        "Cabinet Committees": 46
+      }
+    },
+    "departmental_questions_generic": {
+      "exchange_count": 0,
+      "headings": {}
+    },
+    "oral_questions_generic": {
+      "exchange_count": 0,
+      "headings": {}
+    },
+    "priority_questions": {
+      "exchange_count": 0,
+      "headings": {}
+    },
+    "taoiseach_meetings": {
+      "exchange_count": 10,
+      "headings": {
+        "Taoiseach's Meetings and Engagements": 10
+      }
+    }
+  },
+  "production_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "raw_heading_unique_count": 493,
+  "recipient_profiles_top_60": [
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 57,
+      "question_records_with_recipient": 67,
+      "section_heading": "Defence Forces",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Defence": 67
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 46,
+      "question_records_with_recipient": 673,
+      "section_heading": "Cabinet Committees",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Taoiseach": 673
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 38,
+      "question_records_with_recipient": 38,
+      "section_heading": "Childcare Services",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.9210526315789473,
+      "top_recipients": {
+        "Children": 35,
+        "Housing": 2,
+        "Public Expenditure": 1
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 33,
+      "question_records_with_recipient": 33,
+      "section_heading": "Special Educational Needs",
+      "top_recipient": "Education",
+      "top_recipient_share": 0.9696969696969697,
+      "top_recipients": {
+        "Children": 1,
+        "Education": 32
+      }
+    },
+    {
+      "distinct_recipients": 5,
+      "exchange_count": 31,
+      "question_records_with_recipient": 36,
+      "section_heading": "Housing Provision",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.8888888888888888,
+      "top_recipients": {
+        "Finance": 1,
+        "Housing": 32,
+        "Justice": 1,
+        "Public Expenditure": 1,
+        "Rural": 1
+      }
+    },
+    {
+      "distinct_recipients": 4,
+      "exchange_count": 31,
+      "question_records_with_recipient": 34,
+      "section_heading": "Public Transport",
+      "top_recipient": "Transport",
+      "top_recipient_share": 0.9117647058823529,
+      "top_recipients": {
+        "Justice": 1,
+        "Public Expenditure": 1,
+        "Rural": 1,
+        "Transport": 31
+      }
+    },
+    {
+      "distinct_recipients": 4,
+      "exchange_count": 28,
+      "question_records_with_recipient": 47,
+      "section_heading": "Disability Services",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.5106382978723404,
+      "top_recipients": {
+        "Children": 24,
+        "Education": 1,
+        "Social": 1,
+        "Taoiseach": 21
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 25,
+      "question_records_with_recipient": 25,
+      "section_heading": "An Garda S\u00edoch\u00e1na",
+      "top_recipient": "Justice",
+      "top_recipient_share": 0.96,
+      "top_recipients": {
+        "Justice": 24,
+        "Public Expenditure": 1
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 24,
+      "question_records_with_recipient": 46,
+      "section_heading": "Middle East",
+      "top_recipient": "Foreign",
+      "top_recipient_share": 0.8913043478260869,
+      "top_recipients": {
+        "Defence": 1,
+        "Finance": 4,
+        "Foreign": 41
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 20,
+      "question_records_with_recipient": 20,
+      "section_heading": "Bus Services",
+      "top_recipient": "Transport",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Transport": 20
+      }
+    },
+    {
+      "distinct_recipients": 8,
+      "exchange_count": 19,
+      "question_records_with_recipient": 21,
+      "section_heading": "Departmental Schemes",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.47619047619047616,
+      "top_recipients": {
+        "Climate": 2,
+        "Culture": 2,
+        "Environment": 2,
+        "Rural": 10,
+        "Social": 2
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 19,
+      "question_records_with_recipient": 21,
+      "section_heading": "Energy Policy",
+      "top_recipient": "Climate",
+      "top_recipient_share": 0.7142857142857143,
+      "top_recipients": {
+        "Climate": 15,
+        "Environment": 5,
+        "Housing": 1
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 19,
+      "question_records_with_recipient": 19,
+      "section_heading": "Rural Schemes",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.9473684210526315,
+      "top_recipients": {
+        "Rural": 18,
+        "Social": 1
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 19,
+      "question_records_with_recipient": 20,
+      "section_heading": "Schools Building Projects",
+      "top_recipient": "Education",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Education": 20
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 18,
+      "question_records_with_recipient": 18,
+      "section_heading": "Rail Network",
+      "top_recipient": "Transport",
+      "top_recipient_share": 0.9444444444444444,
+      "top_recipients": {
+        "Public Expenditure": 1,
+        "Transport": 17
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 18,
+      "question_records_with_recipient": 18,
+      "section_heading": "Social Welfare Payments",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Social": 18
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 17,
+      "question_records_with_recipient": 17,
+      "section_heading": "Further and Higher Education",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 0.9411764705882353,
+      "top_recipients": {
+        "Further and Higher Education": 16,
+        "Housing": 1
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 17,
+      "question_records_with_recipient": 17,
+      "section_heading": "Third Level Education",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Further and Higher Education": 17
+      }
+    },
+    {
+      "distinct_recipients": 7,
+      "exchange_count": 16,
+      "question_records_with_recipient": 42,
+      "section_heading": "Artificial Intelligence",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 0.6190476190476191,
+      "top_recipients": {
+        "Agriculture": 1,
+        "Climate": 1,
+        "Culture": 1,
+        "Enterprise": 11,
+        "Taoiseach": 26
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 16,
+      "question_records_with_recipient": 18,
+      "section_heading": "Housing Schemes",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.7777777777777778,
+      "top_recipients": {
+        "Finance": 3,
+        "Housing": 14,
+        "Justice": 1
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 15,
+      "question_records_with_recipient": 20,
+      "section_heading": "Business Supports",
+      "top_recipient": "Enterprise",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Enterprise": 20
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 15,
+      "question_records_with_recipient": 16,
+      "section_heading": "Energy Prices",
+      "top_recipient": "Climate",
+      "top_recipient_share": 0.875,
+      "top_recipients": {
+        "Climate": 14,
+        "Social": 2
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 15,
+      "question_records_with_recipient": 17,
+      "section_heading": "Flood Relief Schemes",
+      "top_recipient": "Public Expenditure",
+      "top_recipient_share": 0.9411764705882353,
+      "top_recipients": {
+        "Enterprise": 1,
+        "Public Expenditure": 16
+      }
+    },
+    {
+      "distinct_recipients": 7,
+      "exchange_count": 15,
+      "question_records_with_recipient": 17,
+      "section_heading": "Legislative Measures",
+      "top_recipient": "Justice",
+      "top_recipient_share": 0.4117647058823529,
+      "top_recipients": {
+        "Foreign": 1,
+        "Health": 1,
+        "Housing": 2,
+        "Justice": 7,
+        "Public Expenditure": 4
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 15,
+      "question_records_with_recipient": 33,
+      "section_heading": "Military Neutrality",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Defence": 33
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 15,
+      "question_records_with_recipient": 37,
+      "section_heading": "Sports Funding",
+      "top_recipient": "Culture",
+      "top_recipient_share": 0.8108108108108109,
+      "top_recipients": {
+        "Culture": 30,
+        "Tourism": 7
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 15,
+      "question_records_with_recipient": 40,
+      "section_heading": "Ukraine War",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 0.65,
+      "top_recipients": {
+        "Foreign": 13,
+        "Justice": 1,
+        "Taoiseach": 26
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Animal Diseases",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Agriculture": 14
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Apprenticeship Programmes",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Further and Higher Education": 14
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Early Childhood Care and Education",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.9285714285714286,
+      "top_recipients": {
+        "Children": 13,
+        "Education": 1
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Housing Policy",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.8571428571428571,
+      "top_recipients": {
+        "Finance": 1,
+        "Housing": 12,
+        "Rural": 1
+      }
+    },
+    {
+      "distinct_recipients": 5,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Pension Provisions",
+      "top_recipient": "Social",
+      "top_recipient_share": 0.7142857142857143,
+      "top_recipients": {
+        "Children": 1,
+        "Defence": 1,
+        "Education": 1,
+        "Public Expenditure": 1,
+        "Social": 10
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 14,
+      "question_records_with_recipient": 14,
+      "section_heading": "Social Welfare Benefits",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Social": 14
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 13,
+      "question_records_with_recipient": 13,
+      "section_heading": "Community Development Projects",
+      "top_recipient": "Rural",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Rural": 13
+      }
+    },
+    {
+      "distinct_recipients": 6,
+      "exchange_count": 13,
+      "question_records_with_recipient": 14,
+      "section_heading": "Departmental Funding",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.35714285714285715,
+      "top_recipients": {
+        "Culture": 4,
+        "Education": 1,
+        "Justice": 1,
+        "Public Expenditure": 2,
+        "Rural": 5
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 13,
+      "question_records_with_recipient": 18,
+      "section_heading": "National Development Plan",
+      "top_recipient": "Public Expenditure",
+      "top_recipient_share": 0.8888888888888888,
+      "top_recipients": {
+        "Public Expenditure": 16,
+        "Transport": 2
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 13,
+      "question_records_with_recipient": 15,
+      "section_heading": "Tax Code",
+      "top_recipient": "Finance",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Finance": 15
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 13,
+      "question_records_with_recipient": 20,
+      "section_heading": "Trade Relations",
+      "top_recipient": "Foreign",
+      "top_recipient_share": 0.5,
+      "top_recipients": {
+        "Enterprise": 1,
+        "Finance": 9,
+        "Foreign": 10
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 12,
+      "question_records_with_recipient": 12,
+      "section_heading": "Student Accommodation",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Further and Higher Education": 12
+      }
+    },
+    {
+      "distinct_recipients": 5,
+      "exchange_count": 11,
+      "question_records_with_recipient": 27,
+      "section_heading": "Renewable Energy Generation",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 0.5555555555555556,
+      "top_recipients": {
+        "Agriculture": 1,
+        "Climate": 6,
+        "Environment": 2,
+        "Housing": 3,
+        "Taoiseach": 15
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 11,
+      "question_records_with_recipient": 11,
+      "section_heading": "Road Projects",
+      "top_recipient": "Transport",
+      "top_recipient_share": 0.6363636363636364,
+      "top_recipients": {
+        "Rural": 3,
+        "Tourism": 1,
+        "Transport": 7
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 11,
+      "question_records_with_recipient": 13,
+      "section_heading": "Tax Reliefs",
+      "top_recipient": "Finance",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Finance": 13
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 10,
+      "section_heading": "Child and Family Agency",
+      "top_recipient": "Children",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Children": 10
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 14,
+      "section_heading": "Common Agricultural Policy",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Agriculture": 14
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 10,
+      "question_records_with_recipient": 13,
+      "section_heading": "Grant Payments",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 0.7692307692307693,
+      "top_recipients": {
+        "Climate": 2,
+        "Further and Higher Education": 10,
+        "Social": 1
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 10,
+      "section_heading": "Insurance Industry",
+      "top_recipient": "Finance",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Finance": 10
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 12,
+      "section_heading": "Rental Sector",
+      "top_recipient": "Housing",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Housing": 12
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 10,
+      "question_records_with_recipient": 12,
+      "section_heading": "Small and Medium Enterprises",
+      "top_recipient": "Enterprise",
+      "top_recipient_share": 0.9166666666666666,
+      "top_recipients": {
+        "Enterprise": 11,
+        "Taoiseach": 1
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 122,
+      "section_heading": "Taoiseach's Meetings and Engagements",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Taoiseach": 122
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 10,
+      "question_records_with_recipient": 15,
+      "section_heading": "Third Level Fees",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Further and Higher Education": 15
+      }
+    },
+    {
+      "distinct_recipients": 2,
+      "exchange_count": 10,
+      "question_records_with_recipient": 16,
+      "section_heading": "Trade Agreements",
+      "top_recipient": "Foreign",
+      "top_recipient_share": 0.75,
+      "top_recipients": {
+        "Agriculture": 4,
+        "Foreign": 12
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 17,
+      "section_heading": "Air Corps",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Defence": 17
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 9,
+      "section_heading": "Cancer Services",
+      "top_recipient": "Health",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Health": 9
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 9,
+      "section_heading": "Fishing Industry",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Agriculture": 9
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 13,
+      "section_heading": "Naval Service",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Defence": 13
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 9,
+      "section_heading": "Social Welfare Code",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Social": 9
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 9,
+      "question_records_with_recipient": 9,
+      "section_heading": "Social Welfare Schemes",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Social": 9
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 8,
+      "question_records_with_recipient": 8,
+      "section_heading": "Agriculture Industry",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Agriculture": 8
+      }
+    },
+    {
+      "distinct_recipients": 1,
+      "exchange_count": 8,
+      "question_records_with_recipient": 8,
+      "section_heading": "Agriculture Schemes",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0,
+      "top_recipients": {
+        "Agriculture": 8
+      }
+    },
+    {
+      "distinct_recipients": 3,
+      "exchange_count": 8,
+      "question_records_with_recipient": 8,
+      "section_heading": "Data Centres",
+      "top_recipient": "Climate",
+      "top_recipient_share": 0.625,
+      "top_recipients": {
+        "Climate": 5,
+        "Environment": 2,
+        "Public Expenditure": 1
+      }
+    }
+  ],
+  "repeated_heading_count": 327,
+  "resolved_keys": {
+    "oral_question_sections": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/metrics/event/oral_question_sections/csv/oral_question_sections.csv",
+    "questions": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_questions/csv/silver_questions.csv"
+  },
+  "singleton_heading_count": 166,
+  "stability_top_60": [
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 57,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.14035087719298245,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Defence Forces"
+    },
+    {
+      "distinct_months": 15,
+      "distinct_years": 2,
+      "exchange_count": 46,
+      "first_date": "2025-02-12",
+      "grouped_share": 1.0,
+      "last_date": "2026-06-30",
+      "median_questions_per_exchange": 14.5,
+      "section_heading": "Cabinet Committees"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 38,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Childcare Services"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 33,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Special Educational Needs"
+    },
+    {
+      "distinct_months": 12,
+      "distinct_years": 2,
+      "exchange_count": 31,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0967741935483871,
+      "last_date": "2026-07-01",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Provision"
+    },
+    {
+      "distinct_months": 11,
+      "distinct_years": 2,
+      "exchange_count": 31,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.06451612903225806,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Public Transport"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 28,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.07142857142857142,
+      "last_date": "2026-06-23",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Disability Services"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 25,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-01",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "An Garda S\u00edoch\u00e1na"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 24,
+      "first_date": "2025-02-11",
+      "grouped_share": 0.375,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Middle East"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 20,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Bus Services"
+    },
+    {
+      "distinct_months": 13,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.05263157894736842,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Departmental Schemes"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.10526315789473684,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Energy Policy"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Rural Schemes"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-04-08",
+      "grouped_share": 0.05263157894736842,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Schools Building Projects"
+    },
+    {
+      "distinct_months": 10,
+      "distinct_years": 2,
+      "exchange_count": 18,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Rail Network"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 18,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Payments"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 17,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Further and Higher Education"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 17,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Third Level Education"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 16,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.25,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Artificial Intelligence"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 16,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.125,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Schemes"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-06-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Business Supports"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-06-10",
+      "grouped_share": 0.06666666666666667,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Energy Prices"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Flood Relief Schemes"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Legislative Measures"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.5333333333333333,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 2.0,
+      "section_heading": "Military Neutrality"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-03-06",
+      "grouped_share": 0.3333333333333333,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Sports Funding"
+    },
+    {
+      "distinct_months": 5,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-04-01",
+      "grouped_share": 0.3333333333333333,
+      "last_date": "2026-03-26",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Ukraine War"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-04-02",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Animal Diseases"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Apprenticeship Programmes"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-23",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Early Childhood Care and Education"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Policy"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-04-03",
+      "grouped_share": 0.0,
+      "last_date": "2026-04-30",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Pension Provisions"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Benefits"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Community Development Projects"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.07692307692307693,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Departmental Funding"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.15384615384615385,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "National Development Plan"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.15384615384615385,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Tax Code"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.3076923076923077,
+      "last_date": "2026-03-26",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Trade Relations"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 12,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-12",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Student Accommodation"
+    },
+    {
+      "distinct_months": 9,
+      "distinct_years": 2,
+      "exchange_count": 11,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.18181818181818182,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Renewable Energy Generation"
+    },
+    {
+      "distinct_months": 5,
+      "distinct_years": 2,
+      "exchange_count": 11,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-21",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Road Projects"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 11,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.18181818181818182,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Tax Reliefs"
+    },
+    {
+      "distinct_months": 5,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-09-23",
+      "grouped_share": 0.0,
+      "last_date": "2026-04-23",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Child and Family Agency"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-05-20",
+      "grouped_share": 0.2,
+      "last_date": "2026-07-09",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Common Agricultural Policy"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.2,
+      "last_date": "2026-05-12",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Grant Payments"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Insurance Industry"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.1,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Rental Sector"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.1,
+      "last_date": "2026-06-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Small and Medium Enterprises"
+    },
+    {
+      "distinct_months": 8,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-02-18",
+      "grouped_share": 1.0,
+      "last_date": "2026-07-15",
+      "median_questions_per_exchange": 12.0,
+      "section_heading": "Taoiseach's Meetings and Engagements"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.2,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Third Level Fees"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 10,
+      "first_date": "2025-05-29",
+      "grouped_share": 0.2,
+      "last_date": "2026-05-21",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Trade Agreements"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.1111111111111111,
+      "last_date": "2026-06-09",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Air Corps"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-03-06",
+      "grouped_share": 0.0,
+      "last_date": "2026-03-05",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Cancer Services"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-04-02",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Fishing Industry"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-05-08",
+      "grouped_share": 0.2222222222222222,
+      "last_date": "2026-06-09",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Naval Service"
+    },
+    {
+      "distinct_months": 4,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-04-30",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Code"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 9,
+      "first_date": "2025-05-01",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Schemes"
+    },
+    {
+      "distinct_months": 7,
+      "distinct_years": 2,
+      "exchange_count": 8,
+      "first_date": "2025-04-02",
+      "grouped_share": 0.0,
+      "last_date": "2026-03-19",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Agriculture Industry"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 8,
+      "first_date": "2025-04-02",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-09",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Agriculture Schemes"
+    },
+    {
+      "distinct_months": 6,
+      "distinct_years": 2,
+      "exchange_count": 8,
+      "first_date": "2025-04-10",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Data Centres"
+    }
+  ],
+  "top_headings": [
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 57,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.14035087719298245,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Defence Forces",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 15,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 46,
+      "first_date": "2025-02-12",
+      "grouped_share": 1.0,
+      "last_date": "2026-06-30",
+      "median_questions_per_exchange": 14.5,
+      "section_heading": "Cabinet Committees",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 38,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Childcare Services",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.9210526315789473
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 33,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Special Educational Needs",
+      "top_recipient": "Education",
+      "top_recipient_share": 0.9696969696969697
+    },
+    {
+      "distinct_months": 11,
+      "distinct_recipients": 4,
+      "distinct_years": 2,
+      "exchange_count": 31,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.06451612903225806,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Public Transport",
+      "top_recipient": "Transport",
+      "top_recipient_share": 0.9117647058823529
+    },
+    {
+      "distinct_months": 12,
+      "distinct_recipients": 5,
+      "distinct_years": 2,
+      "exchange_count": 31,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0967741935483871,
+      "last_date": "2026-07-01",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Provision",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.8888888888888888
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 4,
+      "distinct_years": 2,
+      "exchange_count": 28,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.07142857142857142,
+      "last_date": "2026-06-23",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Disability Services",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.5106382978723404
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 25,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-01",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "An Garda S\u00edoch\u00e1na",
+      "top_recipient": "Justice",
+      "top_recipient_share": 0.96
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 24,
+      "first_date": "2025-02-11",
+      "grouped_share": 0.375,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Middle East",
+      "top_recipient": "Foreign",
+      "top_recipient_share": 0.8913043478260869
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 20,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Bus Services",
+      "top_recipient": "Transport",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.10526315789473684,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Energy Policy",
+      "top_recipient": "Climate",
+      "top_recipient_share": 0.7142857142857143
+    },
+    {
+      "distinct_months": 13,
+      "distinct_recipients": 8,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.05263157894736842,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Departmental Schemes",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.47619047619047616
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Rural Schemes",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.9473684210526315
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 19,
+      "first_date": "2025-04-08",
+      "grouped_share": 0.05263157894736842,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Schools Building Projects",
+      "top_recipient": "Education",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 7,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 18,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Payments",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 10,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 18,
+      "first_date": "2025-03-04",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Rail Network",
+      "top_recipient": "Transport",
+      "top_recipient_share": 0.9444444444444444
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 17,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Third Level Education",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 17,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Further and Higher Education",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 0.9411764705882353
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 7,
+      "distinct_years": 2,
+      "exchange_count": 16,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.25,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Artificial Intelligence",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 0.6190476190476191
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 16,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.125,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Schemes",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.7777777777777778
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 7,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Legislative Measures",
+      "top_recipient": "Justice",
+      "top_recipient_share": 0.4117647058823529
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Flood Relief Schemes",
+      "top_recipient": "Public Expenditure",
+      "top_recipient_share": 0.9411764705882353
+    },
+    {
+      "distinct_months": 7,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-20",
+      "grouped_share": 0.13333333333333333,
+      "last_date": "2026-06-16",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Business Supports",
+      "top_recipient": "Enterprise",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-02-26",
+      "grouped_share": 0.5333333333333333,
+      "last_date": "2026-07-16",
+      "median_questions_per_exchange": 2.0,
+      "section_heading": "Military Neutrality",
+      "top_recipient": "Defence",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-03-06",
+      "grouped_share": 0.3333333333333333,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Sports Funding",
+      "top_recipient": "Culture",
+      "top_recipient_share": 0.8108108108108109
+    },
+    {
+      "distinct_months": 5,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-04-01",
+      "grouped_share": 0.3333333333333333,
+      "last_date": "2026-03-26",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Ukraine War",
+      "top_recipient": "Taoiseach",
+      "top_recipient_share": 0.65
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 15,
+      "first_date": "2025-06-10",
+      "grouped_share": 0.06666666666666667,
+      "last_date": "2026-06-11",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Energy Prices",
+      "top_recipient": "Climate",
+      "top_recipient_share": 0.875
+    },
+    {
+      "distinct_months": 6,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-02-25",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-23",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Early Childhood Care and Education",
+      "top_recipient": "Children",
+      "top_recipient_share": 0.9285714285714286
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-02-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-18",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Social Welfare Benefits",
+      "top_recipient": "Social",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 9,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-03-20",
+      "grouped_share": 0.0,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Housing Policy",
+      "top_recipient": "Housing",
+      "top_recipient_share": 0.8571428571428571
+    },
+    {
+      "distinct_months": 7,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-02",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Apprenticeship Programmes",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-04-02",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Animal Diseases",
+      "top_recipient": "Agriculture",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 5,
+      "distinct_years": 2,
+      "exchange_count": 14,
+      "first_date": "2025-04-03",
+      "grouped_share": 0.0,
+      "last_date": "2026-04-30",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Pension Provisions",
+      "top_recipient": "Social",
+      "top_recipient_share": 0.7142857142857143
+    },
+    {
+      "distinct_months": 6,
+      "distinct_recipients": 3,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.3076923076923077,
+      "last_date": "2026-03-26",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Trade Relations",
+      "top_recipient": "Foreign",
+      "top_recipient_share": 0.5
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.15384615384615385,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Tax Code",
+      "top_recipient": "Finance",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 2,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.15384615384615385,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "National Development Plan",
+      "top_recipient": "Public Expenditure",
+      "top_recipient_share": 0.8888888888888888
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-07-14",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Community Development Projects",
+      "top_recipient": "Rural",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 8,
+      "distinct_recipients": 6,
+      "distinct_years": 2,
+      "exchange_count": 13,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.07692307692307693,
+      "last_date": "2026-07-07",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Departmental Funding",
+      "top_recipient": "Rural",
+      "top_recipient_share": 0.35714285714285715
+    },
+    {
+      "distinct_months": 7,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 12,
+      "first_date": "2025-03-27",
+      "grouped_share": 0.0,
+      "last_date": "2026-05-12",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Student Accommodation",
+      "top_recipient": "Further and Higher Education",
+      "top_recipient_share": 1.0
+    },
+    {
+      "distinct_months": 7,
+      "distinct_recipients": 1,
+      "distinct_years": 2,
+      "exchange_count": 11,
+      "first_date": "2025-02-13",
+      "grouped_share": 0.18181818181818182,
+      "last_date": "2026-06-25",
+      "median_questions_per_exchange": 1.0,
+      "section_heading": "Tax Reliefs",
+      "top_recipient": "Finance",
+      "top_recipient_share": 1.0
+    }
+  ]
+}
