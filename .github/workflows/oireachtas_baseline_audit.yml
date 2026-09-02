@@ -4,45 +4,179 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml
+      - name: Audit deterministic oral-question taker attribution
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os, re
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          keys={
+            'questions':'processed/oireachtas_unified/latest/csv/silver_questions.csv',
+            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
+            'oral_sections':'processed/oireachtas_unified/latest/metrics/event/oral_question_sections/csv/oral_question_sections.csv',
+            'speech_context':'processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv',
+            'offices':'processed/oireachtas_unified/latest/csv/silver_member_offices.csv',
+          }
+          F={}
+          for n,k in keys.items():
+              r=resolve_production_key(s3,bucket=bucket,production_key=k)
+              F[n]=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=r)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+
+          q=F['questions']; s=F['speeches']; oq=F['oral_sections']; sc=F['speech_context']; offices=F['offices']
+          q['question_date']=pd.to_datetime(q.question_date,errors='coerce')
+          s['debate_date']=pd.to_datetime(s.debate_date,errors='coerce')
+          s['speech_order_num']=pd.to_numeric(s.get('speech_order'),errors='coerce')
+          offices['office_start']=pd.to_datetime(offices.office_start,errors='coerce'); offices['office_end']=pd.to_datetime(offices.office_end,errors='coerce')
+          oral=q[q.question_type.fillna('').astype(str).str.strip().str.lower().eq('oral')].copy(); oral['debate_section_id']=oral.debate_section_id.astype(str)
+          related=set(sc.loc[sc.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'].astype(str))
+          rs=s[s.speech_id.astype(str).isin(related)].copy(); rs['debate_section_id']=rs.debate_section_id.astype(str); rs['speaker_member_code']=rs.speaker_member_code.fillna('').astype(str); rs['speaker_name']=rs.speaker_name.fillna('').astype(str); rs['speech_text']=rs.speech_text.fillna('').astype(str)
+
+          def active_role(code,date):
+              if not code or pd.isna(date): return 'unknown'
+              g=offices[offices.member_code.astype(str).eq(str(code))]
+              if g.empty: return 'ordinary_member'
+              mask=(g.office_start.isna()|g.office_start.le(date))&(g.office_end.isna()|g.office_end.gt(date))
+              names=' '.join(g.loc[mask,'office_name'].dropna().astype(str)).lower()
+              if 'ceann comhairle' in names or 'leas-cheann comhairle' in names or 'cathaoirleach' in names: return 'chair'
+              if 'taoiseach' in names or 'tánaiste' in names or 'minister' in names or 'attorney general' in names: return 'ministerial'
+              return 'ordinary_member'
+
+          # Phrase rules are deliberately narrow; they establish evidence, not inference from absence.
+          proxy_patterns=[
+            r'\bon behalf of deputy\b', r'\bon behalf of the deputy\b', r'\bon behalf of my colleague\b',
+            r'\bi am covering for deputy\b', r'\bi am taking (?:this|the) question (?:for|on behalf of)\b',
+            r'\bi am asking (?:this|the) question (?:for|on behalf of)\b', r'\bi will take .*? on behalf of\b',
+            r'\bthe question is being taken by\b', r'\bquestion .*? will be taken by\b',
+            r'\bthar ceann an teachta\b', r'\bar son an teachta\b', r'\bceist .*? thar ceann\b',
+          ]
+          proxy_re=re.compile('|'.join(proxy_patterns),re.I)
+          interrupted_re=re.compile(r'\bquestions? not reached\b|\badjourn\b|\bsitting suspended\b|\bresume their seats\b',re.I)
+
+          section_rows=[]; question_rows=[]; unresolved_examples=[]; explicit_examples=[]
+          for sid, secrow in oq.drop_duplicates('debate_section_id').set_index('debate_section_id').iterrows():
+              qg=oral[oral.debate_section_id.eq(str(sid))].copy()
+              sg=rs[rs.debate_section_id.eq(str(sid))].copy()
+              sg=sg.sort_values(['speech_order_num','speech_id'],na_position='last')
+              submitters=set(x for x in qg.asked_by_member_code.dropna().astype(str) if x)
+              speakers=set(x for x in sg.speaker_member_code.astype(str) if x)
+              self_present=bool(submitters & speakers)
+
+              # First ordinary-member speaker in the exchange, excluding active minister/chair roles.
+              ordinary=[]
+              for r in sg.itertuples(index=False):
+                  role=active_role(str(r.speaker_member_code),pd.Timestamp(r.debate_date) if pd.notna(r.debate_date) else pd.NaT)
+                  lname=str(r.speaker_name).lower()
+                  if 'ceann comhairle' in lname or 'leas-cheann comhairle' in lname: role='chair'
+                  if role=='ordinary_member' and str(r.speaker_member_code):
+                      ordinary.append(r)
+              first_ord=ordinary[0] if ordinary else None
+
+              first_text=' '.join(sg.speech_text.astype(str).head(8))
+              explicit_proxy=bool(proxy_re.search(first_text))
+              interrupted=bool(interrupted_re.search(first_text))
+
+              if self_present:
+                  status='submitter_present'
+              elif explicit_proxy and first_ord is not None:
+                  status='explicit_substitute_candidate'
+              elif interrupted:
+                  status='procedural_or_interrupted'
+              elif first_ord is not None:
+                  status='unresolved_with_ordinary_candidate'
+              else:
+                  status='unresolved_no_ordinary_candidate'
+
+              section_rows.append({
+                'debate_section_id':str(sid),'date':str(pd.Timestamp(secrow.debate_date).date()) if pd.notna(secrow.debate_date) else None,
+                'heading':str(secrow.section_heading),'question_count':int(secrow.oral_question_count),'submitter_count':len(submitters),
+                'submitter_present':self_present,'status':status,'explicit_proxy_phrase':explicit_proxy,'interrupted_phrase':interrupted,
+                'first_ordinary_member_code':str(first_ord.speaker_member_code) if first_ord is not None else None,
+                'first_ordinary_speaker_name':str(first_ord.speaker_name) if first_ord is not None else None,
+                'speech_count':int(len(sg)),'recipients':sorted(set(qg.to_minister_or_department.dropna().astype(str))) if 'to_minister_or_department' in qg.columns else [],
+              })
+
+              # Question-level candidate attribution. For grouped sections, one exchange-level substitute candidate is not
+              # automatically assigned to every question; record only the safe section evidence and question submitter.
+              for qr in qg.itertuples(index=False):
+                  question_rows.append({
+                    'question_id':str(qr.question_id),'debate_section_id':str(sid),'submitted_by_member_code':str(getattr(qr,'asked_by_member_code','')),
+                    'section_status':status,
+                    'taken_by_member_code_candidate':str(first_ord.speaker_member_code) if (status=='explicit_substitute_candidate' and int(secrow.oral_question_count)==1 and first_ord is not None) else None,
+                    'candidate_speaker_name':str(first_ord.speaker_name) if (status=='explicit_substitute_candidate' and int(secrow.oral_question_count)==1 and first_ord is not None) else None,
+                    'evidence_method':'explicit_proxy_phrase_plus_first_ordinary_speaker_single_question' if (status=='explicit_substitute_candidate' and int(secrow.oral_question_count)==1 and first_ord is not None) else None,
+                  })
+
+              ex={
+                'debate_section_id':str(sid),'date':str(pd.Timestamp(secrow.debate_date).date()) if pd.notna(secrow.debate_date) else None,'heading':str(secrow.section_heading),
+                'submitters':sorted(submitters),'first_ordinary_member_code':str(first_ord.speaker_member_code) if first_ord is not None else None,
+                'first_ordinary_speaker_name':str(first_ord.speaker_name) if first_ord is not None else None,'question_count':int(secrow.oral_question_count),
+                'question_texts':[str(x)[:350] for x in qg.question_text.dropna().astype(str).head(4)],
+                'first_speeches':[{'speaker':str(r.speaker_name),'code':str(r.speaker_member_code),'text':str(r.speech_text)[:350]} for r in sg.head(8).itertuples(index=False)]
+              }
+              if status=='explicit_substitute_candidate' and len(explicit_examples)<20: explicit_examples.append(ex)
+              if status.startswith('unresolved') and len(unresolved_examples)<30: unresolved_examples.append(ex)
+
+          sec=pd.DataFrame(section_rows); qr=pd.DataFrame(question_rows)
+          status_counts=sec.status.value_counts().rename_axis('status').reset_index(name='exchange_count'); status_counts['share']=status_counts.exchange_count/len(sec)
+          qstatus=qr.section_status.value_counts().rename_axis('status').reset_index(name='question_count'); qstatus['share']=qstatus.question_count/len(qr)
+          certified=qr[qr.taken_by_member_code_candidate.notna()].copy()
+
+          # How often the first ordinary member is one of the submitters when submitter is present.
+          present=sec[sec.status.eq('submitter_present')].copy()
+          first_ord_submitter_matches=0; present_with_first=0
+          for r in present.itertuples(index=False):
+              if r.first_ordinary_member_code:
+                  present_with_first+=1
+                  submitters=set(oral[oral.debate_section_id.eq(str(r.debate_section_id))].asked_by_member_code.dropna().astype(str))
+                  if str(r.first_ordinary_member_code) in submitters: first_ord_submitter_matches+=1
+
+          out={
+            'exchange_count':int(len(sec)),'oral_question_count':int(len(qr)),
+            'exchange_status_counts':status_counts.to_dict(orient='records'),
+            'question_status_counts':qstatus.to_dict(orient='records'),
+            'certified_single_question_substitute_candidates':int(len(certified)),
+            'first_ordinary_is_submitter_when_submitter_present':{
+              'eligible_exchanges':present_with_first,'matches':first_ord_submitter_matches,
+              'share':first_ord_submitter_matches/present_with_first if present_with_first else None,
+            },
+            'explicit_substitute_examples':explicit_examples,
+            'unresolved_examples':unresolved_examples,
+            'candidate_question_relationships':certified.head(100).to_dict(orient='records'),
+            'methodological_rule':'Only single-question exchanges with explicit proxy/substitution language plus an identifiable first ordinary-member speaker produce a taken_by candidate. Grouped exchanges remain section-level evidence only.'
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/question_taking_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps({k:v for k,v in out.items() if k not in ['explicit_substitute_examples','unresolved_examples','candidate_question_relationships']},indent=2,sort_keys=True))
+          PY
+      - name: Persist audit
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/question_taking_audit.json
+          git commit -m "Capture deterministic question-taking audit ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
