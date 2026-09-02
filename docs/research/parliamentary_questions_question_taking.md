@@ -4,7 +4,7 @@ Status: **Current follow-up investigation**
 Date: **2 September 2026**  
 Parent research record: [Parliamentary questions investigation](parliamentary_questions_investigation.md)
 
-This note records the follow-up investigation into whether the TD who actually takes an Oral Parliamentary Question in the chamber can be derived deterministically from transcript order and explicit substitution/proxy language.
+This note records the follow-up investigation into whether the TD who actually takes an Oral Parliamentary Question in the chamber can be derived deterministically from transcript order, explicit substitution/proxy language, and question-to-speech text matching.
 
 ## Confirmed findings
 
@@ -162,7 +162,106 @@ Therefore:
 
 > `submitter_present` is not equivalent to `submitter_took_question`, and `first ordinary speaker` is not equivalent to `taken_by_member_code`.
 
-Transcript order should remain supporting evidence only unless combined with question-level textual or explicit procedural evidence.
+Transcript order should remain supporting evidence only unless combined with stronger question-level evidence.
+
+## Question-text to opening-speech matching
+
+A second deterministic signal was tested on **single-question oral exchanges only**.
+
+The idea was to compare the official submitted `question_text` with the first non-ministerial/non-chair member speech and determine whether a sufficiently strong text match could certify who actually took the question.
+
+### Scope
+
+The audit found **1,856 single-question exchanges** with an identifiable ordinary-member opening speaker:
+
+- **1,649** where the opening ordinary-member speaker was the official submitter;
+- **207** where the opening ordinary-member speaker was not the official submitter.
+
+A follow-up benchmark separated the non-submitter openings into:
+
+- **58 explicit substitute cases** under the expanded proxy-language rules;
+- **149 unresolved non-submitter-first cases**.
+
+### Main result: text similarity does not distinguish self from substitute
+
+The official question wording is often repeated or closely paraphrased by whoever takes the question in the chamber.
+
+That means a substitute can match the official question **more closely** than the original submitter does in many self-taken cases.
+
+Median normalized question-token coverage:
+
+- self-first cases: **35.0%**;
+- explicit substitutes: **52.6%**;
+- unresolved non-submitter-first cases: **35.3%**.
+
+Median token-set similarity:
+
+- self-first cases: **63.1**;
+- explicit substitutes: **74.9**;
+- unresolved non-submitter-first cases: **63.2**.
+
+This is the opposite of what would be needed for a safe rule that distinguishes submitters from substitutes.
+
+### Threshold tests do not provide a safe separator
+
+For example, requiring at least **60% question-token coverage and 80 token-set similarity** passed:
+
+- about **10.1%** of self-first cases;
+- about **34.5%** of explicit substitute cases;
+- about **14.1%** of unresolved non-submitter-first cases.
+
+At the stricter **75% coverage / 90 token-set** threshold, it still passed:
+
+- about **2.1%** of self-first cases;
+- about **17.2%** of explicit substitutes;
+- about **2.7%** of unresolved non-submitter-first cases.
+
+These results show that high similarity can support the proposition that a speaker is **voicing the formal question**, but cannot establish whether they are the official submitter or a substitute.
+
+### Low text similarity also does not rule out a real taker
+
+Many known self-taken and explicit substitute cases have low similarity because the speaker:
+
+- begins with acknowledgements or procedural remarks;
+- paraphrases rather than repeats the official wording;
+- expands immediately into political/contextual argument;
+- speaks in Irish while the question record is in English;
+- starts with a short intervention before later stating the substance;
+- receives or responds to a procedural interjection before the substantive wording appears.
+
+Examples of explicit substitutes with low opening-text overlap included cases where the first speech merely said that the TD was taking the question on behalf of another member, with the substance appearing later.
+
+### High-match unresolved cases are useful review candidates
+
+The unresolved non-submitter-first set contains many cases where the opening TD speech closely reproduces the official question despite lacking a currently certified proxy phrase.
+
+Examples include cases where:
+
+- Joe Neville closely voiced a Barry Ward question;
+- John Connolly closely voiced a Tony McCormack question;
+- Louis O'Hara closely voiced a Pa Daly question;
+- Malcolm Byrne closely voiced a Naoise Ó Cearúil question;
+- Thomas Gould closely voiced a Mark Ward question;
+- Sorca Clarke closely voiced a David Cullinane question;
+- Cathy Bennett closely voiced another David Cullinane question.
+
+These are strong candidates for further deterministic substitution-pattern research, but the text match itself is not enough to publish `taken_by_member_code` as fact.
+
+### Decision on text matching
+
+Question-to-opening-speech similarity should be treated as:
+
+- **review prioritization evidence**;
+- a potential feature in a deterministic evidence bundle;
+- a way to identify likely cases where a non-submitting TD voiced the official question.
+
+It should **not** be treated as:
+
+- proof that the speaker was the official submitter;
+- proof that the speaker was an authorized substitute;
+- a standalone production `taken_by_member_code` rule.
+
+The proposed `substitute_text_match` status is therefore **not certified** and should not be added to production at this stage.
 
 ## Current methodological decision
 
@@ -172,9 +271,10 @@ The currently certified safe rule is:
 
 - Do not infer `taken_by_member_code` from submitter presence alone.
 - Do not infer `taken_by_member_code` from first ordinary-member transcript position alone.
+- Do not infer `taken_by_member_code` from question-text similarity alone.
 - For a **single-question exchange**, if explicit substitution/proxy language is present and the first non-ministerial/non-chair member speaker is identifiable, that member may be recorded as a deterministic `taken_by_member_code` candidate.
 - For grouped exchanges, do not assign one exchange-level participant to every grouped question.
-- For unresolved cases, retain `unknown`; absence of the submitter alone is not evidence of substitution.
+- For unresolved cases, retain `unknown`; absence of the submitter or high textual similarity alone is not evidence of certified substitution.
 
 ## Evidence
 
@@ -186,73 +286,75 @@ Important runs for this follow-up:
 - refined compact digest: **33578865429**;
 - 11-case transcript-order exception extraction: **33579196132**;
 - compact exception digest: **33579257409**;
-- raw XML speaker-attribution check: **33579429125**.
-
-The raw XML check confirmed that the production speech parser's first-speaker attribution was consistent with the Oireachtas XML for all 11 exception cases examined.
+- raw XML speaker-attribution check: **33579429125**;
+- single-question text-match audit: **33579960048**;
+- explicit-substitute/unresolved text-match benchmark: **33580045161**.
 
 No production pipeline or production data was changed during this investigation.
 
 ## Revised next-steps plan
 
-### 1. Test question-text to opening-speech matching for single-question exchanges
+### 1. Use high-match unresolved cases to discover additional deterministic substitution wording
 
 This is now the immediate next task.
 
-Reason: the 11-case review shows that ordering alone is not enough, but a single-question exchange provides a much stronger opportunity to match the official submitted question text to the opening ordinary-member speech.
+The text-match experiment should not become an attribution rule, but it gives us an efficient way to prioritize the unresolved cases most likely to contain real substitution/proxy-taking.
 
-Investigate:
+Investigate the highest-match unresolved non-submitter-first cases for:
 
-- exact normalized inclusion/matching between `question_text` and the first ordinary-member speech;
-- high-threshold text similarity after removing procedural introductions;
-- validation on normal self-taken questions where the submitter is known to be present;
-- validation on the 57 explicit substitute relationships;
-- whether the unresolved `Job Creation` example and similar cases become safely identifiable;
-- false positives caused by short/generic question wording.
+- additional English formulations such as "my question is..." when another TD is named elsewhere in the section;
+- wording such as "I am covering the questions for..." not captured by current patterns;
+- chair announcements before the member's first substantive speech;
+- Irish substitution announcements outside the current regex set;
+- references to the named submitter elsewhere in the first few interventions;
+- whether the substitute's identity can be extracted from explicit chair text rather than inferred from order.
 
-Target: determine whether question text provides a certified deterministic taker signal for **single-question exchanges**.
+Goal: expand **explicit-evidence coverage**, not create a similarity-based inference rule.
 
-### 2. Review the 156 unresolved-with-candidate exchanges
+### 2. Separate unresolved single-question and grouped-question cases
 
-Use the text-matching result first, then prioritize deterministic patterns rather than manual one-by-one attribution.
+The remaining unresolved population should be split structurally.
 
-Investigate:
+For single-question exchanges:
 
-- additional English proxy wording;
-- additional Irish formulations;
-- chair announcements not captured by current regexes;
-- apology/absence formulations that imply another TD is taking the question;
-- whether named substitute extraction can be performed from chair text;
-- how many unresolved cases are grouped exchanges where question-level taker attribution is inherently ambiguous.
+- explicit substitution wording may allow safe question-level attribution;
+- high text similarity can prioritize review;
+- unknown remains unknown without explicit evidence.
 
-Unknown must remain unknown where explicit evidence cannot be established.
+For grouped exchanges:
 
-### 3. Decide production foundation scope
+- question-level taker attribution may be inherently ambiguous;
+- focus on exchange-level participation unless the transcript explicitly maps individual questions to speakers.
 
-If the first two tasks support it, design `question_taking_relationships` with fields such as:
+### 3. Reassess whether a production foundation is worth building
+
+After the additional deterministic wording pass, decide whether the certified coverage is high enough to justify `question_taking_relationships`.
+
+A possible foundation would include:
 
 - `question_id`;
 - `debate_section_id`;
 - `submitted_by_member_code`;
-- `taken_by_member_code`;
+- `taken_by_member_code` when certified;
 - `is_substitute`;
 - `relationship_status`;
 - `evidence_method`;
 - `evidence_speech_id` or section evidence reference;
 - provenance/version fields.
 
-Recommended status values would distinguish at least:
+Recommended status values remain conservative:
 
-- `self_confirmed`;
 - `substitute_explicit`;
-- `substitute_text_match` only if separately certified;
 - `unknown`;
 - `procedural_or_interrupted`.
 
-Do not expose an inferred substitute as fact without certified evidence.
+A separate `self_confirmed` status should only be introduced if a robust rule for actual self-taking, rather than mere submitter presence, is certified.
+
+Do **not** add `substitute_text_match` as a factual status based on the current evidence.
 
 ### 4. Then return to exchange participant metrics
 
-Once question-taking attribution is settled, continue the parent plan by certifying reusable exchange measures such as:
+Once question-taking attribution is settled or deliberately bounded, continue the parent plan by certifying reusable exchange measures such as:
 
 - participating submitter count/share;
 - ordinary non-submitting TD participants;
