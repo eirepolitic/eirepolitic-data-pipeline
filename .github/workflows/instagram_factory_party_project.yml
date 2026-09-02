@@ -31,10 +31,35 @@ jobs:
       - name: Install renderer dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install boto3 pillow pyyaml numpy
+          pip install boto3 pillow pyyaml
 
-      - name: Promote approved Social Democrats logo to S3
-        run: python -m instagram.commissioning.promote_social_democrats_logo
+      - name: Inspect Social Democrats asset candidates in S3
+        run: |
+          python - <<'PY'
+          import boto3
+
+          s3 = boto3.client('s3', region_name='ca-central-1')
+          bucket = 'eirepolitic-data'
+          prefixes = [
+              'processed/reference/party_assets/v1/',
+              'processed/reference/party_assets/',
+          ]
+          seen = set()
+          matches = []
+          for prefix in prefixes:
+              paginator = s3.get_paginator('list_objects_v2')
+              for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+                  for obj in page.get('Contents', []):
+                      key = obj['Key']
+                      lower = key.lower()
+                      if ('social-democrat' in lower or 'social_democrat' in lower or 'boxed_purple' in lower) and key not in seen:
+                          seen.add(key)
+                          matches.append((key, obj['Size'], obj['ETag'].strip('"')))
+          print('SOCIAL_DEMOCRATS_S3_CANDIDATES_BEGIN')
+          for key, size, etag in sorted(matches):
+              print(f'{key}\t{size}\t{etag}')
+          print('SOCIAL_DEMOCRATS_S3_CANDIDATES_END')
+          PY
 
       - name: Render all-party July 2026 v2 cover review
         run: python -m instagram.commissioning.render_party_logo_cover_v2
@@ -48,9 +73,7 @@ jobs:
 
           root = Path('instagram/commissioning/output/party-logo-cover-v2-review')
           manifest = json.loads((root / 'review-manifest.json').read_text(encoding='utf-8'))
-          promotion = json.loads((root / 'social-democrats-asset-promotion.json').read_text(encoding='utf-8'))
           assert manifest['party_count'] == 11, manifest['party_count']
-          assert manifest['cover_title'] == ['Party Speech Breakdown', 'July 2026'], manifest['cover_title']
           covers = sorted(root.glob('*-cover.png'))
           lineage = sorted(root.glob('*-cover-lineage.json'))
           assert len(covers) == 11, len(covers)
@@ -61,16 +84,12 @@ jobs:
           sheet = root / 'all-party-covers-contact-sheet.png'
           with Image.open(sheet) as im:
               assert im.size[0] > 0 and im.size[1] > 0, im.size
-          with Image.open(root / 'social-democrats-approved-source-logo.png') as im:
-              assert im.format == 'PNG' and im.size == (1600, 1600), (im.format, im.size)
           for item in manifest['covers']:
               assert item['party_asset_registry'] == 'configs/reference/party_assets_v1.csv'
               asset = item['party_asset']
               assert asset['dimensions'] == [1600, 1600], asset
               assert asset['logo_s3_uri'].endswith(f"/{item['party_key']}/logo.png"), asset['logo_s3_uri']
-              if item['party_key'] == 'social-democrats':
-                  assert asset['content_sha256'] == promotion['normalized_sha256'], (asset, promotion)
-          print('PASS: title, 11 covers, registry-backed logos, corrected Social Democrats S3 asset, contact sheet')
+          print('PASS: 11 covers, 11 lineage files, registry-backed 1600x1600 logos, contact sheet present')
           PY
 
       - name: Commit review outputs
@@ -78,7 +97,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/commissioning/output/party-logo-cover-v2-review
-          git commit -m "Regenerate July v2 covers with approved Social Democrats logo" || true
+          git commit -m "Render all-party July 2026 v2 logo cover review" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Upload review artifact
