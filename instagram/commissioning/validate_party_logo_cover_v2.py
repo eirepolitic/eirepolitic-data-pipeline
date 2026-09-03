@@ -1,0 +1,240 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import yaml
+from PIL import Image
+
+from instagram.commissioning import render_party_logo_cover_v2 as renderer
+from instagram.factory import party_monthly_profile as profile
+
+ROOT = Path("instagram/commissioning/output/party-logo-cover-v2-review")
+PROJECT_PATH = Path("instagram/projects/party_issue_monthly_profile_v2/project.yml")
+CANONICAL_SOCIAL = (
+    "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png"
+)
+EXPECTED_KEYS = {
+    "100-rdr",
+    "aontu",
+    "fianna-fail",
+    "fine-gael",
+    "green-party",
+    "independent-ireland",
+    "independent",
+    "labour-party",
+    "people-before-profit-solidarity",
+    "sinn-fein",
+    "social-democrats",
+}
+EXPECTED_SCALES = {
+    "fine-gael": 1.10,
+    "independent-ireland": 1.10,
+    "labour-party": 1.10,
+}
+
+
+def check(name: str, condition: bool, detail: object = "") -> None:
+    if not condition:
+        message = f"{name}: {detail}"
+        print(f"::error title=Party cover QA::{message}")
+        raise AssertionError(message)
+    print(f"PASS {name}")
+
+
+def _neutral_fringe_pixels(image: Image.Image) -> int:
+    rgb = image.convert("RGB")
+    logo_left = (1080 - 500) // 2
+    interior = rgb.crop((logo_left + 6, 300 + 6, logo_left + 494, 300 + 494))
+    unwanted = 0
+    for pixel in interior.getdata():
+        low = min(pixel)
+        high = max(pixel)
+        if high <= 244 and (high - low) <= 18:
+            unwanted += 1
+    return unwanted
+
+
+def main() -> None:
+    manifest = json.loads((ROOT / "review-manifest.json").read_text(encoding="utf-8"))
+    project = yaml.safe_load(PROJECT_PATH.read_text(encoding="utf-8"))
+    repair = json.loads((ROOT / "social-democrats-logo-repair.json").read_text(encoding="utf-8"))
+
+    check("repair status", repair.get("status") == "PASS", repair)
+    check(
+        "repair action",
+        repair.get("action") in {"already_clean", "repaired_and_replaced"},
+        repair.get("action"),
+    )
+    check("repair canonical URI", repair.get("s3_uri") == CANONICAL_SOCIAL, repair.get("s3_uri"))
+    check("repair dimensions", repair.get("dimensions") == [1600, 1600], repair.get("dimensions"))
+    check(
+        "repair neutral pixels",
+        repair.get("remaining_unwanted_neutral_pixels") == 0,
+        repair.get("remaining_unwanted_neutral_pixels"),
+    )
+    check(
+        "repair metadata",
+        repair.get("metadata_correction") == "remove-neutral-black-gray-halo",
+        repair.get("metadata_correction"),
+    )
+    check("repair hash present", bool(repair.get("corrected_sha256")), repair)
+
+    check("manifest party count", manifest.get("party_count") == 11, manifest.get("party_count"))
+    check("manifest period", manifest.get("period") == "2026-07", manifest.get("period"))
+    check(
+        "cover title",
+        manifest.get("cover_title") == "Party Speech Breakdown",
+        manifest.get("cover_title"),
+    )
+    check(
+        "registry path",
+        manifest.get("party_asset_registry") == "configs/reference/party_assets_v1.csv",
+        manifest.get("party_asset_registry"),
+    )
+    check(
+        "manifest publication disabled",
+        manifest.get("publication_enabled") is False,
+        manifest.get("publication_enabled"),
+    )
+    check("review requested", manifest.get("review_state") == "review_requested", manifest.get("review_state"))
+
+    geometry = manifest["cover_logo_geometry"]
+    check("logo square", geometry.get("square_size") == [500, 500], geometry.get("square_size"))
+    check("logo top", geometry.get("top") == 300, geometry.get("top"))
+    check("gold border color", geometry["border"].get("color") == "#d8b45f", geometry["border"])
+    check("gold border width", geometry["border"].get("width_px") == 6, geometry["border"])
+    check("border inside square", geometry["border"].get("position") == "inside_square", geometry["border"])
+    check(
+        "scale overrides",
+        geometry.get("artwork_scale_overrides") == EXPECTED_SCALES,
+        geometry.get("artwork_scale_overrides"),
+    )
+    check("renderer logo size", renderer.LOGO_SIZE == 500, renderer.LOGO_SIZE)
+    check("renderer logo top", renderer.LOGO_TOP == 300, renderer.LOGO_TOP)
+    check("renderer border width", renderer.LOGO_BORDER_WIDTH == 6, renderer.LOGO_BORDER_WIDTH)
+    check("renderer accent", profile.ACCENT == "#d8b45f", profile.ACCENT)
+    check(
+        "project publication disabled",
+        project["publication"]["enabled"] is False,
+        project["publication"],
+    )
+    check(
+        "project review state",
+        project["publication"]["review_state"] == "pending_human_review",
+        project["publication"],
+    )
+
+    covers = sorted(ROOT.glob("*-cover.png"))
+    lineage_paths = sorted(ROOT.glob("*-cover-lineage.json"))
+    check("11 covers exist", len(covers) == 11, len(covers))
+    check("11 lineage files exist", len(lineage_paths) == 11, len(lineage_paths))
+    check(
+        "cover party keys",
+        {p.name.removesuffix("-cover.png") for p in covers} == EXPECTED_KEYS,
+        [p.name for p in covers],
+    )
+    check(
+        "lineage party keys",
+        {p.name.removesuffix("-cover-lineage.json") for p in lineage_paths} == EXPECTED_KEYS,
+        [p.name for p in lineage_paths],
+    )
+
+    for path in covers:
+        with Image.open(path) as image:
+            image.load()
+            check(f"{path.name} format", image.format == "PNG", image.format)
+            check(f"{path.name} dimensions", image.size == (1080, 1350), image.size)
+
+    contact = ROOT / "all-party-covers-contact-sheet.png"
+    with Image.open(contact) as image:
+        image.load()
+        check("contact sheet format", image.format == "PNG", image.format)
+        check("contact sheet valid dimensions", image.size[0] > 0 and image.size[1] > 0, image.size)
+
+    by_key = {item["party_key"]: item for item in manifest["covers"]}
+    check("manifest cover keys", set(by_key) == EXPECTED_KEYS, set(by_key))
+    for party_key, item in by_key.items():
+        check(
+            f"{party_key} title",
+            item.get("cover_title") == "Party Speech Breakdown",
+            item.get("cover_title"),
+        )
+        check(
+            f"{party_key} display period",
+            item.get("cover_title_period") == "July 2026",
+            item.get("cover_title_period"),
+        )
+        check(f"{party_key} period", item.get("period") == "2026-07", item.get("period"))
+        check(
+            f"{party_key} registry",
+            item.get("party_asset_registry") == "configs/reference/party_assets_v1.csv",
+            item.get("party_asset_registry"),
+        )
+        check(
+            f"{party_key} publication disabled",
+            item.get("publication_enabled") is False,
+            item.get("publication_enabled"),
+        )
+        check(
+            f"{party_key} logo square",
+            item["logo_geometry"].get("square_size") == [500, 500],
+            item["logo_geometry"],
+        )
+        check(
+            f"{party_key} logo top",
+            item["logo_geometry"].get("top") == 300,
+            item["logo_geometry"],
+        )
+        check(
+            f"{party_key} border color",
+            item["logo_geometry"]["border"].get("color") == "#d8b45f",
+            item["logo_geometry"]["border"],
+        )
+        check(
+            f"{party_key} border width",
+            item["logo_geometry"]["border"].get("width_px") == 6,
+            item["logo_geometry"]["border"],
+        )
+        expected_scale = EXPECTED_SCALES.get(party_key, 1.0)
+        check(
+            f"{party_key} artwork scale",
+            item["logo_geometry"].get("artwork_scale") == expected_scale,
+            item["logo_geometry"].get("artwork_scale"),
+        )
+        asset = item["party_asset"]
+        check(
+            f"{party_key} source dimensions",
+            asset.get("dimensions") == [1600, 1600],
+            asset.get("dimensions"),
+        )
+        check(
+            f"{party_key} canonical asset path",
+            asset.get("logo_s3_uri", "").endswith(f"/{party_key}/logo.png"),
+            asset.get("logo_s3_uri"),
+        )
+
+    check(
+        "Independent display alias",
+        by_key["independent"].get("display_party_name") == "Independents",
+        by_key["independent"].get("display_party_name"),
+    )
+    check(
+        "Social Democrats canonical lineage",
+        by_key["social-democrats"]["party_asset"].get("logo_s3_uri") == CANONICAL_SOCIAL,
+        by_key["social-democrats"]["party_asset"],
+    )
+
+    with Image.open(ROOT / "social-democrats-cover.png") as image:
+        unwanted = _neutral_fringe_pixels(image)
+        check(
+            "Social Democrats rendered halo",
+            unwanted == 0,
+            f"{unwanted} neutral black/gray pixels in logo interior",
+        )
+
+    print("PASS: complete July 2026 all-party cover review QA")
+
+
+if __name__ == "__main__":
+    main()
