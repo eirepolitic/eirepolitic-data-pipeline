@@ -36,10 +36,23 @@ jobs:
       - name: Generate August through generic recurring runner
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           python -m instagram.factory.recurring \
             --project-id party_issue_monthly_profile_v2 \
-            --period 2026-08 | tee generation.json
+            --period 2026-08 > /tmp/generation.log 2>&1
+          STATUS=$?
+          set -e
+          if [ "$STATUS" -ne 0 ]; then
+            mkdir -p instagram/commissioning_diagnostics
+            cp /tmp/generation.log instagram/commissioning_diagnostics/generation.log
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add instagram/commissioning_diagnostics/generation.log
+            git commit -m "chore: capture August Instagram generation failure"
+            git push origin HEAD:feature/instagram-monthly-post-framework
+            exit "$STATUS"
+          fi
+          cat /tmp/generation.log | tee generation.json
           python - <<'PY'
           import json
           report = json.load(open('generation.json', encoding='utf-8'))
