@@ -30,7 +30,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas pyyaml pillow matplotlib boto3
       - name: Compile production sources
-        run: python -m compileall -q instagram political_metrics extract
+        shell: bash
+        run: |
+          set +e
+          python -m compileall -q instagram political_metrics extract > /tmp/compile.log 2>&1
+          STATUS=$?
+          set -e
+          if [ "$STATUS" -ne 0 ]; then
+            mkdir -p instagram/commissioning_diagnostics
+            cp /tmp/compile.log instagram/commissioning_diagnostics/compile.log
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add instagram/commissioning_diagnostics/compile.log
+            git commit -m "chore: capture Instagram commissioning compile failure"
+            git push origin HEAD:feature/instagram-monthly-post-framework
+            exit "$STATUS"
+          fi
       - name: Generate August through generic recurring runner
         shell: bash
         run: |
@@ -48,8 +63,6 @@ jobs:
           assert report['qa'] == {'failed': 0, 'passed': 55}, report
           assert report['publication_enabled'] is False, report
           assert report['review_state'] == 'pending_human_review', report
-          for key in ('output_root', 'zip_path', 'source_batch_id'):
-              print(f'{key.upper()}={report[key]}')
           with open('generation.env', 'w', encoding='utf-8') as fh:
               for key in ('output_root', 'zip_path', 'source_batch_id'):
                   fh.write(f'{key.upper()}={report[key]}\n')
