@@ -176,6 +176,7 @@
       "slide_title": "Independents · Most Discussed Issues",
       "metric_id": "raw_counts",
       "value_format": "integer",
+      "min_visual_rows": 4,
       "visual_asset": "parties/independent/assets/variant-2/02_most_discussed_issues-visual.png",
       "visual_metadata": "parties/independent/metadata/variant-2/02_most_discussed_issues-visual.json",
       "visual_manifest": "parties/independent/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
@@ -190,6 +191,8 @@
         "value_label_font_shrunk": true,
         "axis_font_size": 12,
         "bar_thickness_px": 83.59,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 7,
         "max_wrapped_label_lines": 2,
         "max_value_label_x_ratio": 0.9517,
         "displayed_item_count": 7,
@@ -207,9 +210,9 @@
             "truncated": false,
             "bbox_px": [
               181.64,
-              978.22,
+              993.89,
               416.98,
-              1069.26
+              1084.92
             ],
             "clipped_to_figure": false
           },
@@ -221,9 +224,9 @@
             "truncated": false,
             "bbox_px": [
               291.98,
-              877.01,
+              887.45,
               416.98,
-              915.01
+              925.46
             ],
             "clipped_to_figure": false
           },
@@ -235,9 +238,9 @@
             "truncated": false,
             "bbox_px": [
               227.98,
-              747.4,
+              752.62,
               416.98,
-              785.41
+              790.63
             ],
             "clipped_to_figure": false
           },
@@ -263,9 +266,9 @@
             "truncated": false,
             "bbox_px": [
               40.64,
-              488.18,
+              482.96,
               416.98,
-              526.19
+              520.97
             ],
             "clipped_to_figure": false
           },
@@ -277,9 +280,9 @@
             "truncated": false,
             "bbox_px": [
               27.42,
-              358.58,
+              348.13,
               416.98,
-              396.59
+              386.14
             ],
             "clipped_to_figure": false
           },
@@ -291,9 +294,9 @@
             "truncated": false,
             "bbox_px": [
               142.49,
-              228.97,
+              213.31,
               416.98,
-              266.98
+              251.31
             ],
             "clipped_to_figure": false
           }
@@ -305,9 +308,9 @@
             "font_size": 15,
             "bbox_px": [
               929.53,
-              1014.5,
+              1030.16,
               973.53,
-              1045.75
+              1061.41
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -318,9 +321,9 @@
             "font_size": 15,
             "bbox_px": [
               822.58,
-              884.89,
+              895.33,
               866.58,
-              916.14
+              926.58
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -331,9 +334,9 @@
             "font_size": 15,
             "bbox_px": [
               822.58,
-              755.28,
+              760.5,
               866.58,
-              786.53
+              791.75
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -344,9 +347,9 @@
             "font_size": 15,
             "bbox_px": [
               662.14,
-              625.68,
+              625.67,
               684.14,
-              656.93
+              656.92
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -357,9 +360,9 @@
             "font_size": 15,
             "bbox_px": [
               662.14,
-              496.07,
+              490.85,
               684.14,
-              527.32
+              522.1
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -370,9 +373,9 @@
             "font_size": 15,
             "bbox_px": [
               662.14,
-              366.46,
+              356.02,
               684.14,
-              397.71
+              387.27
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -383,9 +386,9 @@
             "font_size": 15,
             "bbox_px": [
               635.4,
-              236.85,
+              221.19,
               657.4,
-              268.1
+              252.44
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -408,6 +411,7 @@
       "slide_title": "Independents vs Average",
       "metric_id": "share_vs_average",
       "value_format": "plus_pp_1",
+      "min_visual_rows": 4,
       "visual_asset": "parties/independent/assets/variant-2/03_more_than_average-visual.png",
       "visual_metadata": "parties/independent/metadata/variant-2/03_more_than_average-visual.json",
       "visual_manifest": "parties/independent/metadata/variant-2/03_more_than_average-visual-manifest.json",
@@ -422,6 +426,8 @@
         "value_label_font_shrunk": true,
         "axis_font_size": 12,
         "bar_thickness_px": 83.59,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 7,
         "max_wrapped_label_lines": 2,
         "max_value_label_x_ratio": 0.9644,
         "displayed_item_count": 7,
@@ -439,9 +445,9 @@
             "truncated": false,
             "bbox_px": [
               137.76,
-              978.22,
+              993.89,
               373.1,
-              1069.26
+              1084.92
             ],
             "clipped_to_figure": false
           },
@@ -453,9 +459,9 @@
             "truncated": false,
             "bbox_px": [
               114.51,
-              848.87,
+              859.31,
               373.1,
-              939.39
+              949.84
             ],
             "clipped_to_figure": false
           },
@@ -467,9 +473,9 @@
             "truncated": false,
             "bbox_px": [
               184.1,
-              747.4,
+              752.62,
               373.1,
-              785.41
+              790.63
             ],
             "clipped_to_figure": false
           },
@@ -495,9 +501,9 @@
             "truncated": false,
             "bbox_px": [
               248.1,
-              488.18,
+              482.96,
               373.1,
-              526.19
+              520.97
             ],
             "clipped_to_figure": false
           },
@@ -509,9 +515,9 @@
             "truncated": false,
             "bbox_px": [
               54.93,
-              358.58,
+              348.13,
               373.1,
-              396.59
+              386.14
             ],
             "clipped_to_figure": false
           },
@@ -523,9 +529,9 @@
             "truncated": false,
             "bbox_px": [
               27.42,
-              228.97,
+              213.31,
               373.1,
-              266.98
+              251.31
             ],
             "clipped_to_figure": false
           }
@@ -537,9 +543,9 @@
             "font_size": 15,
             "bbox_px": [
               820.21,
-              1014.5,
+              1030.16,
               979.21,
-              1045.75
+              1061.41
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -550,9 +556,9 @@
             "font_size": 15,
             "bbox_px": [
               574.95,
-              884.89,
+              895.33,
               711.95,
-              916.14
+              926.58
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -563,9 +569,9 @@
             "font_size": 15,
             "bbox_px": [
               473.7,
-              755.28,
+              760.5,
               610.7,
-              786.53
+              791.75
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -576,9 +582,9 @@
             "font_size": 15,
             "bbox_px": [
               469.36,
-              625.68,
+              625.67,
               606.36,
-              656.93
+              656.92
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -589,9 +595,9 @@
             "font_size": 15,
             "bbox_px": [
               460.24,
-              496.07,
+              490.85,
               597.24,
-              527.32
+              522.1
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -602,9 +608,9 @@
             "font_size": 15,
             "bbox_px": [
               459.88,
-              366.46,
+              356.02,
               596.88,
-              397.71
+              387.27
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -615,9 +621,9 @@
             "font_size": 15,
             "bbox_px": [
               417.71,
-              236.85,
+              221.19,
               554.71,
-              268.1
+              252.44
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -640,6 +646,7 @@
       "slide_title": "Independents vs Average per TD",
       "metric_id": "per_td_vs_average",
       "value_format": "plus_per_td_2",
+      "min_visual_rows": 4,
       "visual_asset": "parties/independent/assets/variant-2/04_more_per_td-visual.png",
       "visual_metadata": "parties/independent/metadata/variant-2/04_more_per_td-visual.json",
       "visual_manifest": "parties/independent/metadata/variant-2/04_more_per_td-visual-manifest.json",
@@ -653,7 +660,9 @@
         "value_label_font_size_minimum": 14,
         "value_label_font_shrunk": false,
         "axis_font_size": 12,
-        "bar_thickness_px": 226.51,
+        "bar_thickness_px": 169.88,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 4,
         "max_wrapped_label_lines": 2,
         "max_value_label_x_ratio": 0.9618,
         "displayed_item_count": 3,
@@ -671,9 +680,9 @@
             "truncated": false,
             "bbox_px": [
               50.67,
-              904.84,
+              825.35,
               286.01,
-              995.88
+              916.38
             ],
             "clipped_to_figure": false
           },
@@ -699,9 +708,9 @@
             "truncated": false,
             "bbox_px": [
               153.67,
-              302.6,
+              382.1,
               286.01,
-              340.1
+              419.6
             ],
             "clipped_to_figure": false
           }
@@ -713,9 +722,9 @@
             "font_size": 16,
             "bbox_px": [
               802.26,
-              940.07,
+              860.58,
               974.26,
-              973.41
+              893.92
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -739,9 +748,9 @@
             "font_size": 16,
             "bbox_px": [
               330.28,
-              309.19,
+              388.68,
               502.28,
-              342.53
+              422.02
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false

@@ -2,7 +2,7 @@
   "visual_id": "100-rdr-per_td_vs_average-variant-2",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-09-03T19:02:49.328273+00:00",
+  "created_at": "2026-09-03T19:43:30.715082+00:00",
   "input": {
     "data_origin": "QA-passed July 2026 party monthly profile metrics",
     "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/100-rdr/manifest.json",
@@ -12,7 +12,8 @@
     "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "approved_visual_variant": 2,
     "approved_visual_source_run": 203,
-    "approved_visual_source_run_id": 33448590338
+    "approved_visual_source_run_id": 33448590338,
+    "min_visual_rows": 4
   },
   "bindings": {
     "label": "label",
@@ -47,7 +48,9 @@
     "value_label_font_size_minimum": 14,
     "value_label_font_shrunk": false,
     "axis_font_size": 12,
-    "bar_thickness_px": 679.54,
+    "bar_thickness_px": 169.88,
+    "min_visual_rows": 4,
+    "effective_visual_row_count": 4,
     "max_wrapped_label_lines": 1,
     "max_value_label_x_ratio": 0.9611,
     "displayed_item_count": 1,

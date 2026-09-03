@@ -2,7 +2,7 @@
   "visual_id": "100-rdr-share_vs_average-variant-2",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-09-03T19:02:49.070883+00:00",
+  "created_at": "2026-09-03T19:43:30.420667+00:00",
   "input": {
     "data_origin": "QA-passed July 2026 party monthly profile metrics",
     "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/100-rdr/manifest.json",
@@ -12,7 +12,8 @@
     "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "approved_visual_variant": 2,
     "approved_visual_source_run": 203,
-    "approved_visual_source_run_id": 33448590338
+    "approved_visual_source_run_id": 33448590338,
+    "min_visual_rows": 4
   },
   "bindings": {
     "label": "label",
@@ -68,6 +69,8 @@
     "value_label_font_shrunk": false,
     "axis_font_size": 12,
     "bar_thickness_px": 117.03,
+    "min_visual_rows": 4,
+    "effective_visual_row_count": 5,
     "max_wrapped_label_lines": 2,
     "max_value_label_x_ratio": 0.9588,
     "displayed_item_count": 5,
@@ -85,9 +88,9 @@
         "truncated": false,
         "bbox_px": [
           206.81,
-          989.22,
+          995.31,
           416.98,
-          1027.23
+          1033.32
         ],
         "clipped_to_figure": false
       },
@@ -99,9 +102,9 @@
         "truncated": false,
         "bbox_px": [
           196.98,
-          775.12,
+          778.16,
           416.98,
-          866.15
+          869.19
         ],
         "clipped_to_figure": false
       },
@@ -127,9 +130,9 @@
         "truncated": false,
         "bbox_px": [
           291.98,
-          432.08,
+          429.03,
           416.98,
-          470.09
+          467.04
         ],
         "clipped_to_figure": false
       },
@@ -141,9 +144,9 @@
         "truncated": false,
         "bbox_px": [
           27.42,
-          246.36,
+          240.27,
           416.98,
-          284.37
+          278.28
         ],
         "clipped_to_figure": false
       }
@@ -155,9 +158,9 @@
         "font_size": 16,
         "bbox_px": [
           808.57,
-          996.06,
+          1002.15,
           977.57,
-          1029.4
+          1035.49
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -168,9 +171,9 @@
         "font_size": 16,
         "bbox_px": [
           499.18,
-          810.35,
+          813.39,
           645.18,
-          843.68
+          846.73
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -194,9 +197,9 @@
         "font_size": 16,
         "bbox_px": [
           471.74,
-          438.92,
+          435.87,
           617.74,
-          472.25
+          469.21
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -207,9 +210,9 @@
         "font_size": 16,
         "bbox_px": [
           471.2,
-          253.2,
+          247.11,
           617.2,
-          286.54
+          280.45
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false

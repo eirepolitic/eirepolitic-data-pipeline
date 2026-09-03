@@ -2,7 +2,7 @@
   "visual_id": "green-party-share_vs_average-variant-2",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-09-03T19:02:54.291545+00:00",
+  "created_at": "2026-09-03T19:43:36.587255+00:00",
   "input": {
     "data_origin": "QA-passed July 2026 party monthly profile metrics",
     "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/green-party/manifest.json",
@@ -12,7 +12,8 @@
     "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "approved_visual_variant": 2,
     "approved_visual_source_run": 203,
-    "approved_visual_source_run_id": 33448590338
+    "approved_visual_source_run_id": 33448590338,
+    "min_visual_rows": 4
   },
   "bindings": {
     "label": "label",
@@ -73,6 +74,8 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 97.53,
+    "min_visual_rows": 4,
+    "effective_visual_row_count": 6,
     "max_wrapped_label_lines": 1,
     "max_value_label_x_ratio": 0.9541,
     "displayed_item_count": 6,
@@ -90,9 +93,9 @@
         "truncated": false,
         "bbox_px": [
           131.42,
-          999.46,
+          1011.04,
           405.9,
-          1037.47
+          1049.05
         ],
         "clipped_to_figure": false
       },
@@ -104,9 +107,9 @@
         "truncated": false,
         "bbox_px": [
           29.56,
-          846.79,
+          853.74,
           405.9,
-          884.8
+          891.75
         ],
         "clipped_to_figure": false
       },
@@ -118,9 +121,9 @@
         "truncated": false,
         "bbox_px": [
           27.42,
-          694.13,
+          696.44,
           405.9,
-          732.13
+          734.45
         ],
         "clipped_to_figure": false
       },
@@ -132,9 +135,9 @@
         "truncated": false,
         "bbox_px": [
           149.59,
-          541.46,
+          539.14,
           405.9,
-          579.47
+          577.15
         ],
         "clipped_to_figure": false
       },
@@ -146,9 +149,9 @@
         "truncated": false,
         "bbox_px": [
           163.73,
-          388.79,
+          381.84,
           405.9,
-          426.8
+          419.85
         ],
         "clipped_to_figure": false
       },
@@ -160,9 +163,9 @@
         "truncated": false,
         "bbox_px": [
           41.9,
-          236.12,
+          224.54,
           405.9,
-          274.13
+          262.55
         ],
         "clipped_to_figure": false
       }
@@ -174,9 +177,9 @@
         "font_size": 15,
         "bbox_px": [
           815.4,
-          1007.35,
+          1018.92,
           974.4,
-          1038.6
+          1050.17
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -187,9 +190,9 @@
         "font_size": 15,
         "bbox_px": [
           679.27,
-          854.68,
+          861.62,
           838.27,
-          885.93
+          892.88
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -200,9 +203,9 @@
         "font_size": 15,
         "bbox_px": [
           662.74,
-          702.01,
+          704.32,
           821.74,
-          733.26
+          735.57
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -213,9 +216,9 @@
         "font_size": 15,
         "bbox_px": [
           659.37,
-          549.34,
+          547.02,
           818.37,
-          580.59
+          578.27
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -226,9 +229,9 @@
         "font_size": 15,
         "bbox_px": [
           659.13,
-          396.67,
+          389.72,
           818.13,
-          427.92
+          420.97
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -239,9 +242,9 @@
         "font_size": 15,
         "bbox_px": [
           503.57,
-          244.0,
+          232.42,
           640.57,
-          275.25
+          263.67
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false

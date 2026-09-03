@@ -2,7 +2,7 @@
   "visual_id": "fine-gael-per_td_vs_average-variant-2",
   "template_id": "horizontal_bar_draft_v1",
   "renderer": "horizontal_bar",
-  "created_at": "2026-09-03T19:02:53.389342+00:00",
+  "created_at": "2026-09-03T19:43:35.484868+00:00",
   "input": {
     "data_origin": "QA-passed July 2026 party monthly profile metrics",
     "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fine-gael/manifest.json",
@@ -12,7 +12,8 @@
     "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
     "approved_visual_variant": 2,
     "approved_visual_source_run": 203,
-    "approved_visual_source_run_id": 33448590338
+    "approved_visual_source_run_id": 33448590338,
+    "min_visual_rows": 4
   },
   "bindings": {
     "label": "label",
@@ -78,6 +79,8 @@
     "value_label_font_shrunk": true,
     "axis_font_size": 12,
     "bar_thickness_px": 83.59,
+    "min_visual_rows": 4,
+    "effective_visual_row_count": 7,
     "max_wrapped_label_lines": 2,
     "max_value_label_x_ratio": 0.9549,
     "displayed_item_count": 7,
@@ -95,9 +98,9 @@
         "truncated": false,
         "bbox_px": [
           278.76,
-          1006.61,
+          1022.28,
           403.76,
-          1044.62
+          1060.29
         ],
         "clipped_to_figure": false
       },
@@ -109,9 +112,9 @@
         "truncated": false,
         "bbox_px": [
           193.59,
-          877.01,
+          887.45,
           403.76,
-          915.01
+          925.46
         ],
         "clipped_to_figure": false
       },
@@ -123,9 +126,9 @@
         "truncated": false,
         "bbox_px": [
           248.76,
-          747.4,
+          752.62,
           403.76,
-          785.41
+          790.63
         ],
         "clipped_to_figure": false
       },
@@ -151,9 +154,9 @@
         "truncated": false,
         "bbox_px": [
           145.17,
-          460.05,
+          454.83,
           403.76,
-          550.57
+          545.35
         ],
         "clipped_to_figure": false
       },
@@ -165,9 +168,9 @@
         "truncated": false,
         "bbox_px": [
           197.59,
-          330.19,
+          319.75,
           403.76,
-          421.22
+          410.78
         ],
         "clipped_to_figure": false
       },
@@ -179,9 +182,9 @@
         "truncated": false,
         "bbox_px": [
           134.79,
-          228.97,
+          213.31,
           403.76,
-          266.98
+          251.31
         ],
         "clipped_to_figure": false
       }
@@ -193,9 +196,9 @@
         "font_size": 15,
         "bbox_px": [
           812.76,
-          1014.5,
+          1030.16,
           974.76,
-          1045.75
+          1061.41
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -206,9 +209,9 @@
         "font_size": 15,
         "bbox_px": [
           598.94,
-          884.89,
+          895.33,
           760.94,
-          916.14
+          926.58
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -219,9 +222,9 @@
         "font_size": 15,
         "bbox_px": [
           575.9,
-          755.28,
+          760.5,
           737.9,
-          786.53
+          791.75
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -232,9 +235,9 @@
         "font_size": 15,
         "bbox_px": [
           510.21,
-          625.68,
+          625.67,
           672.21,
-          656.93
+          656.92
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -245,9 +248,9 @@
         "font_size": 15,
         "bbox_px": [
           488.66,
-          496.07,
+          490.85,
           650.66,
-          527.32
+          522.1
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -258,9 +261,9 @@
         "font_size": 15,
         "bbox_px": [
           470.33,
-          366.46,
+          356.02,
           632.33,
-          397.71
+          387.27
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false
@@ -271,9 +274,9 @@
         "font_size": 15,
         "bbox_px": [
           463.0,
-          236.85,
+          221.19,
           625.0,
-          268.1
+          252.44
         ],
         "clipped_to_axes": false,
         "clipped_to_figure": false

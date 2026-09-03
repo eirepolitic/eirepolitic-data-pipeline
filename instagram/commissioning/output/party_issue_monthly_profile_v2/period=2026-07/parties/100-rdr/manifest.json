@@ -142,6 +142,7 @@
       "slide_title": "100% RDR · Most Discussed Issues",
       "metric_id": "raw_counts",
       "value_format": "integer",
+      "min_visual_rows": 4,
       "visual_asset": "parties/100-rdr/assets/variant-2/02_most_discussed_issues-visual.png",
       "visual_metadata": "parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual.json",
       "visual_manifest": "parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
@@ -156,6 +157,8 @@
         "value_label_font_shrunk": false,
         "axis_font_size": 12,
         "bar_thickness_px": 117.03,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 5,
         "max_wrapped_label_lines": 2,
         "max_value_label_x_ratio": 0.9317,
         "displayed_item_count": 5,
@@ -173,9 +176,9 @@
             "truncated": false,
             "bbox_px": [
               206.81,
-              989.22,
+              995.31,
               416.98,
-              1027.23
+              1033.32
             ],
             "clipped_to_figure": false
           },
@@ -187,9 +190,9 @@
             "truncated": false,
             "bbox_px": [
               196.98,
-              775.12,
+              778.16,
               416.98,
-              866.15
+              869.19
             ],
             "clipped_to_figure": false
           },
@@ -215,9 +218,9 @@
             "truncated": false,
             "bbox_px": [
               227.98,
-              432.08,
+              429.03,
               416.98,
-              470.09
+              467.04
             ],
             "clipped_to_figure": false
           },
@@ -229,9 +232,9 @@
             "truncated": false,
             "bbox_px": [
               27.42,
-              246.36,
+              240.27,
               416.98,
-              284.37
+              278.28
             ],
             "clipped_to_figure": false
           }
@@ -243,9 +246,9 @@
             "font_size": 16,
             "bbox_px": [
               939.16,
-              996.06,
+              1002.15,
               962.16,
-              1029.4
+              1035.49
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -256,9 +259,9 @@
             "font_size": 16,
             "bbox_px": [
               611.87,
-              810.35,
+              813.39,
               634.87,
-              843.68
+              846.73
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -282,9 +285,9 @@
             "font_size": 16,
             "bbox_px": [
               611.87,
-              438.92,
+              435.87,
               634.87,
-              472.25
+              469.21
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -295,9 +298,9 @@
             "font_size": 16,
             "bbox_px": [
               611.87,
-              253.2,
+              247.11,
               634.87,
-              286.54
+              280.45
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -320,6 +323,7 @@
       "slide_title": "100% RDR vs Average",
       "metric_id": "share_vs_average",
       "value_format": "plus_pp_1",
+      "min_visual_rows": 4,
       "visual_asset": "parties/100-rdr/assets/variant-2/03_more_than_average-visual.png",
       "visual_metadata": "parties/100-rdr/metadata/variant-2/03_more_than_average-visual.json",
       "visual_manifest": "parties/100-rdr/metadata/variant-2/03_more_than_average-visual-manifest.json",
@@ -334,6 +338,8 @@
         "value_label_font_shrunk": false,
         "axis_font_size": 12,
         "bar_thickness_px": 117.03,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 5,
         "max_wrapped_label_lines": 2,
         "max_value_label_x_ratio": 0.9588,
         "displayed_item_count": 5,
@@ -351,9 +357,9 @@
             "truncated": false,
             "bbox_px": [
               206.81,
-              989.22,
+              995.31,
               416.98,
-              1027.23
+              1033.32
             ],
             "clipped_to_figure": false
           },
@@ -365,9 +371,9 @@
             "truncated": false,
             "bbox_px": [
               196.98,
-              775.12,
+              778.16,
               416.98,
-              866.15
+              869.19
             ],
             "clipped_to_figure": false
           },
@@ -393,9 +399,9 @@
             "truncated": false,
             "bbox_px": [
               291.98,
-              432.08,
+              429.03,
               416.98,
-              470.09
+              467.04
             ],
             "clipped_to_figure": false
           },
@@ -407,9 +413,9 @@
             "truncated": false,
             "bbox_px": [
               27.42,
-              246.36,
+              240.27,
               416.98,
-              284.37
+              278.28
             ],
             "clipped_to_figure": false
           }
@@ -421,9 +427,9 @@
             "font_size": 16,
             "bbox_px": [
               808.57,
-              996.06,
+              1002.15,
               977.57,
-              1029.4
+              1035.49
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -434,9 +440,9 @@
             "font_size": 16,
             "bbox_px": [
               499.18,
-              810.35,
+              813.39,
               645.18,
-              843.68
+              846.73
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -460,9 +466,9 @@
             "font_size": 16,
             "bbox_px": [
               471.74,
-              438.92,
+              435.87,
               617.74,
-              472.25
+              469.21
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -473,9 +479,9 @@
             "font_size": 16,
             "bbox_px": [
               471.2,
-              253.2,
+              247.11,
               617.2,
-              286.54
+              280.45
             ],
             "clipped_to_axes": false,
             "clipped_to_figure": false
@@ -498,6 +504,7 @@
       "slide_title": "100% RDR vs Average per TD",
       "metric_id": "per_td_vs_average",
       "value_format": "plus_per_td_2",
+      "min_visual_rows": 4,
       "visual_asset": "parties/100-rdr/assets/variant-2/04_more_per_td-visual.png",
       "visual_metadata": "parties/100-rdr/metadata/variant-2/04_more_per_td-visual.json",
       "visual_manifest": "parties/100-rdr/metadata/variant-2/04_more_per_td-visual-manifest.json",
@@ -511,7 +518,9 @@
         "value_label_font_size_minimum": 14,
         "value_label_font_shrunk": false,
         "axis_font_size": 12,
-        "bar_thickness_px": 679.54,
+        "bar_thickness_px": 169.88,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 4,
         "max_wrapped_label_lines": 1,
         "max_value_label_x_ratio": 0.9611,
         "displayed_item_count": 1,
