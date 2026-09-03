@@ -9,6 +9,7 @@ from PIL import Image, ImageChops
 
 PERIOD = "2026-07"
 ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v2/period={PERIOD}")
+SOURCE_V1 = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v1/period={PERIOD}")
 APPROVED_COVERS = Path("instagram/commissioning/output/party-logo-cover-v2-review")
 PROJECT_PATH = Path("instagram/projects/party_issue_monthly_profile_v2/project.yml")
 EXPECTED_KEYS = {
@@ -29,6 +30,11 @@ EXPECTED_SCALES = {
     "independent-ireland": 1.10,
     "labour-party": 1.10,
 }
+BAR_CHART_SLIDES = (
+    "02_most_discussed_issues.png",
+    "03_more_than_average.png",
+    "04_more_per_td.png",
+)
 CANONICAL_SOCIAL = (
     "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png"
 )
@@ -80,6 +86,11 @@ def main() -> None:
     check("run review state", run_manifest.get("review_state") == "pending_human_review", run_manifest.get("review_state"))
     check("registry path", run_manifest.get("party_asset_registry") == "configs/reference/party_assets_v1.csv", run_manifest.get("party_asset_registry"))
     check("cover title", run_manifest.get("cover_title") == "Party Speech Breakdown", run_manifest.get("cover_title"))
+    check(
+        "analytical visual source",
+        run_manifest.get("analytical_slide_visual_source") == "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+        run_manifest.get("analytical_slide_visual_source"),
+    )
 
     geometry = run_manifest.get("cover_logo_geometry") or {}
     check("logo square", geometry.get("square_size") == [500, 500], geometry)
@@ -116,6 +127,11 @@ def main() -> None:
         check(f"{key} registry", data.get("party_asset_registry") == "configs/reference/party_assets_v1.csv", data.get("party_asset_registry"))
         check(f"{key} cover title", data.get("cover_title") == "Party Speech Breakdown", data.get("cover_title"))
         check(f"{key} cover period", data.get("cover_title_period") == "July 2026", data.get("cover_title_period"))
+        check(
+            f"{key} analytical visual source",
+            data.get("analytical_slide_visual_source") == "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+            data.get("analytical_slide_visual_source"),
+        )
         expected_display = "Independents" if key == "independent" else data.get("party")
         check(f"{key} display name", data.get("display_party_name") == expected_display, data.get("display_party_name"))
 
@@ -133,6 +149,15 @@ def main() -> None:
         generated_cover = manifest_path.parent / "slides" / "01_cover.png"
         approved_cover = APPROVED_COVERS / f"{key}-cover.png"
         check(f"{key} approved cover match", approved_cover.exists() and _images_identical(generated_cover, approved_cover), f"generated={generated_cover}, approved={approved_cover}")
+
+        for slide_name in BAR_CHART_SLIDES:
+            generated_chart = manifest_path.parent / "slides" / slide_name
+            source_chart = SOURCE_V1 / "parties" / key / "slides" / slide_name
+            check(
+                f"{key} {slide_name} matches successful pre-logo visual",
+                source_chart.exists() and _images_identical(generated_chart, source_chart),
+                f"generated={generated_chart}, source={source_chart}",
+            )
 
     social_cover = ROOT / "parties" / "social-democrats" / "slides" / "01_cover.png"
     check("Social Democrats rendered halo", _neutral_fringe_pixels(social_cover) == 0, _neutral_fringe_pixels(social_cover))
@@ -158,7 +183,7 @@ def main() -> None:
             image.load()
             check(f"{name} valid", image.size[0] > 0 and image.size[1] > 0, image.size)
 
-    print("PASS: July 2026 party monthly profile v2 full batch QA — 11 parties, 55 slides")
+    print("PASS: July 2026 party monthly profile v2 full batch QA — approved covers + exact pre-logo bar charts")
 
 
 if __name__ == "__main__":
