@@ -2,43 +2,95 @@ name: Promote approved Instagram framework assets
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/instagram-monthly-post-framework
-    paths:
-      - .github/workflows/_promote_instagram_framework.yml
 
 permissions:
   contents: write
 
 jobs:
-  promote:
+  august-commissioning:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feature/instagram-monthly-post-framework
           fetch-depth: 0
-      - name: Promote approved static assets byte-for-byte
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pyyaml pillow matplotlib boto3
+      - name: Compile production sources
+        run: python -m compileall -q instagram political_metrics extract
+      - name: Generate August through generic recurring runner
         shell: bash
         run: |
           set -euo pipefail
-          SOURCE_REF=c1ea91199ac3d9d9653041a4994eb1b24e54cb50
-          git fetch origin "$SOURCE_REF"
-          mkdir -p instagram/templates/assets
-          for asset in corner_tl.png corner_tr.png corner_bl.png corner_br.png; do
-            git show "$SOURCE_REF:instagram/templates/assets/$asset" > "instagram/templates/assets/$asset"
-          done
-          test "$(git hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
-          test "$(git hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
-          test "$(git hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
-          test "$(git hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+          python -m instagram.factory.recurring \
+            --project-id party_issue_monthly_profile_v2 \
+            --period 2026-08 | tee generation.json
+          python - <<'PY'
+          import json
+          report = json.load(open('generation.json', encoding='utf-8'))
+          assert report['status'] == 'PASS', report
+          assert report['period'] == '2026-08', report
+          assert report['party_count'] == 11, report
+          assert report['slide_count'] == 55, report
+          assert report['qa'] == {'failed': 0, 'passed': 55}, report
+          assert report['publication_enabled'] is False, report
+          assert report['review_state'] == 'pending_human_review', report
+          for key in ('output_root', 'zip_path', 'source_batch_id'):
+              print(f'{key.upper()}={report[key]}')
+          with open('generation.env', 'w', encoding='utf-8') as fh:
+              for key in ('output_root', 'zip_path', 'source_batch_id'):
+                  fh.write(f'{key.upper()}={report[key]}\n')
+          PY
+          cat generation.env >> "$GITHUB_ENV"
+      - name: Upload full review run to immutable S3 run path
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="s3://$S3_BUCKET/processed/instagram/party_issue_monthly_profile_v2/period=2026-08/source_batch=$SOURCE_BATCH_ID/github_run=$GITHUB_RUN_ID"
+          aws s3 cp "$OUTPUT_ROOT/" "$DEST/" --recursive --only-show-errors
+          aws s3 cp "$ZIP_PATH" "$DEST/$(basename "$ZIP_PATH")" --only-show-errors
+          aws s3 cp "$ZIP_PATH.manifest.json" "$DEST/$(basename "$ZIP_PATH").manifest.json" --only-show-errors
+      - name: Commit delivery artifacts only
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add instagram/templates/assets
-          if git diff --cached --quiet; then
-            echo "Assets already promoted"
-            exit 0
-          fi
-          git commit -m "feat: promote approved Instagram corner assets"
+          git add "$ZIP_PATH" "$ZIP_PATH.manifest.json"
+          git add "$OUTPUT_ROOT/contact_sheets" "$OUTPUT_ROOT/qa_summary.csv" "$OUTPUT_ROOT/run_manifest.json"
+          git commit -m "artifacts(instagram): add August 2026 Party Speech Breakdown review package"
           git push origin HEAD:feature/instagram-monthly-post-framework
+      - name: Upload Actions evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-party-speech-breakdown-august-${{ github.run_id }}
+          path: |
+            generation.json
+            ${{ env.OUTPUT_ROOT }}/qa_summary.csv
+            ${{ env.OUTPUT_ROOT }}/run_manifest.json
+            ${{ env.OUTPUT_ROOT }}/contact_sheets/
+            ${{ env.ZIP_PATH }}
+            ${{ env.ZIP_PATH }}.manifest.json
+          if-no-files-found: error
+      - name: Summary
+        run: |
+          {
+            echo '## August 2026 Party Speech Breakdown commissioning'
+            echo '- Expected: 11 parties × 5 slides = 55'
+            echo '- Review state: `pending_human_review`'
+            echo '- Publishing enabled: `false`'
+            echo "- Source batch: \`$SOURCE_BATCH_ID\`"
+          } >> "$GITHUB_STEP_SUMMARY"
