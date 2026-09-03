@@ -1,0 +1,77 @@
+{
+  "reference": {
+    "branch": "commissioning/instagram-party-monthly-profile-v2",
+    "workflow_run_number": 247,
+    "workflow_run_id": 33800066946,
+    "qa": "55/55 PASS",
+    "publication_enabled": false
+  },
+  "analytical_variant": {
+    "variant": 2,
+    "source_run_number": 203,
+    "source_run_id": 33448590338,
+    "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+    "renderer": "instagram/visuals/renderers/horizontal_bar.py",
+    "outer_layout": "instagram/templates/layouts/title_text_media_v1.json"
+  },
+  "batch": {
+    "party_count": 11,
+    "slides_per_party": 5,
+    "slide_count": 55,
+    "dimensions": [1080, 1350],
+    "review_state": "pending_human_review",
+    "publication_enabled": false
+  },
+  "titles": {
+    "cover": "Party Speech Breakdown",
+    "most_discussed_issues": "Most Discussed Issues",
+    "more_than_average": "Issues Discussed More Than Average",
+    "more_per_td": "Issues Discussed More Than Average per TD",
+    "glossary": "Glossary"
+  },
+  "cover": {
+    "logo_size": [500, 500],
+    "logo_top": 300,
+    "centered": true,
+    "border_width": 6,
+    "border_color": "#d8b45f",
+    "scale_overrides": {
+      "fine-gael": 1.1,
+      "labour-party": 1.1,
+      "independent-ireland": 1.1
+    },
+    "independent_display_name": "Independents"
+  },
+  "chart": {
+    "background": "#0f2f24",
+    "text": "#f4ead7",
+    "muted": "#c8bda8",
+    "accent": "#d8b45f",
+    "grid": "#f4ead7",
+    "min_visual_rows": 4,
+    "max_short_chart_bar_thickness_px": 169.88
+  },
+  "assets": {
+    "registry": "configs/reference/party_assets_v1.csv",
+    "canonical_uri_template": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png",
+    "social_democrats_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+    "canonical_dimensions": [1600, 1600],
+    "corner_git_blobs": {
+      "corner_tl.png": "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1",
+      "corner_tr.png": "b81188dd14bf1423c5f450d0857701a043cf9b07",
+      "corner_bl.png": "434bd940e6bc2365835a74edd58e2e1260eb4669",
+      "corner_br.png": "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+    }
+  },
+  "value_formats": {
+    "most_discussed_issues": "integer",
+    "more_than_average": "plus_pp_1",
+    "more_per_td": "plus_per_td_2"
+  },
+  "glossary_terms": [
+    "Most Discussed Issues",
+    "Issues Discussed More Than Average",
+    "Issues Discussed More Than Average per TD",
+    "Classified Speeches"
+  ]
+}
