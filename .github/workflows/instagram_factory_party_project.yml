@@ -33,102 +33,94 @@ jobs:
           python -m pip install --upgrade pip
           pip install boto3 pillow pyyaml
 
-      - name: Promote approved Social Democrats boxed-purple logo
+      - name: Promote user-approved Social Democrats logo
         run: |
           python - <<'PY'
           from __future__ import annotations
 
+          import base64
           import hashlib
           import io
           from datetime import datetime, timezone
+          from pathlib import Path
 
           import boto3
           from PIL import Image
 
           bucket = 'eirepolitic-data'
-          prefix = 'processed/reference/party_assets/'
           canonical_key = 'processed/reference/party_assets/v1/assets/social-democrats/logo.png'
-          s3 = boto3.client('s3', region_name='ca-central-1')
+          source_path = Path('instagram/commissioning/input/social-democrats-approved-logo.b64')
+          if not source_path.exists():
+              raise RuntimeError(f'Missing approved source asset: {source_path}')
 
-          candidates = []
-          paginator = s3.get_paginator('list_objects_v2')
-          for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
-              for obj in page.get('Contents', []):
-                  key = obj['Key']
-                  low = key.lower()
-                  party_match = 'social-democrat' in low or 'social_democrat' in low
-                  variant_match = (
-                      'boxed_purple_selected' in low
-                      or 'boxed-purple-selected' in low
-                      or 'sd_boxed_purple_selected' in low
-                  )
-                  if party_match and variant_match and key != canonical_key:
-                      candidates.append(key)
-
-          candidates = sorted(set(candidates))
-          print('Approved Social Democrats candidate matches:')
-          for key in candidates:
-              print(f'  {key}')
-          if len(candidates) != 1:
-              raise RuntimeError(
-                  f'Expected exactly one archived boxed-purple-selected Social Democrats asset; found {len(candidates)}'
-              )
-
-          selected_key = candidates[0]
-          selected = s3.get_object(Bucket=bucket, Key=selected_key)['Body'].read()
-          with Image.open(io.BytesIO(selected)) as im:
+          raw = base64.b64decode(source_path.read_text(encoding='utf-8').strip(), validate=True)
+          with Image.open(io.BytesIO(raw)) as im:
               im.load()
-              print(f'Selected candidate image: {im.format} {im.size} {im.mode}')
-              if im.format != 'PNG':
-                  raise RuntimeError(f'Approved candidate must be PNG, found {im.format}')
-              if im.size != (1600, 1600):
-                  raise RuntimeError(f'Approved candidate must already satisfy 1600x1600 contract, found {im.size}')
+              print(f'Approved supplied source: {im.format} {im.size} {im.mode}')
+              source_format = im.format
+              rgb = im.convert('RGB')
+              if rgb.size != (1600, 1600):
+                  rgb = rgb.resize((1600, 1600), Image.Resampling.LANCZOS)
+              out = io.BytesIO()
+              rgb.save(out, format='PNG', optimize=True)
+              approved_png = out.getvalue()
 
-          # Preserve the current canonical object before replacement.
+          with Image.open(io.BytesIO(approved_png)) as im:
+              if im.format != 'PNG' or im.size != (1600, 1600):
+                  raise RuntimeError(f'Normalised approved asset failed contract: {im.format} {im.size}')
+
+          s3 = boto3.client('s3', region_name='ca-central-1')
           try:
               current = s3.get_object(Bucket=bucket, Key=canonical_key)['Body'].read()
-          except s3.exceptions.NoSuchKey:
-              current = None
+          except Exception as exc:
+              code = getattr(exc, 'response', {}).get('Error', {}).get('Code')
+              if code in {'NoSuchKey', '404'}:
+                  current = None
+              else:
+                  raise
+
+          approved_sha = hashlib.sha256(approved_png).hexdigest()
           if current:
               current_sha = hashlib.sha256(current).hexdigest()
-              backup_key = (
-                  'processed/reference/party_assets/v1/history/social-democrats/'
-                  f'logo-before-boxed-purple-selected-{current_sha[:12]}.png'
-              )
-              s3.put_object(
-                  Bucket=bucket,
-                  Key=backup_key,
-                  Body=current,
-                  ContentType='image/png',
-                  Metadata={'reason': 'pre-user-approved-boxed-purple-selected-backup'},
-              )
-              print(f'Backed up previous canonical asset to s3://{bucket}/{backup_key}')
+              if current_sha != approved_sha:
+                  backup_key = (
+                      'processed/reference/party_assets/v1/history/social-democrats/'
+                      f'logo-before-user-approved-{current_sha[:12]}.png'
+                  )
+                  s3.put_object(
+                      Bucket=bucket,
+                      Key=backup_key,
+                      Body=current,
+                      ContentType='image/png',
+                      Metadata={'reason': 'pre-user-approved-social-democrats-backup'},
+                  )
+                  print(f'Backed up previous canonical asset to s3://{bucket}/{backup_key}')
 
-          selected_sha = hashlib.sha256(selected).hexdigest()
           s3.put_object(
               Bucket=bucket,
               Key=canonical_key,
-              Body=selected,
+              Body=approved_png,
               ContentType='image/png',
               Metadata={
-                  'approved-variant': 'sd_boxed_purple_selected_v1',
-                  'source-key': selected_key,
-                  'sha256': selected_sha,
                   'approval': 'user-confirmed',
+                  'source': str(source_path),
+                  'source-format': str(source_format or 'unknown'),
+                  'sha256': approved_sha,
                   'promoted-at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
               },
           )
 
           promoted = s3.get_object(Bucket=bucket, Key=canonical_key)['Body'].read()
-          if hashlib.sha256(promoted).hexdigest() != selected_sha:
-              raise RuntimeError('Canonical Social Democrats logo hash does not match approved candidate after upload')
+          promoted_sha = hashlib.sha256(promoted).hexdigest()
+          if promoted_sha != approved_sha:
+              raise RuntimeError('Canonical Social Democrats logo hash differs after S3 upload')
           with Image.open(io.BytesIO(promoted)) as im:
+              im.load()
               if im.format != 'PNG' or im.size != (1600, 1600):
-                  raise RuntimeError(f'Promoted canonical asset failed PNG/1600x1600 validation: {im.format} {im.size}')
+                  raise RuntimeError(f'Promoted canonical asset failed contract: {im.format} {im.size}')
 
-          print(f'PROMOTED_SOCIAL_DEMOCRATS_SOURCE=s3://{bucket}/{selected_key}')
           print(f'PROMOTED_SOCIAL_DEMOCRATS_CANONICAL=s3://{bucket}/{canonical_key}')
-          print(f'PROMOTED_SOCIAL_DEMOCRATS_SHA256={selected_sha}')
+          print(f'PROMOTED_SOCIAL_DEMOCRATS_SHA256={approved_sha}')
           PY
 
       - name: Render all-party July 2026 v2 cover review
