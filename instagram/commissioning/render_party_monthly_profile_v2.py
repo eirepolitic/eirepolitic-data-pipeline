@@ -95,36 +95,10 @@ def _render_cover(path: Path, data: dict, s3, period) -> dict:
 
 
 def _render_chart(path: Path, party: str, period, title_lines: list[str], supporting: str, rows: list[dict], value_mode: str) -> None:
+    # Preserve the exact analytical-slide presentation from the successful
+    # pre-logo July v1 commissioning batch. Do not post-process/re-center the
+    # chart header region in v2; only the cover treatment changes.
     profile._render_chart(path, party, period, title_lines, supporting, rows, value_mode)
-
-    display_party = _display_party_name(party)
-    image = Image.open(path).convert("RGB")
-    draw = ImageDraw.Draw(image)
-    region_top = profile.TITLE_RULE_Y + 5
-    chart_top = profile.CHART_MEDIA_Y + 105
-    draw.rectangle((0, region_top, profile.W, chart_top - 1), fill=profile.BG)
-
-    meta_text = f"{display_party.upper()} · {period.label.upper()}"
-    meta_font = profile._font(22, True)
-    support_font = profile._font(24)
-    meta_box = draw.textbbox((0, 0), meta_text, font=meta_font, anchor="lt")
-    support_box = draw.textbbox((0, 0), supporting, font=support_font, anchor="lt")
-    meta_w = meta_box[2] - meta_box[0]
-    meta_h = meta_box[3] - meta_box[1]
-    support_w = support_box[2] - support_box[0]
-    support_h = support_box[3] - support_box[1]
-    line_gap = 10
-    block_h = meta_h + line_gap + support_h
-    block_top = region_top + ((chart_top - region_top - block_h) // 2)
-    draw.text(((profile.W - meta_w) // 2, block_top), meta_text, font=meta_font, fill=profile.ACCENT, anchor="lt")
-    draw.text(
-        ((profile.W - support_w) // 2, block_top + meta_h + line_gap),
-        supporting,
-        font=support_font,
-        fill=profile.TEXT,
-        anchor="lt",
-    )
-    image.save(path)
 
 
 def main() -> None:
@@ -174,6 +148,7 @@ def main() -> None:
             "source_metrics_project_id": source_run.get("project_id"),
             "party_asset_registry": "configs/reference/party_assets_v1.csv",
             **cover_lineage,
+            "analytical_slide_visual_source": "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
             "slides": [str(path.relative_to(OUTPUT_ROOT)) for path in paths],
             "review_state": "pending_human_review",
             "publication_enabled": False,
@@ -230,6 +205,7 @@ def main() -> None:
         "calculation": source_run["calculation"],
         "presentation_labels": source_run["presentation_labels"],
         "chart_geometry": source_run["chart_geometry"],
+        "analytical_slide_visual_source": "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "cover_title": COVER_TITLE,
         "cover_logo_geometry": {
