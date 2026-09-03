@@ -1,0 +1,328 @@
+{
+  "agreed_rows_before_multi_bill_exclusion": 419,
+  "certified_bill_debate_rows": 396,
+  "certified_distinct_bills": 168,
+  "certified_distinct_sections": 371,
+  "certified_division_sections": 94,
+  "certified_divisions": 168,
+  "certified_speeches": 7352,
+  "conflict_or_partial_rows": 5,
+  "conflicts": [
+    {
+      "bill_debate_id": "bill_debate:ad955c27296da224cb4dbc3a",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/12",
+      "composite": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/dbsect_32",
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation"
+      ],
+      "debate_date": "2026-05-07",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/main",
+      "debate_show_as": "Work Life Balance Bill 2026: First Stage",
+      "heading_matches": [
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/dbsect_33",
+          "dbsect_33"
+        ]
+      ],
+      "source_section_eid": "dbsect_32"
+    },
+    {
+      "bill_debate_id": "bill_debate:d4b83c403facad8e6fbc0c85",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/10",
+      "composite": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/dbsect_33",
+        "Work Life Balance Bill 2026: First Stage"
+      ],
+      "debate_date": "2026-05-07",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/main",
+      "debate_show_as": "Health (Abolition of Three Day Wait Rule) (Amendment) Bill 2026: First Stage",
+      "heading_matches": [
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/dbsect_34",
+          "dbsect_34"
+        ]
+      ],
+      "source_section_eid": "dbsect_33"
+    },
+    {
+      "bill_debate_id": "bill_debate:949e46a1bbabe82ed873d8f9",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/78",
+      "composite": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_38",
+        "Child Care (Amendment) Bill 2025: Second Stage (Resumed)"
+      ],
+      "debate_date": "2026-01-29",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/main",
+      "debate_show_as": "Child Care (Amendment) Bill 2025: Second Stage (Resumed)",
+      "heading_matches": [
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_38",
+          "dbsect_38"
+        ],
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_40",
+          "dbsect_40"
+        ]
+      ],
+      "source_section_eid": "dbsect_38"
+    },
+    {
+      "bill_debate_id": "bill_debate:c29354e5dac7c722670a5ad0",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/78",
+      "composite": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_40",
+        "Child Care (Amendment) Bill 2025: Second Stage (Resumed)"
+      ],
+      "debate_date": "2026-01-29",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/main",
+      "debate_show_as": "Child Care (Amendment) Bill 2025: Second Stage (Resumed)",
+      "heading_matches": [
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_38",
+          "dbsect_38"
+        ],
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/dbsect_40",
+          "dbsect_40"
+        ]
+      ],
+      "source_section_eid": "dbsect_40"
+    },
+    {
+      "bill_debate_id": "bill_debate:9b3065e7b7f3343fac10f48a",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/34",
+      "composite": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_13",
+        "Statement of Estimates for the Houses of the Oireachtas Commission: Motion"
+      ],
+      "debate_date": "2025-09-24",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/main",
+      "debate_show_as": "Criminal Justice (Trespass on Land) Bill 2025: First Stage",
+      "heading_matches": [
+        [
+          "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_12",
+          "dbsect_12"
+        ]
+      ],
+      "source_section_eid": "dbsect_13"
+    }
+  ],
+  "guardrail": "Certify only rows where debate-scoped source section eid and unique exact source heading identify the same section, excluding sections linked to more than one Bill.",
+  "multi_bill_rows": 23,
+  "multi_bill_rows_detail": [
+    {
+      "bill_debate_id": "bill_debate:33342588e7ecca52af6590ed",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/13",
+      "debate_date": "2026-02-04",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/dbsect_12",
+      "debate_show_as": "Harassment, Harmful Communications and Related Offences (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_12"
+    },
+    {
+      "bill_debate_id": "bill_debate:f86d598c66fca0675e7f1427",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/8",
+      "debate_date": "2026-02-04",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/dbsect_12",
+      "debate_show_as": "Harassment, Harmful Communications and Related Offences (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_12"
+    },
+    {
+      "bill_debate_id": "bill_debate:e2fd24d5c9881e2dc07d4f7b",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/21",
+      "debate_date": "2026-03-24",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-24/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-24/debate/dbsect_9",
+      "debate_show_as": "Planning and Development (Material Interest) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_9"
+    },
+    {
+      "bill_debate_id": "bill_debate:452bcc4ceb030f2a7873e785",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/33",
+      "debate_date": "2026-03-24",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-24/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-24/debate/dbsect_9",
+      "debate_show_as": "Planning and Development (Material Interest) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_9"
+    },
+    {
+      "bill_debate_id": "bill_debate:1e89bebceba18904d92f589d",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_date": "2026-05-06",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_10",
+      "debate_show_as": "Criminal Law (Adult Safeguarding) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_10"
+    },
+    {
+      "bill_debate_id": "bill_debate:2bccba251aadf8b7d171f0c2",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_date": "2026-05-06",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_10",
+      "debate_show_as": "Criminal Law (Adult Safeguarding) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_10"
+    },
+    {
+      "bill_debate_id": "bill_debate:a0d86da5ef529fe58eb463b4",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44",
+      "debate_date": "2026-05-06",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_10",
+      "debate_show_as": "Criminal Law (Adult Safeguarding) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_10"
+    },
+    {
+      "bill_debate_id": "bill_debate:6c8158cdde636fe844c7cf4a",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/11",
+      "debate_date": "2026-05-06",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_11",
+      "debate_show_as": "Residential Tenancies (Temporary Prohibition of Termination Notices) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_11"
+    },
+    {
+      "bill_debate_id": "bill_debate:4229e8b958796d1b01eb5b5d",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/45",
+      "debate_date": "2026-05-06",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_11",
+      "debate_show_as": "Residential Tenancies (Temporary Prohibition of Termination Notices) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_11"
+    },
+    {
+      "bill_debate_id": "bill_debate:6d17ddf0545b2b0c71c60f4d",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/22",
+      "debate_date": "2026-06-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_10",
+      "debate_show_as": "School Meals Nutritional Standards Bill 2026: First Stage",
+      "source_section_eid": "dbsect_10"
+    },
+    {
+      "bill_debate_id": "bill_debate:a7754a803e27096f2ce9a13f",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/66",
+      "debate_date": "2026-06-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_10",
+      "debate_show_as": "School Meals Nutritional Standards Bill 2026: First Stage",
+      "source_section_eid": "dbsect_10"
+    },
+    {
+      "bill_debate_id": "bill_debate:d7469b77aba1733d945ea46b",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/22",
+      "debate_date": "2026-06-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_8",
+      "debate_show_as": "Forestry (Critical Infrastructure) (Amendment) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_8"
+    },
+    {
+      "bill_debate_id": "bill_debate:dd77bad2a3fb77e4de4f6360",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/64",
+      "debate_date": "2026-06-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_8",
+      "debate_show_as": "Forestry (Critical Infrastructure) (Amendment) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_8"
+    },
+    {
+      "bill_debate_id": "bill_debate:5a9aac360c6f8e6b0fbeedc6",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/68",
+      "debate_date": "2026-06-17",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/dbsect_14",
+      "debate_show_as": "Health (Amendment) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_14"
+    },
+    {
+      "bill_debate_id": "bill_debate:41632e2a83d2a3f5dd5d88e1",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/67",
+      "debate_date": "2026-06-17",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/dbsect_14",
+      "debate_show_as": "Health (Amendment) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_14"
+    },
+    {
+      "bill_debate_id": "bill_debate:e9271ba7368d283ec35127ea",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26",
+      "debate_date": "2026-06-17",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/dbsect_15",
+      "debate_show_as": "Electricity Regulation (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_15"
+    },
+    {
+      "bill_debate_id": "bill_debate:9ce7a4e3595f5b6269a87e95",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/68",
+      "debate_date": "2026-06-17",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/dbsect_15",
+      "debate_show_as": "Electricity Regulation (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_15"
+    },
+    {
+      "bill_debate_id": "bill_debate:2eb899f6ea921fdb4b5e5c89",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/21",
+      "debate_date": "2026-07-02",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_33",
+      "debate_show_as": "Prevention of Energy Wastage Bill 2026: First Stage",
+      "source_section_eid": "dbsect_33"
+    },
+    {
+      "bill_debate_id": "bill_debate:6deffda0749241eed5c141ef",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/78",
+      "debate_date": "2026-07-02",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_33",
+      "debate_show_as": "Prevention of Energy Wastage Bill 2026: First Stage",
+      "source_section_eid": "dbsect_33"
+    },
+    {
+      "bill_debate_id": "bill_debate:e0177b0bea86d54283870597",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63",
+      "debate_date": "2026-07-09",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_35",
+      "debate_show_as": "Defence (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_35"
+    },
+    {
+      "bill_debate_id": "bill_debate:f3b0a350153ec2395b48105f",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/80",
+      "debate_date": "2026-07-09",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_35",
+      "debate_show_as": "Defence (Amendment) (No. 2) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_35"
+    },
+    {
+      "bill_debate_id": "bill_debate:3df379fd28579eaec58234e1",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/60",
+      "debate_date": "2026-07-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/dbsect_35",
+      "debate_show_as": "Electoral (Postal Voting) (Carers) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_35"
+    },
+    {
+      "bill_debate_id": "bill_debate:59d5c5b35089b7601662da14",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/81",
+      "debate_date": "2026-07-16",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/main",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-16/debate/dbsect_35",
+      "debate_show_as": "Electoral (Postal Voting) (Carers) Bill 2026: First Stage",
+      "source_section_eid": "dbsect_35"
+    }
+  ],
+  "multi_bill_sections": 11,
+  "no_current_section_match_rows": 798,
+  "production_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "year_counts": {
+    "2025": 183,
+    "2026": 213
+  }
+}
