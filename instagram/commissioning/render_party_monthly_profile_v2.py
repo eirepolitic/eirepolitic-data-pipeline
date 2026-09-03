@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -25,6 +26,11 @@ SOURCE_ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_
 OUTPUT_ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v2/period={PERIOD}")
 EXPECTED_PARTY_COUNT = 11
 EXPECTED_SLIDE_COUNT = 55
+BAR_CHART_SLIDES = (
+    "02_most_discussed_issues.png",
+    "03_more_than_average.png",
+    "04_more_per_td.png",
+)
 
 
 def _render_cover(path: Path, data: dict, s3, period) -> dict:
@@ -94,11 +100,14 @@ def _render_cover(path: Path, data: dict, s3, period) -> dict:
     }
 
 
-def _render_chart(path: Path, party: str, period, title_lines: list[str], supporting: str, rows: list[dict], value_mode: str) -> None:
-    # Preserve the exact analytical-slide presentation from the successful
-    # pre-logo July v1 commissioning batch. Do not post-process/re-center the
-    # chart header region in v2; only the cover treatment changes.
-    profile._render_chart(path, party, period, title_lines, supporting, rows, value_mode)
+def _copy_successful_pre_logo_charts(source_party_dir: Path, target_slides_dir: Path) -> None:
+    target_slides_dir.mkdir(parents=True, exist_ok=True)
+    for slide_name in BAR_CHART_SLIDES:
+        source = source_party_dir / "slides" / slide_name
+        target = target_slides_dir / slide_name
+        if not source.exists():
+            raise RuntimeError(f"Missing successful pre-logo analytical slide: {source}")
+        shutil.copy2(source, target)
 
 
 def main() -> None:
@@ -126,6 +135,7 @@ def main() -> None:
         source = json.loads(source_manifest_path.read_text(encoding="utf-8"))
         party = str(source["party"])
         key = str(source["party_key"])
+        source_party_dir = source_manifest_path.parent
         slides_dir = OUTPUT_ROOT / "parties" / key / "slides"
         paths = [
             slides_dir / "01_cover.png",
@@ -136,9 +146,7 @@ def main() -> None:
         ]
 
         cover_lineage = _render_cover(paths[0], source, s3, period)
-        _render_chart(paths[1], party, period, ["Most Discussed Issues"], "Total classified speeches", source["raw_counts"], "count")
-        _render_chart(paths[2], party, period, ["Issues Discussed", "More Than Average"], "Compared with the average party", source["share_vs_average"], "share_pp")
-        _render_chart(paths[3], party, period, ["Issues Discussed", "More Per TD"], "Adjusted for party size", source["per_td_vs_average"], "per_td")
+        _copy_successful_pre_logo_charts(source_party_dir, slides_dir)
         profile._render_glossary(paths[4])
 
         manifest = {
@@ -148,7 +156,7 @@ def main() -> None:
             "source_metrics_project_id": source_run.get("project_id"),
             "party_asset_registry": "configs/reference/party_assets_v1.csv",
             **cover_lineage,
-            "analytical_slide_visual_source": "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+            "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
             "slides": [str(path.relative_to(OUTPUT_ROOT)) for path in paths],
             "review_state": "pending_human_review",
             "publication_enabled": False,
@@ -205,7 +213,7 @@ def main() -> None:
         "calculation": source_run["calculation"],
         "presentation_labels": source_run["presentation_labels"],
         "chart_geometry": source_run["chart_geometry"],
-        "analytical_slide_visual_source": "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+        "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "cover_title": COVER_TITLE,
         "cover_logo_geometry": {
