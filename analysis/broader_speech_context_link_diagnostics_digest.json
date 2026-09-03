@@ -1,0 +1,1495 @@
+{
+  "bill_link_diagnostics": {
+    "bill_debate_uri_to_debate_record_uri_overlap": 134,
+    "bill_rows": 1222,
+    "bill_section_to_silver_section_eid_overlap": 64,
+    "bill_section_to_silver_section_id_overlap": 0,
+    "bill_section_to_silver_section_uri_overlap": 0,
+    "bill_section_to_speech_section_id_overlap": 0,
+    "direct_bill_debate_id_to_speech_debate_id_overlap": 134,
+    "distinct_bill_debate_ids": 652,
+    "distinct_bill_debate_uris": 652,
+    "distinct_bill_ids": 399,
+    "distinct_bill_section_ids": 64,
+    "unique_same_debate_show_as_linked_speeches": 7413,
+    "unique_same_debate_show_as_section_matches": 382,
+    "uri_bridge_debate_id_count": 134,
+    "uri_bridge_section_count": 3821,
+    "uri_bridge_speech_count": 55722
+  },
+  "bill_samples": [
+    {
+      "bill_debate_id": "bill_debate:8ea8ceba1621ebed0eadf9f7",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "bill_debate_section_id": "dbsect_18",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+      "debate_date": "2026-07-09",
+      "debate_show_as": "Planning and Development (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:76d7cd261d21299558fc6589",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "bill_debate_section_id": "dbsect_39",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+      "debate_date": "2026-07-08",
+      "debate_show_as": "Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main"
+      ],
+      "mapped_debate_section_count": 22,
+      "mapped_debate_speech_count": 404,
+      "mapped_headings": {
+        "A Place Called Home for Adults with an Intellectual Disability: Motion [Private Members]": 47,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht \u2013 Questions on Policy or Legislation": 75,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 57,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 6,
+        "Childcare Services": 4,
+        "Childcare Services: Motion (Resumed) [Private Members]": 1,
+        "Civil Liability (Child Sexual Abuse Proceedings Against Unincorporated Bodies of Persons) Bill 2025: Second Stage (Resumed) [Private Members]": 1,
+        "Cost of Living: Motion (Resumed) [Private Members]": 1,
+        "Disability Services": 8,
+        "Finance Bill 2026: From the Seanad": 10,
+        "Garda S\u00edoch\u00e1na (Recording Devices) (Amendment) Bill 2025: From the Seanad": 8,
+        "Hospital Services": 4,
+        "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Report and Final Stages": 92,
+        "Information and Communications Technology": 4,
+        "Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages": 45,
+        "Post-European Council Meeting: Statements": 33,
+        "Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages": 3,
+        "Teachtaireacht \u00f3n Seanad - Message from Seanad": 1,
+        "Teachtaireachta\u00ed \u00f3n Seanad - Messages from Seanad": 1,
+        "\u00c1bhair Shaincheisteanna Tr\u00e1th\u00fala - Topical Issue Matters": 1
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:c494262c57dd569f3e4c1755",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main",
+      "bill_debate_section_id": "dbsect_34",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+      "debate_date": "2026-07-02",
+      "debate_show_as": "Planning and Development (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main"
+      ],
+      "mapped_debate_section_count": 35,
+      "mapped_debate_speech_count": 318,
+      "mapped_headings": {
+        "Animal Health and Welfare (Ban on Hare Coursing) Bill 2020: Second Stage [Private Members]": 39,
+        "Apprenticeship Programmes": 18,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 42,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 39,
+        "EU Membership": 6,
+        "Education and Training Provision": 12,
+        "Foreign Conflicts": 6,
+        "Further and Higher Education": 6,
+        "Humanitarian Aid": 12,
+        "Irish Prisoners Abroad": 10,
+        "Middle East": 12,
+        "Northern Ireland": 7,
+        "Overseas Development Aid": 6,
+        "Planning and Development (Amendment) Bill 2026: Second Stage": 18,
+        "Research Funding": 9,
+        "Sports Events": 8,
+        "Technological Universities": 12,
+        "Third Level Education": 12,
+        "Third Level Fees": 8,
+        "Transport Infrastructure Ireland": 7
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:b85a7084330b5dcca441f877",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main",
+      "bill_debate_section_id": "dbsect_37",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74",
+      "debate_date": "2026-07-09",
+      "debate_show_as": "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main"
+      ],
+      "mapped_debate_section_count": 39,
+      "mapped_debate_speech_count": 324,
+      "mapped_headings": {
+        "Agriculture Supports": 12,
+        "Animal Breeding": 12,
+        "Bord Bia": 18,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 43,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 19,
+        "Common Agricultural Policy": 12,
+        "Defective Building Materials": 6,
+        "Dementia: Statements": 30,
+        "Food Industry": 12,
+        "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage": 9,
+        "Health Services Staff": 8,
+        "Health Services Waiting Lists": 8,
+        "Horticulture Sector": 6,
+        "Hospital Facilities": 12,
+        "Hospital Waiting Lists": 11,
+        "Inshore Fisheries": 6,
+        "Mental Health Services": 8,
+        "Oireachtas Committees": 8,
+        "Road Safety": 11,
+        "Social Housing Passport Bill 2026: Second Stage [Private Members]": 12
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:5a96cf84a1f5fb989290d63f",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "bill_debate_section_id": "dbsect_14",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/71",
+      "debate_date": "2026-07-08",
+      "debate_show_as": "Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main"
+      ],
+      "mapped_debate_section_count": 22,
+      "mapped_debate_speech_count": 404,
+      "mapped_headings": {
+        "A Place Called Home for Adults with an Intellectual Disability: Motion [Private Members]": 47,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht \u2013 Questions on Policy or Legislation": 75,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 57,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 6,
+        "Childcare Services": 4,
+        "Childcare Services: Motion (Resumed) [Private Members]": 1,
+        "Civil Liability (Child Sexual Abuse Proceedings Against Unincorporated Bodies of Persons) Bill 2025: Second Stage (Resumed) [Private Members]": 1,
+        "Cost of Living: Motion (Resumed) [Private Members]": 1,
+        "Disability Services": 8,
+        "Finance Bill 2026: From the Seanad": 10,
+        "Garda S\u00edoch\u00e1na (Recording Devices) (Amendment) Bill 2025: From the Seanad": 8,
+        "Hospital Services": 4,
+        "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Report and Final Stages": 92,
+        "Information and Communications Technology": 4,
+        "Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages": 45,
+        "Post-European Council Meeting: Statements": 33,
+        "Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages": 3,
+        "Teachtaireacht \u00f3n Seanad - Message from Seanad": 1,
+        "Teachtaireachta\u00ed \u00f3n Seanad - Messages from Seanad": 1,
+        "\u00c1bhair Shaincheisteanna Tr\u00e1th\u00fala - Topical Issue Matters": 1
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:456c29aa5914ff028c5512c0",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/main",
+      "bill_debate_section_id": "dbsect_17",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/71",
+      "debate_date": "2026-07-07",
+      "debate_show_as": "Postal and Telecommunications Services (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/main"
+      ],
+      "mapped_debate_section_count": 31,
+      "mapped_debate_speech_count": 334,
+      "mapped_headings": {
+        "An tOrd Gn\u00f3 - Order of Business": 47,
+        "Artificial Intelligence": 8,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 42,
+        "Departmental Expenditure": 14,
+        "Departmental Funding": 7,
+        "Departmental Strategies": 6,
+        "EU Regulation: Motion": 6,
+        "Flood Relief Schemes": 7,
+        "Harbours and Piers": 4,
+        "Information and Communications Technology": 5,
+        "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Report and Final Stages": 39,
+        "National Development Plan": 22,
+        "Planning for Constitutional Change Bill 2026: Second Stage [Private Members]": 54,
+        "Postal and Telecommunications Services (Amendment) Bill 2026: Second Stage": 24,
+        "Public Expenditure Policy": 5,
+        "Public Procurement Contracts": 7,
+        "Public Sector Pay": 5,
+        "School Accommodation": 8,
+        "Strategic Infrastructure": 13,
+        "Turf Cutting": 4
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:90be6ad8e349ee1623b98346",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "bill_debate_section_id": "dbsect_19",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_date": "2026-07-09",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Committee Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:a7b999daae49e58462c836e3",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-01/debate/main",
+      "bill_debate_section_id": "dbsect_10",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_date": "2026-07-01",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-01/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:2d93bbedf2dbb715829c6274",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/main",
+      "bill_debate_section_id": "dbsect_41",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_date": "2026-06-30",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/main"
+      ],
+      "mapped_debate_section_count": 12,
+      "mapped_debate_speech_count": 364,
+      "mapped_headings": {
+        "An tOrd Gn\u00f3 - Order of Business": 67,
+        "Cabinet Committees": 21,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 72,
+        "Childcare Services: Motion [Private Members]": 43,
+        "Development (Strategic Gas Reserve) Bill 2026: Committee and Remaining Stages": 52,
+        "Dublin Airport (Passenger Capacity) Bill 2026: Committee and Remaining Stages": 36,
+        "Estimates for Public Services 2026": 1,
+        "Regulation of Artificial Intelligence Bill 2026: Committee and Remaining Stages": 45,
+        "Seller's Legal Pack for Property Buyers Bill 2021: Restoration to Order Paper": 1,
+        "Taoiseach's Meetings and Engagements": 24,
+        "Teachtaireacht \u00f3n Seanad - Message from Seanad": 1,
+        "Thirteenth Report of the Standing Committee of Selection: Motion": 1
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:ff7bb623c529a1fae626fc1c",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/main",
+      "bill_debate_section_id": "dbsect_21",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_date": "2026-06-24",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/main",
+      "mapped_debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/main"
+      ],
+      "mapped_debate_section_count": 22,
+      "mapped_debate_speech_count": 410,
+      "mapped_headings": {
+        "British-Irish Co-operation": 57,
+        "Bus Services": 4,
+        "Cabinet Committees": 55,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 75,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 37,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 10,
+        "Early Childhood Care and Education": 4,
+        "Hospital Services": 4,
+        "Job Losses": 8,
+        "Message from Select Committee": 2,
+        "Messages from Select Committee": 1,
+        "National Treasury Management Agency (Miscellaneous Provisions) Bill 2026: Report Stage": 33,
+        "Offences Against the State (Amendment) Act 1998 and Criminal Justice (Amendment) Act 2009: Motions (Resumed)": 1,
+        "Planning Issues": 4,
+        "Pride: Statements": 37,
+        "Public Health (Tobacco Products and Nicotine Inhaling Products) (Amendment) Bill 2026: Report and Final Stages": 16,
+        "Regulation of Artificial Intelligence Bill 2026: Second Stage": 30,
+        "State Responsibility for Foundation Retention Risk in Defective Concrete Homes: Motion [Private Members]": 29,
+        "Teachtaireacht \u00f3n Seanad - Message from Seanad": 1,
+        "\u00c1bhair Shaincheisteanna Tr\u00e1th\u00fala - Topical Issue Matters": 1
+      }
+    },
+    {
+      "bill_debate_id": "bill_debate:ff4516db74095350a9aa27a8",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-25/debate/main",
+      "bill_debate_section_id": "dbsect_15",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/62",
+      "debate_date": "2026-06-25",
+      "debate_show_as": "Domestic Violence Judgments Register Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-25/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:858ba185c7f1396a02b02a3c",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-16/debate/main",
+      "bill_debate_section_id": "dbsect_10",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/62",
+      "debate_date": "2026-06-16",
+      "debate_show_as": "Domestic Violence Judgments Register Bill 2026: Order for Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-16/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:68495295fbfa4d4f4d103403",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-16/debate/main",
+      "bill_debate_section_id": "dbsect_11",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/62",
+      "debate_date": "2026-06-16",
+      "debate_show_as": "Domestic Violence Judgments Register Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-16/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:38cef2ad869a2acd5fd8c560",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-10/debate/main",
+      "bill_debate_section_id": "dbsect_11",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/60",
+      "debate_date": "2026-06-10",
+      "debate_show_as": "Electoral (Amendment) (Voting Age) Bill 2026: First Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-06-10/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    },
+    {
+      "bill_debate_id": "bill_debate:759eb577cba1018d18083eca",
+      "bill_debate_id_value": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "bill_debate_section_id": "dbsect_29",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+      "debate_date": "2026-07-09",
+      "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/seanad/2026-07-09/debate/main",
+      "mapped_debate_ids": [],
+      "mapped_debate_section_count": 0,
+      "mapped_debate_speech_count": 0,
+      "mapped_headings": {}
+    }
+  ],
+  "candidate_profiles": {
+    "leaders_questions": {
+      "sample_sections": [
+        {
+          "debate_date": "2025-03-25",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-25/debate/dbsect_2",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 423
+        },
+        {
+          "debate_date": "2025-03-26",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-26/debate/dbsect_9",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 313
+        },
+        {
+          "debate_date": "2025-06-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_2",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 217
+        },
+        {
+          "debate_date": "2025-02-27",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-27/debate/dbsect_32",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 186
+        },
+        {
+          "debate_date": "2025-10-08",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-08/debate/dbsect_18",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 179
+        },
+        {
+          "debate_date": "2026-05-20",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-20/debate/dbsect_11",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 164
+        },
+        {
+          "debate_date": "2025-02-12",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-12/debate/dbsect_9",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 158
+        },
+        {
+          "debate_date": "2026-04-29",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-29/debate/dbsect_12",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 151
+        },
+        {
+          "debate_date": "2025-03-19",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-19/debate/dbsect_2",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 142
+        },
+        {
+          "debate_date": "2025-02-18",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-18/debate/dbsect_3",
+          "section_heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+          "speech_count": 134
+        }
+      ],
+      "section_count": 159,
+      "speech_count": 10822,
+      "top_headings": {
+        "Ceisteanna \u00f3 Cheannair\u00ed (At\u00f3g\u00e1il) - Leaders' Questions (Resumed)": 119,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 10702,
+        "Report on Standing Orders and D\u00e1il Reform on Rota for Leaders\u2019 Questions Pursuant to Standing Order 38: Motion": 1
+      },
+      "years": {
+        "2025": 6801,
+        "2026": 4021
+      }
+    },
+    "motions": {
+      "sample_sections": [
+        {
+          "debate_date": "2026-04-14",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-14/debate/dbsect_8",
+          "section_heading": "Confidence in Government: Motion",
+          "speech_count": 520
+        },
+        {
+          "debate_date": "2025-04-01",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-01/debate/dbsect_13",
+          "section_heading": "Confidence in the Ceann Comhairle: Motion",
+          "speech_count": 342
+        },
+        {
+          "debate_date": "2026-02-04",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/dbsect_19",
+          "section_heading": "Bord Bia: Motion [Private Members]",
+          "speech_count": 275
+        },
+        {
+          "debate_date": "2025-10-15",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-15/debate/dbsect_18",
+          "section_heading": "Confidence in the T\u00e1naiste and Minister for Foreign Affairs and Trade: Motion",
+          "speech_count": 176
+        },
+        {
+          "debate_date": "2026-03-18",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/dbsect_9",
+          "section_heading": "Energy and Fuel Costs: Motion [Private Members]",
+          "speech_count": 159
+        },
+        {
+          "debate_date": "2026-05-06",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_14",
+          "section_heading": "Dublin City Flat Complex Retrofit and Regeneration: Motion [Private Members]",
+          "speech_count": 149
+        },
+        {
+          "debate_date": "2025-09-24",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_8",
+          "section_heading": "Child Poverty and Homelessness: Motion [Private Members]",
+          "speech_count": 130
+        },
+        {
+          "debate_date": "2025-11-18",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-18/debate/dbsect_16",
+          "section_heading": "Mercosur Trade Agreement: Motion [Private Members]",
+          "speech_count": 126
+        },
+        {
+          "debate_date": "2026-06-09",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/dbsect_18",
+          "section_heading": "Stop the Game Campaign and FAI Participation in Matches against Israel: Motion [Private Members]",
+          "speech_count": 101
+        },
+        {
+          "debate_date": "2025-06-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_16",
+          "section_heading": "Vacant Council Housing: Motion [Private Members]",
+          "speech_count": 96
+        }
+      ],
+      "section_count": 294,
+      "speech_count": 6821,
+      "top_headings": {
+        "A Place Called Home for Adults with an Intellectual Disability: Motion [Private Members]": 47,
+        "Abolition of Carer's Allowance Means Test: Motion [Private Members]": 40,
+        "An Garda S\u00edoch\u00e1na: Motion [Private Members]": 42,
+        "Antisocial Behaviour: Motion [Private Members]": 41,
+        "Assessment of Need: Motion [Private Members]": 36,
+        "Assessment of Needs: Motion [Private Members]": 39,
+        "Ban on Investment Funds Purchasing Family Homes: Motion [Private Members]": 50,
+        "Blister Packs: Motion [Private Members]": 60,
+        "Bord Bia: Motion [Private Members]": 275,
+        "Cancer Services: Motion [Private Members]": 44,
+        "Child Poverty and Homelessness: Motion [Private Members]": 130,
+        "Childcare Services: Motion [Private Members]": 43,
+        "Childcare: Motion [Private Members]": 41,
+        "Civil Law (Miscellaneous Provisions) Act 2021: Motion": 49,
+        "Civil Law (Miscellaneous Provisions) Act 2022 (Section 4(2)) (Scheme Termination Date) Order 2026: Motion": 39,
+        "Commission of Investigation (Handling of Historical Child Sexual Abuse in Day and Boarding Schools) Order 2025: Motion": 35,
+        "Confidence in Government: Motion": 520,
+        "Confidence in the Ceann Comhairle: Motion": 342,
+        "Confidence in the T\u00e1naiste and Minister for Foreign Affairs and Trade: Motion": 176,
+        "Cost of Disability: Motion [Private Members]": 62,
+        "Cost of Living Mini-Budget: Motion [Private Members]": 65,
+        "Cost of Living: Motion [Private Members]": 32,
+        "Cost of Motoring: Motion [Private Members]": 46,
+        "Data Centres, Energy Use and Climate Change: Motion [Private Members]": 43,
+        "Decriminalisation of People Who Use Drugs: Motion [Private Members]": 33
+      },
+      "years": {
+        "2025": 3927,
+        "2026": 2894
+      }
+    },
+    "oral_question_exchange": {
+      "sample_sections": [
+        {
+          "debate_date": "2025-11-26",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-26/debate/dbsect_16",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 98
+        },
+        {
+          "debate_date": "2026-02-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-10/debate/dbsect_10",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 92
+        },
+        {
+          "debate_date": "2025-07-15",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-15/debate/dbsect_11",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 86
+        },
+        {
+          "debate_date": "2026-02-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-10/debate/dbsect_11",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 81
+        },
+        {
+          "debate_date": "2025-10-02",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-02/debate/dbsect_6",
+          "section_heading": "Arts Funding",
+          "speech_count": 81
+        },
+        {
+          "debate_date": "2026-06-16",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-16/debate/dbsect_16",
+          "section_heading": "Taoiseach's Meetings and Engagements",
+          "speech_count": 77
+        },
+        {
+          "debate_date": "2026-01-13",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-13/debate/dbsect_11",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 73
+        },
+        {
+          "debate_date": "2025-12-03",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-03/debate/dbsect_15",
+          "section_heading": "Official Engagements",
+          "speech_count": 70
+        },
+        {
+          "debate_date": "2025-09-17",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-17/debate/dbsect_13",
+          "section_heading": "Cabinet Committees",
+          "speech_count": 68
+        },
+        {
+          "debate_date": "2025-12-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-10/debate/dbsect_14",
+          "section_heading": "National Security",
+          "speech_count": 66
+        }
+      ],
+      "section_count": 2127,
+      "speech_count": 18485,
+      "top_headings": {
+        "Agriculture Industry": 77,
+        "Agriculture Schemes": 55,
+        "Agriculture Supports": 54,
+        "Air Corps": 71,
+        "An Garda S\u00edoch\u00e1na": 175,
+        "Animal Diseases": 97,
+        "Apprenticeship Programmes": 84,
+        "Artificial Intelligence": 139,
+        "Arts Funding": 147,
+        "Banking Sector": 65,
+        "British-Irish Co-operation": 84,
+        "Bus Services": 157,
+        "Business Supports": 99,
+        "Cabinet Committees": 1819,
+        "Cancer Services": 63,
+        "Central Bank of Ireland": 53,
+        "Child Poverty": 64,
+        "Child and Family Agency": 66,
+        "Childcare Services": 245,
+        "Climate Action Plan": 80,
+        "Common Agricultural Policy": 71,
+        "Community Development Projects": 78,
+        "Data Centres": 58,
+        "Defective Building Materials": 52,
+        "Defence Forces": 386
+      },
+      "years": {
+        "2025": 10811,
+        "2026": 7674
+      }
+    },
+    "procedural_business": {
+      "sample_sections": [
+        {
+          "debate_date": "2025-03-19",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-19/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 164
+        },
+        {
+          "debate_date": "2025-07-15",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-15/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 163
+        },
+        {
+          "debate_date": "2025-07-08",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-08/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 139
+        },
+        {
+          "debate_date": "2025-06-24",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-24/debate/dbsect_4",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 135
+        },
+        {
+          "debate_date": "2025-09-30",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-30/debate/dbsect_5",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 132
+        },
+        {
+          "debate_date": "2026-02-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-10/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 131
+        },
+        {
+          "debate_date": "2025-04-01",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-01/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 123
+        },
+        {
+          "debate_date": "2025-05-13",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-13/debate/dbsect_4",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 123
+        },
+        {
+          "debate_date": "2025-02-25",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-25/debate/dbsect_4",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 117
+        },
+        {
+          "debate_date": "2026-03-03",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-03/debate/dbsect_3",
+          "section_heading": "An tOrd Gn\u00f3 - Order of Business",
+          "speech_count": 114
+        }
+      ],
+      "section_count": 59,
+      "speech_count": 4711,
+      "top_headings": {
+        "An tOrd Gn\u00f3 (At\u00f3g\u00e1il) - Order of Business (Resumed)": 46,
+        "An tOrd Gn\u00f3 - Order of Business": 4531,
+        "An tOrd Gn\u00f3 - Order of Business (Resumed)": 58,
+        "Ceisteanna ar Reachta\u00edocht a Gealladh - Questions on Promised Legislation": 75,
+        "Sittings and Business of the D\u00e1il: Motion": 1
+      },
+      "years": {
+        "2025": 2973,
+        "2026": 1738
+      }
+    },
+    "statements": {
+      "sample_sections": [
+        {
+          "debate_date": "2025-10-07",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-07/debate/dbsect_3",
+          "section_heading": "Budget Statement 2026",
+          "speech_count": 174
+        },
+        {
+          "debate_date": "2026-01-14",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-14/debate/dbsect_13",
+          "section_heading": "Post European Council Meeting: Statements",
+          "speech_count": 119
+        },
+        {
+          "debate_date": "2025-03-20",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-20/debate/dbsect_36",
+          "section_heading": "International Security and International Trade: Statements",
+          "speech_count": 102
+        },
+        {
+          "debate_date": "2025-05-21",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-21/debate/dbsect_18",
+          "section_heading": "Gaza: Statements",
+          "speech_count": 96
+        },
+        {
+          "debate_date": "2025-06-10",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_15",
+          "section_heading": "Housing: Statements",
+          "speech_count": 95
+        },
+        {
+          "debate_date": "2025-03-05",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-05/debate/dbsect_11",
+          "section_heading": "Policing and Community Safety: Statements (Resumed)",
+          "speech_count": 87
+        },
+        {
+          "debate_date": "2025-07-09",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-09/debate/dbsect_14",
+          "section_heading": "Post-European Council: Statements",
+          "speech_count": 87
+        },
+        {
+          "debate_date": "2026-01-21",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-21/debate/dbsect_13",
+          "section_heading": "International Developments: Statements",
+          "speech_count": 83
+        },
+        {
+          "debate_date": "2025-05-20",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-20/debate/dbsect_16",
+          "section_heading": "Assessment of Need: Statements",
+          "speech_count": 79
+        },
+        {
+          "debate_date": "2025-03-26",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-26/debate/dbsect_11",
+          "section_heading": "Post European Council Meeting: Statements",
+          "speech_count": 76
+        }
+      ],
+      "section_count": 125,
+      "speech_count": 5081,
+      "top_headings": {
+        "All-Island Strategic Rail Review: Statements (Resumed)": 40,
+        "Apology Related to Childhood Abuse (Hunger Strikers): Statements": 32,
+        "Apology following the publication of the Report of the South East Commission of Investigation: Statements": 22,
+        "Apology to Shane O'Farrell and his Family: Statements": 29,
+        "Artificial Intelligence: Statements": 34,
+        "Assessment of Need: Statements": 79,
+        "Auto-Enrolment: Statements": 38,
+        "Biodiversity Week: Statements": 30,
+        "Bluetongue: Statements": 19,
+        "Budget Statement 2026": 174,
+        "Children's Health Ireland: Statements": 61,
+        "Common Agricultural Policy and Ireland's CAP Strategic Plan: Statements": 29,
+        "Community Pharmacy Agreement: Statements": 17,
+        "Delivering a World-Class Education System: Statements": 27,
+        "Dementia: Statements": 30,
+        "Development at Bessborough: Statements": 17,
+        "Disability: Statements": 46,
+        "Diverting Young People from Criminal Activity: Statements": 32,
+        "Diverting Young People from Criminal Activity: Statements (Resumed)": 29,
+        "Domestic, Sexual and Gender-Based Violence: Statements": 33,
+        "Driving Test Wait Times: Statements": 69,
+        "Energy Costs: Statements": 48,
+        "Ensuring our Skills, Training and Innovation Systems Keep Pace in a Changing World: Statements (Resumed)": 39,
+        "Europe Day: Statements": 103,
+        "Fiscal Implications of a United Ireland: Statements": 39
+      },
+      "years": {
+        "2025": 3522,
+        "2026": 1559
+      }
+    }
+  },
+  "guardrails": [
+    "silver_speeches exposes debate_id and debate_section_id, not source_debate_uri; URI analysis must bridge through silver_debate_records.",
+    "A bill debate URI that maps to a whole sitting/debate cannot by itself label every speech in that debate as legislation.",
+    "Exact same-debate heading matches are diagnostics until source semantics and false positives are manually reviewed.",
+    "Heading term matches are diagnostics only; ambiguous cases remain other."
+  ],
+  "heading_discovery": {
+    "bill_stage_terms": {
+      "Air Pollution (Amendment) Bill 2025 [Seanad]: Second Stage": 16,
+      "Aircraft Noise (Dublin Airport) Regulation (Transfer of Functions) Bill 2024: Second Stage [Private Members]": 10,
+      "Animal Health and Welfare (Ban on Fox Hunting) Bill 2025: First Stage": 14,
+      "Animal Health and Welfare (Ban on Fox Hunting) Bill 2025: Second Stage [Private Members]": 118,
+      "Animal Health and Welfare (Ban on Hare Coursing) Bill 2020: Second Stage [Private Members]": 39,
+      "Animal Health and Welfare (Welfare of Pigs) Bill 2025: First Stage": 30,
+      "Appropriation Bill 2025: Committee and Remaining Stages": 13,
+      "Appropriation Bill 2025: Second Stage": 18,
+      "Arbitration (Amendment) Bill 2025: Report and Final Stages": 48,
+      "Arbitration (Amendment) Bill 2025: Second Stage": 40,
+      "Arts (Recognition of Comedy) (Amendment) Bill 2024: Second Stage [Private Members]": 12,
+      "Assisted Decision-Making (Capacity) (Amendment) Bill 2026: Report and Final Stages": 16,
+      "Assisted Decision-Making (Capacity) (Amendment) Bill 2026: Second Stage (Resumed)": 12,
+      "Bille na dTeangacha Oifigi\u00fala (Ceart chun an Ghaeilge a \u00das\u00e1id) (Leas\u00fa), 2026: An Ch\u00e9ad Ch\u00e9im": 8,
+      "Broadcasting (Amendment) Bill 2026: Second Stage": 26,
+      "Broadcasting (Oversight of RT\u00c9 Accounts) (Amendment) Bill 2024: Second Stage [Private Members]": 11,
+      "Building Energy Rating (BER) Standards for Private Rented Accommodation Bill 2025: Second Stage [Private Members]": 8,
+      "Central Bank (Amendment) Bill 2025: Instruction to Committee": 7,
+      "Central Bank (Amendment) Bill 2025: Second Stage [Private Members]": 9,
+      "Child Care (Amendment) Bill 2025: Second Stage": 20,
+      "Child Care (Amendment) Bill 2025: Second Stage (Resumed)": 18,
+      "Children\u2019s Health (Ospid\u00e9al N\u00e1isi\u00fanta Kathleen Lynn do Leana\u00ed) (Amendment) Bill 2025: First Stage": 9,
+      "Civil Liability (Child Sexual Abuse Proceedings Against Unincorporated Bodies of Persons) Bill 2025: Second Stage [Private Members]": 11,
+      "Commission on the Future of the Family Farm Bill 2024: Second Stage [Private Members]": 7,
+      "Competition and Consumer Protection (Unfair Prices) Bill 2023: Second Stage [Private Members]": 12,
+      "Comptroller and Auditor General (Due Diligence Complicity Audit) (Amendment) Bill 2026: First Stage": 11,
+      "Compulsory Purchase Order Bill 2025: First Stage": 7,
+      "Copyright and Related Rights (Amendment) Bill 2025: Report and Final Stages": 33,
+      "Copyright and Related Rights (Amendment) Bill 2025: Second Stage": 8,
+      "Coroners (Amendment) Bill 2025: First Stage": 7,
+      "Courts and Civil Law (Miscellaneous Provisions) Bill 2025: Second Stage": 9,
+      "Criminal Justice (International Cooperation on Electronic Evidence and Other Matters) Bill 2026: Committee and Remaining Stages": 47,
+      "Criminal Justice (International Cooperation on Electronic Evidence and Other Matters) Bill 2026: Second Stage": 20,
+      "Criminal Justice (Promotion of Restorative Justice) (Amendment) Bill 2023: Second Stage [Private Members]": 9,
+      "Criminal Justice (Rehabilitative Periods) Bill 2018 [Seanad]: Second Stage [Private Members]": 7
+    },
+    "business_terms": {
+      "An tOrd Gn\u00f3 (At\u00f3g\u00e1il) - Order of Business (Resumed)": 46,
+      "An tOrd Gn\u00f3 - Order of Business": 4531,
+      "An tOrd Gn\u00f3 - Order of Business (Resumed)": 58,
+      "Business Regulation": 16,
+      "Business Supports": 107,
+      "Ceisteanna ar Reachta\u00edocht a Gealladh - Questions on Promised Legislation": 75,
+      "Gn\u00f3 na D\u00e1la - Business of D\u00e1il": 357,
+      "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Committee and Remaining Stages": 22,
+      "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage": 9,
+      "Message from the Standing Business Committee of D\u00e1il \u00c9ireann": 1,
+      "Sittings and Business of the D\u00e1il: Motion": 1,
+      "Support for Householders, Businesses and Farmers Affected by Storm \u00c9owyn: Motion (Resumed) [Private Members]": 1,
+      "Support for Householders, Businesses and Farmers Affected by Storm \u00c9owyn: Motion [Private Members]": 29
+    },
+    "motion_terms": {
+      "A Place Called Home for Adults with an Intellectual Disability: Motion [Private Members]": 47,
+      "Abolition of Carer's Allowance Means Test: Motion [Private Members]": 40,
+      "Agreements on Transfer of Passenger Name Record Data: Motions": 6,
+      "Amendments to Standing Orders: Motion": 3,
+      "An Garda S\u00edoch\u00e1na: Motion [Private Members]": 42,
+      "Antisocial Behaviour: Motion [Private Members]": 41,
+      "Appointment of Ordinary Member of the Houses of the Oireachtas Commission: Motion": 2,
+      "Approval by D\u00e1il \u00c9ireann of the Convention Establishing an International Claims Commission for Ukraine: Motion": 7,
+      "Arrangements for Parliamentary Questions: Motion": 2,
+      "Article 20 of Treaty on European Union Regarding Enhanced Co-operation: Motion": 17,
+      "Assessment of Need: Motion [Private Members]": 36,
+      "Assessment of Needs: Motion [Private Members]": 39,
+      "Ban on Investment Funds Purchasing Family Homes: Motion [Private Members]": 50,
+      "Blister Packs: Motion [Private Members]": 60,
+      "Bord Bia: Motion [Private Members]": 275,
+      "Cancer Services: Motion [Private Members]": 44,
+      "Child Poverty and Homelessness: Motion [Private Members]": 130,
+      "Childcare Services: Motion [Private Members]": 43,
+      "Childcare: Motion (Resumed) [Private Members]": 2,
+      "Childcare: Motion [Private Members]": 41,
+      "Civil Law (Miscellaneous Provisions) Act 2021: Motion": 49,
+      "Civil Law (Miscellaneous Provisions) Act 2022 (Section 4(2)) (Scheme Termination Date) Order 2025: Motion": 17,
+      "Civil Law (Miscellaneous Provisions) Act 2022 (Section 4(2)) (Scheme Termination Date) Order 2026: Motion": 39,
+      "Civil Law (Miscellaneous Provisions) Act 2022 (Section 9(2)) (Amount of Financial Contribution) Order 2025 (Revocation) Order 2026: Motion": 11,
+      "Civil Law (Miscellaneous Provisions) Act 2022 (Section 9(2)) (Amount of Financial Contribution) Order 2025: Motion": 10,
+      "Commission of Investigation (Handling of Historical Child Sexual Abuse in Day and Boarding Schools) Order 2025: Motion": 35,
+      "Confidence in Government: Motion": 520,
+      "Confidence in the Ceann Comhairle: Motion": 342,
+      "Confidence in the T\u00e1naiste and Minister for Foreign Affairs and Trade: Motion": 176,
+      "Consideration of Estimates by Committee: Motion": 2,
+      "Cost of Disability: Motion [Private Members]": 62,
+      "Cost of Living Mini-Budget: Motion (Resumed) [Private Members]": 2,
+      "Cost of Living Mini-Budget: Motion [Private Members]": 65,
+      "Cost of Living: Motion [Private Members]": 32,
+      "Cost of Motoring: Motion [Private Members]": 46
+    },
+    "statement_terms": {
+      "All-Island Strategic Rail Review: Statements": 8,
+      "All-Island Strategic Rail Review: Statements (Resumed)": 40,
+      "Apology Related to Childhood Abuse (Hunger Strikers): Statements": 32,
+      "Apology following the publication of the Report of the South East Commission of Investigation: Statements": 22,
+      "Apology to Shane O'Farrell and his Family: Statements": 29,
+      "Artificial Intelligence: Statements": 34,
+      "Artificial Intelligence: Statements (Resumed)": 1,
+      "Assessment of Need: Statements": 79,
+      "Auto-Enrolment: Statements": 38,
+      "Biodiversity Week: Statements": 30,
+      "Bluetongue: Statements": 19,
+      "Budget Statement 2026": 174,
+      "Children's Health Ireland: Statements": 61,
+      "Common Agricultural Policy and Ireland's CAP Strategic Plan: Statements": 29,
+      "Community Pharmacy Agreement: Statements": 17,
+      "Delivering a World-Class Education System: Statements": 27,
+      "Dementia: Statements": 30,
+      "Development at Bessborough: Statements": 17,
+      "Development at Bessborough: Statements (Resumed)": 1,
+      "Disability: Statements": 46,
+      "Diverting Young People from Criminal Activity: Statements": 32,
+      "Diverting Young People from Criminal Activity: Statements (Resumed)": 29,
+      "Domestic, Sexual and Gender-Based Violence: Statements": 33,
+      "Driving Test Wait Times: Statements": 69,
+      "Energy Costs: Statements": 48,
+      "Ensuring our Skills, Training and Innovation Systems Keep Pace in a Changing World: Statements": 1,
+      "Ensuring our Skills, Training and Innovation Systems Keep Pace in a Changing World: Statements (Resumed)": 39,
+      "Europe Day: Statements": 103,
+      "Europe Day: Statements (Resumed)": 2,
+      "Fiscal Implications of a United Ireland: Statements": 39,
+      "Fiscal Implications of a United Ireland: Statements (Resumed)": 3,
+      "Fisheries: Statements": 69,
+      "Fishing Quotas: Statements": 33,
+      "Flood Relief: Statements": 28,
+      "Flooding: Statements": 29
+    }
+  },
+  "overlaps": [
+    {
+      "context_a": "leaders_questions",
+      "context_b": "motions",
+      "examples": [
+        {
+          "debate_date": "2025-12-16",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-16/debate/dbsect_9",
+          "section_heading": "Report on Standing Orders and D\u00e1il Reform on Rota for Leaders\u2019 Questions Pursuant to Standing Order 38: Motion",
+          "speech_id": "speech:e3e2e6b036cf89cb6ab19aad"
+        }
+      ],
+      "speech_overlap": 1
+    },
+    {
+      "context_a": "motions",
+      "context_b": "statements",
+      "examples": [
+        {
+          "debate_date": "2025-09-24",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_13",
+          "section_heading": "Statement of Estimates for the Houses of the Oireachtas Commission: Motion",
+          "speech_id": "speech:238ff373f3ad0a9ed19bb465"
+        }
+      ],
+      "speech_overlap": 1
+    },
+    {
+      "context_a": "motions",
+      "context_b": "procedural_business",
+      "examples": [
+        {
+          "debate_date": "2025-09-30",
+          "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-30/debate/dbsect_11",
+          "section_heading": "Sittings and Business of the D\u00e1il: Motion",
+          "speech_id": "speech:0d04c779d4c4a05c4aed6b9d"
+        }
+      ],
+      "speech_overlap": 1
+    }
+  ],
+  "production_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "unique_same_debate_show_as_matches": [
+    {
+      "bill_debate_id": "bill_debate:76d7cd261d21299558fc6589",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+      "debate_show_as": "Planning and Development (Amendment) Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/dbsect_39",
+      "speech_count": 45
+    },
+    {
+      "bill_debate_id": "bill_debate:c494262c57dd569f3e4c1755",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/75",
+      "debate_show_as": "Planning and Development (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-02/debate/dbsect_34",
+      "speech_count": 18
+    },
+    {
+      "bill_debate_id": "bill_debate:b85a7084330b5dcca441f877",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74",
+      "debate_show_as": "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-09/debate/dbsect_37",
+      "speech_count": 9
+    },
+    {
+      "bill_debate_id": "bill_debate:5a96cf84a1f5fb989290d63f",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/71",
+      "debate_show_as": "Postal and Telecommunications Services (Amendment) Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/dbsect_14",
+      "speech_count": 3
+    },
+    {
+      "bill_debate_id": "bill_debate:456c29aa5914ff028c5512c0",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/71",
+      "debate_show_as": "Postal and Telecommunications Services (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/dbsect_17",
+      "speech_count": 24
+    },
+    {
+      "bill_debate_id": "bill_debate:2d93bbedf2dbb715829c6274",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/dbsect_41",
+      "speech_count": 45
+    },
+    {
+      "bill_debate_id": "bill_debate:ff7bb623c529a1fae626fc1c",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+      "debate_show_as": "Regulation of Artificial Intelligence Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-24/debate/dbsect_21",
+      "speech_count": 30
+    },
+    {
+      "bill_debate_id": "bill_debate:31552fcf02c9348656d4fca0",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+      "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Report and Final Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/dbsect_26",
+      "speech_count": 92
+    },
+    {
+      "bill_debate_id": "bill_debate:fc69b05733edb576fecbc08b",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+      "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/dbsect_32",
+      "speech_count": 10
+    },
+    {
+      "bill_debate_id": "bill_debate:1b2293e1de3bc1642a098e8c",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+      "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Second Stage (Resumed)",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/dbsect_34",
+      "speech_count": 5
+    },
+    {
+      "bill_debate_id": "bill_debate:b69d3fbf265bb2886634f96f",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+      "debate_show_as": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026: Referral to Select Committee",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-11/debate/dbsect_39",
+      "speech_count": 1
+    },
+    {
+      "bill_debate_id": "bill_debate:5675139f4a7f653f92cddab7",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+      "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Report and Final Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-07/debate/dbsect_12",
+      "speech_count": 39
+    },
+    {
+      "bill_debate_id": "bill_debate:979db0ab54835feafe2db1ab",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+      "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/dbsect_16",
+      "speech_count": 57
+    },
+    {
+      "bill_debate_id": "bill_debate:2283cce7f34a099acf35aad2",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+      "debate_show_as": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026: Referral to Select Committee",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/dbsect_17",
+      "speech_count": 1
+    },
+    {
+      "bill_debate_id": "bill_debate:fb2aecd83efd593604380130",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+      "debate_show_as": "Guardianship of Infants and Child Care (Amendment) Bill 2026: Report and Final Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-17/debate/dbsect_31",
+      "speech_count": 18
+    },
+    {
+      "bill_debate_id": "bill_debate:3be27c379638fa3b33c24a76",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+      "debate_show_as": "Guardianship of Infants (Amendment) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/dbsect_31",
+      "speech_count": 14
+    },
+    {
+      "bill_debate_id": "bill_debate:8a2b9957616fd8c766646fc5",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+      "debate_show_as": "Guardianship of Infants (Amendment) Bill 2026: Second Stage (Resumed)",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/dbsect_33",
+      "speech_count": 2
+    },
+    {
+      "bill_debate_id": "bill_debate:61cb0ac959fb7ffdcf7a899c",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/53",
+      "debate_show_as": "Guardianship of Infants (Amendment) Bill 2026: Referral to Select Committee",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-21/debate/dbsect_34",
+      "speech_count": 1
+    },
+    {
+      "bill_debate_id": "bill_debate:793caaa9f9630413cb77f593",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_show_as": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Report and Final Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/dbsect_21",
+      "speech_count": 84
+    },
+    {
+      "bill_debate_id": "bill_debate:1e89bebceba18904d92f589d",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_show_as": "Criminal Law (Adult Safeguarding) Bill 2026: First Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_10",
+      "speech_count": 6
+    },
+    {
+      "bill_debate_id": "bill_debate:f3912d411fbd1eea5d53a173",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_show_as": "Criminal Law and Civil Law (Miscellaneous Provisions) Bill 2026: Second Stage (Resumed)",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-28/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-28/debate/dbsect_17",
+      "speech_count": 1
+    },
+    {
+      "bill_debate_id": "bill_debate:88fac29a3cbf4cebc11979d8",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_show_as": "Criminal Law and Civil Law (Miscellaneous Provisions) Bill 2026: Referral to Select Committee",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-28/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-28/debate/dbsect_22",
+      "speech_count": 2
+    },
+    {
+      "bill_debate_id": "bill_debate:47e7b9a1edcd04befcdddeec",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+      "debate_show_as": "Criminal Law and Civil Law (Miscellaneous Provisions) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-22/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-22/debate/dbsect_36",
+      "speech_count": 67
+    },
+    {
+      "bill_debate_id": "bill_debate:517ed952964420938fc1e6ea",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/72",
+      "debate_show_as": "Development (Strategic Gas Reserve) Bill 2026: Committee and Remaining Stages",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-30/debate/dbsect_14",
+      "speech_count": 52
+    },
+    {
+      "bill_debate_id": "bill_debate:9c1c4b4a2e81894d4d633452",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/72",
+      "debate_show_as": "Development (Strategic Gas Reserve) Bill 2026: Second Stage",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-25/debate/main",
+      "matched_debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-25/debate/dbsect_34",
+      "speech_count": 15
+    }
+  ],
+  "uri_grain_profiles": [
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-23/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-23/debate/main",
+      "headings": {
+        "Apprenticeship Programmes": 6,
+        "Care Services": 6,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 40,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 28,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 7,
+        "Child and Family Agency": 15,
+        "Childcare Services": 16,
+        "Disability Services": 19,
+        "Earca\u00edocht agus Sol\u00e1thar Foirne Tr\u00ed\u00fa Leibh\u00e9al": 6,
+        "Education (Medical Emergencies in Schools) Bill 2026: Second Stage": 7
+      },
+      "section_count": 58,
+      "speech_count": 380
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-11/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-11/debate/main",
+      "headings": {
+        "Apprenticeship Programmes": 12,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 74,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 67,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 25,
+        "Child Abuse": 6,
+        "Departmental Reports": 6,
+        "Flood Relief Schemes": 12,
+        "Flood Risk Management": 6,
+        "Further and Higher Education": 7,
+        "Health (Waiting Lists) Bill 2024: Second Stage [Private Members]": 10
+      },
+      "section_count": 50,
+      "speech_count": 465
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-29/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-29/debate/main",
+      "headings": {
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 35,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 93,
+        "Competition and Consumer Protection (Unfair Prices) Bill 2023: Second Stage [Private Members]": 12,
+        "Data Centres": 7,
+        "Departmental Bodies": 6,
+        "Departmental Staff": 6,
+        "Ethics in Public Office": 10,
+        "Expenditure Reviews": 7,
+        "Financial Services": 22,
+        "Fiscal Data": 17
+      },
+      "section_count": 48,
+      "speech_count": 469
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-18/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-18/debate/main",
+      "headings": {
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 49,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 53,
+        "Child Protection": 19,
+        "Child and Family Agency": 7,
+        "Childcare Services": 12,
+        "Cost of Living Issues": 13,
+        "Data Centres": 8,
+        "Defective Building Materials": 12,
+        "Departmental Reports": 10,
+        "Disabilities Assessments": 10
+      },
+      "section_count": 45,
+      "speech_count": 452
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-04/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-04/debate/main",
+      "headings": {
+        "An Garda S\u00edoch\u00e1na": 30,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 91,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 43,
+        "Coroners Service": 5,
+        "C\u00farsa\u00ed Tith\u00edochta": 13,
+        "Departmental Schemes": 11,
+        "Domestic Violence": 6,
+        "EU Funding": 8,
+        "Foras na Gaeilge": 8,
+        "Housing Schemes": 12
+      },
+      "section_count": 45,
+      "speech_count": 393
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-17/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-17/debate/main",
+      "headings": {
+        "Capital Expenditure Programme": 9,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 50,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 115,
+        "Central Bank (Amendment) Bill 2025: Second Stage [Private Members]": 9,
+        "Coastal Protection": 8,
+        "Criminal Justice (Promotion of Restorative Justice) (Amendment) Bill 2023: Second Stage [Private Members]": 9,
+        "Departmental Schemes": 6,
+        "Departmental Strategies": 6,
+        "Energy Conservation": 6,
+        "Flood Relief Schemes": 17
+      },
+      "section_count": 43,
+      "speech_count": 460
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-20/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-20/debate/main",
+      "headings": {
+        "Addiction Treatment Services": 6,
+        "Ambulance Service": 6,
+        "Artists' Remuneration": 13,
+        "Arts Funding": 28,
+        "Building Energy Rating (BER) Standards for Private Rented Accommodation Bill 2025: Second Stage [Private Members]": 8,
+        "Cancer Services": 12,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 56,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 60,
+        "Covid-19 Pandemic Supports": 6,
+        "Dental Services": 8
+      },
+      "section_count": 43,
+      "speech_count": 380
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-29/debate/main",
+      "headings": {
+        "Agriculture Industry": 30,
+        "Agriculture Schemes": 8,
+        "Animal Diseases": 7,
+        "Animal Welfare": 6,
+        "Artificial Intelligence": 7,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 72,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 88,
+        "Child Care (Amendment) Bill 2025: Second Stage (Resumed)": 18,
+        "Climate Action Plan": 15,
+        "Common Agricultural Policy": 6
+      },
+      "section_count": 42,
+      "speech_count": 464
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-27/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-27/debate/main",
+      "headings": {
+        "Agriculture Industry": 6,
+        "Animal Diseases": 12,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 53,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 78,
+        "Common Agricultural Policy": 10,
+        "Conflict Resolution": 13,
+        "EU Agreements": 6,
+        "EU Meetings": 10,
+        "European Union": 6,
+        "Family Resource Centres": 8
+      },
+      "section_count": 42,
+      "speech_count": 405
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-16/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-16/debate/main",
+      "headings": {
+        "Apprenticeship Programmes": 11,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 45,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 36,
+        "Community Development Projects": 6,
+        "Departmental Funding": 8,
+        "Departmental Schemes": 7,
+        "Education (Amendment) Bill 2024: Second Stage [Private Members]": 9,
+        "Education Schemes": 6,
+        "Education and Training Boards": 6,
+        "Education and Training Provision": 6
+      },
+      "section_count": 42,
+      "speech_count": 328
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-26/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-26/debate/main",
+      "headings": {
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 98,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 66,
+        "Community Development Projects": 19,
+        "C\u00farsa\u00ed Tith\u00edochta": 6,
+        "Departmental Funding": 8,
+        "Departmental Schemes": 6,
+        "Development at Bessborough: Statements": 17,
+        "Diaspora Issues": 10,
+        "Dublin-Monaghan Bombings": 6,
+        "EU Agreements": 11
+      },
+      "section_count": 41,
+      "speech_count": 413
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-15/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-15/debate/main",
+      "headings": {
+        "An Garda S\u00edoch\u00e1na": 19,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 41,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 21,
+        "Ceisteanna \u00f3 na Comhalta\u00ed Eile - Other Members\u2019 Questions": 12,
+        "Coast Guard Service": 8,
+        "Common Agricultural Policy and Ireland's CAP Strategic Plan: Statements": 29,
+        "Courts Service": 8,
+        "Crime Prevention": 6,
+        "Derelict Sites": 8,
+        "Disability Services": 4
+      },
+      "section_count": 41,
+      "speech_count": 368
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-03/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-03/debate/main",
+      "headings": {
+        "Agriculture Industry": 6,
+        "Agriculture Schemes": 8,
+        "An Garda S\u00edoch\u00e1na": 6,
+        "Animal Diseases": 12,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 46,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 60,
+        "Common Agricultural Policy": 6,
+        "Crime Prevention": 10,
+        "Deportation Orders": 6,
+        "Domestic, Sexual and Gender-based Violence": 6
+      },
+      "section_count": 41,
+      "speech_count": 358
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-10/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-10/debate/main",
+      "headings": {
+        "Aircraft Noise (Dublin Airport) Regulation (Transfer of Functions) Bill 2024: Second Stage [Private Members]": 10,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 61,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 18,
+        "Child Protection": 6,
+        "Community Development Projects": 13,
+        "Consular Services": 6,
+        "Departmental Meetings": 8,
+        "Departmental Schemes": 10,
+        "Diplomatic Representation": 6,
+        "Domestic, Sexual and Gender-Based Violence: Statements": 33
+      },
+      "section_count": 41,
+      "speech_count": 336
+    },
+    {
+      "debate_ids": [
+        "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-05/debate/main"
+      ],
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-05/debate/main",
+      "headings": {
+        "Cancer Services": 6,
+        "Ceisteanna ar Pholasa\u00ed n\u00f3 ar Reachta\u00edocht - Questions on Policy or Legislation": 77,
+        "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 83,
+        "Criminal Justice (Rehabilitative Periods) Bill 2018 [Seanad]: Second Stage [Private Members]": 7,
+        "Defective Building Materials": 10,
+        "Dental Services": 6,
+        "Disease Management": 8,
+        "Electricity Regulation (Amendment) (Standing Charges) Bill 2026: First Stage": 8,
+        "Further and Higher Education": 6,
+        "General Practitioner Services": 10
+      },
+      "section_count": 40,
+      "speech_count": 461
+    }
+  ]
+}
