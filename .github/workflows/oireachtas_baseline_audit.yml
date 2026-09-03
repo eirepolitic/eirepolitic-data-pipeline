@@ -4,16 +4,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  inventory:
+  investigate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -27,22 +23,131 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Profile legislation relationships
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io, json, os
+          from collections import defaultdict
+          from pathlib import Path
+          import boto3, pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_required, resolve_production_key
+
+          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+
+          def read(logical):
+              key=resolve_production_key(s3,bucket=bucket,production_key=logical)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False), key
+          def clean(df):
+              for c in df.columns: df[c]=df[c].fillna('').astype(str).str.strip()
+              return df
+
+          paths={
+            'bills':'processed/oireachtas_unified/latest/csv/silver_bills.csv',
+            'bill_stages':'processed/oireachtas_unified/latest/csv/silver_bill_stages.csv',
+            'bill_sponsors':'processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv',
+            'bill_debates':'processed/oireachtas_unified/latest/csv/silver_bill_debates.csv',
+            'bill_events':'processed/oireachtas_unified/latest/csv/silver_bill_events.csv',
+            'debate_records':'processed/oireachtas_unified/latest/csv/silver_debate_records.csv',
+            'sections':'processed/oireachtas_unified/latest/csv/silver_debate_sections.csv',
+            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
+            'divisions':'processed/oireachtas_unified/latest/csv/silver_divisions.csv',
+            'members':'processed/oireachtas_unified/latest/csv/silver_members.csv',
+          }
+          T={}; keys={}
+          for n,p in paths.items(): T[n],keys[n]=read(p); T[n]=clean(T[n])
+          bills,stages,sponsors,bd,events,debates,sections,speeches,divisions,members=[T[x] for x in ['bills','bill_stages','bill_sponsors','bill_debates','bill_events','debate_records','sections','speeches','divisions','members']]
+
+          speech_sec=set(speeches.debate_section_id); section_ids=set(sections.debate_section_id); section_eids=set(sections.section_eid)
+          debate_ids=set(debates.debate_id); speech_debate=set(speeches.debate_id)
+
+          # Bill debate section bridge candidates.
+          bd_eid=bd[bd.debate_section_id.isin(section_eids) & bd.debate_section_id.ne('')].copy()
+          eid_to_sid=sections[sections.section_eid.ne('')].drop_duplicates('section_eid').set_index('section_eid')['debate_section_id'].to_dict()
+          bd_eid['speech_section_id']=bd_eid.debate_section_id.map(eid_to_sid).fillna('')
+          bd_eid['speech_count']=bd_eid.speech_section_id.map(speeches.debate_section_id.value_counts()).fillna(0).astype(int)
+
+          # Exact same-debate heading matches.
+          sec_by_debate=defaultdict(list)
+          for r in sections.itertuples(index=False):
+              heading=(getattr(r,'show_as','') or getattr(r,'heading','')).strip()
+              sec_by_debate[getattr(r,'debate_id','')].append((getattr(r,'debate_section_id',''),heading,getattr(r,'section_eid','')))
+          exact=[]; ambiguous=[]
+          for r in bd.itertuples(index=False):
+              did=getattr(r,'debate_id',''); title=getattr(r,'debate_show_as','').strip()
+              if not did or not title: continue
+              m=[x for x in sec_by_debate.get(did,[]) if x[1]==title]
+              row={'bill_id':r.bill_id,'bill_debate_id':r.bill_debate_id,'debate_id':did,'debate_show_as':title,'matches':len(m),'section_ids':[x[0] for x in m],'section_eids':[x[2] for x in m]}
+              (exact if len(m)==1 else ambiguous).append(row)
+          exact_sids={x['section_ids'][0] for x in exact}
+
+          # Divisions: direct section/debate alignment and Bill-section overlap.
+          div_direct=divisions[divisions.debate_section_id.isin(section_ids) & divisions.debate_section_id.ne('')]
+          div_bill_exact=divisions[divisions.debate_section_id.isin(exact_sids) & divisions.debate_section_id.ne('')]
+          div_bill_eid=divisions[divisions.debate_section_id.isin(set(bd.debate_section_id)) & divisions.debate_section_id.ne('')]
+
+          # Stage profile and date relation to bill debate rows.
+          stage_names=stages.stage_name.value_counts().to_dict() if 'stage_name' in stages else {}
+          stage_houses=stages.house_name.value_counts().to_dict() if 'house_name' in stages else {}
+          stage_outcomes=stages.stage_outcome.value_counts().to_dict() if 'stage_outcome' in stages else {}
+          bills_with_stages=set(stages.bill_id); bills_with_debates=set(bd.bill_id); bills_with_sponsors=set(sponsors.bill_id); bills_with_events=set(events.bill_id)
+
+          # Sponsor linkage to members by URI and exact name diagnostics only.
+          member_uris=set(members.member_uri) if 'member_uri' in members else set()
+          sponsor_uri_rows=sponsors[sponsors.sponsor_uri.isin(member_uris) & sponsors.sponsor_uri.ne('')]
+          member_names=set(members.full_name) | set(members.display_name)
+          sponsor_name_rows=sponsors[sponsors.sponsor_name.isin(member_names) & sponsors.sponsor_name.ne('')]
+          govt_like=sponsors[sponsors.sponsor_name.str.contains('Government|Minister|Taoiseach|Department',case=False,regex=True,na=False)]
+
+          out={
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'resolved_keys':keys,
+            'row_counts':{k:int(len(v)) for k,v in T.items()},
+            'bill_coverage':{
+              'distinct_bills':int(bills.bill_id.nunique()),
+              'bills_with_stages':len(bills_with_stages),'bills_with_debates':len(bills_with_debates),'bills_with_sponsors':len(bills_with_sponsors),'bills_with_events':len(bills_with_events),
+              'bills_with_all_four':len(bills_with_stages & bills_with_debates & bills_with_sponsors & bills_with_events),
+            },
+            'bill_debate_links':{
+              'rows':int(len(bd)),'distinct_bills':int(bd.bill_id.nunique()),'direct_debate_id_overlap_rows':int(bd.debate_id.isin(speech_debate).sum()),
+              'debate_section_id_to_section_eid_rows':int(len(bd_eid)),'distinct_source_section_ids_matched_to_section_eid':int(bd_eid.debate_section_id.nunique()),
+              'eid_bridge_rows_with_speeches':int((bd_eid.speech_count>0).sum()),'eid_bridge_speech_total':int(bd_eid.speech_count.sum()),
+              'exact_same_debate_heading_unique_rows':len(exact),'exact_same_debate_heading_unique_sections':len(exact_sids),'exact_same_debate_heading_speech_total':int(speeches.debate_section_id.isin(exact_sids).sum()),
+              'nonunique_or_zero_heading_rows':len(ambiguous),
+              'sample_eid_matches':bd_eid[['bill_id','bill_debate_id','debate_id','debate_show_as','debate_section_id','speech_section_id','speech_count']].head(30).to_dict(orient='records'),
+              'sample_exact_heading_matches':exact[:30],
+              'sample_unmatched_or_ambiguous':ambiguous[:30],
+            },
+            'stage_profile':{'rows':int(len(stages)),'distinct_bills':int(stages.bill_id.nunique()),'stage_names':stage_names,'houses':stage_houses,'outcomes':stage_outcomes},
+            'sponsor_profile':{
+              'rows':int(len(sponsors)),'distinct_bills':int(sponsors.bill_id.nunique()),'distinct_sponsor_names':int(sponsors.sponsor_name.nunique()),
+              'member_uri_match_rows':int(len(sponsor_uri_rows)),'exact_member_name_match_rows':int(len(sponsor_name_rows)),'government_or_office_like_rows':int(len(govt_like)),
+              'top_sponsors':sponsors.sponsor_name.value_counts().head(40).to_dict(),
+              'sample_uri_matches':sponsor_uri_rows[['bill_id','sponsor_uri','sponsor_name','sponsor_role_name','is_primary','sponsor_order']].head(30).to_dict(orient='records'),
+            },
+            'division_links':{
+              'rows':int(len(divisions)),'direct_section_id_overlap_rows':int(len(div_direct)),'direct_debate_id_overlap_rows':int(divisions.debate_id.isin(speech_debate).sum()),
+              'divisions_on_exact_bill_heading_sections':int(len(div_bill_exact)),'divisions_matching_bill_source_section_id_directly':int(len(div_bill_eid)),
+              'sample_bill_section_divisions':div_bill_exact[['division_id','division_date','subject','outcome','debate_id','debate_section_id','debate_show_as']].head(40).to_dict(orient='records'),
+            },
+            'guardrails':[
+              'Bill debate debate_id/debate_uri remains whole-debate grain and must not label every speech as Bill-related.',
+              'Bill debate debate_section_id appears to be a source-local section eid candidate; validate exact semantics before production use.',
+              'Exact same-debate debate_show_as to section heading is diagnostic until reconciled against source section identifiers.',
+              'Sponsor name matches are diagnostic only; URI-backed member links are preferred.',
+              'Division-to-Bill relationships must be section-grain or otherwise source-backed; debate-day co-occurrence is insufficient.'
+            ]
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/legislation_relationships_profile.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n',encoding='utf-8')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/legislation_relationships_profile.json
+          git commit -m "Capture legislation relationship diagnostics ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
