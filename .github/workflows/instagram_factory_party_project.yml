@@ -1,21 +1,23 @@
-name: Instagram Party Chart Variant Review
+name: Instagram Party Monthly Profile v2 Commissioning
 
 on:
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: read
 
 jobs:
-  chart-variant-review:
+  full-july-v2-batch:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GH_TOKEN: ${{ github.token }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
       PYTHONPATH: ${{ github.workspace }}
     steps:
-      - name: Check out commissioning branch
+      - name: Check out v2 commissioning branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
@@ -26,190 +28,40 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install image dependency
-        run: pip install pillow
-
-      - name: Recover historical rendered variants
-        shell: bash
+      - name: Install renderer dependencies
         run: |
-          set -euo pipefail
-          OUT="instagram/commissioning/output/chart-variant-review-2026-09-03"
-          TMP="/tmp/chart-variant-runs"
-          rm -rf "$OUT" "$TMP"
-          mkdir -p "$OUT/candidates" "$TMP"
+          python -m pip install --upgrade pip
+          pip install boto3 pillow pyyaml matplotlib
 
-          RUNS=(
-            33446672597
-            33446842291
-            33447051080
-            33448590338
-            33464254093
-            33464602238
-            33464994257
-            33679523899
-            33680998844
-            33681142839
-            33681694228
-            33731887273
-            33780442539
-          )
+      - name: Verify canonical Social Democrats logo remains corrected
+        run: python -m instagram.commissioning.repair_social_democrats_logo
 
-          : > "$OUT/artifact-file-inventory.txt"
+      - name: Generate full July 2026 v2 party profile batch with Variant 2 charts
+        run: |
+          rm -rf instagram/commissioning/output/party_issue_monthly_profile_v2/period=2026-07
+          python -m instagram.commissioning.render_party_monthly_profile_v2
 
-          for run_id in "${RUNS[@]}"; do
-            run_dir="$TMP/$run_id"
-            mkdir -p "$run_dir"
-            echo "===== RUN $run_id =====" >> "$OUT/artifact-file-inventory.txt"
-            if ! gh run download "$run_id" -D "$run_dir"; then
-              echo "NO DOWNLOADABLE ARTIFACT" >> "$OUT/artifact-file-inventory.txt"
-              continue
-            fi
-            find "$run_dir" -type f | sed "s#^$run_dir/##" | sort >> "$OUT/artifact-file-inventory.txt"
+      - name: Validate full 55-slide batch
+        run: python -m instagram.commissioning.validate_party_monthly_profile_v2
 
-            candidate="$(find "$run_dir" -type f \( -name '02_issue_profile.png' -o -name '02_most_discussed_issues.png' \) -print | grep -E '/fianna[-_ ]?fail/' | head -n 1 || true)"
+      - name: Build committed ZIP package
+        run: |
+          cd instagram/commissioning/output/party_issue_monthly_profile_v2
+          rm -f party-monthly-profile-v2-july-2026.zip
+          zip -r party-monthly-profile-v2-july-2026.zip period=2026-07
 
-            # Older diagnostics used flatter output layouts. Fall back to any
-            # issue-profile PNG whose path contains Fianna Fail text.
-            if [ -z "$candidate" ]; then
-              candidate="$(find "$run_dir" -type f -name '*.png' -print | grep -Ei 'fianna[-_ ]?fail' | grep -Ei 'issue|profile|discuss' | head -n 1 || true)"
-            fi
-
-            if [ -z "$candidate" ]; then
-              echo "NO FIANNА FAIL CHART CANDIDATE" >> "$OUT/artifact-file-inventory.txt"
-              continue
-            fi
-            cp "$candidate" "$OUT/candidates/run-${run_id}.png"
-            echo "SELECTED: ${candidate#$run_dir/}" >> "$OUT/artifact-file-inventory.txt"
-          done
-
-          python - <<'PY'
-          from __future__ import annotations
-
-          import hashlib
-          import json
-          from pathlib import Path
-          from PIL import Image, ImageDraw, ImageFont, ImageChops
-
-          root = Path('instagram/commissioning/output/chart-variant-review-2026-09-03')
-          candidates = root / 'candidates'
-
-          run_meta = {
-              '33446672597': {'run_number': 200, 'date': '2026-08-31', 'family': 'Matplotlib original diagnostic'},
-              '33446842291': {'run_number': 201, 'date': '2026-08-31', 'family': 'Matplotlib 2-line label hardening'},
-              '33447051080': {'run_number': 202, 'date': '2026-08-31', 'family': 'Matplotlib 3-line label hardening'},
-              '33448590338': {'run_number': 203, 'date': '2026-08-31', 'family': 'Matplotlib final January commissioning'},
-              '33464254093': {'run_number': 212, 'date': '2026-09-01', 'family': 'Pillow monthly profile early'},
-              '33464602238': {'run_number': 213, 'date': '2026-09-01', 'family': 'Pillow monthly profile left-aligned'},
-              '33464994257': {'run_number': 214, 'date': '2026-09-01', 'family': 'Pillow monthly profile centered'},
-              '33679523899': {'run_number': 215, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 commissioning'},
-              '33680998844': {'run_number': 216, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
-              '33681142839': {'run_number': 218, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
-              '33681694228': {'run_number': 219, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
-              '33731887273': {'run_number': 236, 'date': '2026-09-03', 'family': 'Full v2 batch before chart rollback'},
-              '33780442539': {'run_number': 239, 'date': '2026-09-03', 'family': 'Full v2 batch after chart rollback'},
-          }
-
-          records = []
-          for path in sorted(candidates.glob('run-*.png')):
-              run_id = path.stem.removeprefix('run-')
-              raw = path.read_bytes()
-              sha = hashlib.sha256(raw).hexdigest()
-              with Image.open(path) as im:
-                  im.load()
-                  size = im.size
-                  pixel_sha = hashlib.sha256(im.convert('RGB').tobytes()).hexdigest()
-              records.append({
-                  'run_id': run_id,
-                  'sha256': sha,
-                  'pixel_sha256': pixel_sha,
-                  'dimensions': list(size),
-                  **run_meta.get(run_id, {}),
-                  'candidate_file': str(path.relative_to(root)),
-              })
-
-          groups: dict[str, list[dict]] = {}
-          for rec in records:
-              groups.setdefault(rec['pixel_sha256'], []).append(rec)
-
-          variants = []
-          for index, (_, group) in enumerate(groups.items(), start=1):
-              representative = group[0]
-              src = root / representative['candidate_file']
-              filename = f"variant-{index:02d}-run-{representative['run_number']}-{representative['run_id']}.png"
-              dst = root / filename
-              dst.write_bytes(src.read_bytes())
-              variants.append({
-                  'variant': index,
-                  'file': filename,
-                  'sha256': representative['sha256'],
-                  'pixel_sha256': representative['pixel_sha256'],
-                  'dimensions': representative['dimensions'],
-                  'representative_run_id': representative['run_id'],
-                  'representative_run_number': representative.get('run_number'),
-                  'date': representative.get('date'),
-                  'family': representative.get('family'),
-                  'identical_runs': [item['run_id'] for item in group],
-                  'identical_run_numbers': [item.get('run_number') for item in group],
-              })
-
-          bold = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 22)
-          regular = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 17)
-          title_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 32)
-
-          card_w, card_h = 540, 700
-          cols = 2
-          rows = (len(variants) + cols - 1) // cols
-          sheet = Image.new('RGB', (cols * card_w, max(1, rows) * card_h + 90), 'white')
-          draw_sheet = ImageDraw.Draw(sheet)
-          draw_sheet.text((sheet.width // 2, 42), 'Recent Party Chart Variants — Fianna Fáil Example', fill='black', font=title_font, anchor='mm')
-
-          for i, variant in enumerate(variants):
-              with Image.open(root / variant['file']) as im:
-                  thumb = im.convert('RGB')
-                  thumb.thumbnail((480, 570), Image.Resampling.LANCZOS)
-              card = Image.new('RGB', (card_w, card_h), 'white')
-              x = (card_w - thumb.width) // 2
-              card.paste(thumb, (x, 10))
-              d = ImageDraw.Draw(card)
-              y = 600
-              d.text((card_w // 2, y), f"Variant {variant['variant']}: {variant['family']}", fill='black', font=bold, anchor='mm')
-              d.text((card_w // 2, y + 34), f"Run #{variant['representative_run_number']} · {variant['date']}", fill='black', font=regular, anchor='mm')
-              runs = ', '.join(f"#{n}" for n in variant['identical_run_numbers'] if n is not None)
-              d.text((card_w // 2, y + 64), f"Same pixels in: {runs}", fill='black', font=regular, anchor='mm')
-              row, col = divmod(i, cols)
-              sheet.paste(card, (col * card_w, 90 + row * card_h))
-
-          sheet.save(root / 'all-chart-variants-contact-sheet.jpg', quality=94)
-          manifest = {
-              'window': '2026-08-31 through 2026-09-03',
-              'comparison_party': 'Fianna Fáil',
-              'candidate_runs': records,
-              'distinct_pixel_variants': variants,
-              'distinct_variant_count': len(variants),
-          }
-          (root / 'variant-manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-          print(json.dumps({'distinct_variant_count': len(variants), 'variants': variants}, indent=2))
-          PY
-
-          rm -rf "$OUT/candidates"
-          cd instagram/commissioning/output
-          rm -f chart-variant-review-2026-09-03.zip
-          zip -r chart-variant-review-2026-09-03.zip chart-variant-review-2026-09-03
-
-      - name: Commit chart variant review pack
+      - name: Commit full v2 commissioning outputs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add instagram/commissioning/output/chart-variant-review-2026-09-03
-          git add instagram/commissioning/output/chart-variant-review-2026-09-03.zip
-          git commit -m "Refresh complete recent chart variant review pack" || true
+          git add instagram/commissioning/output/party_issue_monthly_profile_v2/period=2026-07
+          git add instagram/commissioning/output/party_issue_monthly_profile_v2/party-monthly-profile-v2-july-2026.zip
+          git commit -m "Regenerate July 2026 v2 batch with Variant 2 charts" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
-      - name: Upload comparison artifact
+      - name: Upload full batch artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chart-variant-review-${{ github.run_id }}
-          path: |
-            instagram/commissioning/output/chart-variant-review-2026-09-03/
-            instagram/commissioning/output/chart-variant-review-2026-09-03.zip
+          name: party-monthly-profile-v2-july-2026-${{ github.run_id }}
+          path: instagram/commissioning/output/party_issue_monthly_profile_v2/period=2026-07/
           if-no-files-found: error
