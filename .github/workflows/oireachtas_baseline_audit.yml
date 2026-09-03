@@ -25,13 +25,12 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas
-      - name: Profile deterministic speech contexts
+      - name: Investigate Bill URI joins and statement headings
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           import io,json,os,re
-          from collections import defaultdict
           from pathlib import Path
           import boto3,pandas as pd
           from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
@@ -41,148 +40,88 @@ jobs:
           def read(logical):
               key=resolve_production_key(s3,bucket=bucket,production_key=logical)
               return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=['']),key
-
           speeches,skey=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
           sections,seckey=read('processed/oireachtas_unified/latest/csv/silver_debate_sections.csv')
-          billdeb,bkey=read('processed/oireachtas_unified/latest/csv/silver_bill_debates.csv')
-          speechq,qctxkey=read('processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv')
+          bills,bkey=read('processed/oireachtas_unified/latest/csv/silver_bill_debates.csv')
 
-          speeches['speech_id']=speeches.speech_id.astype(str)
-          speeches['debate_section_id']=speeches.debate_section_id.fillna('').astype(str)
-          speeches['debate_date_dt']=pd.to_datetime(speeches.debate_date,errors='coerce')
-          sections['debate_section_id']=sections.debate_section_id.astype(str)
-          heading_col=next((c for c in ['show_as','heading','title','section_heading'] if c in sections.columns),None)
-          sections['heading']=sections[heading_col].fillna('').astype(str).str.strip() if heading_col else ''
-          secmap=sections.drop_duplicates('debate_section_id').set_index('debate_section_id')['heading'].to_dict()
+          for c in ['speech_id','debate_section_id','source_debate_uri','source_xml_url']:
+              speeches[c]=speeches[c].fillna('').astype(str)
+          sections['debate_section_id']=sections.debate_section_id.fillna('').astype(str)
+          hcol=next((c for c in ['show_as','heading','title','section_heading'] if c in sections.columns),None)
+          sections['heading']=sections[hcol].fillna('').astype(str).str.strip() if hcol else ''
+          secmap=sections.drop_duplicates('debate_section_id').set_index('debate_section_id').heading.to_dict()
           speeches['heading']=speeches.debate_section_id.map(secmap).fillna('')
+          bills['debate_uri']=bills.debate_uri.fillna('').astype(str)
+          bills['debate_section_id']=bills.debate_section_id.fillna('').astype(str)
+          bills['debate_show_as']=bills.debate_show_as.fillna('').astype(str)
 
-          billdeb['debate_section_id']=billdeb.debate_section_id.fillna('').astype(str)
-          bill_sections=set(billdeb.loc[billdeb.debate_section_id.ne(''),'debate_section_id'])
-          speechq['speech_id']=speechq.speech_id.astype(str)
-          oral_ids=set(speechq.loc[speechq.speech_context.astype(str).eq('oral_question_exchange'),'speech_id'])
+          # Candidate Bill joins.
+          bill_uris=set(x for x in bills.debate_uri if x)
+          speech_uris=set(x for x in speeches.source_debate_uri if x)
+          exact_uri_overlap=bill_uris & speech_uris
+          uri_linked=speeches[speeches.source_debate_uri.isin(exact_uri_overlap)].copy()
 
-          patterns={
-            'leaders_questions':[
-              r"^leaders'? questions?$",
-              r"leaders'? questions?",
-            ],
-            'motions':[
-              r'^motion(?:s)?\b',
-              r'\bmotion(?:s)?\b',
-              r'confidence in the government',
-              r'no confidence',
-            ],
-            'statements':[
-              r'^statements?\b',
-              r'\bstatements? on\b',
-            ],
-            'procedural_business':[
-              r'order of business',
-              r'business of the dáil',
-              r'business of the house',
-              r'questions? on promised legislation',
-              r'weekly division',
-              r'preliminary business',
-              r'ceisteanna? ar reachtaíocht',
-            ],
-          }
-          compiled={k:[re.compile(p,re.I) for p in ps] for k,ps in patterns.items()}
-          candidate_flags={}
-          for name,rxs in compiled.items():
-              candidate_flags[name]=speeches.heading.map(lambda h:any(rx.search(str(h)) for rx in rxs))
-          candidate_flags['bill_or_legislation']=speeches.debate_section_id.isin(bill_sections)
-          candidate_flags['oral_question_exchange']=speeches.speech_id.isin(oral_ids)
+          # Some debate URIs may differ by suffix / debate section; inspect normalized path roots.
+          def normuri(x):
+              x=str(x or '').strip().rstrip('/')
+              x=re.sub(r'/debate/dbsect_\d+$','',x)
+              x=re.sub(r'/debate$','',x)
+              return x
+          bills['debate_uri_norm']=bills.debate_uri.map(normuri)
+          speeches['source_debate_uri_norm']=speeches.source_debate_uri.map(normuri)
+          norm_bill=set(x for x in bills.debate_uri_norm if x)
+          norm_speech=set(x for x in speeches.source_debate_uri_norm if x)
+          norm_overlap=norm_bill & norm_speech
+          norm_linked=speeches[speeches.source_debate_uri_norm.isin(norm_overlap)].copy()
 
-          flags=pd.DataFrame(candidate_flags,index=speeches.index)
-          overlap_count=flags.sum(axis=1)
-          overlap_rows=speeches.loc[overlap_count.gt(1),['speech_id','debate_date','debate_section_id','heading']].copy()
-          overlap_rows['contexts']=[sorted(flags.columns[flags.loc[i]].tolist()) for i in overlap_rows.index]
+          # Date + show_as/heading comparison as diagnostic only.
+          bills['debate_date_dt']=pd.to_datetime(bills.debate_date,errors='coerce')
+          speeches['debate_date_dt']=pd.to_datetime(speeches.debate_date,errors='coerce')
 
-          # Precedence proposal: oral question > bill/legislation > leaders > motion > statement > procedural > other.
-          precedence=['oral_question_exchange','bill_or_legislation','leaders_questions','motions','statements','procedural_business']
-          def assign(i):
-              for c in precedence:
-                  if bool(flags.at[i,c]): return c
-              return 'other'
-          speeches['candidate_context']=[assign(i) for i in speeches.index]
+          # Headings containing likely statement terms.
+          heading_counts=speeches.heading.value_counts()
+          statement_like=heading_counts[heading_counts.index.to_series().str.contains(r'statement|ráitis|ráiteas',case=False,regex=True,na=False)]
+          bill_like=heading_counts[heading_counts.index.to_series().str.contains(r'\bbill\b|bille|second stage|committee stage|report stage|final stage',case=False,regex=True,na=False)]
+          motion_like=heading_counts[heading_counts.index.to_series().str.contains(r'\bmotion\b|rún',case=False,regex=True,na=False)]
 
-          context_counts=speeches.candidate_context.value_counts().to_dict()
-          section_counts=speeches.groupby('candidate_context').debate_section_id.nunique().to_dict()
+          # Map each source debate URI to distinct headings and sections to see whether URI is debate-day-wide or narrower.
+          uri_profiles=[]
+          for uri,g in speeches[speeches.source_debate_uri.ne('')].groupby('source_debate_uri'):
+              if uri in exact_uri_overlap or normuri(uri) in norm_overlap:
+                  uri_profiles.append({'source_debate_uri':uri,'speech_count':int(len(g)),'section_count':int(g.debate_section_id.nunique()),'headings':g.heading.value_counts().head(20).to_dict()})
+          uri_profiles=sorted(uri_profiles,key=lambda x:-x['speech_count'])
 
-          heading_profiles={}
-          for ctx in precedence:
-              g=speeches[speeches.candidate_context.eq(ctx)]
-              heading_profiles[ctx]=g.heading.value_counts().head(40).to_dict()
-
-          # Bill coverage quality.
-          bill_speeches=speeches[speeches.debate_section_id.isin(bill_sections)]
-          bill_heading_sample=bill_speeches.heading.value_counts().head(30).to_dict()
-          bill_sections_without_speeches=len(bill_sections-set(speeches.debate_section_id))
-          bill_debate_ids_with_section=int(billdeb.debate_section_id.ne('').sum())
-
-          # Heading-only rule quality samples: top and rare headings.
-          manual_samples={}
-          for ctx in ['leaders_questions','motions','statements','procedural_business']:
-              g=speeches[speeches.candidate_context.eq(ctx)]
-              bysec=g.groupby(['debate_section_id','heading'],dropna=False).size().reset_index(name='speech_count').sort_values(['speech_count','heading'],ascending=[False,True])
-              manual_samples[ctx]=bysec.head(25).to_dict(orient='records')
-
-          # Context coverage by year.
-          speeches['year']=speeches.debate_date_dt.dt.year
-          by_year=speeches.groupby(['year','candidate_context']).speech_id.nunique().unstack(fill_value=0).reset_index().to_dict(orient='records')
-
-          # Overlap matrix.
-          overlap_matrix=[]
-          cols=list(flags.columns)
-          for i,a in enumerate(cols):
-              for b in cols[i+1:]:
-                  n=int((flags[a]&flags[b]).sum())
-                  if n:
-                      overlap_matrix.append({'context_a':a,'context_b':b,'speech_overlap':n})
+          # Bill debate rows sampled with potential speech URI matches.
+          bill_samples=[]
+          for r in bills.head(80).itertuples(index=False):
+              exact_count=int((speeches.source_debate_uri==r.debate_uri).sum()) if r.debate_uri else 0
+              norm_count=int((speeches.source_debate_uri_norm==r.debate_uri_norm).sum()) if r.debate_uri_norm else 0
+              bill_samples.append({'bill_id':str(r.bill_id),'debate_date':str(r.debate_date),'debate_show_as':str(r.debate_show_as),'debate_uri':str(r.debate_uri),'debate_section_id':str(r.debate_section_id),'exact_uri_speech_count':exact_count,'normalized_uri_speech_count':norm_count})
 
           out={
             'production_batch_id':str(pointer.get('batch_id') or pointer.get('mode')),
-            'resolved_keys':{'speeches':skey,'sections':seckey,'bill_debates':bkey,'speech_question_context':qctxkey},
-            'source_inventory':{
-              'speech_rows':int(len(speeches)),
-              'section_rows':int(len(sections)),
-              'bill_debate_rows':int(len(billdeb)),
-              'bill_debate_rows_with_section':bill_debate_ids_with_section,
-              'distinct_bill_sections':int(len(bill_sections)),
-              'bill_sections_without_speeches':int(bill_sections_without_speeches),
+            'resolved_keys':{'speeches':skey,'sections':seckey,'bill_debates':bkey},
+            'bill_link_diagnostics':{
+              'bill_rows':int(len(bills)),'distinct_bill_debate_uris':int(len(bill_uris)),'distinct_speech_source_debate_uris':int(len(speech_uris)),
+              'exact_uri_overlap_count':int(len(exact_uri_overlap)),'exact_uri_linked_speech_count':int(len(uri_linked)),'exact_uri_linked_section_count':int(uri_linked.debate_section_id.nunique()),
+              'normalized_uri_overlap_count':int(len(norm_overlap)),'normalized_uri_linked_speech_count':int(len(norm_linked)),'normalized_uri_linked_section_count':int(norm_linked.debate_section_id.nunique()),
             },
-            'candidate_context_counts':{k:int(v) for k,v in context_counts.items()},
-            'candidate_context_section_counts':{k:int(v) for k,v in section_counts.items()},
-            'coverage_share_non_other':float((speeches.candidate_context!='other').mean()),
-            'precedence_proposal':precedence+['other'],
-            'overlap_speech_count':int(overlap_count.gt(1).sum()),
-            'overlap_matrix':overlap_matrix,
-            'overlap_examples':overlap_rows.head(60).to_dict(orient='records'),
-            'heading_profiles':heading_profiles,
-            'bill_heading_sample':bill_heading_sample,
-            'manual_samples':manual_samples,
-            'by_year':by_year,
+            'statement_like_headings':statement_like.head(80).to_dict(),
+            'bill_like_headings':bill_like.head(80).to_dict(),
+            'motion_like_headings':motion_like.head(50).to_dict(),
+            'linked_uri_profiles':uri_profiles[:30],
+            'bill_samples':bill_samples[:40],
             'guardrails':[
-              'oral_question_exchange is already certified through exact debate_section_id linkage from Oral question records.',
-              'bill_or_legislation is anchored only by silver_bill_debates.debate_section_id, not by heading text.',
-              'leaders_questions, motions, statements and procedural_business are heading-rule candidates and require source/manual validation before production use.',
-              'overlaps must be resolved by explicit precedence; do not allow one speech to count in multiple top-level contexts.',
-              'other remains the default where deterministic evidence is insufficient.'
+              'URI joins are diagnostics until we establish the URI grain; a debate-day URI must not cause all sections on that day to be labelled Bill debate.',
+              'Heading matches are evidence-discovery only and are not production context rules by themselves.'
             ]
           }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/broader_speech_context_profile.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
-          digest={k:v for k,v in out.items() if k not in ['overlap_examples','manual_samples','heading_profiles']}
-          digest['heading_profiles']={k:list(v.items())[:15] for k,v in heading_profiles.items()}
-          digest['overlap_examples']=out['overlap_examples'][:20]
-          digest['manual_samples']={k:v[:10] for k,v in manual_samples.items()}
-          Path('analysis/broader_speech_context_profile_digest.json').write_text(json.dumps(digest,indent=2,sort_keys=True,default=str)+'\n')
-          print(json.dumps(digest,indent=2,sort_keys=True,default=str))
+          Path('analysis').mkdir(exist_ok=True); Path('analysis/broader_speech_context_link_diagnostics.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n'); print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
       - name: Persist analysis
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/broader_speech_context_profile*.json
-          git commit -m "Capture broader speech context profile ${GITHUB_RUN_ID}" || true
+          git add analysis/broader_speech_context_link_diagnostics.json
+          git commit -m "Capture speech context link diagnostics ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
