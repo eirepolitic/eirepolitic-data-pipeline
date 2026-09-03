@@ -127,6 +127,7 @@ def _wrap_two_lines(
     candidate = _ellipsize(renderer, label, font_size, max_width_px)
     return candidate, True, _text_width(renderer, candidate, font_size)
 
+
 def _select_label_layout(
     renderer: Any,
     raw_labels: list[str],
@@ -202,6 +203,7 @@ def render(
     params = template.get("params", {}) or {}
     width = int(params.get("width", 1032))
     height = int(params.get("height", 1210))
+    min_visual_rows = max(1, int(params.get("min_visual_rows", 1)))
     palette = load_palette(template)
     clean_rows, warnings = _clean_rows(rows, template, sample)
     raw_labels = [str(item["label"]) for item in clean_rows]
@@ -227,13 +229,16 @@ def render(
         value_font_size = 15
 
     bar_height = 0.0
+    visual_row_count = max(len(clean_rows), min_visual_rows) if clean_rows else 0
+    row_offset = max(0.0, (visual_row_count - len(clean_rows)) / 2.0) if clean_rows else 0.0
+    y_positions = [idx + row_offset for idx in range(len(clean_rows))]
     value_texts: list[Any] = []
     if clean_rows and max(values) > 0:
-        bar_height = 0.72 if len(clean_rows) <= 4 else 0.62
-        ax.barh(range(len(clean_rows)), values, color=palette["accent"], height=bar_height)
-        ax.set_yticks(range(len(clean_rows)))
+        bar_height = 0.72 if visual_row_count <= 4 else 0.62
+        ax.barh(y_positions, values, color=palette["accent"], height=bar_height)
+        ax.set_yticks(y_positions)
         ax.set_yticklabels(labels, color=palette["text"], fontsize=category_font_size)
-        ax.invert_yaxis()
+        ax.set_ylim(visual_row_count - 0.5, -0.5)
         max_value = max(values)
         x_limit = max_value * 1.16 if max_value else 1
         ax.set_xlim(0, x_limit)
@@ -256,7 +261,7 @@ def render(
             value_texts.append(
                 ax.annotate(
                     value_label,
-                    xy=(value, idx),
+                    xy=(value, y_positions[idx]),
                     xytext=(8, 0),
                     textcoords="offset points",
                     color=palette["text"],
@@ -344,7 +349,12 @@ def render(
     created_at = utc_now()
     plot_area_ratio = round(plot_bounds[2] * plot_bounds[3], 4)
     plot_height_px = height * plot_bounds[3]
-    bar_thickness_px = round((plot_height_px / max(len(clean_rows), 1)) * bar_height, 2) if clean_rows else 0.0
+    effective_rows_for_thickness = max(len(clean_rows), min_visual_rows) if clean_rows else 0
+    bar_thickness_px = (
+        round((plot_height_px / effective_rows_for_thickness) * bar_height, 2)
+        if effective_rows_for_thickness
+        else 0.0
+    )
     max_value_label_x_ratio = max(
         ((item["bbox_px"][2] - axes_bbox.x0) / axes_bbox.width for item in value_bounds),
         default=0.0,
@@ -367,6 +377,8 @@ def render(
         "value_label_font_shrunk": value_font_size < MAX_VALUE_FONT_SIZE,
         "axis_font_size": AXIS_FONT_SIZE,
         "bar_thickness_px": bar_thickness_px,
+        "min_visual_rows": min_visual_rows,
+        "effective_visual_row_count": visual_row_count,
         "max_wrapped_label_lines": max((item["line_count"] for item in category_bounds), default=0),
         "max_value_label_x_ratio": round(max_value_label_x_ratio, 4),
         "displayed_item_count": len(clean_rows),
