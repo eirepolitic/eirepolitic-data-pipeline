@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/commissioning/render_party_monthly_profile_v2.py", line 23, in <module>
-    from instagram.renderer.template_renderer import render_template
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/renderer/template_renderer.py", line 11, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
