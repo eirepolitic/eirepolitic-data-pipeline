@@ -31,12 +31,12 @@ def _aliases(row: dict[str, str]) -> set[str]:
     values.update(part.strip() for part in str(row.get("party_aliases") or "").split(";") if part.strip())
     if _norm(row.get("party_name", "")) == "independent":
         values.add("Independents")
-    return {_norm(v) for v in values if v}
+    return {_norm(value) for value in values if value}
 
 
 def load_registry(path: Path = REGISTRY_PATH) -> list[dict[str, str]]:
-    with path.open("r", encoding="utf-8-sig", newline="") as fh:
-        return list(csv.DictReader(fh))
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
 
 
 def resolve_party_asset(party_name: str, path: Path = REGISTRY_PATH) -> PartyAsset:
@@ -69,8 +69,6 @@ def fetch_logo(s3: Any, asset: PartyAsset) -> tuple[Image.Image, dict[str, Any]]
     image = Image.open(io.BytesIO(raw)).convert("RGB")
     if image.size != (1600, 1600):
         raise RuntimeError(f"Logo for {asset.party_name} is {image.size}, expected 1600x1600")
-    if str(image.format or "PNG").upper() not in {"PNG", ""}:
-        raise RuntimeError(f"Logo for {asset.party_name} is not a PNG")
     return image, {
         "party_key": asset.party_key,
         "registry_party_name": asset.party_name,
