@@ -5,16 +5,14 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   chart-variant-review:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
+      GH_TOKEN: ${{ github.token }}
       PYTHONPATH: ${{ github.workspace }}
     steps:
       - name: Check out commissioning branch
@@ -28,94 +26,187 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install render dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install boto3 pillow pyyaml matplotlib requests
+      - name: Install image dependency
+        run: pip install pillow
 
-      - name: Recover and render chart variants
+      - name: Recover historical rendered variants
         shell: bash
         run: |
           set -euo pipefail
           OUT="instagram/commissioning/output/chart-variant-review-2026-09-03"
-          rm -rf "$OUT"
-          mkdir -p "$OUT"
+          TMP="/tmp/chart-variant-runs"
+          rm -rf "$OUT" "$TMP"
+          mkdir -p "$OUT/candidates" "$TMP"
 
-          # Variant A: exact original Matplotlib renderer from Aug 31 diagnostic run.
-          git worktree add --detach /tmp/chart-variant-a 296c395022fddd0302aad80859466365013e518d
-          (
-            cd /tmp/chart-variant-a
-            export PYTHONPATH="$PWD"
-            python process/instagram_factory.py generate-batch \
-              --project instagram/projects/party_issue_share_overindex_jan2026/project.yml \
-              --data-source s3 \
-              --output-root /tmp/chart-variant-a-output \
-              --git-sha 296c395022fddd0302aad80859466365013e518d \
-              --workflow-run-id "$GITHUB_RUN_ID" \
-              >/tmp/chart-variant-a-report.json
+          # Successful chart-related workflow runs from Aug 31 through Sep 3.
+          # The script extracts one common Fianna Fail chart from each artifact.
+          RUNS=(
+            33446672597
+            33446842291
+            33447051080
+            33448590338
+            33464254093
+            33464602238
+            33464994257
+            33679523899
+            33680998844
+            33681142839
+            33681694228
+            33731887273
+            33780442539
           )
-          A_SRC="$(find /tmp/chart-variant-a-output -path '*/fianna-fail/slides/02_issue_profile.png' -print -quit)"
-          test -n "$A_SRC"
-          cp "$A_SRC" "$OUT/variant-a-matplotlib-original-2line.png"
 
-          # Variant B: committed hardened Matplotlib output (3-line taxonomy labels).
-          git show 7f10fb0454d0da6d58b4c5c5b2e5aacc39844052:instagram/commissioning/output/january-overindex-2026/share/parties/fianna-fail/slides/02_issue_profile.png \
-            > "$OUT/variant-b-matplotlib-hardened-3line.png"
+          for run_id in "${RUNS[@]}"; do
+            run_dir="$TMP/$run_id"
+            mkdir -p "$run_dir"
+            echo "Downloading run $run_id"
+            if ! gh run download "$run_id" -D "$run_dir"; then
+              echo "No downloadable artifact for run $run_id; skipping"
+              continue
+            fi
 
-          # Variant C: Sept 1 Pillow monthly-profile treatment with left-aligned metadata/support copy.
-          git show 668b7dafc525f39f6c4ce9adeda72d0c7cb68265:instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fianna-fail/slides/02_most_discussed_issues.png \
-            > "$OUT/variant-c-pillow-left-aligned.png"
+            candidate="$(find "$run_dir" -type f \( \
+              -path '*/fianna-fail/slides/02_issue_profile.png' -o \
+              -path '*/fianna-fail/slides/02_most_discussed_issues.png' \
+            \) -print | head -n 1 || true)"
 
-          # Variant D: Sept 1 Pillow treatment after metadata/support copy was centered.
-          git show 09d84565f83fec5a9ecb04bdf76e44fa3132bfc7:instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fianna-fail/slides/02_most_discussed_issues.png \
-            > "$OUT/variant-d-pillow-centered.png"
-
-          # Variant E: later v2/post-processed chart state that triggered the current review.
-          git show f4fe682610131d1379c067ff785e8f49c06497a3:instagram/commissioning/output/party_issue_monthly_profile_v2/period=2026-07/parties/fianna-fail/slides/02_most_discussed_issues.png \
-            > "$OUT/variant-e-v2-later-state.png"
+            if [ -z "$candidate" ]; then
+              echo "No Fianna Fail chart candidate found in run $run_id"
+              find "$run_dir" -type f -name '*.png' | head -n 20 || true
+              continue
+            fi
+            cp "$candidate" "$OUT/candidates/run-${run_id}.png"
+          done
 
           python - <<'PY'
-          from pathlib import Path
-          from PIL import Image, ImageDraw, ImageFont
+          from __future__ import annotations
+
+          import hashlib
           import json
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont, ImageChops
 
           root = Path('instagram/commissioning/output/chart-variant-review-2026-09-03')
-          variants = [
-              ('A', 'Matplotlib original — 2-line labels', 'variant-a-matplotlib-original-2line.png', '296c3950', '2026-08-31'),
-              ('B', 'Matplotlib hardened — 3-line labels', 'variant-b-matplotlib-hardened-3line.png', '7f10fb04', '2026-08-31'),
-              ('C', 'Pillow monthly profile — left-aligned header', 'variant-c-pillow-left-aligned.png', '668b7daf', '2026-09-01'),
-              ('D', 'Pillow monthly profile — centered header', 'variant-d-pillow-centered.png', '09d84565', '2026-09-01'),
-              ('E', 'Later v2 chart state', 'variant-e-v2-later-state.png', 'f4fe6826', '2026-09-03'),
-          ]
-          font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 28)
-          small = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 20)
-          cards = []
-          manifest = []
-          for key, label, filename, commit, date in variants:
-              path = root / filename
+          candidates = root / 'candidates'
+
+          run_meta = {
+              '33446672597': {'run_number': 200, 'date': '2026-08-31', 'family': 'Matplotlib original diagnostic'},
+              '33446842291': {'run_number': 201, 'date': '2026-08-31', 'family': 'Matplotlib 2-line label hardening'},
+              '33447051080': {'run_number': 202, 'date': '2026-08-31', 'family': 'Matplotlib 3-line label hardening'},
+              '33448590338': {'run_number': 203, 'date': '2026-08-31', 'family': 'Matplotlib final January commissioning'},
+              '33464254093': {'run_number': 212, 'date': '2026-09-01', 'family': 'Pillow monthly profile early'},
+              '33464602238': {'run_number': 213, 'date': '2026-09-01', 'family': 'Pillow monthly profile left-aligned'},
+              '33464994257': {'run_number': 214, 'date': '2026-09-01', 'family': 'Pillow monthly profile centered'},
+              '33679523899': {'run_number': 215, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 commissioning'},
+              '33680998844': {'run_number': 216, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
+              '33681142839': {'run_number': 218, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
+              '33681694228': {'run_number': 219, 'date': '2026-09-02', 'family': 'Pillow monthly profile v2 revision'},
+              '33731887273': {'run_number': 236, 'date': '2026-09-03', 'family': 'Full v2 batch before chart rollback'},
+              '33780442539': {'run_number': 239, 'date': '2026-09-03', 'family': 'Full v2 batch after chart rollback'},
+          }
+
+          records = []
+          for path in sorted(candidates.glob('run-*.png')):
+              run_id = path.stem.removeprefix('run-')
+              raw = path.read_bytes()
+              sha = hashlib.sha256(raw).hexdigest()
               with Image.open(path) as im:
                   im.load()
-                  rgb = im.convert('RGB')
-                  size = rgb.size
-                  thumb = rgb.copy()
-                  thumb.thumbnail((480, 600), Image.Resampling.LANCZOS)
-              card = Image.new('RGB', (540, 700), 'white')
-              x = (540 - thumb.width) // 2
-              card.paste(thumb, (x, 20))
-              draw = ImageDraw.Draw(card)
-              draw.text((270, 635), f'{key}. {label}', fill='black', font=font, anchor='mm')
-              draw.text((270, 674), f'{date} · {commit} · {size[0]}×{size[1]}', fill='black', font=small, anchor='mm')
-              cards.append(card)
-              manifest.append({'variant': key, 'label': label, 'file': filename, 'source_commit': commit, 'date': date, 'dimensions': list(size)})
+                  size = im.size
+              records.append({
+                  'run_id': run_id,
+                  'sha256': sha,
+                  'dimensions': list(size),
+                  **run_meta.get(run_id, {}),
+                  'candidate_file': str(path.relative_to(root)),
+              })
 
-          sheet = Image.new('RGB', (1080, 2100), 'white')
-          for i, card in enumerate(cards):
-              row, col = divmod(i, 2)
-              sheet.paste(card, (col * 540, row * 700))
-          sheet.save(root / 'all-chart-variants-contact-sheet.jpg', quality=92)
-          (root / 'variant-manifest.json').write_text(json.dumps({'variants': manifest}, indent=2), encoding='utf-8')
+          # Group exact duplicate PNGs by hash. Each unique hash is one real rendered variant.
+          groups: dict[str, list[dict]] = {}
+          for rec in records:
+              groups.setdefault(rec['sha256'], []).append(rec)
+
+          variants = []
+          for index, (sha, group) in enumerate(groups.items(), start=1):
+              representative = group[0]
+              src = root / representative['candidate_file']
+              filename = f"variant-{index:02d}-run-{representative['run_number']}-{representative['run_id']}.png"
+              dst = root / filename
+              dst.write_bytes(src.read_bytes())
+              variants.append({
+                  'variant': index,
+                  'file': filename,
+                  'sha256': sha,
+                  'dimensions': representative['dimensions'],
+                  'representative_run_id': representative['run_id'],
+                  'representative_run_number': representative.get('run_number'),
+                  'date': representative.get('date'),
+                  'family': representative.get('family'),
+                  'identical_runs': [item['run_id'] for item in group],
+                  'identical_run_numbers': [item.get('run_number') for item in group],
+              })
+
+          # Extra visual dedupe check in case PNG metadata differs but pixels are identical.
+          pixel_unique = []
+          for variant in variants:
+              path = root / variant['file']
+              with Image.open(path) as im:
+                  rgb = im.convert('RGB')
+                  duplicate_of = None
+                  for kept in pixel_unique:
+                      with Image.open(root / kept['file']) as prior:
+                          prior_rgb = prior.convert('RGB')
+                          if rgb.size == prior_rgb.size and ImageChops.difference(rgb, prior_rgb).getbbox() is None:
+                              duplicate_of = kept['variant']
+                              break
+                  if duplicate_of is None:
+                      pixel_unique.append(variant)
+                  else:
+                      variant['pixel_duplicate_of_variant'] = duplicate_of
+
+          true_variants = [v for v in variants if 'pixel_duplicate_of_variant' not in v]
+
+          bold = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 24)
+          regular = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 18)
+          title_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 34)
+
+          card_w, card_h = 540, 700
+          cols = 2
+          rows = (len(true_variants) + cols - 1) // cols
+          sheet = Image.new('RGB', (cols * card_w, max(1, rows) * card_h + 90), 'white')
+          draw_sheet = ImageDraw.Draw(sheet)
+          draw_sheet.text((sheet.width // 2, 42), 'Recent Party Chart Variants — Fianna Fáil Example', fill='black', font=title_font, anchor='mm')
+
+          for i, variant in enumerate(true_variants):
+              with Image.open(root / variant['file']) as im:
+                  thumb = im.convert('RGB')
+                  thumb.thumbnail((480, 570), Image.Resampling.LANCZOS)
+              card = Image.new('RGB', (card_w, card_h), 'white')
+              x = (card_w - thumb.width) // 2
+              card.paste(thumb, (x, 10))
+              d = ImageDraw.Draw(card)
+              y = 600
+              d.text((card_w // 2, y), f"Variant {variant['variant']}: {variant['family']}", fill='black', font=bold, anchor='mm')
+              d.text((card_w // 2, y + 34), f"Run #{variant['representative_run_number']} · {variant['date']}", fill='black', font=regular, anchor='mm')
+              runs = ', '.join(f"#{n}" for n in variant['identical_run_numbers'] if n is not None)
+              d.text((card_w // 2, y + 64), f"Same PNG in: {runs}", fill='black', font=regular, anchor='mm')
+              row, col = divmod(i, cols)
+              sheet.paste(card, (col * card_w, 90 + row * card_h))
+
+          sheet.save(root / 'all-chart-variants-contact-sheet.jpg', quality=94)
+          manifest = {
+              'window': '2026-08-31 through 2026-09-03',
+              'comparison_party': 'Fianna Fáil',
+              'candidate_runs': records,
+              'hash_groups': variants,
+              'distinct_pixel_variants': true_variants,
+              'distinct_variant_count': len(true_variants),
+          }
+          (root / 'variant-manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
+          print(json.dumps({'distinct_variant_count': len(true_variants), 'variants': true_variants}, indent=2))
           PY
 
+          rm -rf "$OUT/candidates"
           cd instagram/commissioning/output
           rm -f chart-variant-review-2026-09-03.zip
           zip -r chart-variant-review-2026-09-03.zip chart-variant-review-2026-09-03
@@ -126,7 +217,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/commissioning/output/chart-variant-review-2026-09-03
           git add instagram/commissioning/output/chart-variant-review-2026-09-03.zip
-          git commit -m "Add recent party chart variant review pack" || true
+          git commit -m "Add artifact-derived recent chart variant review pack" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Upload comparison artifact
