@@ -1,7 +1,11 @@
 name: Promote approved Instagram framework assets
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/instagram-monthly-post-framework
+    paths:
+      - .github/workflows/_promote_instagram_framework.yml
 
 permissions:
   contents: write
