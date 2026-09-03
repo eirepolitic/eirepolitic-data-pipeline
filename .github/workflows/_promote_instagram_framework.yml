@@ -1,0 +1,46 @@
+name: Promote approved Instagram framework assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-monthly-post-framework
+          fetch-depth: 0
+      - name: Promote approved reusable files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin commissioning/instagram-party-monthly-profile-v2
+          git checkout origin/commissioning/instagram-party-monthly-profile-v2 -- \
+            instagram/templates/assets \
+            instagram/templates/layouts/title_text_media_v1.json \
+            instagram/renderer \
+            instagram/visuals/renderers/horizontal_bar.py \
+            instagram/visuals/renderers/common.py \
+            instagram/visuals/renderers/__init__.py \
+            instagram/visuals/s3_resolver.py \
+            instagram/factory/periods.py \
+            instagram/factory/party_asset_registry.py \
+            instagram/factory/review.py \
+            instagram/factory/ready.py \
+            instagram/factory/recurring.py \
+            instagram/factory/storage.py \
+            instagram/reference/issue_presentation_labels.yml \
+            configs/reference/party_assets_v1.csv
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add instagram configs/reference/party_assets_v1.csv
+          if git diff --cached --quiet; then
+            echo "No changes to promote"
+            exit 0
+          fi
+          git commit -m "feat: promote approved reusable Instagram framework assets"
+          git push origin HEAD:feature/instagram-monthly-post-framework
