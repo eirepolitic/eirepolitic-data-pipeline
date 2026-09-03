@@ -1,0 +1,293 @@
+{
+  "window": "2026-08-31 through 2026-09-03",
+  "comparison_party": "Fianna F\u00e1il",
+  "candidate_runs": [
+    {
+      "run_id": "33447051080",
+      "sha256": "078efd0f1a6e839b8ff80d1976cfb9d1ae5ba73a5863e494fd6bd252e9cdc848",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 202,
+      "date": "2026-08-31",
+      "family": "Matplotlib 3-line label hardening",
+      "candidate_file": "candidates/run-33447051080.png"
+    },
+    {
+      "run_id": "33448590338",
+      "sha256": "24ed2f3c9ab45066f7b797774d3e7c021d9e641eb9a6f508e368442de703efae",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 203,
+      "date": "2026-08-31",
+      "family": "Matplotlib final January commissioning",
+      "candidate_file": "candidates/run-33448590338.png"
+    },
+    {
+      "run_id": "33464254093",
+      "sha256": "70d2ae586f6675fd4f1374abb1af05db472402c62931828c70d24536e8e94165",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 212,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile early",
+      "candidate_file": "candidates/run-33464254093.png"
+    },
+    {
+      "run_id": "33464602238",
+      "sha256": "68cc3f8867949b305cc99c638e6962f8ccd3a249dc05d867b7a66b10c8bf1131",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 213,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile left-aligned",
+      "candidate_file": "candidates/run-33464602238.png"
+    },
+    {
+      "run_id": "33464994257",
+      "sha256": "4d2d2173b0c23cd0812bfdeeac04a329bc161590406fdad452d452d3624ef7a0",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 214,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile centered",
+      "candidate_file": "candidates/run-33464994257.png"
+    },
+    {
+      "run_id": "33731887273",
+      "sha256": "4d2d2173b0c23cd0812bfdeeac04a329bc161590406fdad452d452d3624ef7a0",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 236,
+      "date": "2026-09-03",
+      "family": "Full v2 batch before chart rollback",
+      "candidate_file": "candidates/run-33731887273.png"
+    },
+    {
+      "run_id": "33780442539",
+      "sha256": "4d2d2173b0c23cd0812bfdeeac04a329bc161590406fdad452d452d3624ef7a0",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "run_number": 239,
+      "date": "2026-09-03",
+      "family": "Full v2 batch after chart rollback",
+      "candidate_file": "candidates/run-33780442539.png"
+    }
+  ],
+  "hash_groups": [
+    {
+      "variant": 1,
+      "file": "variant-01-run-202-33447051080.png",
+      "sha256": "078efd0f1a6e839b8ff80d1976cfb9d1ae5ba73a5863e494fd6bd252e9cdc848",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33447051080",
+      "representative_run_number": 202,
+      "date": "2026-08-31",
+      "family": "Matplotlib 3-line label hardening",
+      "identical_runs": [
+        "33447051080"
+      ],
+      "identical_run_numbers": [
+        202
+      ]
+    },
+    {
+      "variant": 2,
+      "file": "variant-02-run-203-33448590338.png",
+      "sha256": "24ed2f3c9ab45066f7b797774d3e7c021d9e641eb9a6f508e368442de703efae",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33448590338",
+      "representative_run_number": 203,
+      "date": "2026-08-31",
+      "family": "Matplotlib final January commissioning",
+      "identical_runs": [
+        "33448590338"
+      ],
+      "identical_run_numbers": [
+        203
+      ]
+    },
+    {
+      "variant": 3,
+      "file": "variant-03-run-212-33464254093.png",
+      "sha256": "70d2ae586f6675fd4f1374abb1af05db472402c62931828c70d24536e8e94165",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464254093",
+      "representative_run_number": 212,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile early",
+      "identical_runs": [
+        "33464254093"
+      ],
+      "identical_run_numbers": [
+        212
+      ]
+    },
+    {
+      "variant": 4,
+      "file": "variant-04-run-213-33464602238.png",
+      "sha256": "68cc3f8867949b305cc99c638e6962f8ccd3a249dc05d867b7a66b10c8bf1131",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464602238",
+      "representative_run_number": 213,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile left-aligned",
+      "identical_runs": [
+        "33464602238"
+      ],
+      "identical_run_numbers": [
+        213
+      ]
+    },
+    {
+      "variant": 5,
+      "file": "variant-05-run-214-33464994257.png",
+      "sha256": "4d2d2173b0c23cd0812bfdeeac04a329bc161590406fdad452d452d3624ef7a0",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464994257",
+      "representative_run_number": 214,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile centered",
+      "identical_runs": [
+        "33464994257",
+        "33731887273",
+        "33780442539"
+      ],
+      "identical_run_numbers": [
+        214,
+        236,
+        239
+      ]
+    }
+  ],
+  "distinct_pixel_variants": [
+    {
+      "variant": 1,
+      "file": "variant-01-run-202-33447051080.png",
+      "sha256": "078efd0f1a6e839b8ff80d1976cfb9d1ae5ba73a5863e494fd6bd252e9cdc848",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33447051080",
+      "representative_run_number": 202,
+      "date": "2026-08-31",
+      "family": "Matplotlib 3-line label hardening",
+      "identical_runs": [
+        "33447051080"
+      ],
+      "identical_run_numbers": [
+        202
+      ]
+    },
+    {
+      "variant": 2,
+      "file": "variant-02-run-203-33448590338.png",
+      "sha256": "24ed2f3c9ab45066f7b797774d3e7c021d9e641eb9a6f508e368442de703efae",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33448590338",
+      "representative_run_number": 203,
+      "date": "2026-08-31",
+      "family": "Matplotlib final January commissioning",
+      "identical_runs": [
+        "33448590338"
+      ],
+      "identical_run_numbers": [
+        203
+      ]
+    },
+    {
+      "variant": 3,
+      "file": "variant-03-run-212-33464254093.png",
+      "sha256": "70d2ae586f6675fd4f1374abb1af05db472402c62931828c70d24536e8e94165",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464254093",
+      "representative_run_number": 212,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile early",
+      "identical_runs": [
+        "33464254093"
+      ],
+      "identical_run_numbers": [
+        212
+      ]
+    },
+    {
+      "variant": 4,
+      "file": "variant-04-run-213-33464602238.png",
+      "sha256": "68cc3f8867949b305cc99c638e6962f8ccd3a249dc05d867b7a66b10c8bf1131",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464602238",
+      "representative_run_number": 213,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile left-aligned",
+      "identical_runs": [
+        "33464602238"
+      ],
+      "identical_run_numbers": [
+        213
+      ]
+    },
+    {
+      "variant": 5,
+      "file": "variant-05-run-214-33464994257.png",
+      "sha256": "4d2d2173b0c23cd0812bfdeeac04a329bc161590406fdad452d452d3624ef7a0",
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "representative_run_id": "33464994257",
+      "representative_run_number": 214,
+      "date": "2026-09-01",
+      "family": "Pillow monthly profile centered",
+      "identical_runs": [
+        "33464994257",
+        "33731887273",
+        "33780442539"
+      ],
+      "identical_run_numbers": [
+        214,
+        236,
+        239
+      ]
+    }
+  ],
+  "distinct_variant_count": 5
+}
