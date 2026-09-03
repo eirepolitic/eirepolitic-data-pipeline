@@ -21,6 +21,59 @@ jobs:
         with:
           ref: feature/instagram-monthly-post-framework
           fetch-depth: 0
+      - name: Apply reusable empty analytical-state support
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          adapter = Path('instagram/projects/party_issue_monthly_profile_v2/adapter.py')
+          text = adapter.read_text(encoding='utf-8')
+          old = '''        if not raw_rows or not share_rows or not per_td_rows:\n            raise RuntimeError(f"{party_name} does not have data for all three analytical slides")\n'''
+          if old not in text:
+              raise SystemExit('Expected adapter empty-row guard not found')
+          text = text.replace(old, '')
+
+          old = '''        "source_note": f"{_period_label(period)} Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",\n    }\n'''
+          new = '''        "source_note": f"{_period_label(period)} Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",\n        "empty_message": {\n            "raw_counts": "No classified issues this month",\n            "share_vs_average": "No issues above average",\n            "per_td_vs_average": "No issues above average per TD",\n        }.get(metric_id, "No data available"),\n    }\n'''
+          if old not in text:
+              raise SystemExit('Expected adapter sample block not found')
+          text = text.replace(old, new)
+
+          old = '''                    "short_chart_virtual_rows_ok": displayed >= 4 or effective == 4,\n                    "short_chart_bar_thickness_ok": displayed >= 4 or bar_thickness <= short_chart_max + 0.01,\n'''
+          new = '''                    "short_chart_virtual_rows_ok": displayed == 0 or displayed >= 4 or effective == 4,\n                    "short_chart_bar_thickness_ok": displayed == 0 or displayed >= 4 or bar_thickness <= short_chart_max + 0.01,\n                    "empty_state_truthful": displayed > 0 or bool(readability.get("empty_message")),\n'''
+          if old not in text:
+              raise SystemExit('Expected adapter short-chart QA block not found')
+          text = text.replace(old, new)
+          adapter.write_text(text, encoding='utf-8')
+
+          renderer = Path('instagram/visuals/renderers/horizontal_bar.py')
+          text = renderer.read_text(encoding='utf-8')
+          old = '''    value_texts: list[Any] = []\n    if clean_rows and max(values) > 0:\n'''
+          new = '''    value_texts: list[Any] = []\n    empty_state = not clean_rows or max(values, default=0.0) <= 0\n    if not empty_state:\n'''
+          if old not in text:
+              raise SystemExit('Expected renderer non-empty condition not found')
+          text = text.replace(old, new)
+
+          old = '''    else:\n        warnings.append("empty_or_zero_rows")\n        ax.text(0.5, 0.5, "No data available", color=palette["muted"], fontsize=20, ha="center", va="center", transform=ax.transAxes)\n        ax.set_yticks([]); ax.set_xticks([])\n'''
+          new = '''    else:\n        empty_message = str(sample.get("empty_message") or "No data available")\n        ax.text(0.5, 0.5, empty_message, color=palette["muted"], fontsize=20, ha="center", va="center", transform=ax.transAxes)\n        ax.set_yticks([]); ax.set_xticks([])\n'''
+          if old not in text:
+              raise SystemExit('Expected renderer empty-state block not found')
+          text = text.replace(old, new)
+
+          old = '''        "displayed_item_count": len(clean_rows),\n        "max_category_label_width_px": round(max_label_width_px, 2),\n'''
+          new = '''        "displayed_item_count": len(clean_rows),\n        "empty_state": empty_state,\n        "empty_message": str(sample.get("empty_message") or "") if empty_state else "",\n        "max_category_label_width_px": round(max_label_width_px, 2),\n'''
+          if old not in text:
+              raise SystemExit('Expected renderer readability block not found')
+          text = text.replace(old, new)
+          renderer.write_text(text, encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add instagram/projects/party_issue_monthly_profile_v2/adapter.py instagram/visuals/renderers/horizontal_bar.py
+          git commit -m "feat(instagram): support truthful empty analytical states"
+          git push origin HEAD:feature/instagram-monthly-post-framework
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -45,10 +98,8 @@ jobs:
           if [ "$STATUS" -ne 0 ]; then
             mkdir -p instagram/commissioning_diagnostics
             cp /tmp/generation.log instagram/commissioning_diagnostics/generation.log
-            git config user.name github-actions[bot]
-            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
             git add instagram/commissioning_diagnostics/generation.log
-            git commit -m "chore: capture August Instagram generation failure"
+            git commit -m "chore: update August Instagram generation failure"
             git push origin HEAD:feature/instagram-monthly-post-framework
             exit "$STATUS"
           fi
@@ -80,8 +131,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add "$ZIP_PATH" "$ZIP_PATH.manifest.json"
           git add "$OUTPUT_ROOT/contact_sheets" "$OUTPUT_ROOT/qa_summary.csv" "$OUTPUT_ROOT/run_manifest.json"
           git commit -m "artifacts(instagram): add August 2026 Party Speech Breakdown review package"
