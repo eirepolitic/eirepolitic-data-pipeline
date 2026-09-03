@@ -1,0 +1,180 @@
+{
+  "party": "Sinn Féin",
+  "party_key": "sinn-fein",
+  "period": "2026-07",
+  "td_count": 39,
+  "classified_speeches": 387,
+  "avg_speeches_per_td": 9.9231,
+  "raw_counts": [
+    {
+      "canonical_label": "Law/Crime and Family Issues",
+      "label": "Law, Crime & Family",
+      "value": 56
+    },
+    {
+      "canonical_label": "International Affairs and Foreign Aid",
+      "label": "International Affairs",
+      "value": 48
+    },
+    {
+      "canonical_label": "Housing and Community Development",
+      "label": "Housing & Community",
+      "value": 45
+    },
+    {
+      "canonical_label": "Health",
+      "label": "Health",
+      "value": 40
+    },
+    {
+      "canonical_label": "Education",
+      "label": "Education",
+      "value": 37
+    },
+    {
+      "canonical_label": "Government Operations",
+      "label": "Government Operations",
+      "value": 28
+    },
+    {
+      "canonical_label": "Transportation",
+      "label": "Transportation",
+      "value": 20
+    }
+  ],
+  "share_vs_average": [
+    {
+      "canonical_label": "International Affairs and Foreign Aid",
+      "label": "International Affairs",
+      "value": 4.555811858831045,
+      "raw_count": 48
+    },
+    {
+      "canonical_label": "Culture and Arts",
+      "label": "Culture and Arts",
+      "value": 2.737976607225182,
+      "raw_count": 19
+    },
+    {
+      "canonical_label": "Housing and Community Development",
+      "label": "Housing & Community",
+      "value": 2.538014180055656,
+      "raw_count": 45
+    },
+    {
+      "canonical_label": "Law/Crime and Family Issues",
+      "label": "Law, Crime & Family",
+      "value": 2.5271896082042624,
+      "raw_count": 56
+    },
+    {
+      "canonical_label": "Other/Miscellaneous",
+      "label": "Other/Miscellaneous",
+      "value": 0.9521846244498646,
+      "raw_count": 9
+    },
+    {
+      "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+      "label": "Civil Rights & Liberties",
+      "value": 0.8533050765718104,
+      "raw_count": 8
+    },
+    {
+      "canonical_label": "Government Operations",
+      "label": "Government Operations",
+      "value": 0.8428501671218989,
+      "raw_count": 28
+    }
+  ],
+  "per_td_vs_average": [
+    {
+      "canonical_label": "Culture and Arts",
+      "label": "Culture and Arts",
+      "value": 0.19734053824962916,
+      "raw_count": 19
+    },
+    {
+      "canonical_label": "International Affairs and Foreign Aid",
+      "label": "International Affairs",
+      "value": 0.12224517906336096,
+      "raw_count": 48
+    },
+    {
+      "canonical_label": "Housing and Community Development",
+      "label": "Housing & Community",
+      "value": 0.07924083492265299,
+      "raw_count": 45
+    },
+    {
+      "canonical_label": "State and Local Government Administration",
+      "label": "Local Government",
+      "value": 0.05171911421911421,
+      "raw_count": 5
+    },
+    {
+      "canonical_label": "Other/Miscellaneous",
+      "label": "Other/Miscellaneous",
+      "value": 0.04880536130536131,
+      "raw_count": 9
+    },
+    {
+      "canonical_label": "Civil Rights, Minority Issues and Civil Liberties",
+      "label": "Civil Rights & Liberties",
+      "value": 0.03614378046196229,
+      "raw_count": 8
+    }
+  ],
+  "slides": [
+    "parties/sinn-fein/slides/01_cover.png",
+    "parties/sinn-fein/slides/02_most_discussed_issues.png",
+    "parties/sinn-fein/slides/03_more_than_average.png",
+    "parties/sinn-fein/slides/04_more_per_td.png",
+    "parties/sinn-fein/slides/05_glossary.png"
+  ],
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "project_id": "party_issue_monthly_profile_v2",
+  "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/sinn-fein/manifest.json",
+  "source_metrics_project_id": "party_issue_monthly_profile_v1",
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "party_asset": {
+    "party_key": "sinn-fein",
+    "registry_party_name": "Sinn Féin",
+    "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+    "bucket": "eirepolitic-data",
+    "key": "processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+    "etag": "333746b6abf62b764ff35934cfed3bdf",
+    "version_id": null,
+    "last_modified": "2026-09-02T18:03:43+00:00",
+    "dimensions": [
+      1600,
+      1600
+    ],
+    "asset_status": "approved",
+    "source_type": "user_selected_official_site_derived_wordmark",
+    "fallback_type": ""
+  },
+  "cover_title": "Party Speech Breakdown",
+  "cover_title_period": "July 2026",
+  "display_party_name": "Sinn Féin",
+  "logo_geometry": {
+    "square_size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true,
+    "artwork_scale": 1.0,
+    "border": {
+      "enabled": true,
+      "color": "#d8b45f",
+      "width_px": 6,
+      "position": "inside_square"
+    }
+  },
+  "logo_resampling_cleanup": {
+    "enabled": false,
+    "neutral_pixels_replaced": 0,
+    "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+  }
+}

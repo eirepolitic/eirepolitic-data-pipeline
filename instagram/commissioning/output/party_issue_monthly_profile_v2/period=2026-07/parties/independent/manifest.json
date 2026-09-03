@@ -1,0 +1,162 @@
+{
+  "party": "Independent",
+  "party_key": "independent",
+  "period": "2026-07",
+  "td_count": 16,
+  "classified_speeches": 105,
+  "avg_speeches_per_td": 6.5625,
+  "raw_counts": [
+    {
+      "canonical_label": "Government Operations",
+      "label": "Government Operations",
+      "value": 18
+    },
+    {
+      "canonical_label": "Health",
+      "label": "Health",
+      "value": 14
+    },
+    {
+      "canonical_label": "Education",
+      "label": "Education",
+      "value": 14
+    },
+    {
+      "canonical_label": "Housing and Community Development",
+      "label": "Housing & Community",
+      "value": 8
+    },
+    {
+      "canonical_label": "International Affairs and Foreign Aid",
+      "label": "International Affairs",
+      "value": 8
+    },
+    {
+      "canonical_label": "Law/Crime and Family Issues",
+      "label": "Law, Crime & Family",
+      "value": 8
+    },
+    {
+      "canonical_label": "Transportation",
+      "label": "Transportation",
+      "value": 7
+    }
+  ],
+  "share_vs_average": [
+    {
+      "canonical_label": "Government Operations",
+      "label": "Government Operations",
+      "value": 10.750565191115994,
+      "raw_count": 18
+    },
+    {
+      "canonical_label": "Public Lands and Water Management",
+      "label": "Land & Water Management",
+      "value": 4.41028074474572,
+      "raw_count": 6
+    },
+    {
+      "canonical_label": "Education",
+      "label": "Education",
+      "value": 1.7926375052629964,
+      "raw_count": 14
+    },
+    {
+      "canonical_label": "Energy",
+      "label": "Energy",
+      "value": 1.6806206278998395,
+      "raw_count": 4
+    },
+    {
+      "canonical_label": "Health",
+      "label": "Health",
+      "value": 1.444635454003279,
+      "raw_count": 14
+    },
+    {
+      "canonical_label": "Macroeconomics",
+      "label": "Macroeconomics",
+      "value": 1.435522127728185,
+      "raw_count": 4
+    },
+    {
+      "canonical_label": "State and Local Government Administration",
+      "label": "Local Government",
+      "value": 0.3451715060523659,
+      "raw_count": 1
+    }
+  ],
+  "per_td_vs_average": [
+    {
+      "canonical_label": "Government Operations",
+      "label": "Government Operations",
+      "value": 0.3853968001695275,
+      "raw_count": 18
+    },
+    {
+      "canonical_label": "Public Lands and Water Management",
+      "label": "Land & Water Management",
+      "value": 0.23503390548845096,
+      "raw_count": 6
+    },
+    {
+      "canonical_label": "Energy",
+      "label": "Energy",
+      "value": 0.010343822843822875,
+      "raw_count": 4
+    }
+  ],
+  "slides": [
+    "parties/independent/slides/01_cover.png",
+    "parties/independent/slides/02_most_discussed_issues.png",
+    "parties/independent/slides/03_more_than_average.png",
+    "parties/independent/slides/04_more_per_td.png",
+    "parties/independent/slides/05_glossary.png"
+  ],
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "project_id": "party_issue_monthly_profile_v2",
+  "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/independent/manifest.json",
+  "source_metrics_project_id": "party_issue_monthly_profile_v1",
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "party_asset": {
+    "party_key": "independent",
+    "registry_party_name": "Independent",
+    "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent/logo.png",
+    "bucket": "eirepolitic-data",
+    "key": "processed/reference/party_assets/v1/assets/independent/logo.png",
+    "etag": "02d23e6b2cd2622ec446054ec9b960d9",
+    "version_id": null,
+    "last_modified": "2026-09-02T18:03:40+00:00",
+    "dimensions": [
+      1600,
+      1600
+    ],
+    "asset_status": "approved",
+    "source_type": "eirepolitic_generated_standin",
+    "fallback_type": "eirepolitic_neutral_standin"
+  },
+  "cover_title": "Party Speech Breakdown",
+  "cover_title_period": "July 2026",
+  "display_party_name": "Independents",
+  "logo_geometry": {
+    "square_size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true,
+    "artwork_scale": 1.0,
+    "border": {
+      "enabled": true,
+      "color": "#d8b45f",
+      "width_px": 6,
+      "position": "inside_square"
+    }
+  },
+  "logo_resampling_cleanup": {
+    "enabled": false,
+    "neutral_pixels_replaced": 0,
+    "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+  }
+}
