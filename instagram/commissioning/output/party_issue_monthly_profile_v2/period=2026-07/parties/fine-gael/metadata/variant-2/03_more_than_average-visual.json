@@ -1,0 +1,284 @@
+{
+  "visual_id": "fine-gael-share_vs_average-variant-2",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-03T19:02:52.960198+00:00",
+  "input": {
+    "data_origin": "QA-passed July 2026 party monthly profile metrics",
+    "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/fine-gael/manifest.json",
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "metric_id": "share_vs_average",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
+    "approved_visual_variant": 2,
+    "approved_visual_source_run": 203,
+    "approved_visual_source_run_id": 33448590338
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "July 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Health",
+      "value": 7.459128207626467,
+      "group": ""
+    },
+    {
+      "label": "Defense",
+      "value": 4.158478495734205,
+      "group": ""
+    },
+    {
+      "label": "International Affairs",
+      "value": 3.239667605376377,
+      "group": ""
+    },
+    {
+      "label": "Agriculture",
+      "value": 1.9313427355884636,
+      "group": ""
+    },
+    {
+      "label": "Land & Water Management",
+      "value": 1.0872993782860936,
+      "group": ""
+    },
+    {
+      "label": "Social Welfare",
+      "value": 0.7613077707387318,
+      "group": ""
+    },
+    {
+      "label": "Finance & Commerce",
+      "value": 0.7254794049948031,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.4053718507751938,
+    0.14,
+    0.5646281492248062,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4404,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 83.59,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.961,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 376.34,
+    "plot_left_ratio": 0.4054,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          278.76,
+          1006.61,
+          403.76,
+          1044.62
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Defense",
+        "rendered_label": "Defense",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          248.76,
+          877.01,
+          403.76,
+          915.01
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "International Affairs",
+        "rendered_label": "International Affairs",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          747.4,
+          403.76,
+          785.41
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Agriculture",
+        "rendered_label": "Agriculture",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          193.59,
+          617.79,
+          403.76,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Land & Water Management",
+        "rendered_label": "Land & Water\nManagement",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          145.17,
+          460.05,
+          403.76,
+          550.57
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Social Welfare",
+        "rendered_label": "Social Welfare",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          134.79,
+          358.58,
+          403.76,
+          396.59
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Finance & Commerce",
+        "rendered_label": "Finance &\nCommerce",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          197.59,
+          200.58,
+          403.76,
+          291.61
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 7.459128207626467,
+        "text": "+7.5 pp",
+        "font_size": 15,
+        "bbox_px": [
+          841.29,
+          1014.5,
+          978.29,
+          1045.75
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.158478495734205,
+        "text": "+4.2 pp",
+        "font_size": 15,
+        "bbox_px": [
+          661.51,
+          884.89,
+          798.51,
+          916.14
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 3.239667605376377,
+        "text": "+3.2 pp",
+        "font_size": 15,
+        "bbox_px": [
+          611.47,
+          755.28,
+          748.47,
+          786.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.9313427355884636,
+        "text": "+1.9 pp",
+        "font_size": 15,
+        "bbox_px": [
+          540.21,
+          625.68,
+          677.21,
+          656.93
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.0872993782860936,
+        "text": "+1.1 pp",
+        "font_size": 15,
+        "bbox_px": [
+          494.23,
+          496.07,
+          631.23,
+          527.32
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.7613077707387318,
+        "text": "+0.8 pp",
+        "font_size": 15,
+        "bbox_px": [
+          476.48,
+          366.46,
+          613.48,
+          397.71
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.7254794049948031,
+        "text": "+0.7 pp",
+        "font_size": 15,
+        "bbox_px": [
+          474.53,
+          236.85,
+          611.53,
+          268.1
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

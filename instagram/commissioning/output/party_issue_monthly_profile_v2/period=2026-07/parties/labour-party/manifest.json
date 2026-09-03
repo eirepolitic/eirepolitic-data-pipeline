@@ -183,5 +183,704 @@
     "neutral_pixels_replaced": 0,
     "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
   },
-  "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch"
+  "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+  "analytical_visual_variant": 2,
+  "analytical_visuals": {
+    "02_most_discussed_issues": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Labour Party · Most Discussed Issues",
+      "metric_id": "raw_counts",
+      "value_format": "integer",
+      "visual_asset": "parties/labour-party/assets/variant-2/02_most_discussed_issues-visual.png",
+      "visual_metadata": "parties/labour-party/metadata/variant-2/02_most_discussed_issues-visual.json",
+      "visual_manifest": "parties/labour-party/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9517,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              1006.61,
+              416.98,
+              1044.62
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              877.01,
+              416.98,
+              915.01
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              747.4,
+              416.98,
+              785.41
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              589.4,
+              416.98,
+              680.43
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Transportation",
+            "rendered_label": "Transportation",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              142.49,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Jobs & Immigration",
+            "rendered_label": "Jobs & Immigration",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              52.98,
+              358.58,
+              416.98,
+              396.59
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              181.64,
+              200.58,
+              416.98,
+              291.61
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 24.0,
+            "text": "24",
+            "font_size": 15,
+            "bbox_px": [
+              929.53,
+              1014.5,
+              973.53,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 19.0,
+            "text": "19",
+            "font_size": 15,
+            "bbox_px": [
+              829.26,
+              884.89,
+              873.26,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 18.0,
+            "text": "18",
+            "font_size": 15,
+            "bbox_px": [
+              809.21,
+              755.28,
+              853.21,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 18.0,
+            "text": "18",
+            "font_size": 15,
+            "bbox_px": [
+              809.21,
+              625.68,
+              853.21,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 11.0,
+            "text": "11",
+            "font_size": 15,
+            "bbox_px": [
+              668.83,
+              496.07,
+              712.83,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 6.0,
+            "text": "6",
+            "font_size": 15,
+            "bbox_px": [
+              568.55,
+              366.46,
+              590.55,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 5.0,
+            "text": "5",
+            "font_size": 15,
+            "bbox_px": [
+              548.5,
+              236.85,
+              570.5,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "03_more_than_average": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Labour Party vs Average",
+      "metric_id": "share_vs_average",
+      "value_format": "plus_pp_1",
+      "visual_asset": "parties/labour-party/assets/variant-2/03_more_than_average-visual.png",
+      "visual_metadata": "parties/labour-party/metadata/variant-2/03_more_than_average-visual.json",
+      "visual_manifest": "parties/labour-party/metadata/variant-2/03_more_than_average-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9618,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              1006.61,
+              416.98,
+              1044.62
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              848.62,
+              416.98,
+              939.65
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              747.4,
+              416.98,
+              785.41
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Civil Rights & Liberties",
+            "rendered_label": "Civil Rights\n& Liberties",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              202.98,
+              589.4,
+              416.98,
+              680.43
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Science & Technology",
+            "rendered_label": "Science &\nTechnology",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              205.35,
+              330.19,
+              416.98,
+              421.22
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Foreign Trade",
+            "rendered_label": "Foreign Trade",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              160.67,
+              228.97,
+              416.98,
+              266.98
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 6.369751933123692,
+            "text": "+6.4 pp",
+            "font_size": 15,
+            "bbox_px": [
+              842.31,
+              1014.5,
+              979.31,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 4.342943024206993,
+            "text": "+4.3 pp",
+            "font_size": 15,
+            "bbox_px": [
+              716.92,
+              884.89,
+              853.92,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.2904065982818853,
+            "text": "+2.3 pp",
+            "font_size": 15,
+            "bbox_px": [
+              589.93,
+              755.28,
+              726.93,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.7711962409051822,
+            "text": "+1.8 pp",
+            "font_size": 15,
+            "bbox_px": [
+              557.81,
+              625.68,
+              694.81,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.4897411913736878,
+            "text": "+1.5 pp",
+            "font_size": 15,
+            "bbox_px": [
+              540.4,
+              496.07,
+              677.4,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.3791453343155842,
+            "text": "+1.4 pp",
+            "font_size": 15,
+            "bbox_px": [
+              533.55,
+              366.46,
+              670.55,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.2379150670687022,
+            "text": "+1.2 pp",
+            "font_size": 15,
+            "bbox_px": [
+              524.82,
+              236.85,
+              661.82,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "04_more_per_td": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Labour Party vs Average per TD",
+      "metric_id": "per_td_vs_average",
+      "value_format": "plus_per_td_2",
+      "visual_asset": "parties/labour-party/assets/variant-2/04_more_per_td-visual.png",
+      "visual_metadata": "parties/labour-party/metadata/variant-2/04_more_per_td-visual.json",
+      "visual_manifest": "parties/labour-party/metadata/variant-2/04_more_per_td-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9563,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              1006.61,
+              416.98,
+              1044.62
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              848.62,
+              416.98,
+              939.65
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              747.4,
+              416.98,
+              785.41
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Civil Rights & Liberties",
+            "rendered_label": "Civil Rights\n& Liberties",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              202.98,
+              589.4,
+              416.98,
+              680.43
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Science & Technology",
+            "rendered_label": "Science &\nTechnology",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              205.35,
+              330.19,
+              416.98,
+              421.22
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Jobs & Immigration",
+            "rendered_label": "Jobs & Immigration",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              52.98,
+              228.97,
+              416.98,
+              266.98
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 0.8304990464081372,
+            "text": "+0.83/TD",
+            "font_size": 15,
+            "bbox_px": [
+              814.17,
+              1014.5,
+              976.17,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.5617583174401357,
+            "text": "+0.56/TD",
+            "font_size": 15,
+            "bbox_px": [
+              695.75,
+              884.89,
+              857.75,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.44568499682136054,
+            "text": "+0.45/TD",
+            "font_size": 15,
+            "bbox_px": [
+              644.61,
+              755.28,
+              806.61,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.1946519389701208,
+            "text": "+0.19/TD",
+            "font_size": 15,
+            "bbox_px": [
+              534.0,
+              625.68,
+              696.0,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.15062778130959953,
+            "text": "+0.15/TD",
+            "font_size": 15,
+            "bbox_px": [
+              514.6,
+              496.07,
+              676.6,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.12643038779402416,
+            "text": "+0.13/TD",
+            "font_size": 15,
+            "bbox_px": [
+              503.94,
+              366.46,
+              665.94,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.10411368934096205,
+            "text": "+0.10/TD",
+            "font_size": 15,
+            "bbox_px": [
+              494.1,
+              236.85,
+              656.1,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    }
+  }
 }

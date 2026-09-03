@@ -1,0 +1,156 @@
+{
+  "visual_id": "independent-per_td_vs_average-variant-2",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-03T19:02:56.022515+00:00",
+  "input": {
+    "data_origin": "QA-passed July 2026 party monthly profile metrics",
+    "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/independent/manifest.json",
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "metric_id": "per_td_vs_average",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
+    "approved_visual_variant": 2,
+    "approved_visual_source_run": 203,
+    "approved_visual_source_run_id": 33448590338
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "July 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Government Operations",
+      "value": 0.3853968001695275,
+      "group": ""
+    },
+    {
+      "label": "Land & Water Management",
+      "value": 0.23503390548845096,
+      "group": ""
+    },
+    {
+      "label": "Energy",
+      "value": 0.010343822843822875,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.29127301356589147,
+    0.14,
+    0.6787269864341086,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.5294,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 16,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": false,
+    "axis_font_size": 12,
+    "bar_thickness_px": 226.51,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9618,
+    "displayed_item_count": 3,
+    "max_category_label_width_px": 258.59,
+    "plot_left_ratio": 0.2913,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Government Operations",
+        "rendered_label": "Government\nOperations",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          50.67,
+          904.84,
+          286.01,
+          995.88
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Land & Water Management",
+        "rendered_label": "Land & Water\nManagement",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          589.66,
+          286.01,
+          680.18
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Energy",
+        "rendered_label": "Energy",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          153.67,
+          302.6,
+          286.01,
+          340.1
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 0.3853968001695275,
+        "text": "+0.39/TD",
+        "font_size": 16,
+        "bbox_px": [
+          802.26,
+          940.07,
+          974.26,
+          973.41
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.23503390548845096,
+        "text": "+0.24/TD",
+        "font_size": 16,
+        "bbox_px": [
+          613.04,
+          624.63,
+          785.04,
+          657.97
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.010343822843822875,
+        "text": "+0.01/TD",
+        "font_size": 16,
+        "bbox_px": [
+          330.28,
+          309.19,
+          502.28,
+          342.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

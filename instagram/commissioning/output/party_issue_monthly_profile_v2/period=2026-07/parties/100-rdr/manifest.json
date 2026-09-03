@@ -125,5 +125,434 @@
     "neutral_pixels_replaced": 0,
     "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
   },
-  "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch"
+  "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+  "analytical_visual_variant": 2,
+  "analytical_visuals": {
+    "02_most_discussed_issues": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "100% RDR · Most Discussed Issues",
+      "metric_id": "raw_counts",
+      "value_format": "integer",
+      "visual_asset": "parties/100-rdr/assets/variant-2/02_most_discussed_issues-visual.png",
+      "visual_metadata": "parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual.json",
+      "visual_manifest": "parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 16,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": false,
+        "axis_font_size": 12,
+        "bar_thickness_px": 117.03,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9317,
+        "displayed_item_count": 5,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Agriculture",
+            "rendered_label": "Agriculture",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              206.81,
+              989.22,
+              416.98,
+              1027.23
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              775.12,
+              416.98,
+              866.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              617.79,
+              416.98,
+              655.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              432.08,
+              416.98,
+              470.09
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              246.36,
+              416.98,
+              284.37
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 3.0,
+            "text": "3",
+            "font_size": 16,
+            "bbox_px": [
+              939.16,
+              996.06,
+              962.16,
+              1029.4
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.0,
+            "text": "1",
+            "font_size": 16,
+            "bbox_px": [
+              611.87,
+              810.35,
+              634.87,
+              843.68
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.0,
+            "text": "1",
+            "font_size": 16,
+            "bbox_px": [
+              611.87,
+              624.63,
+              634.87,
+              657.97
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.0,
+            "text": "1",
+            "font_size": 16,
+            "bbox_px": [
+              611.87,
+              438.92,
+              634.87,
+              472.25
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.0,
+            "text": "1",
+            "font_size": 16,
+            "bbox_px": [
+              611.87,
+              253.2,
+              634.87,
+              286.54
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "03_more_than_average": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "100% RDR vs Average",
+      "metric_id": "share_vs_average",
+      "value_format": "plus_pp_1",
+      "visual_asset": "parties/100-rdr/assets/variant-2/03_more_than_average-visual.png",
+      "visual_metadata": "parties/100-rdr/metadata/variant-2/03_more_than_average-visual.json",
+      "visual_manifest": "parties/100-rdr/metadata/variant-2/03_more_than_average-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 16,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": false,
+        "axis_font_size": 12,
+        "bar_thickness_px": 117.03,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9588,
+        "displayed_item_count": 5,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Agriculture",
+            "rendered_label": "Agriculture",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              206.81,
+              989.22,
+              416.98,
+              1027.23
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              775.12,
+              416.98,
+              866.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              617.79,
+              416.98,
+              655.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              432.08,
+              416.98,
+              470.09
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              246.36,
+              416.98,
+              284.37
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 36.74500733186176,
+            "text": "+36.7 pp",
+            "font_size": 16,
+            "bbox_px": [
+              808.57,
+              996.06,
+              977.57,
+              1029.4
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 5.1958214890257555,
+            "text": "+5.2 pp",
+            "font_size": 16,
+            "bbox_px": [
+              499.18,
+              810.35,
+              645.18,
+              843.68
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.745018457643948,
+            "text": "+2.7 pp",
+            "font_size": 16,
+            "bbox_px": [
+              475.15,
+              624.63,
+              621.15,
+              657.97
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.397016406384231,
+            "text": "+2.4 pp",
+            "font_size": 16,
+            "bbox_px": [
+              471.74,
+              438.92,
+              617.74,
+              472.25
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.34261965619245,
+            "text": "+2.3 pp",
+            "font_size": 16,
+            "bbox_px": [
+              471.2,
+              253.2,
+              617.2,
+              286.54
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "04_more_per_td": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "100% RDR vs Average per TD",
+      "metric_id": "per_td_vs_average",
+      "value_format": "plus_per_td_2",
+      "visual_asset": "parties/100-rdr/assets/variant-2/04_more_per_td-visual.png",
+      "visual_metadata": "parties/100-rdr/metadata/variant-2/04_more_per_td-visual.json",
+      "visual_manifest": "parties/100-rdr/metadata/variant-2/04_more_per_td-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 16,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": false,
+        "axis_font_size": 12,
+        "bar_thickness_px": 679.54,
+        "max_wrapped_label_lines": 1,
+        "max_value_label_x_ratio": 0.9611,
+        "displayed_item_count": 1,
+        "max_category_label_width_px": 210.17,
+        "plot_left_ratio": 0.28,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Agriculture",
+            "rendered_label": "Agriculture",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              64.2,
+              617.79,
+              274.38,
+              655.8
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 2.485444479762662,
+            "text": "+2.49/TD",
+            "font_size": 16,
+            "bbox_px": [
+              801.37,
+              624.63,
+              973.37,
+              657.97
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    }
+  }
 }

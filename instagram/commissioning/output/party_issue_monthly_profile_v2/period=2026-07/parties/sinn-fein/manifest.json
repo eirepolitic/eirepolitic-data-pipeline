@@ -177,5 +177,677 @@
     "neutral_pixels_replaced": 0,
     "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
   },
-  "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch"
+  "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+  "analytical_visual_variant": 2,
+  "analytical_visuals": {
+    "02_most_discussed_issues": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Sinn Féin · Most Discussed Issues",
+      "metric_id": "raw_counts",
+      "value_format": "integer",
+      "visual_asset": "parties/sinn-fein/assets/variant-2/02_most_discussed_issues-visual.png",
+      "visual_metadata": "parties/sinn-fein/metadata/variant-2/02_most_discussed_issues-visual.json",
+      "visual_manifest": "parties/sinn-fein/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9517,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              1006.61,
+              416.98,
+              1044.62
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "International Affairs",
+            "rendered_label": "International Affairs",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              40.64,
+              877.01,
+              416.98,
+              915.01
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              719.01,
+              416.98,
+              810.04
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              617.79,
+              416.98,
+              655.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              181.64,
+              330.19,
+              416.98,
+              421.22
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Transportation",
+            "rendered_label": "Transportation",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              142.49,
+              228.97,
+              416.98,
+              266.98
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 56.0,
+            "text": "56",
+            "font_size": 15,
+            "bbox_px": [
+              929.53,
+              1014.5,
+              973.53,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 48.0,
+            "text": "48",
+            "font_size": 15,
+            "bbox_px": [
+              860.77,
+              884.89,
+              904.77,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 45.0,
+            "text": "45",
+            "font_size": 15,
+            "bbox_px": [
+              834.99,
+              755.28,
+              878.99,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 40.0,
+            "text": "40",
+            "font_size": 15,
+            "bbox_px": [
+              792.02,
+              625.68,
+              836.02,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 37.0,
+            "text": "37",
+            "font_size": 15,
+            "bbox_px": [
+              766.23,
+              496.07,
+              810.23,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 28.0,
+            "text": "28",
+            "font_size": 15,
+            "bbox_px": [
+              688.88,
+              366.46,
+              732.88,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 20.0,
+            "text": "20",
+            "font_size": 15,
+            "bbox_px": [
+              620.12,
+              236.85,
+              664.12,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "03_more_than_average": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Sinn Féin vs Average",
+      "metric_id": "share_vs_average",
+      "value_format": "plus_pp_1",
+      "visual_asset": "parties/sinn-fein/assets/variant-2/03_more_than_average-visual.png",
+      "visual_metadata": "parties/sinn-fein/metadata/variant-2/03_more_than_average-visual.json",
+      "visual_manifest": "parties/sinn-fein/metadata/variant-2/03_more_than_average-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9618,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "International Affairs",
+            "rendered_label": "International Affairs",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              40.64,
+              1006.61,
+              416.98,
+              1044.62
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Culture and Arts",
+            "rendered_label": "Culture and Arts",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              105.81,
+              877.01,
+              416.98,
+              915.01
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              719.01,
+              416.98,
+              810.04
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              617.79,
+              416.98,
+              655.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Other/Miscellaneous",
+            "rendered_label": "Other/Miscellaneous",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              28.98,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Civil Rights & Liberties",
+            "rendered_label": "Civil Rights\n& Liberties",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              202.98,
+              330.19,
+              416.98,
+              421.22
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              181.64,
+              200.58,
+              416.98,
+              291.61
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 4.555811858831045,
+            "text": "+4.6 pp",
+            "font_size": 15,
+            "bbox_px": [
+              842.31,
+              1014.5,
+              979.31,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.737976607225182,
+            "text": "+2.7 pp",
+            "font_size": 15,
+            "bbox_px": [
+              685.07,
+              884.89,
+              822.07,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.538014180055656,
+            "text": "+2.5 pp",
+            "font_size": 15,
+            "bbox_px": [
+              667.77,
+              755.28,
+              804.77,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 2.5271896082042624,
+            "text": "+2.5 pp",
+            "font_size": 15,
+            "bbox_px": [
+              666.83,
+              625.68,
+              803.83,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.9521846244498646,
+            "text": "+1.0 pp",
+            "font_size": 15,
+            "bbox_px": [
+              530.59,
+              496.07,
+              667.59,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.8533050765718104,
+            "text": "+0.9 pp",
+            "font_size": 15,
+            "bbox_px": [
+              522.04,
+              366.46,
+              659.04,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.8428501671218989,
+            "text": "+0.8 pp",
+            "font_size": 15,
+            "bbox_px": [
+              521.14,
+              236.85,
+              658.14,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "04_more_per_td": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Sinn Féin vs Average per TD",
+      "metric_id": "per_td_vs_average",
+      "value_format": "plus_per_td_2",
+      "visual_asset": "parties/sinn-fein/assets/variant-2/04_more_per_td-visual.png",
+      "visual_metadata": "parties/sinn-fein/metadata/variant-2/04_more_per_td-visual.json",
+      "visual_manifest": "parties/sinn-fein/metadata/variant-2/04_more_per_td-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 97.53,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9562,
+        "displayed_item_count": 6,
+        "max_category_label_width_px": 388.0,
+        "plot_left_ratio": 0.4167,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Culture and Arts",
+            "rendered_label": "Culture and Arts",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              104.24,
+              999.46,
+              415.42,
+              1037.47
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "International Affairs",
+            "rendered_label": "International Affairs",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              39.07,
+              846.79,
+              415.42,
+              884.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              195.42,
+              665.74,
+              415.42,
+              756.77
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Local Government",
+            "rendered_label": "Local Government",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              69.73,
+              541.46,
+              415.42,
+              579.47
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Other/Miscellaneous",
+            "rendered_label": "Other/Miscellaneous",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              388.79,
+              415.42,
+              426.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Civil Rights & Liberties",
+            "rendered_label": "Civil Rights\n& Liberties",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              201.42,
+              207.73,
+              415.42,
+              298.76
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 0.19734053824962916,
+            "text": "+0.20/TD",
+            "font_size": 15,
+            "bbox_px": [
+              814.0,
+              1007.35,
+              976.0,
+              1038.6
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.12224517906336096,
+            "text": "+0.12/TD",
+            "font_size": 15,
+            "bbox_px": [
+              674.21,
+              854.68,
+              836.21,
+              885.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.07924083492265299,
+            "text": "+0.08/TD",
+            "font_size": 15,
+            "bbox_px": [
+              594.17,
+              702.01,
+              756.17,
+              733.26
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.05171911421911421,
+            "text": "+0.05/TD",
+            "font_size": 15,
+            "bbox_px": [
+              542.94,
+              549.34,
+              704.94,
+              580.59
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.04880536130536131,
+            "text": "+0.05/TD",
+            "font_size": 15,
+            "bbox_px": [
+              537.51,
+              396.67,
+              699.51,
+              427.92
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.03614378046196229,
+            "text": "+0.04/TD",
+            "font_size": 15,
+            "bbox_px": [
+              513.94,
+              244.0,
+              675.94,
+              275.25
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    }
+  }
 }

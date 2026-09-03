@@ -1,0 +1,284 @@
+{
+  "visual_id": "social-democrats-share_vs_average-variant-2",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-03T19:03:02.551123+00:00",
+  "input": {
+    "data_origin": "QA-passed July 2026 party monthly profile metrics",
+    "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/social-democrats/manifest.json",
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "metric_id": "share_vs_average",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
+    "approved_visual_variant": 2,
+    "approved_visual_source_run": 203,
+    "approved_visual_source_run_id": 33448590338
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "July 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Law, Crime & Family",
+      "value": 12.596782671091661,
+      "group": ""
+    },
+    {
+      "label": "Housing & Community",
+      "value": 6.861027448710242,
+      "group": ""
+    },
+    {
+      "label": "Social Welfare",
+      "value": 2.0509850180046696,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 0.9947377034920324,
+      "group": ""
+    },
+    {
+      "label": "Energy",
+      "value": 0.9385814809527167,
+      "group": ""
+    },
+    {
+      "label": "Defense",
+      "value": 0.7042240278761103,
+      "group": ""
+    },
+    {
+      "label": "Civil Rights & Liberties",
+      "value": 0.6266124115855229,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.4181807170542636,
+    0.14,
+    0.5518192829457365,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4304,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 83.59,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9553,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 389.56,
+    "plot_left_ratio": 0.4182,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Law, Crime & Family",
+        "rendered_label": "Law, Crime & Family",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          1006.61,
+          416.98,
+          1044.62
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Housing & Community",
+        "rendered_label": "Housing &\nCommunity",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          196.98,
+          848.62,
+          416.98,
+          939.65
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Social Welfare",
+        "rendered_label": "Social Welfare",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          148.01,
+          747.4,
+          416.98,
+          785.41
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          291.98,
+          617.79,
+          416.98,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Energy",
+        "rendered_label": "Energy",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          284.64,
+          488.44,
+          416.98,
+          525.94
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Defense",
+        "rendered_label": "Defense",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          261.98,
+          358.58,
+          416.98,
+          396.59
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Civil Rights & Liberties",
+        "rendered_label": "Civil Rights\n& Liberties",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          202.98,
+          200.58,
+          416.98,
+          291.61
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 12.596782671091661,
+        "text": "+12.6 pp",
+        "font_size": 15,
+        "bbox_px": [
+          816.56,
+          1014.5,
+          975.56,
+          1045.75
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 6.861027448710242,
+        "text": "+6.9 pp",
+        "font_size": 15,
+        "bbox_px": [
+          648.85,
+          884.89,
+          785.85,
+          916.14
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 2.0509850180046696,
+        "text": "+2.1 pp",
+        "font_size": 15,
+        "bbox_px": [
+          508.2,
+          755.28,
+          645.2,
+          786.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.9947377034920324,
+        "text": "+1.0 pp",
+        "font_size": 15,
+        "bbox_px": [
+          477.32,
+          625.68,
+          614.32,
+          656.93
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.9385814809527167,
+        "text": "+0.9 pp",
+        "font_size": 15,
+        "bbox_px": [
+          475.67,
+          496.07,
+          612.67,
+          527.32
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.7042240278761103,
+        "text": "+0.7 pp",
+        "font_size": 15,
+        "bbox_px": [
+          468.82,
+          366.46,
+          605.82,
+          397.71
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 0.6266124115855229,
+        "text": "+0.6 pp",
+        "font_size": 15,
+        "bbox_px": [
+          466.55,
+          236.85,
+          603.55,
+          268.1
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

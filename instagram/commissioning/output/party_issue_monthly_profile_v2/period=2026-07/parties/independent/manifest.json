@@ -159,5 +159,596 @@
     "neutral_pixels_replaced": 0,
     "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
   },
-  "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch"
+  "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+  "analytical_visual_variant": 2,
+  "analytical_visuals": {
+    "02_most_discussed_issues": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Independents · Most Discussed Issues",
+      "metric_id": "raw_counts",
+      "value_format": "integer",
+      "visual_asset": "parties/independent/assets/variant-2/02_most_discussed_issues-visual.png",
+      "visual_metadata": "parties/independent/metadata/variant-2/02_most_discussed_issues-visual.json",
+      "visual_manifest": "parties/independent/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9517,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 389.56,
+        "plot_left_ratio": 0.4182,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              181.64,
+              978.22,
+              416.98,
+              1069.26
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              291.98,
+              877.01,
+              416.98,
+              915.01
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              227.98,
+              747.4,
+              416.98,
+              785.41
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing & Community",
+            "rendered_label": "Housing &\nCommunity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              196.98,
+              589.4,
+              416.98,
+              680.43
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "International Affairs",
+            "rendered_label": "International Affairs",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              40.64,
+              488.18,
+              416.98,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Law, Crime & Family",
+            "rendered_label": "Law, Crime & Family",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              358.58,
+              416.98,
+              396.59
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Transportation",
+            "rendered_label": "Transportation",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              142.49,
+              228.97,
+              416.98,
+              266.98
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 18.0,
+            "text": "18",
+            "font_size": 15,
+            "bbox_px": [
+              929.53,
+              1014.5,
+              973.53,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 14.0,
+            "text": "14",
+            "font_size": 15,
+            "bbox_px": [
+              822.58,
+              884.89,
+              866.58,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 14.0,
+            "text": "14",
+            "font_size": 15,
+            "bbox_px": [
+              822.58,
+              755.28,
+              866.58,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 8.0,
+            "text": "8",
+            "font_size": 15,
+            "bbox_px": [
+              662.14,
+              625.68,
+              684.14,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 8.0,
+            "text": "8",
+            "font_size": 15,
+            "bbox_px": [
+              662.14,
+              496.07,
+              684.14,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 8.0,
+            "text": "8",
+            "font_size": 15,
+            "bbox_px": [
+              662.14,
+              366.46,
+              684.14,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 7.0,
+            "text": "7",
+            "font_size": 15,
+            "bbox_px": [
+              635.4,
+              236.85,
+              657.4,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "03_more_than_average": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Independents vs Average",
+      "metric_id": "share_vs_average",
+      "value_format": "plus_pp_1",
+      "visual_asset": "parties/independent/assets/variant-2/03_more_than_average-visual.png",
+      "visual_metadata": "parties/independent/metadata/variant-2/03_more_than_average-visual.json",
+      "visual_manifest": "parties/independent/metadata/variant-2/03_more_than_average-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 83.59,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9644,
+        "displayed_item_count": 7,
+        "max_category_label_width_px": 345.69,
+        "plot_left_ratio": 0.3757,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              137.76,
+              978.22,
+              373.1,
+              1069.26
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Land & Water Management",
+            "rendered_label": "Land & Water\nManagement",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              114.51,
+              848.87,
+              373.1,
+              939.39
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              184.1,
+              747.4,
+              373.1,
+              785.41
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Energy",
+            "rendered_label": "Energy",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              240.76,
+              618.05,
+              373.1,
+              655.55
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              248.1,
+              488.18,
+              373.1,
+              526.19
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Macroeconomics",
+            "rendered_label": "Macroeconomics",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              54.93,
+              358.58,
+              373.1,
+              396.59
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Local Government",
+            "rendered_label": "Local Government",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              228.97,
+              373.1,
+              266.98
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 10.750565191115994,
+            "text": "+10.8 pp",
+            "font_size": 15,
+            "bbox_px": [
+              820.21,
+              1014.5,
+              979.21,
+              1045.75
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 4.41028074474572,
+            "text": "+4.4 pp",
+            "font_size": 15,
+            "bbox_px": [
+              574.95,
+              884.89,
+              711.95,
+              916.14
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.7926375052629964,
+            "text": "+1.8 pp",
+            "font_size": 15,
+            "bbox_px": [
+              473.7,
+              755.28,
+              610.7,
+              786.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.6806206278998395,
+            "text": "+1.7 pp",
+            "font_size": 15,
+            "bbox_px": [
+              469.36,
+              625.68,
+              606.36,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.444635454003279,
+            "text": "+1.4 pp",
+            "font_size": 15,
+            "bbox_px": [
+              460.24,
+              496.07,
+              597.24,
+              527.32
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 1.435522127728185,
+            "text": "+1.4 pp",
+            "font_size": 15,
+            "bbox_px": [
+              459.88,
+              366.46,
+              596.88,
+              397.71
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.3451715060523659,
+            "text": "+0.3 pp",
+            "font_size": 15,
+            "bbox_px": [
+              417.71,
+              236.85,
+              554.71,
+              268.1
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "04_more_per_td": {
+      "variant": 2,
+      "source_family": "Matplotlib final January commissioning",
+      "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+      "source_run_number": 203,
+      "source_run_id": 33448590338,
+      "renderer": "instagram.visuals.renderers.horizontal_bar",
+      "renderer_blob": "28c6d77cce90449dca2d5a6862b42badb01fee8b",
+      "outer_layout": "title_text_media_v1",
+      "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
+      "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
+      "slide_title": "Independents vs Average per TD",
+      "metric_id": "per_td_vs_average",
+      "value_format": "plus_per_td_2",
+      "visual_asset": "parties/independent/assets/variant-2/04_more_per_td-visual.png",
+      "visual_metadata": "parties/independent/metadata/variant-2/04_more_per_td-visual.json",
+      "visual_manifest": "parties/independent/metadata/variant-2/04_more_per_td-visual-manifest.json",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 16,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": false,
+        "axis_font_size": 12,
+        "bar_thickness_px": 226.51,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9618,
+        "displayed_item_count": 3,
+        "max_category_label_width_px": 258.59,
+        "plot_left_ratio": 0.2913,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Government Operations",
+            "rendered_label": "Government\nOperations",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              50.67,
+              904.84,
+              286.01,
+              995.88
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Land & Water Management",
+            "rendered_label": "Land & Water\nManagement",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              589.66,
+              286.01,
+              680.18
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Energy",
+            "rendered_label": "Energy",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              153.67,
+              302.6,
+              286.01,
+              340.1
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 0.3853968001695275,
+            "text": "+0.39/TD",
+            "font_size": 16,
+            "bbox_px": [
+              802.26,
+              940.07,
+              974.26,
+              973.41
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.23503390548845096,
+            "text": "+0.24/TD",
+            "font_size": 16,
+            "bbox_px": [
+              613.04,
+              624.63,
+              785.04,
+              657.97
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 0.010343822843822875,
+            "text": "+0.01/TD",
+            "font_size": 16,
+            "bbox_px": [
+              330.28,
+              309.19,
+              502.28,
+              342.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": []
+    }
+  }
 }

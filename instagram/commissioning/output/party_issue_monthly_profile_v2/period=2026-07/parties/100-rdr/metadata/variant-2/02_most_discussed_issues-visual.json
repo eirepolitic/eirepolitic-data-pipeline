@@ -1,0 +1,220 @@
+{
+  "visual_id": "100-rdr-raw_counts-variant-2",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-03T19:02:48.713704+00:00",
+  "input": {
+    "data_origin": "QA-passed July 2026 party monthly profile metrics",
+    "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/100-rdr/manifest.json",
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "metric_id": "raw_counts",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
+    "approved_visual_variant": 2,
+    "approved_visual_source_run": 203,
+    "approved_visual_source_run_id": 33448590338
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "July 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "Agriculture",
+      "value": 3.0,
+      "group": ""
+    },
+    {
+      "label": "Housing & Community",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 1.0,
+      "group": ""
+    },
+    {
+      "label": "Law, Crime & Family",
+      "value": 1.0,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.4181807170542636,
+    0.14,
+    0.5518192829457365,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4304,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 16,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": false,
+    "axis_font_size": 12,
+    "bar_thickness_px": 117.03,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9317,
+    "displayed_item_count": 5,
+    "max_category_label_width_px": 389.56,
+    "plot_left_ratio": 0.4182,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "Agriculture",
+        "rendered_label": "Agriculture",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          206.81,
+          989.22,
+          416.98,
+          1027.23
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Housing & Community",
+        "rendered_label": "Housing &\nCommunity",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          196.98,
+          775.12,
+          416.98,
+          866.15
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          291.98,
+          617.79,
+          416.98,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Education",
+        "rendered_label": "Education",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          227.98,
+          432.08,
+          416.98,
+          470.09
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Law, Crime & Family",
+        "rendered_label": "Law, Crime & Family",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          246.36,
+          416.98,
+          284.37
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 3.0,
+        "text": "3",
+        "font_size": 16,
+        "bbox_px": [
+          939.16,
+          996.06,
+          962.16,
+          1029.4
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.0,
+        "text": "1",
+        "font_size": 16,
+        "bbox_px": [
+          611.87,
+          810.35,
+          634.87,
+          843.68
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.0,
+        "text": "1",
+        "font_size": 16,
+        "bbox_px": [
+          611.87,
+          624.63,
+          634.87,
+          657.97
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.0,
+        "text": "1",
+        "font_size": 16,
+        "bbox_px": [
+          611.87,
+          438.92,
+          634.87,
+          472.25
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 1.0,
+        "text": "1",
+        "font_size": 16,
+        "bbox_px": [
+          611.87,
+          253.2,
+          634.87,
+          286.54
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}

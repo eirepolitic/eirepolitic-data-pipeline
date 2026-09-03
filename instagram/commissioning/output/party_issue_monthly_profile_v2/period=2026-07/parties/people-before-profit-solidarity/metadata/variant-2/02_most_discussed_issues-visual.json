@@ -1,0 +1,284 @@
+{
+  "visual_id": "people-before-profit-solidarity-raw_counts-variant-2",
+  "template_id": "horizontal_bar_draft_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-03T19:02:59.285490+00:00",
+  "input": {
+    "data_origin": "QA-passed July 2026 party monthly profile metrics",
+    "source_metrics_manifest": "instagram/commissioning/output/party_issue_monthly_profile_v1/period=2026-07/parties/people-before-profit-solidarity/manifest.json",
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "metric_id": "raw_counts",
+    "presentation_labels_path": "instagram/reference/issue_presentation_labels.yml",
+    "approved_visual_variant": 2,
+    "approved_visual_source_run": 203,
+    "approved_visual_source_run_id": 33448590338
+  },
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "filters": [],
+  "grouping": {},
+  "source_note": "July 2026 Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+  "attribution": {},
+  "rows_rendered": [
+    {
+      "label": "International Affairs",
+      "value": 10.0,
+      "group": ""
+    },
+    {
+      "label": "Law, Crime & Family",
+      "value": 9.0,
+      "group": ""
+    },
+    {
+      "label": "Defense",
+      "value": 8.0,
+      "group": ""
+    },
+    {
+      "label": "Education",
+      "value": 5.0,
+      "group": ""
+    },
+    {
+      "label": "Jobs & Immigration",
+      "value": 4.0,
+      "group": ""
+    },
+    {
+      "label": "Health",
+      "value": 4.0,
+      "group": ""
+    },
+    {
+      "label": "Housing & Community",
+      "value": 4.0,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.4181807170542636,
+    0.14,
+    0.5518192829457365,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4304,
+  "readability": {
+    "category_label_font_size": 18,
+    "category_label_font_size_requested": 18,
+    "category_label_font_size_minimum": 14,
+    "category_label_font_shrunk": false,
+    "value_label_font_size": 15,
+    "value_label_font_size_requested": 16,
+    "value_label_font_size_minimum": 14,
+    "value_label_font_shrunk": true,
+    "axis_font_size": 12,
+    "bar_thickness_px": 83.59,
+    "max_wrapped_label_lines": 2,
+    "max_value_label_x_ratio": 0.9517,
+    "displayed_item_count": 7,
+    "max_category_label_width_px": 389.56,
+    "plot_left_ratio": 0.4182,
+    "category_text_clipped_count": 0,
+    "value_text_clipped_count": 0,
+    "truncated_label_count": 0,
+    "category_text_bounds": [
+      {
+        "raw_label": "International Affairs",
+        "rendered_label": "International Affairs",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          40.64,
+          1006.61,
+          416.98,
+          1044.62
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Law, Crime & Family",
+        "rendered_label": "Law, Crime & Family",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          27.42,
+          877.01,
+          416.98,
+          915.01
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Defense",
+        "rendered_label": "Defense",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          261.98,
+          747.4,
+          416.98,
+          785.41
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Education",
+        "rendered_label": "Education",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          227.98,
+          617.79,
+          416.98,
+          655.8
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Jobs & Immigration",
+        "rendered_label": "Jobs & Immigration",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          52.98,
+          488.18,
+          416.98,
+          526.19
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Health",
+        "rendered_label": "Health",
+        "font_size": 18,
+        "line_count": 1,
+        "truncated": false,
+        "bbox_px": [
+          291.98,
+          358.58,
+          416.98,
+          396.59
+        ],
+        "clipped_to_figure": false
+      },
+      {
+        "raw_label": "Housing & Community",
+        "rendered_label": "Housing &\nCommunity",
+        "font_size": 18,
+        "line_count": 2,
+        "truncated": false,
+        "bbox_px": [
+          196.98,
+          200.58,
+          416.98,
+          291.61
+        ],
+        "clipped_to_figure": false
+      }
+    ],
+    "value_text_bounds": [
+      {
+        "value": 10.0,
+        "text": "10",
+        "font_size": 15,
+        "bbox_px": [
+          929.53,
+          1014.5,
+          973.53,
+          1045.75
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 9.0,
+        "text": "9",
+        "font_size": 15,
+        "bbox_px": [
+          881.4,
+          884.89,
+          903.4,
+          916.14
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 8.0,
+        "text": "8",
+        "font_size": 15,
+        "bbox_px": [
+          833.27,
+          755.28,
+          855.27,
+          786.53
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 5.0,
+        "text": "5",
+        "font_size": 15,
+        "bbox_px": [
+          688.88,
+          625.68,
+          710.88,
+          656.93
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.0,
+        "text": "4",
+        "font_size": 15,
+        "bbox_px": [
+          640.75,
+          496.07,
+          662.75,
+          527.32
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.0,
+        "text": "4",
+        "font_size": 15,
+        "bbox_px": [
+          640.75,
+          366.46,
+          662.75,
+          397.71
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      },
+      {
+        "value": 4.0,
+        "text": "4",
+        "font_size": 15,
+        "bbox_px": [
+          640.75,
+          236.85,
+          662.75,
+          268.1
+        ],
+        "clipped_to_axes": false,
+        "clipped_to_figure": false
+      }
+    ]
+  },
+  "warnings": []
+}
