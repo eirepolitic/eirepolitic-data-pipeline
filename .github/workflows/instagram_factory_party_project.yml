@@ -46,16 +46,23 @@ jobs:
 
           bucket = 'eirepolitic-data'
           key = 'processed/reference/party_assets/v1/assets/social-democrats/logo.png'
-          source = Path('instagram/commissioning/input/social-democrats-approved-logo.b64')
+          parts_dir = Path('instagram/commissioning/input/social-democrats-approved-logo.parts')
+          parts = sorted(parts_dir.glob('part-*.txt'))
+          if len(parts) != 7:
+              raise RuntimeError(f'Expected 7 logo chunks, found {len(parts)}')
 
-          encoded = source.read_text(encoding='utf-8').strip()
-          print(f'Staged base64 characters: {len(encoded)}')
+          encoded = ''.join(p.read_text(encoding='utf-8').strip() for p in parts)
+          if len(encoded) != 19368:
+              raise RuntimeError(f'Unexpected assembled base64 length: {len(encoded)}')
           raw = base64.b64decode(encoded, validate=True)
-          print(f'Decoded source bytes: {len(raw)}')
+          source_sha = hashlib.sha256(raw).hexdigest()
+          expected_source_sha = 'ae93121b9cfc40ef4ef843ccbbe964972de5692f7110633bae197faa8bafe6fb'
+          if source_sha != expected_source_sha:
+              raise RuntimeError(f'Approved source hash mismatch: {source_sha}')
 
           with Image.open(io.BytesIO(raw)) as im:
               im.load()
-              print(f'Approved supplied source: {im.format} {im.size} {im.mode}')
+              print(f'Approved source: {im.format} {im.size} {im.mode}')
               rgb = im.convert('RGB').resize((1600, 1600), Image.Resampling.LANCZOS)
               out = io.BytesIO()
               rgb.save(out, format='PNG')
@@ -63,24 +70,16 @@ jobs:
 
           approved_sha = hashlib.sha256(approved_png).hexdigest()
           s3 = boto3.client('s3', region_name='ca-central-1')
-          s3.put_object(
-              Bucket=bucket,
-              Key=key,
-              Body=approved_png,
-              ContentType='image/png',
-          )
-
+          s3.put_object(Bucket=bucket, Key=key, Body=approved_png, ContentType='image/png')
           promoted = s3.get_object(Bucket=bucket, Key=key)['Body'].read()
-          promoted_sha = hashlib.sha256(promoted).hexdigest()
-          if promoted_sha != approved_sha:
-              raise RuntimeError('S3 read-back hash does not match uploaded approved logo')
+          if hashlib.sha256(promoted).hexdigest() != approved_sha:
+              raise RuntimeError('S3 read-back hash mismatch')
           with Image.open(io.BytesIO(promoted)) as im:
               im.load()
               if im.format != 'PNG' or im.size != (1600, 1600):
-                  raise RuntimeError(f'Canonical logo failed contract: {im.format} {im.size}')
-
+                  raise RuntimeError(f'Canonical asset failed contract: {im.format} {im.size}')
           print(f'PROMOTED=s3://{bucket}/{key}')
-          print(f'SHA256={approved_sha}')
+          print(f'CANONICAL_SHA256={approved_sha}')
           PY
 
       - name: Render all-party July 2026 v2 cover review
