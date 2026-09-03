@@ -7,44 +7,88 @@ permissions:
   contents: write
 
 jobs:
-  digest:
+  certify:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build compact legislation digest
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Measure conservative Bill-section certification subset
         run: |
           python - <<'PY'
-          import json
+          import io,json,os
+          from collections import defaultdict
           from pathlib import Path
-          d=json.loads(Path('analysis/legislation_relationships_profile_v2.json').read_text())
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          def read(p):
+              k=resolve_production_key(s3,bucket=bucket,production_key=p)
+              d=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False)
+              for c in d.columns:d[c]=d[c].fillna('').astype(str).str.strip()
+              return d
+          bd=read('processed/oireachtas_unified/latest/csv/silver_bill_debates.csv')
+          sec=read('processed/oireachtas_unified/latest/csv/silver_debate_sections.csv')
+          sp=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
+          dv=read('processed/oireachtas_unified/latest/csv/silver_divisions.csv')
+          sec['heading2']=sec.show_as.where(sec.show_as.ne(''),sec.heading)
+          by_key={(r.debate_id,r.section_eid):(r.debate_section_id,r.heading2) for r in sec.itertuples(index=False) if r.debate_id and r.section_eid}
+          by_heading=defaultdict(list)
+          for r in sec.itertuples(index=False):
+              if r.debate_id and r.heading2:by_heading[(r.debate_id,r.heading2)].append((r.debate_section_id,r.section_eid))
+          agreed=[]; conflicts=[]; no_match=[]
+          for r in bd.itertuples(index=False):
+              comp=by_key.get((r.debate_id,r.debate_section_id))
+              hm=by_heading.get((r.debate_id,r.debate_show_as),[]) if r.debate_id and r.debate_show_as else []
+              base={'bill_id':r.bill_id,'bill_debate_id':r.bill_debate_id,'debate_id':r.debate_id,'debate_date':r.debate_date,'debate_show_as':r.debate_show_as,'source_section_eid':r.debate_section_id}
+              if comp and len(hm)==1 and comp[0]==hm[0][0]:
+                  base['debate_section_id']=comp[0]; agreed.append(base)
+              elif comp or hm:
+                  base['composite']=comp; base['heading_matches']=hm; conflicts.append(base)
+              else:no_match.append(base)
+          adf=pd.DataFrame(agreed)
+          section_bill=adf.groupby('debate_section_id').bill_id.nunique()
+          multi=set(section_bill[section_bill>1].index)
+          unamb=adf[~adf.debate_section_id.isin(multi)]
+          cert_sections=set(unamb.debate_section_id)
+          cert_sp=sp[sp.debate_section_id.isin(cert_sections)]
+          cert_dv=dv[dv.debate_section_id.isin(cert_sections)]
+          multi_rows=adf[adf.debate_section_id.isin(multi)].sort_values(['debate_section_id','bill_id']).to_dict(orient='records')
           out={
-            'production_batch_id':d['production_batch_id'],
-            'row_counts':d['row_counts'],
-            'bill_coverage':d['bill_coverage'],
-            'bill_section_bridge':{k:v for k,v in d['bill_section_bridge'].items() if not k.startswith('sample_')},
-            'division_links':{k:v for k,v in d['division_links'].items() if k!='sample'},
-            'stage_profile':d['stage_profile'],
-            'sponsor_profile':{k:v for k,v in d['sponsor_profile'].items() if not k.startswith('sample_')},
-            'guardrails':d['guardrails'],
-            'samples':{
-              'bill_matches':d['bill_section_bridge'].get('sample_matches',[])[:10],
-              'bill_misses':d['bill_section_bridge'].get('sample_misses',[])[:10],
-              'disagreements':d['bill_section_bridge'].get('sample_disagreements',[])[:10],
-              'divisions':d['division_links'].get('sample',[])[:12],
-              'sponsor_member_links':d['sponsor_profile'].get('sample_member_links',[])[:10],
-              'empty_sponsors':d['sponsor_profile'].get('sample_empty_sponsors',[])[:10],
-            }
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'agreed_rows_before_multi_bill_exclusion':len(agreed),
+            'conflict_or_partial_rows':len(conflicts),
+            'no_current_section_match_rows':len(no_match),
+            'multi_bill_sections':len(multi),
+            'multi_bill_rows':len(multi_rows),
+            'certified_bill_debate_rows':int(len(unamb)),
+            'certified_distinct_bills':int(unamb.bill_id.nunique()),
+            'certified_distinct_sections':int(unamb.debate_section_id.nunique()),
+            'certified_speeches':int(len(cert_sp)),
+            'certified_divisions':int(len(cert_dv)),
+            'certified_division_sections':int(cert_dv.debate_section_id.nunique()),
+            'year_counts':unamb.assign(year=pd.to_datetime(unamb.debate_date,errors='coerce').dt.year).year.value_counts().sort_index().to_dict(),
+            'conflicts':conflicts,
+            'multi_bill_rows_detail':multi_rows,
+            'guardrail':'Certify only rows where debate-scoped source section eid and unique exact source heading identify the same section, excluding sections linked to more than one Bill.'
           }
-          Path('analysis/legislation_relationships_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
-          print(json.dumps(out,indent=2,sort_keys=True))
+          Path('analysis/legislation_certification_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist digest
+      - name: Persist
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/legislation_relationships_digest.json
-          git commit -m "Add compact legislation diagnostics ${GITHUB_RUN_ID}" || true
+          git add analysis/legislation_certification_digest.json
+          git commit -m "Add legislation certification digest ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
