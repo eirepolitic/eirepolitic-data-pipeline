@@ -39,7 +39,18 @@ jobs:
       - name: Generate full July 2026 v2 party profile batch with Variant 2 charts
         run: |
           rm -rf instagram/commissioning/output/party_issue_monthly_profile_v2/period=2026-07
-          python -m instagram.commissioning.render_party_monthly_profile_v2
+          set +e
+          python -m instagram.commissioning.render_party_monthly_profile_v2 2>&1 | tee instagram/commissioning/variant-2-generation-diagnostic.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add instagram/commissioning/variant-2-generation-diagnostic.log
+            git commit -m "Capture Variant 2 generation failure"
+            git push origin "HEAD:${{ github.ref_name }}"
+            exit "$status"
+          fi
+          rm instagram/commissioning/variant-2-generation-diagnostic.log
 
       - name: Validate full 55-slide batch
         run: python -m instagram.commissioning.validate_party_monthly_profile_v2
