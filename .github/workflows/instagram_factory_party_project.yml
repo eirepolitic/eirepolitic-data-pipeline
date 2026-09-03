@@ -36,91 +36,51 @@ jobs:
       - name: Promote user-approved Social Democrats logo
         run: |
           python - <<'PY'
-          from __future__ import annotations
-
           import base64
           import hashlib
           import io
-          from datetime import datetime, timezone
           from pathlib import Path
 
           import boto3
           from PIL import Image
 
           bucket = 'eirepolitic-data'
-          canonical_key = 'processed/reference/party_assets/v1/assets/social-democrats/logo.png'
-          source_path = Path('instagram/commissioning/input/social-democrats-approved-logo.b64')
-          if not source_path.exists():
-              raise RuntimeError(f'Missing approved source asset: {source_path}')
+          key = 'processed/reference/party_assets/v1/assets/social-democrats/logo.png'
+          source = Path('instagram/commissioning/input/social-democrats-approved-logo.b64')
 
-          raw = base64.b64decode(source_path.read_text(encoding='utf-8').strip(), validate=True)
+          encoded = source.read_text(encoding='utf-8').strip()
+          print(f'Staged base64 characters: {len(encoded)}')
+          raw = base64.b64decode(encoded, validate=True)
+          print(f'Decoded source bytes: {len(raw)}')
+
           with Image.open(io.BytesIO(raw)) as im:
               im.load()
               print(f'Approved supplied source: {im.format} {im.size} {im.mode}')
-              source_format = im.format
-              rgb = im.convert('RGB')
-              if rgb.size != (1600, 1600):
-                  rgb = rgb.resize((1600, 1600), Image.Resampling.LANCZOS)
+              rgb = im.convert('RGB').resize((1600, 1600), Image.Resampling.LANCZOS)
               out = io.BytesIO()
-              rgb.save(out, format='PNG', optimize=True)
+              rgb.save(out, format='PNG')
               approved_png = out.getvalue()
 
-          with Image.open(io.BytesIO(approved_png)) as im:
-              if im.format != 'PNG' or im.size != (1600, 1600):
-                  raise RuntimeError(f'Normalised approved asset failed contract: {im.format} {im.size}')
-
-          s3 = boto3.client('s3', region_name='ca-central-1')
-          try:
-              current = s3.get_object(Bucket=bucket, Key=canonical_key)['Body'].read()
-          except Exception as exc:
-              code = getattr(exc, 'response', {}).get('Error', {}).get('Code')
-              if code in {'NoSuchKey', '404'}:
-                  current = None
-              else:
-                  raise
-
           approved_sha = hashlib.sha256(approved_png).hexdigest()
-          if current:
-              current_sha = hashlib.sha256(current).hexdigest()
-              if current_sha != approved_sha:
-                  backup_key = (
-                      'processed/reference/party_assets/v1/history/social-democrats/'
-                      f'logo-before-user-approved-{current_sha[:12]}.png'
-                  )
-                  s3.put_object(
-                      Bucket=bucket,
-                      Key=backup_key,
-                      Body=current,
-                      ContentType='image/png',
-                      Metadata={'reason': 'pre-user-approved-social-democrats-backup'},
-                  )
-                  print(f'Backed up previous canonical asset to s3://{bucket}/{backup_key}')
-
+          s3 = boto3.client('s3', region_name='ca-central-1')
           s3.put_object(
               Bucket=bucket,
-              Key=canonical_key,
+              Key=key,
               Body=approved_png,
               ContentType='image/png',
-              Metadata={
-                  'approval': 'user-confirmed',
-                  'source': str(source_path),
-                  'source-format': str(source_format or 'unknown'),
-                  'sha256': approved_sha,
-                  'promoted-at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
-              },
           )
 
-          promoted = s3.get_object(Bucket=bucket, Key=canonical_key)['Body'].read()
+          promoted = s3.get_object(Bucket=bucket, Key=key)['Body'].read()
           promoted_sha = hashlib.sha256(promoted).hexdigest()
           if promoted_sha != approved_sha:
-              raise RuntimeError('Canonical Social Democrats logo hash differs after S3 upload')
+              raise RuntimeError('S3 read-back hash does not match uploaded approved logo')
           with Image.open(io.BytesIO(promoted)) as im:
               im.load()
               if im.format != 'PNG' or im.size != (1600, 1600):
-                  raise RuntimeError(f'Promoted canonical asset failed contract: {im.format} {im.size}')
+                  raise RuntimeError(f'Canonical logo failed contract: {im.format} {im.size}')
 
-          print(f'PROMOTED_SOCIAL_DEMOCRATS_CANONICAL=s3://{bucket}/{canonical_key}')
-          print(f'PROMOTED_SOCIAL_DEMOCRATS_SHA256={approved_sha}')
+          print(f'PROMOTED=s3://{bucket}/{key}')
+          print(f'SHA256={approved_sha}')
           PY
 
       - name: Render all-party July 2026 v2 cover review
@@ -135,23 +95,22 @@ jobs:
 
           root = Path('instagram/commissioning/output/party-logo-cover-v2-review')
           manifest = json.loads((root / 'review-manifest.json').read_text(encoding='utf-8'))
-          assert manifest['party_count'] == 11, manifest['party_count']
-          assert manifest['cover_title'] == 'Party Speech Breakdown', manifest.get('cover_title')
+          assert manifest['party_count'] == 11
+          assert manifest['cover_title'] == 'Party Speech Breakdown'
           covers = sorted(root.glob('*-cover.png'))
           lineage = sorted(root.glob('*-cover-lineage.json'))
-          assert len(covers) == 11, len(covers)
-          assert len(lineage) == 11, len(lineage)
+          assert len(covers) == 11
+          assert len(lineage) == 11
           for p in covers:
               with Image.open(p) as im:
                   assert im.size == (1080, 1350), (p, im.size)
-          sheet = root / 'all-party-covers-contact-sheet.png'
-          with Image.open(sheet) as im:
-              assert im.size[0] > 0 and im.size[1] > 0, im.size
+          with Image.open(root / 'all-party-covers-contact-sheet.png') as im:
+              assert im.size[0] > 0 and im.size[1] > 0
           for item in manifest['covers']:
               assert item['party_asset_registry'] == 'configs/reference/party_assets_v1.csv'
               asset = item['party_asset']
-              assert asset['dimensions'] == [1600, 1600], asset
-              assert asset['logo_s3_uri'].endswith(f"/{item['party_key']}/logo.png"), asset['logo_s3_uri']
+              assert asset['dimensions'] == [1600, 1600]
+              assert asset['logo_s3_uri'].endswith(f"/{item['party_key']}/logo.png")
           print('PASS: title, 11 covers, registry-backed 1600x1600 logos, contact sheet present')
           PY
 
