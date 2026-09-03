@@ -1,6 +1,7 @@
 name: Promote approved Instagram framework assets
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - feature/instagram-monthly-post-framework
@@ -18,33 +19,26 @@ jobs:
         with:
           ref: feature/instagram-monthly-post-framework
           fetch-depth: 0
-      - name: Promote approved reusable files
+      - name: Promote approved static assets byte-for-byte
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin commissioning/instagram-party-monthly-profile-v2
-          git checkout origin/commissioning/instagram-party-monthly-profile-v2 -- \
-            instagram/templates/assets \
-            instagram/templates/layouts/title_text_media_v1.json \
-            instagram/renderer \
-            instagram/visuals/renderers/horizontal_bar.py \
-            instagram/visuals/renderers/common.py \
-            instagram/visuals/renderers/__init__.py \
-            instagram/visuals/s3_resolver.py \
-            instagram/factory/periods.py \
-            instagram/factory/party_asset_registry.py \
-            instagram/factory/review.py \
-            instagram/factory/ready.py \
-            instagram/factory/recurring.py \
-            instagram/factory/storage.py \
-            instagram/reference/issue_presentation_labels.yml \
-            configs/reference/party_assets_v1.csv
+          SOURCE_REF=c1ea91199ac3d9d9653041a4994eb1b24e54cb50
+          git fetch origin "$SOURCE_REF"
+          mkdir -p instagram/templates/assets
+          for asset in corner_tl.png corner_tr.png corner_bl.png corner_br.png; do
+            git show "$SOURCE_REF:instagram/templates/assets/$asset" > "instagram/templates/assets/$asset"
+          done
+          test "$(git hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add instagram configs/reference/party_assets_v1.csv
+          git add instagram/templates/assets
           if git diff --cached --quiet; then
-            echo "No changes to promote"
+            echo "Assets already promoted"
             exit 0
           fi
-          git commit -m "feat: promote approved reusable Instagram framework assets"
+          git commit -m "feat: promote approved Instagram corner assets"
           git push origin HEAD:feature/instagram-monthly-post-framework
