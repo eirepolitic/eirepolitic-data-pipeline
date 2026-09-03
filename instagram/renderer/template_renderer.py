@@ -24,6 +24,7 @@ class RenderResult:
     source_values_path: Path
     manifest_path: Path
     warnings: list[str]
+    text_metrics: list[dict[str, Any]]
 
 
 def load_json(path: str | Path) -> dict[str, Any]:
@@ -33,10 +34,7 @@ def load_json(path: str | Path) -> dict[str, Any]:
 def load_yaml_or_json(path: str | Path) -> dict[str, Any]:
     path = Path(path)
     text = path.read_text(encoding="utf-8")
-    if path.suffix.lower() == ".json":
-        data = json.loads(text)
-    else:
-        data = yaml.safe_load(text)
+    data = json.loads(text) if path.suffix.lower() == ".json" else yaml.safe_load(text)
     if not isinstance(data, dict):
         raise RuntimeError(f"Expected mapping in {path}")
     return data
@@ -76,6 +74,10 @@ def load_font(kind: str, size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
+def _font_size(font: ImageFont.ImageFont, fallback: int) -> int:
+    return int(getattr(font, "size", fallback))
+
+
 def text_lines(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int) -> list[str]:
     words = str(text or "").split()
     if not words:
@@ -109,36 +111,58 @@ def fit_text(
     style: Mapping[str, Any],
     width: int,
     height: int,
-) -> tuple[ImageFont.ImageFont, list[str]]:
-    size = int(style.get("font_size", 32))
+) -> tuple[ImageFont.ImageFont, list[str], dict[str, Any]]:
+    requested_size = int(style.get("font_size", 32))
+    size = requested_size
     min_size = int(style.get("min_font_size", 16))
     max_lines = int(style.get("max_lines", 999))
     shrink = bool(style.get("shrink_to_fit", False))
     kind = str(style.get("font_family", "default_regular"))
     spacing = int(style.get("line_spacing", 8))
+    original_line_count = 0
+    truncated = False
 
     while True:
         font = load_font(kind, size)
         wrapped_lines = text_lines(draw, text, font, width)
+        original_line_count = len(wrapped_lines)
         too_many_lines = bool(max_lines and len(wrapped_lines) > max_lines)
         lines = wrapped_lines
+        truncated = False
 
-        # If shrink_to_fit is enabled, first try smaller font sizes until the
-        # text fits the requested line count. Only ellipsize at the minimum size.
         if too_many_lines and (not shrink or size <= min_size):
             lines = wrapped_lines[:max_lines]
-            lines[-1] = ellipsize_to_width(draw, lines[-1], font, width)
+            if lines:
+                lines[-1] = ellipsize_to_width(draw, lines[-1], font, width)
+            truncated = True
 
         bbox = draw.multiline_textbbox((0, 0), "\n".join(lines), font=font, spacing=spacing) if lines else (0, 0, 0, 0)
         fits_height = (bbox[3] - bbox[1]) <= height
+        fits_width = (bbox[2] - bbox[0]) <= width
         fits_line_count = not too_many_lines
 
-        if not shrink or (fits_height and fits_line_count) or size <= min_size:
-            return font, lines
+        if not shrink or (fits_height and fits_width and fits_line_count) or size <= min_size:
+            actual_size = _font_size(font, size)
+            return font, lines, {
+                "requested_font_size": requested_size,
+                "actual_font_size": actual_size,
+                "minimum_font_size": min_size,
+                "font_shrunk": actual_size < requested_size,
+                "line_count": len(lines),
+                "original_line_count": original_line_count,
+                "truncated": truncated,
+                "max_lines": max_lines,
+            }
         size -= 2
 
 
-def draw_text_element(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bindings: Mapping[str, Any], palette: Mapping[str, str], warnings: list[str]) -> None:
+def draw_text_element(
+    draw: ImageDraw.ImageDraw,
+    element: Mapping[str, Any],
+    bindings: Mapping[str, Any],
+    palette: Mapping[str, str],
+    warnings: list[str],
+) -> dict[str, Any]:
     placeholder = element.get("placeholder")
     text = str(bindings.get(placeholder, "") if placeholder else element.get("text", ""))
     if placeholder and placeholder not in bindings:
@@ -150,14 +174,26 @@ def draw_text_element(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bin
     valign = str(style.get("valign", "top"))
     spacing = int(style.get("line_spacing", 8))
 
-    font, lines = fit_text(draw, text, style, w, h)
+    font, lines, fit = fit_text(draw, text, style, w, h)
+    metric: dict[str, Any] = {
+        "element_id": str(element.get("id") or placeholder or "text"),
+        "placeholder": placeholder,
+        "source_text": text,
+        "element_box": [x, y, x + w, y + h],
+        **fit,
+        "rendered_lines": lines,
+        "rendered_bbox": None,
+        "clipped": False,
+    }
     if not lines:
-        return
+        return metric
 
-    line_heights = []
+    line_boxes: list[tuple[int, int, int, int]] = []
+    line_heights: list[int] = []
     total_height = 0
     for line in lines:
         bbox = draw.textbbox((0, 0), line, font=font)
+        line_boxes.append(bbox)
         line_height = bbox[3] - bbox[1]
         line_heights.append(line_height)
         total_height += line_height
@@ -169,15 +205,37 @@ def draw_text_element(draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bin
     elif valign == "bottom":
         cursor_y = y + max(0, h - total_height)
 
-    for line, line_height in zip(lines, line_heights):
-        line_width = draw.textbbox((0, 0), line, font=font)[2]
+    left = x + w
+    top = y + h
+    right = x
+    bottom = y
+    for line, line_height, line_bbox in zip(lines, line_heights, line_boxes):
+        line_width = line_bbox[2] - line_bbox[0]
         cursor_x = x
         if align == "center":
             cursor_x = x + max(0, (w - line_width) // 2)
         elif align == "right":
             cursor_x = x + max(0, w - line_width)
-        draw.text((cursor_x, cursor_y), line, font=font, fill=color)
+
+        # Pillow's textbbox can have non-zero left/top bearings. Treat cursor_x/cursor_y
+        # as the intended glyph-bbox origin so the rendered geometry matches fit_text.
+        draw_x = cursor_x - line_bbox[0]
+        draw_y = cursor_y - line_bbox[1]
+        draw.text((draw_x, draw_y), line, font=font, fill=color)
+        actual_bbox = draw.textbbox((draw_x, draw_y), line, font=font)
+        left = min(left, actual_bbox[0])
+        top = min(top, actual_bbox[1])
+        right = max(right, actual_bbox[2])
+        bottom = max(bottom, actual_bbox[3])
         cursor_y += line_height + spacing
+
+    metric["rendered_bbox"] = [left, top, right, bottom]
+    metric["clipped"] = bool(left < x or top < y or right > x + w or bottom > y + h)
+    if metric["clipped"]:
+        warnings.append(f"text_clipped:{metric['element_id']}")
+    if metric["truncated"]:
+        warnings.append(f"text_truncated:{metric['element_id']}")
+    return metric
 
 
 def load_image(reference: str, warnings: list[str]) -> Image.Image | None:
@@ -194,7 +252,7 @@ def load_image(reference: str, warnings: list[str]) -> Image.Image | None:
             return Image.open(path).convert("RGBA")
         warnings.append(f"image_not_found:{reference}")
         return None
-    except Exception as exc:  # pragma: no cover - network/path dependent
+    except Exception as exc:  # pragma: no cover
         warnings.append(f"image_load_error:{reference}:{exc}")
         return None
 
@@ -206,7 +264,14 @@ def rounded_mask(width: int, height: int, radius: int) -> Image.Image:
     return mask
 
 
-def draw_image_element(base: Image.Image, draw: ImageDraw.ImageDraw, element: Mapping[str, Any], bindings: Mapping[str, Any], palette: Mapping[str, str], warnings: list[str]) -> None:
+def draw_image_element(
+    base: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    element: Mapping[str, Any],
+    bindings: Mapping[str, Any],
+    palette: Mapping[str, str],
+    warnings: list[str],
+) -> None:
     placeholder = element.get("placeholder")
     reference = str(bindings.get(placeholder, "") if placeholder else element.get("source", ""))
     if placeholder and placeholder not in bindings:
@@ -264,13 +329,14 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
     image = Image.new("RGBA", (width, height), background_color)
     draw = ImageDraw.Draw(image)
     warnings: list[str] = []
+    text_metrics: list[dict[str, Any]] = []
 
     for element in template.get("elements", []):
         element_type = element.get("type")
         if element_type == "rectangle":
             draw_rectangle(draw, element, palette)
         elif element_type == "text":
-            draw_text_element(draw, element, bindings, palette, warnings)
+            text_metrics.append(draw_text_element(draw, element, bindings, palette, warnings))
         elif element_type == "image":
             draw_image_element(image, draw, element, bindings, palette, warnings)
         elif element_type == "line":
@@ -299,6 +365,7 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
         "bindings": dict(bindings),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "warnings": warnings,
+        "text_metrics": text_metrics,
     }, indent=2, ensure_ascii=False), encoding="utf-8")
     manifest_path.write_text(json.dumps({
         "success": True,
@@ -306,11 +373,18 @@ def render_template(template: Mapping[str, Any], bindings: Mapping[str, Any], ou
         "width": width,
         "height": height,
         "template_id": template.get("template_id"),
-        "renderer_version": "1.0",
+        "renderer_version": "1.1",
         "warnings": warnings,
+        "text_metrics": text_metrics,
     }, indent=2), encoding="utf-8")
 
-    return RenderResult(output_path=output_path, source_values_path=source_path, manifest_path=manifest_path, warnings=warnings)
+    return RenderResult(
+        output_path=output_path,
+        source_values_path=source_path,
+        manifest_path=manifest_path,
+        warnings=warnings,
+        text_metrics=text_metrics,
+    )
 
 
 def render_template_file(
@@ -319,11 +393,6 @@ def render_template_file(
     output_path: str | Path,
     palette_override: str | None = None,
 ) -> dict[str, Any]:
-    """Load a JSON template plus YAML/JSON bindings and render a PNG.
-
-    This wrapper is used by campaign renderers and workflows. It returns the
-    render manifest as a plain dict for easy review-table use.
-    """
     template = load_json(template_path)
     if palette_override:
         template = dict(template)
