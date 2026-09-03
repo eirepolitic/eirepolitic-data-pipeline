@@ -1,0 +1,6 @@
+*** Error compiling 'extract/oireachtas/build_table.py'...
+  File "extract/oireachtas/build_table.py", line 250
+    print(f"TABLE={result.table}\nMODE={args.mode}\nROWS={result.manifest.get('output_rows')}\nCOLUMNS={len(result.schema.get('columns', []))}\nPRIMARY_KEY={','.join(result.schema.get('primary_key', []))}\nPRIMARY_KEY_UNIQUE={str(result.manifest.get('primary_key_unique')).lower()}\nPUBLISH_LATEST={str(publish_latest).lower()}\nBATCH_ID={batch_id or ""}")
+                                                                                                                                                                                                                                                                                                                                                                   ^
+SyntaxError: f-string: expecting '}'
+
