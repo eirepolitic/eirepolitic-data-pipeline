@@ -161,6 +161,17 @@
   },
   "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
   "analytical_visual_variant": 2,
+  "analytical_titles": {
+    "02_most_discussed_issues": "Most Discussed Issues",
+    "03_more_than_average": "Issues Discussed More Than Average",
+    "04_more_per_td": "Issues Discussed More Than Average per TD"
+  },
+  "glossary_terms": [
+    "Most Discussed Issues",
+    "Issues Discussed More Than Average",
+    "Issues Discussed More Than Average per TD",
+    "Classified Speeches"
+  ],
   "analytical_visuals": {
     "02_most_discussed_issues": {
       "variant": 2,
@@ -173,7 +184,7 @@
       "outer_layout": "title_text_media_v1",
       "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
       "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
-      "slide_title": "Independents · Most Discussed Issues",
+      "slide_title": "Most Discussed Issues",
       "metric_id": "raw_counts",
       "value_format": "integer",
       "min_visual_rows": 4,
@@ -408,7 +419,7 @@
       "outer_layout": "title_text_media_v1",
       "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
       "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
-      "slide_title": "Independents vs Average",
+      "slide_title": "Issues Discussed More Than Average",
       "metric_id": "share_vs_average",
       "value_format": "plus_pp_1",
       "min_visual_rows": 4,
@@ -643,7 +654,7 @@
       "outer_layout": "title_text_media_v1",
       "outer_layout_blob": "c409545caafa0a36c79297e530f1c1ad1d7f784b",
       "template_renderer_blob": "662d8457d325d35552d08a43a11aee9e678f2704",
-      "slide_title": "Independents vs Average per TD",
+      "slide_title": "Issues Discussed More Than Average per TD",
       "metric_id": "per_td_vs_average",
       "value_format": "plus_per_td_2",
       "min_visual_rows": 4,
