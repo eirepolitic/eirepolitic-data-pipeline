@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -38,6 +39,31 @@ VARIANT_2_TEMPLATE_RENDERER_BLOB = "662d8457d325d35552d08a43a11aee9e678f2704"
 TITLE_MEDIA_LAYOUT = Path("instagram/templates/layouts/title_text_media_v1.json")
 PRESENTATION_LABELS_PATH = Path("instagram/reference/issue_presentation_labels.yml")
 MIN_VISUAL_ROWS = 4
+
+ANALYTICAL_TITLES = {
+    "02_most_discussed_issues": "Most Discussed Issues",
+    "03_more_than_average": "Issues Discussed More Than Average",
+    "04_more_per_td": "Issues Discussed More Than Average per TD",
+}
+
+V2_GLOSSARY = [
+    (
+        "Most Discussed Issues",
+        "The issues this party/group talked about most often during the month, based on the number of classified speeches.",
+    ),
+    (
+        "Issues Discussed More Than Average",
+        "Issues that made up a larger share of this party/group's classified speeches than the simple average across parties. Values show percentage points above average.",
+    ),
+    (
+        "Issues Discussed More Than Average per TD",
+        "Issues where this party/group recorded more classified speeches per TD than the simple average across parties. This adjusts the comparison for party size.",
+    ),
+    (
+        "Classified Speeches",
+        "Speech segments assigned to an issue category. Counts show how often an issue was discussed, not the party/group's position on it.",
+    ),
+]
 
 
 def _render_cover(path: Path, data: dict, s3, period) -> dict:
@@ -105,6 +131,31 @@ def _render_cover(path: Path, data: dict, s3, period) -> dict:
             "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling",
         },
     }
+
+
+def _render_v2_glossary(path: Path) -> None:
+    image = profile._base_slide()
+    profile._draw_title(image, ["Glossary"])
+    draw = ImageDraw.Draw(image)
+    term_font = profile._font(29, True)
+    body_font = profile._font(23)
+    y = 225
+
+    for term, body in V2_GLOSSARY:
+        draw.text((135, y), term, font=term_font, fill=profile.TEXT, anchor="la")
+        bbox = draw.textbbox((135, y), term, font=term_font, anchor="la")
+        underline_y = bbox[3] + 8
+        draw.line((bbox[0], underline_y, bbox[2], underline_y), fill=profile.ACCENT, width=2)
+        body_y = underline_y + 22
+        for line in textwrap.wrap(body, width=79):
+            draw.text((135, body_y), line, font=body_font, fill=profile.TEXT, anchor="la")
+            body_y += 34
+        y = body_y + 42
+
+    if y > 1315:
+        raise RuntimeError(f"V2 glossary overflowed slide: final y={y}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path)
 
 
 def _variant_2_template(value_format: str) -> dict:
@@ -259,7 +310,7 @@ def main() -> None:
                 party_key=key,
                 period=period,
                 rows=source["raw_counts"],
-                slide_title=f"{display_party} · Most Discussed Issues",
+                slide_title=ANALYTICAL_TITLES["02_most_discussed_issues"],
                 value_format="integer",
                 metric_id="raw_counts",
             ),
@@ -269,7 +320,7 @@ def main() -> None:
                 party_key=key,
                 period=period,
                 rows=source["share_vs_average"],
-                slide_title=f"{display_party} vs Average",
+                slide_title=ANALYTICAL_TITLES["03_more_than_average"],
                 value_format="plus_pp_1",
                 metric_id="share_vs_average",
             ),
@@ -279,12 +330,12 @@ def main() -> None:
                 party_key=key,
                 period=period,
                 rows=source["per_td_vs_average"],
-                slide_title=f"{display_party} vs Average per TD",
+                slide_title=ANALYTICAL_TITLES["04_more_per_td"],
                 value_format="plus_per_td_2",
                 metric_id="per_td_vs_average",
             ),
         }
-        profile._render_glossary(paths[4])
+        _render_v2_glossary(paths[4])
 
         manifest = {
             **source,
@@ -295,6 +346,8 @@ def main() -> None:
             **cover_lineage,
             "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
             "analytical_visual_variant": 2,
+            "analytical_titles": ANALYTICAL_TITLES,
+            "glossary_terms": [term for term, _ in V2_GLOSSARY],
             "analytical_visuals": analytical_visuals,
             "slides": [str(path.relative_to(OUTPUT_ROOT)) for path in paths],
             "review_state": "pending_human_review",
@@ -375,6 +428,8 @@ def main() -> None:
         },
         "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
         "analytical_visual_variant": 2,
+        "analytical_titles": ANALYTICAL_TITLES,
+        "glossary_terms": [term for term, _ in V2_GLOSSARY],
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "cover_title": COVER_TITLE,
         "cover_logo_geometry": {
@@ -406,6 +461,7 @@ def main() -> None:
                 "parties": len(party_manifests),
                 "slides": len(qa_rows),
                 "analytical_visual_variant": 2,
+                "analytical_titles": ANALYTICAL_TITLES,
                 "min_visual_rows": MIN_VISUAL_ROWS,
                 "max_short_chart_bar_thickness_px": max_four_row_thickness_px,
                 "output": str(OUTPUT_ROOT),
