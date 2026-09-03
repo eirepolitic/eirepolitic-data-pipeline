@@ -7,167 +7,44 @@ permissions:
   contents: write
 
 jobs:
-  investigate:
+  digest:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
-      AWS_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install boto3 pandas
-      - name: Profile legislation relationships with debate-scoped section keys
+      - name: Build compact legislation digest
         run: |
           python - <<'PY'
-          import io, json, os
+          import json
           from pathlib import Path
-          import boto3, pandas as pd
-          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY, read_json_required, resolve_production_key
-
-          bucket=os.environ['S3_BUCKET']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
-          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
-          def read(logical):
-              key=resolve_production_key(s3,bucket=bucket,production_key=logical)
-              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False), key
-          def clean(df):
-              for c in df.columns: df[c]=df[c].fillna('').astype(str).str.strip()
-              return df
-
-          paths={
-            'bills':'processed/oireachtas_unified/latest/csv/silver_bills.csv',
-            'bill_stages':'processed/oireachtas_unified/latest/csv/silver_bill_stages.csv',
-            'bill_sponsors':'processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv',
-            'bill_debates':'processed/oireachtas_unified/latest/csv/silver_bill_debates.csv',
-            'bill_events':'processed/oireachtas_unified/latest/csv/silver_bill_events.csv',
-            'sections':'processed/oireachtas_unified/latest/csv/silver_debate_sections.csv',
-            'speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv',
-            'divisions':'processed/oireachtas_unified/latest/csv/silver_divisions.csv',
-            'members':'processed/oireachtas_unified/latest/csv/silver_members.csv',
-          }
-          T={}; keys={}
-          for n,p in paths.items(): T[n],keys[n]=read(p); T[n]=clean(T[n])
-          bills,stages,sponsors,bd,events,sections,speeches,divisions,members=[T[x] for x in ['bills','bill_stages','bill_sponsors','bill_debates','bill_events','sections','speeches','divisions','members']]
-
-          sec=sections.copy()
-          sec['section_heading']=sec.show_as.where(sec.show_as.ne(''),sec.heading)
-          sec_lookup={(r.debate_id,r.section_eid):r.debate_section_id for r in sec.itertuples(index=False) if r.debate_id and r.section_eid}
-          heading_lookup={}
-          for r in sec.itertuples(index=False):
-              if r.debate_id and r.section_heading:
-                  heading_lookup.setdefault((r.debate_id,r.section_heading),[]).append((r.debate_section_id,r.section_eid))
-          speech_counts=speeches.debate_section_id.value_counts().to_dict()
-
-          composite=[]; composite_miss=[]
-          for r in bd.itertuples(index=False):
-              sid=sec_lookup.get((r.debate_id,r.debate_section_id),'')
-              item={'bill_id':r.bill_id,'bill_debate_id':r.bill_debate_id,'debate_id':r.debate_id,'debate_date':r.debate_date,'debate_show_as':r.debate_show_as,'source_section_eid':r.debate_section_id,'debate_section_id':sid,'speech_count':int(speech_counts.get(sid,0))}
-              (composite if sid else composite_miss).append(item)
-
-          heading_unique=[]; heading_zero=[]; heading_multi=[]
-          for r in bd.itertuples(index=False):
-              matches=heading_lookup.get((r.debate_id,r.debate_show_as),[]) if r.debate_id and r.debate_show_as else []
-              item={'bill_id':r.bill_id,'bill_debate_id':r.bill_debate_id,'debate_id':r.debate_id,'debate_show_as':r.debate_show_as,'source_section_eid':r.debate_section_id,'matches':len(matches),'matched_sections':matches}
-              if len(matches)==1: heading_unique.append(item)
-              elif len(matches)==0: heading_zero.append(item)
-              else: heading_multi.append(item)
-
-          comp_by_id={x['bill_debate_id']:x for x in composite}
-          head_by_id={x['bill_debate_id']:x for x in heading_unique}
-          both=set(comp_by_id)&set(head_by_id)
-          agree=sum(comp_by_id[i]['debate_section_id']==head_by_id[i]['matched_sections'][0][0] for i in both)
-          disagree=[{'bill_debate_id':i,'composite':comp_by_id[i],'heading':head_by_id[i]} for i in both if comp_by_id[i]['debate_section_id']!=head_by_id[i]['matched_sections'][0][0]]
-
-          certified_sections={x['debate_section_id'] for x in composite if x['debate_section_id']}
-          certified_speech_rows=speeches[speeches.debate_section_id.isin(certified_sections)]
-          certified_divisions=divisions[divisions.debate_section_id.isin(certified_sections)]
-
-          # Bill multiplicity at section grain: a section should normally map to one bill.
-          comp_df=pd.DataFrame(composite)
-          sec_bill_counts=comp_df.groupby('debate_section_id').bill_id.nunique() if len(comp_df) else pd.Series(dtype=int)
-          multi_bill_sections=sec_bill_counts[sec_bill_counts>1].index.tolist()
-
-          # Coverage by chamber/date inferred from debate_id.
-          def chamber(did):
-              parts=did.split('/debateRecord/')
-              return parts[1].split('/')[0] if len(parts)>1 else ''
-          comp_df['chamber']=comp_df.debate_id.map(chamber) if len(comp_df) else ''
-          comp_df['year']=pd.to_datetime(comp_df.debate_date,errors='coerce').dt.year.astype('Int64').astype(str) if len(comp_df) else ''
-
-          # Stage and sponsor profiles.
-          member_uri_to_code=dict(zip(members.member_uri,members.member_code)) if 'member_uri' in members else {}
-          sponsor_member=sponsors[sponsors.sponsor_uri.isin(set(member_uri_to_code)) & sponsors.sponsor_uri.ne('')].copy()
-          sponsor_member['member_code']=sponsor_member.sponsor_uri.map(member_uri_to_code).fillna('')
-          empty_sponsor=sponsors[sponsors.sponsor_name.eq('')]
-
+          d=json.loads(Path('analysis/legislation_relationships_profile_v2.json').read_text())
           out={
-            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
-            'resolved_keys':keys,
-            'row_counts':{k:int(len(v)) for k,v in T.items()},
-            'bill_coverage':{
-              'distinct_bills':int(bills.bill_id.nunique()),
-              'with_stages':int(stages.bill_id.nunique()),'with_sponsors':int(sponsors.bill_id.nunique()),'with_debates':int(bd.bill_id.nunique()),'with_events':int(events.bill_id.nunique()),
-            },
-            'bill_section_bridge':{
-              'bill_debate_rows':int(len(bd)),
-              'composite_debate_id_plus_source_section_eid_matches':len(composite),
-              'composite_misses':len(composite_miss),
-              'matched_distinct_bills':int(comp_df.bill_id.nunique()) if len(comp_df) else 0,
-              'matched_distinct_sections':int(comp_df.debate_section_id.nunique()) if len(comp_df) else 0,
-              'matched_speeches':int(len(certified_speech_rows)),
-              'matched_rows_with_zero_speeches':sum(x['speech_count']==0 for x in composite),
-              'heading_unique_matches':len(heading_unique),'heading_zero_matches':len(heading_zero),'heading_multiple_matches':len(heading_multi),
-              'composite_and_heading_both':len(both),'composite_heading_agree':agree,'composite_heading_disagree':len(disagree),
-              'sections_linked_to_multiple_bills':len(multi_bill_sections),
-              'chamber_counts':comp_df.chamber.value_counts().to_dict() if len(comp_df) else {},
-              'year_counts':comp_df.year.value_counts().sort_index().to_dict() if len(comp_df) else {},
-              'sample_matches':composite[:40],
-              'sample_misses':composite_miss[:40],
-              'sample_disagreements':disagree[:20],
-              'sample_multi_bill_sections':multi_bill_sections[:20],
-            },
-            'division_links':{
-              'division_rows':int(len(divisions)),
-              'bill_section_divisions':int(len(certified_divisions)),
-              'bill_section_division_sections':int(certified_divisions.debate_section_id.nunique()),
-              'sample':certified_divisions[['division_id','division_date','subject','outcome','debate_id','debate_section_id','debate_show_as']].head(50).to_dict(orient='records'),
-            },
-            'stage_profile':{
-              'rows':int(len(stages)),'distinct_bills':int(stages.bill_id.nunique()),
-              'stage_names':stages.stage_name.value_counts().to_dict(),'houses':stages.house_name.value_counts().to_dict(),'outcomes':stages.stage_outcome.value_counts().to_dict(),
-            },
-            'sponsor_profile':{
-              'rows':int(len(sponsors)),'distinct_bills':int(sponsors.bill_id.nunique()),'member_uri_match_rows':int(len(sponsor_member)),
-              'member_uri_match_distinct_bills':int(sponsor_member.bill_id.nunique()),'empty_sponsor_name_rows':int(len(empty_sponsor)),
-              'primary_rows':int(sponsors.is_primary.str.lower().eq('true').sum()),
-              'sample_member_links':sponsor_member[['bill_id','sponsor_uri','sponsor_name','member_code','is_primary','sponsor_order']].head(40).to_dict(orient='records'),
-              'sample_empty_sponsors':empty_sponsor[['bill_id','sponsor_uri','sponsor_name','sponsor_role_uri','sponsor_role_name','is_primary','sponsor_order']].head(30).to_dict(orient='records'),
-            },
-            'guardrails':[
-              'section_eid values such as dbsect_18 are only meaningful within a debate; never join them globally.',
-              'The candidate Bill-to-section key is (debate_id, bill_debate.debate_section_id) -> (debate_id, debate_section.section_eid).',
-              'Exact heading matching is validation evidence, not the primary key when the composite source key is present.',
-              'Bill debate debate_id/debate_uri remains whole-debate grain and must never label every speech in the sitting.',
-              'Sponsor-to-member links should use sponsor_uri/member_uri, not names.',
-              'Division-to-Bill links are safe only through a certified Bill section relationship.'
-            ]
+            'production_batch_id':d['production_batch_id'],
+            'row_counts':d['row_counts'],
+            'bill_coverage':d['bill_coverage'],
+            'bill_section_bridge':{k:v for k,v in d['bill_section_bridge'].items() if not k.startswith('sample_')},
+            'division_links':{k:v for k,v in d['division_links'].items() if k!='sample'},
+            'stage_profile':d['stage_profile'],
+            'sponsor_profile':{k:v for k,v in d['sponsor_profile'].items() if not k.startswith('sample_')},
+            'guardrails':d['guardrails'],
+            'samples':{
+              'bill_matches':d['bill_section_bridge'].get('sample_matches',[])[:10],
+              'bill_misses':d['bill_section_bridge'].get('sample_misses',[])[:10],
+              'disagreements':d['bill_section_bridge'].get('sample_disagreements',[])[:10],
+              'divisions':d['division_links'].get('sample',[])[:12],
+              'sponsor_member_links':d['sponsor_profile'].get('sample_member_links',[])[:10],
+              'empty_sponsors':d['sponsor_profile'].get('sample_empty_sponsors',[])[:10],
+            }
           }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/legislation_relationships_profile_v2.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n',encoding='utf-8')
-          print(json.dumps(out,indent=2,sort_keys=True,default=str))
+          Path('analysis/legislation_relationships_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True))
           PY
-      - name: Persist analysis
+      - name: Persist digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/legislation_relationships_profile_v2.json
-          git commit -m "Capture corrected legislation diagnostics ${GITHUB_RUN_ID}" || true
+          git add analysis/legislation_relationships_digest.json
+          git commit -m "Add compact legislation diagnostics ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
