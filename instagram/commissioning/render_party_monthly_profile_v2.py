@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import csv
 import json
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,17 +20,23 @@ from instagram.factory.run_party_monthly_profile_v2 import (
     _prepare_logo,
 )
 from instagram.factory.periods import resolve_monthly_period
+from instagram.renderer.template_renderer import render_template
+from instagram.visuals.renderers import horizontal_bar
 
 PERIOD = "2026-07"
 SOURCE_ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v1/period={PERIOD}")
 OUTPUT_ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v2/period={PERIOD}")
 EXPECTED_PARTY_COUNT = 11
 EXPECTED_SLIDE_COUNT = 55
-BAR_CHART_SLIDES = (
-    "02_most_discussed_issues.png",
-    "03_more_than_average.png",
-    "04_more_per_td.png",
-)
+
+VARIANT_2_SOURCE_COMMIT = "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052"
+VARIANT_2_SOURCE_RUN = 203
+VARIANT_2_SOURCE_RUN_ID = 33448590338
+VARIANT_2_RENDERER_BLOB = "28c6d77cce90449dca2d5a6862b42badb01fee8b"
+VARIANT_2_LAYOUT_BLOB = "c409545caafa0a36c79297e530f1c1ad1d7f784b"
+VARIANT_2_TEMPLATE_RENDERER_BLOB = "662d8457d325d35552d08a43a11aee9e678f2704"
+TITLE_MEDIA_LAYOUT = Path("instagram/templates/layouts/title_text_media_v1.json")
+PRESENTATION_LABELS_PATH = Path("instagram/reference/issue_presentation_labels.yml")
 
 
 def _render_cover(path: Path, data: dict, s3, period) -> dict:
@@ -100,21 +106,120 @@ def _render_cover(path: Path, data: dict, s3, period) -> dict:
     }
 
 
-def _copy_successful_pre_logo_charts(source_party_dir: Path, target_slides_dir: Path) -> None:
-    target_slides_dir.mkdir(parents=True, exist_ok=True)
-    for slide_name in BAR_CHART_SLIDES:
-        source = source_party_dir / "slides" / slide_name
-        target = target_slides_dir / slide_name
-        if not source.exists():
-            raise RuntimeError(f"Missing successful pre-logo analytical slide: {source}")
-        shutil.copy2(source, target)
+def _variant_2_template(value_format: str) -> dict:
+    # Exact hard-coded chart template/palette used by the final January
+    # commissioning adapter in run #203. Keep this local to commissioning so
+    # future generic renderer changes cannot silently alter the approved style.
+    return {
+        "template_id": "horizontal_bar_draft_v1",
+        "params": {
+            "width": 1032,
+            "height": 1210,
+            "max_items": 7,
+            "sort": "descending",
+            "value_format": value_format,
+        },
+        "palette": {
+            "background": "#0f2f24",
+            "panel": "#0f2f24",
+            "text": "#f4ead7",
+            "muted": "#c8bda8",
+            "accent": "#d8b45f",
+            "grid": "#f4ead7",
+        },
+    }
+
+
+def _render_variant_2_chart(
+    output_path: Path,
+    *,
+    party: str,
+    party_key: str,
+    period,
+    rows: list[dict],
+    slide_title: str,
+    value_format: str,
+    metric_id: str,
+) -> dict:
+    party_dir = output_path.parent.parent
+    assets_dir = party_dir / "assets" / "variant-2"
+    metadata_dir = party_dir / "metadata" / "variant-2"
+    visual_path = assets_dir / f"{output_path.stem}-visual.png"
+    visual_metadata = metadata_dir / f"{output_path.stem}-visual.json"
+    visual_manifest_path = metadata_dir / f"{output_path.stem}-visual-manifest.json"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+
+    sample = {
+        "visual_id": f"{party_key}-{metric_id}-variant-2",
+        "bindings": {"label": "label", "value": "value"},
+        "source_note": f"{period.label} Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+    }
+    input_metadata = {
+        "data_origin": "QA-passed July 2026 party monthly profile metrics",
+        "source_metrics_manifest": str(SOURCE_ROOT / "parties" / party_key / "manifest.json"),
+        "period_start": period.start.isoformat(),
+        "period_end": period.end.isoformat(),
+        "metric_id": metric_id,
+        "presentation_labels_path": str(PRESENTATION_LABELS_PATH),
+        "approved_visual_variant": 2,
+        "approved_visual_source_run": VARIANT_2_SOURCE_RUN,
+        "approved_visual_source_run_id": VARIANT_2_SOURCE_RUN_ID,
+    }
+    visual_manifest = horizontal_bar.render(
+        _variant_2_template(value_format),
+        sample,
+        rows,
+        visual_path,
+        visual_metadata,
+        visual_manifest_path,
+        input_metadata,
+    )
+    if visual_manifest.get("warnings"):
+        raise RuntimeError(
+            f"Variant 2 visual warnings for {party}/{metric_id}: {visual_manifest['warnings']}"
+        )
+
+    layout = json.loads(TITLE_MEDIA_LAYOUT.read_text(encoding="utf-8"))
+    final_result = render_template(
+        layout,
+        {"slide_title": slide_title, "main_media": str(visual_path)},
+        output_path,
+    )
+    if final_result.warnings:
+        raise RuntimeError(
+            f"Variant 2 outer-layout warnings for {party}/{metric_id}: {final_result.warnings}"
+        )
+
+    return {
+        "variant": 2,
+        "source_family": "Matplotlib final January commissioning",
+        "source_commit": VARIANT_2_SOURCE_COMMIT,
+        "source_run_number": VARIANT_2_SOURCE_RUN,
+        "source_run_id": VARIANT_2_SOURCE_RUN_ID,
+        "renderer": "instagram.visuals.renderers.horizontal_bar",
+        "renderer_blob": VARIANT_2_RENDERER_BLOB,
+        "outer_layout": "title_text_media_v1",
+        "outer_layout_blob": VARIANT_2_LAYOUT_BLOB,
+        "template_renderer_blob": VARIANT_2_TEMPLATE_RENDERER_BLOB,
+        "slide_title": slide_title,
+        "metric_id": metric_id,
+        "value_format": value_format,
+        "visual_asset": str(visual_path.relative_to(OUTPUT_ROOT)),
+        "visual_metadata": str(visual_metadata.relative_to(OUTPUT_ROOT)),
+        "visual_manifest": str(visual_manifest_path.relative_to(OUTPUT_ROOT)),
+        "readability": visual_manifest.get("readability"),
+        "warnings": visual_manifest.get("warnings") or [],
+    }
 
 
 def main() -> None:
     source_run = json.loads((SOURCE_ROOT / "run_manifest.json").read_text(encoding="utf-8"))
     source_party_manifests = sorted((SOURCE_ROOT / "parties").glob("*/manifest.json"))
     if len(source_party_manifests) != EXPECTED_PARTY_COUNT:
-        raise RuntimeError(f"Expected {EXPECTED_PARTY_COUNT} source party manifests; found {len(source_party_manifests)}")
+        raise RuntimeError(
+            f"Expected {EXPECTED_PARTY_COUNT} source party manifests; found {len(source_party_manifests)}"
+        )
     if source_run.get("qa") != {"slide_count": 55, "passed": 55, "failed": 0}:
         raise RuntimeError(f"Source July v1 batch is not 55/55 QA-passed: {source_run.get('qa')}")
     readiness = source_run.get("readiness") or {}
@@ -134,8 +239,8 @@ def main() -> None:
     for source_manifest_path in source_party_manifests:
         source = json.loads(source_manifest_path.read_text(encoding="utf-8"))
         party = str(source["party"])
+        display_party = _display_party_name(party)
         key = str(source["party_key"])
-        source_party_dir = source_manifest_path.parent
         slides_dir = OUTPUT_ROOT / "parties" / key / "slides"
         paths = [
             slides_dir / "01_cover.png",
@@ -146,7 +251,38 @@ def main() -> None:
         ]
 
         cover_lineage = _render_cover(paths[0], source, s3, period)
-        _copy_successful_pre_logo_charts(source_party_dir, slides_dir)
+        analytical_visuals = {
+            "02_most_discussed_issues": _render_variant_2_chart(
+                paths[1],
+                party=party,
+                party_key=key,
+                period=period,
+                rows=source["raw_counts"],
+                slide_title=f"{display_party} · Most Discussed Issues",
+                value_format="integer",
+                metric_id="raw_counts",
+            ),
+            "03_more_than_average": _render_variant_2_chart(
+                paths[2],
+                party=party,
+                party_key=key,
+                period=period,
+                rows=source["share_vs_average"],
+                slide_title=f"{display_party} vs Average",
+                value_format="plus_pp_1",
+                metric_id="share_vs_average",
+            ),
+            "04_more_per_td": _render_variant_2_chart(
+                paths[3],
+                party=party,
+                party_key=key,
+                period=period,
+                rows=source["per_td_vs_average"],
+                slide_title=f"{display_party} vs Average per TD",
+                value_format="plus_per_td_2",
+                metric_id="per_td_vs_average",
+            ),
+        }
         profile._render_glossary(paths[4])
 
         manifest = {
@@ -156,7 +292,9 @@ def main() -> None:
             "source_metrics_project_id": source_run.get("project_id"),
             "party_asset_registry": "configs/reference/party_assets_v1.csv",
             **cover_lineage,
-            "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+            "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+            "analytical_visual_variant": 2,
+            "analytical_visuals": analytical_visuals,
             "slides": [str(path.relative_to(OUTPUT_ROOT)) for path in paths],
             "review_state": "pending_human_review",
             "publication_enabled": False,
@@ -169,19 +307,21 @@ def main() -> None:
         for slide_no, path in enumerate(paths, start=1):
             with Image.open(path) as image:
                 ok = image.size == (profile.W, profile.H)
-            qa_rows.append({
-                "party": party,
-                "party_key": key,
-                "slide": slide_no,
-                "path": str(path.relative_to(OUTPUT_ROOT)),
-                "dimensions_ok": ok,
-                "status": "PASS" if ok else "FAIL",
-            })
-        cover_paths.append((_display_party_name(party), paths[0]))
-        raw_paths.append((_display_party_name(party), paths[1]))
-        share_paths.append((_display_party_name(party), paths[2]))
-        per_td_paths.append((_display_party_name(party), paths[3]))
-        carousel_items.append((_display_party_name(party), paths))
+            qa_rows.append(
+                {
+                    "party": party,
+                    "party_key": key,
+                    "slide": slide_no,
+                    "path": str(path.relative_to(OUTPUT_ROOT)),
+                    "dimensions_ok": ok,
+                    "status": "PASS" if ok else "FAIL",
+                }
+            )
+        cover_paths.append((display_party, paths[0]))
+        raw_paths.append((display_party, paths[1]))
+        share_paths.append((display_party, paths[2]))
+        per_td_paths.append((display_party, paths[3]))
+        carousel_items.append((display_party, paths))
 
     if len(qa_rows) != EXPECTED_SLIDE_COUNT or any(row["status"] != "PASS" for row in qa_rows):
         raise RuntimeError("Rendered-slide QA failed")
@@ -192,8 +332,6 @@ def main() -> None:
     profile._contact_sheet(share_paths, contacts / "more_than_average.jpg")
     profile._contact_sheet(per_td_paths, contacts / "more_per_td.jpg")
     profile._carousel_sheet(carousel_items, contacts / "five_slide_overview.jpg")
-
-    import csv
 
     qa_path = OUTPUT_ROOT / "qa_summary.csv"
     qa_path.parent.mkdir(parents=True, exist_ok=True)
@@ -212,8 +350,26 @@ def main() -> None:
         "source_metrics_project_id": source_run.get("project_id"),
         "calculation": source_run["calculation"],
         "presentation_labels": source_run["presentation_labels"],
-        "chart_geometry": source_run["chart_geometry"],
-        "analytical_slide_visual_source": "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
+        "chart_geometry": {
+            "approved_variant": 2,
+            "source_family": "Matplotlib final January commissioning",
+            "source_commit": VARIANT_2_SOURCE_COMMIT,
+            "source_run_number": VARIANT_2_SOURCE_RUN,
+            "source_run_id": VARIANT_2_SOURCE_RUN_ID,
+            "visual_media_dimensions": [1032, 1210],
+            "outer_slide_dimensions": [1080, 1350],
+            "plot_bottom_ratio": horizontal_bar.PLOT_BOTTOM,
+            "plot_right_ratio": horizontal_bar.PLOT_RIGHT,
+            "plot_height_ratio": horizontal_bar.PLOT_HEIGHT,
+            "min_plot_left_ratio": horizontal_bar.MIN_PLOT_LEFT,
+            "max_plot_left_ratio": horizontal_bar.MAX_PLOT_LEFT,
+            "category_font_size_range": [horizontal_bar.MIN_CATEGORY_FONT_SIZE, horizontal_bar.MAX_CATEGORY_FONT_SIZE],
+            "value_font_size_range": [horizontal_bar.MIN_VALUE_FONT_SIZE, horizontal_bar.MAX_VALUE_FONT_SIZE],
+            "axis_font_size": horizontal_bar.AXIS_FONT_SIZE,
+            "bar_height_ratio_for_7_rows": 0.62,
+        },
+        "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
+        "analytical_visual_variant": 2,
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "cover_title": COVER_TITLE,
         "cover_logo_geometry": {
@@ -234,8 +390,22 @@ def main() -> None:
         "review_state": "pending_human_review",
         "publication_enabled": False,
     }
-    (OUTPUT_ROOT / "run_manifest.json").write_text(json.dumps(run_manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps({"status": "PASS", "period": PERIOD, "parties": len(party_manifests), "slides": len(qa_rows), "output": str(OUTPUT_ROOT)}, indent=2))
+    (OUTPUT_ROOT / "run_manifest.json").write_text(
+        json.dumps(run_manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                "period": PERIOD,
+                "parties": len(party_manifests),
+                "slides": len(qa_rows),
+                "analytical_visual_variant": 2,
+                "output": str(OUTPUT_ROOT),
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":
