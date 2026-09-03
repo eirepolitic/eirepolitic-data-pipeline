@@ -12,6 +12,17 @@ ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v2/peri
 APPROVED_COVERS = Path("instagram/commissioning/output/party-logo-cover-v2-review")
 PROJECT_PATH = Path("instagram/projects/party_issue_monthly_profile_v2/project.yml")
 EXPECTED_VISUAL_SOURCE = "Variant 2 — Matplotlib final January commissioning, run #203"
+EXPECTED_TITLES = {
+    "02_most_discussed_issues": "Most Discussed Issues",
+    "03_more_than_average": "Issues Discussed More Than Average",
+    "04_more_per_td": "Issues Discussed More Than Average per TD",
+}
+EXPECTED_GLOSSARY_TERMS = [
+    "Most Discussed Issues",
+    "Issues Discussed More Than Average",
+    "Issues Discussed More Than Average per TD",
+    "Classified Speeches",
+]
 EXPECTED_KEYS = {
     "100-rdr", "aontu", "fianna-fail", "fine-gael", "green-party",
     "independent-ireland", "independent", "labour-party",
@@ -67,6 +78,8 @@ def main() -> None:
     check("review state", run_manifest.get("review_state") == "pending_human_review", run_manifest.get("review_state"))
     check("variant 2 selected", run_manifest.get("analytical_visual_variant") == 2, run_manifest.get("analytical_visual_variant"))
     check("variant 2 source", run_manifest.get("analytical_slide_visual_source") == EXPECTED_VISUAL_SOURCE, run_manifest.get("analytical_slide_visual_source"))
+    check("analytical titles", run_manifest.get("analytical_titles") == EXPECTED_TITLES, run_manifest.get("analytical_titles"))
+    check("glossary terms", run_manifest.get("glossary_terms") == EXPECTED_GLOSSARY_TERMS, run_manifest.get("glossary_terms"))
 
     chart_geometry = run_manifest.get("chart_geometry") or {}
     check("variant source run", chart_geometry.get("source_run_number") == 203, chart_geometry)
@@ -74,6 +87,7 @@ def main() -> None:
     check("Matplotlib media size", chart_geometry.get("visual_media_dimensions") == [1032, 1210], chart_geometry)
     check("outer slide size", chart_geometry.get("outer_slide_dimensions") == [1080, 1350], chart_geometry)
     check("wider bar ratio", abs(float(chart_geometry.get("bar_height_ratio_for_7_rows")) - 0.62) < 1e-9, chart_geometry)
+    check("short chart visual rows", chart_geometry.get("min_visual_rows") == 4, chart_geometry)
 
     geometry = run_manifest.get("cover_logo_geometry") or {}
     check("logo square", geometry.get("square_size") == [500, 500], geometry)
@@ -103,6 +117,8 @@ def main() -> None:
         check(f"{key} five slides", len(data.get("slides") or []) == 5, data.get("slides"))
         check(f"{key} variant 2", data.get("analytical_visual_variant") == 2, data.get("analytical_visual_variant"))
         check(f"{key} variant source", data.get("analytical_slide_visual_source") == EXPECTED_VISUAL_SOURCE, data.get("analytical_slide_visual_source"))
+        check(f"{key} analytical titles", data.get("analytical_titles") == EXPECTED_TITLES, data.get("analytical_titles"))
+        check(f"{key} glossary terms", data.get("glossary_terms") == EXPECTED_GLOSSARY_TERMS, data.get("glossary_terms"))
         check(f"{key} publication disabled", data.get("publication_enabled") is False, data.get("publication_enabled"))
         check(f"{key} review state", data.get("review_state") == "pending_human_review", data.get("review_state"))
 
@@ -120,8 +136,10 @@ def main() -> None:
         check(f"{key} approved cover match", approved_cover.exists() and _images_identical(generated_cover, approved_cover), f"generated={generated_cover}, approved={approved_cover}")
 
         analytical = data.get("analytical_visuals") or {}
-        check(f"{key} three analytical visuals", set(analytical) == {"02_most_discussed_issues", "03_more_than_average", "04_more_per_td"}, analytical.keys())
-        for slide_key, meta in analytical.items():
+        check(f"{key} three analytical visuals", set(analytical) == set(EXPECTED_TITLES), analytical.keys())
+        for slide_key, expected_title in EXPECTED_TITLES.items():
+            meta = analytical[slide_key]
+            check(f"{key} {slide_key} title", meta.get("slide_title") == expected_title, meta.get("slide_title"))
             check(f"{key} {slide_key} source run", meta.get("source_run_number") == 203, meta)
             check(f"{key} {slide_key} no warnings", meta.get("warnings") == [], meta.get("warnings"))
             check(f"{key} {slide_key} visual asset exists", (ROOT / meta["visual_asset"]).exists(), meta.get("visual_asset"))
@@ -144,7 +162,7 @@ def main() -> None:
             image.load()
             check(f"{name} valid", image.size[0] > 0 and image.size[1] > 0, image.size)
 
-    print("PASS: July 2026 v2 batch — approved covers + Variant 2 Matplotlib analytical charts")
+    print("PASS: July 2026 v2 batch — approved covers + Variant 2 charts + revised titles/glossary")
 
 
 if __name__ == "__main__":
