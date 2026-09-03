@@ -1,58 +1,65 @@
 from __future__ import annotations
 
+import argparse
+import importlib
 import json
 from pathlib import Path
 from typing import Any
 
-from .adapters import get_adapter
-from .common import source_batch_id
-from .project import load_project
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = REPO_ROOT / "instagram" / "projects"
 
 
-def evaluate_readiness(
-    project_path: str | Path,
+def load_project(project_id: str) -> dict[str, Any]:
+    path = PROJECT_ROOT / project_id / "project.yml"
+    if not path.is_file():
+        raise FileNotFoundError(f"Unknown Instagram project: {project_id}; expected {path}")
+    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if payload.get("project_id") != project_id:
+        raise RuntimeError(f"Project ID mismatch in {path}: {payload.get('project_id')!r}")
+    module = str(payload.get("adapter_module") or "").strip()
+    if not module:
+        raise RuntimeError(f"Project {project_id} has no adapter_module")
+    publication = payload.get("publication") or {}
+    if publication.get("enabled") is not False:
+        raise RuntimeError(f"Project {project_id} must keep publication.enabled=false in generation configuration")
+    return payload
+
+
+def run_project(
+    project_id: str,
     *,
-    data_source: str = "s3",
-    latest_manifest: dict[str, Any] | None = None,
+    period: str | None = None,
+    output_root: str | Path | None = None,
 ) -> dict[str, Any]:
-    project = load_project(project_path)
-    adapter = get_adapter(project)
-    records, source_manifest, join_manifest = adapter.load_records(data_source)
-    batch_id = source_batch_id(source_manifest)
-    previous_batch_id = (latest_manifest or {}).get("source_batch_id")
-    reasons: list[str] = []
-
-    if not records:
-        reasons.append(f"no {project['granularity']['grain']} items were produced")
-    if join_manifest.get("matched_speeches") is not None and join_manifest.get("matched_speeches", 0) <= 0:
-        reasons.append("adapter join produced no matched source rows")
-    if batch_id == "local-fixture" and data_source == "s3":
-        reasons.append("production batch ID was not resolved")
-
-    duplicate = bool(previous_batch_id and previous_batch_id == batch_id)
-    if duplicate:
-        reasons.append(f"source batch {batch_id} has already been generated")
-
-    return {
-        "ready": not reasons,
-        "project_id": project["project_id"],
-        "adapter_id": adapter.adapter_id,
-        "grain": project["granularity"]["grain"],
-        "data_source": data_source,
-        "source_batch_id": batch_id,
-        "previous_source_batch_id": previous_batch_id,
-        "duplicate_source_batch": duplicate,
-        "source_manifest": source_manifest,
-        "join_manifest": join_manifest,
-        "expected_item_count": len(records),
-        "reasons": reasons,
-    }
+    project = load_project(project_id)
+    period_cfg = project.get("period") or {}
+    resolved_period = period or str(period_cfg.get("default") or "last_completed_month")
+    module = importlib.import_module(str(project["adapter_module"]))
+    generate = getattr(module, "generate", None)
+    if not callable(generate):
+        raise RuntimeError(f"Adapter {project['adapter_module']} does not expose generate()")
+    root = Path(output_root) if output_root else REPO_ROOT / str(project["output"]["local_root"])
+    result = generate(project=project, period_spec=resolved_period, output_root=root)
+    if result.get("publication_enabled") is not False:
+        raise RuntimeError("Recurring generation adapter attempted to enable publication")
+    if result.get("review_state") != "pending_human_review":
+        raise RuntimeError(f"Unexpected review state: {result.get('review_state')!r}")
+    return result
 
 
-def load_latest_manifest(path: str | Path | None) -> dict[str, Any] | None:
-    if not path:
-        return None
-    resolved = Path(path)
-    if not resolved.is_file():
-        return None
-    return json.loads(resolved.read_text(encoding="utf-8"))
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run a configured recurring Instagram post project")
+    parser.add_argument("--project-id", required=True)
+    parser.add_argument("--period", default=None, help="Project period value; e.g. YYYY-MM or last_completed_month")
+    parser.add_argument("--output-root", default=None)
+    args = parser.parse_args()
+    result = run_project(args.project_id, period=args.period, output_root=args.output_root)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
