@@ -1,0 +1,63 @@
+name: Broader speech context digest
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build compact digest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('analysis/broader_speech_context_link_diagnostics.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          profiles={}
+          for name, prof in d.get('candidate_profiles',{}).items():
+              profiles[name]={
+                  'speech_count':prof.get('speech_count'),
+                  'section_count':prof.get('section_count'),
+                  'years':prof.get('years'),
+                  'top_headings':dict(list((prof.get('headings') or {}).items())[:30]),
+                  'sample_sections':(prof.get('sample_sections') or [])[:12],
+              }
+          grain=[]
+          for x in (d.get('uri_grain_profiles') or [])[:20]:
+              grain.append({
+                  'debate_uri':x.get('debate_uri'),
+                  'debate_ids':x.get('debate_ids'),
+                  'speech_count':x.get('speech_count'),
+                  'section_count':x.get('section_count'),
+                  'headings':dict(list((x.get('headings') or {}).items())[:12]),
+              })
+          discovery={k:dict(list((v or {}).items())[:50]) for k,v in (d.get('heading_discovery') or {}).items()}
+          out={
+              'production_batch_id':d.get('production_batch_id'),
+              'bill_link_diagnostics':d.get('bill_link_diagnostics'),
+              'candidate_profiles':profiles,
+              'overlaps':d.get('overlaps'),
+              'uri_grain_profiles':grain,
+              'unique_same_debate_show_as_matches':(d.get('unique_same_debate_show_as_matches') or [])[:30],
+              'bill_samples':(d.get('bill_samples') or [])[:20],
+              'heading_discovery':discovery,
+              'guardrails':d.get('guardrails'),
+          }
+          Path('analysis/broader_speech_context_link_diagnostics_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - name: Persist digest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/broader_speech_context_link_diagnostics_digest.json
+          git commit -m "Add broader speech context diagnostics digest ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
