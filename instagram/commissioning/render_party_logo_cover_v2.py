@@ -26,20 +26,46 @@ LOGO_SCALE_OVERRIDES = {
     "independent-ireland": 1.10,
     "labour-party": 1.10,
 }
+SOCIAL_DEMOCRATS_KEY = "social-democrats"
+MAX_NEUTRAL_SPREAD = 18
+MAX_NEUTRAL_VALUE = 244
 
 
 def _display_party_name(party: str) -> str:
     return "Independents" if party == "Independent" else party
 
 
-def _prepare_logo(logo: Image.Image, party_key: str) -> tuple[Image.Image, float]:
+def _remove_resampling_neutral_fringe(logo: Image.Image) -> tuple[Image.Image, int]:
+    rgb = logo.convert("RGB")
+    cleaned: list[tuple[int, int, int]] = []
+    changed = 0
+    for pixel in rgb.getdata():
+        low = min(pixel)
+        high = max(pixel)
+        if high <= MAX_NEUTRAL_VALUE and (high - low) <= MAX_NEUTRAL_SPREAD:
+            cleaned.append((255, 255, 255))
+            if pixel != (255, 255, 255):
+                changed += 1
+        else:
+            cleaned.append(pixel)
+    output = Image.new("RGB", rgb.size, "white")
+    output.putdata(cleaned)
+    return output, changed
+
+
+def _prepare_logo(logo: Image.Image, party_key: str) -> tuple[Image.Image, float, int]:
     scale = LOGO_SCALE_OVERRIDES.get(party_key, 1.0)
     if scale > 1.0:
         crop_size = round(logo.width / scale)
         left = (logo.width - crop_size) // 2
         top = (logo.height - crop_size) // 2
         logo = logo.crop((left, top, left + crop_size, top + crop_size))
-    return logo.resize((LOGO_SIZE, LOGO_SIZE), Image.Resampling.LANCZOS), scale
+
+    logo = logo.resize((LOGO_SIZE, LOGO_SIZE), Image.Resampling.LANCZOS)
+    neutral_cleanup_pixels = 0
+    if party_key == SOCIAL_DEMOCRATS_KEY:
+        logo, neutral_cleanup_pixels = _remove_resampling_neutral_fringe(logo)
+    return logo, scale, neutral_cleanup_pixels
 
 
 def _render_cover(data: dict, s3) -> tuple[Path, dict]:
@@ -56,7 +82,7 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
             f"Registry party_key mismatch for {party!r}: manifest={party_key!r}, registry={asset.party_key!r}"
         )
     logo, asset_lineage = fetch_logo(s3, asset)
-    logo, logo_scale = _prepare_logo(logo, party_key)
+    logo, logo_scale, neutral_cleanup_pixels = _prepare_logo(logo, party_key)
 
     image = profile._base_slide()
     profile._draw_title(image, [COVER_TITLE, period.label])
@@ -113,6 +139,11 @@ def _render_cover(data: dict, s3) -> tuple[Path, dict]:
                 "width_px": LOGO_BORDER_WIDTH,
                 "position": "inside_square",
             },
+        },
+        "logo_resampling_cleanup": {
+            "enabled": party_key == SOCIAL_DEMOCRATS_KEY,
+            "neutral_pixels_replaced": neutral_cleanup_pixels,
+            "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling",
         },
         "party_asset_registry": "configs/reference/party_assets_v1.csv",
         "party_asset": asset_lineage,
