@@ -37,6 +37,7 @@ VARIANT_2_LAYOUT_BLOB = "c409545caafa0a36c79297e530f1c1ad1d7f784b"
 VARIANT_2_TEMPLATE_RENDERER_BLOB = "662d8457d325d35552d08a43a11aee9e678f2704"
 TITLE_MEDIA_LAYOUT = Path("instagram/templates/layouts/title_text_media_v1.json")
 PRESENTATION_LABELS_PATH = Path("instagram/reference/issue_presentation_labels.yml")
+MIN_VISUAL_ROWS = 4
 
 
 def _render_cover(path: Path, data: dict, s3, period) -> dict:
@@ -107,9 +108,6 @@ def _render_cover(path: Path, data: dict, s3, period) -> dict:
 
 
 def _variant_2_template(value_format: str) -> dict:
-    # Exact hard-coded chart template/palette used by the final January
-    # commissioning adapter in run #203. Keep this local to commissioning so
-    # future generic renderer changes cannot silently alter the approved style.
     return {
         "template_id": "horizontal_bar_draft_v1",
         "params": {
@@ -118,6 +116,7 @@ def _variant_2_template(value_format: str) -> dict:
             "max_items": 7,
             "sort": "descending",
             "value_format": value_format,
+            "min_visual_rows": MIN_VISUAL_ROWS,
         },
         "palette": {
             "background": "#0f2f24",
@@ -165,6 +164,7 @@ def _render_variant_2_chart(
         "approved_visual_variant": 2,
         "approved_visual_source_run": VARIANT_2_SOURCE_RUN,
         "approved_visual_source_run_id": VARIANT_2_SOURCE_RUN_ID,
+        "min_visual_rows": MIN_VISUAL_ROWS,
     }
     visual_manifest = horizontal_bar.render(
         _variant_2_template(value_format),
@@ -205,6 +205,7 @@ def _render_variant_2_chart(
         "slide_title": slide_title,
         "metric_id": metric_id,
         "value_format": value_format,
+        "min_visual_rows": MIN_VISUAL_ROWS,
         "visual_asset": str(visual_path.relative_to(OUTPUT_ROOT)),
         "visual_metadata": str(visual_metadata.relative_to(OUTPUT_ROOT)),
         "visual_manifest": str(visual_manifest_path.relative_to(OUTPUT_ROOT)),
@@ -340,6 +341,7 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(qa_rows)
 
+    max_four_row_thickness_px = round((1210 * horizontal_bar.PLOT_HEIGHT / MIN_VISUAL_ROWS) * 0.72, 2)
     run_manifest = {
         "project_id": "party_issue_monthly_profile_v2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -367,6 +369,9 @@ def main() -> None:
             "value_font_size_range": [horizontal_bar.MIN_VALUE_FONT_SIZE, horizontal_bar.MAX_VALUE_FONT_SIZE],
             "axis_font_size": horizontal_bar.AXIS_FONT_SIZE,
             "bar_height_ratio_for_7_rows": 0.62,
+            "min_visual_rows": MIN_VISUAL_ROWS,
+            "max_short_chart_bar_thickness_px": max_four_row_thickness_px,
+            "short_chart_bar_thickness_policy": "1-3 row charts use a centered virtual 4-row stack",
         },
         "analytical_slide_visual_source": "Variant 2 — Matplotlib final January commissioning, run #203",
         "analytical_visual_variant": 2,
@@ -401,6 +406,8 @@ def main() -> None:
                 "parties": len(party_manifests),
                 "slides": len(qa_rows),
                 "analytical_visual_variant": 2,
+                "min_visual_rows": MIN_VISUAL_ROWS,
+                "max_short_chart_bar_thickness_px": max_four_row_thickness_px,
                 "output": str(OUTPUT_ROOT),
             },
             indent=2,
