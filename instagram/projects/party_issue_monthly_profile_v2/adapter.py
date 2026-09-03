@@ -268,8 +268,6 @@ def _prepare_metrics(frames: dict[str, pd.DataFrame], *, period, expected_party_
         per_td_rows.sort(key=lambda row: (-float(row["value"]), str(row["canonical_label"])))
         share_rows = share_rows[:max_items]
         per_td_rows = per_td_rows[:max_items]
-        if not raw_rows or not share_rows or not per_td_rows:
-            raise RuntimeError(f"{party_name} does not have data for all three analytical slides")
         result.append(
             {
                 **item,
@@ -409,6 +407,11 @@ def _render_analytical(
         "visual_id": f"{party['party_key']}-{metric_id}-variant-2",
         "bindings": {"label": "label", "value": "value"},
         "source_note": f"{_period_label(period)} Dáil speeches · Houses of the Oireachtas / Eirepolitic classification",
+        "empty_message": {
+            "raw_counts": "No classified issues this month",
+            "share_vs_average": "No issues above average",
+            "per_td_vs_average": "No issues above average per TD",
+        }.get(metric_id, "No data available"),
     }
     visual_manifest = horizontal_bar.render(
         _variant_template(project, value_format),
@@ -505,8 +508,9 @@ def _qa_party(
                     "no_value_clipping": int(readability.get("value_text_clipped_count") or 0) == 0,
                     "no_label_truncation": int(readability.get("truncated_label_count") or 0) == 0,
                     "min_visual_rows_ok": int(readability.get("min_visual_rows") or 0) == 4,
-                    "short_chart_virtual_rows_ok": displayed >= 4 or effective == 4,
-                    "short_chart_bar_thickness_ok": displayed >= 4 or bar_thickness <= short_chart_max + 0.01,
+                    "short_chart_virtual_rows_ok": displayed == 0 or displayed >= 4 or effective == 4,
+                    "short_chart_bar_thickness_ok": displayed == 0 or displayed >= 4 or bar_thickness <= short_chart_max + 0.01,
+                    "empty_state_truthful": displayed > 0 or bool(readability.get("empty_message")),
                     "value_format_ok": meta["value_format"] in {"integer", "plus_pp_1", "plus_per_td_2"},
                 }
             )

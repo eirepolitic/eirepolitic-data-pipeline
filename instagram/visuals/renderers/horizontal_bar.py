@@ -163,7 +163,8 @@ def render(template: dict[str, Any], sample: dict[str, Any], rows: list[dict[str
     row_offset = max(0.0, (visual_row_count - len(clean_rows)) / 2.0) if clean_rows else 0.0
     y_positions = [idx + row_offset for idx in range(len(clean_rows))]
     value_texts: list[Any] = []
-    if clean_rows and max(values) > 0:
+    empty_state = not clean_rows or max(values, default=0.0) <= 0
+    if not empty_state:
         bar_height = 0.72 if visual_row_count <= 4 else 0.62
         ax.barh(y_positions, values, color=palette["accent"], height=bar_height)
         ax.set_yticks(y_positions); ax.set_yticklabels(labels, color=palette["text"], fontsize=category_font_size)
@@ -185,8 +186,8 @@ def render(template: dict[str, Any], sample: dict[str, Any], rows: list[dict[str
             if max_ratio <= VALUE_LABEL_TARGET_X_RATIO: break
             x_limit *= max(1.02, max_ratio / VALUE_LABEL_TARGET_X_RATIO); ax.set_xlim(0, x_limit)
     else:
-        warnings.append("empty_or_zero_rows")
-        ax.text(0.5, 0.5, "No data available", color=palette["muted"], fontsize=20, ha="center", va="center", transform=ax.transAxes)
+        empty_message = str(sample.get("empty_message") or "No data available")
+        ax.text(0.5, 0.5, empty_message, color=palette["muted"], fontsize=20, ha="center", va="center", transform=ax.transAxes)
         ax.set_yticks([]); ax.set_xticks([])
 
     ax.xaxis.grid(True, color=palette["grid"], alpha=0.22)
@@ -233,6 +234,8 @@ def render(template: dict[str, Any], sample: dict[str, Any], rows: list[dict[str
         "max_wrapped_label_lines": max((item["line_count"] for item in category_bounds), default=0),
         "max_value_label_x_ratio": round(max_value_label_x_ratio, 4),
         "displayed_item_count": len(clean_rows),
+        "empty_state": empty_state,
+        "empty_message": str(sample.get("empty_message") or "") if empty_state else "",
         "max_category_label_width_px": round(max_label_width_px, 2),
         "plot_left_ratio": round(plot_left, 4),
         "category_text_clipped_count": category_clipped_count,
