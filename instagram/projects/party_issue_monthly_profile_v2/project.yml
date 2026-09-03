@@ -1,0 +1,94 @@
+project_id: party_issue_monthly_profile_v2
+version: 2
+status: approved
+purpose: Reusable monthly Party Speech Breakdown carousel using classified Dáil speeches.
+adapter_module: instagram.projects.party_issue_monthly_profile_v2.adapter
+
+period:
+  cadence: monthly
+  mode: completed_calendar_month
+  default: last_completed_month
+
+source:
+  provider: oireachtas_unified
+  pointer: processed/oireachtas_unified/pointers/production.json
+  require_immutable_batch: true
+  required_tables:
+    - silver_speeches
+    - enrichment_speech_issue_labels
+    - silver_member_memberships
+    - silver_member_parties
+    - silver_member_constituencies
+  require_batch_status: validated
+  require_issue_classification_gate: true
+
+metrics:
+  adapter: approved_party_issue_monthly_profile_v2
+  max_items: 7
+  average_party_baseline: unweighted_all_displayed_groups_including_zero
+  per_td_denominator: period_end_active_dail_tds
+
+slides:
+  expected_per_party: 5
+  definitions:
+    - id: cover
+      title: Party Speech Breakdown
+    - id: most_discussed_issues
+      title: Most Discussed Issues
+      value_format: integer
+    - id: more_than_average
+      title: Issues Discussed More Than Average
+      value_format: plus_pp_1
+    - id: more_per_td
+      title: Issues Discussed More Than Average per TD
+      value_format: plus_per_td_2
+    - id: glossary
+      title: Glossary
+
+render:
+  width: 1080
+  height: 1350
+  analytical_variant: 2
+  analytical_renderer: instagram.visuals.renderers.horizontal_bar
+  outer_layout: instagram/templates/layouts/title_text_media_v1.json
+  min_visual_rows: 4
+  palette:
+    background: '#0f2f24'
+    text: '#f4ead7'
+    muted: '#c8bda8'
+    accent: '#d8b45f'
+    grid: '#f4ead7'
+  cover:
+    title: Party Speech Breakdown
+    logo_size: 500
+    logo_top: 300
+    logo_border_width: 6
+    logo_border_color: '#d8b45f'
+    scale_overrides:
+      fine-gael: 1.10
+      labour-party: 1.10
+      independent-ireland: 1.10
+    neutral_cleanup_party_keys:
+      - social-democrats
+
+qa:
+  expected_party_count: 11
+  expected_slide_count: 55
+  require_no_text_clipping: true
+  require_no_text_truncation: true
+  require_glossary: true
+  require_asset_registry: configs/reference/party_assets_v1.csv
+  require_publication_disabled: true
+  require_review_state: pending_human_review
+
+output:
+  local_root: instagram/production/output/party_issue_monthly_profile_v2
+  s3_prefix: processed/instagram/party_issue_monthly_profile_v2
+  zip_prefix: party-monthly-profile-v2
+
+review:
+  state: pending_human_review
+  generation_and_publication_separate: true
+
+publication:
+  enabled: false
