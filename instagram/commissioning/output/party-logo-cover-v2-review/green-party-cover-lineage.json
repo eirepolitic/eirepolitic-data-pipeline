@@ -30,6 +30,11 @@
       "position": "inside_square"
     }
   },
+  "logo_resampling_cleanup": {
+    "enabled": false,
+    "neutral_pixels_replaced": 0,
+    "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+  },
   "party_asset_registry": "configs/reference/party_assets_v1.csv",
   "party_asset": {
     "party_key": "green-party",
