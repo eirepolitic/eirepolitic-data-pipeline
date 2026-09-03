@@ -38,8 +38,6 @@ jobs:
           rm -rf "$OUT" "$TMP"
           mkdir -p "$OUT/candidates" "$TMP"
 
-          # Successful chart-related workflow runs from Aug 31 through Sep 3.
-          # The script extracts one common Fianna Fail chart from each artifact.
           RUNS=(
             33446672597
             33446842291
@@ -56,26 +54,32 @@ jobs:
             33780442539
           )
 
+          : > "$OUT/artifact-file-inventory.txt"
+
           for run_id in "${RUNS[@]}"; do
             run_dir="$TMP/$run_id"
             mkdir -p "$run_dir"
-            echo "Downloading run $run_id"
+            echo "===== RUN $run_id =====" >> "$OUT/artifact-file-inventory.txt"
             if ! gh run download "$run_id" -D "$run_dir"; then
-              echo "No downloadable artifact for run $run_id; skipping"
+              echo "NO DOWNLOADABLE ARTIFACT" >> "$OUT/artifact-file-inventory.txt"
               continue
             fi
+            find "$run_dir" -type f | sed "s#^$run_dir/##" | sort >> "$OUT/artifact-file-inventory.txt"
 
-            candidate="$(find "$run_dir" -type f \( \
-              -path '*/fianna-fail/slides/02_issue_profile.png' -o \
-              -path '*/fianna-fail/slides/02_most_discussed_issues.png' \
-            \) -print | head -n 1 || true)"
+            candidate="$(find "$run_dir" -type f \( -name '02_issue_profile.png' -o -name '02_most_discussed_issues.png' \) -print | grep -E '/fianna[-_ ]?fail/' | head -n 1 || true)"
+
+            # Older diagnostics used flatter output layouts. Fall back to any
+            # issue-profile PNG whose path contains Fianna Fail text.
+            if [ -z "$candidate" ]; then
+              candidate="$(find "$run_dir" -type f -name '*.png' -print | grep -Ei 'fianna[-_ ]?fail' | grep -Ei 'issue|profile|discuss' | head -n 1 || true)"
+            fi
 
             if [ -z "$candidate" ]; then
-              echo "No Fianna Fail chart candidate found in run $run_id"
-              find "$run_dir" -type f -name '*.png' | head -n 20 || true
+              echo "NO FIANNА FAIL CHART CANDIDATE" >> "$OUT/artifact-file-inventory.txt"
               continue
             fi
             cp "$candidate" "$OUT/candidates/run-${run_id}.png"
+            echo "SELECTED: ${candidate#$run_dir/}" >> "$OUT/artifact-file-inventory.txt"
           done
 
           python - <<'PY'
@@ -113,21 +117,22 @@ jobs:
               with Image.open(path) as im:
                   im.load()
                   size = im.size
+                  pixel_sha = hashlib.sha256(im.convert('RGB').tobytes()).hexdigest()
               records.append({
                   'run_id': run_id,
                   'sha256': sha,
+                  'pixel_sha256': pixel_sha,
                   'dimensions': list(size),
                   **run_meta.get(run_id, {}),
                   'candidate_file': str(path.relative_to(root)),
               })
 
-          # Group exact duplicate PNGs by hash. Each unique hash is one real rendered variant.
           groups: dict[str, list[dict]] = {}
           for rec in records:
-              groups.setdefault(rec['sha256'], []).append(rec)
+              groups.setdefault(rec['pixel_sha256'], []).append(rec)
 
           variants = []
-          for index, (sha, group) in enumerate(groups.items(), start=1):
+          for index, (_, group) in enumerate(groups.items(), start=1):
               representative = group[0]
               src = root / representative['candidate_file']
               filename = f"variant-{index:02d}-run-{representative['run_number']}-{representative['run_id']}.png"
@@ -136,7 +141,8 @@ jobs:
               variants.append({
                   'variant': index,
                   'file': filename,
-                  'sha256': sha,
+                  'sha256': representative['sha256'],
+                  'pixel_sha256': representative['pixel_sha256'],
                   'dimensions': representative['dimensions'],
                   'representative_run_id': representative['run_id'],
                   'representative_run_number': representative.get('run_number'),
@@ -146,38 +152,18 @@ jobs:
                   'identical_run_numbers': [item.get('run_number') for item in group],
               })
 
-          # Extra visual dedupe check in case PNG metadata differs but pixels are identical.
-          pixel_unique = []
-          for variant in variants:
-              path = root / variant['file']
-              with Image.open(path) as im:
-                  rgb = im.convert('RGB')
-                  duplicate_of = None
-                  for kept in pixel_unique:
-                      with Image.open(root / kept['file']) as prior:
-                          prior_rgb = prior.convert('RGB')
-                          if rgb.size == prior_rgb.size and ImageChops.difference(rgb, prior_rgb).getbbox() is None:
-                              duplicate_of = kept['variant']
-                              break
-                  if duplicate_of is None:
-                      pixel_unique.append(variant)
-                  else:
-                      variant['pixel_duplicate_of_variant'] = duplicate_of
-
-          true_variants = [v for v in variants if 'pixel_duplicate_of_variant' not in v]
-
-          bold = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 24)
-          regular = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 18)
-          title_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 34)
+          bold = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 22)
+          regular = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 17)
+          title_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 32)
 
           card_w, card_h = 540, 700
           cols = 2
-          rows = (len(true_variants) + cols - 1) // cols
+          rows = (len(variants) + cols - 1) // cols
           sheet = Image.new('RGB', (cols * card_w, max(1, rows) * card_h + 90), 'white')
           draw_sheet = ImageDraw.Draw(sheet)
           draw_sheet.text((sheet.width // 2, 42), 'Recent Party Chart Variants — Fianna Fáil Example', fill='black', font=title_font, anchor='mm')
 
-          for i, variant in enumerate(true_variants):
+          for i, variant in enumerate(variants):
               with Image.open(root / variant['file']) as im:
                   thumb = im.convert('RGB')
                   thumb.thumbnail((480, 570), Image.Resampling.LANCZOS)
@@ -189,7 +175,7 @@ jobs:
               d.text((card_w // 2, y), f"Variant {variant['variant']}: {variant['family']}", fill='black', font=bold, anchor='mm')
               d.text((card_w // 2, y + 34), f"Run #{variant['representative_run_number']} · {variant['date']}", fill='black', font=regular, anchor='mm')
               runs = ', '.join(f"#{n}" for n in variant['identical_run_numbers'] if n is not None)
-              d.text((card_w // 2, y + 64), f"Same PNG in: {runs}", fill='black', font=regular, anchor='mm')
+              d.text((card_w // 2, y + 64), f"Same pixels in: {runs}", fill='black', font=regular, anchor='mm')
               row, col = divmod(i, cols)
               sheet.paste(card, (col * card_w, 90 + row * card_h))
 
@@ -198,12 +184,11 @@ jobs:
               'window': '2026-08-31 through 2026-09-03',
               'comparison_party': 'Fianna Fáil',
               'candidate_runs': records,
-              'hash_groups': variants,
-              'distinct_pixel_variants': true_variants,
-              'distinct_variant_count': len(true_variants),
+              'distinct_pixel_variants': variants,
+              'distinct_variant_count': len(variants),
           }
           (root / 'variant-manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-          print(json.dumps({'distinct_variant_count': len(true_variants), 'variants': true_variants}, indent=2))
+          print(json.dumps({'distinct_variant_count': len(variants), 'variants': variants}, indent=2))
           PY
 
           rm -rf "$OUT/candidates"
@@ -217,7 +202,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add instagram/commissioning/output/chart-variant-review-2026-09-03
           git add instagram/commissioning/output/chart-variant-review-2026-09-03.zip
-          git commit -m "Add artifact-derived recent chart variant review pack" || true
+          git commit -m "Refresh complete recent chart variant review pack" || true
           git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Upload comparison artifact
