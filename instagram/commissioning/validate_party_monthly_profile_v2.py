@@ -12,6 +12,7 @@ ROOT = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v2/peri
 SOURCE_V1 = Path(f"instagram/commissioning/output/party_issue_monthly_profile_v1/period={PERIOD}")
 APPROVED_COVERS = Path("instagram/commissioning/output/party-logo-cover-v2-review")
 PROJECT_PATH = Path("instagram/projects/party_issue_monthly_profile_v2/project.yml")
+EXPECTED_VISUAL_SOURCE = "exact PNGs from party_issue_monthly_profile_v1 July 2026 successful commissioning batch"
 EXPECTED_KEYS = {
     "100-rdr",
     "aontu",
@@ -86,11 +87,7 @@ def main() -> None:
     check("run review state", run_manifest.get("review_state") == "pending_human_review", run_manifest.get("review_state"))
     check("registry path", run_manifest.get("party_asset_registry") == "configs/reference/party_assets_v1.csv", run_manifest.get("party_asset_registry"))
     check("cover title", run_manifest.get("cover_title") == "Party Speech Breakdown", run_manifest.get("cover_title"))
-    check(
-        "analytical visual source",
-        run_manifest.get("analytical_slide_visual_source") == "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
-        run_manifest.get("analytical_slide_visual_source"),
-    )
+    check("analytical visual source", run_manifest.get("analytical_slide_visual_source") == EXPECTED_VISUAL_SOURCE, run_manifest.get("analytical_slide_visual_source"))
 
     geometry = run_manifest.get("cover_logo_geometry") or {}
     check("logo square", geometry.get("square_size") == [500, 500], geometry)
@@ -127,11 +124,7 @@ def main() -> None:
         check(f"{key} registry", data.get("party_asset_registry") == "configs/reference/party_assets_v1.csv", data.get("party_asset_registry"))
         check(f"{key} cover title", data.get("cover_title") == "Party Speech Breakdown", data.get("cover_title"))
         check(f"{key} cover period", data.get("cover_title_period") == "July 2026", data.get("cover_title_period"))
-        check(
-            f"{key} analytical visual source",
-            data.get("analytical_slide_visual_source") == "party_issue_monthly_profile_v1 July 2026 successful commissioning batch",
-            data.get("analytical_slide_visual_source"),
-        )
+        check(f"{key} analytical visual source", data.get("analytical_slide_visual_source") == EXPECTED_VISUAL_SOURCE, data.get("analytical_slide_visual_source"))
         expected_display = "Independents" if key == "independent" else data.get("party")
         check(f"{key} display name", data.get("display_party_name") == expected_display, data.get("display_party_name"))
 
@@ -153,11 +146,7 @@ def main() -> None:
         for slide_name in BAR_CHART_SLIDES:
             generated_chart = manifest_path.parent / "slides" / slide_name
             source_chart = SOURCE_V1 / "parties" / key / "slides" / slide_name
-            check(
-                f"{key} {slide_name} matches successful pre-logo visual",
-                source_chart.exists() and _images_identical(generated_chart, source_chart),
-                f"generated={generated_chart}, source={source_chart}",
-            )
+            check(f"{key} {slide_name} matches successful pre-logo visual", source_chart.exists() and _images_identical(generated_chart, source_chart), f"generated={generated_chart}, source={source_chart}")
 
     social_cover = ROOT / "parties" / "social-democrats" / "slides" / "01_cover.png"
     check("Social Democrats rendered halo", _neutral_fringe_pixels(social_cover) == 0, _neutral_fringe_pixels(social_cover))
@@ -169,13 +158,7 @@ def main() -> None:
     check("qa_summary all pass", all(row.get("status") == "PASS" for row in qa_rows), [row for row in qa_rows if row.get("status") != "PASS"])
 
     contacts = ROOT / "contact_sheets"
-    expected_contacts = {
-        "covers.jpg",
-        "most_discussed_issues.jpg",
-        "more_than_average.jpg",
-        "more_per_td.jpg",
-        "five_slide_overview.jpg",
-    }
+    expected_contacts = {"covers.jpg", "most_discussed_issues.jpg", "more_than_average.jpg", "more_per_td.jpg", "five_slide_overview.jpg"}
     actual_contacts = {path.name for path in contacts.glob("*.jpg")}
     check("contact sheets", expected_contacts.issubset(actual_contacts), actual_contacts)
     for name in expected_contacts:
