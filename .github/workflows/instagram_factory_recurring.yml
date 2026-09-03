@@ -63,11 +63,13 @@ jobs:
       - name: Install runtime dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas pyyaml pillow matplotlib boto3
+          pip install pandas pyyaml pillow matplotlib boto3 pytest
       - name: Validate Instagram runtime sources
         run: |
           python -m compileall -q instagram political_metrics
           python -m py_compile extract/oireachtas/batch.py extract/oireachtas/normalize.py
+      - name: Run approved-design regression suite
+        run: python -m pytest -q tests/test_instagram_monthly_post_framework.py
       - name: Generate review batch
         id: generate
         shell: bash
