@@ -1,0 +1,592 @@
+{
+  "bill_heading_sample": {},
+  "by_year": [
+    {
+      "leaders_questions": 0,
+      "motions": 0,
+      "oral_question_exchange": 0,
+      "other": 119,
+      "procedural_business": 0,
+      "year": 2024
+    },
+    {
+      "leaders_questions": 6800,
+      "motions": 3927,
+      "oral_question_exchange": 10811,
+      "other": 14766,
+      "procedural_business": 2972,
+      "year": 2025
+    },
+    {
+      "leaders_questions": 4021,
+      "motions": 2894,
+      "oral_question_exchange": 7674,
+      "other": 10470,
+      "procedural_business": 1738,
+      "year": 2026
+    }
+  ],
+  "candidate_context_counts": {
+    "leaders_questions": 10821,
+    "motions": 6821,
+    "oral_question_exchange": 18485,
+    "other": 25355,
+    "procedural_business": 4710
+  },
+  "candidate_context_section_counts": {
+    "leaders_questions": 158,
+    "motions": 294,
+    "oral_question_exchange": 2127,
+    "other": 1833,
+    "procedural_business": 58
+  },
+  "coverage_share_non_other": 0.6169476673918298,
+  "guardrails": [
+    "oral_question_exchange is already certified through exact debate_section_id linkage from Oral question records.",
+    "bill_or_legislation is anchored only by silver_bill_debates.debate_section_id, not by heading text.",
+    "leaders_questions, motions, statements and procedural_business are heading-rule candidates and require source/manual validation before production use.",
+    "overlaps must be resolved by explicit precedence; do not allow one speech to count in multiple top-level contexts.",
+    "other remains the default where deterministic evidence is insufficient."
+  ],
+  "heading_profiles": {
+    "bill_or_legislation": {},
+    "leaders_questions": {
+      "Ceisteanna \u00f3 Cheannair\u00ed (At\u00f3g\u00e1il) - Leaders' Questions (Resumed)": 119,
+      "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions": 10702
+    },
+    "motions": {
+      "Ban on Investment Funds Purchasing Family Homes: Motion [Private Members]": 50,
+      "Blister Packs: Motion [Private Members]": 60,
+      "Bord Bia: Motion [Private Members]": 275,
+      "Child Poverty and Homelessness: Motion [Private Members]": 130,
+      "Confidence in Government: Motion": 520,
+      "Confidence in the Ceann Comhairle: Motion": 342,
+      "Confidence in the T\u00e1naiste and Minister for Foreign Affairs and Trade: Motion": 176,
+      "Cost of Disability: Motion [Private Members]": 62,
+      "Cost of Living Mini-Budget: Motion [Private Members]": 65,
+      "Digital Divide and Back to School Costs: Motion [Private Members]": 52,
+      "Driver Test Waiting Times: Motion [Private Members]": 50,
+      "Dublin City Flat Complex Retrofit and Regeneration: Motion [Private Members]": 149,
+      "Emergency Action on Housing and Homelessness: Motion [Private Members]": 74,
+      "Emergency Winter Payment for Disabled People: Motion [Private Members]": 50,
+      "Ending the Central Bank\u2019s Facilitation of the Sale of Israel Bonds: Motion [Private Members]": 53,
+      "Endometriosis Care in Ireland: Motion [Private Members]": 87,
+      "Energy and Fuel Costs: Motion [Private Members]": 159,
+      "Final Draft Revised National Planning Framework: Motion": 66,
+      "Flood Prevention: Motion [Private Members]": 73,
+      "Fuel Prices: Motion": 81,
+      "GPO and Moore Street Regeneration as a 1916 Cultural Quarter: Motion [Private Members]": 87,
+      "Housing Crisis: Motion [Private Members]": 68,
+      "Housing Emergency Measures: Motion [Private Members]": 70,
+      "Insurance Costs: Motion [Private Members]": 72,
+      "Irish Unity: Motion [Private Members]": 76,
+      "Mercosur Trade Agreement: Motion [Private Members]": 206,
+      "Nomination of Member of Government: Motion (Resumed)": 50,
+      "Offences against the State (Amendment) Act 1998 and Criminal Justice (Amendment) Act 2009: Motions": 53,
+      "Protecting the Irish Economy Against Increasing Trade Tariffs: Motion [Private Members]": 61,
+      "Response to Storm \u00c9owyn: Motion [Private Members]": 51,
+      "Situation in Palestine: Motion [Private Members]": 64,
+      "Special Education: Motion [Private Members]": 97,
+      "Special Needs Assistants: Motion [Private Members]": 59,
+      "Stop the Game Campaign and FAI Participation in Matches against Israel: Motion [Private Members]": 101,
+      "Strengthening Whistleblower Protections, Enforcement and Accountability in Public Administration: Motion [Private Members]": 69,
+      "Student Fees: Motion [Private Members]": 89,
+      "Trans Healthcare: Motion [Private Members]": 66,
+      "Triple Lock Mechanism and Irish Neutrality: Motion [Private Members]": 60,
+      "Vacant Council Housing: Motion [Private Members]": 96,
+      "Waste in Public Expenditure: Motion [Private Members]": 62
+    },
+    "oral_question_exchange": {
+      "An Garda S\u00edoch\u00e1na": 175,
+      "Animal Diseases": 97,
+      "Artificial Intelligence": 139,
+      "Arts Funding": 147,
+      "Bus Services": 157,
+      "Business Supports": 99,
+      "Cabinet Committees": 1819,
+      "Childcare Services": 245,
+      "Defence Forces": 386,
+      "Departmental Reports": 101,
+      "Departmental Schemes": 118,
+      "Disability Services": 242,
+      "Energy Policy": 154,
+      "Energy Prices": 106,
+      "Flood Relief Schemes": 112,
+      "Further and Higher Education": 104,
+      "Housing Policy": 134,
+      "Housing Provision": 282,
+      "Housing Schemes": 132,
+      "Legislative Measures": 100,
+      "Middle East": 201,
+      "Military Neutrality": 246,
+      "National Development Plan": 99,
+      "National Security": 149,
+      "Official Engagements": 97,
+      "Public Transport": 250,
+      "Rail Network": 147,
+      "Renewable Energy Generation": 112,
+      "Rental Sector": 106,
+      "Rural Schemes": 123,
+      "Schools Building Projects": 139,
+      "Social Welfare Payments": 110,
+      "Special Educational Needs": 239,
+      "Sports Funding": 111,
+      "Taoiseach's Meetings and Engagements": 338,
+      "Tax Code": 159,
+      "Third Level Education": 109,
+      "Trade Agreements": 107,
+      "Trade Relations": 103,
+      "Ukraine War": 199
+    },
+    "procedural_business": {
+      "An tOrd Gn\u00f3 (At\u00f3g\u00e1il) - Order of Business (Resumed)": 46,
+      "An tOrd Gn\u00f3 - Order of Business": 4531,
+      "An tOrd Gn\u00f3 - Order of Business (Resumed)": 58,
+      "Ceisteanna ar Reachta\u00edocht a Gealladh - Questions on Promised Legislation": 75
+    },
+    "statements": {}
+  },
+  "manual_samples": {
+    "leaders_questions": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-25/debate/dbsect_2",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 423
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-26/debate/dbsect_9",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 313
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_2",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 217
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-27/debate/dbsect_32",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 186
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-08/debate/dbsect_18",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 179
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-20/debate/dbsect_11",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 164
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-12/debate/dbsect_9",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 158
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-29/debate/dbsect_12",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 151
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-19/debate/dbsect_2",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 142
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-18/debate/dbsect_3",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 134
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-11/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 129
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-15/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 128
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-28/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 127
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-17/debate/dbsect_2",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 126
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-16/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 124
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-14/debate/dbsect_3",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 123
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-26/debate/dbsect_7",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 120
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-17/debate/dbsect_34",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 115
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-26/debate/dbsect_33",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 114
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-22/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 114
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-15/debate/dbsect_10",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 113
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-09/debate/dbsect_18",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 112
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-19/debate/dbsect_9",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 110
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-19/debate/dbsect_12",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 110
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-17/debate/dbsect_2",
+        "heading": "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions",
+        "speech_count": 109
+      }
+    ],
+    "motions": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-14/debate/dbsect_8",
+        "heading": "Confidence in Government: Motion",
+        "speech_count": 520
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-01/debate/dbsect_13",
+        "heading": "Confidence in the Ceann Comhairle: Motion",
+        "speech_count": 342
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-04/debate/dbsect_19",
+        "heading": "Bord Bia: Motion [Private Members]",
+        "speech_count": 275
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-15/debate/dbsect_18",
+        "heading": "Confidence in the T\u00e1naiste and Minister for Foreign Affairs and Trade: Motion",
+        "speech_count": 176
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-18/debate/dbsect_9",
+        "heading": "Energy and Fuel Costs: Motion [Private Members]",
+        "speech_count": 159
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-06/debate/dbsect_14",
+        "heading": "Dublin City Flat Complex Retrofit and Regeneration: Motion [Private Members]",
+        "speech_count": 149
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_8",
+        "heading": "Child Poverty and Homelessness: Motion [Private Members]",
+        "speech_count": 130
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-18/debate/dbsect_16",
+        "heading": "Mercosur Trade Agreement: Motion [Private Members]",
+        "speech_count": 126
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/dbsect_18",
+        "heading": "Stop the Game Campaign and FAI Participation in Matches against Israel: Motion [Private Members]",
+        "speech_count": 101
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_16",
+        "heading": "Vacant Council Housing: Motion [Private Members]",
+        "speech_count": 96
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-08/debate/dbsect_14",
+        "heading": "Student Fees: Motion [Private Members]",
+        "speech_count": 89
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-15/debate/dbsect_15",
+        "heading": "Endometriosis Care in Ireland: Motion [Private Members]",
+        "speech_count": 87
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-01/debate/dbsect_15",
+        "heading": "GPO and Moore Street Regeneration as a 1916 Cultural Quarter: Motion [Private Members]",
+        "speech_count": 87
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-04-14/debate/dbsect_29",
+        "heading": "Fuel Prices: Motion",
+        "speech_count": 81
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-13/debate/dbsect_14",
+        "heading": "Mercosur Trade Agreement: Motion [Private Members]",
+        "speech_count": 80
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-21/debate/dbsect_32",
+        "heading": "Irish Unity: Motion [Private Members]",
+        "speech_count": 76
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-17/debate/dbsect_18",
+        "heading": "Emergency Action on Housing and Homelessness: Motion [Private Members]",
+        "speech_count": 74
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-11/debate/dbsect_8",
+        "heading": "Flood Prevention: Motion [Private Members]",
+        "speech_count": 73
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-30/debate/dbsect_19",
+        "heading": "Insurance Costs: Motion [Private Members]",
+        "speech_count": 72
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-02/debate/dbsect_9",
+        "heading": "Housing Emergency Measures: Motion [Private Members]",
+        "speech_count": 70
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-26/debate/dbsect_9",
+        "heading": "Strengthening Whistleblower Protections, Enforcement and Accountability in Public Administration: Motion [Private Members]",
+        "speech_count": 69
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-19/debate/dbsect_8",
+        "heading": "Housing Crisis: Motion [Private Members]",
+        "speech_count": 68
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-30/debate/dbsect_16",
+        "heading": "Final Draft Revised National Planning Framework: Motion",
+        "speech_count": 66
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-12-03/debate/dbsect_10",
+        "heading": "Trans Healthcare: Motion [Private Members]",
+        "speech_count": 66
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-05-07/debate/dbsect_38",
+        "heading": "Cost of Living Mini-Budget: Motion [Private Members]",
+        "speech_count": 65
+      }
+    ],
+    "procedural_business": [
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-19/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 164
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-15/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 163
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-08/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 139
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-24/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 135
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-30/debate/dbsect_5",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 132
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-10/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 131
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-01/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 123
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-13/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 123
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-25/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 117
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-20/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 114
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-03-03/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 114
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-17/debate/dbsect_5",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 110
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-10-14/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 110
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-04/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 109
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-01/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 108
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-05-27/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 104
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-02-17/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 104
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-11/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 101
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-17/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 101
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-08/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 100
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-11-12/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 97
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-06-10/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 96
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-20/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 94
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-01-27/debate/dbsect_3",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 94
+      },
+      {
+        "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-29/debate/dbsect_4",
+        "heading": "An tOrd Gn\u00f3 - Order of Business",
+        "speech_count": 93
+      }
+    ],
+    "statements": []
+  },
+  "overlap_examples": [
+    {
+      "contexts": [
+        "motions",
+        "procedural_business"
+      ],
+      "debate_date": "2025-09-30",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-30/debate/dbsect_11",
+      "heading": "Sittings and Business of the D\u00e1il: Motion",
+      "speech_id": "speech:0d04c779d4c4a05c4aed6b9d"
+    },
+    {
+      "contexts": [
+        "motions",
+        "statements"
+      ],
+      "debate_date": "2025-09-24",
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-09-24/debate/dbsect_13",
+      "heading": "Statement of Estimates for the Houses of the Oireachtas Commission: Motion",
+      "speech_id": "speech:238ff373f3ad0a9ed19bb465"
+    }
+  ],
+  "overlap_matrix": [
+    {
+      "context_a": "motions",
+      "context_b": "statements",
+      "speech_overlap": 1
+    },
+    {
+      "context_a": "motions",
+      "context_b": "procedural_business",
+      "speech_overlap": 1
+    }
+  ],
+  "overlap_speech_count": 2,
+  "precedence_proposal": [
+    "oral_question_exchange",
+    "bill_or_legislation",
+    "leaders_questions",
+    "motions",
+    "statements",
+    "procedural_business",
+    "other"
+  ],
+  "production_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "resolved_keys": {
+    "bill_debates": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_bill_debates/csv/silver_bill_debates.csv",
+    "sections": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_debate_sections/csv/silver_debate_sections.csv",
+    "speech_question_context": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/metrics/event/speech_question_context/csv/speech_question_context.csv",
+    "speeches": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_speeches/csv/silver_speeches.csv"
+  },
+  "source_inventory": {
+    "bill_debate_rows": 1222,
+    "bill_debate_rows_with_section": 1222,
+    "bill_sections_without_speeches": 64,
+    "distinct_bill_sections": 64,
+    "section_rows": 5010,
+    "speech_rows": 66192
+  }
+}
