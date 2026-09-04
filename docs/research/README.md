@@ -39,5 +39,6 @@ Do not promote exploratory conclusions into production metrics until their denom
 - [Certified Bill-section bridge implementation](legislation_bridge_implementation.md) — deployed production foundation, live batch and counts, validation/deployment run IDs, permanent audits, production semantics, guardrails and the current living next-step plan.
 - [Instagram post candidates](instagram_post_candidates.md) — researched and ranked shortlist of ten defensible Instagram post ideas, exact evidence and denominators, rejected ideas, unsafe-but-promising areas, and the living editorial next-step plan.
 - [Irish political data sources](irish_political_data_sources.md) — completed research-only investigation of Irish polling and other political datasets, including access, licensing, pricing, methodology, automation feasibility, rejected sources, rankings, and top future ingestion candidates.
+- [Irish political data ingestion feasibility](irish_political_data_ingestion_feasibility.md) — read-only follow-up on the top five candidates, covering concrete access patterns, schema/versioning risks, future ingestion modes and implementation-readiness order.
 
 Future investigations should get their own topic documents here, for example voting behaviour, speech structure, issue analysis, constituency representation and cross-metric profiles.
