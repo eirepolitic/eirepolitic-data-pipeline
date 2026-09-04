@@ -7,6 +7,7 @@ from typing import Any, Dict
 
 import yaml
 
+from .attribution import required_footer_text, resolve_attributions
 from .constants import DEFAULT_BUCKET, DEFAULT_REGION, OUTPUT_ROOT
 from .context import build_post_context
 from .data_loader import LocalCSVLoader, S3CSVLoader, load_datasets
@@ -26,11 +27,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def apply_source_attribution(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Resolve declared source IDs and inject mandatory visible attribution."""
+    source_ids = spec.get("data", {}).get("source_ids", [])
+    attributions = resolve_attributions(source_ids)
+    footer = required_footer_text(attributions)
+
+    spec.setdefault("post", {})["source_attributions"] = attributions
+    if footer:
+        branding = spec.setdefault("branding", {})
+        existing = str(branding.get("footer_note") or "").strip()
+        if footer not in existing:
+            branding["footer_note"] = f"{existing} | {footer}" if existing else footer
+    return spec
+
+
 def load_spec(path: str | Path) -> Dict[str, Any]:
     spec = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     if "post" not in spec or "slides" not in spec or "data" not in spec or "branding" not in spec:
         raise RuntimeError("Spec must include post, slides, data, and branding sections.")
-    return spec
+    return apply_source_attribution(spec)
 
 
 def build_loader(args: argparse.Namespace):
