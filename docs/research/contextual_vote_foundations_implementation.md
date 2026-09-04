@@ -4,7 +4,7 @@
 
 Production deployment completed successfully on 2026-09-04.
 
-Current production batch:
+Foundation production batch:
 
 - `contextual-vote-foundations-20260904-1`
 
@@ -17,15 +17,21 @@ Validation runs:
 - `33893753187` — initial focused validation found a test/aggregation issue; no production change.
 - `33893911894` — corrected focused validation; compilation and all reconciliation/contract tests passed.
 
-Successful production deployment and post-promotion reconciliation:
+Successful foundation deployment and post-promotion reconciliation:
 
 - `33894036435`
 
-Read-only live footprint verification:
+Read-only foundation footprint verification:
 
 - `33894221886`
 
-The deployment is additive. Existing unfiltered voting foundations and existing monthly voting metrics remain unchanged.
+The additive foundations remain deployed and are now consumed by the completed-month contextual voting layer deployed in production batch:
+
+- `contextual-monthly-voting-20260904-1`
+
+Monthly contextual implementation details are recorded in:
+
+- `docs/research/contextual_monthly_voting_implementation.md`
 
 ## Production datasets
 
@@ -55,7 +61,7 @@ Allowed components:
 - `recorded_vote_count`
 - `eligible_member_division_count`
 
-Live row count:
+Live row count at deployment:
 
 - **65,593**
 
@@ -64,7 +70,7 @@ Live row count:
 Purpose:
 
 - division-level historical party vote distributions carrying certified division context;
-- supports arbitrary-period contextual party recorded-vote agreement/cohesion using the existing production rules.
+- supports arbitrary-period contextual party recorded-vote agreement using the existing production rules.
 
 Production grain:
 
@@ -73,66 +79,13 @@ Production grain:
 - `party_uri`
 - `vote_code`
 
-Live row count:
+Live row count at deployment:
 
 - **4,575**
 
-## Live context footprint
-
-Daily contextual component rows:
-
-- `bill_or_legislation`: 17,694
-- `motion_proceeding`: 18,936
-- `procedural_business`: 22,022
-- `other`: 6,941
-
-Party division-vote component rows:
-
-- `bill_or_legislation`: 1,881
-- `motion_proceeding`: 1,750
-- `procedural_business`: 620
-- `other`: 324
-
-Recorded party-member vote totals by context:
-
-- Bill divisions: 24,427
-- motion proceedings: 22,777
-- procedural business: 7,979
-- other: 4,142
-
-These reconcile to the existing 59,325 recorded member-vote rows.
-
-## Daily additive totals
-
-Because daily contextual components are materialized for member, party and constituency grains, their aggregate component totals are intentionally larger than the raw member-vote row count.
-
-Across all three grains, the live totals are:
-
-### Bill divisions
-
-- eligible member-division components: 87,261
-- recorded-vote components: 73,281
-
-### Motion proceedings
-
-- eligible member-division components: 79,503
-- recorded-vote components: 68,331
-
-### Procedural business
-
-- eligible member-division components: 27,552
-- recorded-vote components: 23,937
-
-### Other
-
-- eligible member-division components: 14,013
-- recorded-vote components: 12,426
-
-These values are additive components by grain and must not be interpreted as unique people or unique votes when summed across grains.
-
 ## Reconciliation guarantees
 
-The live post-promotion audit confirmed:
+The foundation deployment confirmed:
 
 - allowed context values only;
 - unique daily primary key;
@@ -141,27 +94,53 @@ The live post-promotion audit confirmed:
 - **0 party reconciliation mismatches** against existing `division_party_vote_components`;
 - collapsing `division_context` reproduces the established unfiltered foundations exactly.
 
-This reconciliation is now part of the standard candidate materialization gate.
+This reconciliation remains part of standard candidate materialization.
 
 ## Existing formulas unchanged
 
-This deployment did **not** change:
+The foundations did **not** change:
 
 - membership eligibility logic;
 - historical party-at-vote attribution;
 - recorded-vote participation formulas;
-- party cohesion/agreement formula;
+- party recorded-vote agreement formula;
 - minimum two recorded party-member votes per qualifying party/division;
 - 10+ qualifying divisions = `reliable`;
 - 5–9 = `caution`;
-- fewer than 5 = `insufficient_for_comparison`;
-- existing completed-month metric rows.
+- fewer than 5 = `insufficient_for_comparison`.
 
-The new foundations only add the certified `division_context` dimension to additive voting components.
+The foundations add only the certified `division_context` dimension to additive voting components.
+
+## Monthly contextual handoff now completed
+
+The previously planned completed-month layer is now deployed.
+
+Current production includes `division_context` monthly result rows for:
+
+- `member_vote_participation_pct`
+- `party_vote_cohesion_pct`
+
+The monthly layer:
+
+- keeps the same metric IDs and formulas;
+- uses the established 0–1 proportion scale;
+- carries numerator and denominator fields;
+- formalizes member contextual sample reliability;
+- preserves existing party qualifying-division thresholds;
+- carries Independent-group wording warnings;
+- is generated automatically by future full candidate materialization.
+
+Live contextual monthly footprint:
+
+- 11,844 contextual rows
+- 20 completed months
+- 0 duplicate monthly primary keys
+
+See `contextual_monthly_voting_implementation.md` for the full live reliability and warning distribution.
 
 ## Consumer semantics
 
-### Participation
+### Arbitrary-period participation
 
 For a selected context and period:
 
@@ -171,7 +150,7 @@ For a selected context and period:
 
 Never average monthly participation percentages to create a longer-period value.
 
-### Party recorded-vote agreement
+### Arbitrary-period party recorded-vote agreement
 
 Use `context_division_party_vote_components` and the existing production party-vote calculation:
 
@@ -185,34 +164,30 @@ For the Independent grouping, describe the output as **recorded-vote agreement a
 
 ## Methodological guardrails
 
-1. `division_context` is a descriptive parliamentary-form/context dimension, not a performance measure.
+1. `division_context` is descriptive parliamentary context, not a performance measure.
 2. Context filtering must happen before numerator/denominator aggregation.
 3. Historical party attribution must remain date-correct.
 4. Missing recorded votes do not prove absence.
-5. Do not average percentages across periods.
+5. Do not average percentages/proportions across periods.
 6. Do not describe participation or agreement as effectiveness, quality or political performance.
 7. `motion_proceeding` is parliamentary form, not one substantive policy topic.
 8. Bill stage remains separate and must not be inferred from Bill ID plus division date.
-9. Context-specific additive totals must continue to reconcile exactly to the existing unfiltered foundations when context is collapsed.
-10. Consumer code should use these foundations rather than recomputing context joins directly from speech-level data.
+9. Context-specific additive totals must continue to reconcile exactly to existing unfiltered foundations when context is collapsed.
+10. Consumer code should use these foundations rather than recomputing context joins from speech-level data.
 
 ## Living next-step plan
 
-The context-aware additive voting foundations are now deployed and audited.
+The additive foundations and first completed-month contextual voting layer are both deployed.
 
-Next research/implementation priority:
+Next research priority:
 
-1. Design completed-month contextual voting result rows derived from the new additive foundations.
-2. Add `dimension_name = division_context` and the four certified context values to selected existing voting metric families rather than creating separate metric IDs per context.
-3. Preserve existing metric IDs/formulas where possible and introduce a version change only if required by result-contract semantics.
-4. Define a formal small-sample reliability rule for **member contextual participation** before public member comparison views are enabled. The research-supported candidate rule remains:
-   - 25+ eligible divisions: normal display;
-   - 10–24: caution;
-   - 5–9: small-sample caution;
-   - fewer than 5: insufficient/suppress comparison.
-5. Keep party cohesion reliability thresholds unchanged initially.
-6. Treat Independent outputs as recorded-vote agreement, not organizational party discipline.
-7. Add reconciliation audits showing contextual monthly numerators/denominators sum back to the corresponding unfiltered monthly counts where appropriate.
-8. Keep arbitrary-range consumers based on additive foundations rather than summing monthly percentages.
-9. Defer Bill stage context until an exact stage relationship is separately certified.
-10. Keep all voting outputs descriptive and denominator-explicit; do not present them as effectiveness, quality or performance.
+1. Run a **consumer-readiness audit** for Appsmith, Power BI and API use of the new contextual monthly rows.
+2. Define default suppression and ranking behavior so `not_certified` rows are not compared as if equally stable.
+3. Verify that consumer views always retain numerator, denominator, reliability, public-use and warning metadata.
+4. Verify Independent-group wording in public party tables/charts.
+5. Investigate whether `party_vote_participation_pct` has a sufficiently clear use case to add `division_context` monthly rows; the additive foundation already supports it.
+6. Investigate constituency contextual participation only if a concrete consumer view benefits from it.
+7. Keep arbitrary-period contextual calculations foundation-based rather than aggregating monthly proportions.
+8. Develop certified Bill-specific voting histories as an event-level consumer view using existing Bill linkage.
+9. Continue to defer Bill stage attribution until an exact stage relationship is certified.
+10. Keep all voting outputs descriptive and politically neutral.
