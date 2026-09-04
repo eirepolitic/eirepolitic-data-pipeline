@@ -1,0 +1,298 @@
+{
+  "batch_id": "structure-oral-exchange-participants-20260902-1",
+  "source_keys": {
+    "silver_speeches": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_speeches/csv/silver_speeches.csv",
+    "labels": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv",
+    "silver_debate_records": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_debate_records/csv/silver_debate_records.csv"
+  },
+  "silver_speeches_total_rows": 66192,
+  "canonical_speeches_total_rows": 66192,
+  "august_canonical_rows": 45,
+  "august_speech_rows_by_date": {
+    "2026-08-28": 45
+  },
+  "august_unique_dates": [
+    "2026-08-28"
+  ],
+  "august_unique_members": 26,
+  "august_label_rows": 45,
+  "classification_status_counts": {
+    "classified": 32,
+    "skipped_short_text": 13
+  },
+  "issue_label_counts": {
+    "Energy": 20,
+    "NONE": 13,
+    "Macroeconomics": 7,
+    "Government Operations": 3,
+    "Foreign Trade": 1,
+    "Social Welfare": 1
+  },
+  "immutable_august_debate_record_count": 1,
+  "immutable_august_debate_records": [
+    {
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "chamber": "dail",
+      "house_code": "dail",
+      "show_as": "dail — 2026-08-28"
+    }
+  ],
+  "public_dail_pagination": {
+    "complete": true,
+    "page_count": 1,
+    "page_size": 200,
+    "initial_skip": 0,
+    "fetched_count": 1,
+    "reported_total": null,
+    "stop_reason": "short_page",
+    "intentionally_limited": false
+  },
+  "public_dail_debate_count": 1,
+  "public_dail_debates": [
+    {
+      "date": "2026-08-28",
+      "uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "house_code": "dail",
+      "show_as": null,
+      "counts": {
+        "contributorCount": 154,
+        "divisionCount": 3,
+        "debateSectionCount": 2,
+        "questionCount": 0,
+        "billCount": 0
+      },
+      "section_count": 2
+    }
+  ],
+  "public_all_pagination": {
+    "complete": true,
+    "page_count": 1,
+    "page_size": 200,
+    "initial_skip": 0,
+    "fetched_count": 1,
+    "reported_total": null,
+    "stop_reason": "short_page",
+    "intentionally_limited": false
+  },
+  "public_all_debate_count": 1,
+  "public_all_debates": [
+    {
+      "date": "2026-08-28",
+      "uri": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "house_code": "dail",
+      "chamber": "Dáil Éireann",
+      "show_as": null,
+      "counts": {
+        "contributorCount": 154,
+        "divisionCount": 3,
+        "debateSectionCount": 2,
+        "questionCount": 0,
+        "billCount": 0
+      }
+    }
+  ],
+  "source_sample_rows": [
+    {
+      "speech_id": "speech:78bc19f619bac6836ad45b4a",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "1",
+      "speaker_name": "An Ceann Comhairle",
+      "speaker_member_code": "Verona-Murphy.D.2020-02-08",
+      "speech_text": "Members are very enthusiastic. Good afternoon and welcome to our recall sitting. On 21 August last, the Taoiseach requested me by letter, under Standing Order 26(1), to summon Dáil",
+      "word_count": "83"
+    },
+    {
+      "speech_id": "speech:3f4f78d6ca5b616f1c94c5b8",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "2",
+      "speaker_name": "Minister of State at the Department of the Taoiseach (Deputy Mary Butler)",
+      "speaker_member_code": "Mary-Butler.D.2016-10-03",
+      "speech_text": "I move: Notwithstanding anything in Standing Order 217, in relation to the Financial Motion by the Minister for Finance [2026], the following arrangements shall apply: 1. the proce",
+      "word_count": "161"
+    },
+    {
+      "speech_id": "speech:67c4c3d1f0c7001a2b1b3600",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "3",
+      "speaker_name": "An Ceann Comhairle",
+      "speaker_member_code": "Verona-Murphy.D.2020-02-08",
+      "speech_text": "Is the proposal agreed to? Not agreed. The same procedure applies. I call Deputy Mac Lochlainn.",
+      "word_count": "16"
+    },
+    {
+      "speech_id": "speech:221a5e6f578e4ad42e16039b",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "4",
+      "speaker_name": "Deputy Pádraig Mac Lochlainn",
+      "speaker_member_code": "Pádraig-MacLochlainn.D.2011-03-09",
+      "speech_text": "It has been six weeks since we last gathered here. Prices are going through the roof, there is a serious crisis out there and the Government has allocated just one hour today - sev",
+      "word_count": "98"
+    },
+    {
+      "speech_id": "speech:002ad2d4b2fe8ee465fc3376",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "5",
+      "speaker_name": "An Ceann Comhairle",
+      "speaker_member_code": "Verona-Murphy.D.2020-02-08",
+      "speech_text": "I call Deputy O'Callaghan. Members have 30 seconds each.",
+      "word_count": "9"
+    },
+    {
+      "speech_id": "speech:f6714af4711470c3f7a2b1b4",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "6",
+      "speaker_name": "Deputy Cian O'Callaghan",
+      "speaker_member_code": "Cian-O'Callaghan.D.2020-02-08",
+      "speech_text": "The cost-of-living crisis is putting huge pressure on households around the country. This Government is showing contempt and disdain for those households by giving the bare minimum",
+      "word_count": "61"
+    },
+    {
+      "speech_id": "speech:77468faac94ff9dc20f12f3a",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "7",
+      "speaker_name": "Deputy Richard Boyd Barrett",
+      "speaker_member_code": "Richard-Boyd-Barrett.D.2011-03-09",
+      "speech_text": "To provide an hour for this debate is a pathetic admission of the failure of Government policy to address an entirely predictable situation in terms of petrol prices and the cost o",
+      "word_count": "96"
+    },
+    {
+      "speech_id": "speech:0a04759c06144f892b45c047",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "8",
+      "speaker_name": "Deputy Michael Collins",
+      "speaker_member_code": "Michael-Collins.D.2016-10-03",
+      "speech_text": "One hour for debate on such an important issue today is very unfair to the people of this country - the people who cannot pay their energy bills and the people pulling up to the fi",
+      "word_count": "93"
+    },
+    {
+      "speech_id": "speech:79a30fbe0c9a417a1dfdcbfc",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "9",
+      "speaker_name": "Deputy Mary Butler",
+      "speaker_member_code": "Mary-Butler.D.2016-10-03",
+      "speech_text": "I have heard the contributions from the Members opposite. Every single Member of this House agreed to the recess. There was not one person who objected to it, just for the record o",
+      "word_count": "151"
+    },
+    {
+      "speech_id": "speech:b3b4217723eac1a58ad2c9ad",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "10",
+      "speaker_name": "An Ceann Comhairle",
+      "speaker_member_code": "Verona-Murphy.D.2020-02-08",
+      "speech_text": "Before I call the Tánaiste, on behalf of Deputy Martin Daly, I welcome a representative from the State Legislature in Louisiana, Mr. Peter Egan. Peter is from Ballygar in Galway, w",
+      "word_count": "47"
+    },
+    {
+      "speech_id": "speech:33af8464d015574ca04f3596",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "11",
+      "speaker_name": "Minister for Finance (Deputy Simon Harris)",
+      "speaker_member_code": "Simon-Harris.D.2011-03-09",
+      "speech_text": "I move: (1) THAT for the purposes of the tax charged by virtue of section 95 of the Finance Act 1999 (No. 2 of 1999), that Act be amended, with effect as on and from 29 August 2026",
+      "word_count": "2222"
+    },
+    {
+      "speech_id": "speech:bf8e4eea9332b21e42677599",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "12",
+      "speaker_name": "Deputy Mary Lou McDonald",
+      "speaker_member_code": "Mary-Lou-McDonald.D.2011-03-09",
+      "speech_text": "Comhghairdeas leat, Senan. The Dáil has been recalled because the Government got it wrong. Fianna Fáil, Fine Gael and the Independents intended to increase petrol and diesel prices",
+      "word_count": "188"
+    },
+    {
+      "speech_id": "speech:f3067730acdac65e7680b963",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "13",
+      "speaker_name": "Deputy Matt Carthy",
+      "speaker_member_code": "Matt-Carthy.D.2020-02-08",
+      "speech_text": "Hear, hear.",
+      "word_count": "2"
+    },
+    {
+      "speech_id": "speech:90e86d49e112e6756af1390f",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "14",
+      "speaker_name": "Deputy Mary Lou McDonald",
+      "speaker_member_code": "Mary-Lou-McDonald.D.2011-03-09",
+      "speech_text": "What the Government brings today is not a solution. It is kicking the can down the road. It is postponing the pain, not removing it. That is why we will oppose the Government motio",
+      "word_count": "277"
+    },
+    {
+      "speech_id": "speech:b7dea0361a01d7b35a71704e",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "15",
+      "speaker_name": "Deputies",
+      "speaker_member_code": "",
+      "speech_text": "Hear, hear.",
+      "word_count": "2"
+    },
+    {
+      "speech_id": "speech:554e377da8f7bf554bd0f5b5",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "16",
+      "speaker_name": "Deputy Pearse Doherty",
+      "speaker_member_code": "Pearse-Doherty.S.2007-07-23",
+      "speech_text": "This is an embarrassing climbdown from the Government, one we warned it about back in July. In its arrogance, the Government voted against a Sinn Féin amendment that would have see",
+      "word_count": "498"
+    },
+    {
+      "speech_id": "speech:17cae08e0724f402a1aeab29",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "17",
+      "speaker_name": "Deputies",
+      "speaker_member_code": "",
+      "speech_text": "Hear, hear.",
+      "word_count": "2"
+    },
+    {
+      "speech_id": "speech:43a708a84ddd7b8367da4f43",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "18",
+      "speaker_name": "An Ceann Comhairle",
+      "speaker_member_code": "Verona-Murphy.D.2020-02-08",
+      "speech_text": "Did the Deputy move the amendment?",
+      "word_count": "6"
+    },
+    {
+      "speech_id": "speech:90108e1b62c750113dcfbf19",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "19",
+      "speaker_name": "Deputy Pearse Doherty",
+      "speaker_member_code": "Pearse-Doherty.S.2007-07-23",
+      "speech_text": "I move amendment No. 1: In page 1, in Schedule 2, inserted by paragraph (1), to delete from the row dated “14 October 2026” down to and including the row dated “1 May 2030” and sub",
+      "word_count": "66"
+    },
+    {
+      "speech_id": "speech:fb291ca929ad60d2931f10a7",
+      "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-08-28/debate/main",
+      "debate_date": "2026-08-28",
+      "speech_order": "20",
+      "speaker_name": "Deputy Holly Cairns",
+      "speaker_member_code": "Holly-Cairns.D.2020-02-08",
+      "speech_text": "I join others in congratulating Senan Molony on his retirement. This is a Government permanently stuck in reaction mode. A crisis happens, pressure builds, people protest and, even",
+      "word_count": "440"
+    }
+  ]
+}

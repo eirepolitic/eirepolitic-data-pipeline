@@ -1,0 +1,4442 @@
+{
+  "project_id": "party_issue_monthly_profile_v2",
+  "generated_at_utc": "2026-09-03T21:55:14.340065+00:00",
+  "period": {
+    "key": "2026-08",
+    "start": "2026-08-01",
+    "end": "2026-08-31",
+    "label": "August 2026"
+  },
+  "source_batch_id": "structure-oral-exchange-participants-20260902-1",
+  "source_pointer": {
+    "batch_id": "structure-oral-exchange-participants-20260902-1",
+    "manifest_key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "structure-question-context-33550915907-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-02T20:18:28+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "33678430937"
+  },
+  "source_batch_manifest_key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/manifest.json",
+  "source_batch_status": "validated",
+  "sources": {
+    "silver_speeches": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_speeches/csv/silver_speeches.csv",
+      "etag": "9f1cdf6aa1b654777b35af358e130313",
+      "version_id": null,
+      "last_modified": "2026-09-02T20:14:45+00:00",
+      "row_count": 66192,
+      "source_batch_id": "structure-oral-exchange-participants-20260902-1"
+    },
+    "enrichment_speech_issue_labels": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/enrichment_speech_issue_labels/csv/enrichment_speech_issue_labels.csv",
+      "etag": "12708503b37decfc20e914d839dbc8b0",
+      "version_id": null,
+      "last_modified": "2026-09-02T20:14:26+00:00",
+      "row_count": 66192,
+      "source_batch_id": "structure-oral-exchange-participants-20260902-1"
+    },
+    "silver_member_memberships": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_member_memberships/csv/silver_member_memberships.csv",
+      "etag": "22b1201e3ac5e49a761d5671c006c7fa",
+      "version_id": null,
+      "last_modified": "2026-09-02T20:14:41+00:00",
+      "row_count": 176,
+      "source_batch_id": "structure-oral-exchange-participants-20260902-1"
+    },
+    "silver_member_parties": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_member_parties/csv/silver_member_parties.csv",
+      "etag": "fdb8ccea44b8e44c20ba03a5d9a39f54",
+      "version_id": null,
+      "last_modified": "2026-09-02T20:14:41+00:00",
+      "row_count": 178,
+      "source_batch_id": "structure-oral-exchange-participants-20260902-1"
+    },
+    "silver_member_constituencies": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/structure-oral-exchange-participants-20260902-1/tables/silver_member_constituencies/csv/silver_member_constituencies.csv",
+      "etag": "439680bd71ac491bbf664278f8962f8c",
+      "version_id": null,
+      "last_modified": "2026-09-02T20:14:40+00:00",
+      "row_count": 176,
+      "source_batch_id": "structure-oral-exchange-participants-20260902-1"
+    }
+  },
+  "readiness": {
+    "classification_gate": {
+      "ready": true,
+      "scope_rows": 45,
+      "policy_labelled_rows": 32,
+      "none_rows": 13,
+      "policy_label_rate": 0.7111111111111111,
+      "missing_label_rows": 0,
+      "orphan_label_rows": 0,
+      "hash_mismatch_rows": 0,
+      "invalid_label_rows": 0,
+      "non_final_status_rows": 0,
+      "blank_label_source_rows": 0,
+      "model_missing_name_rows": 0,
+      "checks": {
+        "source_speech_id_unique": true,
+        "label_speech_id_unique": true,
+        "every_speech_has_label_row": true,
+        "no_orphan_label_rows": true,
+        "source_hash_matches": true,
+        "all_labels_approved": true,
+        "all_classifications_final": true,
+        "all_label_sources_populated": true,
+        "model_rows_have_model_name": true
+      },
+      "classification_status_counts": {
+        "classified": 32,
+        "skipped_short_text": 13
+      },
+      "issue_label_source_counts": {
+        "existing_unified_enrichment": 45
+      },
+      "model_name_counts": {
+        "gpt-5.6-luna": 32,
+        "rule": 13
+      },
+      "issue_label_counts": {
+        "Energy": 20,
+        "NONE": 13,
+        "Macroeconomics": 7,
+        "Government Operations": 3,
+        "Foreign Trade": 1,
+        "Social Welfare": 1
+      },
+      "missing_label_examples": [],
+      "orphan_label_examples": []
+    },
+    "period_eligible_dail_speeches": 43,
+    "period_policy_speeches": 32,
+    "matched_classified_rows": 32,
+    "unmatched_classified_rows": 0,
+    "party_count": 11,
+    "period_end_active_td_count": 174,
+    "issue_count": 5
+  },
+  "calculation": {
+    "speech_attribution": "event-date Dáil membership and party history",
+    "raw_counts": "distinct policy-classified speeches by party and issue in period; top 7",
+    "share_vs_average": "party issue share minus unweighted mean issue share across all displayed period-end groups, including zero shares; positive top 7",
+    "per_td_denominator": "active Dáil TDs in party/group at period end",
+    "per_td_vs_average": "party issue speeches per period-end TD minus unweighted mean rate across all displayed groups, including zero rates; positive top 7"
+  },
+  "presentation_labels": "instagram/reference/issue_presentation_labels.yml",
+  "party_asset_registry": "configs/reference/party_assets_v1.csv",
+  "party_display_aliases": {
+    "Independent": "Independents"
+  },
+  "analytical_visual_source": {
+    "variant": 2,
+    "source_family": "Matplotlib final January commissioning",
+    "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+    "source_run_number": 203,
+    "source_run_id": 33448590338,
+    "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+    "commissioning_reference_run_number": 247,
+    "commissioning_reference_run_id": 33800066946
+  },
+  "chart_geometry": {
+    "outer_slide_dimensions": [
+      1080,
+      1350
+    ],
+    "visual_media_dimensions": [
+      1032,
+      1210
+    ],
+    "min_visual_rows": 4,
+    "max_short_chart_bar_thickness_px": 169.88,
+    "short_chart_bar_thickness_policy": "1-3 row charts use a centered virtual 4-row stack"
+  },
+  "cover_logo_geometry": {
+    "square_size": [
+      500,
+      500
+    ],
+    "top": 300,
+    "centered": true,
+    "border": {
+      "enabled": true,
+      "color": "#d8b45f",
+      "width_px": 6,
+      "position": "inside_square"
+    },
+    "artwork_scale_overrides": {
+      "fine-gael": 1.1,
+      "labour-party": 1.1,
+      "independent-ireland": 1.1
+    }
+  },
+  "analytical_titles": {
+    "most_discussed_issues": "Most Discussed Issues",
+    "more_than_average": "Issues Discussed More Than Average",
+    "more_per_td": "Issues Discussed More Than Average per TD"
+  },
+  "glossary_terms": [
+    "Most Discussed Issues",
+    "Issues Discussed More Than Average",
+    "Issues Discussed More Than Average per TD",
+    "Classified Speeches"
+  ],
+  "parties": [
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "100% RDR",
+      "display_party_name": "100% RDR",
+      "party_key": "100-rdr",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/100%_RDR",
+      "td_count": 1,
+      "classified_speeches": 1,
+      "avg_speeches_per_td": 1.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 33.333333333333336,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.5911329898172004,
+          "raw_count": 1
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "100-rdr",
+        "registry_party_name": "100% RDR",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/100-rdr/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/100-rdr/logo.png",
+        "etag": "cbcbc18985c180b63599997a548b2dfa",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:37+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  624.63,
+                  942.49,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/100-rdr/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9611,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.5911329898172004,
+                "text": "+0.59/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  801.37,
+                  624.63,
+                  973.37,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/100-rdr/slides/01_cover.png",
+        "parties/100-rdr/slides/02_most_discussed_issues.png",
+        "parties/100-rdr/slides/03_more_than_average.png",
+        "parties/100-rdr/slides/04_more_per_td.png",
+        "parties/100-rdr/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Aontú",
+      "display_party_name": "Aontú",
+      "party_key": "aontu",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Aontú",
+      "td_count": 2,
+      "classified_speeches": 2,
+      "avg_speeches_per_td": 1.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 2
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 33.333333333333336,
+          "raw_count": 2
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.5911329898172004,
+          "raw_count": 2
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "aontu",
+        "registry_party_name": "Aontú",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/aontu/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/aontu/logo.png",
+        "etag": "1ccc89164376b9b753164bac70b09e42",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:38+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 2.0,
+                "text": "2",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  624.63,
+                  942.49,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/aontu/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9611,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.5911329898172004,
+                "text": "+0.59/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  801.37,
+                  624.63,
+                  973.37,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/aontu/slides/01_cover.png",
+        "parties/aontu/slides/02_most_discussed_issues.png",
+        "parties/aontu/slides/03_more_than_average.png",
+        "parties/aontu/slides/04_more_per_td.png",
+        "parties/aontu/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Fianna Fáil",
+      "display_party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fianna_Fáil",
+      "td_count": 48,
+      "classified_speeches": 3,
+      "avg_speeches_per_td": 0.0625,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 2
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 26.666666666666668,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.006818181818181817,
+          "raw_count": 1
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "fianna-fail",
+        "registry_party_name": "Fianna Fáil",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/fianna-fail/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/fianna-fail/logo.png",
+        "etag": "1eb8109ff4470c7978780ae09b633825",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:38+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_manifesto_derived_logo",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 2,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 235.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  736.02,
+                  274.38,
+                  773.52
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  39.03,
+                  471.43,
+                  274.38,
+                  562.46
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 2.0,
+                "text": "2",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  742.61,
+                  942.49,
+                  775.94
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  612.56,
+                  506.66,
+                  635.56,
+                  539.99
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 235.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  39.03,
+                  589.4,
+                  274.38,
+                  680.43
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 26.666666666666668,
+                "text": "+26.7 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fianna-fail/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.9611,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 235.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  39.03,
+                  589.4,
+                  274.38,
+                  680.43
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.006818181818181817,
+                "text": "+0.01/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  801.37,
+                  624.63,
+                  973.37,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/fianna-fail/slides/01_cover.png",
+        "parties/fianna-fail/slides/02_most_discussed_issues.png",
+        "parties/fianna-fail/slides/03_more_than_average.png",
+        "parties/fianna-fail/slides/04_more_per_td.png",
+        "parties/fianna-fail/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Fine Gael",
+      "display_party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Fine_Gael",
+      "td_count": 38,
+      "classified_speeches": 3,
+      "avg_speeches_per_td": 0.0789,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 3
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 33.333333333333336,
+          "raw_count": 3
+        }
+      ],
+      "per_td_vs_average": [],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "fine-gael",
+        "registry_party_name": "Fine Gael",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/fine-gael/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/fine-gael/logo.png",
+        "etag": "fa4ecdecea76c1d6f1fb69c0a5ff9bff",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:39+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_derived_official_treatment",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 3.0,
+                "text": "3",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  624.63,
+                  942.49,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/fine-gael/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 0.0,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 0,
+            "max_wrapped_label_lines": 0,
+            "max_value_label_x_ratio": 0.0,
+            "displayed_item_count": 0,
+            "empty_state": true,
+            "empty_message": "No issues above average per TD",
+            "max_category_label_width_px": 0.0,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [],
+            "value_text_bounds": []
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/fine-gael/slides/01_cover.png",
+        "parties/fine-gael/slides/02_most_discussed_issues.png",
+        "parties/fine-gael/slides/03_more_than_average.png",
+        "parties/fine-gael/slides/04_more_per_td.png",
+        "parties/fine-gael/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Green Party",
+      "display_party_name": "Green Party",
+      "party_key": "green-party",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Green_Party",
+      "td_count": 1,
+      "classified_speeches": 1,
+      "avg_speeches_per_td": 1.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 33.333333333333336,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.5911329898172004,
+          "raw_count": 1
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "green-party",
+        "registry_party_name": "Green Party",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/green-party/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/green-party/logo.png",
+        "etag": "d7c97685001aa475f92b5d74a5c90cde",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:40+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_derived_official_treatment",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  624.63,
+                  942.49,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/green-party/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9611,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.5911329898172004,
+                "text": "+0.59/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  801.37,
+                  624.63,
+                  973.37,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/green-party/slides/01_cover.png",
+        "parties/green-party/slides/02_most_discussed_issues.png",
+        "parties/green-party/slides/03_more_than_average.png",
+        "parties/green-party/slides/04_more_per_td.png",
+        "parties/green-party/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Independent",
+      "display_party_name": "Independents",
+      "party_key": "independent",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent",
+      "td_count": 15,
+      "classified_speeches": 5,
+      "avg_speeches_per_td": 0.3333,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 2
+        },
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 2
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 33.333333333333336,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 18.181818181818183,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Government Operations",
+          "label": "Government Operations",
+          "value": 0.11931818181818182,
+          "raw_count": 2
+        },
+        {
+          "canonical_label": "Foreign Trade",
+          "label": "Foreign Trade",
+          "value": 0.06060606060606061,
+          "raw_count": 1
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "independent",
+        "registry_party_name": "Independent",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/independent/logo.png",
+        "etag": "02d23e6b2cd2622ec446054ec9b960d9",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:40+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "eirepolitic_generated_standin",
+        "fallback_type": "eirepolitic_neutral_standin"
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.9185,
+            "displayed_item_count": 3,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 256.31,
+            "plot_left_ratio": 0.2891,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  151.39,
+                  854.0,
+                  283.73,
+                  891.5
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  48.39,
+                  589.4,
+                  283.73,
+                  680.43
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Foreign Trade",
+                "rendered_label": "Foreign Trade",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  381.84,
+                  283.73,
+                  419.85
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 2.0,
+                "text": "2",
+                "font_size": 16,
+                "bbox_px": [
+                  920.78,
+                  860.58,
+                  943.78,
+                  893.92
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 2.0,
+                "text": "2",
+                "font_size": 16,
+                "bbox_px": [
+                  920.78,
+                  624.63,
+                  943.78,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  617.88,
+                  388.68,
+                  640.88,
+                  422.02
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.961,
+            "displayed_item_count": 2,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 256.31,
+            "plot_left_ratio": 0.2891,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  48.39,
+                  707.38,
+                  283.73,
+                  798.41
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Foreign Trade",
+                "rendered_label": "Foreign Trade",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  499.82,
+                  283.73,
+                  537.83
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  804.66,
+                  742.61,
+                  973.66,
+                  775.94
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 18.181818181818183,
+                "text": "+18.2 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  582.08,
+                  506.66,
+                  751.08,
+                  539.99
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 2,
+            "max_value_label_x_ratio": 0.9616,
+            "displayed_item_count": 2,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 256.31,
+            "plot_left_ratio": 0.2891,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Government Operations",
+                "rendered_label": "Government\nOperations",
+                "font_size": 18,
+                "line_count": 2,
+                "truncated": false,
+                "bbox_px": [
+                  48.39,
+                  707.38,
+                  283.73,
+                  798.41
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Foreign Trade",
+                "rendered_label": "Foreign Trade",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  499.82,
+                  283.73,
+                  537.83
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.11931818181818182,
+                "text": "+0.12/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  802.09,
+                  742.61,
+                  974.09,
+                  775.94
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 0.06060606060606061,
+                "text": "+0.06/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  562.4,
+                  506.66,
+                  734.4,
+                  539.99
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/independent/slides/01_cover.png",
+        "parties/independent/slides/02_most_discussed_issues.png",
+        "parties/independent/slides/03_more_than_average.png",
+        "parties/independent/slides/04_more_per_td.png",
+        "parties/independent/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Independent Ireland",
+      "display_party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Independent_Ireland",
+      "td_count": 4,
+      "classified_speeches": 4,
+      "avg_speeches_per_td": 1.0,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 4
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 33.333333333333336,
+          "raw_count": 4
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 0.5911329898172004,
+          "raw_count": 4
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "independent-ireland",
+        "registry_party_name": "Independent Ireland",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/independent-ireland/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/independent-ireland/logo.png",
+        "etag": "430300dc4da53ccc65c5b77c20391360",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:41+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "electoral_commission_registered_emblem_asset",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9178,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 4.0,
+                "text": "4",
+                "font_size": 16,
+                "bbox_px": [
+                  919.49,
+                  624.63,
+                  942.49,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9605,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 33.333333333333336,
+                "text": "+33.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  803.94,
+                  624.63,
+                  972.94,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/independent-ireland/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9611,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 132.34,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  142.03,
+                  618.05,
+                  274.38,
+                  655.55
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.5911329898172004,
+                "text": "+0.59/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  801.37,
+                  624.63,
+                  973.37,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/independent-ireland/slides/01_cover.png",
+        "parties/independent-ireland/slides/02_most_discussed_issues.png",
+        "parties/independent-ireland/slides/03_more_than_average.png",
+        "parties/independent-ireland/slides/04_more_per_td.png",
+        "parties/independent-ireland/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Labour Party",
+      "display_party_name": "Labour Party",
+      "party_key": "labour-party",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Labour_Party",
+      "td_count": 11,
+      "classified_speeches": 1,
+      "avg_speeches_per_td": 0.0909,
+      "raw_counts": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 76.96969696969697,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "labour-party",
+        "registry_party_name": "Labour Party",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/labour-party/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/labour-party/logo.png",
+        "etag": "3c8785d9f707a3cf609fd83921523dab",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:42+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "official_party_logo_asset_svg",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.1,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.924,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  929.31,
+                  624.63,
+                  952.31,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9649,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 76.96969696969697,
+                "text": "+77.0 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  809.57,
+                  624.63,
+                  978.57,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/labour-party/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 0.0,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 0,
+            "max_wrapped_label_lines": 0,
+            "max_value_label_x_ratio": 0.0,
+            "displayed_item_count": 0,
+            "empty_state": true,
+            "empty_message": "No issues above average per TD",
+            "max_category_label_width_px": 0.0,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [],
+            "value_text_bounds": []
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/labour-party/slides/01_cover.png",
+        "parties/labour-party/slides/02_most_discussed_issues.png",
+        "parties/labour-party/slides/03_more_than_average.png",
+        "parties/labour-party/slides/04_more_per_td.png",
+        "parties/labour-party/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "People Before Profit-Solidarity",
+      "display_party_name": "People Before Profit-Solidarity",
+      "party_key": "people-before-profit-solidarity",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/People_Before_Profit_Solidarity",
+      "td_count": 3,
+      "classified_speeches": 4,
+      "avg_speeches_per_td": 1.3333,
+      "raw_counts": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 4
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 76.96969696969697,
+          "raw_count": 4
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 1.193949989404535,
+          "raw_count": 4
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "people-before-profit-solidarity",
+        "registry_party_name": "People Before Profit-Solidarity",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/people-before-profit-solidarity/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/people-before-profit-solidarity/logo.png",
+        "etag": "b3b9663a43bc11acc8c905f2b20e1ac5",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:42+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "electoral_commission_registered_emblem_asset",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.924,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 4.0,
+                "text": "4",
+                "font_size": 16,
+                "bbox_px": [
+                  929.31,
+                  624.63,
+                  952.31,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9649,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 76.96969696969697,
+                "text": "+77.0 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  809.57,
+                  624.63,
+                  978.57,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/people-before-profit-solidarity/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9526,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 1.193949989404535,
+                "text": "+1.19/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  798.64,
+                  624.63,
+                  970.64,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/people-before-profit-solidarity/slides/01_cover.png",
+        "parties/people-before-profit-solidarity/slides/02_most_discussed_issues.png",
+        "parties/people-before-profit-solidarity/slides/03_more_than_average.png",
+        "parties/people-before-profit-solidarity/slides/04_more_per_td.png",
+        "parties/people-before-profit-solidarity/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Sinn Féin",
+      "display_party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Sinn_Féin",
+      "td_count": 39,
+      "classified_speeches": 5,
+      "avg_speeches_per_td": 0.1282,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 3
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 1
+        },
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 18.181818181818183,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [
+        {
+          "canonical_label": "Social Welfare",
+          "label": "Social Welfare",
+          "value": 0.02331002331002331,
+          "raw_count": 1
+        }
+      ],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "sinn-fein",
+        "registry_party_name": "Sinn Féin",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/sinn-fein/logo.png",
+        "etag": "333746b6abf62b764ff35934cfed3bdf",
+        "version_id": null,
+        "last_modified": "2026-09-02T18:03:43+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_selected_official_site_derived_wordmark",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": false,
+        "neutral_pixels_replaced": 0,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.924,
+            "displayed_item_count": 3,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  213.24,
+                  854.0,
+                  345.59,
+                  891.5
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Social Welfare",
+                "rendered_label": "Social Welfare",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  76.62,
+                  381.84,
+                  345.59,
+                  419.85
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 3.0,
+                "text": "3",
+                "font_size": 16,
+                "bbox_px": [
+                  929.31,
+                  860.58,
+                  952.31,
+                  893.92
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  561.0,
+                  624.63,
+                  584.0,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  561.0,
+                  388.68,
+                  584.0,
+                  422.02
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9617,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 268.97,
+            "plot_left_ratio": 0.3013,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Social Welfare",
+                "rendered_label": "Social Welfare",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  296.39,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 18.181818181818183,
+                "text": "+18.2 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  805.63,
+                  624.63,
+                  974.63,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/sinn-fein/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9624,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 268.97,
+            "plot_left_ratio": 0.3013,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Social Welfare",
+                "rendered_label": "Social Welfare",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  296.39,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 0.02331002331002331,
+                "text": "+0.02/TD",
+                "font_size": 16,
+                "bbox_px": [
+                  803.08,
+                  624.63,
+                  975.08,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/sinn-fein/slides/01_cover.png",
+        "parties/sinn-fein/slides/02_most_discussed_issues.png",
+        "parties/sinn-fein/slides/03_more_than_average.png",
+        "parties/sinn-fein/slides/04_more_per_td.png",
+        "parties/sinn-fein/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    },
+    {
+      "project_id": "party_issue_monthly_profile_v2",
+      "period": "2026-08",
+      "party": "Social Democrats",
+      "display_party_name": "Social Democrats",
+      "party_key": "social-democrats",
+      "party_uri": "https://data.oireachtas.ie/ie/oireachtas/party/dail/34/Social_Democrats",
+      "td_count": 12,
+      "classified_speeches": 3,
+      "avg_speeches_per_td": 0.25,
+      "raw_counts": [
+        {
+          "canonical_label": "Energy",
+          "label": "Energy",
+          "value": 2
+        },
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 1
+        }
+      ],
+      "share_vs_average": [
+        {
+          "canonical_label": "Macroeconomics",
+          "label": "Macroeconomics",
+          "value": 10.303030303030297,
+          "raw_count": 1
+        }
+      ],
+      "per_td_vs_average": [],
+      "party_asset_registry": "configs/reference/party_assets_v1.csv",
+      "party_asset": {
+        "party_key": "social-democrats",
+        "registry_party_name": "Social Democrats",
+        "logo_s3_uri": "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+        "bucket": "eirepolitic-data",
+        "key": "processed/reference/party_assets/v1/assets/social-democrats/logo.png",
+        "etag": "0cc25ba6e8ed6fca5a4ec136f031f522",
+        "version_id": null,
+        "last_modified": "2026-09-03T03:22:19+00:00",
+        "dimensions": [
+          1600,
+          1600
+        ],
+        "asset_status": "approved",
+        "source_type": "user_supplied_approved_asset",
+        "fallback_type": ""
+      },
+      "cover_title": "Party Speech Breakdown",
+      "cover_title_period": "August 2026",
+      "logo_geometry": {
+        "square_size": [
+          500,
+          500
+        ],
+        "top": 300,
+        "left": 290,
+        "centered": true,
+        "artwork_scale": 1.0,
+        "border": {
+          "enabled": true,
+          "color": "#d8b45f",
+          "width_px": 6,
+          "position": "inside_square"
+        }
+      },
+      "logo_resampling_cleanup": {
+        "enabled": true,
+        "neutral_pixels_replaced": 141,
+        "purpose": "remove_neutral_gray_pixels_introduced_by_lanczos_downscaling"
+      },
+      "analytical_visuals": {
+        "most_discussed_issues": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "most_discussed_issues",
+          "slide_title": "Most Discussed Issues",
+          "metric_id": "raw_counts",
+          "value_format": "integer",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/assets/variant-2/02_most_discussed_issues-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/02_most_discussed_issues-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/02_most_discussed_issues-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.924,
+            "displayed_item_count": 2,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Energy",
+                "rendered_label": "Energy",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  213.24,
+                  736.02,
+                  345.59,
+                  773.52
+                ],
+                "clipped_to_figure": false
+              },
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  499.82,
+                  345.59,
+                  537.83
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 2.0,
+                "text": "2",
+                "font_size": 16,
+                "bbox_px": [
+                  929.31,
+                  742.61,
+                  952.31,
+                  775.94
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              },
+              {
+                "value": 1.0,
+                "text": "1",
+                "font_size": 16,
+                "bbox_px": [
+                  653.07,
+                  506.66,
+                  676.07,
+                  539.99
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 1,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Most Discussed Issues",
+              "rendered_lines": [
+                "Most Discussed Issues"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_than_average": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_than_average",
+          "slide_title": "Issues Discussed More Than Average",
+          "metric_id": "share_vs_average",
+          "value_format": "plus_pp_1",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/assets/variant-2/03_more_than_average-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/03_more_than_average-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/03_more_than_average-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 169.88,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 4,
+            "max_wrapped_label_lines": 1,
+            "max_value_label_x_ratio": 0.9649,
+            "displayed_item_count": 1,
+            "empty_state": false,
+            "empty_message": "",
+            "max_category_label_width_px": 318.17,
+            "plot_left_ratio": 0.349,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [
+              {
+                "raw_label": "Macroeconomics",
+                "rendered_label": "Macroeconomics",
+                "font_size": 18,
+                "line_count": 1,
+                "truncated": false,
+                "bbox_px": [
+                  27.42,
+                  617.79,
+                  345.59,
+                  655.8
+                ],
+                "clipped_to_figure": false
+              }
+            ],
+            "value_text_bounds": [
+              {
+                "value": 10.303030303030297,
+                "text": "+10.3 pp",
+                "font_size": 16,
+                "bbox_px": [
+                  809.57,
+                  624.63,
+                  978.57,
+                  657.97
+                ],
+                "clipped_to_axes": false,
+                "clipped_to_figure": false
+              }
+            ]
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average"
+              ],
+              "clipped": false
+            }
+          ]
+        },
+        "more_per_td": {
+          "variant": 2,
+          "source_family": "Matplotlib final January commissioning",
+          "source_commit": "7f10fb0454d0da6d58b4c5c5b2e5aacc39844052",
+          "source_run_number": 203,
+          "source_run_id": 33448590338,
+          "commissioning_reference_branch": "commissioning/instagram-party-monthly-profile-v2",
+          "commissioning_reference_run_number": 247,
+          "commissioning_reference_run_id": 33800066946,
+          "renderer": "instagram.visuals.renderers.horizontal_bar",
+          "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+          "slide_id": "more_per_td",
+          "slide_title": "Issues Discussed More Than Average per TD",
+          "metric_id": "per_td_vs_average",
+          "value_format": "plus_per_td_2",
+          "min_visual_rows": 4,
+          "visual_asset": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/assets/variant-2/04_more_per_td-visual.png",
+          "visual_metadata": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/04_more_per_td-visual.json",
+          "visual_manifest": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/production/output/party_issue_monthly_profile_v2/period=2026-08/parties/social-democrats/metadata/variant-2/04_more_per_td-visual-manifest.json",
+          "readability": {
+            "category_label_font_size": 18,
+            "category_label_font_size_requested": 18,
+            "category_label_font_size_minimum": 14,
+            "category_label_font_shrunk": false,
+            "value_label_font_size": 16,
+            "value_label_font_size_requested": 16,
+            "value_label_font_size_minimum": 14,
+            "value_label_font_shrunk": false,
+            "axis_font_size": 12,
+            "bar_thickness_px": 0.0,
+            "min_visual_rows": 4,
+            "effective_visual_row_count": 0,
+            "max_wrapped_label_lines": 0,
+            "max_value_label_x_ratio": 0.0,
+            "displayed_item_count": 0,
+            "empty_state": true,
+            "empty_message": "No issues above average per TD",
+            "max_category_label_width_px": 0.0,
+            "plot_left_ratio": 0.28,
+            "category_text_clipped_count": 0,
+            "value_text_clipped_count": 0,
+            "truncated_label_count": 0,
+            "category_text_bounds": [],
+            "value_text_bounds": []
+          },
+          "warnings": [],
+          "outer_text_metrics": [
+            {
+              "requested_font_size": 56,
+              "actual_font_size": 56,
+              "line_count": 2,
+              "truncated": false,
+              "element_id": "title",
+              "source_text": "Issues Discussed More Than Average per TD",
+              "rendered_lines": [
+                "Issues Discussed More Than",
+                "Average per TD"
+              ],
+              "clipped": false
+            }
+          ]
+        }
+      },
+      "glossary_terms": [
+        "Most Discussed Issues",
+        "Issues Discussed More Than Average",
+        "Issues Discussed More Than Average per TD",
+        "Classified Speeches"
+      ],
+      "glossary_render": {
+        "final_y": 945,
+        "entry_count": 4
+      },
+      "slides": [
+        "parties/social-democrats/slides/01_cover.png",
+        "parties/social-democrats/slides/02_most_discussed_issues.png",
+        "parties/social-democrats/slides/03_more_than_average.png",
+        "parties/social-democrats/slides/04_more_per_td.png",
+        "parties/social-democrats/slides/05_glossary.png"
+      ],
+      "qa": {
+        "passed": 5,
+        "failed": 0
+      },
+      "review_state": "pending_human_review",
+      "publication_enabled": false
+    }
+  ],
+  "qa": {
+    "slide_count": 55,
+    "passed": 55,
+    "failed": 0,
+    "party_count": 11
+  },
+  "review_state": "pending_human_review",
+  "publication_enabled": false
+}

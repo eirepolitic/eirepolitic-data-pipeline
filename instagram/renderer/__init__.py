@@ -1,4 +1,3 @@
-"""Deterministic Instagram infographic renderer."""
-from .render import main
+from .template_renderer import render_template
 
-__all__ = ["main"]
+__all__ = ["render_template"]

@@ -1,0 +1,145 @@
+name: Instagram Content Factory recurring generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: Instagram project ID
+        required: true
+        type: string
+      period:
+        description: Optional project period (for example 2026-08); blank uses project default
+        required: false
+        default: ""
+        type: string
+      commit_delivery_artifacts:
+        description: Commit ZIP, contact sheets, QA and lineage to the selected branch
+        required: false
+        default: false
+        type: boolean
+  workflow_call:
+    inputs:
+      project_id:
+        required: true
+        type: string
+      period:
+        required: false
+        default: ""
+        type: string
+      commit_delivery_artifacts:
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-factory-recurring-${{ inputs.project_id }}-${{ inputs.period || 'project-default' }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      PROJECT_ID: ${{ inputs.project_id }}
+      PERIOD_INPUT: ${{ inputs.period }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install runtime dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pyyaml pillow matplotlib boto3 pytest
+      - name: Validate Instagram runtime sources
+        run: |
+          python -m compileall -q instagram political_metrics
+          python -m py_compile extract/oireachtas/batch.py extract/oireachtas/normalize.py
+      - name: Run approved-design regression suite
+        run: python -m pytest -q tests/test_instagram_monthly_post_framework.py
+      - name: Generate review batch
+        id: generate
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARGS=(python -m instagram.factory.recurring --project-id "$PROJECT_ID")
+          if [ -n "$PERIOD_INPUT" ]; then ARGS+=(--period "$PERIOD_INPUT"); fi
+          "${ARGS[@]}" | tee generation.json
+          python - <<'PY'
+          import json
+          report = json.load(open('generation.json', encoding='utf-8'))
+          if report.get('status') != 'PASS': raise SystemExit(f"Generation did not pass: {report}")
+          if report.get('publication_enabled') is not False: raise SystemExit('Publication must remain disabled')
+          if report.get('review_state') != 'pending_human_review': raise SystemExit(f"Unexpected review state: {report.get('review_state')}")
+          with open('generation.env', 'w', encoding='utf-8') as out:
+              for key in ('period', 'output_root', 'zip_path', 'source_batch_id'):
+                  out.write(f"{key.upper()}={report[key]}\n")
+          PY
+          cat generation.env >> "$GITHUB_ENV"
+      - name: Upload immutable review run to S3
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREFIX=$(python - <<'PY'
+          import os, yaml
+          project = yaml.safe_load(open(f"instagram/projects/{os.environ['PROJECT_ID']}/project.yml", encoding='utf-8'))
+          print(project['output']['s3_prefix'])
+          PY
+          )
+          DEST="s3://$S3_BUCKET/$PREFIX/period=$PERIOD/source_batch=$SOURCE_BATCH_ID/github_run=$GITHUB_RUN_ID"
+          aws s3 cp "$OUTPUT_ROOT/" "$DEST/" --recursive --only-show-errors
+          aws s3 cp "$ZIP_PATH" "$DEST/$(basename "$ZIP_PATH")" --only-show-errors
+          aws s3 cp "$ZIP_PATH.manifest.json" "$DEST/$(basename "$ZIP_PATH").manifest.json" --only-show-errors
+          echo "S3_REVIEW_URI=$DEST" >> "$GITHUB_ENV"
+      - name: Commit delivery artifacts
+        if: inputs.commit_delivery_artifacts == true
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add "$ZIP_PATH" "$ZIP_PATH.manifest.json"
+          git add "$OUTPUT_ROOT/contact_sheets" "$OUTPUT_ROOT/qa_summary.csv" "$OUTPUT_ROOT/run_manifest.json"
+          if git diff --cached --quiet; then
+            echo "No delivery artifact changes to commit"
+          else
+            git commit -m "artifacts(instagram): add $PROJECT_ID $PERIOD review package"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+      - name: Upload workflow evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: instagram-${{ inputs.project_id }}-${{ github.run_id }}
+          path: |
+            generation.json
+            ${{ env.OUTPUT_ROOT }}/qa_summary.csv
+            ${{ env.OUTPUT_ROOT }}/run_manifest.json
+            ${{ env.OUTPUT_ROOT }}/contact_sheets/
+            ${{ env.ZIP_PATH }}
+            ${{ env.ZIP_PATH }}.manifest.json
+          if-no-files-found: error
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "## Instagram recurring generation"
+            echo "- Project: \`$PROJECT_ID\`"
+            echo "- Period: \`$PERIOD\`"
+            echo "- Source batch: \`$SOURCE_BATCH_ID\`"
+            echo "- Review state: \`pending_human_review\`"
+            echo "- Publishing enabled: \`false\`"
+            echo "- Review S3 URI: \`$S3_REVIEW_URI\`"
+          } >> "$GITHUB_STEP_SUMMARY"
