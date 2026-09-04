@@ -1,0 +1,66 @@
+name: IPI ingestion CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'extract/polling/**'
+      - 'tests/test_ipi_ingestion.py'
+      - '.github/workflows/ipi_ingestion*.yml'
+      - 'docs/research/ipi_ingestion_implementation.md'
+  push:
+    branches:
+      - 'feature/ipi-ingestion-*'
+    paths:
+      - 'extract/polling/**'
+      - 'tests/test_ipi_ingestion.py'
+      - '.github/workflows/ipi_ingestion*.yml'
+      - 'docs/research/ipi_ingestion_implementation.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ipi-ingestion-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile polling code and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall extract/polling tests/test_ipi_ingestion.py
+
+      - name: Run polling unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_ipi_ingestion -v
+
+      - name: Validate current upstream source without publishing
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python -m extract.polling.ipi >/tmp/ipi-validation.json
+          test -s /tmp/ipi-validation.json
+          tail -n 5 /tmp/ipi-validation.json

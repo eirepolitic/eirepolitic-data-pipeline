@@ -1,0 +1,52 @@
+name: Irish Polling Indicator ingestion
+
+on:
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: 'Optional upstream branch, tag, or commit SHA'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ipi-ingestion-production
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    if: ${{ vars.IPI_REUSE_CONFIRMED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Fetch, validate and publish IPI data
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          GITHUB_TOKEN: ${{ github.token }}
+          IPI_REUSE_CONFIRMED: ${{ vars.IPI_REUSE_CONFIRMED }}
+          IPI_UPSTREAM_REF: ${{ inputs.upstream_ref }}
+        run: |
+          set -euo pipefail
+          python -m extract.polling.ipi --publish
