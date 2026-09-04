@@ -22,6 +22,10 @@ import pandas as pd
 
 from extract.oireachtas.batch import batch_key_for_production_key, validate_batch_id
 from political_metrics.candidate_publish import publish_dataset_to_candidate
+from political_metrics.contextual_monthly_results import (
+    audit_monthly_contextual_vote_results,
+    build_monthly_contextual_vote_results,
+)
 from political_metrics.contextual_votes import (
     audit_context_vote_reconciliation,
     build_context_division_party_vote_components,
@@ -249,9 +253,35 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     monthly_frames: list[pd.DataFrame] = []
+    contextual_monthly_frames: list[pd.DataFrame] = []
     for period in completed_months:
-        monthly_frames.append(build_monthly_results(frames=frames, period=period, source_batch_id=batch_id, contract_version=contract_version))
-    datasets["monthly_metric_results"] = pd.concat(monthly_frames, ignore_index=True)
+        monthly_frames.append(build_monthly_results(
+            frames=frames, period=period, source_batch_id=batch_id, contract_version=contract_version
+        ))
+        contextual_monthly_frames.append(build_monthly_contextual_vote_results(
+            daily_context_vote_components=daily_context_vote_components,
+            context_division_party_vote_components=context_division_party_vote_components,
+            period=period,
+            source_batch_id=batch_id,
+            contract_version=contract_version,
+        ))
+    contextual_monthly = pd.concat(contextual_monthly_frames, ignore_index=True)
+    contextual_monthly_gate = audit_monthly_contextual_vote_results(
+        results=contextual_monthly,
+        periods=completed_months,
+        source_batch_id=batch_id,
+    )
+    if not contextual_monthly_gate.get("ready"):
+        raise RuntimeError(f"candidate contextual monthly voting gate failed: {contextual_monthly_gate}")
+    monthly_base = pd.concat(monthly_frames, ignore_index=True)
+    datasets["monthly_metric_results"] = pd.concat([monthly_base, contextual_monthly], ignore_index=True)
+
+    monthly_key = [
+        "metric_id","metric_version","period_start","period_end","grain","entity_id","dimension_name","dimension_value"
+    ]
+    monthly_duplicates = int(datasets["monthly_metric_results"].duplicated(monthly_key).sum())
+    if monthly_duplicates:
+        raise RuntimeError(f"candidate monthly_metric_results contains {monthly_duplicates} duplicate primary-key rows")
 
     published = {}
     for name, frame in datasets.items():
@@ -270,12 +300,16 @@ def main(argv: list[str] | None = None) -> int:
         "speech_context_gate": speech_context_gate,
         "division_context_gate": division_context_gate,
         "contextual_vote_gate": contextual_vote_gate,
+        "contextual_monthly_vote_gate": contextual_monthly_gate,
         "contextual_vote_policy": {
             "existing_vote_formulas_changed": False,
             "division_context_is_dimension_only": True,
             "daily_components_reconcile_to_existing": True,
             "party_components_reconcile_to_existing": True,
             "historical_party_at_vote_preserved": True,
+            "monthly_context_dimension_added": True,
+            "member_context_reliability_denominator_bands": {"reliable_min": 25, "caution_min": 5, "insufficient_below": 5},
+            "party_context_reliability_thresholds_unchanged": True,
         },
         "datasets": {
             name: {"row_count": result["row_count"], "entry_name": result["entry_name"], "objects": result["objects"]}

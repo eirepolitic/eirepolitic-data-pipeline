@@ -10,14 +10,19 @@ metrics:
     public_caveat: A missing recorded vote is not proof that the TD was physically absent. This is a voting-record measure, not an attendance measure.
     public_use_status: suitable_with_context
     grain: member
-    dimensions: [period]
-    required_sources: [silver_divisions, silver_member_votes, silver_member_memberships]
+    dimensions: [period, division_context]
+    required_sources: [silver_divisions, silver_member_votes, silver_member_memberships, division_context, daily_context_vote_components]
     numerator: distinct eligible divisions with a recorded member vote
     denominator: distinct divisions whose division_date falls within the TD's active Dáil membership interval
     formula: votes_cast_count / eligible_division_count
     historical_join_policy: active Dáil membership on division date; history ranges are start-inclusive/end-exclusive
     zero_policy: return 0 when eligible_division_count is positive and no recorded votes exist
     missing_policy: null when there are no eligible divisions; recorded votes outside eligibility are a validation failure
+    contextual_reliability:
+      reliable_eligible_divisions: 25
+      caution_eligible_divisions: 5
+      insufficient_below: 5
+      note: 10 to 24 and 5 to 9 are both caution; the denominator must always be exposed with contextual member comparisons
     output_unit: proportion
     additivity: non_additive_recalculate_from_components
     refresh_frequency: source_batch
@@ -52,11 +57,11 @@ metrics:
     public_question: When party TDs cast recorded votes, how often did they vote the same way?
     public_explanation: For each qualifying division, finds the most common recorded vote among the party's participating TDs and measures the share of recorded party votes that matched it. Results are combined across divisions using the number of recorded votes as the weight.
     public_interpretation: A higher percentage means recorded party votes were more often aligned with the party's most common vote in those divisions.
-    public_caveat: This is a descriptive measure of recorded voting agreement, not a judgement about party discipline, policy quality or whether dissent is good or bad. Divisions with fewer than two recorded party voters do not provide evidence of within-party agreement and are excluded.
+    public_caveat: This is a descriptive measure of recorded voting agreement, not a judgement about party discipline, policy quality or whether dissent is good or bad. Divisions with fewer than two recorded party voters do not provide evidence of within-party agreement and are excluded. For the Independent grouping, interpret the output only as recorded-vote agreement among Independents, not party discipline.
     public_use_status: suitable_with_context
     grain: party
-    dimensions: [period]
-    required_sources: [silver_member_votes, silver_member_memberships, silver_member_parties]
+    dimensions: [period, division_context]
+    required_sources: [silver_member_votes, silver_member_memberships, silver_member_parties, division_context, context_division_party_vote_components]
     numerator: sum of modal recorded party-vote counts across qualifying divisions
     denominator: all recorded party votes across qualifying divisions
     formula: unity_votes_aligned / unity_votes_total
@@ -68,6 +73,7 @@ metrics:
       reliable_divisions: 10
       caution_divisions: 5
       insufficient_for_comparison: 0
+    contextual_rule: filter to the certified division_context first, then apply the same qualifying-division and reliability rules unchanged
     output_unit: proportion
     additivity: non_additive_recalculate_from_components
     refresh_frequency: source_batch
