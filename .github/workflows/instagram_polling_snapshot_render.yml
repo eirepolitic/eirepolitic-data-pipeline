@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pandas pyyaml pillow boto3 requests matplotlib
 
-      - name: Render latest IPI polling post from S3
+      - name: Render latest IPI polling carousel from S3
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -38,25 +38,30 @@ jobs:
         run: |
           set -euo pipefail
           python -m process.instagram_render_polling_snapshot --campaign instagram/campaigns/ipi_polling_snapshot_v1/render_spec.yml
-          test -s generated_posts/ipi_polling_snapshot_v1/png/latest-party-support.png
+          for slide in \
+            generated_posts/ipi_polling_snapshot_v1/png/slide-01-latest-party-support.png \
+            generated_posts/ipi_polling_snapshot_v1/png/slide-02-change.png \
+            generated_posts/ipi_polling_snapshot_v1/png/slide-03-trend.png; do
+            test -s "$slide"
+          done
           test -s generated_posts/ipi_polling_snapshot_v1/caption.txt
           test -s generated_posts/ipi_polling_snapshot_v1/review_manifest.json
           python - <<'PY'
           import json
           from pathlib import Path
-          p=Path('generated_posts/ipi_polling_snapshot_v1/review_manifest.json')
-          data=json.loads(p.read_text(encoding='utf-8'))
+          data=json.loads(Path('generated_posts/ipi_polling_snapshot_v1/review_manifest.json').read_text(encoding='utf-8'))
           assert data['success'] is True
+          assert data['slide_count'] == 3
           assert data['source_reference_in_caption'] is True
           assert data['visible_source_footer'] == 'Source: Irish Polling Indicator (IPI)'
           assert data['dimensions'] == [1080, 1350]
           print(json.dumps(data, indent=2))
           PY
 
-      - name: Upload post review bundle
+      - name: Upload carousel review bundle
         uses: actions/upload-artifact@v4
         with:
-          name: ipi-polling-snapshot-${{ github.run_id }}
+          name: ipi-polling-carousel-${{ github.run_id }}
           path: generated_posts/ipi_polling_snapshot_v1/
           if-no-files-found: error
           retention-days: 30

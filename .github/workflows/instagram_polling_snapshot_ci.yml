@@ -5,16 +5,18 @@ on:
     paths:
       - 'process/instagram_render_polling_snapshot.py'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
-      - 'instagram/media_generators/horizontal_bar_chart/generator.py'
+      - 'instagram/media_generators/horizontal_bar_chart/**'
+      - 'instagram/media_generators/line_chart/**'
       - 'tests/test_instagram_polling_snapshot.py'
       - '.github/workflows/instagram_polling_snapshot*.yml'
   push:
     branches:
-      - 'feature/ipi-first-instagram-post-*'
+      - 'feature/ipi-polling-carousel-*'
     paths:
       - 'process/instagram_render_polling_snapshot.py'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
-      - 'instagram/media_generators/horizontal_bar_chart/generator.py'
+      - 'instagram/media_generators/horizontal_bar_chart/**'
+      - 'instagram/media_generators/line_chart/**'
       - 'tests/test_instagram_polling_snapshot.py'
       - '.github/workflows/instagram_polling_snapshot*.yml'
 
@@ -44,19 +46,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m compileall process/instagram_render_polling_snapshot.py instagram/media_generators/horizontal_bar_chart/generator.py tests/test_instagram_polling_snapshot.py
+          python -m compileall process/instagram_render_polling_snapshot.py instagram/media_generators/horizontal_bar_chart instagram/media_generators/line_chart tests/test_instagram_polling_snapshot.py
 
-      - name: Run polling campaign regression test
+      - name: Run polling carousel regression test
         shell: bash
         run: |
           set -euo pipefail
           python -m unittest tests.test_instagram_polling_snapshot -v
 
-      - name: Render fixture post as smoke test
+      - name: Render fixture carousel as smoke test
         shell: bash
         run: |
           set -euo pipefail
           python -m process.instagram_render_polling_snapshot --campaign instagram/campaigns/ipi_polling_snapshot_v1/render_spec_fixture.yml
-          test -s generated_posts/ipi_polling_snapshot_fixture/png/latest-party-support.png
+          for slide in \
+            generated_posts/ipi_polling_snapshot_fixture/png/slide-01-latest-party-support.png \
+            generated_posts/ipi_polling_snapshot_fixture/png/slide-02-change.png \
+            generated_posts/ipi_polling_snapshot_fixture/png/slide-03-trend.png; do
+            test -s "$slide"
+          done
           test -s generated_posts/ipi_polling_snapshot_fixture/caption.txt
           test -s generated_posts/ipi_polling_snapshot_fixture/review_manifest.json

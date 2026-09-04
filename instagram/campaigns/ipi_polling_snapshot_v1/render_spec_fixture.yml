@@ -2,6 +2,8 @@ campaign: ipi_polling_snapshot_v1
 post_type: polling_snapshot
 variation:
   limit: 5
+  trend_days: 90
+  trend_party_limit: 3
   party_codes:
     - SF
     - FF
@@ -17,7 +19,9 @@ render:
   output_root: generated_posts/ipi_polling_snapshot_fixture
   palette: eirepolitic_dark
 copy:
-  title: "Where the parties stand now"
+  slide_1_title: "Where the parties stand now"
+  slide_2_title: "What changed since the previous model"
+  slide_3_title: "The recent polling trend"
   caption_intro: "Latest modelled Irish party-support estimates from the Irish Polling Indicator."
 review:
   human_review_required: true
