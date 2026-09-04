@@ -36,6 +36,53 @@ For non-polling sources, investigate: contents; EirePolitic value; geographic/hi
 4. **Assess historical-series safety — complete.** Mode, weighting, question wording, undecided treatment and pollster-era changes.
 5. **Investigate other Irish political datasets — complete.** Official election/open-data sources and high-value opinion/research datasets.
 6. **Rank and conclude — complete.** Final lists and top-five future ingestion candidates below.
+7. **Read-only ingestion feasibility — in progress.** Test the top five candidates without implementing connectors or changing production schemas.
+
+## Read-only ingestion feasibility plan
+
+### Scope
+
+Test only the current top five future-ingestion candidates:
+
+1. Irish Polling Indicator.
+2. Irish Demographic Polling Datasets.
+3. Department of Housing official general-election count/transfer data.
+4. CSO PxStat/data.cso.ie.
+5. Department of Housing official referendum results.
+
+### Evidence to collect for each candidate
+
+- exact machine-readable entry point used;
+- whether access works without authentication;
+- content type/format actually returned;
+- stable identifiers and date fields;
+- representative field/column names;
+- whether historical files use one schema or multiple schemas;
+- whether pagination/versioning is relevant;
+- whether source updates overwrite files or append/version them;
+- obvious null/duplicate/encoding issues visible in a bounded sample;
+- whether attribution/licence metadata can be preserved alongside the data;
+- minimum transformation likely required before analysis;
+- expected failure modes and monitoring needs;
+- recommended ingestion mode for a future implementation: static-file pull, API query, manual file acquisition, or not recommended;
+- final feasibility rating: Ready for bounded proof / Needs clarification / Defer.
+
+### Constraints
+
+- Read-only web/file/API requests only.
+- Do not add code, workflows, schemas, secrets, jobs, tables, buckets, or infrastructure.
+- Do not create temporary repository tooling unless essential; any such artefact must not be merged.
+- Do not infer permission beyond documented licence/terms.
+- Keep poll methodology metadata attached to polling observations in any future design recommendation.
+
+### Phase order
+
+1. Irish Polling Indicator access/schema/versioning check.
+2. Irish Demographic Polling Datasets access/schema/crosstab check.
+3. Election count/transfer file consistency across recent elections.
+4. CSO JSON-stat API shape and geography/versioning check.
+5. Referendum results file consistency across multiple years.
+6. Compare operational risk and recommend the order for later implementation.
 
 ## Research log
 
@@ -71,6 +118,12 @@ Production changes: none.
 Rankings and the top five future ingestion candidates were completed. No connectors or schemas were implemented.
 
 Production changes: none.
+
+### 2026-09-03 — Phase 7 plan: read-only ingestion feasibility
+
+- Added a bounded feasibility plan for the existing top five candidates.
+- No production files, schemas, code or infrastructure changed.
+- Next: inspect the Irish Polling Indicator's concrete file access, schema and update/versioning behaviour.
 
 # Priority 1 — Irish polling sources
 
@@ -672,10 +725,11 @@ No implementation is authorized by this research task.
 
 # Living next-step plan
 
-1. **Completed:** research framework and documentation-only PR.
-2. **Completed:** polling discovery.
-3. **Completed:** polling access/licensing/pricing/methodology verification.
-4. **Completed:** historical polling comparability assessment.
-5. **Completed:** non-polling source investigation.
-6. **Completed:** rankings and top-five future ingestion candidates.
-7. **Next only after a separate implementation decision:** run bounded ingestion proofs for the top five, starting with the Irish Polling Indicator. No production work was authorized or performed here.
+1. **Completed:** initial source discovery, access/licensing/methodology research and rankings.
+2. **Current:** bounded read-only ingestion-feasibility checks for the top five sources.
+3. Test IPI file schema and versioning.
+4. Test demographic polling schemas and crosstab structure.
+5. Compare official election count/transfer schemas across recent elections.
+6. Test a small CSO JSON-stat endpoint and note geography/versioning behaviour.
+7. Compare referendum schemas across several years.
+8. Rank implementation readiness and document future proof-of-concept order.
