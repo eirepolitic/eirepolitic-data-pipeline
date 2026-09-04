@@ -1,0 +1,81 @@
+[etenders_access]
+requested=https://assets.gov.ie/static/documents/4d482e0e/Public_Procurement_Opendata_Dataset.csv
+final=https://assets.gov.ie/static/documents/4d482e0e/Public_Procurement_Opendata_Dataset.csv
+success=True
+bytes=34663019
+content_type=text/csv
+sha256=0c7a52980d381ad82f7e52f1b0e21bed78a2e9ad1f22db09881e6d7c786f8cbc
+
+[etenders_csv]
+encoding=cp1252
+rows=87427
+columns=31
+header=Tender ID|Parent Agreement ID|Contracting Authority|Name of Client Contracting Authority|Agreement Owner|Tender/Contract Name|Notice Published Date / Contract Created Date|Directive|Competition Type|Main Cpv Code|Main Cpv Code Description|Additional CPV Codes on CFT|Spend Category|Contract Type|Threshold Level|Procedure|Tender Submission Deadline|Evaluation Type|Sum of Notice Estimated Value (€)|Sum of Contract Duration (Months)|Cancelled Date|Award Published|Sum of Awarded Value (€)|Sum of No of Bids Received|Sum of No of SMEs Bids Received|Awarded Suppliers|Sum of No of Awarded SMEs|TED Notice Link|TED CAN Link|Platform|Source
+exact_duplicate_extra_rows=0
+missing=Tender ID|3910
+missing=Parent Agreement ID|83708
+missing=Contracting Authority|33
+missing=Name of Client Contracting Authority|77922
+missing=Agreement Owner|83708
+missing=Tender/Contract Name|0
+missing=Notice Published Date / Contract Created Date|1543
+missing=Directive|55689
+missing=Competition Type|0
+missing=Main Cpv Code|51767
+missing=Main Cpv Code Description|51767
+missing=Additional CPV Codes on CFT|10278
+missing=Spend Category|13121
+missing=Contract Type|13341
+missing=Threshold Level|1543
+missing=Procedure|3915
+missing=Tender Submission Deadline|15261
+missing=Evaluation Type|62668
+missing=Sum of Notice Estimated Value (€)|55911
+missing=Sum of Contract Duration (Months)|43166
+missing=Cancelled Date|82904
+missing=Award Published|41482
+missing=Sum of Awarded Value (€)|56737
+missing=Sum of No of Bids Received|20188
+missing=Sum of No of SMEs Bids Received|20188
+missing=Awarded Suppliers|42576
+missing=Sum of No of Awarded SMEs|40858
+missing=TED Notice Link|59399
+missing=TED CAN Link|70718
+missing=Platform|0
+missing=Source|0
+distinct_sample=Contracting Authority|count:5931|top:[["The Office of Government Procurement", 8123], ["Health Service Executive (HSE)", 2759], ["Iarnród Eireann-Irish Rail", 2379], ["Education Procurement Service (EPS)", 1545], ["Office of Public Works (OPW)", 1362], ["Tipperary County Council", 1203], ["Dublin City Council", 1159], ["Cork County Council", 1038], ["Cork City Council", 939], ["Donegal County Council", 936], ["Galway City Council", 894], ["Limerick City and County Council", 872], ["Wicklow County Council", 785], ["Mayo County Council", 699], ["An Garda Síochána", 697]]
+distinct_sample=Name of Client Contracting Authority|count:1082|top:[["Health Service Executive (HSE)", 376], ["Iarnród Eireann-Irish Rail", 315], ["The Office of Government Procurement", 268], ["Donegal County Council", 254], ["Limerick City and County Council", 160], ["Dublin City Council", 134], ["Galway City Council (Utility)", 128], ["An Garda Síochána", 122], ["Department of Defence", 122], ["HEALTH SERVICE EXECUTIVE", 114], ["HSE", 114], ["Department of Education and Youth", 108], ["NPWS Dept of Housing Local Government and Heritage", 108], ["Department of Social Protection", 95], ["Waterford and Wexford Education and Training Board", 93]]
+distinct_sample=Notice Published Date / Contract Created Date|count:4302|top:[["12/01/2017", 220], ["08/12/2021", 136], ["11/09/2025", 123], ["27/10/2021", 121], ["10/09/2025", 106], ["12/09/2025", 105], ["09/09/2025", 97], ["12/05/2023", 96], ["28/10/2022", 85], ["05/09/2025", 81], ["04/06/2026", 79], ["06/05/2022", 77], ["09/12/2021", 77], ["22/10/2021", 75], ["11/02/2022", 74]]
+distinct_sample=Competition Type|count:8|top:[["Bespoke", 63279], ["Framework", 8744], ["Standalone Direct Invite", 6360], ["Standalone Contract", 3910], ["FW - Mini-Comp", 2129], ["DPS Tender", 1590], ["DPS/UQS", 763], ["Simplified", 652]]
+distinct_sample=Contract Type|count:4|top:[["Services", 39441], ["Supplies", 16941], ["Works", 16270], ["Work Related Services", 1434]]
+distinct_sample=Procedure|count:10|top:[["Open Procedure", 62815], ["Direct Invite – Mini-Competition", 9877], ["Competitive Procedure With Negotiation", 4144], ["Restricted Procedure", 3995], ["Simplified", 652], ["DPS Qualification", 621], ["Competitive Dialogue", 551], ["Negotiated Procedure Without Prior Publication", 377], ["UQS Qualification", 302], ["Direct Invite – Quick Quote", 178]]
+distinct_sample=Evaluation Type|count:2|top:[["MEAT", 20910], ["Lowest Price", 3849]]
+distinct_sample=Sum of Notice Estimated Value (€)|count:3361|top:[["200000", 1127], ["500000", 1111], ["300000", 943], ["400000", 895], ["1000000", 839], ["100000", 766], ["250000", 762], ["150000", 673], ["0", 639], ["600000", 631], ["2000000", 624], ["1500000", 511], ["50000", 429], ["5000000", 418], ["350000", 417]]
+distinct_sample=Awarded Suppliers|count:16696|top:[["Mazars", 261], ["Deloitte Ireland LLP", 248], ["Crowleys DFK", 177], ["Ergo", 174], ["PFH Technology Group", 172], ["Micromail", 147], ["| The Lunch Bag Limited", 142], ["Ernst &amp; Young", 117], ["Dell Products Unlimited Company", 111], ["Crowe", 105], ["PwC", 105], ["KPMG", 95], ["Evros Technology Group", 92], ["Starrus Eco Holdings Ltd", 88], ["Grosvenor Services", 87]]
+distinct_sample=TED Notice Link|count:28028|top:[["https://ted.europa.eu/en/notice/-/detail/456549-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/449034-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/524323-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448109-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448922-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448112-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/445913-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448021-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/446884-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/518447-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/446379-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448649-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/448070-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/451229-2026", 1], ["https://ted.europa.eu/en/notice/-/detail/451795-2026", 1]]
+numeric=Tender ID|parsed:83517|bad:0|min:11032.0|max:8750747.0|negative:0
+numeric=Main Cpv Code|parsed:35660|bad:0|min:3000000.0|max:98910000.0|negative:0
+numeric=Additional CPV Codes on CFT|parsed:12634|bad:64515|min:300000.0|max:98392000.0|negative:0
+numeric=Sum of Notice Estimated Value (€)|parsed:31516|bad:0|min:0.0|max:7912000000.0|negative:0
+numeric=Sum of Contract Duration (Months)|parsed:44261|bad:0|min:0.0|max:999.0|negative:0
+numeric=Sum of Awarded Value (€)|parsed:30690|bad:0|min:0.0|max:9000000000.0|negative:0
+numeric=Sum of No of Bids Received|parsed:67239|bad:0|min:1.0|max:698.0|negative:0
+numeric=Sum of No of SMEs Bids Received|parsed:67239|bad:0|min:0.0|max:645.0|negative:0
+numeric=Sum of No of Awarded SMEs|parsed:46569|bad:0|min:0.0|max:176.0|negative:0
+dates=Notice Published Date / Contract Created Date|distinct:4302|first:01/01/2020|last:31/12/2024
+dates=Tender Submission Deadline|distinct:4528|first:01/01/2020|last:31/12/2034
+dates=Cancelled Date|distinct:1955|first:01/02/2017|last:31/10/2025
+
+[finance_access]
+requested=https://databank.finance.gov.ie/FinDataBank.aspx?rep=OpenDataSourceCSV
+success=False
+error=URLError:<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>
+
+[finance_access]
+requested=http://databank.finance.gov.ie/FinDataBank.aspx?rep=OpenDataSourceCSV
+success=False
+error=URLError:<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>
+
+[finance_csv]
+available=False
+note=legacy advertised CSV endpoint did not return machine-readable CSV in this validation environment
