@@ -22,173 +22,79 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Fetch pinned IPI files and calculate diagnostics
+      - name: Fetch pinned IPI files and detail anomalies
         run: |
           python - <<'PY'
           import csv
-          import hashlib
           import io
           import urllib.request
-          from collections import Counter
+          from collections import Counter, defaultdict
           from datetime import date
           from pathlib import Path
 
           SHA = "09f77f03654bf66551a56fb02a11a242ae9bcf51"
           BASE = f"https://raw.githubusercontent.com/Irish-Polling-Indicator/ipi-data/{SHA}"
 
-          def fetch(name):
-              url = f"{BASE}/{name}"
-              with urllib.request.urlopen(url, timeout=30) as response:
-                  body = response.read()
-              return url, body
-
-          def parse_csv(body):
-              text = body.decode("utf-8-sig")
-              reader = csv.DictReader(io.StringIO(text))
-              return reader.fieldnames, list(reader)
+          def rows(name):
+              with urllib.request.urlopen(f"{BASE}/{name}", timeout=30) as r:
+                  text = r.read().decode("utf-8-sig")
+              return list(csv.DictReader(io.StringIO(text)))
 
           def iso(s):
               return date.fromisoformat(s)
 
-          report = []
-          report.append(f"source_commit_sha={SHA}")
+          raw = rows("data_polls.csv")
+          ind = rows("data_pollingindicator.csv")
+          out = [f"source_commit_sha={SHA}", "", "[raw_anomaly_details]"]
 
-          raw_url, raw_body = fetch("data_polls.csv")
-          raw_cols, raw = parse_csv(raw_body)
-          report += [
-              "",
-              "[data_polls.csv]",
-              f"url={raw_url}",
-              f"sha256={hashlib.sha256(raw_body).hexdigest()}",
-              f"rows={len(raw)}",
-              f"columns={len(raw_cols)}",
-              f"header={','.join(raw_cols)}",
-              f"date_min={min(r['date'] for r in raw)}",
-              f"date_max={max(r['date'] for r in raw)}",
-          ]
+          full = defaultdict(list)
+          for i, r in enumerate(raw, start=2):
+              full[tuple(r.items())].append((i, r))
+          for group in full.values():
+              if len(group) > 1:
+                  for line, r in group:
+                      out.append(f"exact_duplicate=line:{line}|date:{r['date']}|pollster:{r['pollster']}|field:{r['date_start']}..{r['date_end']}|sample:{r['sample_size']}")
 
-          key_fields = ["date", "date_start", "date_end", "date_middle", "pollster", "sample_size"]
-          for field in key_fields:
-              missing = sum((r[field] or "").strip() in {"", "NA"} for r in raw)
-              report.append(f"missing_{field}={missing}")
+          keys = defaultdict(list)
+          for i, r in enumerate(raw, start=2):
+              k = (r["pollster"], r["date"], r["date_start"], r["date_end"], r["sample_size"])
+              keys[k].append((i, r))
+          for k, group in keys.items():
+              if len(group) > 1:
+                  out.append("candidate_key_duplicate=" + "|".join(map(str, k)) + "|lines:" + ",".join(str(x[0]) for x in group))
 
-          full_rows = [tuple(r[c] for c in raw_cols) for r in raw]
-          report.append(f"exact_duplicate_rows={sum(v-1 for v in Counter(full_rows).values() if v > 1)}")
-
-          key = lambda r: (r["pollster"], r["date"], r["date_start"], r["date_end"], r["sample_size"])
-          keys = [key(r) for r in raw]
-          dup_keys = [(k, v) for k, v in Counter(keys).items() if v > 1]
-          report.append(f"candidate_key_duplicate_groups={len(dup_keys)}")
-          report.append(f"candidate_key_duplicate_extra_rows={sum(v-1 for _, v in dup_keys)}")
-
-          midpoint_outside = 0
-          field_end_after_publication = 0
-          for r in raw:
+          for i, r in enumerate(raw, start=2):
               ds, de, dm, dp = map(iso, [r["date_start"], r["date_end"], r["date_middle"], r["date"]])
-              midpoint_outside += not (ds <= dm <= de)
-              field_end_after_publication += de > dp
-          report.append(f"date_middle_outside_fieldwork={midpoint_outside}")
-          report.append(f"field_end_after_publication={field_end_after_publication}")
+              if not (ds <= dm <= de):
+                  out.append(f"midpoint_outside=line:{i}|date:{r['date']}|pollster:{r['pollster']}|start:{r['date_start']}|end:{r['date_end']}|middle:{r['date_middle']}")
+              if de > dp:
+                  out.append(f"field_end_after_publication=line:{i}|date:{r['date']}|pollster:{r['pollster']}|start:{r['date_start']}|end:{r['date_end']}|middle:{r['date_middle']}")
 
-          party_cols = [c for c in raw_cols if c not in key_fields]
-          negative_values = []
-          over_100_values = []
-          decimal_values = 0
-          na_by_party = {}
-          for c in party_cols:
-              na_by_party[c] = sum((r[c] or "").strip() in {"", "NA"} for r in raw)
-              for i, r in enumerate(raw, start=2):
-                  s = (r[c] or "").strip()
-                  if s in {"", "NA"}:
-                      continue
-                  v = float(s)
-                  if v < 0:
-                      negative_values.append((i, r["date"], r["pollster"], c, v))
-                  if v > 100:
-                      over_100_values.append((i, r["date"], r["pollster"], c, v))
-                  if not v.is_integer():
-                      decimal_values += 1
-          report.append(f"negative_party_values={len(negative_values)}")
-          for item in negative_values[:20]:
-              report.append("negative_detail=" + "|".join(map(str, item)))
-          report.append(f"over_100_party_values={len(over_100_values)}")
-          report.append(f"non_integer_party_values={decimal_values}")
-          report.append("na_by_party=" + ";".join(f"{c}:{na_by_party[c]}" for c in party_cols))
+          out += ["", "[indicator_duplicate_dates]"]
+          by_date = defaultdict(list)
+          for i, r in enumerate(ind, start=2):
+              by_date[r["date"]].append((i, r["cycle"]))
+          for d, entries in by_date.items():
+              if len(entries) > 1:
+                  out.append(f"duplicate_date={d}|" + ";".join(f"line:{i},cycle:{cycle}" for i, cycle in entries))
 
-          ind_url, ind_body = fetch("data_pollingindicator.csv")
-          ind_cols, ind = parse_csv(ind_body)
-          report += [
-              "",
-              "[data_pollingindicator.csv]",
-              f"url={ind_url}",
-              f"sha256={hashlib.sha256(ind_body).hexdigest()}",
-              f"rows={len(ind)}",
-              f"columns={len(ind_cols)}",
-              f"header={','.join(ind_cols)}",
-              f"date_min={min(r['date'] for r in ind)}",
-              f"date_max={max(r['date'] for r in ind)}",
-              "cycles=" + ",".join(dict.fromkeys(r["cycle"] for r in ind)),
-          ]
-
-          date_counts = Counter(r["date"] for r in ind)
-          report.append(f"duplicate_dates={sum(v-1 for v in date_counts.values() if v > 1)}")
-
-          dates = sorted(iso(r["date"]) for r in ind)
-          gaps = []
+          dates = sorted({iso(r["date"]) for r in ind})
+          out += ["", "[indicator_calendar_gaps]"]
           for a, b in zip(dates, dates[1:]):
               days = (b-a).days
-              if days != 1:
-                  gaps.append((a.isoformat(), b.isoformat(), days))
-          report.append(f"non_daily_gaps={len(gaps)}")
-          for g in gaps:
-              report.append("gap_detail=" + "|".join(map(str, g)))
+              if days > 1:
+                  out.append(f"gap={a.isoformat()}|{b.isoformat()}|days:{days}")
 
-          bases = [c for c in ind_cols if c not in {"date", "cycle"} and not c.endswith("_lo") and not c.endswith("_hi")]
-          invalid_intervals = []
-          out_of_range = []
-          for i, r in enumerate(ind, start=2):
-              for c in bases:
-                  est, lo, hi = r[c], r[f"{c}_lo"], r[f"{c}_hi"]
-                  vals = [est, lo, hi]
-                  if all((x or "").strip() in {"", "NA"} for x in vals):
-                      continue
-                  if any((x or "").strip() in {"", "NA"} for x in vals):
-                      invalid_intervals.append((i, r["date"], c, "partial_null"))
-                      continue
-                  e, l, h = map(float, vals)
-                  if not (0 <= l <= e <= h <= 1):
-                      invalid_intervals.append((i, r["date"], c, f"{l},{e},{h}"))
-                  for suffix, v in [("estimate", e), ("lo", l), ("hi", h)]:
-                      if not 0 <= v <= 1:
-                          out_of_range.append((i, r["date"], c, suffix, v))
-          report.append(f"invalid_or_partial_intervals={len(invalid_intervals)}")
-          for item in invalid_intervals[:20]:
-              report.append("interval_detail=" + "|".join(map(str, item)))
-          report.append(f"indicator_values_outside_0_1={len(out_of_range)}")
-          report.append("na_by_indicator_party=" + ";".join(
-              f"{c}:{sum((r[c] or '').strip() in {'', 'NA'} for r in ind)}" for c in bases
-          ))
-
-          latest_mid = max(r["date_middle"] for r in raw)
-          latest_ind = max(r["date"] for r in ind)
-          report += [
-              "",
-              "[cross_file]",
-              f"latest_raw_fieldwork_midpoint={latest_mid}",
-              f"latest_indicator_date={latest_ind}",
-              f"latest_dates_match={latest_mid == latest_ind}",
-          ]
-
-          out = Path("tmp/ipi_validation_report.txt")
-          out.parent.mkdir(parents=True, exist_ok=True)
-          out.write_text("\n".join(report) + "\n", encoding="utf-8")
-          print(out.read_text())
+          path = Path("tmp/ipi_validation_anomaly_details.txt")
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text("\n".join(out) + "\n", encoding="utf-8")
+          print(path.read_text())
           PY
 
-      - name: Commit temporary validation report to research branch
+      - name: Commit temporary anomaly details
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tmp/ipi_validation_report.txt
-          git commit -m "research: record temporary IPI validation output"
+          git add tmp/ipi_validation_anomaly_details.txt
+          git commit -m "research: record IPI anomaly details"
           git push
