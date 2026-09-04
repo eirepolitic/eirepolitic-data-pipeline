@@ -9,37 +9,14 @@ from political_metrics.temporal_joins import attach_event_constituency, attach_e
 
 
 DAILY_CONTEXT_VOTE_COLUMNS = [
-    "activity_date",
-    "division_context",
-    "grain",
-    "entity_id",
-    "component_id",
-    "component_value",
-    "source_batch_id",
-    "component_version",
-    "calculated_at_utc",
-    "contract_version",
+    "activity_date", "division_context", "grain", "entity_id", "component_id", "component_value",
+    "source_batch_id", "component_version", "calculated_at_utc", "contract_version",
 ]
-
 CONTEXT_PARTY_VOTE_COLUMNS = [
-    "division_id",
-    "division_date",
-    "division_context",
-    "party_uri",
-    "vote_code",
-    "recorded_vote_count",
-    "source_batch_id",
-    "component_version",
-    "calculated_at_utc",
-    "contract_version",
+    "division_id", "division_date", "division_context", "party_uri", "vote_code", "recorded_vote_count",
+    "source_batch_id", "component_version", "calculated_at_utc", "contract_version",
 ]
-
-ALLOWED_CONTEXTS = {
-    "bill_or_legislation",
-    "motion_proceeding",
-    "procedural_business",
-    "other",
-}
+ALLOWED_CONTEXTS = {"bill_or_legislation", "motion_proceeding", "procedural_business", "other"}
 
 
 def _clean(frame: pd.DataFrame) -> pd.DataFrame:
@@ -74,48 +51,29 @@ def _context_lookup(division_context: pd.DataFrame) -> pd.DataFrame:
 
 def _filter_period(frame: pd.DataFrame, date_col: str, period) -> pd.DataFrame:
     dates = pd.to_datetime(frame[date_col], errors="coerce")
-    return frame.loc[
-        dates.between(pd.Timestamp(period.start), pd.Timestamp(period.end), inclusive="both")
-    ].copy()
+    return frame.loc[dates.between(pd.Timestamp(period.start), pd.Timestamp(period.end), inclusive="both")].copy()
 
 
-def _component_rows(
-    frame: pd.DataFrame,
-    *,
-    grain: str,
-    entity_col: str,
-    component_id: str,
-) -> pd.DataFrame:
+def _component_rows(frame: pd.DataFrame, *, grain: str, entity_col: str, component_id: str) -> pd.DataFrame:
+    cols = ["activity_date", "division_context", "grain", "entity_id", "component_id", "component_value"]
     if frame.empty:
-        return pd.DataFrame(columns=[
-            "activity_date", "division_context", "grain", "entity_id", "component_id", "component_value"
-        ])
+        return pd.DataFrame(columns=cols)
     data = frame.copy()
     data["activity_date"] = pd.to_datetime(data["division_date"], errors="coerce").dt.date.astype(str)
     data = data[data[entity_col].notna() & data[entity_col].astype(str).ne("")].copy()
     grouped = (
         data.groupby(["activity_date", "division_context", entity_col], dropna=False)
-        .size()
-        .rename("component_value")
-        .reset_index()
-        .rename(columns={entity_col: "entity_id"})
+        .size().rename("component_value").reset_index().rename(columns={entity_col: "entity_id"})
     )
     grouped["grain"] = grain
     grouped["component_id"] = component_id
-    return grouped[["activity_date", "division_context", "grain", "entity_id", "component_id", "component_value"]]
+    return grouped[cols]
 
 
 def build_daily_context_vote_components(
-    *,
-    divisions: pd.DataFrame,
-    member_votes: pd.DataFrame,
-    memberships: pd.DataFrame,
-    member_parties: pd.DataFrame,
-    member_constituencies: pd.DataFrame,
-    division_context: pd.DataFrame,
-    period,
-    source_batch_id: str,
-    contract_version: int,
+    *, divisions: pd.DataFrame, member_votes: pd.DataFrame, memberships: pd.DataFrame,
+    member_parties: pd.DataFrame, member_constituencies: pd.DataFrame, division_context: pd.DataFrame,
+    period, source_batch_id: str, contract_version: int,
 ) -> pd.DataFrame:
     context = _context_lookup(division_context)
     period_divisions = _filter_period(divisions, "division_date", period)
@@ -124,12 +82,7 @@ def build_daily_context_vote_components(
         raise ValueError("division_context does not cover every division in the requested period")
 
     eligible = eligible_division_pairs(memberships, period_divisions)
-    eligible = eligible.merge(
-        period_divisions[["division_id", "division_context"]],
-        on="division_id",
-        how="left",
-        validate="many_to_one",
-    )
+    eligible = eligible.merge(period_divisions[["division_id", "division_context"]], on="division_id", how="left", validate="many_to_one")
     eligible["event_date"] = eligible["division_date"]
     eligible_party = attach_event_party(eligible, member_parties, event_date_col="event_date")
     eligible_const = attach_event_constituency(eligible, member_constituencies, event_date_col="event_date")
@@ -153,24 +106,16 @@ def build_daily_context_vote_components(
     combined = pd.concat(rows, ignore_index=True)
     if combined.empty:
         return pd.DataFrame(columns=DAILY_CONTEXT_VOTE_COLUMNS)
-    combined = (
-        combined.groupby(
-            ["activity_date", "division_context", "grain", "entity_id", "component_id"],
-            as_index=False,
-        )["component_value"]
-        .sum()
-    )
+    combined["component_value"] = pd.to_numeric(combined["component_value"], errors="raise")
+    combined = combined.groupby(
+        ["activity_date", "division_context", "grain", "entity_id", "component_id"], as_index=False
+    )["component_value"].sum()
     return _stamp(combined, source_batch_id=source_batch_id, contract_version=contract_version)[DAILY_CONTEXT_VOTE_COLUMNS]
 
 
 def build_context_division_party_vote_components(
-    *,
-    member_votes: pd.DataFrame,
-    member_parties: pd.DataFrame,
-    division_context: pd.DataFrame,
-    period,
-    source_batch_id: str,
-    contract_version: int,
+    *, member_votes: pd.DataFrame, member_parties: pd.DataFrame, division_context: pd.DataFrame,
+    period, source_batch_id: str, contract_version: int,
 ) -> pd.DataFrame:
     context = _context_lookup(division_context)
     votes = _filter_period(member_votes, "division_date", period)
@@ -182,23 +127,15 @@ def build_context_division_party_vote_components(
     votes["event_date"] = votes["division_date"]
     votes = attach_event_party(votes, member_parties, event_date_col="event_date")
     votes = votes[votes["party_uri"].notna()].copy()
-    grouped = (
-        votes.groupby(
-            ["division_id", "division_date", "division_context", "party_uri", "vote_code"],
-            as_index=False,
-        )
-        .size()
-        .rename(columns={"size": "recorded_vote_count"})
-    )
+    grouped = votes.groupby(
+        ["division_id", "division_date", "division_context", "party_uri", "vote_code"], as_index=False
+    ).size().rename(columns={"size": "recorded_vote_count"})
     return _stamp(grouped, source_batch_id=source_batch_id, contract_version=contract_version)[CONTEXT_PARTY_VOTE_COLUMNS]
 
 
 def audit_context_vote_reconciliation(
-    *,
-    daily_context_vote_components: pd.DataFrame,
-    context_division_party_vote_components: pd.DataFrame,
-    daily_activity_components: pd.DataFrame,
-    division_party_vote_components: pd.DataFrame,
+    *, daily_context_vote_components: pd.DataFrame, context_division_party_vote_components: pd.DataFrame,
+    daily_activity_components: pd.DataFrame, division_party_vote_components: pd.DataFrame,
 ) -> dict:
     contextual_daily = _clean(daily_context_vote_components)
     existing_daily = _clean(daily_activity_components)
@@ -211,29 +148,23 @@ def audit_context_vote_reconciliation(
         & existing_daily["grain"].isin({"member", "party", "constituency"})
     ].copy()
 
-    daily_collapsed = (
-        contextual_daily.groupby(["activity_date", "grain", "entity_id", "component_id"], as_index=False)["component_value"]
-        .apply(lambda s: pd.to_numeric(s, errors="coerce").fillna(0).sum())
-        .rename(columns={"component_value": "context_value"})
-    )
+    contextual_daily["component_value_num"] = pd.to_numeric(contextual_daily["component_value"], errors="coerce").fillna(0)
+    daily_collapsed = contextual_daily.groupby(
+        ["activity_date", "grain", "entity_id", "component_id"], as_index=False
+    )["component_value_num"].sum().rename(columns={"component_value_num": "context_value"})
     existing_vote_daily["existing_value"] = pd.to_numeric(existing_vote_daily["component_value"], errors="coerce").fillna(0)
     daily_compare = existing_vote_daily[["activity_date", "grain", "entity_id", "component_id", "existing_value"]].merge(
-        daily_collapsed,
-        on=["activity_date", "grain", "entity_id", "component_id"],
-        how="outer",
+        daily_collapsed, on=["activity_date", "grain", "entity_id", "component_id"], how="outer"
     ).fillna(0)
     daily_mismatch = int((daily_compare["existing_value"] != daily_compare["context_value"]).sum())
 
-    party_collapsed = (
-        contextual_party.groupby(["division_id", "division_date", "party_uri", "vote_code"], as_index=False)["recorded_vote_count"]
-        .apply(lambda s: pd.to_numeric(s, errors="coerce").fillna(0).sum())
-        .rename(columns={"recorded_vote_count": "context_value"})
-    )
+    contextual_party["recorded_vote_count_num"] = pd.to_numeric(contextual_party["recorded_vote_count"], errors="coerce").fillna(0)
+    party_collapsed = contextual_party.groupby(
+        ["division_id", "division_date", "party_uri", "vote_code"], as_index=False
+    )["recorded_vote_count_num"].sum().rename(columns={"recorded_vote_count_num": "context_value"})
     existing_party["existing_value"] = pd.to_numeric(existing_party["recorded_vote_count"], errors="coerce").fillna(0)
     party_compare = existing_party[["division_id", "division_date", "party_uri", "vote_code", "existing_value"]].merge(
-        party_collapsed,
-        on=["division_id", "division_date", "party_uri", "vote_code"],
-        how="outer",
+        party_collapsed, on=["division_id", "division_date", "party_uri", "vote_code"], how="outer"
     ).fillna(0)
     party_mismatch = int((party_compare["existing_value"] != party_compare["context_value"]).sum())
 
@@ -255,14 +186,10 @@ def audit_context_vote_reconciliation(
         "party_components_reconcile_to_existing": party_mismatch == 0,
     }
     return {
-        "ready": all(checks.values()),
-        "checks": checks,
-        "daily_row_count": int(len(contextual_daily)),
-        "party_row_count": int(len(contextual_party)),
-        "daily_reconciliation_mismatches": daily_mismatch,
-        "party_reconciliation_mismatches": party_mismatch,
-        "daily_duplicate_keys": daily_duplicate_keys,
-        "party_duplicate_keys": party_duplicate_keys,
+        "ready": all(checks.values()), "checks": checks,
+        "daily_row_count": int(len(contextual_daily)), "party_row_count": int(len(contextual_party)),
+        "daily_reconciliation_mismatches": daily_mismatch, "party_reconciliation_mismatches": party_mismatch,
+        "daily_duplicate_keys": daily_duplicate_keys, "party_duplicate_keys": party_duplicate_keys,
         "daily_context_counts": {k: int(v) for k, v in contextual_daily["division_context"].value_counts().to_dict().items()},
         "party_context_counts": {k: int(v) for k, v in contextual_party["division_context"].value_counts().to_dict().items()},
     }
