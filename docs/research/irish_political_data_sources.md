@@ -670,6 +670,38 @@ No production implementation is authorized by this research task. Exact validati
 
 **Near-next choices:** eTenders procurement and Department of Finance monthly tax receipts remain strong, openly licensed recurring-data candidates after the top-five programme.
 
+# Near-next recurring official sources — validated 2026-09-03
+
+Two additional official recurring sources were validated after the original top-five programme. Durable findings are in `official_recurring_data_validation.md`.
+
+## eTenders procurement open data
+
+- **Readiness:** Ready for a bounded non-production prototype.
+- **Access:** Direct quarterly CSV, no authentication.
+- **Licence:** CC BY 4.0.
+- **Validated snapshot:** 87,427 rows, 31 columns, no exact duplicate rows, coverage through 30 June 2026.
+- **Main caveats:** sparse award/value/supplier fields; authority and supplier-name normalization; framework/mini-competition grain; Circular 05/2023 creates a historical completeness break.
+- **Editorial value:** High for procurement transparency, supplier concentration, award/public-body rankings and SME participation.
+
+## Department of Finance monthly tax receipts
+
+- **Readiness:** High editorial value, but machine access needs remediation before prototyping.
+- **Coverage:** official service still states January 1984 to present, monthly, published on the second working day of the next month.
+- **Licence:** CC BY 4.0.
+- **Access issue:** the advertised legacy databank CSV endpoint failed TLS certificate verification in automated validation; no certificate bypass was attempted.
+- **Decision:** keep high priority, but request/confirm a stable TLS-valid official machine endpoint before implementation.
+- **FIQ02:** retain as a useful structured historical Exchequer source, not as a verified replacement for the current monthly tax feed.
+
+## Revised next prototype tier
+
+After the already-validated top five, the next technical prototype order is:
+
+1. **eTenders procurement open data** — ready now.
+2. **Department of Finance monthly tax receipts** — only after stable machine access is confirmed.
+3. **FIQ02 historical Exchequer series** — supplementary fiscal-history source if a historical quarterly feature is desired.
+
+Production changes: none.
+
 # Example recurring EirePolitic feature ideas
 
 - **Poll Tracker:** raw poll timeline + IPI modeled estimate and uncertainty, with fieldwork/method labels.
