@@ -1,6 +1,6 @@
 # Instagram Publishing Research Plan
 
-Status: **Research only — no production publishing, credentials, account connection, or live posting permitted without explicit approval.**
+Status: **Research complete — no production publishing, credentials, account connection, or live posting permitted without explicit approval.**
 
 Branch: `ops/investigate-instagram-publishing-20260903`
 
@@ -66,13 +66,13 @@ Primary external sources should be Meta's current official developer/help docume
 | 16 | Idempotency, failure recovery and retries | `16_idempotency_failures.md` | **complete** |
 | 17 | Monitoring, auditability and operator queries | `17_monitoring.md` | **complete** |
 | 18 | Multi-platform extension approach | `18_multi_platform.md` | **complete** |
-| 19 | Options comparison, estimated cost, recommendation and phased implementation proposal | `19_recommendation.md` | pending |
+| 19 | Options comparison, estimated cost, recommendation and phased implementation proposal | `19_recommendation.md` | **complete** |
 
 ## Decision gates
 
-No implementation should begin as part of this research branch.
+Research is complete. No implementation should begin until the final recommendation is explicitly approved.
 
-After Step 19, the recommendation must be presented for explicit approval before any of the following occur:
+Explicit approval is required before any of the following occur:
 
 - changing the Instagram account type;
 - creating/configuring a Meta App;
