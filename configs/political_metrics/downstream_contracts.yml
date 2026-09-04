@@ -28,6 +28,9 @@ logical_keys:
   bill_debate_sections:
     csv: processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/parquet/bill_debate_sections.parquet
+  speech_context:
+    csv: processed/oireachtas_unified/latest/metrics/event/speech_context/csv/speech_context.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/speech_context/parquet/speech_context.parquet
 
 question_semantics:
   parliamentary_question_record: A distinct Oireachtas question_id submitted by an eligible TD. Written and oral question records are both counted here.
@@ -49,6 +52,19 @@ legislation_semantics:
   debate_wide_rule: Never infer Bill context from shared debate_id, debate_uri or debate date alone.
   unresolved_rule: Conflicting, multi-Bill and currently uncovered Bill-debate rows are not emitted as certified links.
 
+speech_context_semantics:
+  output_grain: Exactly one row per source speech_id, including speeches classified as other.
+  precedence: oral_question_exchange, then bill_or_legislation, then leaders_questions, then statements, then procedural_business, then motion_proceeding, then other.
+  oral_question_exchange: Inherited exactly from the existing certified speech_question_context relationship.
+  bill_or_legislation: Inherited only from exact debate_section_id membership in certified bill_debate_sections; linked_entity_id contains the Bill ID.
+  leaders_questions: Assigned only from the certified exact Oireachtas Leaders' Questions heading allowlist.
+  statements: Assigned only when the source heading ends in the certified Statements/Ráitis proceeding forms; this is a proceeding label, not semantic speech-text classification.
+  procedural_business: Assigned only from the certified exact Order of Business, Questions on Promised Legislation and Business of Dáil heading allowlist.
+  motion_proceeding: Assigned only from certified source heading forms ending in Motion/Motions variants; this describes parliamentary form, not one homogeneous substantive topic.
+  other: Explicit fallback for any speech not covered by a certified deterministic rule. Do not fill other through semantic guessing.
+  compatibility_rule: Keep speech_question_context as the dedicated Oral-question relationship; speech_context is additive and broader.
+  overlap_rule: Future rule overlaps must be surfaced by audit and resolved by explicit precedence, never by incidental row ordering.
+
 consumer_dataset: monthly_metric_results
 consumer_rules:
   - resolve the logical key through the promoted Oireachtas production pointer; do not hard-code a batch ID
@@ -69,6 +85,8 @@ consumer_rules:
   - use speech_question_context to identify speech interventions occurring inside oral-question exchanges
   - use bill_debate_sections for certified Bill-to-section context; never infer Bill context from whole-debate co-occurrence
   - join speeches or divisions to bill_debate_sections only by exact debate_section_id
+  - use speech_context for one deterministic top-level parliamentary context per speech; preserve other rather than guessing
+  - interpret motion_proceeding as parliamentary form rather than political topic or importance
 
 recommended_consumer_patterns:
   appsmith:
@@ -76,10 +94,11 @@ recommended_consumer_patterns:
     use_for:
       - metric cards
       - public tables
-      - simple filters by month, entity, issue, question type, or recipient
+      - simple filters by month, entity, issue, question type, recipient or speech context
       - oral-question exchange drilldowns
       - oral-question participant drilldowns
       - certified Bill-section drilldowns
+      - speech-context drilldowns
   power_bi:
     default_format: parquet
     use_for:
@@ -89,6 +108,7 @@ recommended_consumer_patterns:
       - voting and question dashboards
       - oral-question section, participant and related-speech models
       - certified legislation-section, speech and division models
+      - top-level speech-context models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -99,6 +119,7 @@ recommended_consumer_patterns:
       - oral-question exchange endpoints
       - oral-question exchange participant endpoints
       - certified Bill-section endpoints
+      - speech-context endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:
