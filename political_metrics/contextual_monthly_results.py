@@ -6,11 +6,16 @@ import pandas as pd
 
 
 CONTEXTS = ["bill_or_legislation", "motion_proceeding", "procedural_business", "other"]
+RESULT_COLUMNS = [
+    "metric_id","metric_version","period_type","period_start","period_end","grain","entity_id","entity_name",
+    "dimension_name","dimension_value","value","numerator","denominator","output_unit","reliability_status",
+    "public_use_status","warning_code","source_batch_id","calculated_at_utc","contract_version",
+]
 
 
-def _member_reliability(denominator: int) -> tuple[str, str, str]:
+def member_context_reliability(denominator: int) -> tuple[str, str, str]:
     if denominator >= 25:
-        return "reliable", "suitable", ""
+        return "reliable", "suitable", "none"
     if denominator >= 10:
         return "caution", "suitable_with_context", "small_context_sample"
     if denominator >= 5:
@@ -18,9 +23,9 @@ def _member_reliability(denominator: int) -> tuple[str, str, str]:
     return "insufficient_for_comparison", "not_certified", "insufficient_context_sample"
 
 
-def _party_reliability(qualifying_divisions: int) -> tuple[str, str, str]:
+def party_context_reliability(qualifying_divisions: int) -> tuple[str, str, str]:
     if qualifying_divisions >= 10:
-        return "reliable", "suitable", ""
+        return "reliable", "suitable_with_context", "none"
     if qualifying_divisions >= 5:
         return "caution", "suitable_with_context", "small_division_sample"
     return "insufficient_for_comparison", "not_certified", "insufficient_division_sample"
@@ -45,7 +50,6 @@ def build_monthly_contextual_vote_results(
     daily["component_value"] = pd.to_numeric(daily["component_value"], errors="coerce").fillna(0)
     rows: list[dict] = []
 
-    # Member participation: same numerator/denominator formula, now by context.
     member = daily[daily["grain"].eq("member")].copy()
     if not member.empty:
         pivot = member.pivot_table(
@@ -61,32 +65,18 @@ def build_monthly_contextual_vote_results(
         for r in pivot.itertuples(index=False):
             numerator = int(r.recorded_vote_count)
             denominator = int(r.eligible_member_division_count)
-            value = (numerator / denominator * 100.0) if denominator else None
-            reliability, public_use, warning = _member_reliability(denominator)
+            value = (numerator / denominator) if denominator else None
+            reliability, public_use, warning = member_context_reliability(denominator)
             rows.append({
-                "metric_id": "member_vote_participation_pct",
-                "metric_version": metric_version,
-                "period_type": "calendar_month",
-                "period_start": period.start.isoformat(),
-                "period_end": period.end.isoformat(),
-                "grain": "member",
-                "entity_id": r.entity_id,
-                "entity_name": "",
-                "dimension_name": "division_context",
-                "dimension_value": r.division_context,
-                "value": value,
-                "numerator": numerator,
-                "denominator": denominator,
-                "output_unit": "percentage",
-                "reliability_status": reliability,
-                "public_use_status": public_use,
-                "warning_code": warning,
-                "source_batch_id": source_batch_id,
-                "calculated_at_utc": now,
-                "contract_version": contract_version,
+                "metric_id": "member_vote_participation_pct", "metric_version": metric_version,
+                "period_type": "calendar_month", "period_start": period.start.isoformat(), "period_end": period.end.isoformat(),
+                "grain": "member", "entity_id": r.entity_id, "entity_name": r.entity_id,
+                "dimension_name": "division_context", "dimension_value": r.division_context,
+                "value": value, "numerator": numerator, "denominator": denominator, "output_unit": "proportion",
+                "reliability_status": reliability, "public_use_status": public_use, "warning_code": warning,
+                "source_batch_id": source_batch_id, "calculated_at_utc": now, "contract_version": contract_version,
             })
 
-    # Party recorded-vote agreement/cohesion: unchanged production rule inside each context.
     party = _period_filter(context_division_party_vote_components, "division_date", period)
     party["recorded_vote_count"] = pd.to_numeric(party["recorded_vote_count"], errors="coerce").fillna(0)
     if not party.empty:
@@ -96,48 +86,27 @@ def build_monthly_contextual_vote_results(
         qual = totals.merge(modal, on=["division_context", "party_uri", "division_id"], how="inner")
         qual = qual[qual["division_total"] >= 2].copy()
         agg = qual.groupby(["division_context", "party_uri"], as_index=False).agg(
-            qualifying_divisions=("division_id", "nunique"),
-            aligned_votes=("aligned_votes", "sum"),
-            total_votes=("division_total", "sum"),
+            qualifying_divisions=("division_id", "nunique"), aligned_votes=("aligned_votes", "sum"), total_votes=("division_total", "sum")
         )
         for r in agg.itertuples(index=False):
             numerator = int(r.aligned_votes)
             denominator = int(r.total_votes)
-            value = (numerator / denominator * 100.0) if denominator else None
-            reliability, public_use, warning = _party_reliability(int(r.qualifying_divisions))
-            if str(r.party_uri).rstrip("/").endswith("Independent"):
-                warning = "independent_group_agreement" if not warning else f"{warning};independent_group_agreement"
-                if public_use == "suitable":
-                    public_use = "suitable_with_context"
+            value = (numerator / denominator) if denominator else None
+            reliability, public_use, warning = party_context_reliability(int(r.qualifying_divisions))
+            if "independent" in str(r.party_uri).lower():
+                warning = "independent_group_agreement" if warning == "none" else f"{warning};independent_group_agreement"
+                public_use = "suitable_with_context" if public_use == "suitable" else public_use
             rows.append({
-                "metric_id": "party_vote_cohesion_pct",
-                "metric_version": metric_version,
-                "period_type": "calendar_month",
-                "period_start": period.start.isoformat(),
-                "period_end": period.end.isoformat(),
-                "grain": "party",
-                "entity_id": r.party_uri,
-                "entity_name": "",
-                "dimension_name": "division_context",
-                "dimension_value": r.division_context,
-                "value": value,
-                "numerator": numerator,
-                "denominator": denominator,
-                "output_unit": "percentage",
-                "reliability_status": reliability,
-                "public_use_status": public_use,
-                "warning_code": warning,
-                "source_batch_id": source_batch_id,
-                "calculated_at_utc": now,
-                "contract_version": contract_version,
+                "metric_id": "party_vote_cohesion_pct", "metric_version": metric_version,
+                "period_type": "calendar_month", "period_start": period.start.isoformat(), "period_end": period.end.isoformat(),
+                "grain": "party", "entity_id": r.party_uri, "entity_name": r.party_uri,
+                "dimension_name": "division_context", "dimension_value": r.division_context,
+                "value": value, "numerator": numerator, "denominator": denominator, "output_unit": "proportion",
+                "reliability_status": reliability, "public_use_status": public_use, "warning_code": warning,
+                "source_batch_id": source_batch_id, "calculated_at_utc": now, "contract_version": contract_version,
             })
 
-    columns = [
-        "metric_id","metric_version","period_type","period_start","period_end","grain","entity_id","entity_name",
-        "dimension_name","dimension_value","value","numerator","denominator","output_unit","reliability_status",
-        "public_use_status","warning_code","source_batch_id","calculated_at_utc","contract_version",
-    ]
-    return pd.DataFrame(rows, columns=columns)
+    return pd.DataFrame(rows, columns=RESULT_COLUMNS)
 
 
 def audit_monthly_contextual_vote_results(*, results: pd.DataFrame, periods: list, source_batch_id: str) -> dict:
@@ -149,26 +118,21 @@ def audit_monthly_contextual_vote_results(*, results: pd.DataFrame, periods: lis
     invalid_contexts = int((~frame["dimension_value"].isin(CONTEXTS)).sum()) if not frame.empty else 0
     wrong_batch = int((frame["source_batch_id"] != source_batch_id).sum()) if not frame.empty else 0
     invalid_metric = int((~frame["metric_id"].isin({"member_vote_participation_pct","party_vote_cohesion_pct"})).sum()) if not frame.empty else 0
-    pct_out_of_range = int(((pd.to_numeric(frame["value"], errors="coerce") < 0) | (pd.to_numeric(frame["value"], errors="coerce") > 100)).sum()) if not frame.empty else 0
+    values = pd.to_numeric(frame["value"], errors="coerce") if not frame.empty else pd.Series(dtype=float)
+    value_out_of_range = int(((values < 0) | (values > 1)).sum()) if not frame.empty else 0
     expected_periods = {(p.start.isoformat(), p.end.isoformat()) for p in periods}
     actual_periods = set(zip(frame["period_start"], frame["period_end"])) if not frame.empty else set()
     unexpected_periods = len(actual_periods - expected_periods)
     checks = {
-        "primary_key_unique": duplicate == 0,
-        "dimension_name_valid": invalid_dimensions == 0,
-        "context_values_valid": invalid_contexts == 0,
-        "source_batch_consistent": wrong_batch == 0,
-        "metric_ids_valid": invalid_metric == 0,
-        "percentage_values_in_range": pct_out_of_range == 0,
+        "primary_key_unique": duplicate == 0, "dimension_name_valid": invalid_dimensions == 0,
+        "context_values_valid": invalid_contexts == 0, "source_batch_consistent": wrong_batch == 0,
+        "metric_ids_valid": invalid_metric == 0, "proportion_values_in_range": value_out_of_range == 0,
         "periods_valid": unexpected_periods == 0,
     }
     return {
-        "ready": all(checks.values()),
-        "checks": checks,
-        "row_count": int(len(frame)),
+        "ready": all(checks.values()), "checks": checks, "row_count": int(len(frame)),
         "metric_counts": {k:int(v) for k,v in frame["metric_id"].value_counts().to_dict().items()},
         "context_counts": {k:int(v) for k,v in frame["dimension_value"].value_counts().to_dict().items()},
         "reliability_counts": {k:int(v) for k,v in frame["reliability_status"].value_counts().to_dict().items()},
-        "duplicate_rows": duplicate,
-        "invalid_contexts": invalid_contexts,
+        "duplicate_rows": duplicate, "invalid_contexts": invalid_contexts,
     }
