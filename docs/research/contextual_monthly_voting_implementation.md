@@ -226,6 +226,28 @@ Future full candidate batches therefore rebuild:
 
 The narrow updater exists only for controlled additive deployment to an already-produced production snapshot.
 
+## Consumer-readiness follow-up
+
+A read-only consumer audit is now complete and documented in:
+
+- `docs/research/contextual_voting_consumer_readiness.md`
+
+Run:
+
+- `33898417419`
+
+Key findings:
+
+- all 11,844 contextual rows contain value, numerator, denominator, reliability, public-use, warning and source-batch metadata;
+- live CSV and Parquet outputs have equal row counts and identical primary-key sets;
+- all 6,750 `not_certified` rows still contain numeric values, so consumers must enforce public-use filtering explicitly;
+- naïve top-10 sorting would surface **703 `not_certified` rows**;
+- filtering out `not_certified` rows before ranking reduces that to **0**;
+- all current contextual rows have `entity_name = entity_id`, so public consumers need a separate canonical entity-label lookup;
+- 130 rows carry Independent-specific agreement warnings.
+
+The actual Appsmith application, Power BI model and API implementation are not stored in this repository, so consumer enforcement is not yet certified.
+
 ## Methodological guardrails
 
 1. Contextual participation is recorded-vote participation, not physical attendance.
@@ -235,24 +257,23 @@ The narrow updater exists only for controlled additive deployment to an already-
 5. Contexts describe parliamentary form/source relationship, not political importance.
 6. Do not average monthly proportions to produce longer-period values; arbitrary ranges must be recalculated from additive foundations.
 7. Preserve numerator, denominator, reliability and warning fields in public surfaces.
-8. `not_certified` rows should not be silently ranked against reliable rows.
+8. `not_certified` rows must be excluded from default public rankings before sorting.
 9. Bill stage must not be inferred from Bill ID plus division date.
 10. Existing unfiltered voting rows remain valid and should not be replaced by contextual rows.
 
 ## Living next-step plan
 
-The contextual monthly member-participation and party-agreement layer is now deployed.
+The pipeline-side contextual monthly layer is deployed and consumer-readiness rules are now documented.
 
-Next research priority:
+Next priority:
 
-1. **Run a consumer-readiness audit of the new contextual monthly rows.**
-   - identify which member/context/month combinations are reliable enough for default public comparison;
-   - verify that Appsmith/Power BI/API filtering preserves denominator and warning metadata;
-   - define default suppression/ranking behavior for `not_certified` rows;
-   - verify Independent wording in party charts/tables.
-2. Investigate whether `party_vote_participation_pct` should also receive `division_context` monthly rows. The additive foundation already supports this, but the public use case should be demonstrated before expanding the result surface.
-3. Investigate whether constituency contextual participation is useful enough to justify monthly materialization; again, the additive denominator components already exist.
-4. Keep arbitrary-period contextual views based on additive foundations rather than monthly percentage aggregation.
-5. Develop certified Bill-specific voting histories through `division_context`/Bill linkage as an event-level consumer view, separate from monthly context summaries.
-6. Continue to defer Bill-stage attribution until an exact stage relationship is certified.
-7. Preserve politically neutral terminology: recorded voting participation, recorded-vote agreement, parliamentary context and sample reliability.
+1. Identify or obtain the actual **Appsmith** query/widget definitions consuming political metrics and audit them for filter-before-rank behavior, denominator display, warning handling and entity-label lookup.
+2. Identify or obtain the **Power BI** model/query definitions and audit measures/visual filters so `not_certified` rows are excluded from default rankings and monthly proportions are never averaged across periods.
+3. Identify or obtain the **API** implementation serving political metrics and audit default response/filter behavior so reliability/public-use/warning metadata travels with every contextual result.
+4. Treat `public_use_status != not_certified` as the default public comparison filter; apply it before sorting/ranking.
+5. Keep `suitable_with_context` rows visible only with denominator/reliability/warning context.
+6. Resolve human member/party labels through canonical entity dimensions rather than treating current `entity_name` as presentation-ready.
+7. Only after a concrete consumer use case is demonstrated, consider adding `division_context` monthly rows for `party_vote_participation_pct` or constituency participation.
+8. Keep arbitrary-period contextual views based on additive foundations rather than monthly proportion aggregation.
+9. Develop certified Bill-specific voting histories as an event-level consumer view when needed.
+10. Preserve politically neutral terminology: recorded voting participation, recorded-vote agreement, parliamentary context and sample reliability.
