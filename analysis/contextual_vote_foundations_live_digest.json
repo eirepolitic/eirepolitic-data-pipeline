@@ -1,0 +1,62 @@
+{
+  "audit": {
+    "checks": {
+      "daily_components_reconcile_to_existing": true,
+      "daily_context_values_allowed": true,
+      "daily_primary_key_unique": true,
+      "party_components_reconcile_to_existing": true,
+      "party_context_values_allowed": true,
+      "party_primary_key_unique": true
+    },
+    "daily_context_counts": {
+      "bill_or_legislation": 17694,
+      "motion_proceeding": 18936,
+      "other": 6941,
+      "procedural_business": 22022
+    },
+    "daily_duplicate_keys": 0,
+    "daily_reconciliation_mismatches": 0,
+    "daily_row_count": 65593,
+    "party_context_counts": {
+      "bill_or_legislation": 1881,
+      "motion_proceeding": 1750,
+      "other": 324,
+      "procedural_business": 620
+    },
+    "party_duplicate_keys": 0,
+    "party_reconciliation_mismatches": 0,
+    "party_row_count": 4575,
+    "ready": true
+  },
+  "context_division_party_vote_components_rows": 4575,
+  "daily_component_totals": {
+    "bill_or_legislation|eligible_member_division_count": 87261,
+    "bill_or_legislation|recorded_vote_count": 73281,
+    "motion_proceeding|eligible_member_division_count": 79503,
+    "motion_proceeding|recorded_vote_count": 68331,
+    "other|eligible_member_division_count": 14013,
+    "other|recorded_vote_count": 12426,
+    "procedural_business|eligible_member_division_count": 27552,
+    "procedural_business|recorded_vote_count": 23937
+  },
+  "daily_context_row_counts": {
+    "bill_or_legislation": 17694,
+    "motion_proceeding": 18936,
+    "other": 6941,
+    "procedural_business": 22022
+  },
+  "daily_context_vote_components_rows": 65593,
+  "party_context_row_counts": {
+    "bill_or_legislation": 1881,
+    "motion_proceeding": 1750,
+    "other": 324,
+    "procedural_business": 620
+  },
+  "party_recorded_vote_totals": {
+    "bill_or_legislation": 24427,
+    "motion_proceeding": 22777,
+    "other": 4142,
+    "procedural_business": 7979
+  },
+  "production_batch_id": "contextual-vote-foundations-20260904-1"
+}
