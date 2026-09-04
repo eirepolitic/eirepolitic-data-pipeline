@@ -4,16 +4,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+env:
+  PYTHONPATH: .
 
 jobs:
-  inventory:
+  contextual-voting-consumer-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -27,22 +26,72 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyarrow
+      - name: Audit live contextual monthly rows for consumer safety
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          csv_key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv')
+          parquet_key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/parquet/monthly_metric_results.parquet')
+          csv=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=csv_key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          parquet=pd.read_parquet(io.BytesIO(s3.get_object(Bucket=bucket,Key=parquet_key)['Body'].read()))
+
+          mask=(csv['metric_id'].isin(['member_vote_participation_pct','party_vote_cohesion_pct']) & csv['dimension_name'].eq('division_context'))
+          c=csv[mask].copy()
+          for col in ['value','numerator','denominator']:
+              c[col+'_num']=pd.to_numeric(c[col],errors='coerce')
+
+          keycols=['metric_id','metric_version','period_start','period_end','grain','entity_id','dimension_name','dimension_value']
+          required_meta=['value','numerator','denominator','reliability_status','public_use_status','warning_code','source_batch_id']
+          missing_meta={col:int(c[col].fillna('').astype(str).eq('').sum()) for col in required_meta}
+          not_cert=c[c['public_use_status'].eq('not_certified')]
+          naive_top=(c.sort_values('value_num',ascending=False).groupby(['metric_id','period_start','dimension_value'],as_index=False).head(10))
+          naive_not_certified=int(naive_top['public_use_status'].eq('not_certified').sum())
+          safe=c[~c['public_use_status'].eq('not_certified')].copy()
+          safe_top=(safe.sort_values('value_num',ascending=False).groupby(['metric_id','period_start','dimension_value'],as_index=False).head(10))
+          safe_not_certified=int(safe_top['public_use_status'].eq('not_certified').sum())
+
+          parquet_keys=parquet[keycols].astype(str).agg('|'.join,axis=1)
+          csv_keys=csv[keycols].astype(str).agg('|'.join,axis=1)
+          parity={
+            'row_count_equal':len(csv)==len(parquet),
+            'primary_key_sets_equal':set(csv_keys)==set(parquet_keys),
+          }
+
+          out={
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'contextual_row_count':int(len(c)),
+            'not_certified_rows':int(len(not_cert)),
+            'not_certified_with_numeric_value':int(not_cert['value_num'].notna().sum()),
+            'missing_required_metadata':missing_meta,
+            'naive_top10_not_certified_rows':naive_not_certified,
+            'safe_top10_not_certified_rows':safe_not_certified,
+            'csv_parquet_parity':parity,
+            'entity_name_equals_entity_id_rows':int((c['entity_name'].fillna('').astype(str)==c['entity_id'].fillna('').astype(str)).sum()),
+            'independent_warning_rows':int(c['warning_code'].fillna('').astype(str).str.contains('independent_group_agreement',regex=False).sum()),
+            'consumer_rules':{
+              'default_public_filter':"public_use_status != 'not_certified'",
+              'ranking_filter_order':['filter period/context/metric','exclude not_certified','then rank by value'],
+              'always_expose':['numerator','denominator','reliability_status','public_use_status','warning_code'],
+              'independent_label':'recorded-vote agreement among Independents',
+              'longer_period_rule':'recalculate from additive foundations; never average monthly values'
+            }
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/contextual_voting_consumer_audit.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - name: Persist audit
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/contextual_voting_consumer_audit.json
+          git commit -m "Capture contextual voting consumer audit ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
