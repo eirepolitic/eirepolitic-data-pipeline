@@ -7,15 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  retry-july:
+  diagnose-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ca-central-1
-      AWS_DEFAULT_REGION: ca-central-1
-      S3_BUCKET: eirepolitic-data
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,108 +19,24 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-      - name: Install dependencies
-        run: |
+      - run: |
           python -m pip install --upgrade pip
           pip install pandas pyyaml pillow matplotlib boto3 pytest
-      - name: Run regression suite
-        run: |
-          python -m compileall -q instagram political_metrics
-          python -m py_compile extract/oireachtas/batch.py extract/oireachtas/normalize.py
-          python -m pytest -q tests/test_instagram_monthly_post_framework.py
-      - name: Regenerate July through generic recurring runner
+      - name: Capture regression output
         shell: bash
         run: |
-          set -euo pipefail
-          python -m instagram.factory.recurring \
-            --project-id party_issue_monthly_profile_v2 \
-            --period 2026-07 | tee generation.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          report=json.load(open('generation.json',encoding='utf-8'))
-          assert report['status']=='PASS', report
-          assert report['period']=='2026-07', report
-          assert report['party_count']==11, report
-          assert report['slide_count']==55, report
-          assert report['qa']=={'failed':0,'passed':55}, report
-          assert report['publication_enabled'] is False, report
-          assert report['review_state']=='pending_human_review', report
-
-          root=Path(report['output_root'])
-          manifest=json.loads((root/'run_manifest.json').read_text(encoding='utf-8'))
-          assert manifest['qa']=={'slide_count':55,'passed':55,'failed':0,'party_count':11}, manifest['qa']
-          assert manifest['publication_enabled'] is False
-          assert manifest['review_state']=='pending_human_review'
-
-          glossary_checks=[]
-          for party in manifest['parties']:
-              glossary=party['glossary_render']
-              assert glossary['content_bounds']=={'left':135,'right':945,'max_width':810}, glossary
-              assert glossary['left_overflow_count']==0, glossary
-              assert glossary['right_overflow_count']==0, glossary
-              assert glossary['min_text_left_px']>=135, glossary
-              assert glossary['max_text_right_px']<=945, glossary
-              glossary_checks.append({
-                  'party':party['party'],
-                  'party_key':party['party_key'],
-                  'min_text_left_px':glossary['min_text_left_px'],
-                  'max_text_right_px':glossary['max_text_right_px'],
-                  'left_overflow_count':glossary['left_overflow_count'],
-                  'right_overflow_count':glossary['right_overflow_count'],
-              })
-
-          evidence={
-              'period':'2026-07',
-              'source_batch_id':manifest['source_batch_id'],
-              'matched_classified_rows':manifest['readiness']['matched_classified_rows'],
-              'unmatched_classified_rows':manifest['readiness']['unmatched_classified_rows'],
-              'party_count':manifest['qa']['party_count'],
-              'slide_count':manifest['qa']['slide_count'],
-              'qa_passed':manifest['qa']['passed'],
-              'qa_failed':manifest['qa']['failed'],
-              'review_state':manifest['review_state'],
-              'publication_enabled':manifest['publication_enabled'],
-              'glossary_content_bounds':{'left':135,'right':945,'max_width':810},
-              'glossary_checks':glossary_checks,
-          }
-          evidence_path=root/'glossary_retry_validation.json'
-          evidence_path.write_text(json.dumps(evidence,indent=2,ensure_ascii=False),encoding='utf-8')
-          with open('generation.env','w',encoding='utf-8') as fh:
-              for key in ('output_root','zip_path','source_batch_id'):
-                  fh.write(f'{key.upper()}={report[key]}\n')
-          print(json.dumps(evidence,indent=2,ensure_ascii=False))
-          PY
-          cat generation.env >> "$GITHUB_ENV"
-      - name: Upload July review run to immutable S3 path
-        shell: bash
-        run: |
-          set -euo pipefail
-          DEST="s3://$S3_BUCKET/processed/instagram/party_issue_monthly_profile_v2/period=2026-07/source_batch=$SOURCE_BATCH_ID/github_run=$GITHUB_RUN_ID"
-          aws s3 cp "$OUTPUT_ROOT/" "$DEST/" --recursive --only-show-errors
-          aws s3 cp "$ZIP_PATH" "$DEST/$(basename "$ZIP_PATH")" --only-show-errors
-          aws s3 cp "$ZIP_PATH.manifest.json" "$DEST/$(basename "$ZIP_PATH").manifest.json" --only-show-errors
-      - name: Commit July delivery artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add "$ZIP_PATH" "$ZIP_PATH.manifest.json"
-          git add "$OUTPUT_ROOT/contact_sheets" "$OUTPUT_ROOT/qa_summary.csv" "$OUTPUT_ROOT/run_manifest.json" "$OUTPUT_ROOT/glossary_retry_validation.json"
-          git commit -m 'artifacts(instagram): regenerate July 2026 with bounded glossary text'
-          git push origin HEAD:feature/instagram-monthly-post-framework
-      - name: Upload Actions evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: instagram-party-speech-breakdown-july-glossary-fix-${{ github.run_id }}
-          path: |
-            generation.json
-            ${{ env.OUTPUT_ROOT }}/qa_summary.csv
-            ${{ env.OUTPUT_ROOT }}/run_manifest.json
-            ${{ env.OUTPUT_ROOT }}/glossary_retry_validation.json
-            ${{ env.OUTPUT_ROOT }}/contact_sheets/
-            ${{ env.ZIP_PATH }}
-            ${{ env.ZIP_PATH }}.manifest.json
-          if-no-files-found: error
+          set +e
+          python -m pytest -q tests/test_instagram_monthly_post_framework.py > /tmp/pytest.log 2>&1
+          STATUS=$?
+          set -e
+          cat /tmp/pytest.log
+          if [ "$STATUS" -ne 0 ]; then
+            mkdir -p instagram/commissioning_diagnostics
+            cp /tmp/pytest.log instagram/commissioning_diagnostics/glossary_regression.log
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add instagram/commissioning_diagnostics/glossary_regression.log
+            git commit -m 'chore: capture glossary regression failure'
+            git push origin HEAD:feature/instagram-monthly-post-framework
+            exit "$STATUS"
+          fi
