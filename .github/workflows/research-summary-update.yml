@@ -1,0 +1,79 @@
+name: Temporary research summary update
+
+on:
+  push:
+    branches:
+      - docs/referendum-data-validation-20260903
+    paths:
+      - .github/workflows/research-summary-update.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/referendum-data-validation-20260903
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Update master research and feasibility summaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          master = Path('docs/research/irish_political_data_sources.md')
+          text = master.read_text(encoding='utf-8')
+          text = text.replace(
+              '7. **Read-only ingestion feasibility — in progress.** Test the top five candidates without implementing connectors or changing production schemas.',
+              '7. **Read-only ingestion feasibility — complete.** All five priority candidates were validated with exact source-level checks; no production connector or schema was implemented.'
+          )
+
+          marker = '# Priority 1 — Irish polling sources\n'
+          completion = '''### 2026-09-03 — Phase 7 complete: exact top-five validation\n\nAll five priority future-ingestion candidates were validated with source-level or pinned-file diagnostics. Dedicated durable records now exist for:\n\n- `ipi_readonly_proof.md` and `ipi_bounded_validation.md`;\n- `irish_demographic_polling_validation.md`;\n- `election_count_data_validation.md`;\n- `cso_pxstat_validation.md`;\n- `referendum_data_validation.md`.\n\nKey readiness findings:\n\n- **Irish Polling Indicator:** technically ready; exact validation found two duplicate raw poll rows, historical date anomalies, and election-cycle boundary duplicate dates in the modeled series. These are manageable with provenance and validation flags.\n- **Official referendum results:** technically ready and very easy to automate through the CKAN datastore; one 2015 Dublin Central 900-vote arithmetic anomaly must be preserved/flagged rather than silently corrected.\n- **CSO PxStat:** technically ready; API quality is strong, but table unit/geography semantics must be validated per use case.\n- **Official general-election count/transfer data:** technically ready with year-specific adapters; 2016/2020 are clean CSV-style tables while 2024 requires workbook parsing for full transfers.\n- **Irish Demographic Polling Datasets:** technically ready and editorially valuable, but explicit production/commercial-republication permission should be clarified before ingestion.\n\nProduction changes: none.\n\n'''
+          if completion not in text and marker in text:
+              text = text.replace(marker, completion + marker, 1)
+
+          old_top5_start = '# Top five recommended sources for a future ingestion investigation\n'
+          old_top5_end = '# Example recurring EirePolitic feature ideas\n'
+          if old_top5_start in text and old_top5_end in text:
+              before, rest = text.split(old_top5_start, 1)
+              _, after = rest.split(old_top5_end, 1)
+              new_top5 = '''# Validated top-five readiness and future prototype order\n\nNo production implementation is authorized by this research task. Exact validation is now complete for all five. Recommended order for any later **non-production prototype** is:\n\n1. **Irish Polling Indicator** — first priority because polling is the core EirePolitic goal and the source is free, structured and highly automatable. Prototype must pin the upstream commit, preserve raw/model distinction and validate duplicates/date anomalies.\n2. **Official referendum results** — simplest official political-history source. Prefer CKAN datastore records, preserve boundary vintages and flag the documented 2015 arithmetic anomaly.\n3. **CSO PxStat** — strong official API. Select one concrete politically useful table whose unit and geography match the intended feature before prototyping.\n4. **Official general-election count/transfer data** — high value, but use source-specific adapters: 2016/2020 CSV-style and 2024 workbook parsing.\n5. **Irish Demographic Polling Datasets** — technically strong and uniquely useful for crosstabs/satisfaction, but obtain/record clear recurring production/republication permission first.\n\n**Near-next choices:** eTenders procurement and Department of Finance monthly tax receipts remain strong, openly licensed recurring-data candidates after the top-five programme.\n\n'''
+              text = before + new_top5 + old_top5_end + after
+
+          old_living = '''# Living next-step plan\n\n1. **Completed:** initial source discovery, access/licensing/methodology research and rankings.\n2. **Current:** bounded read-only ingestion-feasibility checks for the top five sources.\n3. Test IPI file schema and versioning.\n4. Test demographic polling schemas and crosstab structure.\n5. Compare official election count/transfer schemas across recent elections.\n6. Test a small CSO JSON-stat endpoint and note geography/versioning behaviour.\n7. Compare referendum schemas across several years.\n8. Rank implementation readiness and document future proof-of-concept order.\n'''
+          new_living = '''# Living next-step plan\n\n1. **Completed:** initial source discovery, licensing, methodology, pricing and rankings.\n2. **Completed:** exact read-only validation of the Irish Polling Indicator.\n3. **Completed:** exact read-only validation of the Irish Demographic Polling Datasets.\n4. **Completed:** exact read-only validation of official 2016/2020/2024 election count/transfer data.\n5. **Completed:** exact API validation of CSO PxStat using table F4061, including unit/geography safeguards.\n6. **Completed:** exact cross-year validation of official referendum results for 1986, 1992, 2015 and 2018.\n7. **Completed:** implementation-readiness ranking and durable documentation.\n8. **Next only under a separate implementation decision:** build a bounded non-production prototype for the Irish Polling Indicator, followed by referendum data and one deliberately selected CSO political-use table. Do not change production schemas or pipelines as part of this research record.\n'''
+          text = text.replace(old_living, new_living)
+          master.write_text(text, encoding='utf-8')
+
+          feas = Path('docs/research/irish_political_data_ingestion_feasibility.md')
+          f = feas.read_text(encoding='utf-8')
+          f = f.replace('## Result summary\n', '## Initial pre-validation summary\n', 1)
+          scope_marker = '## Initial pre-validation summary\n'
+          validated = '''## Exact validation result — completed 2026-09-03\n\nAll five candidates below have now been tested beyond the initial feasibility pass. No production connector, schema or pipeline was created.\n\n| Prototype order | Source | Exact validation result | Main safeguard | Durable record |\n| --- | --- | --- | --- | --- |\n| 1 | Irish Polling Indicator | Ready for non-production prototype | Pin upstream commit; preserve raw/model units; audit duplicate/date anomalies | `ipi_readonly_proof.md`, `ipi_bounded_validation.md` |\n| 2 | Official referendum results | Ready for non-production prototype | Prefer CKAN datastore; preserve boundary vintage; flag 2015 900-vote anomaly | `referendum_data_validation.md` |\n| 3 | CSO PxStat | Ready after selecting a concrete political-use table | Validate unit, dimensions and geography for the exact table | `cso_pxstat_validation.md` |\n| 4 | Official general-election count/transfer data | Ready with source-specific adapters | 2016/2020 CSV-style; 2024 workbook parser; IDs are election-scoped | `election_count_data_validation.md` |\n| 5 | Irish Demographic Polling Datasets | Technically ready; rights clarification first | Do not treat weighted counts as respondent n; clarify recurring production/republication rights | `irish_demographic_polling_validation.md` |\n\nThe validation sequence found no reason to reject any of the five technically. The only gating issue is rights clarity for the demographic polling dataset.\n\n'''
+          if validated not in f:
+              f = f.replace(scope_marker, validated + scope_marker, 1)
+
+          old_comp = '''## Implementation-readiness order\n\n1. **Irish Polling Indicator** — highest immediate editorial value and simplest recurring polling path.\n2. **CSO PxStat** — strongest official API foundation; start narrow with one geography/table.\n3. **Referendum results** — easy static CSV normalization and excellent historical visualization potential.\n4. **General-election count/transfer data** — highly valuable but requires year-specific adapters, especially 2024 XLSX.\n5. **Irish Demographic Polling Datasets** — technically straightforward and very valuable, but confirm intended commercial/republication terms before production ingestion.\n'''
+          new_comp = '''## Implementation-readiness order after exact validation\n\n1. **Irish Polling Indicator** — first prototype because polling is the highest-priority EirePolitic use case and exact validation confirms the source is workable with explicit anomaly/version controls.\n2. **Referendum results** — easiest fully official historical normalization; CKAN datastore access is cleaner than older raw CSVs.\n3. **CSO PxStat** — excellent API, but select the exact editorial table first because unit/geography semantics are table-specific.\n4. **General-election count/transfer data** — high value and validated, but 2024 requires a separate workbook adapter.\n5. **Irish Demographic Polling Datasets** — technically ready, but obtain/record production/republication rights clarification first.\n'''
+          f = f.replace(old_comp, new_comp)
+
+          old_end = '''# Living next step\n\nThe read-only top-five feasibility pass is complete. The next research-only step, if continued, should be a **single-source bounded proof for the Irish Polling Indicator** that records exact current filenames/columns, row counts, date coverage, source commit/version and duplicate/null diagnostics without writing to production systems.\n'''
+          new_end = '''# Living next step\n\nThe top-five read-only validation programme is complete. The next step requires a **separate implementation decision**, not more source discovery: build a bounded non-production Irish Polling Indicator prototype pinned to an exact upstream commit, with no production schema or pipeline changes.\n'''
+          f = f.replace(old_end, new_end)
+          feas.write_text(f, encoding='utf-8')
+          PY
+
+      - name: Commit documentation summary updates
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/research/irish_political_data_sources.md docs/research/irish_political_data_ingestion_feasibility.md
+          git commit -m 'docs: finalize top-five political data readiness' || exit 0
+          git push
