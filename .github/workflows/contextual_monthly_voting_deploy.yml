@@ -1,0 +1,88 @@
+name: Deploy contextual monthly voting results
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_DEFAULT_REGION: ca-central-1
+  AWS_REGION: ca-central-1
+  S3_BUCKET: eirepolitic-data
+  BATCH_ID: contextual-monthly-voting-20260904-1
+  PYTHONPATH: .
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyarrow pyyaml pytest
+      - name: Run contextual monthly voting tests
+        run: python -m pytest -q tests/political_metrics/test_contextual_monthly_results.py tests/political_metrics/test_catalogue_materialization.py tests/political_metrics/test_candidate_materialization.py tests/political_metrics/test_downstream_contracts.py
+      - name: Seed complete candidate from current production
+        run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
+      - name: Append and audit contextual monthly voting results
+        run: |
+          python process/political_metrics_contextual_monthly_candidate.py \
+            --batch-id "$BATCH_ID" \
+            --report-path contextual_monthly_candidate_report.json
+      - name: Reassemble complete candidate manifest
+        run: python process/oireachtas_batch_control.py assemble --batch-id "$BATCH_ID"
+      - name: Promote validated candidate atomically
+        env:
+          OIREACHTAS_PUBLISH_ENABLED: 'true'
+          OIREACHTAS_PUBLISH_LATEST: 'true'
+        run: python process/oireachtas_batch_control.py promote --batch-id "$BATCH_ID"
+      - name: Post-promotion contextual monthly audit
+        run: |
+          python - <<'PY'
+          import io,json,os
+          from datetime import date
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          from political_metrics.contextual_monthly_results import audit_monthly_contextual_vote_results
+          from political_metrics.periods import MetricPeriod
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          expected=os.environ['BATCH_ID']
+          if pointer.get('batch_id') != expected:
+              raise RuntimeError(f"production pointer is {pointer.get('batch_id')!r}, expected {expected!r}")
+          key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv')
+          monthly=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          contextual=monthly[
+              monthly['metric_id'].isin(['member_vote_participation_pct','party_vote_cohesion_pct'])
+              & monthly['dimension_name'].eq('division_context')
+          ].copy()
+          pairs=monthly[['period_start','period_end']].drop_duplicates().sort_values(['period_start','period_end'])
+          periods=[]
+          for r in pairs.itertuples(index=False):
+              start=date.fromisoformat(str(r.period_start)); end=date.fromisoformat(str(r.period_end))
+              periods.append(MetricPeriod(start,end,start.strftime('%Y-%m'),'month'))
+          audit=audit_monthly_contextual_vote_results(results=contextual,periods=periods,source_batch_id=expected)
+          if not audit.get('ready'):
+              raise RuntimeError(f'post-promotion contextual monthly audit failed: {audit}')
+          key_cols=['metric_id','metric_version','period_start','period_end','grain','entity_id','dimension_name','dimension_value']
+          duplicate=int(monthly.duplicated(key_cols).sum())
+          if duplicate:
+              raise RuntimeError(f'live monthly results contain {duplicate} duplicate primary-key rows')
+          report={'production_batch_id':expected,'contextual_row_count':int(len(contextual)),'monthly_row_count':int(len(monthly)),'audit':audit,'production_pointer':pointer}
+          Path('contextual_monthly_post_promotion_audit.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(report,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contextual-monthly-voting-deployment-${{ github.run_id }}
+          path: |
+            contextual_monthly_candidate_report.json
+            contextual_monthly_post_promotion_audit.json
