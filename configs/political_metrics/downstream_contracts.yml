@@ -7,12 +7,18 @@ logical_keys:
   daily_activity_components:
     csv: processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv
     parquet: processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/parquet/daily_activity_components.parquet
+  daily_context_vote_components:
+    csv: processed/oireachtas_unified/latest/metrics/daily/daily_context_vote_components/csv/daily_context_vote_components.csv
+    parquet: processed/oireachtas_unified/latest/metrics/daily/daily_context_vote_components/parquet/daily_context_vote_components.parquet
   daily_issue_activity:
     csv: processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/csv/daily_issue_activity.csv
     parquet: processed/oireachtas_unified/latest/metrics/daily/daily_issue_activity/parquet/daily_issue_activity.parquet
   division_party_vote_components:
     csv: processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/parquet/division_party_vote_components.parquet
+  context_division_party_vote_components:
+    csv: processed/oireachtas_unified/latest/metrics/event/context_division_party_vote_components/csv/context_division_party_vote_components.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/context_division_party_vote_components/parquet/context_division_party_vote_components.parquet
   daily_question_dimensions:
     csv: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/csv/daily_question_dimensions.csv
     parquet: processed/oireachtas_unified/latest/metrics/daily/daily_question_dimensions/parquet/daily_question_dimensions.parquet
@@ -79,6 +85,18 @@ division_context_semantics:
   bill_stage_rule: Do not infer Bill stage from Bill ID plus division date; stage attribution requires a separately certified relationship.
   motion_rule: motion_proceeding describes parliamentary form, not political importance, policy topic or effectiveness.
 
+contextual_vote_semantics:
+  daily_output_grain: One additive row per activity_date, division_context, grain, entity_id and component_id.
+  party_output_grain: One additive row per division_id, division_context, historical party_uri and vote_code.
+  participation_rule: Context-specific participation uses recorded_vote_count divided by eligible_member_division_count after filtering to the selected context.
+  eligibility_rule: Eligible member-division opportunities use the existing membership interval logic unchanged.
+  party_rule: Historical party attribution uses the existing party-at-vote temporal join unchanged.
+  cohesion_rule: Context-specific party agreement must be recomputed from context_division_party_vote_components using the existing at-least-two-votes-per-party-division and 10/5 qualifying-division reliability thresholds.
+  reconciliation_rule: Collapsing division_context must reproduce the existing unfiltered daily voting components and division_party_vote_components exactly.
+  arbitrary_period_rule: Recompute arbitrary date ranges from additive components; never average monthly participation or cohesion percentages.
+  independent_rule: Results for the Independent grouping describe recorded-vote agreement among Independents, not party discipline.
+  evaluation_rule: Participation, agreement and parliamentary context are descriptive and must not be presented as effectiveness, quality or performance.
+
 consumer_dataset: monthly_metric_results
 consumer_rules:
   - resolve the logical key through the promoted Oireachtas production pointer; do not hard-code a batch ID
@@ -103,6 +121,10 @@ consumer_rules:
   - interpret motion_proceeding as parliamentary form rather than political topic or importance
   - use division_context for one deterministic parliamentary context per division and join it to member votes by division_id only
   - keep existing participation and party-cohesion denominators unchanged when filtering or comparing by division context
+  - use daily_context_vote_components for arbitrary-period context-specific participation numerators and denominators
+  - use context_division_party_vote_components to recompute context-specific party recorded-vote agreement with existing reliability thresholds
+  - collapse context-aware voting foundations only when reconciling to the existing unfiltered foundations
+  - describe Independent cohesion-style outputs as recorded-vote agreement among Independents
   - do not infer Bill stage from division date coincidence
 
 recommended_consumer_patterns:
@@ -117,6 +139,7 @@ recommended_consumer_patterns:
       - certified Bill-section drilldowns
       - speech-context drilldowns
       - contextual division drilldowns
+      - context-specific voting participation views
   power_bi:
     default_format: parquet
     use_for:
@@ -128,6 +151,7 @@ recommended_consumer_patterns:
       - certified legislation-section, speech and division models
       - top-level speech-context models
       - division-context voting models
+      - arbitrary-period contextual participation and recorded-vote agreement models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -140,6 +164,7 @@ recommended_consumer_patterns:
       - certified Bill-section endpoints
       - speech-context endpoints
       - division-context endpoints
+      - contextual voting component endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:

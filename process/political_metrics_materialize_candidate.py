@@ -22,6 +22,11 @@ import pandas as pd
 
 from extract.oireachtas.batch import batch_key_for_production_key, validate_batch_id
 from political_metrics.candidate_publish import publish_dataset_to_candidate
+from political_metrics.contextual_votes import (
+    audit_context_vote_reconciliation,
+    build_context_division_party_vote_components,
+    build_daily_context_vote_components,
+)
 from political_metrics.division_context import audit_division_context, build_division_context
 from political_metrics.foundations import (
     build_daily_activity_components,
@@ -177,21 +182,53 @@ def main(argv: list[str] | None = None) -> int:
     if not division_context_gate.get("ready"):
         raise RuntimeError(f"candidate division-context gate failed: {division_context_gate}")
 
+    daily_activity_components = build_daily_activity_components(
+        speeches=frames["speeches"], labels=frames["labels"], memberships=frames["memberships"],
+        member_parties=frames["parties"], member_constituencies=frames["constituencies"],
+        debate_records=frames["debates"], divisions=frames["divisions"], member_votes=frames["votes"],
+        questions=frames["questions"], period=history_period, source_batch_id=batch_id, contract_version=contract_version,
+    )
+    division_party_vote_components = build_division_party_vote_components(
+        frames["votes"], frames["parties"], period=history_period, source_batch_id=batch_id, contract_version=contract_version,
+    )
+    daily_context_vote_components = build_daily_context_vote_components(
+        divisions=frames["divisions"],
+        member_votes=frames["votes"],
+        memberships=frames["memberships"],
+        member_parties=frames["parties"],
+        member_constituencies=frames["constituencies"],
+        division_context=division_context,
+        period=history_period,
+        source_batch_id=batch_id,
+        contract_version=contract_version,
+    )
+    context_division_party_vote_components = build_context_division_party_vote_components(
+        member_votes=frames["votes"],
+        member_parties=frames["parties"],
+        division_context=division_context,
+        period=history_period,
+        source_batch_id=batch_id,
+        contract_version=contract_version,
+    )
+    contextual_vote_gate = audit_context_vote_reconciliation(
+        daily_context_vote_components=daily_context_vote_components,
+        context_division_party_vote_components=context_division_party_vote_components,
+        daily_activity_components=daily_activity_components,
+        division_party_vote_components=division_party_vote_components,
+    )
+    if not contextual_vote_gate.get("ready"):
+        raise RuntimeError(f"candidate contextual-vote reconciliation gate failed: {contextual_vote_gate}")
+
     datasets = {
-        "daily_activity_components": build_daily_activity_components(
-            speeches=frames["speeches"], labels=frames["labels"], memberships=frames["memberships"],
-            member_parties=frames["parties"], member_constituencies=frames["constituencies"],
-            debate_records=frames["debates"], divisions=frames["divisions"], member_votes=frames["votes"],
-            questions=frames["questions"], period=history_period, source_batch_id=batch_id, contract_version=contract_version,
-        ),
+        "daily_activity_components": daily_activity_components,
+        "daily_context_vote_components": daily_context_vote_components,
         "daily_issue_activity": build_daily_issue_activity(
             speeches=frames["speeches"], labels=frames["labels"], memberships=frames["memberships"],
             member_parties=frames["parties"], member_constituencies=frames["constituencies"],
             period=history_period, source_batch_id=batch_id, contract_version=contract_version,
         ),
-        "division_party_vote_components": build_division_party_vote_components(
-            frames["votes"], frames["parties"], period=history_period, source_batch_id=batch_id, contract_version=contract_version,
-        ),
+        "division_party_vote_components": division_party_vote_components,
+        "context_division_party_vote_components": context_division_party_vote_components,
         "daily_question_dimensions": build_daily_question_dimensions(
             questions=frames["questions"], memberships=frames["memberships"], member_parties=frames["parties"],
             member_constituencies=frames["constituencies"], period=history_period, source_batch_id=batch_id,
@@ -232,32 +269,13 @@ def main(argv: list[str] | None = None) -> int:
         "legislation_context_gate": legislation_gate,
         "speech_context_gate": speech_context_gate,
         "division_context_gate": division_context_gate,
-        "question_context_policy": {
-            "question_classifier_run": False,
-            "written_questions_are_standalone_records": True,
-            "oral_questions_anchor_debate_sections": True,
-            "speech_context_values": ["oral_question_exchange", "other"],
-            "exchange_participant_roles": ["ministerial", "chair", "ordinary_member", "collective_or_unidentified"],
-            "question_taker_attribution_materialized": False,
-        },
-        "legislation_context_policy": {
-            "bill_classifier_run": False,
-            "whole_debate_bill_join_allowed": False,
-            "certified_bill_section_only": True,
-            "multi_bill_sections_excluded": True,
-            "output_grain": ["bill_id", "debate_section_id"],
-        },
-        "broader_speech_context_policy": {
-            "classifier_run": False,
-            "one_row_per_source_speech": True,
-            "explicit_other_fallback": True,
-            "precedence": ["oral_question_exchange", "bill_or_legislation", "leaders_questions", "statements", "procedural_business", "motion_proceeding", "other"],
-        },
-        "division_context_policy": {
-            "classifier_run": False,
-            "one_row_per_source_division": True,
-            "vote_denominators_changed": False,
-            "allowed_contexts": ["bill_or_legislation", "motion_proceeding", "procedural_business", "other"],
+        "contextual_vote_gate": contextual_vote_gate,
+        "contextual_vote_policy": {
+            "existing_vote_formulas_changed": False,
+            "division_context_is_dimension_only": True,
+            "daily_components_reconcile_to_existing": True,
+            "party_components_reconcile_to_existing": True,
+            "historical_party_at_vote_preserved": True,
         },
         "datasets": {
             name: {"row_count": result["row_count"], "entry_name": result["entry_name"], "objects": result["objects"]}
