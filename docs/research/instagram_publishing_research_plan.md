@@ -65,7 +65,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 15 | Secrets/token management | `15_secrets_tokens.md` | **complete** |
 | 16 | Idempotency, failure recovery and retries | `16_idempotency_failures.md` | **complete** |
 | 17 | Monitoring, auditability and operator queries | `17_monitoring.md` | **complete** |
-| 18 | Multi-platform extension approach | `18_multi_platform.md` | pending |
+| 18 | Multi-platform extension approach | `18_multi_platform.md` | **complete** |
 | 19 | Options comparison, estimated cost, recommendation and phased implementation proposal | `19_recommendation.md` | pending |
 
 ## Decision gates
