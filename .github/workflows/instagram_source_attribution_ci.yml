@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install pandas pyyaml pillow boto3 requests
+          python -m pip install pandas pyyaml pillow boto3 requests matplotlib
 
       - name: Compile attribution and renderer modules
         shell: bash
