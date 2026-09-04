@@ -29,48 +29,66 @@ jobs:
       - name: Summarise 2024 constituency sheet layout
         run: |
           python - <<'PY'
-          import urllib.request
+          import traceback, urllib.request
           from pathlib import Path
           from openpyxl import load_workbook
 
-          url='https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx'
-          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 EirePolitic research validation'})
-          with urllib.request.urlopen(req,timeout=60) as r:
-              body=r.read()
-          p=Path('/tmp/election2024.xlsx'); p.write_bytes(body)
-          wb=load_workbook(p,data_only=True,read_only=True)
+          out=[]
+          try:
+              url='https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx'
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 EirePolitic research validation'})
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  body=r.read()
+              p=Path('/tmp/election2024.xlsx'); p.write_bytes(body)
+              wb=load_workbook(p,data_only=True,read_only=True)
+              out += [f'sheet_count={len(wb.sheetnames)}','sheet_names='+'|'.join(wb.sheetnames)]
 
-          out=[f'sheet_count={len(wb.sheetnames)}','sheet_names='+'|'.join(wb.sheetnames)]
-          targets=['Carlow-Kilkenny','Cavan-Monaghan','Wicklow-Wexford']
-          for title in targets:
-              ws=wb[title]
-              out += ['',f'[{title}]',f'dimensions={ws.max_row}x{ws.max_column}']
-              nonempty_rows=[]
-              for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
-                  vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
-                  if any(vals):
-                      trimmed=list(vals)
-                      while trimmed and trimmed[-1]=='': trimmed.pop()
-                      nonempty_rows.append((rownum,trimmed))
-              out.append(f'nonempty_rows={len(nonempty_rows)}')
-              # Show only first 18 and last 8 logical rows, capped to 28 cells each.
-              selected=nonempty_rows[:18]+nonempty_rows[-8:]
-              seen=set()
-              for rownum,vals in selected:
-                  if rownum in seen: continue
-                  seen.add(rownum)
-                  out.append('row='+str(rownum)+'|'+' || '.join(vals[:28]))
+              # Pick representative constituency sheets dynamically to avoid naming assumptions.
+              candidates=[s for s in wb.sheetnames if s not in {'Notes','General Statistics'}]
+              targets=[]
+              if candidates:
+                  targets.append(candidates[0])
+                  targets.append(candidates[len(candidates)//2])
+                  targets.append(candidates[-1])
+              seen=[]
+              for title in targets:
+                  if title in seen: continue
+                  seen.append(title)
+                  try:
+                      ws=wb[title]
+                      out += ['',f'[{title}]',f'dimensions={ws.max_row}x{ws.max_column}']
+                      nonempty=[]
+                      for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
+                          vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
+                          if any(vals):
+                              while vals and vals[-1]=='': vals.pop()
+                              nonempty.append((rownum,vals))
+                      out.append(f'nonempty_rows={len(nonempty)}')
+                      selected=nonempty[:16]+nonempty[-6:]
+                      done=set()
+                      for rownum,vals in selected:
+                          if rownum in done: continue
+                          done.add(rownum)
+                          out.append('row='+str(rownum)+'|'+' || '.join(vals[:28]))
+                  except Exception as e:
+                      out.append(f'sheet_error={title}|{type(e).__name__}:{e}')
 
-          ws=wb['General Statistics']
-          out += ['', '[General Statistics]', f'dimensions={ws.max_row}x{ws.max_column}']
-          shown=0
-          for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
-              vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
-              if any(vals):
-                  while vals and vals[-1]=='': vals.pop()
-                  out.append('row='+str(rownum)+'|'+' || '.join(vals[:14]))
-                  shown+=1
-                  if shown>=12: break
+              if 'General Statistics' in wb.sheetnames:
+                  try:
+                      ws=wb['General Statistics']
+                      out += ['', '[General Statistics]', f'dimensions={ws.max_row}x{ws.max_column}']
+                      shown=0
+                      for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
+                          vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
+                          if any(vals):
+                              while vals and vals[-1]=='': vals.pop()
+                              out.append('row='+str(rownum)+'|'+' || '.join(vals[:14]))
+                              shown += 1
+                              if shown >= 12: break
+                  except Exception as e:
+                      out.append(f'general_stats_error={type(e).__name__}:{e}')
+          except Exception as e:
+              out += [f'top_level_error={type(e).__name__}:{e}', traceback.format_exc().replace('\n',' || ')]
 
           path=Path('tmp/election_2024_structure_summary.txt')
           path.parent.mkdir(parents=True,exist_ok=True)
