@@ -1,0 +1,40 @@
+{
+  "consumer_rules": {
+    "always_expose": [
+      "numerator",
+      "denominator",
+      "reliability_status",
+      "public_use_status",
+      "warning_code"
+    ],
+    "default_public_filter": "public_use_status != 'not_certified'",
+    "independent_label": "recorded-vote agreement among Independents",
+    "longer_period_rule": "recalculate from additive foundations; never average monthly values",
+    "ranking_filter_order": [
+      "filter period/context/metric",
+      "exclude not_certified",
+      "then rank by value"
+    ]
+  },
+  "contextual_row_count": 11844,
+  "csv_parquet_parity": {
+    "primary_key_sets_equal": true,
+    "row_count_equal": true
+  },
+  "entity_name_equals_entity_id_rows": 11844,
+  "independent_warning_rows": 130,
+  "missing_required_metadata": {
+    "denominator": 0,
+    "numerator": 0,
+    "public_use_status": 0,
+    "reliability_status": 0,
+    "source_batch_id": 0,
+    "value": 0,
+    "warning_code": 0
+  },
+  "naive_top10_not_certified_rows": 703,
+  "not_certified_rows": 6750,
+  "not_certified_with_numeric_value": 6750,
+  "production_batch_id": "contextual-monthly-voting-20260904-1",
+  "safe_top10_not_certified_rows": 0
+}
