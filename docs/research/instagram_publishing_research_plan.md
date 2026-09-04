@@ -63,7 +63,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 13 | Captions/templates and explicit final-caption storage | `13_caption_templates.md` | **complete** |
 | 14 | Timezones and Europe/Dublin scheduling/DST handling | `14_timezones.md` | **complete** |
 | 15 | Secrets/token management | `15_secrets_tokens.md` | **complete** |
-| 16 | Idempotency, failure recovery and retries | `16_idempotency_failures.md` | pending |
+| 16 | Idempotency, failure recovery and retries | `16_idempotency_failures.md` | **complete** |
 | 17 | Monitoring, auditability and operator queries | `17_monitoring.md` | pending |
 | 18 | Multi-platform extension approach | `18_multi_platform.md` | pending |
 | 19 | Options comparison, estimated cost, recommendation and phased implementation proposal | `19_recommendation.md` | pending |
