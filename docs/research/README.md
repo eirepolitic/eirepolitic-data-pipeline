@@ -48,5 +48,6 @@ Do not promote exploratory conclusions into production metrics until their denom
 - [Irish general-election count and transfer data validation](election_count_data_validation.md) — bounded validation of official 2016/2020 count-detail files and the 2024 results/transfer workbook, including schema differences, source quality and safe normalization rules.
 - [CSO PxStat validation](cso_pxstat_validation.md) — bounded validation of the CSO API using a Census 2022 population table, including JSON-stat structure, geography/version safeguards, source metadata and future ingestion rules.
 - [Irish referendum result data validation](referendum_data_validation.md) — bounded cross-year validation of official referendum CSVs, including schema drift, arithmetic checks, constituency-boundary cautions and safe normalization rules.
+- [Official recurring political-adjacent data validation](official_recurring_data_validation.md) — read-only validation of eTenders procurement data and Department of Finance monthly Exchequer/tax-receipt data, including access, schema, update cadence, data-quality caveats and recurring-graphics suitability.
 
 Future investigations should get their own topic documents here, for example voting behaviour, speech structure, issue analysis, constituency representation and cross-metric profiles.

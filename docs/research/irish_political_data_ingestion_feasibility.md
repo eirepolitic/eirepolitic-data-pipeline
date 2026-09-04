@@ -306,6 +306,18 @@ For each source, a proof should stop before production deployment and show only:
 
 No schema design or deployment is approved by this research.
 
+# Near-next validation update
+
+The two previously noted near-next recurring sources were subsequently validated:
+
+| Source | Result | Main safeguard |
+| --- | --- | --- |
+| eTenders procurement | Ready for bounded prototype | Normalize authority/supplier entities in derived fields; account for missing awards and the 2023 publication-rule break |
+| Department of Finance monthly tax receipts | Defer prototype until access is fixed/confirmed | Legacy advertised CSV endpoint fails TLS validation in automation; require a stable official machine endpoint |
+| FIQ02 historical Exchequer | Ready as supplementary historical source | Do not treat as a current monthly tax-receipts replacement |
+
+See `official_recurring_data_validation.md` for exact diagnostics.
+
 # Evidence references
 
 - Irish Polling Indicator: https://pollingindicator.com/
