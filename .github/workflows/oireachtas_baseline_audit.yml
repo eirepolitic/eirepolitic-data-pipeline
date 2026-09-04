@@ -26,98 +26,78 @@ jobs:
       - name: Install dependencies
         run: python -m pip install boto3 pandas
       - name: Profile contextual voting relationships
+        shell: bash
         run: |
-          python - <<'PY'
+          set +e
+          mkdir -p analysis
+          python - <<'PY' > analysis/contextual_voting_run.txt 2>&1
           import io,json,os
           from pathlib import Path
           import boto3,pandas as pd
           from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
-
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
           pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
           def read(p):
               k=resolve_production_key(s3,bucket=bucket,production_key=p)
               d=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False)
               for c in d.columns:d[c]=d[c].fillna('').astype(str).str.strip()
+              print(p, len(d), list(d.columns))
               return d
-
           div=read('processed/oireachtas_unified/latest/csv/silver_divisions.csv')
           votes=read('processed/oireachtas_unified/latest/csv/silver_member_votes.csv')
           bills=read('processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv')
           sctx=read('processed/oireachtas_unified/latest/metrics/event/speech_context/csv/speech_context.csv')
           stages=read('processed/oireachtas_unified/latest/csv/silver_bill_stages.csv')
-          memberships=read('processed/oireachtas_unified/latest/csv/silver_memberships.csv')
-          parties=read('processed/oireachtas_unified/latest/csv/silver_member_parties.csv')
 
-          # Section context collapses from speech-level context only where one non-other context is observed in the section.
           sc=sctx.groupby('debate_section_id')['speech_context'].agg(lambda x: sorted(set(v for v in x if v!='other'))).reset_index(name='contexts')
           sc['section_context']=sc['contexts'].map(lambda x: x[0] if len(x)==1 else ('other' if len(x)==0 else 'mixed'))
           divc=div.merge(sc[['debate_section_id','section_context']],on='debate_section_id',how='left')
           divc['section_context']=divc['section_context'].fillna('other')
           bmap=bills[['bill_id','debate_section_id','debate_show_as']].drop_duplicates('debate_section_id')
           divc=divc.merge(bmap,on='debate_section_id',how='left',suffixes=('','_bill'))
-          divc['is_bill_division']=divc['bill_id'].fillna('').ne('')
+          divc['bill_id']=divc['bill_id'].fillna('')
+          divc['is_bill_division']=divc['bill_id'].ne('')
 
-          # Vote profile by division.
           vr=votes.groupby(['division_id','vote_code']).size().unstack(fill_value=0)
           for c in ['ta','nil','staon']:
               if c not in vr.columns: vr[c]=0
           vr['recorded']=vr[['ta','nil','staon']].sum(axis=1)
-          vr['margin']=abs(vr['ta']-vr['nil'])
-          vr['margin_share']=vr['margin']/vr['recorded'].where(vr['recorded']>0,1)
+          vr['margin']=(vr['ta']-vr['nil']).abs()
+          vr['margin_share']=vr['margin']/vr['recorded'].replace(0,pd.NA)
           divc=divc.merge(vr.reset_index()[['division_id','ta','nil','staon','recorded','margin','margin_share']],on='division_id',how='left')
+          for c in ['ta','nil','staon','recorded','margin','margin_share']:
+              divc[c]=pd.to_numeric(divc[c],errors='coerce').fillna(0)
 
-          # Stage diagnostics: do not infer exact section stage, only compare source wording and date-near stage history.
-          stages['stage_date_dt']=pd.to_datetime(stages['stage_date'],errors='coerce') if 'stage_date' in stages.columns else pd.NaT
-          divc['division_date_dt']=pd.to_datetime(divc['division_date'],errors='coerce')
-          stage_names={}
-          for bid,g in stages.groupby('bill_id'):
-              stage_names[bid]=g[['stage_name','stage_date']].drop_duplicates().to_dict(orient='records')
-
-          def p(df):
-              return {'division_count':int(len(df)),'recorded_votes':int(df['recorded'].fillna(0).astype(float).sum()),'median_recorded_votes':float(df['recorded'].replace('',pd.NA).astype(float).median()) if len(df) else None}
-          by_context={k:p(g) for k,g in divc.groupby('section_context')}
-          by_bill=p(divc[divc.is_bill_division])
-          nonbill=p(divc[~divc.is_bill_division])
-
-          close=divc[divc['recorded'].astype(float)>0].copy()
-          close['margin_share']=close['margin_share'].astype(float)
-          closest=close.sort_values(['margin_share','recorded']).head(30)
-
-          bill_subjects=divc[divc.is_bill_division][['division_id','division_date','subject','outcome','debate_section_id','bill_id','debate_show_as','ta','nil','staon','recorded','margin']].head(80).to_dict(orient='records')
-          context_samples={}
-          for k,g in divc.groupby('section_context'):
-              context_samples[k]=g[['division_id','division_date','subject','outcome','debate_section_id','ta','nil','staon','recorded','margin']].head(25).to_dict(orient='records')
-
+          def prof(df):
+              return {'division_count':int(len(df)),'recorded_votes':int(df['recorded'].sum()),'median_recorded_votes':float(df['recorded'].median()) if len(df) else None,'median_margin':float(df['margin'].median()) if len(df) else None}
+          close=divc[divc['recorded']>0].sort_values(['margin_share','recorded']).head(30)
+          stage_samples={}
+          for bid in divc.loc[divc.is_bill_division,'bill_id'].drop_duplicates().head(25):
+              stage_samples[bid]=stages.loc[stages['bill_id'].eq(bid),['stage_name','stage_date','stage_outcome','house_name']].drop_duplicates().to_dict(orient='records')
           out={
             'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
             'row_counts':{'divisions':len(div),'member_votes':len(votes),'bill_sections':len(bills),'speech_context_rows':len(sctx)},
-            'division_context_counts':divc['section_context'].value_counts().to_dict(),
+            'division_context_counts':{k:int(v) for k,v in divc['section_context'].value_counts().to_dict().items()},
             'bill_division_count':int(divc.is_bill_division.sum()),
             'nonbill_division_count':int((~divc.is_bill_division).sum()),
-            'by_context':by_context,
-            'bill_profile':by_bill,
-            'nonbill_profile':nonbill,
-            'closest_divisions':closest[['division_id','division_date','subject','outcome','section_context','bill_id','recorded','ta','nil','staon','margin','margin_share']].to_dict(orient='records'),
-            'bill_division_samples':bill_subjects,
-            'context_samples':context_samples,
-            'bill_stage_history_samples':{bid:stage_names.get(bid,[]) for bid in divc.loc[divc.is_bill_division,'bill_id'].drop_duplicates().head(25)},
-            'guardrails':[
-              'Division context is section-level. Do not infer Bill context from subject text or debate date.',
-              'speech_context is one row per speech; division context may use its section only when that section has a single certified non-other context.',
-              'Party cohesion is descriptive recorded-vote agreement, not effectiveness or discipline quality.',
-              'Member voting participation denominator remains eligible member x division pairs, not all sittings or all possible votes.',
-              'Bill stage history is separate from exact debate-section context; do not assign a stage to a division without a certified relationship.'
-            ]
+            'by_context':{k:prof(g) for k,g in divc.groupby('section_context')},
+            'bill_profile':prof(divc[divc.is_bill_division]),
+            'nonbill_profile':prof(divc[~divc.is_bill_division]),
+            'closest_divisions':close[['division_id','division_date','subject','outcome','section_context','bill_id','recorded','ta','nil','staon','margin','margin_share']].to_dict(orient='records'),
+            'bill_division_samples':divc[divc.is_bill_division][['division_id','division_date','subject','outcome','debate_section_id','bill_id','debate_show_as_bill','ta','nil','staon','recorded','margin']].head(80).to_dict(orient='records'),
+            'context_samples':{k:g[['division_id','division_date','subject','outcome','debate_section_id','ta','nil','staon','recorded','margin']].head(25).to_dict(orient='records') for k,g in divc.groupby('section_context')},
+            'bill_stage_history_samples':stage_samples,
+            'guardrails':['Division context is section-level. Do not infer Bill context from subject text or debate date.','Party cohesion is descriptive recorded-vote agreement, not effectiveness or discipline quality.','Member voting participation denominator remains eligible member x division pairs.','Bill stage history is separate from exact debate-section context; do not assign a stage to a division without a certified relationship.']
           }
-          Path('analysis').mkdir(exist_ok=True)
           Path('analysis/contextual_voting_profile.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
           print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis
-        run: |
+          status=$?
+          cat analysis/contextual_voting_run.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/contextual_voting_profile.json
-          git commit -m "Capture contextual voting profile ${GITHUB_RUN_ID}" || true
+          git add analysis/contextual_voting_run.txt
+          if [ -f analysis/contextual_voting_profile.json ]; then git add analysis/contextual_voting_profile.json; fi
+          git commit -m "Capture contextual voting diagnostics ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
+          exit $status
