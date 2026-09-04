@@ -31,6 +31,9 @@ logical_keys:
   speech_context:
     csv: processed/oireachtas_unified/latest/metrics/event/speech_context/csv/speech_context.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/speech_context/parquet/speech_context.parquet
+  division_context:
+    csv: processed/oireachtas_unified/latest/metrics/event/division_context/csv/division_context.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/division_context/parquet/division_context.parquet
 
 question_semantics:
   parliamentary_question_record: A distinct Oireachtas question_id submitted by an eligible TD. Written and oral question records are both counted here.
@@ -65,6 +68,17 @@ speech_context_semantics:
   compatibility_rule: Keep speech_question_context as the dedicated Oral-question relationship; speech_context is additive and broader.
   overlap_rule: Future rule overlaps must be surfaced by audit and resolved by explicit precedence, never by incidental row ordering.
 
+division_context_semantics:
+  output_grain: Exactly one row per source division_id.
+  bill_or_legislation: Assigned only from exact debate_section_id membership in certified bill_debate_sections; linked_entity_id contains the Bill ID.
+  motion_proceeding: Projected only from a debate section with one certified non-other speech context of motion_proceeding.
+  procedural_business: Projected only from a debate section with one certified non-other speech context of procedural_business.
+  other: Explicit fallback for divisions not covered by the certified Bill, motion or procedural-business relationships.
+  denominator_rule: division_context is a descriptive dimension only and must not change member participation or party-cohesion denominators.
+  vote_join_rule: Join member votes to division_context by division_id only; the one-row-per-division grain must not multiply vote rows.
+  bill_stage_rule: Do not infer Bill stage from Bill ID plus division date; stage attribution requires a separately certified relationship.
+  motion_rule: motion_proceeding describes parliamentary form, not political importance, policy topic or effectiveness.
+
 consumer_dataset: monthly_metric_results
 consumer_rules:
   - resolve the logical key through the promoted Oireachtas production pointer; do not hard-code a batch ID
@@ -87,6 +101,9 @@ consumer_rules:
   - join speeches or divisions to bill_debate_sections only by exact debate_section_id
   - use speech_context for one deterministic top-level parliamentary context per speech; preserve other rather than guessing
   - interpret motion_proceeding as parliamentary form rather than political topic or importance
+  - use division_context for one deterministic parliamentary context per division and join it to member votes by division_id only
+  - keep existing participation and party-cohesion denominators unchanged when filtering or comparing by division context
+  - do not infer Bill stage from division date coincidence
 
 recommended_consumer_patterns:
   appsmith:
@@ -94,11 +111,12 @@ recommended_consumer_patterns:
     use_for:
       - metric cards
       - public tables
-      - simple filters by month, entity, issue, question type, recipient or speech context
+      - simple filters by month, entity, issue, question type, recipient, speech context or division context
       - oral-question exchange drilldowns
       - oral-question participant drilldowns
       - certified Bill-section drilldowns
       - speech-context drilldowns
+      - contextual division drilldowns
   power_bi:
     default_format: parquet
     use_for:
@@ -109,6 +127,7 @@ recommended_consumer_patterns:
       - oral-question section, participant and related-speech models
       - certified legislation-section, speech and division models
       - top-level speech-context models
+      - division-context voting models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -120,6 +139,7 @@ recommended_consumer_patterns:
       - oral-question exchange participant endpoints
       - certified Bill-section endpoints
       - speech-context endpoints
+      - division-context endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:
