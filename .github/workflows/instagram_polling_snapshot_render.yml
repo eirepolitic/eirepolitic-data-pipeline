@@ -58,7 +58,56 @@ jobs:
           print(json.dumps(data, indent=2))
           PY
 
-      - name: Upload carousel review bundle
+      - name: Build self-contained browser review page
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m process.instagram_build_polling_review_page --output-root generated_posts/ipi_polling_snapshot_v1
+          test -s generated_posts/ipi_polling_snapshot_v1/review/review_index.html
+
+      - name: Upload web preview to S3
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          python -m process.instagram_upload_preview_to_s3 \
+            --output-root generated_posts/ipi_polling_snapshot_v1 \
+            --campaign-slug ipi_polling_snapshot_v1 \
+            --run-label "${GITHUB_RUN_ID}" \
+            --public-read false
+
+      - name: Generate temporary browser review link
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          python -m process.instagram_generate_preview_links \
+            --campaign-slug ipi_polling_snapshot_v1 \
+            --output-root generated_posts/ipi_polling_snapshot_v1 \
+            --expires-in 604800 \
+            --output generated_posts/ipi_polling_snapshot_v1/preview_links.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          data=json.loads(Path('generated_posts/ipi_polling_snapshot_v1/preview_links.json').read_text(encoding='utf-8'))
+          url=data.get('review_index_url')
+          if not url:
+              raise SystemExit('Missing review_index_url')
+          print(f'BROWSER_REVIEW_URL={url}')
+          summary=os.getenv('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary,'a',encoding='utf-8') as f:
+                  f.write(f'## IPI polling carousel review\n\n[Open browser review page]({url})\n')
+          PY
+
+      - name: Upload carousel review bundle as backup
         uses: actions/upload-artifact@v4
         with:
           name: ipi-polling-carousel-${{ github.run_id }}

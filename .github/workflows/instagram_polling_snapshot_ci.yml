@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'process/instagram_render_polling_snapshot.py'
+      - 'process/instagram_build_polling_review_page.py'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
       - 'instagram/media_generators/horizontal_bar_chart/**'
       - 'instagram/media_generators/line_chart/**'
@@ -11,9 +12,10 @@ on:
       - '.github/workflows/instagram_polling_snapshot*.yml'
   push:
     branches:
-      - 'feature/ipi-polling-carousel-*'
+      - 'feature/ipi-web-preview-*'
     paths:
       - 'process/instagram_render_polling_snapshot.py'
+      - 'process/instagram_build_polling_review_page.py'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
       - 'instagram/media_generators/horizontal_bar_chart/**'
       - 'instagram/media_generators/line_chart/**'
@@ -46,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m compileall process/instagram_render_polling_snapshot.py instagram/media_generators/horizontal_bar_chart instagram/media_generators/line_chart tests/test_instagram_polling_snapshot.py
+          python -m compileall process/instagram_render_polling_snapshot.py process/instagram_build_polling_review_page.py instagram/media_generators/horizontal_bar_chart instagram/media_generators/line_chart tests/test_instagram_polling_snapshot.py
 
       - name: Run polling carousel regression test
         shell: bash
@@ -54,7 +56,7 @@ jobs:
           set -euo pipefail
           python -m unittest tests.test_instagram_polling_snapshot -v
 
-      - name: Render fixture carousel as smoke test
+      - name: Render fixture carousel and browser review
         shell: bash
         run: |
           set -euo pipefail
@@ -65,5 +67,13 @@ jobs:
             generated_posts/ipi_polling_snapshot_fixture/png/slide-03-trend.png; do
             test -s "$slide"
           done
-          test -s generated_posts/ipi_polling_snapshot_fixture/caption.txt
-          test -s generated_posts/ipi_polling_snapshot_fixture/review_manifest.json
+          python -m process.instagram_build_polling_review_page --output-root generated_posts/ipi_polling_snapshot_fixture
+          test -s generated_posts/ipi_polling_snapshot_fixture/review/review_index.html
+          python - <<'PY'
+          from pathlib import Path
+          page=Path('generated_posts/ipi_polling_snapshot_fixture/review/review_index.html').read_text(encoding='utf-8')
+          assert page.count('data:image/png;base64,') == 3
+          assert 'Source: Irish Polling Indicator (IPI)' in page
+          assert 'Caption' in page
+          print('Self-contained polling browser review validated.')
+          PY
