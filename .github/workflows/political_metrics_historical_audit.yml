@@ -56,6 +56,12 @@ jobs:
           set -euo pipefail
           python process/political_metrics_question_context_audit.py
 
+      - name: Run temporary Instagram research probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/tmp_instagram_research.py | tee artifacts/political-metrics-audit/instagram_research_output.txt
+
       - name: Add plain-language audit summary
         if: always()
         shell: bash
