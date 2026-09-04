@@ -1,0 +1,81 @@
+{
+  "classified_non_other_speeches": 53452,
+  "coverage_share": 0.8075296108291032,
+  "other_speeches": 12740,
+  "overlaps": [],
+  "precedence": [
+    "oral_question_exchange",
+    "bill_or_legislation",
+    "leaders_questions",
+    "statements",
+    "procedural_business",
+    "motion_proceeding",
+    "other"
+  ],
+  "production_batch_id": "certified-bill-sections-20260903-1",
+  "rules": {
+    "leaders_headings": [
+      "Ceisteanna \u00f3 Cheannair\u00ed (At\u00f3g\u00e1il) - Leaders' Questions (Resumed)",
+      "Ceisteanna \u00f3 Cheannair\u00ed - Leaders' Questions"
+    ],
+    "motion_rule": "exact source heading suffix : Motion(s), optional (Resumed), optional [Private Members]; interpret as parliamentary proceeding form, not substantive topic",
+    "procedural_headings": [
+      "An tOrd Gn\u00f3 (At\u00f3g\u00e1il) - Order of Business (Resumed)",
+      "An tOrd Gn\u00f3 - Order of Business",
+      "An tOrd Gn\u00f3 - Order of Business (Resumed)",
+      "Ceisteanna ar Reachta\u00edocht a Gealladh - Questions on Promised Legislation",
+      "Gn\u00f3 na D\u00e1la - Business of D\u00e1il"
+    ],
+    "statement_rule": "exact source heading suffix : Statements / : Statements (Resumed) / : R\u00e1itis / : R\u00e1itis (At\u00f3g\u00e1il)"
+  },
+  "section_counts": {
+    "bill_or_legislation": 371,
+    "leaders_questions": 158,
+    "motion_proceeding": 296,
+    "oral_question_exchange": 2127,
+    "other": 1848,
+    "procedural_business": 87,
+    "statements": 123
+  },
+  "speech_counts": {
+    "bill_or_legislation": 7352,
+    "leaders_questions": 10821,
+    "motion_proceeding": 6821,
+    "oral_question_exchange": 18485,
+    "other": 12740,
+    "procedural_business": 5067,
+    "statements": 4906
+  },
+  "total_speeches": 66192,
+  "years": {
+    "bill_or_legislation": {
+      "2025": 3605,
+      "2026": 3747
+    },
+    "leaders_questions": {
+      "2025": 6800,
+      "2026": 4021
+    },
+    "motion_proceeding": {
+      "2025": 3927,
+      "2026": 2894
+    },
+    "oral_question_exchange": {
+      "2025": 10811,
+      "2026": 7674
+    },
+    "other": {
+      "2024": 119,
+      "2025": 7499,
+      "2026": 5122
+    },
+    "procedural_business": {
+      "2025": 3287,
+      "2026": 1780
+    },
+    "statements": {
+      "2025": 3347,
+      "2026": 1559
+    }
+  }
+}
