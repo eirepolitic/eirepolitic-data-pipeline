@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 
 from instagram.factory.package import deterministic_zip
+from instagram.factory.render_primitives import GLOSSARY_LEFT, GLOSSARY_RIGHT, draw_glossary
 from instagram.visuals.renderers import horizontal_bar
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -188,6 +189,31 @@ def test_empty_analytical_state_is_truthful_and_not_a_fake_bar(tmp_path: Path) -
     assert readability["empty_message"] == "No issues above average"
     assert readability["displayed_item_count"] == 0
     assert readability["bar_thickness_px"] == 0.0
+
+
+def test_glossary_text_stays_within_symmetric_content_bounds(tmp_path: Path) -> None:
+    out = tmp_path / "glossary.png"
+    metadata = draw_glossary(
+        [
+            (
+                "Long glossary term",
+                "This deliberately long glossary sentence verifies that wrapping is based on measured rendered pixel width and that every line stops safely inside the same right-side margin used on the left side of the slide.",
+            )
+        ],
+        out,
+    )
+    assert out.is_file()
+    assert metadata["content_bounds"] == {
+        "left": GLOSSARY_LEFT,
+        "right": GLOSSARY_RIGHT,
+        "max_width": GLOSSARY_RIGHT - GLOSSARY_LEFT,
+    }
+    assert metadata["left_overflow_count"] == 0
+    assert metadata["right_overflow_count"] == 0
+    assert metadata["min_text_left_px"] >= GLOSSARY_LEFT
+    assert metadata["max_text_right_px"] <= GLOSSARY_RIGHT
+    assert all(item["bbox_px"][0] >= GLOSSARY_LEFT for item in metadata["text_bounds"])
+    assert all(item["bbox_px"][2] <= GLOSSARY_RIGHT for item in metadata["text_bounds"])
 
 
 def test_deterministic_zip_is_reproducible(tmp_path: Path) -> None:
