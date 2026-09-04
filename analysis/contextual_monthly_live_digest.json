@@ -1,0 +1,50 @@
+{
+  "context_counts": {
+    "bill_or_legislation": 2916,
+    "motion_proceeding": 3099,
+    "other": 2365,
+    "procedural_business": 3464
+  },
+  "contextual_row_count": 11844,
+  "duplicate_primary_keys": 0,
+  "metric_context_counts": {
+    "member_vote_participation_pct|bill_or_legislation": 2773,
+    "member_vote_participation_pct|motion_proceeding": 2947,
+    "member_vote_participation_pct|other": 2251,
+    "member_vote_participation_pct|procedural_business": 3295,
+    "party_vote_cohesion_pct|bill_or_legislation": 143,
+    "party_vote_cohesion_pct|motion_proceeding": 152,
+    "party_vote_cohesion_pct|other": 114,
+    "party_vote_cohesion_pct|procedural_business": 169
+  },
+  "metric_counts": {
+    "member_vote_participation_pct": 11266,
+    "party_vote_cohesion_pct": 578
+  },
+  "monthly_row_count": 191356,
+  "period_count": 20,
+  "production_batch_id": "contextual-monthly-voting-20260904-1",
+  "public_use_counts": {
+    "not_certified": 6750,
+    "suitable": 172,
+    "suitable_with_context": 4922
+  },
+  "reliability_counts": {
+    "caution": 4788,
+    "insufficient_for_comparison": 6750,
+    "reliable": 306
+  },
+  "source_batch_values": [
+    "contextual-monthly-voting-20260904-1"
+  ],
+  "warning_counts": {
+    "independent_group_agreement": 29,
+    "insufficient_context_sample": 6419,
+    "insufficient_division_sample": 257,
+    "insufficient_division_sample;independent_group_agreement": 74,
+    "none": 277,
+    "small_context_sample": 4675,
+    "small_division_sample": 86,
+    "small_division_sample;independent_group_agreement": 27
+  }
+}
