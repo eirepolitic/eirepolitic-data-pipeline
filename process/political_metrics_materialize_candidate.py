@@ -39,6 +39,7 @@ from political_metrics.question_context import (
     build_speech_question_context,
 )
 from political_metrics.sources import canonical_speeches
+from political_metrics.speech_context import audit_speech_context, build_speech_context
 from process.political_metrics_materialization_commission import TABLE_KEYS as COMMISSION_TABLE_KEYS
 
 DUBLIN = ZoneInfo("Europe/Dublin")
@@ -138,6 +139,27 @@ def main(argv: list[str] | None = None) -> int:
     if not legislation_gate.get("ready"):
         raise RuntimeError(f"candidate bill-section gate failed: {legislation_gate}")
 
+    speech_question_context = build_speech_question_context(
+        speeches=frames["speeches"], questions=frames["questions"], source_batch_id=batch_id,
+        contract_version=contract_version,
+    )
+    speech_context = build_speech_context(
+        speeches=frames["speeches"],
+        debate_sections=frames["sections"],
+        speech_question_context=speech_question_context,
+        bill_debate_sections=bill_debate_sections,
+        source_batch_id=batch_id,
+        contract_version=contract_version,
+    )
+    speech_context_gate = audit_speech_context(
+        speech_context=speech_context,
+        speeches=frames["speeches"],
+        speech_question_context=speech_question_context,
+        bill_debate_sections=bill_debate_sections,
+    )
+    if not speech_context_gate.get("ready"):
+        raise RuntimeError(f"candidate broader speech-context gate failed: {speech_context_gate}")
+
     datasets = {
         "daily_activity_components": build_daily_activity_components(
             speeches=frames["speeches"], labels=frames["labels"], memberships=frames["memberships"],
@@ -166,11 +188,9 @@ def main(argv: list[str] | None = None) -> int:
             questions=frames["questions"], speeches=frames["speeches"], member_offices=frames["offices"],
             source_batch_id=batch_id, contract_version=contract_version,
         ),
-        "speech_question_context": build_speech_question_context(
-            speeches=frames["speeches"], questions=frames["questions"], source_batch_id=batch_id,
-            contract_version=contract_version,
-        ),
+        "speech_question_context": speech_question_context,
         "bill_debate_sections": bill_debate_sections,
+        "speech_context": speech_context,
     }
 
     monthly_frames: list[pd.DataFrame] = []
@@ -192,6 +212,7 @@ def main(argv: list[str] | None = None) -> int:
         "completed_months": [period.label for period in completed_months],
         "classifier_gate": classifier_gate,
         "legislation_context_gate": legislation_gate,
+        "speech_context_gate": speech_context_gate,
         "question_context_policy": {
             "question_classifier_run": False,
             "written_questions_are_standalone_records": True,
@@ -206,6 +227,12 @@ def main(argv: list[str] | None = None) -> int:
             "certified_bill_section_only": True,
             "multi_bill_sections_excluded": True,
             "output_grain": ["bill_id", "debate_section_id"],
+        },
+        "broader_speech_context_policy": {
+            "classifier_run": False,
+            "one_row_per_source_speech": True,
+            "explicit_other_fallback": True,
+            "precedence": ["oral_question_exchange", "bill_or_legislation", "leaders_questions", "statements", "procedural_business", "motion_proceeding", "other"],
         },
         "datasets": {
             name: {"row_count": result["row_count"], "entry_name": result["entry_name"], "objects": result["objects"]}
