@@ -2,84 +2,15 @@
 platform linux -- Python 3.12.14, pytest-9.1.1, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.14/x64/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline
-collecting ... collected 0 items / 3 errors
+collecting ... collected 8 items
 
-==================================== ERRORS ====================================
-_____ ERROR collecting tests/political_metrics/test_legislation_context.py _____
-ImportError while importing test module '/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/tests/political_metrics/test_legislation_context.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/python.py:508: in importtestmodule
-    mod = import_path(
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/pathlib.py:596: in import_path
-    importlib.import_module(module_name)
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<frozen importlib._bootstrap>:1387: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1360: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:935: in _load_unlocked
-    ???
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
-    exec(co, module.__dict__)
-tests/political_metrics/test_legislation_context.py:5: in <module>
-    from political_metrics.legislation_context import audit_bill_debate_sections, build_bill_debate_sections
-E   ModuleNotFoundError: No module named 'political_metrics'
-____ ERROR collecting tests/political_metrics/test_downstream_contracts.py _____
-ImportError while importing test module '/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/tests/political_metrics/test_downstream_contracts.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/python.py:508: in importtestmodule
-    mod = import_path(
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/pathlib.py:596: in import_path
-    importlib.import_module(module_name)
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<frozen importlib._bootstrap>:1387: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1360: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:935: in _load_unlocked
-    ???
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
-    exec(co, module.__dict__)
-tests/political_metrics/test_downstream_contracts.py:6: in <module>
-    from extract.oireachtas.batch import batch_key_for_production_key
-E   ModuleNotFoundError: No module named 'extract'
-__ ERROR collecting tests/political_metrics/test_candidate_materialization.py __
-ImportError while importing test module '/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/tests/political_metrics/test_candidate_materialization.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/python.py:508: in importtestmodule
-    mod = import_path(
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/pathlib.py:596: in import_path
-    importlib.import_module(module_name)
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<frozen importlib._bootstrap>:1387: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1360: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:935: in _load_unlocked
-    ???
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:188: in exec_module
-    exec(co, module.__dict__)
-tests/political_metrics/test_candidate_materialization.py:4: in <module>
-    from process.political_metrics_materialize_candidate import _completed_month_periods
-E   ModuleNotFoundError: No module named 'process'
-=========================== short test summary info ============================
-ERROR tests/political_metrics/test_legislation_context.py
-ERROR tests/political_metrics/test_downstream_contracts.py
-ERROR tests/political_metrics/test_candidate_materialization.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.86s ===============================
+tests/political_metrics/test_legislation_context.py::test_build_bill_debate_sections_collapses_duplicate_source_rows_and_scopes_eids_by_debate PASSED [ 12%]
+tests/political_metrics/test_legislation_context.py::test_build_bill_debate_sections_excludes_heading_conflict_and_multi_bill_section PASSED [ 25%]
+tests/political_metrics/test_legislation_context.py::test_audit_bill_debate_sections_counts_exact_section_links_without_multiplication PASSED [ 37%]
+tests/political_metrics/test_downstream_contracts.py::DownstreamContractTests::test_all_documented_logical_keys_resolve_inside_batch PASSED [ 50%]
+tests/political_metrics/test_downstream_contracts.py::DownstreamContractTests::test_monthly_consumer_primary_key_matches_materialization_contract PASSED [ 62%]
+tests/political_metrics/test_candidate_materialization.py::CandidateMaterializationTests::test_completed_months_stop_before_current_month PASSED [ 75%]
+tests/political_metrics/test_candidate_materialization.py::CandidateMaterializationTests::test_no_completed_months_when_data_starts_current_month PASSED [ 87%]
+tests/political_metrics/test_candidate_materialization.py::CandidateMaterializationTests::test_start_month_is_included_when_completed PASSED [100%]
+
+============================== 8 passed in 0.79s ===============================
