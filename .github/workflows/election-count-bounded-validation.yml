@@ -26,7 +26,7 @@ jobs:
       - name: Install workbook reader
         run: python -m pip install --quiet openpyxl
 
-      - name: Inspect 2024 constituency workbook layout
+      - name: Produce compact 2024 constituency structure summary
         run: |
           python - <<'PY'
           import urllib.request
@@ -37,37 +37,59 @@ jobs:
           req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 EirePolitic research validation"})
           with urllib.request.urlopen(req,timeout=60) as r: body=r.read()
           p=Path('/tmp/election2024.xlsx'); p.write_bytes(body)
-          wb_formula=load_workbook(p,data_only=False,read_only=False)
-          wb_values=load_workbook(p,data_only=True,read_only=False)
+          wbf=load_workbook(p,data_only=False,read_only=False)
+          wbv=load_workbook(p,data_only=True,read_only=False)
 
-          out=[]
+          out=[f"sheet_count={len(wbf.sheetnames)}", "sheet_names="+"|".join(wbf.sheetnames)]
           for title in ["Carlow-Kilkenny","Cavan-Monaghan","Wicklow-Wexford"]:
-              wsf=wb_formula[title]; wsv=wb_values[title]
-              out += [f"[{title}]",f"dimensions={wsf.max_row}x{wsf.max_column}","merged="+"|".join(str(x) for x in list(wsf.merged_cells.ranges)[:30])]
-              for rownum in range(1,93):
-                  vals=[]
-                  for col in range(1,min(wsf.max_column,42)+1):
+              wsf=wbf[title]; wsv=wbv[title]
+              out += ["",f"[{title}]",f"dimensions={wsf.max_row}x{wsf.max_column}",f"merged_ranges={len(wsf.merged_cells.ranges)}"]
+              # Record non-empty cells only for the top/header area and first two count bands.
+              for rownum in list(range(1,26)) + list(range(60,81)):
+                  cells=[]
+                  for col in range(1,min(wsf.max_column,45)+1):
                       vf=wsf.cell(rownum,col).value
                       vv=wsv.cell(rownum,col).value
                       if vf is None and vv is None:
-                          vals.append("")
-                      elif isinstance(vf,str) and vf.startswith('='):
-                          vals.append(f"FORMULA:{vf}=>{vv}")
+                          continue
+                      label=f"{wsf.cell(rownum,col).coordinate}="
+                      if isinstance(vf,str) and vf.startswith('='):
+                          cells.append(label+f"FORMULA[{vf}]=>{vv}")
                       else:
-                          vals.append(str(vv if vv is not None else vf).replace('\n',' ').strip())
-                  if any(vals):
-                      # Keep meaningful rows, trim trailing empties.
-                      while vals and vals[-1]=='': vals.pop()
-                      out.append(f"row={rownum}|"+" || ".join(vals))
-              out.append("")
+                          val=vv if vv is not None else vf
+                          cells.append(label+str(val).replace('\n',' ').strip())
+                  if cells:
+                      out.append(f"row={rownum}|"+" || ".join(cells))
+              # Summarise formula density and where formulas occur.
+              formula_coords=[]
+              for row in wsf.iter_rows():
+                  for c in row:
+                      if isinstance(c.value,str) and c.value.startswith('='):
+                          formula_coords.append(c.coordinate)
+              out.append(f"formula_count={len(formula_coords)}")
+              out.append("formula_coord_sample="+"|".join(formula_coords[:80]))
 
-          path=Path('tmp/election_2024_constituency_detail.txt'); path.parent.mkdir(parents=True,exist_ok=True); path.write_text('\n'.join(out)+'\n',encoding='utf-8'); print(path.read_text())
+          # General stats sheet structure.
+          ws=wbf["General Statistics"]
+          out += ["", "[General Statistics]", f"dimensions={ws.max_row}x{ws.max_column}"]
+          for rownum in range(1,min(ws.max_row,60)+1):
+              cells=[]
+              for col in range(1,min(ws.max_column,14)+1):
+                  v=wbv["General Statistics"].cell(rownum,col).value
+                  if v is not None and str(v).strip():
+                      cells.append(f"{ws.cell(rownum,col).coordinate}={str(v).replace(chr(10),' ').strip()}")
+              if cells: out.append(f"row={rownum}|"+" || ".join(cells))
+
+          path=Path('tmp/election_2024_structure_summary.txt')
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text('\n'.join(out)+'\n',encoding='utf-8')
+          print(path.read_text())
           PY
 
-      - name: Commit temporary constituency detail
+      - name: Commit temporary compact summary
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tmp/election_2024_constituency_detail.txt
-          git commit -m "research: record 2024 constituency sheet detail" || exit 0
+          git add tmp/election_2024_structure_summary.txt
+          git commit -m "research: record compact 2024 election structure" || exit 0
           git push
