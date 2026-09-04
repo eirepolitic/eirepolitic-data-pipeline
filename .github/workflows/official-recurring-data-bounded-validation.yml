@@ -1,6 +1,7 @@
 name: Temporary official recurring data validation
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - docs/official-recurring-data-validation-20260903
@@ -22,10 +23,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Fetch and validate eTenders and Finance tax receipts
+      - name: Validate sources independently
         run: |
           python - <<'PY'
-          import csv, hashlib, io, json, re, urllib.parse, urllib.request
+          import csv, hashlib, io, json, urllib.request
           from collections import Counter
           from pathlib import Path
 
@@ -35,12 +36,7 @@ jobs:
           def fetch(url):
               req=urllib.request.Request(url,headers={'User-Agent':UA,'Accept':'*/*'})
               with urllib.request.urlopen(req,timeout=90) as r:
-                  return r.read(), r.headers.get('Content-Type','')
-
-          def ckan(action, **params):
-              url='https://data.gov.ie/api/3/action/'+action+'?'+urllib.parse.urlencode(params)
-              b,_=fetch(url)
-              return json.loads(b.decode('utf-8'))['result']
+                  return r.read(), r.headers.get('Content-Type',''), r.geturl()
 
           def decode(body):
               for enc in ('utf-8-sig','utf-8','cp1252','latin-1'):
@@ -48,68 +44,81 @@ jobs:
                   except UnicodeDecodeError: pass
               raise RuntimeError('decode failed')
 
-          # eTenders package/resource metadata.
-          et_pkg=ckan('package_show', id='contract-notices-published-on-etenders')
-          out += ['[etenders_metadata]',f'title={et_pkg.get("title")}',f'license={et_pkg.get("license_title")}',f'metadata_modified={et_pkg.get("metadata_modified")}',f'resource_count={len(et_pkg.get("resources",[]))}']
-          for r in et_pkg.get('resources',[]):
-              out.append('resource='+json.dumps({k:r.get(k) for k in ['id','name','format','url','last_modified','datastore_active']},ensure_ascii=False))
-          et_res=et_pkg['resources'][0]
-          et_body,et_ctype=fetch(et_res['url'])
-          et_text,et_enc=decode(et_body)
-          et_reader=csv.DictReader(io.StringIO(et_text)); et_rows=list(et_reader); et_cols=et_reader.fieldnames or []
-          out += ['', '[etenders_csv]',f'bytes={len(et_body)}',f'content_type={et_ctype}',f'encoding={et_enc}',f'sha256={hashlib.sha256(et_body).hexdigest()}',f'rows={len(et_rows)}',f'columns={len(et_cols)}','header='+'|'.join(et_cols),f'exact_duplicate_extra_rows={len(et_rows)-len({tuple(r.get(c,"") for c in et_cols) for r in et_rows})}']
-          for c in et_cols:
-              miss=sum(str(r.get(c,'')).strip()=='' for r in et_rows)
-              out.append(f'missing={c}|{miss}')
-          # Distinct-value samples for likely categorical fields.
-          for c in et_cols:
-              low=c.lower()
-              if any(k in low for k in ['procedure','notice','status','type','currency','authority','buyer','supplier']):
-                  vals=Counter(str(r.get(c,'')).strip() for r in et_rows if str(r.get(c,'')).strip())
-                  out.append(f'distinct_sample={c}|count:{len(vals)}|top:'+json.dumps(vals.most_common(12),ensure_ascii=False))
-          # Numeric fields and obvious invalid/negative values.
-          for c in et_cols:
-              vals=[]; bad=0
-              for r in et_rows:
-                  s=str(r.get(c,'')).strip().replace(',','').replace('€','').replace('EUR','').strip()
-                  if not s: continue
-                  try: vals.append(float(s))
-                  except ValueError: bad+=1
-              if vals and len(vals) > max(20, len(et_rows)*0.1):
-                  out.append(f'numeric={c}|parsed:{len(vals)}|bad:{bad}|min:{min(vals)}|max:{max(vals)}|negative:{sum(v<0 for v in vals)}')
-          # Date-like fields: sample min/max lexically after ISO-ish normalization where possible.
-          for c in et_cols:
-              if any(k in c.lower() for k in ['date','deadline']):
-                  vals=sorted(set(str(r.get(c,'')).strip() for r in et_rows if str(r.get(c,'')).strip()))
-                  if vals: out.append(f'dates={c}|distinct:{len(vals)}|first:{vals[0]}|last:{vals[-1]}')
+          # eTenders current resource.
+          et_urls=[
+              'https://assets.gov.ie/static/documents/4d482e0e/Public_Procurement_Opendata_Dataset.csv',
+              'https://assets.gov.ie/static/documents/2fb1e069/Public_Procurement_Opendata_Dataset.csv',
+          ]
+          et_body=None
+          for u in et_urls:
+              try:
+                  body,ctype,final=fetch(u)
+                  out += ['[etenders_access]',f'requested={u}',f'final={final}',f'success=True',f'bytes={len(body)}',f'content_type={ctype}',f'sha256={hashlib.sha256(body).hexdigest()}']
+                  et_body=body
+                  break
+              except Exception as e:
+                  out += ['[etenders_access]',f'requested={u}',f'success=False',f'error={type(e).__name__}:{e}']
 
-          # Finance tax package/resource metadata.
-          fin_pkg=ckan('package_show', id='monthly-exchequer-tax-receipts-1984-present')
-          out += ['', '[finance_metadata]',f'title={fin_pkg.get("title")}',f'license={fin_pkg.get("license_title")}',f'metadata_modified={fin_pkg.get("metadata_modified")}',f'resource_count={len(fin_pkg.get("resources",[]))}']
-          for r in fin_pkg.get('resources',[]):
-              out.append('resource='+json.dumps({k:r.get(k) for k in ['id','name','format','url','last_modified','datastore_active']},ensure_ascii=False))
-          fin_res=fin_pkg['resources'][0]
-          fin_body,fin_ctype=fetch(fin_res['url'])
-          fin_text,fin_enc=decode(fin_body)
-          fin_reader=csv.DictReader(io.StringIO(fin_text)); fin_rows=list(fin_reader); fin_cols=fin_reader.fieldnames or []
-          out += ['', '[finance_csv]',f'bytes={len(fin_body)}',f'content_type={fin_ctype}',f'encoding={fin_enc}',f'sha256={hashlib.sha256(fin_body).hexdigest()}',f'rows={len(fin_rows)}',f'columns={len(fin_cols)}','header='+'|'.join(fin_cols),f'exact_duplicate_extra_rows={len(fin_rows)-len({tuple(r.get(c,"") for c in fin_cols) for r in fin_rows})}']
-          for c in fin_cols:
-              out.append(f'missing={c}|{sum(str(r.get(c,"")).strip()=="" for r in fin_rows)}')
-          out.append('sample_rows='+json.dumps(fin_rows[:8],ensure_ascii=False))
-          # Detect year/month/category/value structure and ranges generically.
-          for c in fin_cols:
-              vals=[]; bad=0
-              for r in fin_rows:
-                  s=str(r.get(c,'')).strip().replace(',','').replace('€','').replace('EUR','').strip()
-                  if not s: continue
-                  try: vals.append(float(s))
-                  except ValueError: bad+=1
-              if vals:
-                  out.append(f'numeric={c}|parsed:{len(vals)}|bad:{bad}|min:{min(vals)}|max:{max(vals)}|negative:{sum(v<0 for v in vals)}')
-          for c in fin_cols:
-              vals=sorted(set(str(r.get(c,'')).strip() for r in fin_rows if str(r.get(c,'')).strip()))
-              if len(vals)<=50:
-                  out.append(f'distinct={c}|'+json.dumps(vals,ensure_ascii=False))
+          if et_body:
+              text,enc=decode(et_body); reader=csv.DictReader(io.StringIO(text)); rows=list(reader); cols=reader.fieldnames or []
+              out += ['', '[etenders_csv]',f'encoding={enc}',f'rows={len(rows)}',f'columns={len(cols)}','header='+'|'.join(cols),f'exact_duplicate_extra_rows={len(rows)-len({tuple(r.get(c,"") for c in cols) for r in rows})}']
+              for c in cols:
+                  out.append(f'missing={c}|{sum(str(r.get(c,"")).strip()=="" for r in rows)}')
+              for c in cols:
+                  low=c.lower()
+                  if any(k in low for k in ['procedure','notice','status','type','currency','authority','buyer','supplier','organisation','organization']):
+                      vals=Counter(str(r.get(c,'')).strip() for r in rows if str(r.get(c,'')).strip())
+                      out.append(f'distinct_sample={c}|count:{len(vals)}|top:'+json.dumps(vals.most_common(15),ensure_ascii=False))
+              for c in cols:
+                  vals=[]; bad=0
+                  for r in rows:
+                      s=str(r.get(c,'')).strip().replace(',','').replace('€','').replace('EUR','').strip()
+                      if not s: continue
+                      try: vals.append(float(s))
+                      except ValueError: bad+=1
+                  if vals and len(vals)>max(50,len(rows)*0.05):
+                      out.append(f'numeric={c}|parsed:{len(vals)}|bad:{bad}|min:{min(vals)}|max:{max(vals)}|negative:{sum(v<0 for v in vals)}')
+              for c in cols:
+                  if any(k in c.lower() for k in ['date','deadline']):
+                      vals=sorted(set(str(r.get(c,'')).strip() for r in rows if str(r.get(c,'')).strip()))
+                      if vals: out.append(f'dates={c}|distinct:{len(vals)}|first:{vals[0]}|last:{vals[-1]}')
+
+          # Department of Finance legacy/current access paths tested separately.
+          fin_urls=[
+              'https://databank.finance.gov.ie/FinDataBank.aspx?rep=OpenDataSourceCSV',
+              'http://databank.finance.gov.ie/FinDataBank.aspx?rep=OpenDataSourceCSV',
+          ]
+          fin_body=None
+          for u in fin_urls:
+              try:
+                  body,ctype,final=fetch(u)
+                  out += ['', '[finance_access]',f'requested={u}',f'final={final}',f'success=True',f'bytes={len(body)}',f'content_type={ctype}',f'sha256={hashlib.sha256(body).hexdigest()}']
+                  # Only accept if it looks like CSV/table data rather than an HTML error/landing page.
+                  prefix=body[:500].lower()
+                  if b'<html' not in prefix and b'<!doctype html' not in prefix:
+                      fin_body=body
+                      break
+                  out.append('finance_access_note=response_looks_html_not_csv')
+              except Exception as e:
+                  out += ['', '[finance_access]',f'requested={u}',f'success=False',f'error={type(e).__name__}:{e}']
+
+          if fin_body:
+              text,enc=decode(fin_body); reader=csv.DictReader(io.StringIO(text)); rows=list(reader); cols=reader.fieldnames or []
+              out += ['', '[finance_csv]',f'encoding={enc}',f'rows={len(rows)}',f'columns={len(cols)}','header='+'|'.join(cols),f'exact_duplicate_extra_rows={len(rows)-len({tuple(r.get(c,"") for c in cols) for r in rows})}']
+              for c in cols:
+                  out.append(f'missing={c}|{sum(str(r.get(c,"")).strip()=="" for r in rows)}')
+              out.append('sample_rows='+json.dumps(rows[:10],ensure_ascii=False))
+              for c in cols:
+                  vals=[]; bad=0
+                  for r in rows:
+                      s=str(r.get(c,'')).strip().replace(',','').replace('€','').replace('EUR','').strip()
+                      if not s: continue
+                      try: vals.append(float(s))
+                      except ValueError: bad+=1
+                  if vals:
+                      out.append(f'numeric={c}|parsed:{len(vals)}|bad:{bad}|min:{min(vals)}|max:{max(vals)}|negative:{sum(v<0 for v in vals)}')
+          else:
+              out += ['', '[finance_csv]', 'available=False', 'note=legacy advertised CSV endpoint did not return machine-readable CSV in this validation environment']
 
           path=Path('tmp/official_recurring_data_validation.txt')
           path.parent.mkdir(parents=True,exist_ok=True)
