@@ -4,16 +4,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+env:
+  PYTHONPATH: .
 
 jobs:
-  inventory:
+  contextual-vote-metrics:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -27,22 +26,114 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Profile context-filtered voting metrics
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          from political_metrics.calculators.votes import eligible_division_pairs,member_vote_participation,party_vote_metrics
+
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          def read(p):
+              k=resolve_production_key(s3,bucket=bucket,production_key=p)
+              d=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+              for c in d.columns:d[c]=d[c].fillna('').astype(str).str.strip()
+              return d
+
+          div=read('processed/oireachtas_unified/latest/csv/silver_divisions.csv')
+          votes=read('processed/oireachtas_unified/latest/csv/silver_member_votes.csv')
+          memberships=read('processed/oireachtas_unified/latest/csv/silver_memberships.csv')
+          parties=read('processed/oireachtas_unified/latest/csv/silver_member_parties.csv')
+          dctx=read('processed/oireachtas_unified/latest/metrics/event/division_context/csv/division_context.csv')
+
+          # Restrict each metric calculation to the selected division context, then reuse production calculators unchanged.
+          contexts=['bill_or_legislation','motion_proceeding','procedural_business','other']
+          context_results={}
+          party_rows=[]
+          member_rows=[]
+          for context in contexts:
+              ids=set(dctx.loc[dctx['division_context'].eq(context),'division_id'])
+              cdiv=div[div['division_id'].isin(ids)].copy()
+              cvotes=votes[votes['division_id'].isin(ids)].copy()
+              eligible=eligible_division_pairs(memberships,cdiv)
+              member=member_vote_participation(cvotes,eligible)
+              party=party_vote_metrics(cvotes,eligible,parties)
+              member['division_context']=context
+              party['division_context']=context
+              member_rows.append(member)
+              party_rows.append(party)
+              context_results[context]={
+                  'division_count':int(len(cdiv)),
+                  'member_vote_rows':int(len(cvotes)),
+                  'eligible_member_division_pairs':int(len(eligible)),
+                  'member_count':int(member['member_code'].nunique()) if not member.empty else 0,
+                  'member_participation_median':float(member['vote_participation_pct'].dropna().astype(float).median()) if member['vote_participation_pct'].notna().any() else None,
+                  'member_participation_p25':float(member['vote_participation_pct'].dropna().astype(float).quantile(.25)) if member['vote_participation_pct'].notna().any() else None,
+                  'member_participation_p75':float(member['vote_participation_pct'].dropna().astype(float).quantile(.75)) if member['vote_participation_pct'].notna().any() else None,
+                  'party_count':int(party['party_uri'].nunique()) if not party.empty else 0,
+                  'party_reliability_counts':{k:int(v) for k,v in party['unity_reliability_status'].value_counts().to_dict().items()},
+                  'public_safe_party_count':int(party['unity_public_safe'].astype(bool).sum()) if not party.empty else 0,
+                  'party_cohesion_median_reliable':float(party.loc[party['unity_public_safe'].astype(bool),'vote_cohesion_pct'].dropna().astype(float).median()) if party['unity_public_safe'].astype(bool).any() else None,
+              }
+
+          members=pd.concat(member_rows,ignore_index=True) if member_rows else pd.DataFrame()
+          parties_out=pd.concat(party_rows,ignore_index=True) if party_rows else pd.DataFrame()
+
+          # Compact, non-evaluative summaries for the largest party/context samples.
+          party_top=[]
+          for context,g in parties_out.groupby('division_context'):
+              h=g.sort_values(['qualifying_unity_divisions','recorded_member_votes'],ascending=False).head(15)
+              for r in h.itertuples(index=False):
+                  party_top.append({
+                    'division_context':context,
+                    'party_uri':r.party_uri,
+                    'eligible_member_divisions':int(r.eligible_member_divisions),
+                    'recorded_member_votes':int(r.recorded_member_votes),
+                    'vote_participation_pct':None if pd.isna(r.vote_participation_pct) else float(r.vote_participation_pct),
+                    'qualifying_unity_divisions':int(r.qualifying_unity_divisions),
+                    'vote_cohesion_pct':None if pd.isna(r.vote_cohesion_pct) else float(r.vote_cohesion_pct),
+                    'unity_reliability_status':r.unity_reliability_status,
+                    'unity_public_safe':bool(r.unity_public_safe),
+                  })
+
+          # Sample-size distribution for member participation: denominator size is essential for interpretation.
+          member_denominator_bands={}
+          for context,g in members.groupby('division_context'):
+              denom=pd.to_numeric(g['eligible_division_count'],errors='coerce').fillna(0)
+              member_denominator_bands[context]={
+                  'lt5':int((denom<5).sum()),
+                  '5_to_9':int(((denom>=5)&(denom<10)).sum()),
+                  '10_to_24':int(((denom>=10)&(denom<25)).sum()),
+                  '25_plus':int((denom>=25).sum()),
+              }
+
+          out={
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'row_counts':{'divisions':len(div),'member_votes':len(votes),'division_context_rows':len(dctx)},
+            'context_results':context_results,
+            'member_denominator_bands':member_denominator_bands,
+            'party_samples':party_top,
+            'guardrails':[
+              'Each context calculation filters divisions first, then calls the existing production voting calculators unchanged.',
+              'Member participation denominator remains eligible member x division opportunities within the selected context.',
+              'Party cohesion uses recorded party votes, requires at least two party votes in a division, and keeps the existing 10/5 reliability thresholds.',
+              'Context-specific participation or cohesion is descriptive and is not a measure of effectiveness, discipline quality or political performance.',
+              'Comparisons across contexts reflect different parliamentary forms and sample sizes; do not interpret context differences causally.'
+            ]
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/contextual_vote_metrics_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True,default=str))
+          PY
+      - name: Persist analysis
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/contextual_vote_metrics_digest.json
+          git commit -m "Capture contextual vote metric diagnostics ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
