@@ -185,21 +185,31 @@ Passed in order:
 9. Join member votes to `division_context` by `division_id`; do not join divisions to speech-level context directly.
 10. Close vote margins are descriptive outcomes and do not by themselves establish political importance, rebellion, effectiveness or instability.
 
+## Contextual voting follow-up
+
+The contextual voting metric investigation is now complete and documented in:
+
+- `docs/research/contextual_voting_metrics.md`
+
+It confirmed that the existing voting formulas work safely when divisions are filtered by `division_context` first.
+
+Key results:
+
+- all four contexts support denominator-correct member participation calculations;
+- most member/context denominators are large, but small-sample presentation rules are still needed for a few members;
+- 9 of 11 party/group URIs are `reliable` for cohesion in every current context under the existing 10+ qualifying-division rule;
+- Green Party and 100% Redress are `insufficient_for_comparison` for cohesion because they do not have at least two recorded members in qualifying divisions;
+- the Independent grouping requires agreement-language rather than party-discipline interpretation.
+
 ## Living next-step plan
 
-The division-context foundation is now settled and deployed.
-
-Next research priority:
-
-1. **Profile contextual versions of the existing voting metrics without changing their denominator definitions.**
-   - member recorded-vote participation by division context;
-   - party recorded-vote cohesion by division context;
-   - counts and reliability/sample-size coverage by context;
-   - Bill-linked voting histories where a certified Bill ID exists.
-2. Verify that context-filtered member participation continues to use eligible member × division opportunities only inside the selected context.
-3. Verify that context-filtered party cohesion retains current per-division vote thresholds and minimum-division safeguards.
-4. Identify which contextual comparisons are sufficiently populated for public use and which should remain caution/internal-only.
-5. Keep descriptive language neutral: participation, recorded-vote agreement, vote margin and parliamentary context are not effectiveness measures.
-6. Investigate exact Bill stage/proceeding linkage separately before adding stage to division context.
-7. Investigate the 27 `other` divisions only if a concrete downstream use case requires another deterministic source category.
-8. If contextual voting measures prove useful, prepare a separate implementation plan for additional additive daily/event foundations rather than modifying existing metrics in place.
+1. Prepare a production implementation plan for **context-aware additive voting foundations** rather than changing existing metrics in place.
+2. Prefer adding `division_context` to additive event/daily vote components so arbitrary date ranges can be recomputed safely.
+3. Preserve the existing voting formulas and historical party-at-vote temporal joins.
+4. Carry member eligible-division counts with contextual participation and define a public small-sample rule before enabling member comparison views.
+5. Keep the existing party cohesion reliability thresholds unchanged initially.
+6. Treat Independent results as recorded-vote agreement among Independents, not party discipline.
+7. Derive completed-month contextual result rows only after context-aware additive foundations are available and reconciled.
+8. Require reconciliation audits showing context-specific additive counts sum back to the existing unfiltered population for the same period.
+9. Continue to defer Bill stage attribution until an exact stage relationship is certified.
+10. Keep all contextual voting measures descriptive; do not present participation, agreement or context as effectiveness, quality or performance.
