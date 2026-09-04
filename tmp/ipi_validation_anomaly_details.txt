@@ -1,0 +1,32 @@
+source_commit_sha=09f77f03654bf66551a56fb02a11a242ae9bcf51
+
+[raw_anomaly_details]
+exact_duplicate=line:205|date:2003-05-16|pollster:TNS-MRBI|field:2003-05-12..2003-05-13|sample:1000
+exact_duplicate=line:206|date:2003-05-16|pollster:TNS-MRBI|field:2003-05-12..2003-05-13|sample:1000
+exact_duplicate=line:304|date:2010-06-27|pollster:Red C|field:2010-06-21..2010-06-23|sample:1003
+exact_duplicate=line:305|date:2010-06-27|pollster:Red C|field:2010-06-21..2010-06-23|sample:1003
+candidate_key_duplicate=TNS-MRBI|2003-05-16|2003-05-12|2003-05-13|1000|lines:205,206
+candidate_key_duplicate=Red C|2010-06-27|2010-06-21|2010-06-23|1003|lines:304,305
+field_end_after_publication=line:4|date:1982-11-23|pollster:TNS-MRBI|start:1982-11-19|end:1982-11-29|middle:1982-11-24
+field_end_after_publication=line:9|date:1984-01-01|pollster:IMS|start:1984-01-01|end:1984-01-14|middle:1984-01-07
+field_end_after_publication=line:11|date:1984-04-12|pollster:IMS|start:1984-03-01|end:1984-04-14|middle:1984-03-23
+field_end_after_publication=line:209|date:2003-10-15|pollster:Red C|start:2003-10-01|end:2003-10-31|middle:2003-10-16
+field_end_after_publication=line:220|date:2005-03-15|pollster:Red C|start:2005-03-01|end:2005-03-31|middle:2005-03-16
+midpoint_outside=line:223|date:2005-06-11|pollster:TNS-MRBI|start:2006-06-07|end:2005-06-08|middle:2005-12-07
+field_end_after_publication=line:224|date:2005-09-15|pollster:Red C|start:2005-09-01|end:2005-09-30|middle:2005-09-15
+field_end_after_publication=line:283|date:2009-03-01|pollster:Red C|start:2009-05-23|end:2009-05-25|middle:2009-05-24
+field_end_after_publication=line:330|date:2011-06-22|pollster:Millward Brown|start:2011-06-22|end:2011-06-23|middle:2011-06-22
+midpoint_outside=line:333|date:2011-09-17|pollster:Millward Brown|start:2011-08-30|end:2011-07-14|middle:2011-08-06
+
+[indicator_duplicate_dates]
+duplicate_date=1989-06-15|line:851,cycle:1987-1989;line:852,cycle:1989-1992
+duplicate_date=1992-11-25|line:2111,cycle:1989-1992;line:2112,cycle:1992-1997
+duplicate_date=1997-06-06|line:3766,cycle:1992-1997;line:3767,cycle:1997-2002
+duplicate_date=2002-05-17|line:5573,cycle:1997-2002;line:5574,cycle:2002-2007
+duplicate_date=2007-05-24|line:7407,cycle:2002-2007;line:7408,cycle:2007-2011
+duplicate_date=2011-02-25|line:8781,cycle:2007-2011;line:8782,cycle:2011-2016
+duplicate_date=2016-02-26|line:10609,cycle:2011-2016;line:10610,cycle:2016-2020
+
+[indicator_calendar_gaps]
+gap=2020-01-31|2020-02-08|days:8
+gap=2024-11-23|2024-11-28|days:5
