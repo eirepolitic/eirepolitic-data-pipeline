@@ -90,6 +90,14 @@ def main(argv: list[str] | None = None) -> int:
         & existing["dimension_name"].eq("division_context")
     )
     combined = pd.concat([existing.loc[keep], contextual], ignore_index=True)
+
+    # The monthly dataset is being republished as part of this new immutable candidate.
+    # Restamp all rows to the candidate batch so the dataset has one consistent provenance batch.
+    now = datetime.now(timezone.utc).isoformat()
+    combined["source_batch_id"] = batch_id
+    combined["calculated_at_utc"] = now
+    combined["contract_version"] = contract_version
+
     key = ["metric_id","metric_version","period_start","period_end","grain","entity_id","dimension_name","dimension_value"]
     duplicate = int(combined.duplicated(key).sum())
     if duplicate:
@@ -106,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     report = {
         "batch_id": batch_id,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": now,
         "period_count": len(periods),
         "contextual_row_count": int(len(contextual)),
         "combined_monthly_row_count": int(len(combined)),
