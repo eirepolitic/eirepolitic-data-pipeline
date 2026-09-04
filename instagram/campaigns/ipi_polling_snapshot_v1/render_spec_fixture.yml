@@ -1,0 +1,23 @@
+campaign: ipi_polling_snapshot_v1
+post_type: polling_snapshot
+variation:
+  limit: 5
+  party_codes:
+    - SF
+    - FF
+    - FG
+    - LAB
+    - SD
+data:
+  source_table: instagram/campaigns/ipi_polling_snapshot_v1/fixtures/polling_indicator_fixture.csv
+  source_ids:
+    - irish_polling_indicator
+render:
+  template: instagram/templates/layouts/big_media_title_v1.json
+  output_root: generated_posts/ipi_polling_snapshot_fixture
+  palette: eirepolitic_dark
+copy:
+  title: "Where the parties stand now"
+  caption_intro: "Latest modelled Irish party-support estimates from the Irish Polling Indicator."
+review:
+  human_review_required: true
