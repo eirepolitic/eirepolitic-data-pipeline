@@ -29,6 +29,15 @@ PALETTES = {
 }
 
 
+def _optional_float(value: Any) -> float | None:
+    if value is None or str(value).strip() == "":
+        return None
+    try:
+        return float(value)
+    except Exception:
+        return None
+
+
 def normalise_rows(rows: list[dict[str, Any]], max_items: int, sort: str) -> tuple[list[dict[str, Any]], list[str]]:
     warnings: list[str] = []
     clean: list[dict[str, Any]] = []
@@ -39,9 +48,19 @@ def normalise_rows(rows: list[dict[str, Any]], max_items: int, sort: str) -> tup
         except Exception:
             value = 0
             warnings.append(f"non_numeric_value:{label}")
+        low = _optional_float(row.get("low"))
+        high = _optional_float(row.get("high"))
+        if (low is None) != (high is None):
+            warnings.append(f"partial_uncertainty:{label}")
+            low = None
+            high = None
+        if low is not None and high is not None and not (low <= value <= high):
+            warnings.append(f"invalid_uncertainty:{label}")
+            low = None
+            high = None
         if len(label) > 42:
             warnings.append(f"long_label:{label[:42]}")
-        clean.append({"label": label, "value": value})
+        clean.append({"label": label, "value": value, "low": low, "high": high})
     reverse = sort != "ascending"
     clean = sorted(clean, key=lambda r: r["value"], reverse=reverse)[:max_items]
     if len(rows) > max_items:
@@ -53,7 +72,6 @@ def normalise_rows(rows: list[dict[str, Any]], max_items: int, sort: str) -> tup
 
 def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
     params = spec.get("params", {})
-    output = spec.get("output", {})
     rows, warnings = normalise_rows(
         spec.get("input", {}).get("rows", []),
         int(params.get("max_items", 10)),
@@ -63,6 +81,7 @@ def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
     height = int(params.get("height", 720))
     palette_id = str(params.get("palette", "eirepolitic_dark"))
     palette = PALETTES.get(palette_id, PALETTES["eirepolitic_dark"])
+    value_suffix = str(params.get("value_suffix", ""))
 
     labels = [r["label"] for r in rows]
     values = [r["value"] for r in rows]
@@ -72,12 +91,28 @@ def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
     ax.set_facecolor(palette["panel"])
 
     if rows:
-        ax.barh(range(len(rows)), values, color=palette["bar"])
-        ax.set_yticks(range(len(rows)))
+        positions = list(range(len(rows)))
+        ax.barh(positions, values, color=palette["bar"])
+        ax.set_yticks(positions)
         ax.set_yticklabels(labels, color=palette["text"], fontsize=10)
         ax.invert_yaxis()
-        for i, value in enumerate(values):
-            ax.text(value, i, f" {value:g}", va="center", color=palette["text"], fontsize=10)
+
+        for i, row in enumerate(rows):
+            value = row["value"]
+            low = row.get("low")
+            high = row.get("high")
+            if low is not None and high is not None:
+                ax.errorbar(
+                    value,
+                    i,
+                    xerr=[[value - low], [high - value]],
+                    fmt="none",
+                    ecolor=palette["text"],
+                    elinewidth=1.5,
+                    capsize=3,
+                    alpha=0.9,
+                )
+            ax.text(value, i, f" {value:g}{value_suffix}", va="center", color=palette["text"], fontsize=10)
     else:
         ax.text(0.5, 0.5, "No rows", ha="center", va="center", color=palette["text"])
 

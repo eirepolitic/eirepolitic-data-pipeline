@@ -1,0 +1,62 @@
+name: Instagram polling snapshot render
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-polling-snapshot-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install renderer dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install pandas pyyaml pillow boto3 requests matplotlib
+
+      - name: Render latest IPI polling post from S3
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          python -m process.instagram_render_polling_snapshot --campaign instagram/campaigns/ipi_polling_snapshot_v1/render_spec.yml
+          test -s generated_posts/ipi_polling_snapshot_v1/png/latest-party-support.png
+          test -s generated_posts/ipi_polling_snapshot_v1/caption.txt
+          test -s generated_posts/ipi_polling_snapshot_v1/review_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('generated_posts/ipi_polling_snapshot_v1/review_manifest.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          assert data['success'] is True
+          assert data['source_reference_in_caption'] is True
+          assert data['visible_source_footer'] == 'Source: Irish Polling Indicator (IPI)'
+          assert data['dimensions'] == [1080, 1350]
+          print(json.dumps(data, indent=2))
+          PY
+
+      - name: Upload post review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipi-polling-snapshot-${{ github.run_id }}
+          path: generated_posts/ipi_polling_snapshot_v1/
+          if-no-files-found: error
+          retention-days: 30
