@@ -26,163 +26,115 @@ jobs:
       - name: Install workbook reader
         run: python -m pip install --quiet openpyxl
 
-      - name: Test official downloads and datastore API
+      - name: Produce compact election diagnostics
         run: |
           python - <<'PY'
-          import csv, hashlib, io, json, traceback, urllib.parse, urllib.request
+          import csv, hashlib, io, json, urllib.parse, urllib.request
           from collections import Counter, defaultdict
           from pathlib import Path
           from openpyxl import load_workbook
 
           SOURCES = {
-              "2016": {
-                  "id": "6bc45750-652d-4e82-b422-0bdcfc2a4c53",
-                  "url": "https://opendata.housing.gov.ie/dataset/71dad45b-ce3c-4779-9eb2-775de1b290f6/resource/6bc45750-652d-4e82-b422-0bdcfc2a4c53/download/generalelection2016countdetails.csv",
-                  "kind": "csv",
-              },
-              "2020": {
-                  "id": "6feac8a2-85a6-46ae-ad22-0c77f8065e23",
-                  "url": "https://opendata.housing.gov.ie/dataset/a9d1a550-fbdb-46ce-84ee-24ae9199c406/resource/6feac8a2-85a6-46ae-ad22-0c77f8065e23/download/general_election_2020_count_details.csv",
-                  "kind": "csv",
-              },
-              "2024": {
-                  "id": "fb8a1f97-2683-4515-bac4-e2617222b20d",
-                  "url": "https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx",
-                  "kind": "xlsx",
-              },
+              "2016": ("6bc45750-652d-4e82-b422-0bdcfc2a4c53", "https://opendata.housing.gov.ie/dataset/71dad45b-ce3c-4779-9eb2-775de1b290f6/resource/6bc45750-652d-4e82-b422-0bdcfc2a4c53/download/generalelection2016countdetails.csv", "csv"),
+              "2020": ("6feac8a2-85a6-46ae-ad22-0c77f8065e23", "https://opendata.housing.gov.ie/dataset/a9d1a550-fbdb-46ce-84ee-24ae9199c406/resource/6feac8a2-85a6-46ae-ad22-0c77f8065e23/download/general_election_2020_count_details.csv", "csv"),
+              "2024": ("fb8a1f97-2683-4515-bac4-e2617222b20d", "https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx", "xlsx"),
           }
-
           UA = "Mozilla/5.0 EirePolitic research validation"
-          report=[]
-          bodies={}
+          report=[]; bodies={}; csv_meta={}
 
           def fetch(url):
               req=urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
               with urllib.request.urlopen(req, timeout=60) as r:
                   return r.read(), r.headers.get("Content-Type", "")
 
-          def s(v): return str(v or "").strip()
+          def decode(body):
+              for enc in ("utf-8-sig","cp1252","latin-1"):
+                  try: return body.decode(enc), enc
+                  except UnicodeDecodeError: pass
+              raise RuntimeError("decode failed")
 
-          for year, src in SOURCES.items():
-              report += [f"[{year}_access]", f"resource_id={src['id']}", f"download_url={src['url']}"]
-              api = "https://opendata.housing.gov.ie/api/3/action/datastore_search?" + urllib.parse.urlencode({"resource_id": src["id"], "limit": 5})
+          for year,(rid,url,kind) in SOURCES.items():
+              api="https://opendata.housing.gov.ie/api/3/action/datastore_search?"+urllib.parse.urlencode({"resource_id":rid,"limit":2})
               try:
-                  body, ctype = fetch(api)
-                  obj=json.loads(body.decode("utf-8"))
-                  report += [f"datastore_success={obj.get('success')}", f"datastore_content_type={ctype}"]
-                  if obj.get("success"):
-                      result=obj["result"]
-                      report.append(f"datastore_total={result.get('total')}")
-                      report.append("datastore_fields="+"|".join(f.get("id","") for f in result.get("fields",[])))
-                      recs=result.get("records",[])
-                      report.append("datastore_sample="+json.dumps(recs[:2], ensure_ascii=False, default=str))
+                  b,_=fetch(api); obj=json.loads(b.decode("utf-8")); result=obj.get("result",{})
+                  report += [f"[{year}_datastore]",f"success={obj.get('success')}",f"total={result.get('total')}","fields="+"|".join(str(f.get('id','')) for f in result.get('fields',[])),"sample="+json.dumps(result.get('records',[])[:2],ensure_ascii=False,default=str)]
               except Exception as e:
-                  report += [f"datastore_error={type(e).__name__}:{e}"]
-
+                  report += [f"[{year}_datastore]",f"error={type(e).__name__}:{e}"]
               try:
-                  body, ctype=fetch(src["url"])
-                  bodies[year]=body
-                  report += [f"download_success=True", f"download_content_type={ctype}", f"download_bytes={len(body)}", f"sha256={hashlib.sha256(body).hexdigest()}"]
+                  body,ctype=fetch(url); bodies[year]=body
+                  report += [f"[{year}_download]",f"success=True",f"bytes={len(body)}",f"content_type={ctype}",f"sha256={hashlib.sha256(body).hexdigest()}"]
               except Exception as e:
-                  report += [f"download_success=False", f"download_error={type(e).__name__}:{e}"]
-              report.append("")
+                  report += [f"[{year}_download]",f"success=False",f"error={type(e).__name__}:{e}"]
 
           for year in ("2016","2020"):
               report.append(f"[{year}_csv]")
-              if year not in bodies:
-                  report += ["skipped=no_download", ""]
-                  continue
-              try:
-                  body=bodies[year]
-                  text=None
-                  used_encoding=None
-                  for enc in ("utf-8-sig","cp1252","latin-1"):
-                      try:
-                          text=body.decode(enc); used_encoding=enc; break
-                      except UnicodeDecodeError:
-                          pass
-                  report.append(f"encoding={used_encoding}")
-                  reader=csv.DictReader(io.StringIO(text))
-                  rows=list(reader); cols=reader.fieldnames
-                  report += [f"rows={len(rows)}", f"columns={len(cols)}", "header="+"|".join(cols)]
-                  exact=Counter(tuple(r.get(c,"") for c in cols) for r in rows)
-                  report.append(f"exact_duplicate_extra_rows={sum(v-1 for v in exact.values() if v>1)}")
-                  for c in cols:
-                      report.append(f"missing_{c}={sum(s(r.get(c))=='' for r in rows)}")
-                  concol="Constituency Name"
-                  cid="Candidate Id"
-                  cnum="Count Number"
-                  constituencies=sorted(set(r[concol] for r in rows))
-                  candidates=set((r[concol],r[cid],r["Candidate surname"],r["Candidate First Name"]) for r in rows)
-                  report += [f"constituencies={len(constituencies)}", f"candidates={len(candidates)}"]
-                  nums=[int(float(r[cnum])) for r in rows if s(r[cnum])]
-                  report += [f"count_number_min={min(nums)}", f"count_number_max={max(nums)}", "result_values="+"|".join(sorted(set(r["Result"] for r in rows)))]
-                  id_names=defaultdict(set)
-                  for r in rows:
-                      id_names[r[cid]].add((r[concol],r["Candidate surname"],r["Candidate First Name"]))
-                  report.append(f"candidate_ids_mapping_to_multiple_names={sum(len(v)>1 for v in id_names.values())}")
-                  key=Counter((r[concol],r[cid],r[cnum]) for r in rows)
-                  report.append(f"duplicate_candidate_count_keys={sum(v-1 for v in key.values() if v>1)}")
-                  bad=[]
-                  for con in constituencies:
-                      seq=sorted(set(int(float(r[cnum])) for r in rows if r[concol]==con and s(r[cnum])))
-                      if seq and seq != list(range(min(seq), max(seq)+1)):
-                          bad.append((con,seq))
-                  report.append(f"constituencies_with_count_number_gaps={len(bad)}")
-                  for con,seq in bad[:10]: report.append(f"gap={con}|{seq}")
-              except Exception as e:
-                  report += [f"parse_error={type(e).__name__}:{e}", traceback.format_exc().replace("\n"," || ")]
-              report.append("")
+              body=bodies.get(year)
+              if not body:
+                  report.append("skipped=True"); continue
+              text,enc=decode(body); reader=csv.DictReader(io.StringIO(text)); rows=list(reader); cols=reader.fieldnames
+              csv_meta[year]=(cols,rows)
+              exact=Counter(tuple(r.get(c,"") for c in cols) for r in rows)
+              con="Constituency Name"; cid="Candidate Id"; cnt="Count Number"
+              constituencies=sorted(set(r[con] for r in rows)); candidates=set((r[con],r[cid],r['Candidate surname'],r['Candidate First Name']) for r in rows)
+              countnums=[int(float(r[cnt])) for r in rows if str(r[cnt]).strip()]
+              key=Counter((r[con],r[cid],r[cnt]) for r in rows)
+              idnames=defaultdict(set)
+              for r in rows: idnames[r[cid]].add((r[con],r['Candidate surname'],r['Candidate First Name']))
+              gaps=[]
+              for c in constituencies:
+                  seq=sorted(set(int(float(r[cnt])) for r in rows if r[con]==c and str(r[cnt]).strip()))
+                  if seq and seq != list(range(min(seq),max(seq)+1)): gaps.append(c)
+              core_missing={c:sum(not str(r.get(c,'')).strip() for r in rows) for c in [con,'Candidate surname','Candidate First Name','Result',cnt,cid]}
+              report += [f"encoding={enc}",f"rows={len(rows)}",f"columns={len(cols)}","header="+"|".join(cols),f"constituencies={len(constituencies)}",f"candidates={len(candidates)}",f"count_min={min(countnums)}",f"count_max={max(countnums)}","result_values="+"|".join(sorted(set(r['Result'] for r in rows))),f"exact_duplicate_extra_rows={sum(v-1 for v in exact.values() if v>1)}",f"duplicate_candidate_count_keys={sum(v-1 for v in key.values() if v>1)}",f"candidate_ids_mapping_multiple_names={sum(len(v)>1 for v in idnames.values())}",f"constituencies_with_count_gaps={len(gaps)}",f"core_missing={json.dumps(core_missing,ensure_ascii=False)}"]
 
-          if "2016" in bodies and "2020" in bodies:
-              try:
-                  def hdr(body):
-                      for enc in ("utf-8-sig","cp1252","latin-1"):
-                          try: return next(csv.reader(io.StringIO(body.decode(enc))))
-                          except UnicodeDecodeError: pass
-                  h16,h20=hdr(bodies["2016"]),hdr(bodies["2020"])
-                  canon=lambda h:[x.lower().replace("_"," ").replace("-"," ").replace("  "," ").strip() for x in h]
-                  report += ["[2016_vs_2020_schema]",f"headers_exact_equal={h16==h20}",f"headers_equal_after_punctuation_normalization={canon(h16)==canon(h20)}","2016_header="+"|".join(h16),"2020_header="+"|".join(h20),""]
-              except Exception as e:
-                  report += ["[2016_vs_2020_schema]",f"error={type(e).__name__}:{e}",""]
+          if "2016" in csv_meta and "2020" in csv_meta:
+              h16=csv_meta['2016'][0]; h20=csv_meta['2020'][0]
+              canon=lambda h:[x.lower().replace('_',' ').replace('-',' ').replace('  ',' ').strip() for x in h]
+              report += ["[2016_vs_2020]",f"headers_exact_equal={h16==h20}",f"headers_equal_after_punctuation_normalization={canon(h16)==canon(h20)}"]
 
           report.append("[2024_workbook]")
-          if "2024" not in bodies:
-              report.append("skipped=no_download")
+          body=bodies.get('2024')
+          if not body:
+              report.append("skipped=True")
           else:
-              try:
-                  p=Path("/tmp/election2024.xlsx"); p.write_bytes(bodies["2024"])
-                  wb=load_workbook(p,data_only=False,read_only=False)
-                  report += [f"sheet_count={len(wb.sheetnames)}","sheet_names="+"|".join(wb.sheetnames)]
-                  for ws in wb.worksheets:
-                      nonempty=formulas=0
-                      for row in ws.iter_rows():
-                          for cell in row:
-                              if cell.value is not None:
-                                  nonempty += 1
-                                  formulas += isinstance(cell.value,str) and cell.value.startswith("=")
-                      report += [f"sheet={ws.title}",f"dimensions={ws.max_row}x{ws.max_column}",f"nonempty_cells={nonempty}",f"formula_cells={formulas}",f"merged_ranges={len(ws.merged_cells.ranges)}"]
-                      shown=0
-                      for idx,row in enumerate(ws.iter_rows(values_only=True),start=1):
-                          vals=row[:20]
-                          if any(v is not None and str(v).strip() for v in vals):
-                              report.append(f"sheet_row={ws.title}|{idx}|"+" || ".join("" if v is None else str(v).replace("\n"," ").strip() for v in vals))
-                              shown += 1
-                              if shown>=10: break
-                      report.append("")
-              except Exception as e:
-                  report += [f"workbook_error={type(e).__name__}:{e}", traceback.format_exc().replace("\n"," || ")]
+              p=Path('/tmp/election2024.xlsx'); p.write_bytes(body); wb=load_workbook(p,data_only=False,read_only=False)
+              report += [f"sheet_count={len(wb.sheetnames)}","sheet_names="+"|".join(wb.sheetnames)]
+              patterns=Counter((ws.max_row,ws.max_column,len(ws.merged_cells.ranges)) for ws in wb.worksheets)
+              report.append("dimension_patterns="+";".join(f"{k[0]}x{k[1]}_merged{k[2]}:{v}" for k,v in patterns.items()))
+              for ws in wb.worksheets[:5]:
+                  report += [f"sheet={ws.title}|rows={ws.max_row}|cols={ws.max_column}|merged={len(ws.merged_cells.ranges)}"]
+                  shown=0
+                  for idx,row in enumerate(ws.iter_rows(values_only=True),start=1):
+                      vals=row[:16]
+                      if any(v is not None and str(v).strip() for v in vals):
+                          clean=["" if v is None else str(v).replace('\n',' ').strip() for v in vals]
+                          report.append(f"sample_row={ws.title}|{idx}|"+" || ".join(clean))
+                          shown+=1
+                          if shown>=6: break
+              # Inspect every sheet for formulas and first non-empty row signature only.
+              sigs=[]; formula_total=0
+              for ws in wb.worksheets:
+                  formulas=0
+                  first=[]
+                  for row in ws.iter_rows():
+                      for cell in row:
+                          if isinstance(cell.value,str) and cell.value.startswith('='): formulas+=1
+                      if not first:
+                          vals=[c.value for c in row[:12]]
+                          if any(v is not None and str(v).strip() for v in vals): first=["" if v is None else str(v).replace('\n',' ').strip() for v in vals]
+                  formula_total+=formulas
+                  sigs.append((ws.title,formulas," || ".join(first)))
+              report.append(f"formula_cells_total={formula_total}")
+              for title,formulas,first in sigs:
+                  report.append(f"sheet_signature={title}|formulas={formulas}|first={first}")
 
-          out=Path("tmp/election_count_validation_report.txt")
-          out.parent.mkdir(parents=True,exist_ok=True)
-          out.write_text("\n".join(report)+"\n",encoding="utf-8")
-          print(out.read_text())
+          out=Path('tmp/election_count_validation_summary.txt'); out.parent.mkdir(parents=True,exist_ok=True); out.write_text('\n'.join(report)+'\n',encoding='utf-8'); print(out.read_text())
           PY
 
-      - name: Commit temporary validation report
+      - name: Commit temporary compact report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tmp/election_count_validation_report.txt
-          git commit -m "research: record temporary election count diagnostics" || exit 0
+          git add tmp/election_count_validation_summary.txt
+          git commit -m "research: record compact election count diagnostics" || exit 0
           git push
