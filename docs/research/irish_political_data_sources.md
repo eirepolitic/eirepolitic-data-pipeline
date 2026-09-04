@@ -36,7 +36,7 @@ For non-polling sources, investigate: contents; EirePolitic value; geographic/hi
 4. **Assess historical-series safety — complete.** Mode, weighting, question wording, undecided treatment and pollster-era changes.
 5. **Investigate other Irish political datasets — complete.** Official election/open-data sources and high-value opinion/research datasets.
 6. **Rank and conclude — complete.** Final lists and top-five future ingestion candidates below.
-7. **Read-only ingestion feasibility — in progress.** Test the top five candidates without implementing connectors or changing production schemas.
+7. **Read-only ingestion feasibility — complete.** All five priority candidates were validated with exact source-level checks; no production connector or schema was implemented.
 
 ## Read-only ingestion feasibility plan
 
@@ -124,6 +124,26 @@ Production changes: none.
 - Added a bounded feasibility plan for the existing top five candidates.
 - No production files, schemas, code or infrastructure changed.
 - Next: inspect the Irish Polling Indicator's concrete file access, schema and update/versioning behaviour.
+
+### 2026-09-03 — Phase 7 complete: exact top-five validation
+
+All five priority future-ingestion candidates were validated with source-level or pinned-file diagnostics. Dedicated durable records now exist for:
+
+- `ipi_readonly_proof.md` and `ipi_bounded_validation.md`;
+- `irish_demographic_polling_validation.md`;
+- `election_count_data_validation.md`;
+- `cso_pxstat_validation.md`;
+- `referendum_data_validation.md`.
+
+Key readiness findings:
+
+- **Irish Polling Indicator:** technically ready; exact validation found two duplicate raw poll rows, historical date anomalies, and election-cycle boundary duplicate dates in the modeled series. These are manageable with provenance and validation flags.
+- **Official referendum results:** technically ready and very easy to automate through the CKAN datastore; one 2015 Dublin Central 900-vote arithmetic anomaly must be preserved/flagged rather than silently corrected.
+- **CSO PxStat:** technically ready; API quality is strong, but table unit/geography semantics must be validated per use case.
+- **Official general-election count/transfer data:** technically ready with year-specific adapters; 2016/2020 are clean CSV-style tables while 2024 requires workbook parsing for full transfers.
+- **Irish Demographic Polling Datasets:** technically ready and editorially valuable, but explicit production/commercial-republication permission should be clarified before ingestion.
+
+Production changes: none.
 
 # Priority 1 — Irish polling sources
 
@@ -638,17 +658,17 @@ The national portal is CKAN-based and exposes catalogue APIs, making it valuable
 - **PoliticalAPI for polling alone** — not legally rejected, but poor value/provenance relative to free IPI because polling normalization is based on Wikipedia tables.
 - **Unlicensed Tailte boundary resource variants** — do not use until a clear licence is attached to the exact chosen resource.
 
-# Top five recommended sources for a future ingestion investigation
+# Validated top-five readiness and future prototype order
 
-No implementation is authorized by this research task.
+No production implementation is authorized by this research task. Exact validation is now complete for all five. Recommended order for any later **non-production prototype** is:
 
-1. **Irish Polling Indicator** — first choice. Test a read-only import of raw polls and stable/development estimates, preserving citation and methodology metadata.
-2. **Irish Demographic Polling Datasets** — test file schemas/crosstab base sizes and obtain/record a clear reuse interpretation before public commercial republication.
-3. **DHLGH official election count/transfer data** — design a historical normalization proof-of-concept across 2016/2020/2024 without changing production schema.
-4. **CSO PxStat** — choose a small political-use subset (for example constituency/area demographics) and test JSON-stat retrieval/versioned geography handling.
-5. **DHLGH official referendum results** — test normalization across several referendum years and constituency boundary vintages.
+1. **Irish Polling Indicator** — first priority because polling is the core EirePolitic goal and the source is free, structured and highly automatable. Prototype must pin the upstream commit, preserve raw/model distinction and validate duplicates/date anomalies.
+2. **Official referendum results** — simplest official political-history source. Prefer CKAN datastore records, preserve boundary vintages and flag the documented 2015 arithmetic anomaly.
+3. **CSO PxStat** — strong official API. Select one concrete politically useful table whose unit and geography match the intended feature before prototyping.
+4. **Official general-election count/transfer data** — high value, but use source-specific adapters: 2016/2020 CSV-style and 2024 workbook parsing.
+5. **Irish Demographic Polling Datasets** — technically strong and uniquely useful for crosstabs/satisfaction, but obtain/record clear recurring production/republication permission first.
 
-**Near-next choices:** eTenders procurement and Department of Finance monthly tax receipts are both strong, easy, openly licensed recurring-data candidates; they narrowly miss the first five only because polling/election foundations are currently more central to EirePolitic's stated goal.
+**Near-next choices:** eTenders procurement and Department of Finance monthly tax receipts remain strong, openly licensed recurring-data candidates after the top-five programme.
 
 # Example recurring EirePolitic feature ideas
 
@@ -725,11 +745,11 @@ No implementation is authorized by this research task.
 
 # Living next-step plan
 
-1. **Completed:** initial source discovery, access/licensing/methodology research and rankings.
-2. **Current:** bounded read-only ingestion-feasibility checks for the top five sources.
-3. Test IPI file schema and versioning.
-4. Test demographic polling schemas and crosstab structure.
-5. Compare official election count/transfer schemas across recent elections.
-6. Test a small CSO JSON-stat endpoint and note geography/versioning behaviour.
-7. Compare referendum schemas across several years.
-8. Rank implementation readiness and document future proof-of-concept order.
+1. **Completed:** initial source discovery, licensing, methodology, pricing and rankings.
+2. **Completed:** exact read-only validation of the Irish Polling Indicator.
+3. **Completed:** exact read-only validation of the Irish Demographic Polling Datasets.
+4. **Completed:** exact read-only validation of official 2016/2020/2024 election count/transfer data.
+5. **Completed:** exact API validation of CSO PxStat using table F4061, including unit/geography safeguards.
+6. **Completed:** exact cross-year validation of official referendum results for 1986, 1992, 2015 and 2018.
+7. **Completed:** implementation-readiness ranking and durable documentation.
+8. **Next only under a separate implementation decision:** build a bounded non-production prototype for the Irish Polling Indicator, followed by referendum data and one deliberately selected CSO political-use table. Do not change production schemas or pipelines as part of this research record.

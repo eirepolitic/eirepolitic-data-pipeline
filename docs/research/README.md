@@ -47,5 +47,6 @@ Do not promote exploratory conclusions into production metrics until their denom
 - [Irish demographic polling dataset validation](irish_demographic_polling_validation.md) — bounded validation of the second-ranked polling source, including file structure, crosstab reliability, exact diagnostics and licensing/republication clarity.
 - [Irish general-election count and transfer data validation](election_count_data_validation.md) — bounded validation of official 2016/2020 count-detail files and the 2024 results/transfer workbook, including schema differences, source quality and safe normalization rules.
 - [CSO PxStat validation](cso_pxstat_validation.md) — bounded validation of the CSO API using a Census 2022 population table, including JSON-stat structure, geography/version safeguards, source metadata and future ingestion rules.
+- [Irish referendum result data validation](referendum_data_validation.md) — bounded cross-year validation of official referendum CSVs, including schema drift, arithmetic checks, constituency-boundary cautions and safe normalization rules.
 
 Future investigations should get their own topic documents here, for example voting behaviour, speech structure, issue analysis, constituency representation and cross-metric profiles.
