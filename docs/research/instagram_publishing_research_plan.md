@@ -55,7 +55,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 5 | Tagging and metadata: mentions, media tags, collaborators, location, alt text, first comment, product tags | `05_instagram_tagging_metadata.md` | **complete** |
 | 6 | Direct Meta publishing architecture | `06_direct_meta_option.md` | **complete** |
 | 7 | Third-party scheduler/API options: Buffer, Hootsuite, Metricool, Later, Sprout and suitable alternatives | `07_third_party_options.md` | **complete** |
-| 8 | Hybrid architecture: own intent/ledger + third-party delivery | `08_hybrid_option.md` | pending |
+| 8 | Hybrid architecture: own intent/ledger + third-party delivery | `08_hybrid_option.md` | **complete** |
 | 9 | Scheduling infrastructure comparison: EventBridge Scheduler, Lambda, Step Functions, SQS, GitHub Actions, Power Automate | `09_scheduling_infrastructure.md` | pending |
 | 10 | Publication data model: asset package, request, approval, schedule, execution attempt, published-media record | `10_publication_data_model.md` | pending |
 | 11 | Conversational approval/state model and safeguards | `11_conversational_control.md` | pending |
