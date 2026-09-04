@@ -2,9 +2,21 @@
 
 ## Status
 
-Plan prepared on 2026-09-03.
+Plan prepared on 2026-09-03 and **fulfilled in production on 2026-09-03**.
 
-This document proposes a production architecture change. No production implementation has been made yet.
+The deployed implementation record is:
+
+- `docs/research/legislation_bridge_implementation.md`
+
+Production batch:
+
+- `certified-bill-sections-20260903-1`
+
+Successful deployment run:
+
+- `33825032483`
+
+This file remains the durable record of the architecture decision that preceded implementation.
 
 ## Goal
 
@@ -30,23 +42,23 @@ The grain check confirmed:
 - 7,352 speeches if each certified Bill-section pair is joined once
 - 168 divisions if each certified Bill-section pair is joined once
 
-Therefore the production grain must be one row per:
+Therefore the production grain was set to one row per:
 
 `(bill_id, debate_section_id)`
 
-Raw `bill_debate_id` must be treated as provenance, not as the output grain.
+Raw `bill_debate_id` is treated as provenance, not as the output grain.
 
-## Proposed production foundation
+## Approved production foundation
 
-Recommended dataset name:
+Dataset:
 
 `bill_debate_sections`
 
-Recommended grain:
+Grain:
 
 one row per certified `(bill_id, debate_section_id)` pair.
 
-Recommended fields:
+Implemented fields:
 
 - `bill_id`
 - `debate_section_id`
@@ -56,17 +68,13 @@ Recommended fields:
 - `debate_show_as`
 - `evidence_method`
 - `source_bill_debate_count`
-- `source_bill_debate_ids`
+- `source_bill_debate_ids_json`
 - `certification_version`
 - `source_batch_id`
+- `calculated_at_utc`
+- `contract_version`
 
-Optional later fields, only if source semantics are separately validated:
-
-- normalized/public stage label
-- chamber
-- sitting/committee type
-
-Do not put sponsor attribution or Bill lifecycle stage history into this bridge. Those remain separate source-backed concepts.
+Sponsor attribution and Bill lifecycle stage history remain separate source-backed concepts.
 
 ## Certification rule
 
@@ -77,137 +85,101 @@ A source Bill-debate record is eligible only when all of the following hold:
 3. Both checks identify the same canonical `debate_section_id`.
 4. The canonical debate section is associated with only one distinct Bill ID across eligible rows.
 
-Eligible source rows are then collapsed to one `(bill_id, debate_section_id)` row, preserving all contributing `bill_debate_id` values as provenance.
+Eligible source rows are collapsed to one `(bill_id, debate_section_id)` row, preserving contributing `bill_debate_id` values as provenance.
 
 Anything failing these checks remains unresolved and is not emitted as a certified bridge row.
 
-## Why unresolved rows should not be included in the production bridge yet
+## Unresolved rows
 
-The current unmatched/conflicting set includes:
+The production bridge intentionally excludes:
 
-- Seanad and committee debates outside present debate-section coverage;
+- Seanad and committee debate rows outside present debate-section coverage;
 - older historical debate rows outside current speech coverage;
-- a few source section/heading conflicts;
+- source section/heading conflicts;
 - multi-Bill section anomalies.
 
-Mixing these into one bridge with status values would make the dataset appear broader than its certified coverage and would complicate downstream joins.
-
-Recommended first implementation: materialize **certified rows only** and keep unresolved counts in audit output. Revisit an all-status research table later only if a concrete operational need arises.
-
-## Proposed implementation steps
-
-1. Add a deterministic builder for `bill_debate_sections`.
-2. Read only existing production source tables:
-   - `silver_bill_debates`
-   - `silver_debate_sections`
-3. Apply the certification rule above.
-4. Collapse duplicate source rows to unique `(bill_id, debate_section_id)` grain.
-5. Preserve raw source-record provenance in aggregated fields.
-6. Register the dataset in political-metrics materialization configuration.
-7. Add a downstream contract describing the exact grain and certified-only meaning.
-8. Add candidate-materialization support without changing existing `speech_question_context`.
-9. Add permanent audits before promotion.
-10. Deploy as a new additive foundation; do not replace any current dataset.
+These remain unresolved coverage/research cases rather than negative matches.
 
 ## Required audits
 
-The deployment should fail if any of these conditions occur:
+The approved deployment required checks for:
 
 - duplicate `(bill_id, debate_section_id)` output rows;
-- one certified `debate_section_id` maps to more than one Bill ID;
-- source section-ID and exact heading checks disagree in an emitted row;
-- emitted `debate_section_id` does not exist in `silver_debate_sections`;
-- joining the bridge to speeches multiplies any speech row;
-- joining the bridge to divisions multiplies any division row;
-- provenance list/count is inconsistent with collapsed source rows;
-- certification output unexpectedly becomes empty;
-- current certified coverage changes materially without an explicit audit report.
+- more than one Bill per certified `debate_section_id`;
+- source section-ID / exact-heading disagreement;
+- missing canonical debate sections;
+- speech joins multiplying rows;
+- division joins multiplying rows;
+- provenance inconsistency;
+- empty output;
+- material structural coverage changes.
 
-Audit output should separately report:
+The deployed builder and post-promotion audit implement the core production-safety checks. Deployment evidence is recorded in `legislation_bridge_implementation.md`.
 
-- certified source rows;
-- certified unique Bill-section pairs;
-- duplicate raw source rows collapsed;
-- conflicts;
-- multi-Bill section exclusions;
-- unmatched rows by chamber/year/debate type where available;
-- linked speech count;
-- linked division count.
+## Expected and observed initial footprint
 
-## Expected initial production footprint
-
-Using the current production batch and current certification rule, expected values are approximately:
+Expected before deployment:
 
 - 371 `bill_debate_sections` rows
-- 168 distinct Bills represented
+- 168 distinct Bills
 - 371 distinct sections
 - 7,352 linked speeches
-- 168 linked divisions across 94 sections
+- 168 linked divisions
 
-These are regression expectations, not permanent constants. Audits should tolerate legitimate source growth while flagging abrupt structural changes.
+The successful production deployment matched this footprint and passed the live audit.
 
-## Downstream use
+These values are regression expectations for that source snapshot, not permanent constants.
+
+## Downstream rules
 
 ### Speeches
 
 A speech is Bill-linked only when its exact `debate_section_id` appears in `bill_debate_sections`.
 
-Because the bridge is one row per Bill-section and multi-Bill sections are excluded, each currently certified speech can inherit at most one Bill ID from this bridge.
-
 ### Divisions
 
 A division is Bill-linked only through exact `debate_section_id` membership in the bridge.
 
-Do not infer Bill context from division subject text or shared debate date.
+### Prohibited shortcuts
 
-### Broader speech context
+Do not infer Bill context from:
 
-Do not immediately replace `speech_question_context`.
+- shared `debate_id`;
+- shared `debate_uri`;
+- shared debate date;
+- heading-only text matching;
+- speech similarity;
+- division subject text alone.
 
-After the Bill-section bridge is deployed and audited, a later broader `speech_context` design can safely consider:
+## Compatibility decision
 
-1. `oral_question_exchange`
-2. `bill_or_legislation`
-3. exact certified Leaders' Questions heading allowlist
-4. other categories only after separate certification
-5. `other`
+The deployment is additive.
 
-Precedence must be tested against actual overlaps before deployment.
-
-## Compatibility
-
-This should be an additive deployment.
-
-Keep existing datasets and contracts unchanged, including:
+Existing datasets remain in place, including:
 
 - `speech_question_context`
 - `oral_question_sections`
 - `oral_question_exchange_participants`
 
-No current downstream consumer should be required to migrate as part of the first Bill-section deployment.
+No existing downstream consumer was required to migrate as part of this deployment.
 
-## Deployment sequence
+## Fulfilled deployment sequence
 
-Recommended sequence:
+1. builder + tests implemented;
+2. materialization and downstream contracts added;
+3. candidate deployment workflow added;
+4. focused validation passed in run `33824880291`;
+5. first production attempt `33824958231` stopped safely during preflight tests before candidate seeding;
+6. workflow import path fixed in PR `#65`;
+7. successful candidate built and audited in run `33825032483`;
+8. batch `certified-bill-sections-20260903-1` promoted atomically;
+9. post-promotion audit passed;
+10. production implementation record added under `docs/research/`.
 
-1. implement builder + unit/regression tests;
-2. add materialization and downstream contract entries;
-3. materialize a candidate batch;
-4. run Bill-section audits;
-5. verify exact expected grain and no speech/division multiplication;
-6. review coverage/conflict diagnostics;
-7. promote only if all audits pass;
-8. run post-promotion audit against the live pointer;
-9. update the research implementation record with batch/run IDs and final live counts.
+## Current next step
 
-## Production-change decision
+The implementation plan is complete. The living next-step plan now lives in:
 
-The architecture change recommended by the research is:
+- `docs/research/legislation_bridge_implementation.md`
 
-**Add a new certified `bill_debate_sections` foundation at one row per `(bill_id, debate_section_id)` pair.**
-
-It should be additive, certified-only, and should not yet create a broader all-purpose `speech_context` dataset.
-
-## Next step after approval
-
-Implement and deploy the additive `bill_debate_sections` foundation with the audits above. After successful promotion, return to broader speech-context research and voting analysis using the new certified legislation relationship.
+The immediate research priority is to return to broader deterministic speech context using the live `bill_debate_sections` foundation as the certified legislation rule, then revisit voting analysis with Bill context.
