@@ -1,0 +1,78 @@
+name: Deploy broader deterministic speech context
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_DEFAULT_REGION: ca-central-1
+  AWS_REGION: ca-central-1
+  S3_BUCKET: eirepolitic-data
+  BATCH_ID: broader-speech-context-20260903-1
+  PYTHONPATH: .
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyarrow pyyaml pytest
+      - name: Run speech-context and contract tests
+        run: python -m pytest -q tests/political_metrics/test_speech_context.py tests/political_metrics/test_downstream_contracts.py tests/political_metrics/test_candidate_materialization.py
+      - name: Seed complete candidate from current production
+        run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
+      - name: Build and audit broader speech-context foundation
+        run: |
+          python process/political_metrics_speech_context_candidate.py \
+            --batch-id "$BATCH_ID" \
+            --report-path speech_context_candidate_report.json
+      - name: Reassemble complete candidate manifest
+        run: python process/oireachtas_batch_control.py assemble --batch-id "$BATCH_ID"
+      - name: Promote validated candidate atomically
+        env:
+          OIREACHTAS_PUBLISH_ENABLED: 'true'
+          OIREACHTAS_PUBLISH_LATEST: 'true'
+        run: python process/oireachtas_batch_control.py promote --batch-id "$BATCH_ID"
+      - name: Post-promotion audit
+        run: |
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          from political_metrics.speech_context import audit_speech_context
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          expected=os.environ['BATCH_ID']
+          if pointer.get('batch_id') != expected:
+              raise RuntimeError(f"production pointer is {pointer.get('batch_id')!r}, expected {expected!r}")
+          def read(p):
+              k=resolve_production_key(s3,bucket=bucket,production_key=p)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          context=read('processed/oireachtas_unified/latest/metrics/event/speech_context/csv/speech_context.csv')
+          speeches=read('processed/oireachtas_unified/latest/csv/silver_speeches.csv')
+          sqc=read('processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv')
+          bills=read('processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv')
+          audit=audit_speech_context(speech_context=context,speeches=speeches,speech_question_context=sqc,bill_debate_sections=bills)
+          if not audit.get('ready'):
+              raise RuntimeError(f'post-promotion speech-context audit failed: {audit}')
+          report={'production_batch_id':expected,'audit':audit,'production_pointer':pointer}
+          Path('speech_context_post_promotion_audit.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(report,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speech-context-deployment-${{ github.run_id }}
+          path: |
+            speech_context_candidate_report.json
+            speech_context_post_promotion_audit.json
