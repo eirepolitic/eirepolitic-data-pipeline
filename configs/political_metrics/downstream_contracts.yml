@@ -25,6 +25,9 @@ logical_keys:
   speech_question_context:
     csv: processed/oireachtas_unified/latest/metrics/event/speech_question_context/csv/speech_question_context.csv
     parquet: processed/oireachtas_unified/latest/metrics/event/speech_question_context/parquet/speech_question_context.parquet
+  bill_debate_sections:
+    csv: processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv
+    parquet: processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/parquet/bill_debate_sections.parquet
 
 question_semantics:
   parliamentary_question_record: A distinct Oireachtas question_id submitted by an eligible TD. Written and oral question records are both counted here.
@@ -36,6 +39,15 @@ question_semantics:
   participant_role_rule: A single identified member may have more than one participant role in one exchange, for example ordinary member and acting chair; preserve separate role rows.
   collective_speaker_rule: Collective or unidentified transcript speakers remain in exchange totals but are never counted as identified TD participants.
   counting_rule: Never multiply a section's speech interventions by the number of oral question records sharing that section.
+
+legislation_semantics:
+  bill_debate_section: A certified deterministic relationship between one Bill ID and one canonical debate section.
+  certification_rule: The debate-scoped source section eid and unique exact source heading must identify the same canonical debate section; sections associated with multiple distinct Bills are excluded.
+  output_grain: One row per bill_id and debate_section_id. Multiple raw Bill-debate source rows for the same pair are collapsed into provenance.
+  speech_link_rule: A speech is Bill-linked only through exact debate_section_id membership in bill_debate_sections.
+  division_link_rule: A division is Bill-linked only through exact debate_section_id membership in bill_debate_sections.
+  debate_wide_rule: Never infer Bill context from shared debate_id, debate_uri or debate date alone.
+  unresolved_rule: Conflicting, multi-Bill and currently uncovered Bill-debate rows are not emitted as certified links.
 
 consumer_dataset: monthly_metric_results
 consumer_rules:
@@ -55,6 +67,8 @@ consumer_rules:
   - use oral_question_exchange_participants for observed member/role participation, intervention counts and word counts inside an exchange
   - do not infer question-taker attribution from oral_question_exchange_participants
   - use speech_question_context to identify speech interventions occurring inside oral-question exchanges
+  - use bill_debate_sections for certified Bill-to-section context; never infer Bill context from whole-debate co-occurrence
+  - join speeches or divisions to bill_debate_sections only by exact debate_section_id
 
 recommended_consumer_patterns:
   appsmith:
@@ -65,6 +79,7 @@ recommended_consumer_patterns:
       - simple filters by month, entity, issue, question type, or recipient
       - oral-question exchange drilldowns
       - oral-question participant drilldowns
+      - certified Bill-section drilldowns
   power_bi:
     default_format: parquet
     use_for:
@@ -73,6 +88,7 @@ recommended_consumer_patterns:
       - issue dashboards
       - voting and question dashboards
       - oral-question section, participant and related-speech models
+      - certified legislation-section, speech and division models
     modelling_note: build a metric dimension from metric_id/metric_version and do not infer additivity from numeric type
   api:
     default_format: parquet
@@ -82,6 +98,7 @@ recommended_consumer_patterns:
       - issue comparison endpoints
       - oral-question exchange endpoints
       - oral-question exchange participant endpoints
+      - certified Bill-section endpoints
     response_note: expose reliability/public-use metadata alongside value
 
 primary_key:
