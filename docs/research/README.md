@@ -42,5 +42,6 @@ Do not promote exploratory conclusions into production metrics until their denom
 - [Irish political data ingestion feasibility](irish_political_data_ingestion_feasibility.md) — read-only follow-up on the top five candidates, covering concrete access patterns, schema/versioning risks, future ingestion modes and implementation-readiness order.
 - [Irish Polling Indicator read-only proof](ipi_readonly_proof.md) — bounded source-level validation of the highest-ranked polling candidate, including current files, schemas, coverage, versioning and future validation rules.
 - [Irish Polling Indicator bounded validation](ipi_bounded_validation.md) — exact pinned-source diagnostics for duplicates, fieldwork-date anomalies, modeled interval validity, election-cycle date behavior and future source-quality rules.
+- [Irish demographic polling dataset validation](irish_demographic_polling_validation.md) — bounded validation of the second-ranked polling source, including file structure, crosstab reliability, exact diagnostics and licensing/republication clarity.
 
 Future investigations should get their own topic documents here, for example voting behaviour, speech structure, issue analysis, constituency representation and cross-metric profiles.
