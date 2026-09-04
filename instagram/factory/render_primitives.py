@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-import textwrap
 from pathlib import Path
 from typing import Iterable
 
@@ -14,6 +13,9 @@ ACCENT = "#d8b45f"
 MUTED = "#c8bda8"
 TITLE_RULE_Y = 174
 CORNER_DIR = Path("instagram/templates/assets")
+GLOSSARY_LEFT = 135
+GLOSSARY_RIGHT = W - GLOSSARY_LEFT
+GLOSSARY_MAX_WIDTH = GLOSSARY_RIGHT - GLOSSARY_LEFT
 
 
 def font(size: int, bold: bool = False) -> ImageFont.ImageFont:
@@ -140,24 +142,92 @@ def carousel_sheet(items: Iterable[tuple[str, list[Path]]], out_path: Path) -> N
     canvas.save(out_path, quality=92)
 
 
+def _text_width_px(draw: ImageDraw.ImageDraw, text: str, text_font: ImageFont.ImageFont) -> int:
+    bbox = draw.textbbox((0, 0), text, font=text_font)
+    return int(bbox[2] - bbox[0])
+
+
+def wrap_text_px(draw: ImageDraw.ImageDraw, text: str, text_font: ImageFont.ImageFont, max_width: int) -> list[str]:
+    """Wrap text using the actual rendered pixel width; never character counts."""
+    words = str(text or "").split()
+    if not words:
+        return []
+    for word in words:
+        if _text_width_px(draw, word, text_font) > max_width:
+            raise RuntimeError(f"Glossary token exceeds content width and cannot wrap safely: {word!r}")
+    lines: list[str] = []
+    current = words[0]
+    for word in words[1:]:
+        candidate = f"{current} {word}"
+        if _text_width_px(draw, candidate, text_font) <= max_width:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+    lines.append(current)
+    return lines
+
+
 def draw_glossary(entries: list[tuple[str, str]], out_path: Path) -> dict:
     image = base_slide()
     draw_title(image, ["Glossary"])
     draw = ImageDraw.Draw(image)
     term_font, body_font = font(29, True), font(23)
     y = 225
+    text_bounds: list[dict] = []
+
+    def record_bound(kind: str, text: str, bbox: tuple[int, int, int, int]) -> None:
+        text_bounds.append(
+            {
+                "kind": kind,
+                "text": text,
+                "bbox_px": [int(value) for value in bbox],
+                "left_overflow": bbox[0] < GLOSSARY_LEFT,
+                "right_overflow": bbox[2] > GLOSSARY_RIGHT,
+            }
+        )
+
     for term, body in entries:
-        draw.text((135, y), term, font=term_font, fill=TEXT, anchor="la")
-        bbox = draw.textbbox((135, y), term, font=term_font, anchor="la")
-        underline_y = bbox[3] + 8
-        draw.line((bbox[0], underline_y, bbox[2], underline_y), fill=ACCENT, width=2)
+        term_bbox = draw.textbbox((GLOSSARY_LEFT, y), term, font=term_font, anchor="la")
+        if term_bbox[2] > GLOSSARY_RIGHT:
+            raise RuntimeError(f"Glossary term exceeds right content bound {GLOSSARY_RIGHT}px: {term!r} -> {term_bbox}")
+        draw.text((GLOSSARY_LEFT, y), term, font=term_font, fill=TEXT, anchor="la")
+        record_bound("term", term, term_bbox)
+        underline_y = term_bbox[3] + 8
+        draw.line((term_bbox[0], underline_y, term_bbox[2], underline_y), fill=ACCENT, width=2)
         body_y = underline_y + 22
-        for line in textwrap.wrap(body, width=79):
-            draw.text((135, body_y), line, font=body_font, fill=TEXT, anchor="la")
+        for line in wrap_text_px(draw, body, body_font, GLOSSARY_MAX_WIDTH):
+            line_bbox = draw.textbbox((GLOSSARY_LEFT, body_y), line, font=body_font, anchor="la")
+            if line_bbox[0] < GLOSSARY_LEFT or line_bbox[2] > GLOSSARY_RIGHT:
+                raise RuntimeError(
+                    f"Glossary body line escaped content bounds {GLOSSARY_LEFT}-{GLOSSARY_RIGHT}px: {line!r} -> {line_bbox}"
+                )
+            draw.text((GLOSSARY_LEFT, body_y), line, font=body_font, fill=TEXT, anchor="la")
+            record_bound("body", line, line_bbox)
             body_y += 34
         y = body_y + 42
+
     if y > 1315:
-        raise RuntimeError(f"Glossary overflowed slide: final y={y}")
+        raise RuntimeError(f"Glossary overflowed slide vertically: final y={y}")
+
+    left_overflow_count = sum(1 for item in text_bounds if item["left_overflow"])
+    right_overflow_count = sum(1 for item in text_bounds if item["right_overflow"])
+    min_text_left = min((item["bbox_px"][0] for item in text_bounds), default=GLOSSARY_LEFT)
+    max_text_right = max((item["bbox_px"][2] for item in text_bounds), default=GLOSSARY_LEFT)
+    if left_overflow_count or right_overflow_count:
+        raise RuntimeError(
+            f"Glossary text bounds failed: left_overflow={left_overflow_count}, right_overflow={right_overflow_count}"
+        )
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(out_path)
-    return {"final_y": y, "entry_count": len(entries)}
+    return {
+        "final_y": y,
+        "entry_count": len(entries),
+        "content_bounds": {"left": GLOSSARY_LEFT, "right": GLOSSARY_RIGHT, "max_width": GLOSSARY_MAX_WIDTH},
+        "min_text_left_px": int(min_text_left),
+        "max_text_right_px": int(max_text_right),
+        "left_overflow_count": left_overflow_count,
+        "right_overflow_count": right_overflow_count,
+        "text_bounds": text_bounds,
+    }
