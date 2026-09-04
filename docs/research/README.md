@@ -43,5 +43,6 @@ Do not promote exploratory conclusions into production metrics until their denom
 - [Irish Polling Indicator read-only proof](ipi_readonly_proof.md) — bounded source-level validation of the highest-ranked polling candidate, including current files, schemas, coverage, versioning and future validation rules.
 - [Irish Polling Indicator bounded validation](ipi_bounded_validation.md) — exact pinned-source diagnostics for duplicates, fieldwork-date anomalies, modeled interval validity, election-cycle date behavior and future source-quality rules.
 - [Irish demographic polling dataset validation](irish_demographic_polling_validation.md) — bounded validation of the second-ranked polling source, including file structure, crosstab reliability, exact diagnostics and licensing/republication clarity.
+- [Irish general-election count and transfer data validation](election_count_data_validation.md) — bounded validation of official 2016/2020 count-detail files and the 2024 results/transfer workbook, including schema differences, source quality and safe normalization rules.
 
 Future investigations should get their own topic documents here, for example voting behaviour, speech structure, issue analysis, constituency representation and cross-metric profiles.
