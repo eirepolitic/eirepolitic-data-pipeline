@@ -50,7 +50,7 @@ jobs:
 
           div=read('processed/oireachtas_unified/latest/csv/silver_divisions.csv')
           votes=read('processed/oireachtas_unified/latest/csv/silver_member_votes.csv')
-          memberships=read('processed/oireachtas_unified/latest/csv/silver_memberships.csv')
+          memberships=read('processed/oireachtas_unified/latest/csv/silver_member_memberships.csv')
           parties=read('processed/oireachtas_unified/latest/csv/silver_member_parties.csv')
           dctx=read('processed/oireachtas_unified/latest/metrics/event/division_context/csv/division_context.csv')
 
