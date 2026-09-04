@@ -29,6 +29,7 @@ from political_metrics.foundations import (
     build_division_party_vote_components,
 )
 from political_metrics.issue_audit import audit_issue_classification
+from political_metrics.legislation_context import audit_bill_debate_sections, build_bill_debate_sections
 from political_metrics.materialize import get_dataset_contract, load_materialization_contract
 from political_metrics.monthly_results import build_monthly_results
 from political_metrics.periods import MetricPeriod
@@ -45,6 +46,7 @@ CONTRACT_PATH = REPO_ROOT / "configs/political_metrics/materialization.yml"
 TABLE_KEYS = dict(COMMISSION_TABLE_KEYS)
 TABLE_KEYS["sections"] = "processed/oireachtas_unified/latest/csv/silver_debate_sections.csv"
 TABLE_KEYS["offices"] = "processed/oireachtas_unified/latest/csv/silver_member_offices.csv"
+TABLE_KEYS["bill_debates"] = "processed/oireachtas_unified/latest/csv/silver_bill_debates.csv"
 
 
 def parser() -> argparse.ArgumentParser:
@@ -122,6 +124,20 @@ def main(argv: list[str] | None = None) -> int:
     if not completed_months:
         raise RuntimeError("candidate has no completed calendar months available for metric results")
 
+    bill_debate_sections = build_bill_debate_sections(
+        bill_debates=frames["bill_debates"],
+        debate_sections=frames["sections"],
+        source_batch_id=batch_id,
+        contract_version=contract_version,
+    )
+    legislation_gate = audit_bill_debate_sections(
+        bridge=bill_debate_sections,
+        speeches=frames["speeches"],
+        divisions=frames["divisions"],
+    )
+    if not legislation_gate.get("ready"):
+        raise RuntimeError(f"candidate bill-section gate failed: {legislation_gate}")
+
     datasets = {
         "daily_activity_components": build_daily_activity_components(
             speeches=frames["speeches"], labels=frames["labels"], memberships=frames["memberships"],
@@ -154,6 +170,7 @@ def main(argv: list[str] | None = None) -> int:
             speeches=frames["speeches"], questions=frames["questions"], source_batch_id=batch_id,
             contract_version=contract_version,
         ),
+        "bill_debate_sections": bill_debate_sections,
     }
 
     monthly_frames: list[pd.DataFrame] = []
@@ -174,6 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         "history_period": {"start": history_period.start.isoformat(), "end": history_period.end.isoformat()},
         "completed_months": [period.label for period in completed_months],
         "classifier_gate": classifier_gate,
+        "legislation_context_gate": legislation_gate,
         "question_context_policy": {
             "question_classifier_run": False,
             "written_questions_are_standalone_records": True,
@@ -181,6 +199,13 @@ def main(argv: list[str] | None = None) -> int:
             "speech_context_values": ["oral_question_exchange", "other"],
             "exchange_participant_roles": ["ministerial", "chair", "ordinary_member", "collective_or_unidentified"],
             "question_taker_attribution_materialized": False,
+        },
+        "legislation_context_policy": {
+            "bill_classifier_run": False,
+            "whole_debate_bill_join_allowed": False,
+            "certified_bill_section_only": True,
+            "multi_bill_sections_excluded": True,
+            "output_grain": ["bill_id", "debate_section_id"],
         },
         "datasets": {
             name: {"row_count": result["row_count"], "entry_name": result["entry_name"], "objects": result["objects"]}
