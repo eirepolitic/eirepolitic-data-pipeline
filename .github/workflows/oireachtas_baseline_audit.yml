@@ -6,6 +6,9 @@ on:
 permissions:
   contents: write
 
+env:
+  PYTHONPATH: .
+
 jobs:
   validate-bill-sections:
     runs-on: ubuntu-latest
@@ -26,7 +29,7 @@ jobs:
         run: |
           set +e
           mkdir -p analysis
-          pytest -vv --tb=long tests/political_metrics/test_legislation_context.py tests/political_metrics/test_downstream_contracts.py tests/political_metrics/test_candidate_materialization.py > analysis/bill_section_test_output.txt 2>&1
+          python -m pytest -vv --tb=long tests/political_metrics/test_legislation_context.py tests/political_metrics/test_downstream_contracts.py tests/political_metrics/test_candidate_materialization.py > analysis/bill_section_test_output.txt 2>&1
           status=$?
           cat analysis/bill_section_test_output.txt
           git config user.name "github-actions[bot]"
