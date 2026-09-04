@@ -49,7 +49,7 @@ Primary external sources should be Meta's current official developer/help docume
 | Step | Topic | Output file | Status |
 |---|---|---|---|
 | 1 | Existing repo review: Instagram pipeline, review gates, S3, AWS, secrets, scheduling hooks | `01_repo_review.md` | **complete** |
-| 2 | Existing Instagram personal account → Creator/Business conversion and preservation risks | `02_account_conversion.md` | pending |
+| 2 | Existing Instagram personal account → Creator/Business conversion and preservation risks | `02_account_conversion.md` | **complete** |
 | 3 | Current Meta Instagram publishing API capabilities and restrictions | `03_meta_api_capabilities.md` | pending |
 | 4 | Meta authentication, Page linkage, permissions, App Review, verification, token lifecycle | `04_meta_authentication.md` | pending |
 | 5 | Tagging and metadata: mentions, media tags, collaborators, location, alt text, first comment, product tags | `05_instagram_tagging_metadata.md` | pending |
