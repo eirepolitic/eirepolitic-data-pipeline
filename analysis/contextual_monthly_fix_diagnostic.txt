@@ -1,0 +1,55 @@
+{
+  "audit": {
+    "checks": {
+      "context_values_valid": true,
+      "dimension_name_valid": true,
+      "metric_ids_valid": true,
+      "periods_valid": true,
+      "primary_key_unique": true,
+      "proportion_values_in_range": true,
+      "source_batch_consistent": true
+    },
+    "context_counts": {
+      "bill_or_legislation": 2916,
+      "motion_proceeding": 3099,
+      "other": 2365,
+      "procedural_business": 3464
+    },
+    "duplicate_rows": 0,
+    "invalid_contexts": 0,
+    "metric_counts": {
+      "member_vote_participation_pct": 11266,
+      "party_vote_cohesion_pct": 578
+    },
+    "ready": true,
+    "reliability_counts": {
+      "caution": 4788,
+      "insufficient_for_comparison": 6750,
+      "reliable": 306
+    },
+    "row_count": 11844
+  },
+  "batch_id": "contextual-monthly-voting-20260904-1",
+  "combined_monthly_row_count": 191356,
+  "contextual_row_count": 11844,
+  "generated_at_utc": "2026-09-04T16:45:01.996654+00:00",
+  "period_count": 21,
+  "production_pointer_changed": false,
+  "published": {
+    "entry_name": "political_metrics_monthly_metric_results",
+    "objects": [
+      {
+        "batch_key": "processed/oireachtas_unified/batches/contextual-monthly-voting-20260904-1/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv",
+        "bytes": 58742955,
+        "format": "csv",
+        "logical_key": "processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv"
+      },
+      {
+        "batch_key": "processed/oireachtas_unified/batches/contextual-monthly-voting-20260904-1/metrics/completed_month/monthly_metric_results/parquet/monthly_metric_results.parquet",
+        "bytes": 724313,
+        "format": "parquet",
+        "logical_key": "processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/parquet/monthly_metric_results.parquet"
+      }
+    ]
+  }
+}

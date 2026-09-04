@@ -32,6 +32,14 @@ SOURCE_KEYS = {
     "monthly_metric_results": "processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv",
 }
 
+STRING_COLUMNS = [
+    "metric_id", "period_type", "period_start", "period_end", "grain", "entity_id", "entity_name",
+    "dimension_name", "dimension_value", "output_unit", "reliability_status", "public_use_status",
+    "warning_code", "source_batch_id", "calculated_at_utc",
+]
+NUMERIC_COLUMNS = ["value", "numerator", "denominator"]
+INTEGER_COLUMNS = ["metric_version", "contract_version"]
+
 
 def _read_candidate_csv(s3, *, bucket: str, batch_id: str, logical_key: str) -> pd.DataFrame:
     key = batch_key_for_production_key(logical_key, batch_id)
@@ -47,6 +55,17 @@ def _periods_from_monthly(frame: pd.DataFrame) -> list[MetricPeriod]:
         end = date.fromisoformat(str(row.period_end))
         periods.append(MetricPeriod(start, end, start.strftime("%Y-%m"), "month"))
     return periods
+
+
+def _normalize_monthly_types(frame: pd.DataFrame) -> pd.DataFrame:
+    result = frame.copy()
+    for col in STRING_COLUMNS:
+        result[col] = result[col].fillna("").astype(str)
+    for col in NUMERIC_COLUMNS:
+        result[col] = pd.to_numeric(result[col], errors="coerce")
+    for col in INTEGER_COLUMNS:
+        result[col] = pd.to_numeric(result[col], errors="raise").astype("int64")
+    return result
 
 
 def parser() -> argparse.ArgumentParser:
@@ -90,6 +109,13 @@ def main(argv: list[str] | None = None) -> int:
         & existing["dimension_name"].eq("division_context")
     )
     combined = pd.concat([existing.loc[keep], contextual], ignore_index=True)
+
+    now = datetime.now(timezone.utc).isoformat()
+    combined["source_batch_id"] = batch_id
+    combined["calculated_at_utc"] = now
+    combined["contract_version"] = contract_version
+    combined = _normalize_monthly_types(combined)
+
     key = ["metric_id","metric_version","period_start","period_end","grain","entity_id","dimension_name","dimension_value"]
     duplicate = int(combined.duplicated(key).sum())
     if duplicate:
@@ -106,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     report = {
         "batch_id": batch_id,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": now,
         "period_count": len(periods),
         "contextual_row_count": int(len(contextual)),
         "combined_monthly_row_count": int(len(combined)),
