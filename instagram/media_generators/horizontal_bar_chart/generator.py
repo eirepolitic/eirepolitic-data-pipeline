@@ -70,6 +70,12 @@ def normalise_rows(rows: list[dict[str, Any]], max_items: int, sort: str) -> tup
     return clean, warnings
 
 
+def _format_value(value: float, suffix: str, signed: bool) -> str:
+    if signed and value > 0:
+        return f"+{value:g}{suffix}"
+    return f"{value:g}{suffix}"
+
+
 def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
     params = spec.get("params", {})
     rows, warnings = normalise_rows(
@@ -82,6 +88,7 @@ def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
     palette_id = str(params.get("palette", "eirepolitic_dark"))
     palette = PALETTES.get(palette_id, PALETTES["eirepolitic_dark"])
     value_suffix = str(params.get("value_suffix", ""))
+    signed_values = bool(params.get("signed_values", False))
 
     labels = [r["label"] for r in rows]
     values = [r["value"] for r in rows]
@@ -112,7 +119,19 @@ def render(spec: dict[str, Any], output_dir: str | Path) -> dict[str, Any]:
                     capsize=3,
                     alpha=0.9,
                 )
-            ax.text(value, i, f" {value:g}{value_suffix}", va="center", color=palette["text"], fontsize=10)
+            horizontal_alignment = "left" if value >= 0 else "right"
+            offset = 0.08 if value >= 0 else -0.08
+            ax.text(
+                value + offset,
+                i,
+                _format_value(value, value_suffix, signed_values),
+                va="center",
+                ha=horizontal_alignment,
+                color=palette["text"],
+                fontsize=10,
+            )
+        if min(values) < 0 < max(values):
+            ax.axvline(0, color=palette["muted"], linewidth=1, alpha=0.6)
     else:
         ax.text(0.5, 0.5, "No rows", ha="center", va="center", color=palette["text"])
 
