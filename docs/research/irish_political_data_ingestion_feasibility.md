@@ -4,7 +4,21 @@
 
 Read-only follow-up to `irish_political_data_sources.md`. This document tests the five highest-priority future-ingestion candidates without implementing a connector or changing production architecture, schemas, pipelines, secrets, infrastructure, or production data.
 
-## Result summary
+## Exact validation result — completed 2026-09-03
+
+All five candidates below have now been tested beyond the initial feasibility pass. No production connector, schema or pipeline was created.
+
+| Prototype order | Source | Exact validation result | Main safeguard | Durable record |
+| --- | --- | --- | --- | --- |
+| 1 | Irish Polling Indicator | Ready for non-production prototype | Pin upstream commit; preserve raw/model units; audit duplicate/date anomalies | `ipi_readonly_proof.md`, `ipi_bounded_validation.md` |
+| 2 | Official referendum results | Ready for non-production prototype | Prefer CKAN datastore; preserve boundary vintage; flag 2015 900-vote anomaly | `referendum_data_validation.md` |
+| 3 | CSO PxStat | Ready after selecting a concrete political-use table | Validate unit, dimensions and geography for the exact table | `cso_pxstat_validation.md` |
+| 4 | Official general-election count/transfer data | Ready with source-specific adapters | 2016/2020 CSV-style; 2024 workbook parser; IDs are election-scoped | `election_count_data_validation.md` |
+| 5 | Irish Demographic Polling Datasets | Technically ready; rights clarification first | Do not treat weighted counts as respondent n; clarify recurring production/republication rights | `irish_demographic_polling_validation.md` |
+
+The validation sequence found no reason to reject any of the five technically. The only gating issue is rights clarity for the demographic polling dataset.
+
+## Initial pre-validation summary
 
 | Rank | Source | Feasibility | Recommended future ingestion mode | Main risk |
 | --- | --- | --- | --- | --- |
@@ -269,13 +283,13 @@ Do not infer that constituency labels correspond to the same geography across de
 
 # Comparative recommendation
 
-## Implementation-readiness order
+## Implementation-readiness order after exact validation
 
-1. **Irish Polling Indicator** — highest immediate editorial value and simplest recurring polling path.
-2. **CSO PxStat** — strongest official API foundation; start narrow with one geography/table.
-3. **Referendum results** — easy static CSV normalization and excellent historical visualization potential.
-4. **General-election count/transfer data** — highly valuable but requires year-specific adapters, especially 2024 XLSX.
-5. **Irish Demographic Polling Datasets** — technically straightforward and very valuable, but confirm intended commercial/republication terms before production ingestion.
+1. **Irish Polling Indicator** — first prototype because polling is the highest-priority EirePolitic use case and exact validation confirms the source is workable with explicit anomaly/version controls.
+2. **Referendum results** — easiest fully official historical normalization; CKAN datastore access is cleaner than older raw CSVs.
+3. **CSO PxStat** — excellent API, but select the exact editorial table first because unit/geography semantics are table-specific.
+4. **General-election count/transfer data** — high value and validated, but 2024 requires a separate workbook adapter.
+5. **Irish Demographic Polling Datasets** — technically ready, but obtain/record production/republication rights clarification first.
 
 ## What a later bounded proof should demonstrate
 
@@ -309,4 +323,4 @@ No schema design or deployment is approved by this research.
 
 # Living next step
 
-The read-only top-five feasibility pass is complete. The next research-only step, if continued, should be a **single-source bounded proof for the Irish Polling Indicator** that records exact current filenames/columns, row counts, date coverage, source commit/version and duplicate/null diagnostics without writing to production systems.
+The top-five read-only validation programme is complete. The next step requires a **separate implementation decision**, not more source discovery: build a bounded non-production Irish Polling Indicator prototype pinned to an exact upstream commit, with no production schema or pipeline changes.
