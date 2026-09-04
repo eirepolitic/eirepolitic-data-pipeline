@@ -52,7 +52,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 2 | Existing Instagram personal account → Creator/Business conversion and preservation risks | `02_account_conversion.md` | **complete** |
 | 3 | Current Meta Instagram publishing API capabilities and restrictions | `03_meta_api_capabilities.md` | **complete** |
 | 4 | Meta authentication, Page linkage, permissions, App Review, verification, token lifecycle | `04_meta_authentication.md` | **complete** |
-| 5 | Tagging and metadata: mentions, media tags, collaborators, location, alt text, first comment, product tags | `05_instagram_tagging_metadata.md` | pending |
+| 5 | Tagging and metadata: mentions, media tags, collaborators, location, alt text, first comment, product tags | `05_instagram_tagging_metadata.md` | **complete** |
 | 6 | Direct Meta publishing architecture | `06_direct_meta_option.md` | pending |
 | 7 | Third-party scheduler/API options: Buffer, Hootsuite, Metricool, Later, Sprout and suitable alternatives | `07_third_party_options.md` | pending |
 | 8 | Hybrid architecture: own intent/ledger + third-party delivery | `08_hybrid_option.md` | pending |
