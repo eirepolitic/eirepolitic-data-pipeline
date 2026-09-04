@@ -4,14 +4,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+env:
+  PYTHONPATH: .
 
 jobs:
-  inventory:
+  contextual-monthly-live-digest:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -27,22 +26,45 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Capture live contextual monthly result footprint
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/metrics/completed_month/monthly_metric_results/csv/monthly_metric_results.csv')
+          monthly=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          contextual=monthly[
+              monthly['metric_id'].isin(['member_vote_participation_pct','party_vote_cohesion_pct'])
+              & monthly['dimension_name'].eq('division_context')
+          ].copy()
+          out={
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'monthly_row_count':int(len(monthly)),
+            'contextual_row_count':int(len(contextual)),
+            'period_count':int(contextual[['period_start','period_end']].drop_duplicates().shape[0]),
+            'metric_counts':{k:int(v) for k,v in contextual['metric_id'].value_counts().to_dict().items()},
+            'context_counts':{k:int(v) for k,v in contextual['dimension_value'].value_counts().to_dict().items()},
+            'reliability_counts':{k:int(v) for k,v in contextual['reliability_status'].value_counts().to_dict().items()},
+            'public_use_counts':{k:int(v) for k,v in contextual['public_use_status'].value_counts().to_dict().items()},
+            'warning_counts':{k:int(v) for k,v in contextual['warning_code'].value_counts().to_dict().items()},
+            'metric_context_counts':{f'{m}|{c}':int(len(g)) for (m,c),g in contextual.groupby(['metric_id','dimension_value'])},
+            'source_batch_values':sorted(contextual['source_batch_id'].dropna().astype(str).unique().tolist()),
+            'duplicate_primary_keys':int(monthly.duplicated(['metric_id','metric_version','period_start','period_end','grain','entity_id','dimension_name','dimension_value']).sum()),
+          }
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/contextual_monthly_live_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - name: Persist digest
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/contextual_monthly_live_digest.json
+          git commit -m "Capture contextual monthly live digest ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
