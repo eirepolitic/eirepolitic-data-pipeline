@@ -59,7 +59,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 9 | Scheduling infrastructure comparison: EventBridge Scheduler, Lambda, Step Functions, SQS, GitHub Actions, Power Automate | `09_scheduling_infrastructure.md` | **complete** |
 | 10 | Publication data model: asset package, request, approval, schedule, execution attempt, published-media record | `10_publication_data_model.md` | **complete** |
 | 11 | Conversational approval/state model and safeguards | `11_conversational_control.md` | **complete** |
-| 12 | Asset readiness, S3/media hosting, hashes, stable URLs and Meta retrieval requirements | `12_asset_readiness.md` | pending |
+| 12 | Asset readiness, S3/media hosting, hashes, stable URLs and Meta retrieval requirements | `12_asset_readiness.md` | **complete** |
 | 13 | Captions/templates and explicit final-caption storage | `13_caption_templates.md` | pending |
 | 14 | Timezones and Europe/Dublin scheduling/DST handling | `14_timezones.md` | pending |
 | 15 | Secrets/token management | `15_secrets_tokens.md` | pending |
