@@ -28,9 +28,12 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas
-      - name: Profile context-filtered voting metrics
+      - name: Profile context-filtered voting metrics and capture diagnostics
+        shell: bash
         run: |
-          python - <<'PY'
+          set +e
+          mkdir -p analysis
+          python - <<'PY' > analysis/contextual_vote_metrics_run.txt 2>&1
           import io,json,os
           from pathlib import Path
           import boto3,pandas as pd
@@ -42,7 +45,7 @@ jobs:
           def read(p):
               k=resolve_production_key(s3,bucket=bucket,production_key=p)
               d=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-              for c in d.columns:d[c]=d[c].fillna('').astype(str).str.strip()
+              print(p, len(d), list(d.columns))
               return d
 
           div=read('processed/oireachtas_unified/latest/csv/silver_divisions.csv')
@@ -51,89 +54,66 @@ jobs:
           parties=read('processed/oireachtas_unified/latest/csv/silver_member_parties.csv')
           dctx=read('processed/oireachtas_unified/latest/metrics/event/division_context/csv/division_context.csv')
 
-          # Restrict each metric calculation to the selected division context, then reuse production calculators unchanged.
           contexts=['bill_or_legislation','motion_proceeding','procedural_business','other']
-          context_results={}
-          party_rows=[]
-          member_rows=[]
+          context_results={}; party_rows=[]; member_rows=[]
           for context in contexts:
+              print('CONTEXT', context)
               ids=set(dctx.loc[dctx['division_context'].eq(context),'division_id'])
               cdiv=div[div['division_id'].isin(ids)].copy()
               cvotes=votes[votes['division_id'].isin(ids)].copy()
               eligible=eligible_division_pairs(memberships,cdiv)
+              print('sizes', len(cdiv), len(cvotes), len(eligible))
               member=member_vote_participation(cvotes,eligible)
               party=party_vote_metrics(cvotes,eligible,parties)
-              member['division_context']=context
-              party['division_context']=context
-              member_rows.append(member)
-              party_rows.append(party)
+              member['division_context']=context; party['division_context']=context
+              member_rows.append(member); party_rows.append(party)
+              reliable=party['unity_public_safe'].astype(str).str.lower().eq('true') if not party.empty else pd.Series(dtype=bool)
+              vp=pd.to_numeric(member['vote_participation_pct'],errors='coerce')
+              cp=pd.to_numeric(party.loc[reliable,'vote_cohesion_pct'],errors='coerce') if not party.empty else pd.Series(dtype=float)
               context_results[context]={
                   'division_count':int(len(cdiv)),
                   'member_vote_rows':int(len(cvotes)),
                   'eligible_member_division_pairs':int(len(eligible)),
                   'member_count':int(member['member_code'].nunique()) if not member.empty else 0,
-                  'member_participation_median':float(member['vote_participation_pct'].dropna().astype(float).median()) if member['vote_participation_pct'].notna().any() else None,
-                  'member_participation_p25':float(member['vote_participation_pct'].dropna().astype(float).quantile(.25)) if member['vote_participation_pct'].notna().any() else None,
-                  'member_participation_p75':float(member['vote_participation_pct'].dropna().astype(float).quantile(.75)) if member['vote_participation_pct'].notna().any() else None,
+                  'member_participation_median':float(vp.dropna().median()) if vp.notna().any() else None,
+                  'member_participation_p25':float(vp.dropna().quantile(.25)) if vp.notna().any() else None,
+                  'member_participation_p75':float(vp.dropna().quantile(.75)) if vp.notna().any() else None,
                   'party_count':int(party['party_uri'].nunique()) if not party.empty else 0,
                   'party_reliability_counts':{k:int(v) for k,v in party['unity_reliability_status'].value_counts().to_dict().items()},
-                  'public_safe_party_count':int(party['unity_public_safe'].astype(bool).sum()) if not party.empty else 0,
-                  'party_cohesion_median_reliable':float(party.loc[party['unity_public_safe'].astype(bool),'vote_cohesion_pct'].dropna().astype(float).median()) if party['unity_public_safe'].astype(bool).any() else None,
+                  'public_safe_party_count':int(reliable.sum()) if not party.empty else 0,
+                  'party_cohesion_median_reliable':float(cp.dropna().median()) if cp.notna().any() else None,
               }
 
-          members=pd.concat(member_rows,ignore_index=True) if member_rows else pd.DataFrame()
-          parties_out=pd.concat(party_rows,ignore_index=True) if party_rows else pd.DataFrame()
-
-          # Compact, non-evaluative summaries for the largest party/context samples.
+          members=pd.concat(member_rows,ignore_index=True); parties_out=pd.concat(party_rows,ignore_index=True)
           party_top=[]
           for context,g in parties_out.groupby('division_context'):
               h=g.sort_values(['qualifying_unity_divisions','recorded_member_votes'],ascending=False).head(15)
-              for r in h.itertuples(index=False):
+              for _,r in h.iterrows():
                   party_top.append({
                     'division_context':context,
-                    'party_uri':r.party_uri,
-                    'eligible_member_divisions':int(r.eligible_member_divisions),
-                    'recorded_member_votes':int(r.recorded_member_votes),
-                    'vote_participation_pct':None if pd.isna(r.vote_participation_pct) else float(r.vote_participation_pct),
-                    'qualifying_unity_divisions':int(r.qualifying_unity_divisions),
-                    'vote_cohesion_pct':None if pd.isna(r.vote_cohesion_pct) else float(r.vote_cohesion_pct),
-                    'unity_reliability_status':r.unity_reliability_status,
-                    'unity_public_safe':bool(r.unity_public_safe),
+                    'party_uri':r['party_uri'],
+                    'eligible_member_divisions':int(r['eligible_member_divisions']),
+                    'recorded_member_votes':int(r['recorded_member_votes']),
+                    'vote_participation_pct':None if pd.isna(r['vote_participation_pct']) else float(r['vote_participation_pct']),
+                    'qualifying_unity_divisions':int(r['qualifying_unity_divisions']),
+                    'vote_cohesion_pct':None if pd.isna(r['vote_cohesion_pct']) else float(r['vote_cohesion_pct']),
+                    'unity_reliability_status':r['unity_reliability_status'],
+                    'unity_public_safe':str(r['unity_public_safe']).lower()=='true',
                   })
-
-          # Sample-size distribution for member participation: denominator size is essential for interpretation.
           member_denominator_bands={}
           for context,g in members.groupby('division_context'):
               denom=pd.to_numeric(g['eligible_division_count'],errors='coerce').fillna(0)
-              member_denominator_bands[context]={
-                  'lt5':int((denom<5).sum()),
-                  '5_to_9':int(((denom>=5)&(denom<10)).sum()),
-                  '10_to_24':int(((denom>=10)&(denom<25)).sum()),
-                  '25_plus':int((denom>=25).sum()),
-              }
-
-          out={
-            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
-            'row_counts':{'divisions':len(div),'member_votes':len(votes),'division_context_rows':len(dctx)},
-            'context_results':context_results,
-            'member_denominator_bands':member_denominator_bands,
-            'party_samples':party_top,
-            'guardrails':[
-              'Each context calculation filters divisions first, then calls the existing production voting calculators unchanged.',
-              'Member participation denominator remains eligible member x division opportunities within the selected context.',
-              'Party cohesion uses recorded party votes, requires at least two party votes in a division, and keeps the existing 10/5 reliability thresholds.',
-              'Context-specific participation or cohesion is descriptive and is not a measure of effectiveness, discipline quality or political performance.',
-              'Comparisons across contexts reflect different parliamentary forms and sample sizes; do not interpret context differences causally.'
-            ]
-          }
-          Path('analysis').mkdir(exist_ok=True)
+              member_denominator_bands[context]={'lt5':int((denom<5).sum()),'5_to_9':int(((denom>=5)&(denom<10)).sum()),'10_to_24':int(((denom>=10)&(denom<25)).sum()),'25_plus':int((denom>=25).sum())}
+          out={'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),'row_counts':{'divisions':len(div),'member_votes':len(votes),'division_context_rows':len(dctx)},'context_results':context_results,'member_denominator_bands':member_denominator_bands,'party_samples':party_top,'guardrails':['Each context calculation filters divisions first, then calls the existing production voting calculators unchanged.','Member participation denominator remains eligible member x division opportunities within the selected context.','Party cohesion uses recorded party votes, requires at least two party votes in a division, and keeps the existing 10/5 reliability thresholds.','Context-specific participation or cohesion is descriptive and is not a measure of effectiveness, discipline quality or political performance.','Comparisons across contexts reflect different parliamentary forms and sample sizes; do not interpret context differences causally.']}
           Path('analysis/contextual_vote_metrics_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True,default=str)+'\n')
           print(json.dumps(out,indent=2,sort_keys=True,default=str))
           PY
-      - name: Persist analysis
-        run: |
+          status=$?
+          cat analysis/contextual_vote_metrics_run.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/contextual_vote_metrics_digest.json
+          git add analysis/contextual_vote_metrics_run.txt
+          if [ -f analysis/contextual_vote_metrics_digest.json ]; then git add analysis/contextual_vote_metrics_digest.json; fi
           git commit -m "Capture contextual vote metric diagnostics ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
+          exit $status
