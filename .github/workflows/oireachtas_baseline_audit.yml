@@ -4,37 +4,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
-env:
-  PYTHONPATH: .
+concurrency:
+  group: oireachtas-baseline-audit
+  cancel-in-progress: false
 
 jobs:
-  validate-bill-sections:
+  inventory:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: python -m pip install pandas pyarrow pyyaml boto3 pytest
-      - name: Compile changed Python
-        run: |
-          python -m py_compile political_metrics/legislation_context.py
-          python -m py_compile process/political_metrics_bill_debate_sections_candidate.py
-          python -m py_compile process/political_metrics_materialize_candidate.py
-      - name: Run focused regression tests and capture output
+          cache: pip
+      - name: Install audit dependencies
         shell: bash
         run: |
-          set +e
-          mkdir -p analysis
-          python -m pytest -vv --tb=long tests/political_metrics/test_legislation_context.py tests/political_metrics/test_downstream_contracts.py tests/political_metrics/test_candidate_materialization.py > analysis/bill_section_test_output.txt 2>&1
-          status=$?
-          cat analysis/bill_section_test_output.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/bill_section_test_output.txt
-          git commit -m "Capture Bill-section validation output ${GITHUB_RUN_ID}" || true
-          git push origin HEAD:${GITHUB_REF_NAME}
-          exit $status
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install boto3
+      - name: Create read-only inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/oireachtas_audit_inventory.py
+      - name: Upload baseline audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/oireachtas-baseline-audit/
+          if-no-files-found: error
+          retention-days: 30
