@@ -56,7 +56,7 @@ Primary external sources should be Meta's current official developer/help docume
 | 6 | Direct Meta publishing architecture | `06_direct_meta_option.md` | **complete** |
 | 7 | Third-party scheduler/API options: Buffer, Hootsuite, Metricool, Later, Sprout and suitable alternatives | `07_third_party_options.md` | **complete** |
 | 8 | Hybrid architecture: own intent/ledger + third-party delivery | `08_hybrid_option.md` | **complete** |
-| 9 | Scheduling infrastructure comparison: EventBridge Scheduler, Lambda, Step Functions, SQS, GitHub Actions, Power Automate | `09_scheduling_infrastructure.md` | pending |
+| 9 | Scheduling infrastructure comparison: EventBridge Scheduler, Lambda, Step Functions, SQS, GitHub Actions, Power Automate | `09_scheduling_infrastructure.md` | **complete** |
 | 10 | Publication data model: asset package, request, approval, schedule, execution attempt, published-media record | `10_publication_data_model.md` | pending |
 | 11 | Conversational approval/state model and safeguards | `11_conversational_control.md` | pending |
 | 12 | Asset readiness, S3/media hosting, hashes, stable URLs and Meta retrieval requirements | `12_asset_readiness.md` | pending |
