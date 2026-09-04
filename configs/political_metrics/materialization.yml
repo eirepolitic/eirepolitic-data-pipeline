@@ -13,6 +13,7 @@ principles:
   - certified legislation context is attached only at exact debate-section grain, never at whole-debate grain
   - broader speech context is deterministic, one-row-per-speech and retains other as an explicit fallback
   - division context is deterministic, one-row-per-division and must not change vote denominators
+  - contextual voting foundations add division_context as a dimension while preserving the existing numerator denominator and party-at-vote rules
 
 reliability_values:
   - reliable
@@ -41,6 +42,16 @@ foundation_datasets:
     allowed_grains: [member, party, constituency, national]
     allowed_components: [speech_count, policy_speech_count, speaking_day_count, debate_day_count, member_debate_day_exposure, question_count, recorded_vote_count, eligible_member_division_count, division_count]
 
+  daily_context_vote_components:
+    description: Additive daily recorded-vote numerators and eligible member-division denominators by certified division context. Collapsing division_context must reconcile exactly to the voting components in daily_activity_components.
+    cadence: daily
+    formats: [csv, parquet]
+    primary_key: [activity_date, division_context, grain, entity_id, component_id]
+    columns: [activity_date, division_context, grain, entity_id, component_id, component_value, source_batch_id, component_version, calculated_at_utc, contract_version]
+    allowed_grains: [member, party, constituency]
+    allowed_components: [recorded_vote_count, eligible_member_division_count]
+    allowed_division_context_values: [bill_or_legislation, motion_proceeding, procedural_business, other]
+
   daily_issue_activity:
     description: Additive daily issue counts by supported political grain.
     cadence: daily
@@ -56,6 +67,15 @@ foundation_datasets:
     primary_key: [division_id, party_uri, vote_code]
     columns: [division_id, division_date, party_uri, vote_code, recorded_vote_count, source_batch_id, component_version, calculated_at_utc, contract_version]
     allowed_vote_codes: [ta, nil, staon]
+
+  context_division_party_vote_components:
+    description: Division-level historical party vote distributions carrying certified division context. Collapsing division_context must reconcile exactly to division_party_vote_components.
+    cadence: event
+    formats: [csv, parquet]
+    primary_key: [division_id, division_context, party_uri, vote_code]
+    columns: [division_id, division_date, division_context, party_uri, vote_code, recorded_vote_count, source_batch_id, component_version, calculated_at_utc, contract_version]
+    allowed_vote_codes: [ta, nil, staon]
+    allowed_division_context_values: [bill_or_legislation, motion_proceeding, procedural_business, other]
 
   daily_question_dimensions:
     description: Additive daily parliamentary-question submission counts by Oireachtas question type and recorded recipient. These count question records, not speech interventions in oral-question exchanges.
