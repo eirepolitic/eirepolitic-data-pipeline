@@ -1,267 +1,252 @@
 # Instagram post candidates
 
-Status: **Research complete; shortlist for editorial review**  
+Status: **Research complete; rebuilt across the full EirePolitic dataset**  
 Date: **3 September 2026**
 
-This note identifies ten defensible Instagram post candidates from the current EirePolitic production metrics and research record. It is an editorial shortlist, **not** the final five.
+This replaces the earlier Parliamentary-Questions-heavy shortlist. The scope is now all usable EirePolitic political data: speeches, issue labels, divisions/member votes, legislation, deterministic parliamentary context and Parliamentary Questions.
 
-No production schema, architecture, data pointer, classifier, or model call was changed or used for this work.
+No production schema, architecture or source data was changed for this research. Temporary read-only diagnostics were run only on the isolated branch `analysis/instagram-candidates-all-data-20260903` and are not part of the documentation PR.
 
 ## Data sources examined
 
-Research records:
+Research and implementation records:
 
-- `parliamentary_questions_investigation.md`
-- `parliamentary_questions_question_taking.md`
-- `parliamentary_questions_exchange_metrics.md`
-- `parliamentary_questions_exchange_metrics_implementation.md`
-- `parliamentary_questions_section_headings.md`
-- `parliamentary_questions_oral_vs_written.md`
 - `broader_speech_context.md`
 - `legislation_investigation.md`
-- `legislation_bridge_implementation_plan.md`
+- `legislation_bridge_implementation.md`
+- `parliamentary_questions_oral_vs_written.md`
+- `parliamentary_questions_exchange_metrics.md`
+- `parliamentary_questions_question_taking.md`
+- `oireachtas_speech_issue_classifier_v2.md`
 
-Production/configuration reviewed:
+Current production/derived data inspected directly:
 
-- `configs/political_metrics/catalogue/questions.yml`
-- `configs/political_metrics/catalogue/core_speeches.yml`
-- `configs/political_metrics/catalogue/votes.yml`
-- `configs/political_metrics/materialization.yml`
-- `docs/political_metrics_foundation.md`
+- `silver_speeches`
+- `silver_divisions`
+- `silver_member_votes`
+- `silver_bills`
+- `silver_bill_stages`
+- `silver_bill_sponsors`
+- `gold_member_activity_yearly`
+- `gold_constituency_activity_yearly`
+- `gold_current_members`
+- 2025 classified debate speeches compatibility output
+- production `bill_debate_sections`
+- certified Parliamentary Question and Oral-exchange metrics
 
-The current certified question/exchange snapshot used by the source research covers 2025–2026 and includes 121,355 submitted Parliamentary Questions, 2,127 Oral-question exchanges, 18,485 exchange transcript interventions and 2,763,441 exchange words.
-
-## Metrics investigated
-
-- Oral vs Written submitted-question mix;
-- recipient channel mix and concentration;
-- Taoiseach question structure;
-- single vs grouped Oral exchanges;
-- exchange interventions and transcript word volume;
-- ministerial/respondent, ordinary-member and chair contributions;
-- submitting-member participation and non-submitting TD participation;
-- member, party and constituency channel profiles;
-- exact Leaders' Questions context;
-- section-heading structure;
-- certified/potential Bill-to-section, Bill-to-speech and Bill-to-division relationships;
-- Bill stages and sponsors;
-- existing division/voting components and denominator requirements.
+The read-only diagnostic runs used deterministic existing data only. No classifier/API calls were made.
 
 ## Ranked shortlist of ten
 
-### 1. Almost every Parliamentary Question is Written
+### 1. What the Dáil talked about most in 2025
+
+- **Working title:** Housing, health and education dominated policy speech topics in 2025
+- **Hook:** More than a third of policy-labelled speeches fell into just three issue categories.
+- **Visual:** ranked horizontal bars for the top 8–10 issues, with the top three highlighted.
+- **Metric/relationship:** count of 2025 speeches by primary `PoliticalIssues` label, excluding `NONE`/blank.
+- **Period:** 2025.
+- **Denominator:** **23,936 policy-labelled speeches**.
+- **Key result:** Housing and Community Development **3,385 (14.1%)**; Health **3,208 (13.4%)**; Education **2,440 (10.2%)**. Together they account for **37.7%** of policy-labelled speeches. International Affairs follows at 1,699 (7.1%).
+- **Why interesting:** immediately understandable, high public relevance, and naturally visual.
+- **Caveats:** classifier assigns one main issue per speech; this measures recorded speaking attention, not policy importance, time spent, agreement, effectiveness or public concern. Issue metrics remain classification-dependent.
+- **Production-ready:** **Usable from existing classified output; public copy must carry classifier context.**
+- **Confidence:** **usable with caveat**.
+- **Final-five competitiveness:** **Very high.**
+
+### 2. How long is a recorded Dáil speech?
+
+- **Working title:** The median recorded Dáil speech in the current snapshot is 156 words
+- **Hook:** A large share of transcript interventions are very short, while a smaller tail runs much longer.
+- **Visual:** distribution bands: under 50 words / 50–156 / 157–500 / over 500, plus median callout.
+- **Metric/relationship:** deterministic `word_count` across canonical `silver_speeches`.
+- **Period:** current 2026 production speech snapshot, covering **10 debate days**.
+- **Denominator:** **3,430 recorded speeches/interventions**.
+- **Key result:** median **156 words**; mean 257.7; **1,108 (32.3%)** are under 50 words; **495 (14.4%)** exceed 500 words; total transcript volume **883,872 words**.
+- **Why interesting:** a simple structural explainer about what a parliamentary transcript actually looks like.
+- **Caveats:** `speech` here is a transcript intervention, not necessarily a prepared standalone speech. Current production snapshot is only 10 debate days, so do not describe this as a timeless historical norm.
+- **Production-ready:** **Yes for the current snapshot.**
+- **Confidence:** **strong**.
+- **Final-five competitiveness:** **Very high.**
+
+### 3. Close Dáil divisions are uncommon in the current 2026 snapshot
+
+- **Working title:** Only 3 of 56 recorded Dáil divisions were decided by 10 votes or fewer
+- **Hook:** The closest recorded division in the current production window still had a nine-vote margin.
+- **Visual:** histogram or dot plot of Tá–Níl margins, with <=10 highlighted.
+- **Metric/relationship:** absolute difference between recorded Tá and Níl member-vote counts per division.
+- **Period:** current 2026 division snapshot.
+- **Denominator:** **56 divisions** with member-vote records.
+- **Key result:** minimum margin **9**; median **14.5**; **0/56** within five votes; **3/56 (5.4%)** within ten votes.
+- **Why interesting:** clear, intuitive and likely surprising without making a partisan claim.
+- **Caveats:** margin is based on recorded Tá/Níl votes, not the full membership of the chamber; this snapshot is not a historical claim about all Dáil voting.
+- **Production-ready:** **Yes for the current snapshot.**
+- **Confidence:** **strong**.
+- **Final-five competitiveness:** **Very high.**
+
+### 4. Abstentions are rare among recorded division votes
+
+- **Working title:** Recorded Dáil division votes are overwhelmingly Tá or Níl
+- **Hook:** Of more than 8,000 recorded member-vote entries, only a few dozen are recorded as abstentions.
+- **Visual:** 100% stacked bar: Tá / Níl / Staon.
+- **Metric/relationship:** deterministic member-vote label counts.
+- **Period:** current 2026 division snapshot.
+- **Denominator:** **8,252 recorded member-vote rows** across 56 divisions.
+- **Key result:** Tá **4,206 (51.0%)**; Níl **4,010 (48.6%)**; abstain/Staon **36 (0.44%)**.
+- **Why interesting:** very clean visual and a useful explainer of what recorded division data contains.
+- **Caveats:** an absent/non-voting TD is not the same thing as a recorded abstention; denominator is recorded vote entries, not all eligible members across all divisions.
+- **Production-ready:** **Yes.**
+- **Confidence:** **strong**.
+- **Final-five competitiveness:** **High.**
+
+### 5. How far have the Bills in the current production set progressed?
+
+- **Working title:** From First Stage to Fifth: where 45 current tracked Bills have reached
+- **Hook:** Almost all have reached Second Stage, while substantially fewer have reached Committee/Report/Fifth Stage so far.
+- **Visual:** stage funnel using distinct Bills reaching each named stage.
+- **Metric/relationship:** distinct `bill_id` by observed `stage_name`.
+- **Period:** current production Bill snapshot: 45 Bills (2 from 2024, 7 from 2025, 36 from 2026).
+- **Denominator:** **45 Public Bills** in the current production set.
+- **Key result:** First Stage **45**; Second Stage **42 (93.3%)**; Committee Stage **29 (64.4%)**; Report Stage **27 (60.0%)**; Fifth Stage **27 (60.0%)**; Enacted stage recorded for **3**. Current status table shows **39 Bills are still Current**, so the latter figures are not final completion rates.
+- **Why interesting:** strong civic explainer about the legislative path and easy to turn into a funnel graphic.
+- **Caveats:** stage rows can occur in different Houses and the snapshot contains many still-active Bills. Do not frame later-stage counts as failure/dropout rates. `Cream List` is excluded from the public funnel because its semantics need separate explanation.
+- **Production-ready:** **Yes with explicit snapshot wording.**
+- **Confidence:** **strong**.
+- **Final-five competitiveness:** **Very high.**
+
+### 6. We can now link thousands of speeches directly to Bills without guessing
+
+- **Working title:** 7,352 speeches are deterministically linked to 168 Bills in the certified production subset
+- **Hook:** The new Bill-section bridge shows exactly which transcript sections belong to a Bill, without assigning an entire debate to legislation.
+- **Visual:** simple relationship graphic: 168 Bills → 371 debate sections → 7,352 speeches + 168 divisions.
+- **Metric/relationship:** production `bill_debate_sections` joined by exact `debate_section_id` to speeches/divisions.
+- **Period:** current production source batch certified on 3 September 2026.
+- **Denominator:** the conservative certified Bill-section subset: **168 Bills / 371 sections**.
+- **Key result:** **7,352 speeches** and **168 divisions** link through **371 certified Bill debate sections** across **168 Bills**.
+- **Why interesting:** a strong “how legislation actually appears in the chamber record” explainer and demonstrates a newly safe relationship in the pipeline.
+- **Caveats:** this is deliberately a certified subset, not whole-Oireachtas legislation coverage; unresolved Seanad, committee and older historical coverage is excluded rather than guessed.
+- **Production-ready:** **Yes.** The bridge was deployed and post-audited in production on 3 September 2026.
+- **Confidence:** **strong**.
+- **Final-five competitiveness:** **High.**
+
+### 7. The transcript footprint of Leaders' Questions
+
+- **Working title:** Leaders' Questions: 159 identifiable sections and 10,821 transcript interventions
+- **Hook:** Leaders' Questions can be isolated cleanly from exact official section headings rather than broad text matching.
+- **Visual:** big-number explainer with section count, transcript-intervention count and exact-heading methodology.
+- **Metric/relationship:** exact certified Leaders' Questions source-heading allowlist.
+- **Period:** broader 2025–2026 speech research history.
+- **Denominator:** sections/speeches whose source heading exactly matches the two certified genuine Leaders' Questions headings.
+- **Key result:** **10,821 speeches/interventions across 159 sections**; 10,702 under the main heading and 119 under the resumed heading.
+- **Why interesting:** highly recognisable parliamentary format with a clean deterministic basis.
+- **Caveats:** broader reusable `speech_context` is not yet productionised. A final production post should rerun the exact intended visual against the current certified source scope.
+- **Production-ready:** **Deterministic rule is certified; reusable context metric is not fully productionised.**
+- **Confidence:** **usable with caveat**.
+- **Final-five competitiveness:** **High.**
+
+### 8. Almost every Parliamentary Question is Written
 
 - **Working title:** 97% of Parliamentary Questions are Written
-- **Hook:** Oral questions are the visible chamber format, but they are only a small fraction of submitted Parliamentary Questions.
-- **Visual:** 100-dot or stacked bar: Written vs Oral, with a small two-year comparison underneath.
-- **Metric/relationship:** distinct submitted `question_id` by certified `question_type`.
-- **Period:** current 2025–2026 history.
-- **Denominator:** all 121,355 submitted question records.
-- **Key result:** Written **117,695 (96.98%)**; Oral **3,660 (3.02%)**; about **32.2 Written questions per Oral question**. 2025 Oral share 3.09%; 2026 2.92%.
-- **Why interesting:** immediately understandable and corrects the natural tendency to equate chamber visibility with overall PQ volume.
-- **Caveats:** counts submitted questions, not scrutiny quality, answer quality or parliamentary effectiveness.
-- **Production-ready:** **Yes.** Existing certified foundations are sufficient.
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **Very high.**
-
-### 2. Questions to the Taoiseach work very differently
-
-- **Working title:** The Taoiseach is the big exception to the Written-question rule
-- **Hook:** While most departments receive overwhelmingly Written questions, questions to the Taoiseach are actually majority Oral.
-- **Visual:** Taoiseach vs six large line departments, showing Oral share of submitted questions.
-- **Metric/relationship:** recipient-level Oral/Written counts from certified question records.
-- **Period:** current 2025–2026 history.
-- **Denominator:** all submitted questions to each displayed recipient.
-- **Key result:** Taoiseach: **1,354 Oral, 1,137 Written, 54.36% Oral**. The Taoiseach accounts for about **37% of all Oral question records**. By contrast Health is **0.49% Oral**, Education **0.99%**, Transport **1.28%**, Justice **1.30%**, Children **1.35%**, Housing **1.62%**.
-- **Why interesting:** strong visual contrast and a real structural feature of the Dáil rather than a partisan ranking.
-- **Caveats:** the Taoiseach channel has a special parliamentary role and should not be treated as directly comparable to line departments on scrutiny/effectiveness.
-- **Production-ready:** **Yes.**
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **Very high.**
-
-### 3. Grouped Oral questions are much bigger exchanges
-
-- **Working title:** When Oral questions are grouped, the debate roughly doubles in size
-- **Hook:** Grouping several questions into one exchange changes the shape of the chamber discussion substantially.
-- **Visual:** paired bars for single-question vs grouped exchanges: median interventions and median words.
-- **Metric/relationship:** `grouped_exchange`, `related_speech_count`, `related_speech_word_count` in certified Oral exchange metrics.
-- **Period:** current 2025–2026 Oral-exchange history.
-- **Denominator:** 2,127 certified Oral-question exchanges: **1,865 single-question**, **262 grouped**.
-- **Key result:** single-question median **6 interventions / 1,147 words**; grouped median **12 interventions / 2,275.5 words**. Grouped exchanges are **12.3%** of exchanges.
-- **Why interesting:** visually simple and explains a procedural feature most users will not know.
-- **Caveats:** transcript size is not debate quality, importance, effectiveness or responsiveness.
-- **Production-ready:** **Yes.** Exchange metrics are implemented and audited.
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **Very high.**
-
-### 4. Ministers speak fewer times, but account for most Oral-exchange words
-
-- **Working title:** Fewer interventions, more words: who fills Oral-question transcripts?
-- **Hook:** Ordinary TDs make slightly more interventions, but ministerial/respondent speakers account for about three-fifths of the words.
-- **Visual:** two 100% bars: share of interventions vs share of words by role.
-- **Metric/relationship:** certified participant-role intervention and word components.
-- **Period:** current 2025–2026 Oral-exchange history.
-- **Denominator:** **18,485 interventions** and **2,763,441 words** inside 2,127 Oral-question exchanges.
-- **Key result:** ordinary members: **9,262 interventions (50.1%)**, **1,061,771 words (38.4%)**; ministerial/respondent: **7,967 interventions (43.1%)**, **1,684,996 words (61.0%)**; chair/procedural: **1,251 interventions (6.8%)**, **16,659 words (0.6%)**.
-- **Why interesting:** a clean contrast between how often people intervene and how much transcript they generate.
-- **Caveats:** do not describe word share as dominance, answer quality or responsiveness.
+- **Hook:** The chamber-visible Oral format is only a small fraction of submitted Parliamentary Questions.
+- **Visual:** 100-dot or stacked bar: Written vs Oral.
+- **Metric/relationship:** distinct submitted question records by certified question type.
+- **Period:** current 2025–2026 PQ history used by the certified question research.
+- **Denominator:** **121,355 submitted questions**.
+- **Key result:** Written **117,695 (96.98%)**; Oral **3,660 (3.02%)**; about 32 Written questions per Oral question.
+- **Why interesting:** extremely simple and corrects a likely public misconception about where PQ activity occurs.
+- **Caveats:** volume/channel only; not scrutiny quality, effectiveness or answer quality.
 - **Production-ready:** **Yes.**
 - **Confidence:** **strong**.
 - **Final-five competitiveness:** **High.**
 
-### 5. The Taoiseach's Oral questions are usually grouped
+### 9. Grouping Oral questions roughly doubles the exchange size
 
-- **Working title:** 95% of Taoiseach Oral-question exchanges are grouped
-- **Hook:** Questions to the Taoiseach are not just more Oral; they are also organised very differently from typical departmental Oral exchanges.
-- **Visual:** Taoiseach vs selected line departments: grouped-exchange share and median questions per exchange.
-- **Metric/relationship:** recipient + `grouped_exchange` + question count per certified Oral exchange.
+- **Working title:** Grouped Oral questions produce much larger chamber exchanges
+- **Hook:** When several questions are grouped together, the typical exchange roughly doubles in both interventions and transcript words.
+- **Visual:** two paired bars: single vs grouped median interventions and median words.
+- **Metric/relationship:** certified Oral exchange `grouped_exchange`, intervention count and word count.
 - **Period:** current 2025–2026 Oral-exchange history.
-- **Denominator:** Oral exchanges for each displayed recorded recipient.
-- **Key result:** Taoiseach grouped-exchange share **95.3%**, with median **12.65 questions per exchange**, median **26 interventions** and **3,396 words**. Most line-department Oral exchanges have roughly one question, six interventions and about 1,100–1,300 words.
-- **Why interesting:** turns an abstract institutional difference into a concrete visual explainer.
-- **Caveats:** recipient channels are structurally different; avoid implying better/worse scrutiny.
-- **Production-ready:** **Yes.** Every one of the 2,127 Oral exchanges has exactly one recorded recipient, preventing double attribution.
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **High**, though it overlaps thematically with candidate 2.
-
-### 6. Other TDs often join an Oral exchange they did not submit
-
-- **Working title:** Oral questions can draw in TDs beyond the original submitter
-- **Hook:** A sizeable share of Oral exchanges include an ordinary TD who was not one of the recorded question submitters.
-- **Visual:** single vs grouped exchange bars for the share containing at least one ordinary non-submitting TD.
-- **Metric/relationship:** certified observed exchange participation vs recorded submitter identities.
-- **Period:** current 2025–2026 Oral-exchange history.
-- **Denominator:** single-question and grouped exchanges respectively.
-- **Key result:** about **21.4%** of single-question exchanges and **43.9%** of grouped exchanges contain at least one ordinary TD who was not a recorded submitter.
-- **Why interesting:** shows that an Oral-question exchange can be broader than a one-question/one-TD interaction.
-- **Caveats:** observed participation is not the same as formal question-taking or substitution attribution. Do not infer who "took" a question from participation alone.
-- **Production-ready:** **Yes.** Participant foundation is deterministic and separate from question-taker inference.
+- **Denominator:** **2,127 Oral-question exchanges**: 1,865 single-question, 262 grouped.
+- **Key result:** single median **6 interventions / 1,147 words**; grouped median **12 interventions / 2,275.5 words**.
+- **Why interesting:** good “how the Dáil works” procedural explainer and visually immediate.
+- **Caveats:** exchange size is not quality, importance, effectiveness or responsiveness.
+- **Production-ready:** **Yes.**
 - **Confidence:** **strong**.
 - **Final-five competitiveness:** **High.**
 
-### 7. Most TDs who ask questions use both channels — but Oral-only use does not appear
+### 10. Where the current tracked Bills began
 
-- **Working title:** Oral questions are an extra channel, not a replacement for Written questions
-- **Hook:** Every member who used the Oral channel in this history also used Written questions.
-- **Visual:** three-category member count: both channels / Written only / Oral only.
-- **Metric/relationship:** distinct submitting member identities by observed question channel use.
-- **Period:** current 2025–2026 history.
-- **Denominator:** **157 member identities** with at least one recorded submitted question.
-- **Key result:** **126** used both Oral and Written; **31** used Written only; **0** used Oral only.
-- **Why interesting:** simple behavioural structure that avoids raw volume rankings.
-- **Caveats:** the time window is limited to current production history; member tenure and eligibility differ. Do not generalise to all historical Dáileanna.
+- **Working title:** Most Bills in the current production snapshot originated in the Dáil
+- **Hook:** The current tracked set contains Bills originating in both Houses, but the Dáil accounts for the large majority.
+- **Visual:** 38 vs 7 split: Dáil Éireann / Seanad Éireann.
+- **Metric/relationship:** distinct Bills by `origin_house_name`.
+- **Period:** current production Bill snapshot.
+- **Denominator:** **45 Public Bills**.
+- **Key result:** **38 (84.4%)** originated in Dáil Éireann; **7 (15.6%)** in Seanad Éireann.
+- **Why interesting:** simple civic-structure fact and a useful companion to the stage-funnel post.
+- **Caveats:** this is the current production subset, not a historical rate for all Irish legislation. Do not imply that Seanad-origin Bills are less important.
 - **Production-ready:** **Yes.**
 - **Confidence:** **strong**.
-- **Final-five competitiveness:** **Medium-high.**
+- **Final-five competitiveness:** **Medium.**
 
-### 8. Health receives more than 200 Written questions for every Oral question
+## Ideas considered and rejected from the top ten
 
-- **Working title:** Some departments are almost entirely questioned in writing
-- **Hook:** For large service departments, the recorded PQ channel is overwhelmingly Written.
-- **Visual:** horizontal bars of Written questions per Oral question for selected high-volume recipients.
-- **Metric/relationship:** recipient-level Written/Oral count ratio.
-- **Period:** current 2025–2026 history.
-- **Denominator:** submitted questions to each displayed recipient.
-- **Key result:** Health **203.8 Written per Oral**; Education **99.7**; Transport **76.9**; Justice **75.8**; Children **73.2**; Housing **60.7**.
-- **Why interesting:** more intuitive than percentages and useful for explaining why chamber-visible questioning is not the full picture.
-- **Caveats:** does not mean these departments receive less scrutiny; it is a channel-mix measure only. Recipient naming/portfolio structure should be labelled exactly as represented in the source period.
-- **Production-ready:** **Yes.**
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **Medium-high**, but overlaps candidate 2.
+### Raw “most speeches by TD” leaderboard
 
-### 9. Chair interventions are visible in the exchange count but tiny in word volume
+The current metrics can rank speech/intervention counts, but office-holders, chair roles, speaking opportunities and differing coverage make a simple leaderboard easy to misread as performance or effectiveness. **Rejected.**
 
-- **Working title:** The chair appears often, but says very little of the transcript
-- **Hook:** Procedural chair interventions are nearly 7% of Oral-exchange interventions but only about 0.6% of the words.
-- **Visual:** intervention share vs word share for chair/procedural contributions.
-- **Metric/relationship:** certified chair intervention and word components.
-- **Period:** current 2025–2026 Oral-exchange history.
-- **Denominator:** all 18,485 Oral-exchange interventions and 2,763,441 words.
-- **Key result:** chair/procedural contributions: **1,251 interventions (6.77%)**, **16,659 words (0.60%)**.
-- **Why interesting:** a neat structural explainer showing why intervention counts and word counts answer different questions.
-- **Caveats:** procedural role only; not a measure of influence or speaking performance.
-- **Production-ready:** **Yes.**
-- **Confidence:** **strong**.
-- **Final-five competitiveness:** **Medium.** Better as an explainer/carousel panel than a headline post if stronger ideas are available.
+### Raw constituency speech ranking
 
-### 10. Leaders' Questions is a large, cleanly identifiable parliamentary context
+The current constituency activity mart can rank speech counts, but representative counts and current-member coverage make raw totals unsuitable for a public “most active constituency” claim without a stronger exposure denominator. **Rejected.**
 
-- **Working title:** What does a Leaders' Questions session look like in the transcript data?
-- **Hook:** Leaders' Questions can be isolated deterministically from exact Oireachtas section headings, giving a clean foundation for a public explainer.
-- **Visual:** introductory structural card using section count and speech/intervention coverage, followed by a simple explanation of the exact proceeding label.
-- **Metric/relationship:** exact certified source-heading allowlist for genuine Leaders' Questions sections.
-- **Period:** current 2025–2026 speech history.
-- **Denominator:** speeches/sections whose source heading exactly matches one of the two certified Leaders' Questions headings.
-- **Key result:** **10,821 speeches across 159 sections**; main heading 10,702 speeches, resumed heading 119. A broad substring rule would incorrectly include a separate standing-orders motion, so exact headings matter.
-- **Why interesting:** recognizable public format and a clean bridge from raw transcript data to a structural Dáil explainer.
-- **Caveats:** there is not yet a broad production `speech_context` foundation. The exact Leaders' Questions rule is research-certified, but publishing richer comparisons (party/member speaking shares, session length trends, etc.) should first use a dedicated reproducible extraction or production implementation.
-- **Production-ready:** **Not as a reusable production metric yet; deterministic evidence is strong.**
-- **Confidence:** **usable with caveat**.
-- **Final-five competitiveness:** **Medium**, unless a focused Leaders' Questions analysis is completed before production.
+### Current member vote-participation leaderboard
 
-## Ideas considered and rejected for this shortlist
+The legacy 2025 member-profile output currently contains zero vote-participation values, while the newer 2026 gold member activity table has usable vote counts. That inconsistency is itself a reason not to publish a member attendance/participation ranking from the existing consumer layer. **Rejected.**
 
-### Raw party Oral-share ranking
+### Party voting-unity/performance ranking
 
-Current data can calculate party Oral/Written shares, but raw shares are affected by party size, member tenure, high-volume individual submitters and access/scheduling. There is no separately certified per-TD exposure/eligibility denominator. A ranking could be visually appealing but invites a misleading "who scrutinises most" interpretation. **Rejected for now.**
+Potentially interesting, but eligibility, absence, abstention, party-at-vote attribution and substantive vote context must all be explicit. Raw unity percentages are too easy to turn into partisan performance claims. **Rejected for now.**
 
-### Constituency Oral-share ranking
+### Bill sponsor leaderboard
 
-The event-date foundation supports constituency aggregation, but these are not per-representative rates and should not be treated as representation quality. The denominator and tenure context are too easy to lose in an Instagram ranking. **Rejected for now.**
+There are 84 sponsor rows across 45 current Bills; 8 Bills have multiple sponsor rows and one has 21. However member sponsors and ministerial-office sponsors are different source entities. A leaderboard would require a more explicit interpretation layer. **Rejected from the top ten.**
 
-### Member Oral-share leaderboard
+### “Most debated Bill” ranking
 
-Member channel profiles are deterministic, but a leaderboard risks equating channel choice with activity quality/effectiveness and is sensitive to tenure and scheduling. **Rejected as a top-ten post.**
+The deployed Bill-section bridge makes this technically feasible for the certified subset, but whole-Oireachtas coverage is incomplete. A ranking can be reconsidered once the public denominator is explicitly limited to the certified coverage window. **Deferred.**
 
-### Question-taker/substitution leaderboard
+### Question-only department/member/party rankings
 
-Explicit evidence certifies only a bounded subset of question-taking relationships; many cases remain unknown and grouped exchanges require extra caution. Observed participation must not be converted into taker attribution. **Rejected.**
-
-### Section-heading topic ranking
-
-Headings are useful source labels but are not a clean issue taxonomy; headings can span portfolios and their relationship to recipients can shift. **Rejected as a "what issues dominate" post.**
-
-### Recipient concentration index
-
-Oral recipient concentration (HHI 0.1596) is higher than Written (0.0981), but HHI is not intuitive for a general Instagram audience and much of the difference is already explained more clearly by the Taoiseach exception. **Rejected in favour of candidates 2 and 5.**
+Technically available but intentionally deprioritised now that the content brief covers the full pipeline. The strongest two PQ structural explainers remain candidates 8 and 9; the rest do not outrank the broader speech/vote/legislation findings.
 
 ## Promising ideas that are not yet safe
 
-### Bill-linked speeches
+### Party issue emphasis
 
-The legislation investigation found a conservative deterministic subset covering **168 Bills, 371 debate sections and 7,352 speeches**. This is strong evidence, but the certified Bill-section bridge is not yet production-deployed and current transcript coverage excludes much Seanad/committee/history. Do not publish "most debated Bills" or whole-Oireachtas coverage yet.
+Draft metrics already define party issue share and comparison with all TDs / average party. These could become excellent posts, but they depend on classifier quality gates and event-date party attribution and should be commissioned explicitly before public ranking.
 
-### Bill-linked divisions
+### Bill-linked voting behaviour
 
-The same conservative subset links **168 divisions across 94 Bill-linked sections**. This is promising for posts about which Bills reached recorded divisions or how stages relate to votes, but should wait until the certified section bridge is implemented and denominator/stage context is production-safe.
+The production Bill-section bridge now safely links **168 divisions** to Bill context. The next valuable step is to combine that with stage/proceeding context and safe vote denominators before making claims such as “closest Bill votes” or party behaviour on legislation.
 
-### Bill sponsors
+### Most debated Bills
 
-All 406 Bills have sponsor rows, but member sponsors and office/ministerial sponsors are different source entities. Only source-URI member links should map directly to people; office sponsors require separate date-aware attribution. Avoid sponsor rankings until the interpretation layer is explicit.
+The production bridge links **7,352 speeches** to 168 Bills through 371 sections. A properly scoped “most discussed Bills in the certified dataset” ranking is now technically possible, but should first be computed with clear coverage wording and duplicate-safe section/speech aggregation.
 
-### Bill stages/readings
+### Cross-year speech trends
 
-The stage table has **1,395 rows across 406 Bills**, but stage outcomes are often blank and `Cream List` requires interpretation before exposing stage names as a public taxonomy. Promising for an explainer after cleanup/certification.
+Current canonical speech production inspected here contains a short 2026 snapshot (10 debate days), while the issue-classified compatibility history is much broader. Cross-year comparisons should wait for one harmonised certified historical speech surface.
 
-### Voting behaviour / party unity
+### Multi-sponsor Bills
 
-Voting components exist, but a public behavioural ranking should only be produced where the eligible-vote denominator, absence/abstention handling, party attribution date and substantive division context are all explicit. The strongest next step is to connect voting to certified Bill/motion context rather than publish raw unity rankings.
-
-### Broader motions/statements/procedural context
-
-Deterministic source signals exist, but broad regex families are heterogeneous or incomplete. Exact heading allowlists and scope definitions are needed before public comparisons.
-
-## Editorial ranking rationale
-
-The top six are favoured because they combine certified production evidence, clear denominators, general-interest procedural insight and simple visuals. Candidates 7–9 are safe but slightly less novel or overlap stronger themes. Candidate 10 is promising and recognizable but should not outrank production-ready exchange/PQ findings until its reusable metric path is implemented.
-
-No candidate should be framed as measuring political effectiveness, scrutiny quality, representation quality, answer quality or performance.
+Eight of 45 current Bills have more than one sponsor row and the maximum is 21. This is visually promising, but the member-vs-office sponsor distinction needs to be made explicit before publishing specific sponsor comparisons.
 
 ## Living next-step plan
 
-1. Review these ten editorially with the user; do **not** select the final five before that review.
-2. For ideas retained after review, remove thematic duplication — especially among candidates 2, 5 and 8 — so the final five remain meaningfully different.
-3. Prefer candidates 1–9 for immediate production because their denominators and attribution are already certified.
-4. If Leaders' Questions survives editorial review, run a focused deterministic extraction/validation for the exact intended visual before production.
-5. Keep Bill-linked, sponsor, stage and voting posts in the promising queue until the certified Bill-section relationship and required public denominators are deployed/audited.
-6. Do not add classifiers merely to create variety; continue using existing deterministic relationships unless a specific editorial question cannot otherwise be answered.
+1. Review these ten editorially with the user; do **not** choose the final five yet.
+2. Prefer the strongest cross-domain mix rather than defaulting back to Parliamentary Questions.
+3. For candidate 1, carry the issue-classifier caveat directly into the post copy and methodology slide.
+4. For candidates 2–5 and 10, freeze the production snapshot date/coverage in the source metadata so numbers cannot silently drift during rendering.
+5. For candidate 6, use only exact production `bill_debate_sections` joins; never whole-debate Bill attribution.
+6. If candidate 7 survives, rerun the exact Leaders' Questions extraction against the intended publication scope before rendering.
+7. Keep raw member/party performance-style rankings out unless exposure/eligibility denominators are explicitly certified.
+8. Do not merge the temporary investigative workflow branch; the final research record belongs only in this documentation branch/PR.
