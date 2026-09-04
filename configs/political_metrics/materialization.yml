@@ -10,6 +10,7 @@ principles:
   - parliamentary question records are distinct from transcript speech interventions
   - oral parliamentary questions may anchor debate sections containing separate speech interventions
   - oral-question exchange participation describes observed transcript participation and does not imply question-taker attribution
+  - certified legislation context is attached only at exact debate-section grain, never at whole-debate grain
 
 reliability_values:
   - reliable
@@ -182,6 +183,26 @@ foundation_datasets:
       - calculated_at_utc
       - contract_version
     allowed_speech_context_values: [oral_question_exchange, other]
+
+  bill_debate_sections:
+    description: Certified deterministic Bill-to-debate-section bridge. One row per Bill and canonical debate section; debate-wide co-occurrence, conflicting source records and multi-Bill section anomalies are excluded.
+    cadence: event
+    formats: [csv, parquet]
+    primary_key: [bill_id, debate_section_id]
+    columns:
+      - bill_id
+      - debate_section_id
+      - debate_id
+      - debate_date
+      - source_section_eid
+      - debate_show_as
+      - evidence_method
+      - source_bill_debate_count
+      - source_bill_debate_ids_json
+      - certification_version
+      - source_batch_id
+      - calculated_at_utc
+      - contract_version
 
 result_datasets:
   monthly_metric_results:
