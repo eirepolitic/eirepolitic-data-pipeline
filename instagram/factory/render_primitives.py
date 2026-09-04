@@ -143,8 +143,14 @@ def carousel_sheet(items: Iterable[tuple[str, list[Path]]], out_path: Path) -> N
 
 
 def _text_width_px(draw: ImageDraw.ImageDraw, text: str, text_font: ImageFont.ImageFont) -> int:
-    bbox = draw.textbbox((0, 0), text, font=text_font)
+    bbox = draw.textbbox((0, 0), text, font=text_font, anchor="la")
     return int(bbox[2] - bbox[0])
+
+
+def _visible_left_aligned_x(draw: ImageDraw.ImageDraw, text: str, text_font: ImageFont.ImageFont, left: int) -> int:
+    """Return an anchor x that places the visible glyph ink exactly at `left`."""
+    bbox = draw.textbbox((0, 0), text, font=text_font, anchor="la")
+    return int(left - bbox[0])
 
 
 def wrap_text_px(draw: ImageDraw.ImageDraw, text: str, text_font: ImageFont.ImageFont, max_width: int) -> list[str]:
@@ -188,21 +194,25 @@ def draw_glossary(entries: list[tuple[str, str]], out_path: Path) -> dict:
         )
 
     for term, body in entries:
-        term_bbox = draw.textbbox((GLOSSARY_LEFT, y), term, font=term_font, anchor="la")
-        if term_bbox[2] > GLOSSARY_RIGHT:
-            raise RuntimeError(f"Glossary term exceeds right content bound {GLOSSARY_RIGHT}px: {term!r} -> {term_bbox}")
-        draw.text((GLOSSARY_LEFT, y), term, font=term_font, fill=TEXT, anchor="la")
+        term_x = _visible_left_aligned_x(draw, term, term_font, GLOSSARY_LEFT)
+        term_bbox = draw.textbbox((term_x, y), term, font=term_font, anchor="la")
+        if term_bbox[0] < GLOSSARY_LEFT or term_bbox[2] > GLOSSARY_RIGHT:
+            raise RuntimeError(
+                f"Glossary term escaped content bounds {GLOSSARY_LEFT}-{GLOSSARY_RIGHT}px: {term!r} -> {term_bbox}"
+            )
+        draw.text((term_x, y), term, font=term_font, fill=TEXT, anchor="la")
         record_bound("term", term, term_bbox)
         underline_y = term_bbox[3] + 8
         draw.line((term_bbox[0], underline_y, term_bbox[2], underline_y), fill=ACCENT, width=2)
         body_y = underline_y + 22
         for line in wrap_text_px(draw, body, body_font, GLOSSARY_MAX_WIDTH):
-            line_bbox = draw.textbbox((GLOSSARY_LEFT, body_y), line, font=body_font, anchor="la")
+            line_x = _visible_left_aligned_x(draw, line, body_font, GLOSSARY_LEFT)
+            line_bbox = draw.textbbox((line_x, body_y), line, font=body_font, anchor="la")
             if line_bbox[0] < GLOSSARY_LEFT or line_bbox[2] > GLOSSARY_RIGHT:
                 raise RuntimeError(
                     f"Glossary body line escaped content bounds {GLOSSARY_LEFT}-{GLOSSARY_RIGHT}px: {line!r} -> {line_bbox}"
                 )
-            draw.text((GLOSSARY_LEFT, body_y), line, font=body_font, fill=TEXT, anchor="la")
+            draw.text((line_x, body_y), line, font=body_font, fill=TEXT, anchor="la")
             record_bound("body", line, line_bbox)
             body_y += 34
         y = body_y + 42
