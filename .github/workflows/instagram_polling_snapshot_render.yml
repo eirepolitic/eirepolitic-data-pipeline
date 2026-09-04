@@ -65,7 +65,7 @@ jobs:
           python -m process.instagram_build_polling_review_page --output-root generated_posts/ipi_polling_snapshot_v1
           test -s generated_posts/ipi_polling_snapshot_v1/review/review_index.html
 
-      - name: Upload web preview to S3
+      - name: Upload private web preview bundle to S3
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -79,7 +79,7 @@ jobs:
             --run-label "${GITHUB_RUN_ID}" \
             --public-read false
 
-      - name: Generate temporary browser review link
+      - name: Generate temporary private browser review link
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -92,19 +92,52 @@ jobs:
             --output-root generated_posts/ipi_polling_snapshot_v1 \
             --expires-in 604800 \
             --output generated_posts/ipi_polling_snapshot_v1/preview_links.json
+
+      - name: Publish single-page browser review
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET: eirepolitic-data
+        run: |
+          set -euo pipefail
           python - <<'PY'
-          import json
           import os
           from pathlib import Path
-          data=json.loads(Path('generated_posts/ipi_polling_snapshot_v1/preview_links.json').read_text(encoding='utf-8'))
-          url=data.get('review_index_url')
-          if not url:
-              raise SystemExit('Missing review_index_url')
-          print(f'BROWSER_REVIEW_URL={url}')
+          import boto3
+          import requests
+
+          bucket=os.getenv('S3_BUCKET','eirepolitic-data')
+          region=os.getenv('AWS_REGION') or 'ca-central-1'
+          run_id=os.environ['GITHUB_RUN_ID']
+          page=Path('generated_posts/ipi_polling_snapshot_v1/review/review_index.html')
+          s3=boto3.client('s3',region_name=region)
+          keys=[
+              f'instagram/public-previews/ipi_polling_snapshot_v1/{run_id}/index.html',
+              'instagram/public-previews/ipi_polling_snapshot_v1/latest/index.html',
+          ]
+          for key in keys:
+              s3.upload_file(
+                  str(page), bucket, key,
+                  ExtraArgs={
+                      'ContentType':'text/html; charset=utf-8',
+                      'CacheControl':'no-store, max-age=0',
+                      'ACL':'public-read',
+                  },
+              )
+          url=f'https://{bucket}.s3.{region}.amazonaws.com/{keys[0]}'
+          latest=f'https://{bucket}.s3.{region}.amazonaws.com/{keys[1]}'
+          response=requests.get(url,timeout=30)
+          response.raise_for_status()
+          if 'IPI polling carousel review' not in response.text:
+              raise SystemExit('Public review URL did not return the expected review page')
+          print(f'PUBLIC_REVIEW_URL={url}')
+          print(f'LATEST_PUBLIC_REVIEW_URL={latest}')
           summary=os.getenv('GITHUB_STEP_SUMMARY')
           if summary:
               with open(summary,'a',encoding='utf-8') as f:
-                  f.write(f'## IPI polling carousel review\n\n[Open browser review page]({url})\n')
+                  f.write(f'## IPI polling carousel review\n\n[Open web-hosted review page]({url})\n\nLatest alias: {latest}\n')
           PY
 
       - name: Upload carousel review bundle as backup
