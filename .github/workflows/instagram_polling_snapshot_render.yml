@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: instagram-polling-snapshot-render
@@ -93,52 +93,28 @@ jobs:
             --expires-in 604800 \
             --output generated_posts/ipi_polling_snapshot_v1/preview_links.json
 
-      - name: Publish single-page browser review
+      - name: Publish browser review to preview branch
         shell: bash
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          S3_BUCKET: eirepolitic-data
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import os
-          from pathlib import Path
-          import boto3
-          import requests
-
-          bucket=os.getenv('S3_BUCKET','eirepolitic-data')
-          region=os.getenv('AWS_REGION') or 'ca-central-1'
-          run_id=os.environ['GITHUB_RUN_ID']
-          page=Path('generated_posts/ipi_polling_snapshot_v1/review/review_index.html')
-          s3=boto3.client('s3',region_name=region)
-          keys=[
-              f'instagram/public-previews/ipi_polling_snapshot_v1/{run_id}/index.html',
-              'instagram/public-previews/ipi_polling_snapshot_v1/latest/index.html',
-          ]
-          for key in keys:
-              s3.upload_file(
-                  str(page), bucket, key,
-                  ExtraArgs={
-                      'ContentType':'text/html; charset=utf-8',
-                      'CacheControl':'no-store, max-age=0',
-                      'ACL':'public-read',
-                  },
-              )
-          url=f'https://{bucket}.s3.{region}.amazonaws.com/{keys[0]}'
-          latest=f'https://{bucket}.s3.{region}.amazonaws.com/{keys[1]}'
-          response=requests.get(url,timeout=30)
-          response.raise_for_status()
-          if 'IPI polling carousel review' not in response.text:
-              raise SystemExit('Public review URL did not return the expected review page')
-          print(f'PUBLIC_REVIEW_URL={url}')
-          print(f'LATEST_PUBLIC_REVIEW_URL={latest}')
-          summary=os.getenv('GITHUB_STEP_SUMMARY')
-          if summary:
-              with open(summary,'a',encoding='utf-8') as f:
-                  f.write(f'## IPI polling carousel review\n\n[Open web-hosted review page]({url})\n\nLatest alias: {latest}\n')
-          PY
+          tmpdir="$(mktemp -d)"
+          cp generated_posts/ipi_polling_snapshot_v1/review/review_index.html "$tmpdir/index.html"
+          cd "$tmpdir"
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m "preview: update IPI polling review ${GITHUB_RUN_ID}"
+          git branch -M previews/ipi-polling
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/ipi-polling
+          echo "PREVIEW_RAW_URL=https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/previews/ipi-polling/index.html"
+          echo "PREVIEW_WEB_URL=https://raw.githack.com/${GITHUB_REPOSITORY}/previews/ipi-polling/index.html"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            printf '## IPI polling carousel review\n\n[Open web-hosted review page](https://raw.githack.com/%s/previews/ipi-polling/index.html)\n' "$GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload carousel review bundle as backup
         uses: actions/upload-artifact@v4
