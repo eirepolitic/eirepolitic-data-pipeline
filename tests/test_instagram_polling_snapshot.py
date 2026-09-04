@@ -16,33 +16,56 @@ class InstagramPollingSnapshotTests(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.output_root, ignore_errors=True)
 
-    def test_fixture_renders_with_source_and_uncertainty(self) -> None:
+    def test_fixture_renders_three_slide_carousel_with_source_change_and_trend(self) -> None:
         result = render_polling_snapshot(
             "instagram/campaigns/ipi_polling_snapshot_v1/render_spec_fixture.yml"
         )
 
         self.assertTrue(result["success"])
+        self.assertEqual(result["slide_count"], 3)
         self.assertFalse(result["publish_ready"])
         self.assertTrue(result["review_required"])
         self.assertEqual(result["visible_source_footer"], "Source: Irish Polling Indicator (IPI)")
         self.assertTrue(result["source_reference_in_caption"])
         self.assertEqual(result["dimensions"], [1080, 1350])
+        self.assertEqual(result["latest_model_date"], "2026-07-31")
+        self.assertEqual(result["previous_model_date"], "2026-07-30")
 
-        output = Path(result["output_file"])
-        self.assertTrue(output.exists())
-        with Image.open(output) as image:
-            self.assertEqual(image.size, (1080, 1350))
+        self.assertEqual(len(result["slide_files"]), 3)
+        for path in result["slide_files"]:
+            output = Path(path)
+            self.assertTrue(output.exists())
+            with Image.open(output) as image:
+                self.assertEqual(image.size, (1080, 1350))
 
         caption = Path(result["caption_file"]).read_text(encoding="utf-8")
         self.assertIn("Source: Irish Polling Indicator (IPI)", caption)
-        self.assertIn("not the result of a single opinion poll", caption)
+        self.assertIn("not a comparison of two individual polls", caption)
+        self.assertIn("not a single opinion poll or an election forecast", caption)
 
         context = json.loads((self.output_root / "metadata/post_context.json").read_text(encoding="utf-8"))
-        self.assertEqual(context["model_date"], "2026-07-31")
-        self.assertEqual(context["chart_rows"][0]["party_code"], "SF")
-        self.assertEqual(context["chart_rows"][0]["value"], 25.0)
-        self.assertEqual(context["chart_rows"][0]["low"], 23.0)
-        self.assertEqual(context["chart_rows"][0]["high"], 27.0)
+        self.assertEqual(context["latest_model_date"], "2026-07-31")
+        self.assertEqual(context["previous_model_date"], "2026-07-30")
+        self.assertEqual(context["trend_days"], 90)
+        self.assertEqual(len(context["slides"]), 3)
+
+        latest = context["latest_rows"]
+        self.assertEqual(latest[0]["party_code"], "SF")
+        self.assertEqual(latest[0]["value"], 25.0)
+        self.assertEqual(latest[0]["low"], 23.0)
+        self.assertEqual(latest[0]["high"], 27.0)
+
+        changes = {row["party_code"]: row for row in context["change_rows"]}
+        self.assertEqual(changes["SF"]["value"], 1.0)
+        self.assertEqual(changes["FF"]["value"], 1.0)
+        self.assertEqual(changes["FG"]["value"], -1.0)
+        self.assertEqual(changes["SD"]["value"], 1.0)
+        self.assertEqual(changes["LAB"]["value"], 0.0)
+
+        trend = {series["party_code"]: series for series in context["trend_series"]}
+        self.assertEqual(set(trend), {"SF", "FF", "FG"})
+        self.assertGreaterEqual(len(trend["SF"]["points"]), 3)
+        self.assertEqual(trend["SF"]["points"][-1]["value"], 25.0)
         self.assertEqual(context["source_attributions"][0]["source_id"], "irish_polling_indicator")
 
 
