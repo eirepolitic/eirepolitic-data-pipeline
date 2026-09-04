@@ -1,6 +1,7 @@
 name: Temporary referendum bounded validation
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - docs/referendum-data-validation-20260903
@@ -25,35 +26,15 @@ jobs:
       - name: Fetch official referendum files and calculate diagnostics
         run: |
           python - <<'PY'
-          import csv
-          import hashlib
-          import io
-          import json
-          import math
-          import urllib.parse
-          import urllib.request
-          from collections import Counter
+          import csv, hashlib, io, json, traceback, urllib.parse, urllib.request
           from pathlib import Path
 
           SOURCES = {
-              '1986': {
-                  'resource_id': '9680852f-a565-4e7c-a3d2-bcda06b3aeb4',
-                  'url': 'https://opendata.housing.gov.ie/dataset/8355d3a5-a3c7-41b5-94ad-2037bfa90f67/resource/9680852f-a565-4e7c-a3d2-bcda06b3aeb4/download/1986tenthamendment.csv',
-              },
-              '1992': {
-                  'resource_id': '393fd6af-58fc-4cfb-9a18-e86b4c2c2129',
-                  'url': 'https://opendata.housing.gov.ie/dataset/cbaf3fc4-59a9-4111-871b-e8763692a736/resource/393fd6af-58fc-4cfb-9a18-e86b4c2c2129/download/1992thirteenthamendment.csv',
-              },
-              '2015': {
-                  'resource_id': 'b09cbfc7-944c-468d-a742-573d2337c9fb',
-                  'url': 'https://opendata.housing.gov.ie/dataset/51ce9e79-22dc-4e23-a866-c3c4b2f6ea3e/resource/b09cbfc7-944c-468d-a742-573d2337c9fb/download/2015thirty-fifthamendment.csv',
-              },
-              '2018': {
-                  'resource_id': 'fc638461-6f69-463d-b330-ed05fd1de549',
-                  'url': 'https://opendata.housing.gov.ie/dataset/0a5ca75d-56c7-4cae-bdbd-730b0a5a371d/resource/fc638461-6f69-463d-b330-ed05fd1de549/download/referendum_results_on_the_thirty-sixth_amendment_of_the_constitution_bill_2018.csv',
-              },
+              '1986': ('9680852f-a565-4e7c-a3d2-bcda06b3aeb4','https://opendata.housing.gov.ie/dataset/8355d3a5-a3c7-41b5-94ad-2037bfa90f67/resource/9680852f-a565-4e7c-a3d2-bcda06b3aeb4/download/1986tenthamendment.csv'),
+              '1992': ('393fd6af-58fc-4cfb-9a18-e86b4c2c2129','https://opendata.housing.gov.ie/dataset/cbaf3fc4-59a9-4111-871b-e8763692a736/resource/393fd6af-58fc-4cfb-9a18-e86b4c2c2129/download/1992thirteenthamendment.csv'),
+              '2015': ('b09cbfc7-944c-468d-a742-573d2337c9fb','https://opendata.housing.gov.ie/dataset/51ce9e79-22dc-4e23-a866-c3c4b2f6ea3e/resource/b09cbfc7-944c-468d-a742-573d2337c9fb/download/2015thirty-fifthamendment.csv'),
+              '2018': ('fc638461-6f69-463d-b330-ed05fd1de549','https://opendata.housing.gov.ie/dataset/0a5ca75d-56c7-4cae-bdbd-730b0a5a371d/resource/fc638461-6f69-463d-b330-ed05fd1de549/download/referendum_results_on_the_thirty-sixth_amendment_of_the_constitution_bill_2018.csv'),
           }
-
           UA='Mozilla/5.0 EirePolitic research validation'
           report=[]; datasets={}
 
@@ -64,79 +45,95 @@ jobs:
 
           def decode(body):
               for enc in ('utf-8-sig','cp1252','latin-1'):
-                  try:
-                      return body.decode(enc), enc
-                  except UnicodeDecodeError:
-                      pass
+                  try: return body.decode(enc),enc
+                  except UnicodeDecodeError: pass
               raise RuntimeError('decode failed')
 
-          def num(v):
-              s=str(v or '').strip().replace(',','')
+          def numeric(v):
+              s=str(v or '').strip().replace(',','').replace('%','')
               return None if s=='' else float(s)
 
-          for year,src in SOURCES.items():
-              body,ctype=fetch(src['url'])
-              text,enc=decode(body)
-              reader=csv.DictReader(io.StringIO(text)); rows=list(reader); cols=reader.fieldnames
-              datasets[year]=(cols,rows)
-              report += [f'[{year}]',f'url={src["url"]}',f'resource_id={src["resource_id"]}',f'bytes={len(body)}',f'content_type={ctype}',f'encoding={enc}',f'sha256={hashlib.sha256(body).hexdigest()}',f'rows={len(rows)}',f'columns={len(cols)}','header='+'|'.join(cols),f'exact_duplicate_extra_rows={len(rows)-len({tuple(r.get(c,"") for c in cols) for r in rows})}']
-
-              # Datastore check.
-              api='https://opendata.housing.gov.ie/api/3/action/datastore_search?'+urllib.parse.urlencode({'resource_id':src['resource_id'],'limit':2})
-              try:
-                  b,_=fetch(api); obj=json.loads(b.decode('utf-8'))
-                  result=obj.get('result',{})
-                  report += [f'datastore_success={obj.get("success")}',f'datastore_total={result.get("total")}', 'datastore_fields='+'|'.join(str(f.get('id','')) for f in result.get('fields',[]))]
-              except Exception as e:
-                  report.append(f'datastore_error={type(e).__name__}:{e}')
-
-              # Resolve semantic columns by normalized header.
-              normalized={c.lower().replace('_',' ').replace('-',' ').strip():c for c in cols}
-              con=next(c for c in cols if c.lower().strip()=='constituency')
-              electorate=next(c for c in cols if 'electorate' in c.lower())
-              total_poll=next(c for c in cols if c.lower().strip()=='total poll')
-              pct_poll=next(c for c in cols if 'percentage poll' in c.lower())
-              favour=next(c for c in cols if 'favour' in c.lower())
-              against=next(c for c in cols if 'against' in c.lower())
-              spoilt=next(c for c in cols if 'spoilt' in c.lower())
-
-              constituencies=[r[con].strip() for r in rows]
-              report += [f'constituencies={len(set(constituencies))}', 'constituency_sample='+'|'.join(constituencies[:12]), f'duplicate_constituency_rows={len(constituencies)-len(set(constituencies))}']
+          def pick(cols,*needles):
               for c in cols:
-                  report.append(f'missing_{c}={sum(str(r.get(c,"" )).strip()=="" for r in rows)}')
+                  low=c.lower().strip()
+                  if all(n in low for n in needles): return c
+              return None
 
-              invalid_numeric=negative=0
-              arithmetic_bad=[]; turnout_bad=[]
-              for idx,r in enumerate(rows,start=2):
-                  vals={k:num(r[c]) for k,c in [('electorate',electorate),('poll',total_poll),('pct',pct_poll),('for',favour),('against',against),('spoilt',spoilt)]}
-                  if any(v is None for v in vals.values()):
+          for year,(rid,url) in SOURCES.items():
+              report += [f'[{year}]',f'resource_id={rid}',f'url={url}']
+              try:
+                  body,ctype=fetch(url); text,enc=decode(body)
+                  reader=csv.DictReader(io.StringIO(text)); rows=list(reader); cols=reader.fieldnames or []
+                  datasets[year]=(cols,rows)
+                  report += [f'bytes={len(body)}',f'content_type={ctype}',f'encoding={enc}',f'sha256={hashlib.sha256(body).hexdigest()}',f'rows={len(rows)}',f'columns={len(cols)}','header='+'|'.join(cols),f'exact_duplicate_extra_rows={len(rows)-len({tuple(r.get(c,"") for c in cols) for r in rows})}']
+
+                  api='https://opendata.housing.gov.ie/api/3/action/datastore_search?'+urllib.parse.urlencode({'resource_id':rid,'limit':2})
+                  try:
+                      b,_=fetch(api); obj=json.loads(b.decode('utf-8')); result=obj.get('result',{})
+                      report += [f'datastore_success={obj.get("success")}',f'datastore_total={result.get("total")}', 'datastore_fields='+'|'.join(str(f.get('id','')) for f in result.get('fields',[]))]
+                  except Exception as e:
+                      report.append(f'datastore_error={type(e).__name__}:{e}')
+
+                  con=pick(cols,'constituency')
+                  electorate=pick(cols,'electorate')
+                  total_poll=pick(cols,'total','poll')
+                  pct_poll=pick(cols,'percentage','poll')
+                  favour=pick(cols,'favour') or pick(cols,'favor')
+                  against=pick(cols,'against')
+                  spoilt=pick(cols,'spoilt') or pick(cols,'invalid')
+                  report += [f'resolved_constituency={con}',f'resolved_electorate={electorate}',f'resolved_total_poll={total_poll}',f'resolved_pct_poll={pct_poll}',f'resolved_favour={favour}',f'resolved_against={against}',f'resolved_spoilt={spoilt}']
+
+                  required=[con,electorate,total_poll,pct_poll,favour,against,spoilt]
+                  if any(x is None for x in required):
+                      report.append('semantic_parse_skipped=True')
+                      report.append('')
                       continue
-                  if any(v<0 for v in vals.values()): negative+=1
-                  if abs(vals['poll']-(vals['for']+vals['against']+vals['spoilt']))>0.000001:
-                      arithmetic_bad.append((idx,r[con],vals))
-                  calc=100*vals['poll']/vals['electorate'] if vals['electorate'] else None
-                  if calc is not None and abs(calc-vals['pct'])>0.11:
-                      turnout_bad.append((idx,r[con],vals['pct'],calc))
-              report.append(f'negative_numeric_rows={negative}')
-              report.append(f'vote_total_mismatches={len(arithmetic_bad)}')
-              for x in arithmetic_bad[:10]: report.append('vote_total_mismatch_detail='+repr(x))
-              report.append(f'turnout_mismatches_gt_0_11pp={len(turnout_bad)}')
-              for x in turnout_bad[:10]: report.append('turnout_mismatch_detail='+repr(x))
+
+                  constituencies=[str(r[con]).strip() for r in rows]
+                  report += [f'constituencies={len(set(constituencies))}',f'duplicate_constituency_rows={len(constituencies)-len(set(constituencies))}','constituency_sample='+'|'.join(constituencies[:12])]
+                  for c in cols:
+                      report.append(f'missing_{c}={sum(str(r.get(c,"" )).strip()=="" for r in rows)}')
+
+                  vote_bad=[]; turnout_bad=[]; negative_rows=0; parse_bad=[]
+                  for idx,r in enumerate(rows,start=2):
+                      try:
+                          vals={k:numeric(r[c]) for k,c in [('electorate',electorate),('poll',total_poll),('pct',pct_poll),('for',favour),('against',against),('spoilt',spoilt)]}
+                          if any(v is None for v in vals.values()): continue
+                          if any(v<0 for v in vals.values()): negative_rows += 1
+                          if abs(vals['poll']-(vals['for']+vals['against']+vals['spoilt']))>0.000001:
+                              vote_bad.append((idx,r[con],vals))
+                          calc=100*vals['poll']/vals['electorate'] if vals['electorate'] else None
+                          if calc is not None and abs(calc-vals['pct'])>0.11:
+                              turnout_bad.append((idx,r[con],vals['pct'],calc))
+                      except Exception as e:
+                          parse_bad.append((idx,r.get(con,''),type(e).__name__,str(e)))
+                  report += [f'negative_numeric_rows={negative_rows}',f'vote_total_mismatches={len(vote_bad)}',f'turnout_mismatches_gt_0_11pp={len(turnout_bad)}',f'numeric_parse_failures={len(parse_bad)}']
+                  for x in vote_bad[:10]: report.append('vote_total_mismatch_detail='+repr(x))
+                  for x in turnout_bad[:10]: report.append('turnout_mismatch_detail='+repr(x))
+                  for x in parse_bad[:10]: report.append('parse_failure_detail='+repr(x))
+              except Exception as e:
+                  report += [f'top_level_error={type(e).__name__}:{e}',traceback.format_exc().replace('\n',' || ')]
               report.append('')
 
-          # Cross-year schema and geography comparison.
-          years=list(SOURCES)
           report.append('[cross_year]')
-          def canon(cols):
-              return [c.lower().replace('_',' ').replace('-',' ').replace('total electorate','electorate').replace('votes in favour','votes in favour').replace('spoilt votes','spoilt votes').strip() for c in cols]
-          for a,b in zip(years,years[1:]):
+          def canon_header(cols):
+              out=[]
+              for c in cols:
+                  x=c.lower().strip().replace('_',' ').replace('-',' ')
+                  x=x.replace('total electorate','electorate').replace('votes in favour','votes in favour').replace('spoilt votes','spoilt votes')
+                  x=' '.join(x.split())
+                  out.append(x)
+              return out
+          ys=[y for y in SOURCES if y in datasets]
+          for a,b in zip(ys,ys[1:]):
               ca,ra=datasets[a]; cb,rb=datasets[b]
               report.append(f'headers_exact_equal_{a}_{b}={ca==cb}')
-              report.append(f'headers_canonical_equal_{a}_{b}={canon(ca)==canon(cb)}')
-              sa={r[next(c for c in ca if c.lower().strip()=="constituency")].strip() for r in ra}
-              sb={r[next(c for c in cb if c.lower().strip()=="constituency")].strip() for r in rb}
-              report.append(f'constituencies_only_{a}_vs_{b}='+'|'.join(sorted(sa-sb)))
-              report.append(f'constituencies_only_{b}_vs_{a}='+'|'.join(sorted(sb-sa)))
+              report.append(f'headers_canonical_equal_{a}_{b}={canon_header(ca)==canon_header(cb)}')
+              acon=pick(ca,'constituency'); bcon=pick(cb,'constituency')
+              if acon and bcon:
+                  sa={str(r[acon]).strip() for r in ra}; sb={str(r[bcon]).strip() for r in rb}
+                  report.append(f'constituencies_only_{a}_vs_{b}='+'|'.join(sorted(sa-sb)))
+                  report.append(f'constituencies_only_{b}_vs_{a}='+'|'.join(sorted(sb-sa)))
 
           out=Path('tmp/referendum_validation_report.txt')
           out.parent.mkdir(parents=True,exist_ok=True)
