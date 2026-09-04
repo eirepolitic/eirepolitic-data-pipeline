@@ -158,22 +158,143 @@ Identify the top five sources recommended for a later ingestion investigation. D
 - Production changes: none.
 - Next: discover and inventory realistic Irish polling sources, then verify access, licensing, methodology, and pricing source by source.
 
+### 2026-09-03 — Phase 2: polling-source discovery
+
+A broad inventory was built across research projects, primary pollsters, commissioning media, issue-poll projects, aggregators, and commercial APIs. The inventory deliberately separates structured reusable datasets from poll-release webpages and discovery-only aggregators.
+
+Strong structured/free candidates discovered:
+
+1. **Irish Polling Indicator (UCD-hosted research project)** — https://pollingindicator.com/ and https://github.com/Irish-Polling-Indicator/ipi-data
+   - Raw national voting-intention polls plus daily aggregated estimates.
+   - Public documentation states raw polls cover roughly 1982/1983 onward and estimates 1987 onward; development data update after new polls.
+   - CSV/XLSX/Stata/R formats are exposed publicly.
+   - Raw poll CSV visibly includes poll date, fieldwork start/end/midpoint, pollster, sample size and party results.
+   - This is the leading candidate for a recurring national historical polling series.
+
+2. **Irish Demographic Polling Datasets (UCD-linked research project)** — https://github.com/Irish-Dem-Polling/datasets
+   - Aggregated vote intention, government satisfaction, and party-leader satisfaction.
+   - Covers Red C and Behaviour & Attitudes source reports and includes demographic/geographic subsamples.
+   - Public CSV/Stata/R files; dashboard also supports subset downloads.
+   - Repository documentation reports 100+ polls; the main project site states coverage through 2025, while an older repository README snapshot still says 2011–2023. Exact current coverage will be verified from files rather than inferred from the stale text.
+
+Primary pollsters/publication channels discovered:
+
+3. **RED C Research / Business Post** — https://redcresearch.com/ and Business Post poll reports.
+   - Recurring national voting intention; public poll reports also contain political issues, satisfaction and demographic tables depending on wave.
+   - Current reports indicate online polling through RED C Live; historical methodology changed over time.
+
+4. **Ireland Thinks / Sunday Independent / The Evidence** — https://www.irelandthinks.ie/ and https://analysis.irelandthinks.ie/
+   - Recurring national voting intention plus election, referendum, presidential, European/local and issue polling.
+   - Public analysis contains demographic breakdowns for some projects and explicit methodology discussion.
+
+5. **Ipsos B&A / The Irish Times** — https://www.ipsosbanda.ie/news-polls/ and Irish Times poll pages.
+   - National voting intention, government/leader satisfaction, issue polling, referendum polling and occasional constituency/byelection and European-election polling.
+   - Ipsos B&A is the successor/combination of Ipsos Ireland/MRBI and Behaviour & Attitudes, so historical series require methodology/version awareness.
+
+6. **Opinions / The Sunday Times** — https://opinions.ie/
+   - National voting-intention polling is confirmed in the 2024 election cycle; RTÉ's poll-of-polls documentation identifies its 2024 political surveys as online.
+   - A clean public historical data archive was not found in discovery and needs further verification.
+
+Additional issue/referendum/all-island polling sources discovered:
+
+7. **Amárach Research** — https://amarach.com/
+   - Public/commissioned issue polling; government and civil-society clients publish some results.
+   - Relevant for referendum, constitutional, EU and public-policy topics rather than a single continuous party-support series.
+
+8. **European Movement Ireland — Ireland and the EU Poll** — https://www.europeanmovement.ie/em-ireland-eu-poll/
+   - Annual series since 2013, currently conducted by Amárach.
+   - Covers attitudes to the EU across the Republic of Ireland and Northern Ireland and exposes downloadable findings.
+
+9. **ARINS / Irish Times constitutional-future surveys** — project/publication sources associated with UCD/Irish Times.
+   - Useful for United-Ireland/constitutional-attitude comparisons and repeated issue questions.
+   - Needs source-by-source licensing/download verification.
+
+Secondary aggregators/discovery candidates discovered:
+
+10. **IrelandElection.com** — https://irelandelection.com/opinion_polls_party.php
+    - Searchable HTML table of national polls including pollster, commissioner, sample, margin and party values; current data visible through 2026.
+    - Potentially useful for cross-checking/discovery, but reuse/scraping rights and provenance need verification before any production use.
+
+11. **Ireland Votes** — https://www.irelandvotes.com/polling/ireland/dail
+    - Displays a polling series back to 2007 plus an aggregate and government-approval tracker.
+    - Its terms explicitly prohibit scraping/bulk downloading/automated extraction without permission, so it is likely discovery/reference only unless permission is obtained.
+
+12. **IrishPolitics.ie** — https://www.irishpolitics.ie/tracker
+    - Current poll tracker with visible poll history and a CSV control in the public interface.
+    - Secondary source using Red C, Ireland Thinks and Ipsos B&A. Licensing/provenance must be checked before reuse.
+
+13. **Wikipedia Irish election polling pages** — e.g. https://en.wikipedia.org/wiki/Opinion_polling_for_the_2024_Irish_general_election
+    - Useful discovery/index source for national, referendum and constituency polls and source links.
+    - Not preferred as the canonical production source where primary/curated research data are available.
+
+Commercial / paid access candidates discovered:
+
+14. **Europe Elects polling database** — https://europeelects.eu/data-access-request/
+    - Ireland included. Academic/non-commercial CSV is advertised at €15 per country, but commercial entities must contact Europe Elects first.
+    - Therefore the €15 price is not applicable to EirePolitic commercial/public use without separate permission; pricing for commercial use is contact-only.
+
+15. **PolitPro API** — https://politpro.eu/en/api
+    - Raw individual voting-intention polls and polling trends for Ireland are within its supported-country coverage.
+    - JSON API intended for media/publishers/think tanks and can be used editorially/in own products, subject to restrictions on competing polling platforms.
+    - Pricing is not public on the reviewed API page; contact/inquiry required.
+
+16. **PoliticalAPI polling endpoint** — https://politicalapi.com/political-polls-api
+    - REST API with Ireland coverage and normalized poll metadata.
+    - It states its polling data are normalized from publicly available Wikipedia polling tables, so it is a convenience layer rather than a primary source.
+    - Published subscription tiers exist and will be assessed in Phase 3.
+
+Discovery-only/non-Irish dead end:
+
+17. **PollBase / PollBase Pro** — UK/Great Britain focused, not a realistic Republic of Ireland polling source. It should not be pursued for this investigation.
+
+Production changes: none.
+
 ## Sources checked
 
-Substantive source research has not started yet. Entries will be added phase by phase with URLs, evidence, access tests, pricing, licensing, methodology, and conclusions.
+### Polling research/data projects
+
+- Irish Polling Indicator: https://pollingindicator.com/
+- Irish Polling Indicator method: https://pollingindicator.com/method
+- Irish Polling Indicator development data: https://github.com/Irish-Polling-Indicator/ipi-data
+- Irish Demographic Polling Datasets: https://github.com/Irish-Dem-Polling/datasets
+
+### Pollsters and commissioners
+
+- RED C Research: https://redcresearch.com/
+- RED C omnibus: https://redcresearch.com/our-omnibus/
+- Ireland Thinks: https://www.irelandthinks.ie/
+- Ireland Thinks analysis/public data site: https://analysis.irelandthinks.ie/
+- Ipsos B&A polls: https://www.ipsosbanda.ie/news-polls/
+- Ipsos B&A omnibus: https://www.ipsosbanda.ie/research-approaches/omnibus/
+- Opinions omnibus: https://opinions.ie/omnibus/
+- Amárach omnibus: https://amarach.com/amarach-omnibus-survey.html
+- European Movement Ireland EU Poll: https://www.europeanmovement.ie/em-ireland-eu-poll/
+
+### Secondary/paid aggregators
+
+- IrelandElection.com polls: https://irelandelection.com/opinion_polls_party.php
+- Ireland Votes Dáil polling: https://www.irelandvotes.com/polling/ireland/dail
+- Ireland Votes terms: https://www.irelandvotes.com/about/terms
+- IrishPolitics.ie tracker: https://www.irishpolitics.ie/tracker
+- Europe Elects Ireland: https://europeelects.eu/ireland/
+- Europe Elects data access: https://europeelects.eu/data-access-request/
+- PolitPro API: https://politpro.eu/en/api
+- PoliticalAPI polls API: https://politicalapi.com/political-polls-api
+- Wikipedia 2024 polling index: https://en.wikipedia.org/wiki/Opinion_polling_for_the_2024_Irish_general_election
 
 ## Rejected sources
 
-None yet.
+- **PollBase / PollBase Pro** — British/Great Britain polling database, not Republic of Ireland coverage. Rejected as out of scope.
+- **Ireland Votes as an automated ingestion source** — not rejected as a reference site, but its published terms prohibit scraping, bulk downloading and automated extraction without permission. Treat as discovery/reference only unless permission is obtained.
 
 ## Ranked recommendations
 
-Pending completion of the investigation.
+Pending completion of access/licensing/methodology verification and non-polling research.
 
 ## Living next-step plan
 
-1. Discover a comprehensive inventory of Irish polling sources.
-2. Verify primary-source access, licensing, methodology, historical coverage, and cost for each promising source.
+1. **Completed:** discover a comprehensive inventory of Irish polling sources.
+2. **Current:** verify primary-source access, licensing, methodology, historical coverage, and cost for each promising polling source.
 3. Test programmatic feasibility using read-only checks where useful.
 4. Assess historical-series comparability and recurring-graphic value.
 5. Investigate high-value non-polling Irish political datasets.
