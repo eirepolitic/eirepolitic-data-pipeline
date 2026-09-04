@@ -26,59 +26,51 @@ jobs:
       - name: Install workbook reader
         run: python -m pip install --quiet openpyxl
 
-      - name: Produce compact 2024 constituency structure summary
+      - name: Summarise 2024 constituency sheet layout
         run: |
           python - <<'PY'
           import urllib.request
           from pathlib import Path
           from openpyxl import load_workbook
 
-          URL="https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx"
-          req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 EirePolitic research validation"})
-          with urllib.request.urlopen(req,timeout=60) as r: body=r.read()
+          url='https://opendata.housing.gov.ie/dataset/7ca52e7b-dd4d-4edd-b159-6ae111bbe538/resource/fb8a1f97-2683-4515-bac4-e2617222b20d/download/2024-dail-general-election-results.xlsx'
+          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 EirePolitic research validation'})
+          with urllib.request.urlopen(req,timeout=60) as r:
+              body=r.read()
           p=Path('/tmp/election2024.xlsx'); p.write_bytes(body)
-          wbf=load_workbook(p,data_only=False,read_only=False)
-          wbv=load_workbook(p,data_only=True,read_only=False)
+          wb=load_workbook(p,data_only=True,read_only=True)
 
-          out=[f"sheet_count={len(wbf.sheetnames)}", "sheet_names="+"|".join(wbf.sheetnames)]
-          for title in ["Carlow-Kilkenny","Cavan-Monaghan","Wicklow-Wexford"]:
-              wsf=wbf[title]; wsv=wbv[title]
-              out += ["",f"[{title}]",f"dimensions={wsf.max_row}x{wsf.max_column}",f"merged_ranges={len(wsf.merged_cells.ranges)}"]
-              # Record non-empty cells only for the top/header area and first two count bands.
-              for rownum in list(range(1,26)) + list(range(60,81)):
-                  cells=[]
-                  for col in range(1,min(wsf.max_column,45)+1):
-                      vf=wsf.cell(rownum,col).value
-                      vv=wsv.cell(rownum,col).value
-                      if vf is None and vv is None:
-                          continue
-                      label=f"{wsf.cell(rownum,col).coordinate}="
-                      if isinstance(vf,str) and vf.startswith('='):
-                          cells.append(label+f"FORMULA[{vf}]=>{vv}")
-                      else:
-                          val=vv if vv is not None else vf
-                          cells.append(label+str(val).replace('\n',' ').strip())
-                  if cells:
-                      out.append(f"row={rownum}|"+" || ".join(cells))
-              # Summarise formula density and where formulas occur.
-              formula_coords=[]
-              for row in wsf.iter_rows():
-                  for c in row:
-                      if isinstance(c.value,str) and c.value.startswith('='):
-                          formula_coords.append(c.coordinate)
-              out.append(f"formula_count={len(formula_coords)}")
-              out.append("formula_coord_sample="+"|".join(formula_coords[:80]))
+          out=[f'sheet_count={len(wb.sheetnames)}','sheet_names='+'|'.join(wb.sheetnames)]
+          targets=['Carlow-Kilkenny','Cavan-Monaghan','Wicklow-Wexford']
+          for title in targets:
+              ws=wb[title]
+              out += ['',f'[{title}]',f'dimensions={ws.max_row}x{ws.max_column}']
+              nonempty_rows=[]
+              for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
+                  vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
+                  if any(vals):
+                      trimmed=list(vals)
+                      while trimmed and trimmed[-1]=='': trimmed.pop()
+                      nonempty_rows.append((rownum,trimmed))
+              out.append(f'nonempty_rows={len(nonempty_rows)}')
+              # Show only first 18 and last 8 logical rows, capped to 28 cells each.
+              selected=nonempty_rows[:18]+nonempty_rows[-8:]
+              seen=set()
+              for rownum,vals in selected:
+                  if rownum in seen: continue
+                  seen.add(rownum)
+                  out.append('row='+str(rownum)+'|'+' || '.join(vals[:28]))
 
-          # General stats sheet structure.
-          ws=wbf["General Statistics"]
-          out += ["", "[General Statistics]", f"dimensions={ws.max_row}x{ws.max_column}"]
-          for rownum in range(1,min(ws.max_row,60)+1):
-              cells=[]
-              for col in range(1,min(ws.max_column,14)+1):
-                  v=wbv["General Statistics"].cell(rownum,col).value
-                  if v is not None and str(v).strip():
-                      cells.append(f"{ws.cell(rownum,col).coordinate}={str(v).replace(chr(10),' ').strip()}")
-              if cells: out.append(f"row={rownum}|"+" || ".join(cells))
+          ws=wb['General Statistics']
+          out += ['', '[General Statistics]', f'dimensions={ws.max_row}x{ws.max_column}']
+          shown=0
+          for rownum,row in enumerate(ws.iter_rows(values_only=True),start=1):
+              vals=['' if v is None else str(v).replace('\n',' ').strip() for v in row]
+              if any(vals):
+                  while vals and vals[-1]=='': vals.pop()
+                  out.append('row='+str(rownum)+'|'+' || '.join(vals[:14]))
+                  shown+=1
+                  if shown>=12: break
 
           path=Path('tmp/election_2024_structure_summary.txt')
           path.parent.mkdir(parents=True,exist_ok=True)
@@ -86,10 +78,10 @@ jobs:
           print(path.read_text())
           PY
 
-      - name: Commit temporary compact summary
+      - name: Commit temporary summary
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add tmp/election_2024_structure_summary.txt
-          git commit -m "research: record compact 2024 election structure" || exit 0
+          git commit -m 'research: record compact 2024 election structure' || exit 0
           git push
