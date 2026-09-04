@@ -2,294 +2,396 @@
 
 ## Status
 
-Investigation completed on 2026-09-03.
+Investigation completed and refreshed on 2026-09-03 after deployment of the certified Bill-section foundation.
 
-Production architecture was not changed.
+Production speech-context architecture has **not** changed during this follow-up.
 
-Current recommendation: do **not** build a broad `speech_context` production foundation yet. Keep the existing certified `speech_question_context` for Oral-question exchanges. A narrowly defined Leaders' Questions rule is ready to certify, but the remaining candidate categories are not yet sufficiently complete and homogeneous to justify a new top-level production schema.
+The evidence now supports a broader deterministic `speech_context` foundation. Six non-`other` contexts can be assigned safely with narrow source-backed rules and no observed overlap in the current production batch:
+
+1. `oral_question_exchange`
+2. `bill_or_legislation`
+3. `leaders_questions`
+4. `statements`
+5. `procedural_business`
+6. `motion_proceeding`
+7. `other`
+
+The current rules classify 53,452 of 66,192 speeches (80.75%). The remaining 12,740 speeches stay `other`.
+
+This is now an architecture recommendation, not a production implementation. A short implementation plan must be approved before building the broader foundation.
 
 ## Goal
 
-Determine whether speeches can be assigned one deterministic top-level parliamentary context without AI/classifier calls, with explicit precedence and an `other` fallback.
+Determine whether every speech can receive at most one deterministic top-level parliamentary context without AI/classifier calls, with explicit precedence and an `other` fallback.
 
-Candidate contexts investigated:
+The governing principles remain:
 
-1. `oral_question_exchange`
-2. Bill / legislation debate
-3. Leaders' Questions
-4. motions
-5. statements
-6. parliamentary / procedural business
-7. `other`
-
-The intended guardrail remains: each speech may have at most one top-level context, and ambiguous cases remain `other`.
+- use source relationships before heading rules;
+- use narrow certified source-heading forms rather than broad semantic matching;
+- keep ambiguous or unsupported cases as `other`;
+- never infer context from vague interpretation of speech text;
+- never multiply speeches because multiple source records point at one parliamentary section.
 
 ## Evidence
 
-Temporary investigation branch:
+### Initial investigation
+
+Temporary branch:
 
 - `ops/investigate-broader-speech-context`
 
 Runs:
 
-- `33703889234` — initial speech-context profile; successful.
-- `33809629511` — follow-up Bill-link diagnostic; failed before producing output because it assumed `silver_speeches.source_debate_uri`, which does not exist in the live speech table.
-- `33811157221` — corrected read-only diagnostic using `silver_debate_records` as the URI/debate bridge; successful.
-- `33811273798` — compact digest of the corrected diagnostics; successful.
+- `33703889234` — initial profile; successful.
+- `33809629511` — failed Bill-link follow-up using a non-existent speech URI field.
+- `33811157221` — corrected Bill-link diagnostic through debate records; successful.
+- `33811273798` — compact diagnostic digest; successful.
 
-Primary temporary artifacts:
+Primary artifacts:
 
 - `analysis/broader_speech_context_profile.json`
 - `analysis/broader_speech_context_profile_digest.json`
 - `analysis/broader_speech_context_link_diagnostics.json`
 - `analysis/broader_speech_context_link_diagnostics_digest.json`
 
+### Post-legislation follow-up
+
+Temporary branch:
+
+- `ops/investigate-speech-context-v2-20260903`
+
 Production batch examined:
 
-- `structure-oral-exchange-participants-20260902-1`
+- `certified-bill-sections-20260903-1`
 
-## Confirmed findings
+Runs:
 
-### 1. Oral-question exchanges remain certified
+- `33825553971` — first refreshed diagnostic attempt; failed before output because the temporary profile expected a section date column that is not present in `silver_debate_sections`.
+- `33825622455` — diagnostic retry; failed before persisted output because the temporary capture step did not add the traceback file independently when the result file was missing.
+- `33825695492` — corrected broad profile using the live Bill-section foundation; successful.
+- `33825788414` — final narrow certification/precedence pass; successful.
 
-The existing deterministic Oral-question relationship remains the strongest context rule.
+Artifacts:
 
-Observed profile in the current production batch:
+- `analysis/broader_speech_context_v2_digest.json`
+- `analysis/broader_speech_context_certification_digest.json`
 
+The failed investigation runs were read-only and made no production changes.
+
+## Confirmed context rules
+
+### 1. `oral_question_exchange`
+
+Source:
+
+- existing certified `speech_question_context`
+
+Current footprint:
+
+- 2,127 sections
 - 18,485 speeches
-- 2,127 debate sections / Oral-question exchanges
 - 2025: 10,811 speeches
 - 2026: 7,674 speeches
 
-This category should retain highest precedence over broader heading-based categories because it is backed by an already-certified question/exchange relationship rather than heading interpretation.
+This remains the strongest relationship-backed speech context and should retain first precedence.
 
-### 2. Leaders' Questions can be identified safely with an exact source-heading allowlist
+### 2. `bill_or_legislation`
 
-The diagnostic substring rule returned 10,822 speeches across 159 sections, but manual overlap review exposed one false positive:
+Source:
 
-- `Report on Standing Orders and Dáil Reform on Rota for Leaders’ Questions Pursuant to Standing Order 38: Motion`
+- live certified `bill_debate_sections`
 
-That row contains the words “Leaders’ Questions” but is a motion, not a Leaders' Questions session.
+Current footprint:
 
-The source-generated headings themselves are otherwise highly stable. The two genuine observed forms are:
+- 371 sections
+- 7,352 speeches
+- 2025: 3,605 speeches
+- 2026: 3,747 speeches
+
+The production Bill bridge already guarantees section-grain attribution and excludes debate-wide, conflicting and multi-Bill cases.
+
+**Certification decision:** safe for broader speech context through exact `debate_section_id` membership in `bill_debate_sections`.
+
+Do not infer Bill context from shared debate ID, URI, date, heading similarity or speech text.
+
+### 3. `leaders_questions`
+
+Source:
+
+- exact Oireachtas section-heading allowlist
+
+Certified headings:
 
 - `Ceisteanna ó Cheannairí - Leaders' Questions`
 - `Ceisteanna ó Cheannairí (Atógáil) - Leaders' Questions (Resumed)`
 
-They account for 10,821 speeches in the current data:
+Current footprint:
 
-- main heading: 10,702 speeches
-- resumed heading: 119 speeches
+- 158 sections
+- 10,821 speeches
+- 2025: 6,800 speeches
+- 2026: 4,021 speeches
 
-Coverage is present in both 2025 and 2026.
+The earlier broad substring rule produced a false positive from a standing-order motion referring to Leaders' Questions. The exact allowlist removes that case.
 
-**Certification decision:** safe for public use if implemented as an exact allowlist of certified source headings, not a substring/regex rule.
+**Certification decision:** safe for public use with exact heading equality only.
 
-### 3. Bill `debate_uri` / `debate_id` is debate-wide, not section-level
+### 4. `statements`
 
-The Bill table is built from Oireachtas legislation debate records in `extract/oireachtas/table_bill_debates.py`.
+Source:
 
-The corrected diagnostics established that the Bill `debate_uri` values are whole debate/sitting identifiers. Example matched debates contained tens of unrelated sections and hundreds of speeches, including:
+- exact source-heading form, not broad substring search
 
-- Leaders' Questions;
-- Oral-question sections;
-- motions;
-- statements;
-- several distinct Bills;
-- unrelated administrative business.
+Certified heading forms are headings ending exactly in:
 
-Current counts:
+- `: Statements`
+- `: Statements (Resumed)`
+- `: Ráitis`
+- `: Ráitis (Atógáil)`
 
-- 1,222 Bill-debate rows
-- 399 distinct Bills
-- 652 distinct Bill debate IDs / URIs
-- 134 Bill debate IDs exactly overlap speech `debate_id`
-- those 134 debates contain 55,722 speeches across 3,821 sections
+Current footprint:
 
-Therefore, joining speeches to Bills at the debate URI / debate ID grain would massively over-label speeches and is rejected.
+- 123 sections
+- 4,906 speeches
+- 2025: 3,347 speeches
+- 2026: 1,559 speeches
 
-### 4. A promising Bill section-level relationship exists, but it is not fully certified yet
+This deliberately excludes headings that merely contain the word “Statement”, including:
 
-Two narrower relationships were found:
+- `Budget Statement 2026`
+- `Statement of Estimates for the Houses of the Oireachtas Commission: Motion`
 
-1. `silver_bill_debates.debate_section_id` behaves like a local Oireachtas `dbsect_*` identifier and overlaps `silver_debate_sections.section_eid` in 64 cases.
-2. Within the same matched debate, `silver_bill_debates.debate_show_as` can often be matched exactly to one section heading.
+Those are not automatically assigned to the statements category.
 
-The diagnostic found:
+**Certification decision:** safe as a narrow source-form context. This is a proceeding-type label, not a semantic statement-topic classifier.
 
-- 382 unique exact same-debate heading-to-section matches
-- 7,413 speeches in those matched sections
+### 5. `procedural_business`
 
-Examples include exact section matches for Second Stage, Committee and Remaining Stages, Report and Final Stages, referral stages, and other Bill proceedings.
+Source:
 
-This is materially better than debate-wide joining, but it is not yet a production rule because:
+- exact Oireachtas section-heading allowlist
 
-- only part of the Bill table overlaps the current speech/debate coverage;
-- `debate_section_id` needs to be treated explicitly as a source-local section identifier and validated against `section_eid` across chambers/years;
-- unmatched Bill rows need explanation rather than fallback inference;
-- exact heading matching should be validated as a source relationship, not treated as a semantic text classifier;
-- Bill stages and linked entities should be investigated together in the planned legislation work.
+Certified headings:
 
-**Certification decision:** promising deterministic route; defer production implementation to the legislation investigation.
+- `An tOrd Gnó - Order of Business`
+- `An tOrd Gnó - Order of Business (Resumed)`
+- `An tOrd Gnó (Atógáil) - Order of Business (Resumed)`
+- `Ceisteanna ar Reachtaíocht a Gealladh - Questions on Promised Legislation`
+- `Gnó na Dála - Business of Dáil`
 
-### 5. Motions are detectable but too heterogeneous for one broad production label yet
+Current footprint:
 
-The diagnostic heading patterns found:
+- 87 sections
+- 5,067 speeches
+- 2025: 3,287 speeches
+- 2026: 1,780 speeches
 
+The diagnostic heading `Sittings and Business of the Dáil: Motion` is deliberately excluded from this allowlist and remains a motion proceeding.
+
+**Certification decision:** safe for public use as a narrow parliamentary-business context.
+
+### 6. `motion_proceeding`
+
+Source:
+
+- exact source-heading form
+
+Certified rule:
+
+A heading must end in a formal Oireachtas motion form:
+
+- `: Motion`
+- `: Motion (Resumed)`
+- `: Motion [Private Members]`
+- `: Motion (Resumed) [Private Members]`
+- `: Motions`
+- `: Motions (Resumed)`
+
+Current footprint:
+
+- 296 sections
 - 6,821 speeches
-- 294 sections
-- coverage in 2025 and 2026
+- 2025: 3,927 speeches
+- 2026: 2,894 speeches
 
-The source headings include several materially different forms:
+The source family includes many different parliamentary purposes, for example:
 
 - Private Members' motions;
 - confidence motions;
 - statutory approval motions;
-- treaty / EU motions;
-- procedural and standing-order motions;
+- treaty/EU motions;
+- standing-order and committee motions;
 - administrative motions.
 
-Overlap review also found examples where a naive text rule collides with other contexts, including:
+Therefore the public meaning must remain narrow:
 
-- a Leaders' Questions-related standing-order motion;
-- `Statement of Estimates ...: Motion`;
-- `Sittings and Business of the Dáil: Motion`.
+**`motion_proceeding` means the Oireachtas source identifies the section as a formal motion proceeding. It does not imply that all such motions are substantively comparable.**
 
-**Certification decision:** do not publish one homogeneous `motions` category yet. First decide whether the intended top-level context should include all formal motions or whether substantive, statutory and procedural motions should be distinguished.
+This resolves the earlier concern about treating every motion as one homogeneous political topic. The category describes parliamentary form, not subject matter or political significance.
 
-### 6. Statements are strongly source-signalled but not yet complete enough to certify as a broad rule
+**Certification decision:** safe with this narrow interpretation and exact source-form rule.
 
-The current diagnostic patterns found:
+### 7. `other`
 
-- 5,081 speeches
-- 125 sections
-- coverage in 2025 and 2026
+Current footprint:
 
-Most matches are explicit source headings ending in forms such as `: Statements` or `: Statements (Resumed)`.
+- 1,848 sections in the section foundation not assigned to one of the certified section contexts
+- 12,740 speeches
+- 2024: 119 speeches
+- 2025: 7,499 speeches
+- 2026: 5,122 speeches
 
-However, the current pattern also picks up headings such as:
+`other` remains mandatory. It is not an error state and must not be filled through semantic guessing.
 
-- `Budget Statement 2026`
+## Final overlap result
 
-and the investigation has not yet established a complete bilingual/source-heading allowlist for all statement-like proceedings.
+The final narrow certification pass found **zero section overlaps** among:
 
-**Certification decision:** likely deterministic, but not yet certified as a complete top-level rule. Prefer an exact source-heading family/allowlist after a completeness review rather than broad substring matching.
+- `oral_question_exchange`
+- `bill_or_legislation`
+- `leaders_questions`
+- `statements`
+- `procedural_business`
+- `motion_proceeding`
 
-### 7. Procedural/business context is real, but the first rule under-covered it
+This means the current source rules are mutually exclusive in the examined production batch.
 
-The first candidate profile found:
+Precedence should still be encoded explicitly so future source changes cannot create unstable assignments.
 
-- 4,711 speeches
-- 59 sections
+## Recommended precedence
 
-It correctly captured examples such as:
+Recommended production precedence:
 
-- `An tOrd Gnó - Order of Business`
-- resumed Order of Business variants
-- `Ceisteanna ar Reachtaíocht a Gealladh - Questions on Promised Legislation`
+1. `oral_question_exchange`
+2. `bill_or_legislation`
+3. `leaders_questions`
+4. `statements`
+5. `procedural_business`
+6. `motion_proceeding`
+7. `other`
 
-But diagnostic heading discovery also found a major omitted source heading:
+Rationale:
 
-- `Gnó na Dála - Business of Dáil` — 357 speeches
+- certified relationship-backed contexts come before heading-derived contexts;
+- the exact heading families are currently mutually exclusive;
+- explicit ordering protects against future overlap without relying on incidental current-data separation.
 
-A naive `business` substring rule is also unsafe because unrelated topical headings can contain the word “business”.
+If any future overlap appears, it should be surfaced by audit rather than silently changing classification behaviour.
 
-**Certification decision:** a procedural/business category is plausible, but it needs an exact source-heading allowlist and a clear scope definition before public use.
+## Coverage
+
+Current production speech count:
+
+- 66,192 speeches
+
+Certified non-`other` contexts:
+
+- 53,452 speeches
+- 80.75% of speeches
+
+Remaining `other`:
+
+- 12,740 speeches
+- 19.25% of speeches
+
+This is sufficient coverage to justify a broader deterministic foundation without AI classification.
 
 ## Rejected approaches
 
-### Bill section join by `silver_bill_debates.debate_section_id = silver_speeches.debate_section_id`
+### Debate-wide Bill attribution
 
-Rejected. The identifiers are not in the same identifier space.
+Rejected. A Bill can be one section among many unrelated proceedings in the same sitting.
 
-Observed overlaps:
+Use only `bill_debate_sections`.
 
-- Bill `debate_section_id` -> speech `debate_section_id`: 0
-- Bill `debate_section_id` -> silver section `debate_section_id`: 0
-- Bill `debate_section_id` -> silver section `section_uri`: 0
-- Bill `debate_section_id` -> silver section `section_eid`: 64
+### Global `dbsect_*` joins
 
-### Bill join by `debate_uri` / `debate_id` alone
+Rejected. Source-local section EIDs are only meaningful within a debate.
 
-Rejected. The URI represents the whole debate/sitting and includes many unrelated sections.
+### Broad Leaders' Questions substring matching
 
-### Broad substring/regex context classification
+Rejected because administrative/motion headings can mention Leaders' Questions without being a Leaders' Questions session.
 
-Rejected as a production rule.
+### Broad “statement” substring matching
 
-The diagnostics intentionally used broad patterns to discover candidate headings. Manual overlap review demonstrated false positives from headings that mention another context as part of a motion or administrative title.
+Rejected because it captures headings such as `Budget Statement 2026` and motion titles containing “Statement”.
 
-Production rules should use exact certified source-generated headings or stronger source relationships.
+### Broad “business” substring matching
+
+Rejected because topical headings can contain the word “business”. Use the exact procedural allowlist.
+
+### Treating motion proceedings as one substantive topic
+
+Rejected. The certified `motion_proceeding` category records parliamentary form only.
 
 ### Speech-text interpretation
 
-Not used and not recommended for this foundation.
+Rejected for top-level context assignment. No certified rule depends on semantic interpretation of speech text.
 
-No context in this investigation is certified from vague semantic interpretation of speech text.
+### AI/classifier calls
+
+Not needed. Deterministic source structure now covers more than 80% of speeches with a safe `other` fallback.
 
 ## Methodological guardrails
 
-1. Prefer exact source relationships over heading rules.
-2. If headings are used, use certified exact source-heading allowlists, not broad regexes.
-3. Keep `other` as an explicit fallback.
-4. Do not label all speeches in a debate URI as Bill speeches.
-5. Do not treat diagnostic regex coverage as certification.
-6. Do not use speech-text similarity to infer formal parliamentary context.
-7. Preserve one-row-per-speech coverage if a broader context foundation is eventually built.
-8. Apply explicit precedence only between independently certified rules.
-9. Keep the existing `speech_question_context` for compatibility unless/until a broader foundation is deployed and downstream contracts are migrated deliberately.
-10. Describe these categories as parliamentary context, not as measures of political effectiveness or quality.
+1. Every source speech must appear exactly once in a future broader context foundation.
+2. Every speech must have at most one top-level context.
+3. `other` remains a valid explicit category.
+4. Relationship-backed rules take precedence over source-heading rules.
+5. Heading rules must use certified exact forms/allowlists, not broad keyword regexes.
+6. Future overlaps must fail or warn in audit; they must not silently depend on DataFrame ordering.
+7. `motion_proceeding` describes parliamentary form, not political topic, importance, quality or effectiveness.
+8. `bill_or_legislation` must inherit only from the certified Bill-section bridge.
+9. Keep recipient, Bill ID, section heading and other linked entities as separate dimensions rather than embedding them into the top-level label.
+10. Keep existing `speech_question_context` for compatibility during any broader-context rollout.
+11. Do not run Parliamentary Question topic classification merely to fill top-level speech context.
+12. Do not describe activity/context measures as political effectiveness or performance.
 
 ## Production implications
 
-No production data or schema changed during this investigation.
+The follow-up evidence changes the earlier architecture decision.
 
-The evidence does **not** yet justify replacing `speech_question_context` with a broader `speech_context` foundation.
+A broader deterministic `speech_context` foundation is now justified because:
 
-A future production design remains plausible, but it should wait until legislation and the remaining heading families are certified. If built later, likely fields remain:
+- the Bill relationship is production-certified;
+- Leaders' Questions has a stable exact allowlist;
+- statements have a narrow bilingual source-form rule;
+- procedural/business has a bounded exact allowlist;
+- motion proceedings can be safely represented as parliamentary form rather than substantive category;
+- all six certified non-`other` contexts are mutually exclusive in the current production data;
+- deterministic coverage reaches 80.75% of speeches.
+
+This should be an **additive** production foundation initially. Do not remove or replace `speech_question_context` during the first deployment.
+
+A likely schema remains:
 
 - `speech_id`
 - `debate_date`
 - `debate_section_id`
 - `speech_context`
-- source/evidence method
-- optional linked entity identifier, such as Bill ID
-- provenance/version
+- `evidence_method`
+- optional linked entity identifier where structurally relevant, especially `bill_id`
+- source/provenance version
+- source batch ID
 
-The exact architecture, schema and precedence should be proposed separately before implementation.
-
-## Provisional precedence after this investigation
-
-Only certified rules should participate in precedence.
-
-Current safe ordering is therefore:
-
-1. `oral_question_exchange`
-2. `leaders_questions` using the exact certified heading allowlist
-3. `other`
-
-This is **not** a recommendation to deploy a three-value production foundation now; it only records the ordering that would be safe among currently certified rules.
-
-Bills, motions, statements and procedural/business remain outside production precedence until separately certified.
+The exact implementation/schema must be planned before production changes.
 
 ## Living next-step plan
 
-1. **Move into the legislation investigation next.** This is the highest-value unresolved dependency for broader speech context.
-   - establish Bill IDs and debate-record relationships;
-   - validate `silver_bill_debates.debate_section_id` against `silver_debate_sections.section_eid` across chambers/years;
-   - quantify why only part of the Bill-debate universe overlaps the current speech/debate coverage;
-   - validate exact same-debate `debate_show_as` -> section-heading matching;
-   - capture Bill stages/readings from source-supported fields;
-   - link speeches to Bills only at certified section grain;
-   - investigate divisions linked to Bills;
-   - investigate sponsors only where source-supported.
-2. During or immediately after legislation work, finish exact source-heading allowlists for:
-   - statements;
-   - procedural/business proceedings.
-3. Decide the intended public meaning of `motions` before implementation:
-   - one formal-motion umbrella; or
-   - separate substantive/private-members, statutory, confidence, and procedural motion families.
-4. Recompute overlap/precedence using only certified rules.
-5. If the resulting categories cover enough speeches to justify a broader foundation, prepare a short architecture/schema implementation plan before changing production.
-6. Keep full Parliamentary Question topic classification deferred unless a specific downstream need demonstrates that deterministic recipient, heading, legislation and speech-context fields are insufficient.
-7. After legislation context is established, revisit voting analysis so divisions can be described using substantive Bill/motion context rather than raw party-unity measures alone.
+1. Prepare a short implementation plan for an additive `speech_context` foundation.
+2. The plan should preserve one row per speech and include all 66,192 current speeches, including `other`.
+3. Implement explicit precedence in code even though the current certified rules have zero overlap.
+4. Add audits for:
+   - one row per source speech;
+   - no missing source speeches;
+   - no duplicate `speech_id`;
+   - allowed context values only;
+   - no unexpected rule overlap;
+   - Bill-linked speeches resolving to one certified Bill at most;
+   - context counts/coverage changes by year.
+5. Keep `speech_question_context` deployed for compatibility and verify the new `oral_question_exchange` assignments exactly agree with it.
+6. Preserve `bill_debate_sections` as the legislation relationship foundation; do not duplicate Bill-certification logic inside speech context.
+7. After successful broader-context deployment, revisit voting analysis using certified Bill/motion context.
+8. Continue source-structure investigation for the remaining `other` speeches only when a concrete downstream need exists; do not force them into categories.
+9. Expand Seanad/committee canonical speech coverage separately before presenting this as whole-Oireachtas context coverage.
+10. Keep full Parliamentary Question issue classification deferred unless a specific downstream use case demonstrates that deterministic context, recipient, heading and legislation dimensions remain insufficient.
