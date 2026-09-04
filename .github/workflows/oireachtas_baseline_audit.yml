@@ -4,14 +4,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+env:
+  PYTHONPATH: .
 
 jobs:
-  inventory:
+  live-digest:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -27,22 +26,51 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Capture live contextual voting foundation footprint
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python - <<'PY'
+          import io,json,os
+          from pathlib import Path
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import PRODUCTION_POINTER_KEY,read_json_required,resolve_production_key
+          from political_metrics.contextual_votes import audit_context_vote_reconciliation
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          pointer=read_json_required(s3,bucket=bucket,key=PRODUCTION_POINTER_KEY)
+          def read(p):
+              k=resolve_production_key(s3,bucket=bucket,production_key=p)
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=k)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          daily=read('processed/oireachtas_unified/latest/metrics/daily/daily_context_vote_components/csv/daily_context_vote_components.csv')
+          party=read('processed/oireachtas_unified/latest/metrics/event/context_division_party_vote_components/csv/context_division_party_vote_components.csv')
+          existing_daily=read('processed/oireachtas_unified/latest/metrics/daily/daily_activity_components/csv/daily_activity_components.csv')
+          existing_party=read('processed/oireachtas_unified/latest/metrics/event/division_party_vote_components/csv/division_party_vote_components.csv')
+          audit=audit_context_vote_reconciliation(
+              daily_context_vote_components=daily,
+              context_division_party_vote_components=party,
+              daily_activity_components=existing_daily,
+              division_party_vote_components=existing_party,
+          )
+          out={
+            'production_batch_id':pointer.get('batch_id') or pointer.get('mode'),
+            'daily_context_vote_components_rows':int(len(daily)),
+            'context_division_party_vote_components_rows':int(len(party)),
+            'daily_context_row_counts':{k:int(v) for k,v in daily['division_context'].value_counts().to_dict().items()},
+            'party_context_row_counts':{k:int(v) for k,v in party['division_context'].value_counts().to_dict().items()},
+            'daily_component_totals':daily.assign(component_value_num=pd.to_numeric(daily['component_value'],errors='coerce').fillna(0)).groupby(['division_context','component_id'])['component_value_num'].sum().astype(int).to_dict(),
+            'party_recorded_vote_totals':party.assign(recorded_vote_count_num=pd.to_numeric(party['recorded_vote_count'],errors='coerce').fillna(0)).groupby('division_context')['recorded_vote_count_num'].sum().astype(int).to_dict(),
+            'audit':audit,
+          }
+          # stringify tuple keys for JSON
+          out['daily_component_totals']={f'{k[0]}|{k[1]}':int(v) for k,v in out['daily_component_totals'].items()}
+          Path('analysis').mkdir(exist_ok=True)
+          Path('analysis/contextual_vote_foundations_live_digest.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - name: Persist digest
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/contextual_vote_foundations_live_digest.json
+          git commit -m "Capture contextual voting foundation live digest ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
