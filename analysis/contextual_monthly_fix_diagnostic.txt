@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_contextual_monthly_candidate.py", line 131, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_contextual_monthly_candidate.py", line 106, in main
+    result = publish_dataset_to_candidate(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/political_metrics/candidate_publish.py", line 68, in publish_dataset_to_candidate
+    body, content_type = _serialize(ordered, fmt)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/political_metrics/candidate_publish.py", line 27, in _serialize
+    frame.to_parquet(buffer, index=False)
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py", line 3135, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/io/parquet.py", line 490, in to_parquet
+    impl.write(
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/io/parquet.py", line 191, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pyarrow/table.pxi", line 4769, in pyarrow.lib.Table.from_pandas
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyarrow/pandas_compat.py", line 669, in dataframe_to_arrays
+    arrays[i] = maybe_fut.result()
+                ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyarrow/pandas_compat.py", line 644, in convert_column
+    raise e
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyarrow/pandas_compat.py", line 638, in convert_column
+    result = pa.array(col, type=type_, from_pandas=True, safe=safe)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pyarrow/array.pxi", line 408, in pyarrow.lib.array
+  File "pyarrow/array.pxi", line 91, in pyarrow.lib._ndarray_to_array
+  File "pyarrow/error.pxi", line 92, in pyarrow.lib.check_status
+pyarrow.lib.ArrowTypeError: ("Expected bytes, got a 'int' object", 'Conversion failed for column metric_version with type object')
