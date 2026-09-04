@@ -11,6 +11,7 @@ env:
   AWS_REGION: ca-central-1
   S3_BUCKET: eirepolitic-data
   BATCH_ID: certified-bill-sections-20260903-1
+  PYTHONPATH: .
 
 jobs:
   deploy:
@@ -28,7 +29,7 @@ jobs:
         run: python -m pip install boto3 pandas pyarrow pyyaml pytest
       - name: Run legislation and contract tests
         run: |
-          pytest -q tests/political_metrics/test_legislation_context.py tests/political_metrics/test_downstream_contracts.py
+          python -m pytest -q tests/political_metrics/test_legislation_context.py tests/political_metrics/test_downstream_contracts.py
       - name: Seed complete candidate from current production
         run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
       - name: Build and audit certified Bill-section foundation
