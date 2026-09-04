@@ -1,0 +1,232 @@
+name: Temporary demographic polling bounded validation
+
+on:
+  push:
+    branches:
+      - docs/demographic-polling-validation-20260903
+    paths:
+      - .github/workflows/demographic-polling-bounded-validation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/demographic-polling-validation-20260903
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch pinned files and calculate diagnostics
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import io
+          import statistics
+          import urllib.request
+          from collections import Counter, defaultdict
+          from datetime import date
+          from pathlib import Path
+
+          SHA = "c15fd6acfe0a161bccb0bfa3f3fbcdcf19d997ca"
+          BASE = f"https://raw.githubusercontent.com/Irish-Dem-Polling/datasets/{SHA}"
+
+          FILES = {
+              "gov_counts": "government-satisfaction/data_banda_govsat_counts.csv",
+              "gov_prop": "government-satisfaction/data_banda_govsat_prop.csv",
+              "leaders_counts": "party-leaders/data_banda_leaders_counts.csv",
+              "leaders_prop": "party-leaders/data_banda_leaders_prop.csv",
+              "banda_vote_counts": "vote-intention/data_banda_firstpref_counts.csv",
+              "banda_vote_prop": "vote-intention/data_banda_firstpref_prop.csv",
+              "redc_vote_prop": "vote-intention/data_redc_firstpref_prop.csv",
+          }
+
+          LABELS = {
+              "gov_counts": ["satisfaction_government"],
+              "gov_prop": ["satisfaction_government"],
+              "leaders_counts": ["leader_party", "leader_name", "satisfaction_leader"],
+              "leaders_prop": ["leader_party", "leader_name", "satisfaction_leader"],
+              "banda_vote_counts": ["party"],
+              "banda_vote_prop": ["party"],
+              "redc_vote_prop": ["party"],
+          }
+          CORE = ["date", "date_start", "date_end", "date_middle", "sample_size"]
+
+          def fetch(path):
+              url = f"{BASE}/{path}"
+              with urllib.request.urlopen(url, timeout=30) as response:
+                  body = response.read()
+              text = body.decode("utf-8-sig")
+              reader = csv.DictReader(io.StringIO(text))
+              return url, body, reader.fieldnames, list(reader)
+
+          def is_missing(s):
+              return (s or "").strip() in {"", "NA", "NaN", "nan"}
+
+          def parse_date(s):
+              return date.fromisoformat(s)
+
+          datasets = {}
+          report = [f"source_commit_sha={SHA}"]
+
+          for name, path in FILES.items():
+              url, body, cols, rows = fetch(path)
+              datasets[name] = (cols, rows)
+              report += ["", f"[{name}]", f"path={path}", f"url={url}",
+                         f"sha256={hashlib.sha256(body).hexdigest()}",
+                         f"rows={len(rows)}", f"columns={len(cols)}",
+                         f"header={','.join(cols)}",
+                         f"date_min={min(r['date'] for r in rows)}",
+                         f"date_max={max(r['date'] for r in rows)}",
+                         f"distinct_poll_dates={len(set(r['date'] for r in rows))}"]
+              for field in CORE:
+                  report.append(f"missing_{field}={sum(is_missing(r[field]) for r in rows)}")
+              full = [tuple(r[c] for c in cols) for r in rows]
+              report.append(f"exact_duplicate_extra_rows={sum(v-1 for v in Counter(full).values() if v>1)}")
+
+              start_gt_end = middle_outside = end_after_pub = 0
+              for r in rows:
+                  ds, de, dm, dp = map(parse_date, [r['date_start'], r['date_end'], r['date_middle'], r['date']])
+                  start_gt_end += ds > de
+                  middle_outside += not (ds <= dm <= de)
+                  end_after_pub += de > dp
+              report.append(f"date_start_after_end={start_gt_end}")
+              report.append(f"date_middle_outside_fieldwork={middle_outside}")
+              report.append(f"field_end_after_publication={end_after_pub}")
+
+              labels = LABELS[name]
+              measure_cols = [c for c in cols if c not in CORE + labels]
+              invalid_numeric = negative = over_one = 0
+              nums = []
+              missing_cells = 0
+              total_cells = len(rows) * len(measure_cols)
+              for r in rows:
+                  for c in measure_cols:
+                      s = r[c]
+                      if is_missing(s):
+                          missing_cells += 1
+                          continue
+                      try:
+                          v = float(s)
+                      except ValueError:
+                          invalid_numeric += 1
+                          continue
+                      nums.append(v)
+                      negative += v < 0
+                      if name.endswith("_prop"):
+                          over_one += v > 1
+              report.append(f"measure_columns={','.join(measure_cols)}")
+              report.append(f"invalid_numeric_measure_cells={invalid_numeric}")
+              report.append(f"negative_measure_cells={negative}")
+              if name.endswith("_prop"):
+                  report.append(f"proportion_cells_over_1={over_one}")
+              report.append(f"missing_measure_cells={missing_cells}/{total_cells}")
+              if nums:
+                  report.append(f"numeric_measure_min={min(nums)}")
+                  report.append(f"numeric_measure_max={max(nums)}")
+
+              for label in labels:
+                  vals = sorted(set(r[label] for r in rows))
+                  report.append(f"distinct_{label}_count={len(vals)}")
+                  report.append(f"distinct_{label}_sample={'|'.join(vals[:30])}")
+
+          # Paired counts/proportion consistency.
+          pairs = [
+              ("gov_counts", "gov_prop", ["date", "date_start", "date_end", "date_middle", "sample_size", "satisfaction_government"],
+               ["date", "date_start", "date_end", "date_middle", "sample_size"]),
+              ("leaders_counts", "leaders_prop", ["date", "date_start", "date_end", "date_middle", "sample_size", "leader_party", "leader_name", "satisfaction_leader"],
+               ["date", "date_start", "date_end", "date_middle", "sample_size", "leader_party", "leader_name"]),
+              ("banda_vote_counts", "banda_vote_prop", ["date", "date_start", "date_end", "date_middle", "sample_size", "party"],
+               ["date", "date_start", "date_end", "date_middle", "sample_size"]),
+          ]
+
+          for count_name, prop_name, row_key, group_key in pairs:
+              ccols, crows = datasets[count_name]
+              pcols, prows = datasets[prop_name]
+              report += ["", f"[pair_{count_name}_vs_{prop_name}]",
+                         f"headers_equal={ccols == pcols}",
+                         f"row_counts_equal={len(crows) == len(prows)}"]
+              c_by_key = {tuple(r[k] for k in row_key): r for r in crows}
+              p_by_key = {tuple(r[k] for k in row_key): r for r in prows}
+              report.append(f"row_key_sets_equal={set(c_by_key) == set(p_by_key)}")
+              measures = [c for c in ccols if c not in row_key]
+
+              grouped = defaultdict(list)
+              for r in crows:
+                  grouped[tuple(r[k] for k in group_key)].append(r)
+
+              compared = mismatches = 0
+              max_abs_diff = 0.0
+              denominator_ratios = []
+              examples = []
+              for key, cr in c_by_key.items():
+                  pr = p_by_key.get(key)
+                  if not pr:
+                      continue
+                  gkey = tuple(cr[k] for k in group_key)
+                  peers = grouped[gkey]
+                  for col in measures:
+                      if is_missing(cr[col]) or is_missing(pr[col]):
+                          continue
+                      denom_vals = []
+                      ok = True
+                      for peer in peers:
+                          if is_missing(peer[col]):
+                              ok = False
+                              break
+                          denom_vals.append(float(peer[col]))
+                      if not ok:
+                          continue
+                      denom = sum(denom_vals)
+                      if denom == 0:
+                          continue
+                      ratio = float(cr[col]) / denom
+                      expected = float(pr[col])
+                      diff = abs(ratio - expected)
+                      compared += 1
+                      max_abs_diff = max(max_abs_diff, diff)
+                      if diff > 0.015:
+                          mismatches += 1
+                          if len(examples) < 10:
+                              examples.append((key, col, ratio, expected, denom))
+                  # Compare overall category denominator with nominal sample size once per group.
+              for gkey, peers in grouped.items():
+                  if "total" not in ccols:
+                      continue
+                  vals = [float(r["total"]) for r in peers if not is_missing(r["total"])]
+                  if len(vals) != len(peers):
+                      continue
+                  denom = sum(vals)
+                  sample = float(peers[0]["sample_size"])
+                  if sample:
+                      denominator_ratios.append(denom / sample)
+
+              report.append(f"paired_cells_compared={compared}")
+              report.append(f"paired_cells_diff_gt_0_015={mismatches}")
+              report.append(f"max_abs_ratio_vs_prop_diff={max_abs_diff:.6f}")
+              for e in examples:
+                  report.append("pair_mismatch_detail=" + repr(e))
+              if denominator_ratios:
+                  report.append(f"overall_count_denominator_to_sample_min={min(denominator_ratios):.6f}")
+                  report.append(f"overall_count_denominator_to_sample_median={statistics.median(denominator_ratios):.6f}")
+                  report.append(f"overall_count_denominator_to_sample_max={max(denominator_ratios):.6f}")
+
+          out = Path("tmp/demographic_polling_validation_report.txt")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text("\n".join(report) + "\n", encoding="utf-8")
+          print(out.read_text())
+          PY
+
+      - name: Commit temporary validation report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp/demographic_polling_validation_report.txt
+          git commit -m "research: record temporary demographic polling diagnostics"
+          git push
