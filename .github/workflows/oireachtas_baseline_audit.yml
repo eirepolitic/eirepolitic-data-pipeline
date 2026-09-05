@@ -6,14 +6,13 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: oireachtas-baseline-audit
-  cancel-in-progress: false
+env:
+  PYTHONPATH: .
 
 jobs:
-  inventory:
+  validate-written-pq-answer-foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -22,27 +21,47 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
+      BATCH_ID: written-pq-answer-validation-20260905-1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyarrow pyyaml requests lxml pytest
+      - name: Compile changed Python
         run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install boto3
-      - name: Create read-only inventory
-        shell: bash
+          python -m py_compile political_metrics/written_question_answers.py
+          python -m py_compile process/political_metrics_written_question_answers_candidate.py
+      - name: Run focused tests
+        run: python -m pytest -q tests/political_metrics/test_written_question_answers.py tests/political_metrics/test_candidate_materialization.py
+      - name: Seed validation candidate from current production
+        run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
+      - name: Measure scale and run real 100-section dry-run
         run: |
-          set -euo pipefail
-          python process/oireachtas_audit_inventory.py
-      - name: Upload baseline audit
-        uses: actions/upload-artifact@v4
+          python - <<'PY'
+          import io,json,os
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']; batch=os.environ['BATCH_ID']
+          logical='processed/oireachtas_unified/latest/csv/silver_questions.csv'
+          key=batch_key_for_production_key(logical,batch)
+          q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy()
+          print(json.dumps({
+            'written_questions':int(len(w)),
+            'unique_debate_sections':int(w['debate_section_id'].nunique(dropna=True)),
+            'unique_source_xml_urls':int(w['source_xml_url'].nunique(dropna=True)),
+            'duplicate_question_ids':int(w.duplicated(['question_id']).sum()),
+          },indent=2,sort_keys=True))
+          PY
+          python process/political_metrics_written_question_answers_candidate.py \
+            --batch-id "$BATCH_ID" \
+            --max-sections 100 \
+            --dry-run \
+            --workers 8 \
+            --report-path written_pq_answer_validation_report.json
+      - uses: actions/upload-artifact@v4
         with:
-          name: oireachtas-baseline-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/oireachtas-baseline-audit/
-          if-no-files-found: error
-          retention-days: 30
+          name: written-pq-answer-validation-${{ github.run_id }}
+          path: written_pq_answer_validation_report.json
