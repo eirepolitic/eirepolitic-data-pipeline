@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   PYTHONPATH: .
@@ -37,9 +37,13 @@ jobs:
         run: python -m pytest -q tests/political_metrics/test_written_question_answers.py tests/political_metrics/test_candidate_materialization.py
       - name: Seed validation candidate from current production
         run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
-      - name: Measure scale and run real 100-section dry-run
+      - name: Measure scale and run real 100-section dry-run with diagnostic capture
+        shell: bash
         run: |
-          python - <<'PY'
+          set +e
+          mkdir -p analysis
+          {
+            python - <<'PY'
           import io,json,os
           import boto3,pandas as pd
           from extract.oireachtas.batch import batch_key_for_production_key
@@ -55,13 +59,19 @@ jobs:
             'duplicate_question_ids':int(w.duplicated(['question_id']).sum()),
           },indent=2,sort_keys=True))
           PY
-          python process/political_metrics_written_question_answers_candidate.py \
-            --batch-id "$BATCH_ID" \
-            --max-sections 100 \
-            --dry-run \
-            --workers 8 \
-            --report-path written_pq_answer_validation_report.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: written-pq-answer-validation-${{ github.run_id }}
-          path: written_pq_answer_validation_report.json
+            python process/political_metrics_written_question_answers_candidate.py \
+              --batch-id "$BATCH_ID" \
+              --max-sections 100 \
+              --dry-run \
+              --workers 8 \
+              --report-path analysis/written_pq_answer_validation_report.json
+          } > analysis/written_pq_answer_validation_diagnostic.txt 2>&1
+          status=$?
+          cat analysis/written_pq_answer_validation_diagnostic.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/written_pq_answer_validation_diagnostic.txt
+          if [ -f analysis/written_pq_answer_validation_report.json ]; then git add analysis/written_pq_answer_validation_report.json; fi
+          git commit -m "Capture Written PQ answer validation ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
+          exit $status
