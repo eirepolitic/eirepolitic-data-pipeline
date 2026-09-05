@@ -1,7 +1,8 @@
 contract_version: 1
 principles:
   - Written Parliamentary Question answers are stored at answer-section grain, not copied onto each question row.
-  - The official section-specific Akoma Ntoso XML is the source of answer text.
+  - The official Akoma Ntoso Written Answers XML is the source of answer text.
+  - Historical and incremental ingestion may use the daily main.xml document to avoid repeated section-level downloads while preserving each section's official source URL.
   - Question-to-answer relationships preserve XML question-ID verification status separately from the section relationship.
   - Grouped answers, referrals, missing replies, and embedded tables remain explicit source features.
   - No AI classification is required for structural extraction.
@@ -29,7 +30,9 @@ foundation_datasets:
       - embedded_table_count
       - source_xml_url
       - source_xml_uri
-      - source_xml_sha256
+      - source_document_url
+      - source_document_sha256
+      - source_section_sha256
       - source_batch_id
       - answer_version
       - calculated_at_utc
