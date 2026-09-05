@@ -285,15 +285,17 @@ def main(argv: list[str] | None = None) -> int:
     document_urls = sorted(sections_by_document)
     new_section_frames: list[pd.DataFrame] = []
     new_bridge_frames: list[pd.DataFrame] = []
-    total_fetch_failures: dict[str, str] = {}
-    total_missing_sections: list[dict] = []
+    total_daily_fetch_failures: dict[str, str] = {}
+    total_fallback_fetch_failures: dict[str, str] = {}
+    daily_missing_section_count = 0
+    section_fallback_count = 0
 
     for offset in range(0, len(document_urls), args.document_chunk_size):
         chunk_document_urls = document_urls[offset : offset + args.document_chunk_size]
         documents, failures = _fetch_documents(
             chunk_document_urls, workers=args.workers, timeout_seconds=args.timeout_seconds, retries=args.retries
         )
-        total_fetch_failures.update(failures)
+        total_daily_fetch_failures.update(failures)
         if failures:
             raise RuntimeError(
                 "Written-answer daily document fetch failed: "
@@ -304,24 +306,40 @@ def main(argv: list[str] | None = None) -> int:
         document_by_url: dict[str, str] = {}
         document_hash_by_url: dict[str, str] = {}
         chunk_section_ids: list[str] = []
+        fallback_urls: list[str] = []
+
         for document_url in chunk_document_urls:
+            requested = sections_by_document[document_url]
             extracted, source_docs, doc_hashes, missing = _extract_requested_sections(
                 document_url=document_url,
                 document_bytes=documents[document_url],
-                requested=sections_by_document[document_url],
+                requested=requested,
             )
             xml_by_url.update(extracted)
             document_by_url.update(source_docs)
             document_hash_by_url.update(doc_hashes)
             chunk_section_ids.extend(section_id_by_eid_by_document[document_url].values())
-            if missing:
-                total_missing_sections.extend({"document_url": document_url, "section_eid": eid} for eid in missing)
+            daily_missing_section_count += len(missing)
+            fallback_urls.extend(requested[eid] for eid in missing)
 
-        if total_missing_sections:
-            raise RuntimeError(
-                "Written-answer sections missing from daily document: "
-                + json.dumps(total_missing_sections[:20], ensure_ascii=False)
+        if fallback_urls:
+            fallback_payloads, fallback_failures = _fetch_documents(
+                sorted(set(fallback_urls)),
+                workers=args.workers,
+                timeout_seconds=args.timeout_seconds,
+                retries=args.retries,
             )
+            total_fallback_fetch_failures.update(fallback_failures)
+            if fallback_failures:
+                raise RuntimeError(
+                    "Written-answer section fallback fetch failed: "
+                    + json.dumps(dict(list(fallback_failures.items())[:20]), ensure_ascii=False)
+                )
+            for section_url, payload in fallback_payloads.items():
+                xml_by_url[section_url] = payload
+                document_by_url[section_url] = section_url
+                document_hash_by_url[section_url] = hashlib.sha256(payload).hexdigest()
+            section_fallback_count += len(fallback_payloads)
 
         chunk_questions = written[written["debate_section_id"].astype(str).isin(chunk_section_ids)].copy()
         sections_chunk, bridge_chunk, audit_chunk = build_written_answer_foundations(
@@ -334,7 +352,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not audit_chunk.get("ready"):
             raise RuntimeError(
-                "Written-answer daily document parse gate failed: "
+                "Written-answer source parse gate failed: "
                 + json.dumps({"document_offset": offset, "audit": audit_chunk}, ensure_ascii=False)
             )
         new_section_frames.append(sections_chunk)
@@ -345,6 +363,7 @@ def main(argv: list[str] | None = None) -> int:
             "chunk_documents": len(chunk_document_urls),
             "chunk_sections": int(len(sections_chunk)),
             "chunk_questions": int(len(bridge_chunk)),
+            "chunk_section_fallbacks": int(len(fallback_urls)),
         }, sort_keys=True), flush=True)
 
     new_sections = pd.concat(new_section_frames, ignore_index=True) if new_section_frames else pd.DataFrame(columns=ANSWER_SECTION_COLUMNS)
@@ -393,8 +412,10 @@ def main(argv: list[str] | None = None) -> int:
         "reused_section_count": int(len(reusable)),
         "fetched_section_count": int(len(fetch_sections)),
         "unique_source_document_count": int(len(document_urls)),
-        "source_document_fetch_failure_count": int(len(total_fetch_failures)),
-        "missing_section_from_document_count": int(len(total_missing_sections)),
+        "daily_document_fetch_failure_count": int(len(total_daily_fetch_failures)),
+        "daily_missing_section_count": int(daily_missing_section_count),
+        "section_fallback_count": int(section_fallback_count),
+        "section_fallback_fetch_failure_count": int(len(total_fallback_fetch_failures)),
         "audit": audit,
         "publish_allowed": publish_allowed,
         "production_pointer_changed": False,
