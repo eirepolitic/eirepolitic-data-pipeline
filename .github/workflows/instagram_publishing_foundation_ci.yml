@@ -5,9 +5,11 @@ on:
   pull_request:
     paths:
       - 'publishing/**'
+      - 'infra/publishing/**'
       - 'instagram/caption_templates/**'
       - 'tests/test_instagram_publishing_*.py'
       - 'tests/test_instagram_publication_*.py'
+      - 'tests/test_instagram_dynamodb_*.py'
       - '.github/workflows/instagram_publishing_foundation_ci.yml'
 
 permissions:
@@ -32,7 +34,7 @@ jobs:
           python -m pip install pytest
 
       - name: Compile publication package and tests
-        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py
+        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py
 
       - name: Validate caption templates
         run: |
@@ -48,4 +50,4 @@ jobs:
           PY
 
       - name: Run publication tests
-        run: python -m pytest tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py -q
+        run: python -m pytest tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py -q

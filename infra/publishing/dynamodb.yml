@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Proposed DynamoDB table for the Eirepolitic publication control plane.
+  Template is repository-only until the production infrastructure gate is approved.
+
+Parameters:
+  TableName:
+    Type: String
+    Default: eirepolitic-publications
+
+Resources:
+  PublicationLedgerTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+        - AttributeName: state
+          AttributeType: S
+        - AttributeName: scheduled_at_utc
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: state-scheduled_at-index
+          KeySchema:
+            - AttributeName: state
+              KeyType: HASH
+            - AttributeName: scheduled_at_utc
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      SSESpecification:
+        SSEEnabled: true
+
+Outputs:
+  PublicationLedgerTableName:
+    Value: !Ref PublicationLedgerTable
+  PublicationLedgerTableArn:
+    Value: !GetAtt PublicationLedgerTable.Arn
