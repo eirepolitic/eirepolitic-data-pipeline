@@ -5,43 +5,50 @@ principles:
   - Question-to-answer relationships preserve XML question-ID verification status separately from the section relationship.
   - Grouped answers, referrals, missing replies, and embedded tables remain explicit source features.
   - No AI classification is required for structural extraction.
-datasets:
+foundation_datasets:
   written_question_answer_sections:
-    dataset_name: written_question_answer_sections
-    period_type: source_history
-    grain:
-      - debate_section_id
+    cadence: event
     primary_key:
       - debate_section_id
     formats:
       - csv
       - parquet
-    output_prefix: processed/oireachtas_unified/latest/metrics/event/written_question_answer_sections
-    provenance_columns:
+    columns:
+      - debate_section_id
+      - answer_date
+      - section_heading
+      - answer_status
+      - answer_text
+      - respondent_ref
+      - respondent_role_ref
+      - observed_question_count
+      - observed_question_eids_json
+      - grouped_answer
+      - referred_or_direct_reply
+      - summary_texts_json
+      - embedded_table_count
+      - source_xml_url
+      - source_xml_uri
+      - source_xml_sha256
       - source_batch_id
       - answer_version
       - calculated_at_utc
       - contract_version
-    allowed_answer_status:
-      - ministerial_reply_present
-      - reply_not_received
-      - unresolved_structure
   written_question_answer_bridge:
-    dataset_name: written_question_answer_bridge
-    period_type: source_history
-    grain:
-      - question_id
+    cadence: event
     primary_key:
       - question_id
     formats:
       - csv
       - parquet
-    output_prefix: processed/oireachtas_unified/latest/metrics/event/written_question_answer_bridge
-    provenance_columns:
+    columns:
+      - question_id
+      - debate_section_id
+      - question_date
+      - question_xml_match_status
+      - observed_question_eid
+      - source_xml_url
       - source_batch_id
       - bridge_version
       - calculated_at_utc
       - contract_version
-    allowed_question_xml_match_status:
-      - question_id_matched_in_xml
-      - section_matched_question_id_unmatched
