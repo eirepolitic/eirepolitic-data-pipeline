@@ -100,10 +100,7 @@ def _current_groups(questions: pd.DataFrame) -> dict[str, dict]:
 
 
 def _reusable_sections(
-    *,
-    current_groups: dict[str, dict],
-    existing_sections: pd.DataFrame | None,
-    existing_bridge: pd.DataFrame | None,
+    *, current_groups: dict[str, dict], existing_sections: pd.DataFrame | None, existing_bridge: pd.DataFrame | None
 ) -> set[str]:
     if existing_sections is None or existing_bridge is None or existing_sections.empty or existing_bridge.empty:
         return set()
@@ -118,13 +115,8 @@ def _reusable_sections(
     reusable: set[str] = set()
     for section_id, current in current_groups.items():
         urls = current["urls"]
-        if len(urls) != 1:
-            continue
-        if section_url.get(section_id) != urls[0]:
-            continue
-        if bridge_ids.get(section_id) != current["question_ids"]:
-            continue
-        reusable.add(section_id)
+        if len(urls) == 1 and section_url.get(section_id) == urls[0] and bridge_ids.get(section_id) == current["question_ids"]:
+            reusable.add(section_id)
     return reusable
 
 
@@ -144,11 +136,10 @@ def _normalize_sections(frame: pd.DataFrame) -> pd.DataFrame:
     for col in SECTION_INTEGER_COLUMNS:
         result[col] = pd.to_numeric(result[col], errors="raise").astype("int64")
     for col in SECTION_BOOLEAN_COLUMNS:
-        if result[col].dtype == bool:
-            continue
-        result[col] = result[col].fillna(False).map(
-            lambda v: v if isinstance(v, bool) else str(v).strip().lower() in {"true", "1", "yes"}
-        ).astype(bool)
+        if result[col].dtype != bool:
+            result[col] = result[col].fillna(False).map(
+                lambda v: v if isinstance(v, bool) else str(v).strip().lower() in {"true", "1", "yes"}
+            ).astype(bool)
     return result
 
 
@@ -169,6 +160,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--timeout-seconds", type=int, default=20)
     p.add_argument("--retries", type=int, default=3)
+    p.add_argument("--fetch-chunk-size", type=int, default=500)
     p.add_argument("--max-sections", type=int, default=0, help="Validation-only cap. Publishing is disabled when set.")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--report-path", default="written_question_answers_candidate_report.json")
@@ -180,6 +172,9 @@ def main(argv: list[str] | None = None) -> int:
     batch_id = validate_batch_id(args.batch_id)
     if args.workers < 1 or args.workers > 16:
         raise ValueError("workers must be between 1 and 16")
+    if args.fetch_chunk_size < 1 or args.fetch_chunk_size > 2000:
+        raise ValueError("fetch-chunk-size must be between 1 and 2000")
+
     s3 = boto3.client("s3", region_name=args.region)
     contract = load_materialization_contract(CONTRACT_PATH)
     contract_version = int(contract["contract_version"])
@@ -195,9 +190,9 @@ def main(argv: list[str] | None = None) -> int:
         written = written[written["debate_section_id"].astype(str).isin(section_ids)].copy()
 
     current_groups = _current_groups(written)
-    if any(len(item["urls"]) != 1 for item in current_groups.values()):
-        bad = [section for section, item in current_groups.items() if len(item["urls"]) != 1][:20]
-        raise RuntimeError(f"Written-answer sections must have exactly one source XML URL; examples={bad}")
+    bad_url_sections = [section for section, item in current_groups.items() if len(item["urls"]) != 1]
+    if bad_url_sections:
+        raise RuntimeError(f"Written-answer sections must have exactly one source XML URL; examples={bad_url_sections[:20]}")
 
     existing_sections = None
     existing_bridge = None
@@ -210,28 +205,52 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     reusable = _reusable_sections(
-        current_groups=current_groups,
-        existing_sections=existing_sections,
-        existing_bridge=existing_bridge,
+        current_groups=current_groups, existing_sections=existing_sections, existing_bridge=existing_bridge
     )
     fetch_sections = sorted(set(current_groups) - reusable)
-    fetch_questions = written[written["debate_section_id"].astype(str).isin(fetch_sections)].copy()
-    urls = sorted({current_groups[section]["urls"][0] for section in fetch_sections})
-    xml_by_url, fetch_failures = _fetch_xml(
-        urls, workers=args.workers, timeout_seconds=args.timeout_seconds, retries=args.retries
-    )
 
-    new_sections, new_bridge, new_audit = build_written_answer_foundations(
-        written_questions=fetch_questions,
-        xml_by_url=xml_by_url,
-        source_batch_id=batch_id,
-        contract_version=contract_version,
-    )
-    if fetch_failures or not new_audit.get("ready"):
-        raise RuntimeError(
-            "Written-answer fetch/parse gate failed: "
-            + json.dumps({"fetch_failures": dict(list(fetch_failures.items())[:20]), "audit": new_audit}, ensure_ascii=False)
+    new_section_frames: list[pd.DataFrame] = []
+    new_bridge_frames: list[pd.DataFrame] = []
+    chunk_audits: list[dict] = []
+    total_fetch_failures: dict[str, str] = {}
+    total_urls = 0
+    for offset in range(0, len(fetch_sections), args.fetch_chunk_size):
+        chunk_sections = fetch_sections[offset : offset + args.fetch_chunk_size]
+        chunk_questions = written[written["debate_section_id"].astype(str).isin(chunk_sections)].copy()
+        urls = sorted({current_groups[section]["urls"][0] for section in chunk_sections})
+        total_urls += len(urls)
+        xml_by_url, fetch_failures = _fetch_xml(
+            urls, workers=args.workers, timeout_seconds=args.timeout_seconds, retries=args.retries
         )
+        total_fetch_failures.update(fetch_failures)
+        sections_chunk, bridge_chunk, audit_chunk = build_written_answer_foundations(
+            written_questions=chunk_questions,
+            xml_by_url=xml_by_url,
+            source_batch_id=batch_id,
+            contract_version=contract_version,
+        )
+        chunk_audits.append(audit_chunk)
+        if fetch_failures or not audit_chunk.get("ready"):
+            raise RuntimeError(
+                "Written-answer fetch/parse gate failed: "
+                + json.dumps({
+                    "chunk_start": offset,
+                    "chunk_section_count": len(chunk_sections),
+                    "fetch_failures": dict(list(fetch_failures.items())[:20]),
+                    "audit": audit_chunk,
+                }, ensure_ascii=False)
+            )
+        new_section_frames.append(sections_chunk)
+        new_bridge_frames.append(bridge_chunk)
+        print(json.dumps({
+            "progress_sections_complete": min(offset + len(chunk_sections), len(fetch_sections)),
+            "progress_sections_total": len(fetch_sections),
+            "chunk_sections": len(chunk_sections),
+            "chunk_questions": int(len(chunk_questions)),
+        }, sort_keys=True), flush=True)
+
+    new_sections = pd.concat(new_section_frames, ignore_index=True) if new_section_frames else pd.DataFrame(columns=ANSWER_SECTION_COLUMNS)
+    new_bridge = pd.concat(new_bridge_frames, ignore_index=True) if new_bridge_frames else pd.DataFrame(columns=QUESTION_BRIDGE_COLUMNS)
 
     if reusable:
         reused_sections = existing_sections[existing_sections["debate_section_id"].astype(str).isin(reusable)].copy()
@@ -263,22 +282,12 @@ def main(argv: list[str] | None = None) -> int:
     published = {}
     if publish_allowed:
         published["written_question_answer_sections"] = publish_dataset_to_candidate(
-            s3,
-            bucket=args.bucket,
-            batch_id=batch_id,
-            frame=sections,
-            dataset=section_contract,
-            contract_version=contract_version,
-            source_batch_id=batch_id,
+            s3, bucket=args.bucket, batch_id=batch_id, frame=sections, dataset=section_contract,
+            contract_version=contract_version, source_batch_id=batch_id,
         )
         published["written_question_answer_bridge"] = publish_dataset_to_candidate(
-            s3,
-            bucket=args.bucket,
-            batch_id=batch_id,
-            frame=bridge,
-            dataset=bridge_contract,
-            contract_version=contract_version,
-            source_batch_id=batch_id,
+            s3, bucket=args.bucket, batch_id=batch_id, frame=bridge, dataset=bridge_contract,
+            contract_version=contract_version, source_batch_id=batch_id,
         )
 
     report = {
@@ -289,10 +298,10 @@ def main(argv: list[str] | None = None) -> int:
         "selected_section_count": int(len(current_groups)),
         "reused_section_count": int(len(reusable)),
         "fetched_section_count": int(len(fetch_sections)),
-        "unique_xml_fetch_count": int(len(urls)),
-        "fetch_failure_count": int(len(fetch_failures)),
+        "unique_xml_fetch_count": int(total_urls),
+        "fetch_failure_count": int(len(total_fetch_failures)),
+        "chunk_count": int(len(chunk_audits)),
         "audit": audit,
-        "new_section_audit": new_audit,
         "publish_allowed": publish_allowed,
         "production_pointer_changed": False,
         "published": {
