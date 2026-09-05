@@ -20,7 +20,7 @@ import pandas as pd
 import requests
 
 from extract.oireachtas.batch import batch_key_for_production_key, validate_batch_id
-from political_metrics.candidate_publish import publish_dataset_to_candidate
+from political_metrics.candidate_publish import logical_metric_key, publish_dataset_to_candidate
 from political_metrics.materialize import get_dataset_contract, load_materialization_contract
 from political_metrics.written_question_answers import (
     ANSWER_SECTION_COLUMNS,
@@ -43,12 +43,6 @@ BRIDGE_STRING_COLUMNS = [
     "source_xml_url", "source_batch_id", "calculated_at_utc",
 ]
 BRIDGE_INTEGER_COLUMNS = ["bridge_version", "contract_version"]
-
-
-def _logical_csv_key(dataset: dict) -> str:
-    prefix = str(dataset["output_prefix"]).rstrip("/")
-    name = str(dataset["dataset_name"])
-    return f"{prefix}/csv/{name}.csv"
 
 
 def _read_candidate_csv(s3, *, bucket: str, batch_id: str, logical_key: str, required: bool = True) -> pd.DataFrame | None:
@@ -209,10 +203,10 @@ def main(argv: list[str] | None = None) -> int:
     existing_bridge = None
     if not args.max_sections:
         existing_sections = _read_candidate_csv(
-            s3, bucket=args.bucket, batch_id=batch_id, logical_key=_logical_csv_key(section_contract), required=False
+            s3, bucket=args.bucket, batch_id=batch_id, logical_key=logical_metric_key(section_contract, "csv"), required=False
         )
         existing_bridge = _read_candidate_csv(
-            s3, bucket=args.bucket, batch_id=batch_id, logical_key=_logical_csv_key(bridge_contract), required=False
+            s3, bucket=args.bucket, batch_id=batch_id, logical_key=logical_metric_key(bridge_contract, "csv"), required=False
         )
 
     reusable = _reusable_sections(
