@@ -1,0 +1,49 @@
+name: Written PQ answer scale audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONPATH: .
+
+jobs:
+  scale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas
+      - name: Measure Written-answer source scale
+        run: |
+          python - <<'PY'
+          import io,json,os
+          import boto3,pandas as pd
+          from extract.oireachtas.batch import resolve_production_key
+          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+          key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/csv/silver_questions.csv')
+          q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy()
+          out={
+            'written_questions':int(len(w)),
+            'unique_debate_sections':int(w['debate_section_id'].nunique(dropna=True)),
+            'unique_source_xml_urls':int(w['source_xml_url'].nunique(dropna=True)),
+            'questions_per_section':{k:float(v) for k,v in w.groupby('debate_section_id').size().describe(percentiles=[.5,.9,.95,.99]).to_dict().items()},
+            'sections_by_year':{str(k):int(v) for k,v in w.assign(year=w['question_date'].astype(str).str[:4]).groupby('year')['debate_section_id'].nunique().to_dict().items()},
+          }
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
