@@ -27,7 +27,9 @@ ANSWER_SECTION_COLUMNS = [
     "embedded_table_count",
     "source_xml_url",
     "source_xml_uri",
-    "source_xml_sha256",
+    "source_document_url",
+    "source_document_sha256",
+    "source_section_sha256",
     "source_batch_id",
     "answer_version",
     "calculated_at_utc",
@@ -172,8 +174,12 @@ def build_written_answer_foundations(
     xml_by_url: dict[str, bytes],
     source_batch_id: str,
     contract_version: int,
+    source_document_by_url: dict[str, str] | None = None,
+    source_document_sha256_by_url: dict[str, str] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     now = datetime.now(timezone.utc).isoformat()
+    source_document_by_url = source_document_by_url or {}
+    source_document_sha256_by_url = source_document_sha256_by_url or {}
     questions = written_questions.copy()
     questions = questions[questions["question_type"].fillna("").astype(str).str.strip().str.lower().eq("written")].copy()
     if questions.empty:
@@ -240,7 +246,9 @@ def build_written_answer_foundations(
             "embedded_table_count": int(parsed.embedded_table_count),
             "source_xml_url": url,
             "source_xml_uri": source_xml_uri,
-            "source_xml_sha256": hashlib.sha256(xml).hexdigest(),
+            "source_document_url": source_document_by_url.get(url, url),
+            "source_document_sha256": source_document_sha256_by_url.get(url, ""),
+            "source_section_sha256": hashlib.sha256(xml).hexdigest(),
             "source_batch_id": source_batch_id,
             "answer_version": ANSWER_VERSION,
             "calculated_at_utc": now,
@@ -295,10 +303,6 @@ def audit_written_answer_foundations(
     source_written = int(len(written_questions))
     bridge_count = int(len(question_bridge))
     missing_bridge = source_written - bridge_count
-    answer_present = int(answer_sections["answer_status"].eq("ministerial_reply_present").sum()) if not answer_sections.empty else 0
-    reply_missing = int(answer_sections["answer_status"].eq("reply_not_received").sum()) if not answer_sections.empty else 0
-    unresolved = int(answer_sections["answer_status"].eq("unresolved_structure").sum()) if not answer_sections.empty else 0
-    unmatched_question_ids = int(question_bridge["question_xml_match_status"].eq("section_matched_question_id_unmatched").sum()) if not question_bridge.empty else 0
     checks = {
         "section_primary_key_unique": section_dupes == 0,
         "bridge_primary_key_unique": bridge_dupes == 0,
@@ -314,13 +318,13 @@ def audit_written_answer_foundations(
         "written_question_rows": source_written,
         "section_rows": int(len(answer_sections)),
         "bridge_rows": bridge_count,
-        "ministerial_reply_sections": answer_present,
-        "reply_not_received_sections": reply_missing,
-        "unresolved_structure_sections": unresolved,
+        "ministerial_reply_sections": int(answer_sections["answer_status"].eq("ministerial_reply_present").sum()) if not answer_sections.empty else 0,
+        "reply_not_received_sections": int(answer_sections["answer_status"].eq("reply_not_received").sum()) if not answer_sections.empty else 0,
+        "unresolved_structure_sections": int(answer_sections["answer_status"].eq("unresolved_structure").sum()) if not answer_sections.empty else 0,
         "grouped_answer_sections": int(answer_sections["grouped_answer"].fillna(False).astype(bool).sum()) if not answer_sections.empty else 0,
         "referred_or_direct_reply_sections": int(answer_sections["referred_or_direct_reply"].fillna(False).astype(bool).sum()) if not answer_sections.empty else 0,
         "sections_with_embedded_tables": int((pd.to_numeric(answer_sections["embedded_table_count"], errors="coerce").fillna(0) > 0).sum()) if not answer_sections.empty else 0,
-        "question_id_unmatched_bridge_rows": unmatched_question_ids,
+        "question_id_unmatched_bridge_rows": int(question_bridge["question_xml_match_status"].eq("section_matched_question_id_unmatched").sum()) if not question_bridge.empty else 0,
         "parse_failure_count": len(parse_failures),
         "parse_failure_examples": parse_failures[:20],
         "section_duplicate_rows": section_dupes,
