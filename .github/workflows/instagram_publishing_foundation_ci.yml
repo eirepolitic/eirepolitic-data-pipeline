@@ -6,7 +6,8 @@ on:
     paths:
       - 'publishing/**'
       - 'instagram/caption_templates/**'
-      - 'tests/test_instagram_publishing_foundation.py'
+      - 'tests/test_instagram_publishing_*.py'
+      - 'tests/test_instagram_publication_*.py'
       - '.github/workflows/instagram_publishing_foundation_ci.yml'
 
 permissions:
@@ -30,8 +31,8 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install pytest
 
-      - name: Compile publication foundation
-        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py
+      - name: Compile publication package and tests
+        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py
 
       - name: Validate caption templates
         run: |
@@ -46,5 +47,5 @@ jobs:
               print(f'validated {path}')
           PY
 
-      - name: Run publication foundation tests
-        run: python -m pytest tests/test_instagram_publishing_foundation.py -q
+      - name: Run publication tests
+        run: python -m pytest tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py -q
