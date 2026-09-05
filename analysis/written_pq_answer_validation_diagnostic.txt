@@ -1,0 +1,16 @@
+{
+  "duplicate_question_ids": 0,
+  "unique_debate_sections": 96675,
+  "unique_source_xml_urls": 96675,
+  "written_questions": 117695
+}
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_written_question_answers_candidate.py", line 315, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_written_question_answers_candidate.py", line 192, in main
+    section_contract = get_dataset_contract(contract, "written_question_answer_sections")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/political_metrics/materialize.py", line 41, in get_dataset_contract
+    raise KeyError(f"dataset not found in materialization contract: {dataset_name}")
+KeyError: 'dataset not found in materialization contract: written_question_answer_sections'
