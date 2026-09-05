@@ -31,6 +31,18 @@ from political_metrics.written_question_answers import (
 
 CONTRACT_PATH = REPO_ROOT / "configs/political_metrics/written_question_answers.yml"
 QUESTIONS_KEY = "processed/oireachtas_unified/latest/csv/silver_questions.csv"
+SECTION_STRING_COLUMNS = [
+    "debate_section_id", "answer_date", "section_heading", "answer_status", "answer_text", "respondent_ref",
+    "respondent_role_ref", "observed_question_eids_json", "summary_texts_json", "source_xml_url", "source_xml_uri",
+    "source_xml_sha256", "source_batch_id", "calculated_at_utc",
+]
+SECTION_INTEGER_COLUMNS = ["observed_question_count", "embedded_table_count", "answer_version", "contract_version"]
+SECTION_BOOLEAN_COLUMNS = ["grouped_answer", "referred_or_direct_reply"]
+BRIDGE_STRING_COLUMNS = [
+    "question_id", "debate_section_id", "question_date", "question_xml_match_status", "observed_question_eid",
+    "source_xml_url", "source_batch_id", "calculated_at_utc",
+]
+BRIDGE_INTEGER_COLUMNS = ["bridge_version", "contract_version"]
 
 
 def _logical_csv_key(dataset: dict) -> str:
@@ -131,6 +143,30 @@ def _restamp(frame: pd.DataFrame, *, source_batch_id: str, contract_version: int
     return result
 
 
+def _normalize_sections(frame: pd.DataFrame) -> pd.DataFrame:
+    result = frame.reindex(columns=ANSWER_SECTION_COLUMNS).copy()
+    for col in SECTION_STRING_COLUMNS:
+        result[col] = result[col].fillna("").astype(str)
+    for col in SECTION_INTEGER_COLUMNS:
+        result[col] = pd.to_numeric(result[col], errors="raise").astype("int64")
+    for col in SECTION_BOOLEAN_COLUMNS:
+        if result[col].dtype == bool:
+            continue
+        result[col] = result[col].fillna(False).map(
+            lambda v: v if isinstance(v, bool) else str(v).strip().lower() in {"true", "1", "yes"}
+        ).astype(bool)
+    return result
+
+
+def _normalize_bridge(frame: pd.DataFrame) -> pd.DataFrame:
+    result = frame.reindex(columns=QUESTION_BRIDGE_COLUMNS).copy()
+    for col in BRIDGE_STRING_COLUMNS:
+        result[col] = result[col].fillna("").astype(str)
+    for col in BRIDGE_INTEGER_COLUMNS:
+        result[col] = pd.to_numeric(result[col], errors="raise").astype("int64")
+    return result
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Build certified Written Parliamentary Question answer foundations in one candidate batch.")
     p.add_argument("--batch-id", required=True)
@@ -218,8 +254,8 @@ def main(argv: list[str] | None = None) -> int:
         sections = new_sections
         bridge = new_bridge
 
-    sections = sections.reindex(columns=ANSWER_SECTION_COLUMNS)
-    bridge = bridge.reindex(columns=QUESTION_BRIDGE_COLUMNS)
+    sections = _normalize_sections(sections)
+    bridge = _normalize_bridge(bridge)
     audit = audit_written_answer_foundations(
         written_questions=written,
         answer_sections=sections,
