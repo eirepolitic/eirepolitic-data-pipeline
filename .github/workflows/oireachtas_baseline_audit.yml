@@ -10,7 +10,7 @@ env:
   PYTHONPATH: .
 
 jobs:
-  written-pq-xml-structure:
+  written-pq-answer-status-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -28,10 +28,11 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas lxml requests
-      - name: Inspect Written PQ section XML structure
+      - name: Profile 100 Written PQ answer sections
         run: |
           python - <<'PY'
           import io,json,os,re
+          from concurrent.futures import ThreadPoolExecutor,as_completed
           from pathlib import Path
           import boto3,pandas as pd,requests
           from lxml import etree
@@ -40,62 +41,85 @@ jobs:
           s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
           key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/csv/silver_questions.csv')
           q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy()
-          w=w.sort_values(['question_date','question_id']).reset_index(drop=True)
-          sample=w.sample(n=12,random_state=20260905).sort_values(['question_date','question_id'])
+          w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy().sort_values(['question_date','question_id']).reset_index(drop=True)
+          sample=w.sample(n=100,random_state=20260905).sort_values(['question_date','question_id']).copy()
+
+          urls=sorted(sample['source_xml_url'].fillna('').astype(str).unique())
+          def fetch(u):
+              try:
+                  r=requests.get(u,timeout=(4,12),headers={'User-Agent':'EirePolitic research audit/1.0'}); r.raise_for_status(); return u,r.content,''
+              except Exception as e: return u,b'',f'{type(e).__name__}: {e}'
+          cache={}; errs={}
+          with ThreadPoolExecutor(max_workers=12) as ex:
+              futs=[ex.submit(fetch,u) for u in urls if u]
+              for f in as_completed(futs):
+                  u,c,e=f.result();
+                  if c: cache[u]=c
+                  if e: errs[u]=e
 
           def local(tag): return tag.split('}',1)[-1] if isinstance(tag,str) and '}' in tag else str(tag)
-          def text(el): return re.sub(r'\s+',' ',' '.join(el.itertext())).strip()
-          def short(v,n=300): return v[:n]
-          examples=[]
-          suffix_match=0; question_elements_total=0
-          answer_candidate_tag_counts={}; section_element_match=0
+          def txt(el): return re.sub(r'\s+',' ',' '.join(el.itertext())).strip()
+          def eid(el):
+              for k,v in el.attrib.items():
+                  if local(k)=='eId': return str(v)
+              return ''
+          rows=[]
           for r in sample.to_dict('records'):
-              url=str(r.get('source_xml_url') or '')
-              xml=requests.get(url,timeout=(4,15),headers={'User-Agent':'EirePolitic research audit/1.0'}).content
-              root=etree.fromstring(xml)
-              ds_suffix=str(r.get('debate_section_id') or '').rstrip('/').split('/')[-1]
-              q_suffix=str(r.get('question_id') or '').rstrip('/').split('/')[-1]
-              elems=[]; local_id_matches=[]
-              for el in root.iter():
-                  attrs={local(k):str(v) for k,v in el.attrib.items()}
-                  eid=attrs.get('eId','') or attrs.get('id','') or attrs.get('xml:id','')
-                  if eid:
-                      elems.append({'tag':local(el.tag),'eId':eid,'text_preview':short(text(el),180)})
-                  if ds_suffix and ds_suffix in attrs.values(): local_id_matches.append({'kind':'section','tag':local(el.tag),'attrs':attrs})
-                  if q_suffix and q_suffix in attrs.values(): local_id_matches.append({'kind':'question','tag':local(el.tag),'attrs':attrs})
-              if any(m['kind']=='section' for m in local_id_matches): section_element_match+=1
-              if any(m['kind']=='question' for m in local_id_matches): suffix_match+=1
+              u=str(r.get('source_xml_url') or ''); qsuffix=str(r.get('question_id') or '').rstrip('/').split('/')[-1]; dsuffix=str(r.get('debate_section_id') or '').rstrip('/').split('/')[-1]
+              rec={'question_id':r.get('question_id'),'question_no':r.get('question_no'),'question_date':r.get('question_date'),'asked_by_name':r.get('asked_by_name'),'recipient':r.get('to_minister_or_department'),'debate_section_id':r.get('debate_section_id'),'source_xml_url':u,'fetch_ok':u in cache}
+              if u not in cache:
+                  rec['status']='fetch_failed'; rec['error']=errs.get(u,''); rows.append(rec); continue
+              root=etree.fromstring(cache[u])
+              sections=[el for el in root.iter() if local(el.tag)=='debateSection']
               qels=[el for el in root.iter() if local(el.tag)=='question']
-              question_elements_total+=len(qels)
-              # Candidate answer elements are non-question blocks/speeches with substantive text.
-              candidates=[]
+              speeches=[el for el in root.iter() if local(el.tag)=='speech']
+              summaries=[txt(el) for el in root.iter() if local(el.tag)=='summary']
+              tables=[el for el in root.iter() if local(el.tag)=='table']
+              links=[]
               for el in root.iter():
-                  tag=local(el.tag); t=text(el)
-                  if tag in {'speech','answer','p','block'} and len(t)>80:
-                      candidates.append({'tag':tag,'eId':next((str(v) for k,v in el.attrib.items() if local(k)=='eId'),''),'text_preview':short(t,300)})
-                      answer_candidate_tag_counts[tag]=answer_candidate_tag_counts.get(tag,0)+1
-              examples.append({
-                  'question_id':r.get('question_id'),'question_no':r.get('question_no'),'date':r.get('question_date'),
-                  'asked_by':r.get('asked_by_name'),'recipient':r.get('to_minister_or_department'),
-                  'debate_section_id':r.get('debate_section_id'),'source_xml_url':url,
-                  'root_tag':local(root.tag),'local_id_matches':local_id_matches,
-                  'question_elements':[{'attrs':{local(k):str(v) for k,v in el.attrib.items()},'text_preview':short(text(el),300)} for el in qels],
-                  'identified_elements':elems[:30],
-                  'answer_candidates':candidates[:12],
-                  'all_tag_counts':{tag:sum(1 for el in root.iter() if local(el.tag)==tag) for tag in sorted(set(local(el.tag) for el in root.iter()))},
-              })
-          out={'sample_size':len(examples),'question_suffix_match_documents':suffix_match,'section_suffix_match_documents':section_element_match,
-               'question_elements_total':question_elements_total,'answer_candidate_tag_counts':answer_candidate_tag_counts,'examples':examples}
+                  for k,v in el.attrib.items():
+                      if local(k).lower() in {'href','src'} and v: links.append(str(v))
+              full=txt(root)
+              section_local_match=any(eid(el)==dsuffix for el in sections)
+              q_local_match=any(eid(el)==qsuffix for el in qels)
+              answer_text=' '.join(txt(el) for el in speeches).strip()
+              no_reply='reply not received from department' in full.lower()
+              referred=any(p in full.lower() for p in ['referred your question','referred the question','asked the health service executive to respond','asked the hse to respond','for direct reply','referred reply was forwarded'])
+              grouped=(len(qels)>1) or any('answered with question' in s.lower() or 'answered with' in s.lower() or 'take question' in full.lower() and 'together' in full.lower() for s in summaries)
+              if speeches: status='ministerial_reply_present'
+              elif no_reply: status='reply_not_received'
+              else: status='no_speech_other'
+              rec.update({'section_local_match':section_local_match,'question_local_match':q_local_match,'question_count_in_xml':len(qels),'speech_count_in_xml':len(speeches),'summary_count':len(summaries),'table_count':len(tables),'external_link_count':len(set(links)),'answer_text_chars':len(answer_text),'grouped_or_joint_answer':grouped,'referred_or_direct_reply':referred,'reply_not_received':no_reply,'status':status,'summary_texts':' | '.join(summaries)[:800],'answer_preview':answer_text[:350]})
+              rows.append(rec)
+
+          df=pd.DataFrame(rows)
+          summary={
+            'production_written_rows':int(len(w)),
+            'sample_size':int(len(df)),
+            'fetch_success_rows':int(df['fetch_ok'].fillna(False).sum()),
+            'section_local_id_match_rows':int(df['section_local_match'].fillna(False).sum()),
+            'question_local_id_match_rows':int(df['question_local_match'].fillna(False).sum()),
+            'status_counts':{str(k):int(v) for k,v in df['status'].value_counts().to_dict().items()},
+            'grouped_or_joint_answer_rows':int(df['grouped_or_joint_answer'].fillna(False).sum()),
+            'referred_or_direct_reply_rows':int(df['referred_or_direct_reply'].fillna(False).sum()),
+            'reply_not_received_rows':int(df['reply_not_received'].fillna(False).sum()),
+            'rows_with_multiple_question_elements':int((pd.to_numeric(df['question_count_in_xml'],errors='coerce').fillna(0)>1).sum()),
+            'rows_with_multiple_speeches':int((pd.to_numeric(df['speech_count_in_xml'],errors='coerce').fillna(0)>1).sum()),
+            'rows_with_tables':int((pd.to_numeric(df['table_count'],errors='coerce').fillna(0)>0).sum()),
+            'rows_with_external_links':int((pd.to_numeric(df['external_link_count'],errors='coerce').fillna(0)>0).sum()),
+            'answer_text_char_stats':{k:float(v) for k,v in pd.to_numeric(df.loc[df['status'].eq('ministerial_reply_present'),'answer_text_chars'],errors='coerce').describe().to_dict().items()},
+            'question_id_mismatch_examples':df.loc[~df['question_local_match'].fillna(False),['question_id','question_no','question_date','asked_by_name','debate_section_id','question_count_in_xml','summary_texts','status']].head(15).to_dict('records'),
+            'edge_case_examples':df.loc[df['grouped_or_joint_answer'].fillna(False) | df['referred_or_direct_reply'].fillna(False) | df['reply_not_received'].fillna(False),['question_id','question_no','question_date','asked_by_name','recipient','status','grouped_or_joint_answer','referred_or_direct_reply','reply_not_received','question_count_in_xml','summary_texts','answer_preview']].head(20).to_dict('records')
+          }
           Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/written_pq_xml_structure.json').write_text(json.dumps(out,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
-          print(json.dumps({'sample_size':len(examples),'question_suffix_match_documents':suffix_match,'section_suffix_match_documents':section_element_match,
-                            'question_elements_total':question_elements_total,'answer_candidate_tag_counts':answer_candidate_tag_counts},indent=2))
+          Path('analysis/written_pq_answer_status_summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
+          df.to_csv('analysis/written_pq_answer_status_sample.csv',index=False)
+          print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
           PY
-      - name: Persist structure audit
+      - name: Persist answer-status audit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/written_pq_xml_structure.json
-          git commit -m "Capture Written PQ XML structure ${GITHUB_RUN_ID}" || true
+          git add analysis/written_pq_answer_status_summary.json analysis/written_pq_answer_status_sample.csv
+          git commit -m "Capture Written PQ answer status audit ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
