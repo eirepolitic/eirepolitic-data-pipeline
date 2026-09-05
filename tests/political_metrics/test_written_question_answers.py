@@ -67,6 +67,7 @@ def test_parse_reply_not_received_as_source_status():
 
 def test_build_section_and_bridge_preserves_question_verification_status():
     url = "https://data.oireachtas.ie/example/dbsect_10.xml"
+    daily_url = "https://data.oireachtas.ie/example/main.xml"
     xml = _xml(question_eids=("pq_1",))
     questions = _questions([
         {
@@ -91,10 +92,14 @@ def test_build_section_and_bridge_preserves_question_verification_status():
         xml_by_url={url: xml},
         source_batch_id="batch-1",
         contract_version=1,
+        source_document_by_url={url: daily_url},
+        source_document_sha256_by_url={url: "doc-hash"},
     )
     assert len(sections) == 1
     assert len(bridge) == 2
-    assert sections.iloc[0].source_xml_sha256 == hashlib.sha256(xml).hexdigest()
+    assert sections.iloc[0].source_section_sha256 == hashlib.sha256(xml).hexdigest()
+    assert sections.iloc[0].source_document_url == daily_url
+    assert sections.iloc[0].source_document_sha256 == "doc-hash"
     status = dict(zip(bridge.question_id, bridge.question_xml_match_status))
     assert status[questions.iloc[0].question_id] == "question_id_matched_in_xml"
     assert status[questions.iloc[1].question_id] == "section_matched_question_id_unmatched"
