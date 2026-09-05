@@ -12,7 +12,7 @@ env:
 jobs:
   validate-written-pq-answer-foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -21,7 +21,7 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
-      BATCH_ID: written-pq-answer-validation-20260905-1
+      BATCH_ID: written-pq-answer-validation-20260905-2
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,8 +35,18 @@ jobs:
           python -m py_compile process/political_metrics_written_question_answers_candidate.py
       - name: Run focused tests
         run: python -m pytest -q tests/political_metrics/test_written_question_answers.py tests/political_metrics/test_candidate_materialization.py
-      - name: Seed validation candidate from current production
-        run: python process/oireachtas_seed_candidate.py --batch-id "$BATCH_ID"
+      - name: Seed only silver_questions into validation candidate
+        run: |
+          python - <<'PY'
+          import os,boto3
+          from extract.oireachtas.batch import batch_key_for_production_key,resolve_production_key
+          bucket=os.environ['S3_BUCKET']; batch=os.environ['BATCH_ID']; s3=boto3.client('s3',region_name=os.environ['AWS_REGION'])
+          logical='processed/oireachtas_unified/latest/csv/silver_questions.csv'
+          src=resolve_production_key(s3,bucket=bucket,production_key=logical)
+          dst=batch_key_for_production_key(logical,batch)
+          s3.copy_object(Bucket=bucket,CopySource={'Bucket':bucket,'Key':src},Key=dst)
+          print({'source':src,'candidate':dst})
+          PY
       - name: Measure scale and run real 100-section dry-run with diagnostic capture
         shell: bash
         run: |
