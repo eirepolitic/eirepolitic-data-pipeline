@@ -10,7 +10,7 @@ env:
   PYTHONPATH: .
 
 jobs:
-  validate-written-pq-answer-daily-source:
+  diagnose-written-pq-answer-daily-source:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -21,7 +21,7 @@ jobs:
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
-      BATCH_ID: written-pq-answer-daily-validation-20260905-1
+      BATCH_ID: written-pq-answer-daily-validation-20260905-2
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,7 +34,7 @@ jobs:
           python -m py_compile political_metrics/written_question_answers.py
           python -m py_compile process/political_metrics_written_question_answers_candidate.py
           python -m pytest -q tests/political_metrics/test_written_question_answers.py tests/political_metrics/test_candidate_materialization.py
-      - name: Seed stratified Written-question validation sample
+      - name: Seed stratified validation sample
         run: |
           python - <<'PY'
           import io,os
@@ -46,11 +46,8 @@ jobs:
           q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=src)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
           w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy()
           dates=sorted(w['question_date'].dropna().astype(str).unique())
-          if len(dates)>100:
-              step=(len(dates)-1)/99
-              selected=sorted({dates[round(i*step)] for i in range(100)})
-          else:
-              selected=dates
+          step=(len(dates)-1)/99 if len(dates)>100 else 1
+          selected=sorted({dates[round(i*step)] for i in range(100)}) if len(dates)>100 else dates
           parts=[]
           for d in selected:
               day=w[w['question_date'].astype(str).eq(d)].copy()
@@ -59,17 +56,26 @@ jobs:
           sample=pd.concat(parts,ignore_index=True).drop_duplicates('question_id')
           dst=batch_key_for_production_key(logical,batch)
           s3.put_object(Bucket=bucket,Key=dst,Body=sample.to_csv(index=False).encode('utf-8'),ContentType='text/csv')
-          print({'dates':len(selected),'questions':len(sample),'sections':sample['debate_section_id'].nunique(),'candidate':dst})
+          print({'dates':len(selected),'questions':len(sample),'sections':sample['debate_section_id'].nunique()})
           PY
-      - name: Run live daily-document dry run
+      - name: Capture live daily-document diagnostic
+        shell: bash
         run: |
+          set +e
+          mkdir -p analysis
           python process/political_metrics_written_question_answers_candidate.py \
             --batch-id "$BATCH_ID" \
             --dry-run \
             --workers 4 \
             --document-chunk-size 4 \
-            --report-path written_pq_answer_daily_validation_report.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: written-pq-answer-daily-validation-${{ github.run_id }}
-          path: written_pq_answer_daily_validation_report.json
+            --report-path analysis/written_pq_answer_daily_validation_report.json \
+            > analysis/written_pq_answer_daily_validation_diagnostic.txt 2>&1
+          status=$?
+          cat analysis/written_pq_answer_daily_validation_diagnostic.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/written_pq_answer_daily_validation_diagnostic.txt
+          if [ -f analysis/written_pq_answer_daily_validation_report.json ]; then git add analysis/written_pq_answer_daily_validation_report.json; fi
+          git commit -m "Capture Written PQ daily-source validation ${GITHUB_RUN_ID}" || true
+          git push origin HEAD:${GITHUB_REF_NAME}
+          exit $status
