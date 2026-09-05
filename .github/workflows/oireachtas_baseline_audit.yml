@@ -28,122 +28,113 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas lxml requests
-      - name: Audit 100 Written PQ answer sources
+      - name: Audit 100 Written PQ answer sources with diagnostic capture
+        shell: bash
         run: |
-          python - <<'PY'
-          import io, json, os, re, time
+          set +e
+          mkdir -p analysis
+          python - <<'PY' > analysis/written_pq_answer_audit_diagnostic.txt 2>&1
+          import io, json, os, re, time, traceback
           from pathlib import Path
-          from urllib.parse import urlparse
           import boto3, pandas as pd, requests
           from lxml import etree
           from extract.oireachtas.batch import resolve_production_key
 
-          s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
-          prod='processed/oireachtas_unified/latest/csv/silver_questions.csv'
-          key=resolve_production_key(s3,bucket=bucket,production_key=prod)
-          q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-          w=q[q['question_type'].fillna('').eq('Written')].copy()
-          # deterministic spread across dates and recipients rather than fragile true randomness
-          w=w.sort_values(['question_date','question_id']).reset_index(drop=True)
-          idx=pd.Series(range(len(w))).sample(n=min(100,len(w)),random_state=20260905).sort_values().tolist()
-          sample=w.iloc[idx].copy()
+          try:
+              s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
+              prod='processed/oireachtas_unified/latest/csv/silver_questions.csv'
+              key=resolve_production_key(s3,bucket=bucket,production_key=prod)
+              print('resolved_key',key)
+              q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+              print('columns',list(q.columns))
+              w=q[q['question_type'].fillna('').eq('Written')].copy()
+              print('written_rows',len(w))
+              w=w.sort_values(['question_date','question_id']).reset_index(drop=True)
+              sample=w.sample(n=min(100,len(w)),random_state=20260905).sort_values(['question_date','question_id']).copy()
 
-          session=requests.Session(); session.headers.update({'User-Agent':'EirePolitic research audit/1.0'})
-          cache={}; rows=[]; tag_counter={}; id_examples=[]
-          def local(tag): return tag.split('}',1)[-1] if '}' in tag else tag
-          def clean_text(el): return re.sub(r'\s+',' ',' '.join(el.itertext())).strip()
-          def attr_values(el):
-              vals=[]
-              for k,v in el.attrib.items():
-                  if v: vals.append((local(k),str(v)))
-              return vals
+              session=requests.Session(); session.headers.update({'User-Agent':'EirePolitic research audit/1.0'})
+              cache={}; rows=[]; tag_counter={}
+              def local(tag): return tag.split('}',1)[-1] if isinstance(tag,str) and '}' in tag else str(tag)
+              def clean_text(el): return re.sub(r'\s+',' ',' '.join(el.itertext())).strip()
+              def attr_values(el):
+                  return [(local(k),str(v)) for k,v in el.attrib.items() if v]
 
-          for n,r in enumerate(sample.itertuples(index=False),1):
-              url=str(getattr(r,'source_xml_url','') or '')
-              rec={
-                'question_id':str(getattr(r,'question_id','') or ''),
-                'question_date':str(getattr(r,'question_date','') or ''),
-                'question_number':str(getattr(r,'question_number','') or ''),
-                'asked_by_name':str(getattr(r,'asked_by_name','') or ''),
-                'recipient':str(getattr(r,'to_minister_or_department','') or ''),
-                'debate_section_id':str(getattr(r,'debate_section_id','') or ''),
-                'source_xml_url':url,
-                'fetch_ok':False,'xml_parse_ok':False,'section_match_count':0,
-                'question_id_match_count':0,'question_number_text_hits':0,
-                'matched_element_tag':'','matched_text_chars':0,'matched_text_preview':'',
-                'question_text_chars':len(str(getattr(r,'question_text','') or '')),
-                'answer_text_existing_chars':len(str(getattr(r,'answer_text','') or '')),
-                'attachment_link_count':0,'attachment_links':[],
+              for i,r in enumerate(sample.to_dict('records'),1):
+                  if i % 10 == 0: print('processing',i,flush=True)
+                  url=str(r.get('source_xml_url') or '')
+                  rec={
+                    'question_id':str(r.get('question_id') or ''),
+                    'question_date':str(r.get('question_date') or ''),
+                    'question_number':str(r.get('question_number') or ''),
+                    'asked_by_name':str(r.get('asked_by_name') or ''),
+                    'recipient':str(r.get('to_minister_or_department') or ''),
+                    'debate_section_id':str(r.get('debate_section_id') or ''),
+                    'source_xml_url':url,
+                    'fetch_ok':False,'xml_parse_ok':False,'section_match_count':0,'question_id_match_count':0,
+                    'matched_element_tag':'','matched_text_chars':0,'matched_text_preview':'',
+                    'question_text_chars':len(str(r.get('question_text') or '')),
+                    'answer_text_existing_chars':len(str(r.get('answer_text') or '')),
+                    'attachment_link_count':0,'attachment_links':[],
+                  }
+                  try:
+                      if not url:
+                          rows.append(rec); continue
+                      if url not in cache:
+                          resp=session.get(url,timeout=30); resp.raise_for_status(); cache[url]=resp.content
+                          time.sleep(0.03)
+                      root=etree.fromstring(cache[url]); rec['fetch_ok']=True; rec['xml_parse_ok']=True
+                      for el in root.iter(): tag_counter[local(el.tag)]=tag_counter.get(local(el.tag),0)+1
+                      ds=rec['debate_section_id']; qid=rec['question_id']
+                      section_matches=[]; qid_matches=[]
+                      for el in root.iter():
+                          vals=[v for _,v in attr_values(el)]
+                          if ds and ds in vals: section_matches.append(el)
+                          if qid and qid in vals: qid_matches.append(el)
+                      rec['section_match_count']=len(section_matches); rec['question_id_match_count']=len(qid_matches)
+                      target=section_matches[0] if section_matches else (qid_matches[0] if qid_matches else None)
+                      if target is not None:
+                          txt=clean_text(target); rec['matched_element_tag']=local(target.tag); rec['matched_text_chars']=len(txt); rec['matched_text_preview']=txt[:700]
+                          links=[]
+                          for el in target.iter():
+                              for ak,av in attr_values(el):
+                                  if ak.lower() in {'href','src'} and any(ext in av.lower() for ext in ['.xlsx','.xls','.docx','.doc','.csv','.pdf']): links.append(av)
+                          rec['attachment_links']=sorted(set(links)); rec['attachment_link_count']=len(rec['attachment_links'])
+                  except Exception as e:
+                      rec['error']=f'{type(e).__name__}: {e}'
+                  rows.append(rec)
+
+              outdf=pd.DataFrame(rows)
+              summary={
+                'production_question_rows':int(len(q)),
+                'production_written_rows':int(len(w)),
+                'sample_size':int(len(outdf)),
+                'unique_xml_urls_in_sample':int(outdf['source_xml_url'].nunique()),
+                'fetch_ok':int(outdf['fetch_ok'].fillna(False).astype(bool).sum()),
+                'xml_parse_ok':int(outdf['xml_parse_ok'].fillna(False).astype(bool).sum()),
+                'exact_debate_section_id_match_rows':int((pd.to_numeric(outdf['section_match_count'],errors='coerce').fillna(0)>0).sum()),
+                'exact_question_id_match_rows':int((pd.to_numeric(outdf['question_id_match_count'],errors='coerce').fillna(0)>0).sum()),
+                'rows_with_target_text':int((pd.to_numeric(outdf['matched_text_chars'],errors='coerce').fillna(0)>0).sum()),
+                'rows_with_attachment_links_in_target':int((pd.to_numeric(outdf['attachment_link_count'],errors='coerce').fillna(0)>0).sum()),
+                'existing_answer_text_nonempty':int((pd.to_numeric(outdf['answer_text_existing_chars'],errors='coerce').fillna(0)>0).sum()),
+                'section_match_count_distribution':{str(k):int(v) for k,v in outdf['section_match_count'].value_counts(dropna=False).to_dict().items()},
+                'matched_element_tags':{str(k):int(v) for k,v in outdf['matched_element_tag'].value_counts(dropna=False).to_dict().items()},
+                'top_xml_tags':dict(sorted(tag_counter.items(),key=lambda kv:kv[1],reverse=True)[:30]),
+                'sample_previews':outdf[['question_id','question_date','question_number','asked_by_name','recipient','debate_section_id','section_match_count','question_id_match_count','matched_element_tag','matched_text_chars','attachment_link_count','matched_text_preview']].head(12).to_dict('records'),
               }
-              try:
-                  if not url:
-                      rows.append(rec); continue
-                  if url not in cache:
-                      resp=session.get(url,timeout=30); resp.raise_for_status(); cache[url]=resp.content
-                      time.sleep(0.05)
-                  content=cache[url]; rec['fetch_ok']=True
-                  root=etree.fromstring(content); rec['xml_parse_ok']=True
-                  for el in root.iter(): tag_counter[local(el.tag)]=tag_counter.get(local(el.tag),0)+1
-
-                  ds=rec['debate_section_id']; qid=rec['question_id']; qnum=rec['question_number']
-                  section_matches=[]; qid_matches=[]
-                  for el in root.iter():
-                      attrs=attr_values(el)
-                      vals=[v for _,v in attrs]
-                      if ds and ds in vals: section_matches.append(el)
-                      if qid and qid in vals: qid_matches.append(el)
-                  rec['section_match_count']=len(section_matches)
-                  rec['question_id_match_count']=len(qid_matches)
-
-                  # Prefer exact section-id element; fall back to a question-id element.
-                  target=section_matches[0] if section_matches else (qid_matches[0] if qid_matches else None)
-                  if target is not None:
-                      txt=clean_text(target)
-                      rec['matched_element_tag']=local(target.tag)
-                      rec['matched_text_chars']=len(txt)
-                      rec['matched_text_preview']=txt[:700]
-                      links=[]
-                      for el in target.iter():
-                          for ak,av in attr_values(el):
-                              if ak.lower() in {'href','src'} and av:
-                                  low=av.lower()
-                                  if any(ext in low for ext in ['.xlsx','.xls','.docx','.doc','.csv','.pdf']): links.append(av)
-                      rec['attachment_links']=sorted(set(links)); rec['attachment_link_count']=len(rec['attachment_links'])
-                  if qnum:
-                      alltxt=clean_text(root)
-                      rec['question_number_text_hits']=len(re.findall(r'(?<!\d)'+re.escape(qnum)+r'(?!\d)',alltxt))
-              except Exception as e:
-                  rec['error']=f'{type(e).__name__}: {e}'
-              rows.append(rec)
-
-          outdf=pd.DataFrame(rows)
-          def count_true(col): return int(outdf[col].fillna(False).astype(bool).sum())
-          summary={
-            'production_question_rows':int(len(q)),
-            'production_written_rows':int(len(w)),
-            'sample_size':int(len(outdf)),
-            'unique_xml_urls_in_sample':int(outdf['source_xml_url'].nunique()),
-            'fetch_ok':count_true('fetch_ok'),
-            'xml_parse_ok':count_true('xml_parse_ok'),
-            'exact_debate_section_id_match_rows':int((pd.to_numeric(outdf['section_match_count'],errors='coerce').fillna(0)>0).sum()),
-            'exact_question_id_match_rows':int((pd.to_numeric(outdf['question_id_match_count'],errors='coerce').fillna(0)>0).sum()),
-            'rows_with_target_text':int((pd.to_numeric(outdf['matched_text_chars'],errors='coerce').fillna(0)>0).sum()),
-            'rows_with_attachment_links_in_target':int((pd.to_numeric(outdf['attachment_link_count'],errors='coerce').fillna(0)>0).sum()),
-            'existing_answer_text_nonempty':int((pd.to_numeric(outdf['answer_text_existing_chars'],errors='coerce').fillna(0)>0).sum()),
-            'section_match_count_distribution':{str(k):int(v) for k,v in outdf['section_match_count'].value_counts(dropna=False).to_dict().items()},
-            'matched_element_tags':{str(k):int(v) for k,v in outdf['matched_element_tag'].value_counts(dropna=False).to_dict().items()},
-            'top_xml_tags':dict(sorted(tag_counter.items(),key=lambda kv:kv[1],reverse=True)[:30]),
-            'sample_previews':outdf[['question_id','question_date','question_number','asked_by_name','recipient','debate_section_id','section_match_count','question_id_match_count','matched_element_tag','matched_text_chars','attachment_link_count','matched_text_preview']].head(12).to_dict('records'),
-          }
-          Path('analysis').mkdir(exist_ok=True)
-          Path('analysis/written_pq_answer_audit_summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
-          outdf.to_csv('analysis/written_pq_answer_audit_sample.csv',index=False)
-          print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
+              Path('analysis/written_pq_answer_audit_summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
+              outdf.to_csv('analysis/written_pq_answer_audit_sample.csv',index=False)
+              print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
+          except Exception:
+              traceback.print_exc()
+              raise
           PY
-      - name: Persist audit artifacts
-        run: |
+          status=$?
+          cat analysis/written_pq_answer_audit_diagnostic.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/written_pq_answer_audit_summary.json analysis/written_pq_answer_audit_sample.csv
-          git commit -m "Capture Written PQ answer structure audit ${GITHUB_RUN_ID}" || true
+          git add analysis/written_pq_answer_audit_diagnostic.txt
+          if [ -f analysis/written_pq_answer_audit_summary.json ]; then git add analysis/written_pq_answer_audit_summary.json; fi
+          if [ -f analysis/written_pq_answer_audit_sample.csv ]; then git add analysis/written_pq_answer_audit_sample.csv; fi
+          git commit -m "Capture Written PQ answer audit ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
+          exit $status
