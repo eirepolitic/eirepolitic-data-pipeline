@@ -1,0 +1,15 @@
+{"chunk_documents": 4, "chunk_questions": 16, "chunk_sections": 12, "progress_documents_complete": 4, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 13, "chunk_sections": 12, "progress_documents_complete": 8, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 14, "chunk_sections": 12, "progress_documents_complete": 12, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 15, "chunk_sections": 12, "progress_documents_complete": 16, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 14, "chunk_sections": 12, "progress_documents_complete": 20, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 13, "chunk_sections": 12, "progress_documents_complete": 24, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 15, "chunk_sections": 12, "progress_documents_complete": 28, "progress_documents_total": 100}
+{"chunk_documents": 4, "chunk_questions": 13, "chunk_sections": 12, "progress_documents_complete": 32, "progress_documents_total": 100}
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_written_question_answers_candidate.py", line 412, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/political_metrics_written_question_answers_candidate.py", line 321, in main
+    raise RuntimeError(
+RuntimeError: Written-answer sections missing from daily document: [{"document_url": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-07-10/writtens/mul@/main.xml", "section_eid": "dbsect_49"}]
