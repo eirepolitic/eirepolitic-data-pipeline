@@ -28,7 +28,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: python -m pip install boto3 pandas lxml requests
-      - name: Audit 100 Written PQ answer sources with diagnostic capture
+      - name: Audit 100 Written PQ answer sources
         shell: bash
         run: |
           set +e
@@ -42,13 +42,15 @@ jobs:
 
           try:
               s3=boto3.client('s3',region_name=os.environ['AWS_REGION']); bucket=os.environ['S3_BUCKET']
-              prod='processed/oireachtas_unified/latest/csv/silver_questions.csv'
-              key=resolve_production_key(s3,bucket=bucket,production_key=prod)
-              print('resolved_key',key)
+              key=resolve_production_key(s3,bucket=bucket,production_key='processed/oireachtas_unified/latest/csv/silver_questions.csv')
               q=pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
-              print('columns',list(q.columns))
-              w=q[q['question_type'].fillna('').eq('Written')].copy()
+              type_counts=q['question_type'].fillna('').astype(str).value_counts().to_dict()
+              w=q[q['question_type'].fillna('').astype(str).str.strip().str.lower().eq('written')].copy()
+              print('resolved_key',key)
+              print('question_type_counts',type_counts)
               print('written_rows',len(w))
+              if w.empty:
+                  raise RuntimeError('no Written rows found after case-insensitive normalization')
               w=w.sort_values(['question_date','question_id']).reset_index(drop=True)
               sample=w.sample(n=min(100,len(w)),random_state=20260905).sort_values(['question_date','question_id']).copy()
 
@@ -56,8 +58,7 @@ jobs:
               cache={}; rows=[]; tag_counter={}
               def local(tag): return tag.split('}',1)[-1] if isinstance(tag,str) and '}' in tag else str(tag)
               def clean_text(el): return re.sub(r'\s+',' ',' '.join(el.itertext())).strip()
-              def attr_values(el):
-                  return [(local(k),str(v)) for k,v in el.attrib.items() if v]
+              def attr_values(el): return [(local(k),str(v)) for k,v in el.attrib.items() if v]
 
               for i,r in enumerate(sample.to_dict('records'),1):
                   if i % 10 == 0: print('processing',i,flush=True)
@@ -65,7 +66,7 @@ jobs:
                   rec={
                     'question_id':str(r.get('question_id') or ''),
                     'question_date':str(r.get('question_date') or ''),
-                    'question_number':str(r.get('question_number') or ''),
+                    'question_number':str(r.get('question_no') or ''),
                     'asked_by_name':str(r.get('asked_by_name') or ''),
                     'recipient':str(r.get('to_minister_or_department') or ''),
                     'debate_section_id':str(r.get('debate_section_id') or ''),
@@ -106,6 +107,7 @@ jobs:
               outdf=pd.DataFrame(rows)
               summary={
                 'production_question_rows':int(len(q)),
+                'question_type_counts':{str(k):int(v) for k,v in type_counts.items()},
                 'production_written_rows':int(len(w)),
                 'sample_size':int(len(outdf)),
                 'unique_xml_urls_in_sample':int(outdf['source_xml_url'].nunique()),
@@ -125,8 +127,7 @@ jobs:
               outdf.to_csv('analysis/written_pq_answer_audit_sample.csv',index=False)
               print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
           except Exception:
-              traceback.print_exc()
-              raise
+              traceback.print_exc(); raise
           PY
           status=$?
           cat analysis/written_pq_answer_audit_diagnostic.txt
