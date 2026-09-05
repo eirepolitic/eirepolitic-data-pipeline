@@ -16,7 +16,7 @@ datasets:
     formats:
       - csv
       - parquet
-    output_prefix: processed/oireachtas_unified/latest/questions/written_question_answer_sections
+    output_prefix: processed/oireachtas_unified/latest/metrics/event/written_question_answer_sections
     provenance_columns:
       - source_batch_id
       - answer_version
@@ -36,7 +36,7 @@ datasets:
     formats:
       - csv
       - parquet
-    output_prefix: processed/oireachtas_unified/latest/questions/written_question_answer_bridge
+    output_prefix: processed/oireachtas_unified/latest/metrics/event/written_question_answer_bridge
     provenance_columns:
       - source_batch_id
       - bridge_version
