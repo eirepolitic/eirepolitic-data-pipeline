@@ -32,7 +32,7 @@ jobs:
           python -m pip install pytest
 
       - name: Compile publication package and tests
-        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py
+        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py tests/test_instagram_meta_http_client.py
 
       - name: Validate caption templates
         run: |
@@ -48,4 +48,4 @@ jobs:
           PY
 
       - name: Run publication tests
-        run: python -m pytest tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py -q
+        run: python -m pytest tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py tests/test_instagram_meta_http_client.py -q
