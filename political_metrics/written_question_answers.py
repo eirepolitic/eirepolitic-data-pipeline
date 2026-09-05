@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -26,6 +27,7 @@ ANSWER_SECTION_COLUMNS = [
     "embedded_table_count",
     "source_xml_url",
     "source_xml_uri",
+    "source_xml_sha256",
     "source_batch_id",
     "answer_version",
     "calculated_at_utc",
@@ -238,6 +240,7 @@ def build_written_answer_foundations(
             "embedded_table_count": int(parsed.embedded_table_count),
             "source_xml_url": url,
             "source_xml_uri": source_xml_uri,
+            "source_xml_sha256": hashlib.sha256(xml).hexdigest(),
             "source_batch_id": source_batch_id,
             "answer_version": ANSWER_VERSION,
             "calculated_at_utc": now,
