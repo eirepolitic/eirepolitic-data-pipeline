@@ -2,7 +2,8 @@
   "exact_debate_section_id_match_rows": 0,
   "exact_question_id_match_rows": 0,
   "existing_answer_text_nonempty": 100,
-  "fetch_ok": 100,
+  "fetch_error_examples": {},
+  "fetch_ok_rows": 100,
   "matched_element_tags": {
     "": 100
   },
@@ -182,6 +183,48 @@
       "question_number": "966",
       "recipient": "Housing",
       "section_match_count": 0
+    },
+    {
+      "asked_by_name": "Pádraig Mac Lochlainn",
+      "attachment_link_count": 0,
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-25/writtens/dbsect_396",
+      "matched_element_tag": "",
+      "matched_text_chars": 0,
+      "matched_text_preview": "",
+      "question_date": "2025-03-25",
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-03-25/pq_608",
+      "question_id_match_count": 0,
+      "question_number": "608",
+      "recipient": "Agriculture",
+      "section_match_count": 0
+    },
+    {
+      "asked_by_name": "Alan Kelly",
+      "attachment_link_count": 0,
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-26/writtens/dbsect_166",
+      "matched_element_tag": "",
+      "matched_text_chars": 0,
+      "matched_text_preview": "",
+      "question_date": "2025-03-26",
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-03-26/pq_128",
+      "question_id_match_count": 0,
+      "question_number": "128",
+      "recipient": "Justice",
+      "section_match_count": 0
+    },
+    {
+      "asked_by_name": "Eoin Ó Broin",
+      "attachment_link_count": 0,
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-04-01/writtens/dbsect_170",
+      "matched_element_tag": "",
+      "matched_text_chars": 0,
+      "matched_text_preview": "",
+      "question_date": "2025-04-01",
+      "question_id": "https://data.oireachtas.ie/ie/oireachtas/question/2025-04-01/pq_260",
+      "question_id_match_count": 0,
+      "question_number": "260",
+      "recipient": "Environment",
+      "section_match_count": 0
     }
   ],
   "sample_size": 100,
@@ -220,6 +263,8 @@
     "references": 100,
     "td": 372
   },
+  "unique_xml_fetch_failures": 0,
+  "unique_xml_fetch_success": 100,
   "unique_xml_urls_in_sample": 100,
-  "xml_parse_ok": 100
+  "xml_parse_ok_rows": 100
 }
