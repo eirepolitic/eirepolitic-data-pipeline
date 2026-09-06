@@ -7,6 +7,15 @@ on:
         description: "Bills per proposed Instagram carousel"
         required: false
         default: "6"
+      lookback_days:
+        description: "First-edition lookback when no prior snapshot exists"
+        required: false
+        default: "90"
+      persist_state:
+        description: "Persist audited editorial state for future delta editions"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -41,11 +50,23 @@ jobs:
       - name: Run focused tests
         run: |
           python -m unittest tests.political_metrics.test_bill_content_snapshot
+          python -m unittest tests.political_metrics.test_bill_editorial_series
 
-      - name: Build read-only Bill content snapshot
+      - name: Build read-only Bill tracker
+        if: ${{ !inputs.persist_state }}
         run: |
           python process/build_bill_content_snapshot.py \
             --batch-size "${{ inputs.batch_size || '6' }}" \
+            --lookback-days "${{ inputs.lookback_days || '90' }}" \
+            --output-dir artifacts/bill-content-snapshot
+
+      - name: Build Bill tracker and persist editorial state
+        if: ${{ inputs.persist_state }}
+        run: |
+          python process/build_bill_content_snapshot.py \
+            --batch-size "${{ inputs.batch_size || '6' }}" \
+            --lookback-days "${{ inputs.lookback_days || '90' }}" \
+            --state-prefix processed/editorial/bill_tracker \
             --output-dir artifacts/bill-content-snapshot
 
       - name: Add series plan to workflow summary
