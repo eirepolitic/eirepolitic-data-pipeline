@@ -1,61 +1,57 @@
-# Frozen source record
+# Source record — Planning for Constitutional Change Bill close vote
 
-Campaign: `constitutional_change_close_vote_v1`  
-Frozen: 5 September 2026
+Frozen for editorial/design package: **5 September 2026**
 
-## Division
+## EirePolitic evidence
 
-- Date: **8 July 2026**
-- Chamber: **Dáil Éireann**
+- Division date: **2026-07-08**
 - Division ID: `https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_184`
-- Context: **Planning for Constitutional Change Bill 2026 — Second Stage (resumed)**
-- Tá: **69**
-- Níl: **79**
-- Staon: **0**
+- Stage/context: Planning for Constitutional Change Bill 2026 — Second Stage (resumed)
+- Recorded Tá: **69**
+- Recorded Níl: **79**
+- Recorded Staon: **0**
 - Tá–Níl margin: **10**
-- Outcome: **Bill defeated at Second Stage**
+- Exact member-vote rows available: **148**
 
-## Proposition represented in the post
+Primary production surfaces:
 
-The vote was on whether the Planning for Constitutional Change Bill 2026 should proceed beyond Second Stage.
+- `silver_divisions`
+- `silver_member_votes`
 
-The Bill proposed a statutory planning process for possible constitutional change / Irish reunification, including:
+Research record:
 
-1. a Government Green Paper;
-2. consultation with political parties, civil society, experts and communities across the island;
-3. an all-island Citizens' Assembly;
-4. reporting to the Oireachtas.
+- `docs/research/close_divisions/2026-07-08_constitutional_change.md`
+- `docs/research/close_divisions/post_briefs.md`
+- `docs/research/close_divisions/final_post_copy.md`
 
-## Deterministic EirePolitic evidence
+## Official / external sources
 
-- `silver_divisions`: exact division metadata and outcome.
-- `silver_member_votes`: 148 recorded member votes, reconciling to 69 Tá + 79 Níl.
-- close-division case file: `docs/research/close_divisions/2026-07-08_constitutional_change.md`.
+### Houses of the Oireachtas
 
-## External context retained for editorial interpretation
+Official debate and Bill record. Use as the primary source for the proposition, stage and parliamentary wording.
 
-- Houses of the Oireachtas Bill/debate record.
-- The Irish Times reporting from 7 July 2026 on the Bill and Government response.
-- The Irish Times Inside Politics discussion from 10 July 2026 on differing Government/Sinn Féin timetables for unity planning.
-- Sinn Féin public speech setting out the case for the Bill.
+### The Irish Times — 10 July 2026
 
-## Certified claim
+`Sinn Féin and Government on completely different timetables for Irish unity`
 
-**The Dáil defeated the Planning for Constitutional Change Bill 2026 at Second Stage by 69 Tá to 79 Níl, a ten-vote margin.**
+Useful corroboration that the Bill failed to win Fianna Fáil/Fine Gael support and that the political disagreement concerned competing timetables/mechanisms for unity planning.
 
-## Supported interpretation
+### The Irish Times — 10 July 2026 politics review
 
-The substantive disagreement centred on whether formal state-led planning for constitutional change should begin under this statutory process and timetable. Government opposition to the Bill should not be represented as a direct vote against Irish unity itself.
+Reports that the Bill would have required a Green Paper on unification within 18 months, followed by an all-island Citizens' Assembly, and records the Taoiseach's objections to the deadline and Citizens' Assembly mechanism.
 
-## Explicit exclusions
+### Sinn Féin — Mary Lou McDonald speech, 7 July 2026
 
-Do not publish:
+Primary political-source statement of the proposer's case: formal Government planning, Green Paper and all-island Citizens' Assembly.
 
-- exact party vote totals from EirePolitic until event-date party attribution is certified;
-- claims that 69 TDs supported unity and 79 opposed it;
-- claims that the Dáil rejected Irish reunification;
-- claims about absent/non-voting TDs as though they abstained.
+## Source hierarchy for copy disputes
 
-## Snapshot rule
+1. Exact Oireachtas division/proposition/Bill text
+2. EirePolitic deterministic vote data
+3. Official parliamentary speeches / Government material
+4. Contemporary reputable reporting
+5. Party statements for that party's own stated position
 
-The 69–79 vote is immutable historical division data. Any supporting production metadata used during rendering must retain this frozen source record rather than silently recomputing a differently scoped metric.
+## Known limitation
+
+Do not publish exact party totals from the current EirePolitic derived party layer. Event-date party attribution remains incomplete for this division. Member-level recorded votes are exact; the party aggregation is not yet certified.
