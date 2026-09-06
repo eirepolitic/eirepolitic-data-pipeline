@@ -18,7 +18,7 @@ from extract.oireachtas.batch import (
     rollback_batch,
     rollback_previous,
 )
-from extract.oireachtas.io_s3 import put_bytes
+from extract.oireachtas.io_s3 import get_bytes, put_bytes
 
 
 class FakePaginator:
@@ -98,6 +98,27 @@ class BatchKeyTests(unittest.TestCase):
             put_bytes(s3, bucket="bucket", key=logical, body=b"data")
         self.assertNotIn(logical, s3.objects)
         self.assertIn(batch_key_for_production_key(logical, "batch-123"), s3.objects)
+
+    def test_logical_read_uses_production_pointer_not_stale_direct_key(self) -> None:
+        s3 = FakeS3()
+        logical = "processed/oireachtas_unified/latest/csv/silver_members.csv"
+        batch_key = batch_key_for_production_key(logical, "current-batch")
+        s3.put_object(Bucket="bucket", Key=logical, Body=b"stale", ContentType="text/csv")
+        s3.put_object(Bucket="bucket", Key=batch_key, Body=b"current", ContentType="text/csv")
+        put_json(s3, PRODUCTION_POINTER_KEY, {"mode": "batch", "batch_id": "current-batch"})
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(get_bytes(s3, bucket="bucket", key=logical), b"current")
+
+    def test_candidate_read_uses_current_candidate_batch(self) -> None:
+        s3 = FakeS3()
+        logical = "processed/oireachtas_unified/latest/csv/silver_members.csv"
+        production_key = batch_key_for_production_key(logical, "production-batch")
+        candidate_key = batch_key_for_production_key(logical, "candidate-batch")
+        s3.put_object(Bucket="bucket", Key=production_key, Body=b"production", ContentType="text/csv")
+        s3.put_object(Bucket="bucket", Key=candidate_key, Body=b"candidate", ContentType="text/csv")
+        put_json(s3, PRODUCTION_POINTER_KEY, {"mode": "batch", "batch_id": "production-batch"})
+        with patch.dict(os.environ, {"OIREACHTAS_BATCH_ID": "candidate-batch"}, clear=True):
+            self.assertEqual(get_bytes(s3, bucket="bucket", key=logical), b"candidate")
 
 
 class AtomicPromotionTests(unittest.TestCase):
