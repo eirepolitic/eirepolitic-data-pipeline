@@ -1,6 +1,6 @@
 # Close-division research
 
-Status: **Framework established; first three cases completed; two strongest cases deepened into post briefs**  
+Status: **Framework established; first three cases completed; two strongest cases have post briefs and final editorial copy drafts**  
 Date: **5 September 2026**
 
 This directory is the durable research record for close Dáil divisions that may support public-facing EirePolitic content.
@@ -63,6 +63,7 @@ This is a discovery threshold, not a claim that every such vote was politically 
 - [10 June 2026 — counselling-record disclosure amendment](2026-06-10_counselling_records.md)
 - [8 July 2026 — Planning for Constitutional Change Bill 2026](2026-07-08_constitutional_change.md)
 - [Instagram post briefs for the two strongest cases](post_briefs.md)
+- [Final editorial copy drafts for the two strongest cases](final_post_copy.md)
 
 ## Deep-dive result
 
@@ -105,9 +106,10 @@ Keep human/research review before publication for:
 
 ## Living next-step plan
 
-1. Editorially review the two post briefs before any graphics are made.
-2. Produce the **Planning for Constitutional Change Bill** post first if one close-vote case is selected for immediate production.
-3. If the counselling-record case is selected, require an additional sensitivity/legal-copy check before final caption approval.
-4. Do not add party vote charts until event-date party attribution coverage is complete enough to certify exact totals.
-5. For future close votes, freeze the division ID, proposition, vote totals, source links and data snapshot in the post source record.
-6. Keep the temporary analysis branch `analysis/close-divisions-deep-dive-20260905` unmerged; it contains research-only workflow changes.
+1. Editorially approve or revise the two drafts in `final_post_copy.md`.
+2. If approved, build the **Planning for Constitutional Change Bill** carousel first.
+3. Freeze the exact division ID, proposition, vote totals, snapshot date and source URLs in the production source record before rendering.
+4. If the counselling-record case is selected, run one final sensitivity/legal wording check before design is locked.
+5. Do not add party vote charts until event-date party attribution coverage is complete enough to certify exact totals.
+6. After these two posts are resolved, return to the broader Instagram shortlist and compare them against the remaining candidates for the final five.
+7. Keep the temporary analysis branch `analysis/close-divisions-deep-dive-20260905` unmerged; it contains research-only workflow changes.
