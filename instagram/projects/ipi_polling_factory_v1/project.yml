@@ -4,6 +4,7 @@ period:
   default: latest
 source:
   indicator_csv: s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polling_indicator.csv
+  polls_csv: s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polls.csv
   source_id: irish_polling_indicator
   source_label: Irish Polling Indicator (IPI)
   source_url: https://github.com/Irish-Polling-Indicator/ipi-data
@@ -15,25 +16,35 @@ render:
     muted: '#c8bda8'
     accent: '#d8b45f'
     grid: '#f4ead7'
+  trend_colors:
+    - '#d8b45f'
+    - '#f4ead7'
+    - '#79b8a4'
+    - '#df8a72'
+    - '#91a8d0'
   max_items: 8
   trend_days: 90
   trend_party_limit: 5
+  trend_legend_variant: two_row
 slides:
   definitions:
     - id: latest_support
-      title: Where the parties stand now
+      title: Latest Polling Estimates
       renderer: horizontal_bar_uncertainty
     - id: change_since_previous_model
-      title: What changed since the previous model
+      title: Who's Up and Who's Down?
       renderer: diverging_bar
     - id: recent_trend
-      title: The recent polling trend
+      title: How Support Has Moved
       renderer: line_trend
+    - id: methodology
+      title: How This Polling Works
+      renderer: glossary_methodology
 output:
   local_root: instagram/production/output/ipi_polling_factory_v1
 publication:
   enabled: false
 qa:
-  expected_slide_count: 3
+  expected_slide_count: 4
   expected_dimensions: [1080, 1350]
   require_source_footer: true
