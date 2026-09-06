@@ -1,42 +1,51 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import io, json, os, re, unicodedata
+import io, json, os
 import boto3, pandas as pd
-BUCKET=os.getenv('S3_BUCKET','eirepolitic-data'); s3=boto3.client('s3')
+
+BUCKET=os.getenv('S3_BUCKET','eirepolitic-data')
+s3=boto3.client('s3')
+
 def read(key):
-    o=s3.get_object(Bucket=BUCKET,Key=key); return pd.read_csv(io.BytesIO(o['Body'].read()),dtype=str,keep_default_na=False)
-def norm(s):
-    s=unicodedata.normalize('NFKD',str(s)); s=''.join(c for c in s if not unicodedata.combining(c)); s=s.lower(); s=re.sub(r'[^a-z0-9]+',' ',s); return ' '.join(s.split())
-sp=read('processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv')
-cm=read('processed/oireachtas_unified/latest/csv/gold_current_members.csv')
-print('SPEECH_COLS',json.dumps(list(sp.columns),ensure_ascii=False)); print('CURRENT_MEMBER_COLS',json.dumps(list(cm.columns),ensure_ascii=False)); print('CURRENT_MEMBER_ROWS',len(cm))
-sp['_date']=pd.to_datetime(sp['Debate Date'],errors='coerce'); sp['_name_norm']=sp['Speaker Name'].map(norm); sp['_words']=sp['Speech Text'].fillna('').astype(str).str.findall(r"\b\w+[\w’'\-]*\b").str.len()
-name_col=next((c for c in ['full_name','member_name','name','display_name'] if c in cm.columns),None)
-code_col=next((c for c in ['member_code','memberCode','member_id'] if c in cm.columns),None)
-party_col=next((c for c in ['party_name','party','current_party'] if c in cm.columns),None)
-const_col=next((c for c in ['constituency_name','constituency','current_constituency'] if c in cm.columns),None)
-start_col=next((c for c in ['membership_start_date','start_date','date_from'] if c in cm.columns),None)
-print('RESOLVED_MEMBER_COLS',json.dumps({'name':name_col,'code':code_col,'party':party_col,'constituency':const_col,'start':start_col}))
-cm['_name_norm']=cm[name_col].map(norm)
-# only unique name matches
-uniq=cm.groupby('_name_norm').filter(lambda x: len(x)==1).drop_duplicates('_name_norm')
-keep=['_name_norm',name_col]+[c for c in [code_col,party_col,const_col,start_col] if c]
-w=sp[sp['_date']>=pd.Timestamp('2024-12-18')].merge(uniq[keep],on='_name_norm',how='inner')
-print('SESSION_RANGE',str(w['_date'].min().date()),str(w['_date'].max().date()),'DEBATE_DAYS',int(w['_date'].dt.date.nunique()),'TD_SPEECH_ROWS',len(w),'MATCHED_TDS',w[name_col].nunique())
-# Aggregate TD speech metrics.
-g=w.groupby([name_col]+[c for c in [party_col,const_col,start_col] if c],dropna=False).agg(speech_count=('_words','size'),total_words=('_words','sum'),avg_words=('_words','mean'),median_words=('_words','median'),longest_speech_words=('_words','max'),speaking_days=('_date',lambda x:x.dt.date.nunique())).reset_index()
-def emit(label,df): print(label,json.dumps(df.to_dict('records'),ensure_ascii=False))
-emit('MOST_SPEECHES',g.sort_values(['speech_count','total_words'],ascending=False).head(10))
-emit('MOST_TOTAL_WORDS',g.sort_values(['total_words','speech_count'],ascending=False).head(10))
-emit('LONGEST_AVG_MIN20',g[g.speech_count>=20].sort_values(['avg_words','speech_count'],ascending=False).head(10))
-emit('LONGEST_SINGLE_SPEECH',g.sort_values(['longest_speech_words','total_words'],ascending=False).head(10))
-emit('MOST_SPEAKING_DAYS',g.sort_values(['speaking_days','speech_count'],ascending=False).head(10))
-# Fair low-end comparison: members whose current membership began no later than the first covered debate day, if start date exists.
-if start_col:
-    g['_start']=pd.to_datetime(g[start_col],errors='coerce')
-    eligible=g[(g['_start'].isna())|(g['_start']<=w['_date'].min())].copy()
-else: eligible=g.copy()
-emit('FEWEST_SPEECHES_FULL_WINDOW',eligible.sort_values(['speech_count','total_words']).head(15))
-# Locate the actual longest speech rows for headline verification.
-mx=w['_words'].max(); cols=[c for c in [name_col,party_col,const_col,'Debate Date','Debate Section','Debate Section Name','Speech Order'] if c in w.columns]
-emit('LONGEST_SPEECH_ROWS',w[w['_words']==mx][cols+['_words']].head(10))
+    obj=s3.get_object(Bucket=BUCKET,Key=key)
+    return pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False)
+
+b=read('processed/oireachtas_unified/latest/csv/silver_bills.csv')
+st=read('processed/oireachtas_unified/latest/csv/silver_bill_stages.csv')
+sp=read('processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv')
+
+print('BILL_ROWS',len(b))
+print('STATUS_COUNTS',json.dumps(b['status'].value_counts().to_dict(),ensure_ascii=False))
+
+# Sort stage history by date, then numeric progress order where possible, preserving source row order as tie-breaker.
+st=st.copy()
+st['_date']=pd.to_datetime(st['stage_date'],errors='coerce')
+st['_order']=pd.to_numeric(st['order_in_bill'],errors='coerce')
+st['_row']=range(len(st))
+st=st.sort_values(['bill_id','_date','_order','_row'])
+latest=st.groupby('bill_id',as_index=False).tail(1).copy()
+latest=latest[['bill_id','stage_name','stage_date','house_name','stage_outcome','order_in_bill']]
+
+x=b.merge(latest,on='bill_id',how='left',suffixes=('','_latest'))
+print('ALL_LATEST_STAGE_COUNTS',json.dumps(x.groupby(['status','stage_name'],dropna=False).size().to_dict(),ensure_ascii=False,default=str))
+current=x[x['status'].str.casefold()=='current'].copy()
+print('CURRENT_BILLS',len(current))
+print('CURRENT_STAGE_COUNTS',json.dumps(current['stage_name'].value_counts(dropna=False).to_dict(),ensure_ascii=False))
+print('CURRENT_STAGE_HOUSE_COUNTS',json.dumps(current.groupby(['stage_name','house_name'],dropna=False).size().to_dict(),ensure_ascii=False,default=str))
+
+# Enacted/non-current status detail
+for status,grp in x.groupby('status',dropna=False):
+    print('STATUS_DETAIL',status,len(grp),json.dumps(grp['stage_name'].value_counts(dropna=False).to_dict(),ensure_ascii=False))
+
+# Per-bill compact rows, sorted for editorial grouping.
+cols=['bill_no','bill_year','short_title','title','status','origin_house_name','stage_name','house_name','stage_date','stage_outcome','order_in_bill']
+rows=current.sort_values(['stage_name','house_name','stage_date','bill_year','bill_no'])[cols].to_dict('records')
+print('CURRENT_BILL_ROWS')
+print(json.dumps(rows,ensure_ascii=False,indent=2))
+
+# Sponsor row count/name summary per bill for feasibility of bill cards.
+if not sp.empty:
+    p=sp.groupby('bill_id').agg(sponsor_rows=('bill_id','size'),sponsor_names=('sponsor_name',lambda s:' | '.join(sorted(set(v for v in s if str(v).strip())))),sponsor_roles=('sponsor_role_name',lambda s:' | '.join(sorted(set(v for v in s if str(v).strip()))))).reset_index()
+    c=current[['bill_id','bill_no','bill_year','short_title','stage_name','house_name']].merge(p,on='bill_id',how='left')
+    print('CURRENT_SPONSOR_ROW_STATS',json.dumps(pd.to_numeric(c['sponsor_rows'],errors='coerce').describe().round(2).to_dict()))
+    print('CURRENT_MULTI_SPONSOR_BILLS',int((pd.to_numeric(c['sponsor_rows'],errors='coerce')>1).sum()))
