@@ -5,53 +5,50 @@ on:
 
 permissions:
   contents: write
-  actions: read
+
+env:
+  PYTHONPATH: .
 
 jobs:
-  recover-semantic-benchmark-summary:
+  written-pq-cheap-routing-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 45
     env:
-      GH_TOKEN: ${{ github.token }}
-      TARGET_RUN_ID: '34006240512'
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
-      - name: Recover benchmark summary from logs
-        shell: bash
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install boto3 pandas pyyaml openai
+      - name: Compile research runners
         run: |
-          set -euo pipefail
-          mkdir -p analysis/written_pq_semantic_benchmark_recovered logs
-          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${TARGET_RUN_ID}/logs" > logs.zip
-          unzip -q logs.zip -d logs
-          STEP_LOG="$(find logs -type f -name '*300-section semantic benchmark*' | head -n 1)"
-          cp "$STEP_LOG" analysis/written_pq_semantic_benchmark_recovered/benchmark_step.log
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p=Path('analysis/written_pq_semantic_benchmark_recovered/benchmark_step.log')
-          text=p.read_text(encoding='utf-8',errors='replace')
-          # Strip GitHub timestamp prefixes so the emitted pretty JSON becomes parseable.
-          clean='\n'.join(line.split('Z ',1)[1] if 'Z ' in line else line for line in text.splitlines())
-          decoder=json.JSONDecoder(); found=[]
-          for i,ch in enumerate(clean):
-              if ch!='{': continue
-              try:
-                  obj,end=decoder.raw_decode(clean[i:])
-              except Exception:
-                  continue
-              if isinstance(obj,dict) and 'pilot_version' in obj and 'attempted_sections' in obj:
-                  found.append(obj)
-          if not found:
-              raise SystemExit('No benchmark summary JSON found in logs')
-          summary=found[-1]
-          Path('analysis/written_pq_semantic_benchmark_recovered/summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
-          print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
-          PY
-      - name: Persist recovered benchmark evidence
+          python -m py_compile process/written_pq_semantic_pilot.py
+          python -m py_compile process/written_pq_semantic_pilot_compat.py
+          python -m py_compile process/written_pq_semantic_pilot_cheap.py
+          python -m py_compile process/written_pq_semantic_pilot_compare.py
+      - name: Run lower-token 25-section routing pilot
+        run: |
+          rm -rf analysis/written_pq_semantic_pilot_cheap
+          python process/written_pq_semantic_pilot_cheap.py \
+            --sample-size 300 \
+            --max-calls 25 \
+            --output-dir analysis/written_pq_semantic_pilot_cheap
+          python process/written_pq_semantic_pilot_compare.py
+      - name: Persist research artifacts
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/written_pq_semantic_benchmark_recovered
-          git commit -m "Recover 300-section semantic benchmark summary ${GITHUB_RUN_ID}" || true
+          git add analysis/written_pq_semantic_pilot_cheap || true
+          git commit -m "Capture lower-token Written PQ routing pilot ${GITHUB_RUN_ID}" || true
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin HEAD:"$GITHUB_REF_NAME"
