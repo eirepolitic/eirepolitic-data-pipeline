@@ -1,72 +1,42 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import io, json, os
+import io, json, os, re, unicodedata
 import boto3, pandas as pd
-
-BUCKET=os.getenv('S3_BUCKET','eirepolitic-data')
-s3=boto3.client('s3')
-
+BUCKET=os.getenv('S3_BUCKET','eirepolitic-data'); s3=boto3.client('s3')
 def read(key):
-    obj=s3.get_object(Bucket=BUCKET,Key=key)
-    return pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False)
-
-# Show available debate compatibility files so coverage assumptions are explicit.
-keys=[]
-for page in s3.get_paginator('list_objects_v2').paginate(Bucket=BUCKET,Prefix='processed/oireachtas_unified/compat/debates/'):
-    keys.extend([x['Key'] for x in page.get('Contents',[])])
-print('DEBATE_KEYS',json.dumps(keys,ensure_ascii=False))
-
+    o=s3.get_object(Bucket=BUCKET,Key=key); return pd.read_csv(io.BytesIO(o['Body'].read()),dtype=str,keep_default_na=False)
+def norm(s):
+    s=unicodedata.normalize('NFKD',str(s)); s=''.join(c for c in s if not unicodedata.combining(c)); s=s.lower(); s=re.sub(r'[^a-z0-9]+',' ',s); return ' '.join(s.split())
 sp=read('processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv')
-print('ROWS',len(sp)); print('COLS',json.dumps(list(sp.columns),ensure_ascii=False))
-
-# Resolve common source columns.
-def first(cands): return next((c for c in cands if c in sp.columns),None)
-date_col=first(['Debate Date','debate_date','date','speech_date'])
-member_col=first(['member_code','speaker_member_code','Speaker Member Code','memberCode'])
-name_col=first(['Speaker Name','speaker_name','member_name','full_name'])
-text_col=first(['Speech','speech','speech_text','Text','text','content'])
-print('RESOLVED',json.dumps({'date':date_col,'member':member_col,'name':name_col,'text':text_col},ensure_ascii=False))
-
-if date_col:
-    sp['_date']=pd.to_datetime(sp[date_col],errors='coerce')
-    print('DATE_RANGE',str(sp['_date'].min().date()),str(sp['_date'].max().date()))
-    print('ROWS_BY_YEAR',json.dumps(sp['_date'].dt.year.value_counts().sort_index().dropna().astype(int).to_dict()))
-    print('DEBATE_DAYS',int(sp['_date'].dt.date.nunique()))
-
-if text_col:
-    sp['_words']=sp[text_col].fillna('').astype(str).str.findall(r"\b\w+[\w’'\-]*\b").str.len()
-else:
-    raise SystemExit('No speech text column found')
-
-# Current Dáil starts 2024-12-18; use whatever covered dates exist from then onward.
-w=sp[sp['_date']>=pd.Timestamp('2024-12-18')].copy()
-if member_col:
-    w['_member']=w[member_col].astype(str).str.strip()
-else:
-    w['_member']=''
-if name_col: w['_name']=w[name_col].astype(str).str.strip()
-else: w['_name']=''
-w=w[w['_member']!=''].copy()
-print('CURRENT_DAIL_ROWS_WITH_MEMBER',len(w),'DATE_RANGE',str(w['_date'].min().date()),str(w['_date'].max().date()),'DAYS',int(w['_date'].dt.date.nunique()))
-
-agg=w.groupby(['_member','_name'],dropna=False).agg(
-    speech_count=('_words','size'), total_words=('_words','sum'), avg_words=('_words','mean'), median_words=('_words','median'), longest_speech_words=('_words','max'), speaking_days=('_date',lambda x:x.dt.date.nunique())
-).reset_index()
-
-def out(title,df):
-    print(title); print(json.dumps(df.to_dict('records'),ensure_ascii=False,indent=2))
-
-out('MOST_SPEECHES',agg.sort_values(['speech_count','total_words'],ascending=False).head(15))
-out('MOST_TOTAL_WORDS',agg.sort_values(['total_words','speech_count'],ascending=False).head(15))
-out('LONGEST_AVG_MIN20',agg[agg.speech_count>=20].sort_values(['avg_words','speech_count'],ascending=False).head(15))
-out('LONGEST_SINGLE_SPEECH',agg.sort_values(['longest_speech_words','total_words'],ascending=False).head(15))
-out('MOST_SPEAKING_DAYS',agg.sort_values(['speaking_days','speech_count'],ascending=False).head(15))
-out('FEWEST_SPEECHES_RAW',agg.sort_values(['speech_count','total_words'],ascending=True).head(20))
-
-# Coverage diagnostic for membership history, used to make a fair low-end comparison.
-try:
-    mem=read('processed/oireachtas_unified/latest/csv/silver_member_memberships.csv')
-    print('MEMBERSHIP_COLS',json.dumps(list(mem.columns),ensure_ascii=False))
-    print('MEMBERSHIP_ROWS',len(mem))
-except Exception as e:
-    print('MEMBERSHIP_LOAD_ERROR',type(e).__name__,str(e)[:200])
+cm=read('processed/oireachtas_unified/latest/csv/gold_current_members.csv')
+print('SPEECH_COLS',json.dumps(list(sp.columns),ensure_ascii=False)); print('CURRENT_MEMBER_COLS',json.dumps(list(cm.columns),ensure_ascii=False)); print('CURRENT_MEMBER_ROWS',len(cm))
+sp['_date']=pd.to_datetime(sp['Debate Date'],errors='coerce'); sp['_name_norm']=sp['Speaker Name'].map(norm); sp['_words']=sp['Speech Text'].fillna('').astype(str).str.findall(r"\b\w+[\w’'\-]*\b").str.len()
+name_col=next((c for c in ['full_name','member_name','name','display_name'] if c in cm.columns),None)
+code_col=next((c for c in ['member_code','memberCode','member_id'] if c in cm.columns),None)
+party_col=next((c for c in ['party_name','party','current_party'] if c in cm.columns),None)
+const_col=next((c for c in ['constituency_name','constituency','current_constituency'] if c in cm.columns),None)
+start_col=next((c for c in ['membership_start_date','start_date','date_from'] if c in cm.columns),None)
+print('RESOLVED_MEMBER_COLS',json.dumps({'name':name_col,'code':code_col,'party':party_col,'constituency':const_col,'start':start_col}))
+cm['_name_norm']=cm[name_col].map(norm)
+# only unique name matches
+uniq=cm.groupby('_name_norm').filter(lambda x: len(x)==1).drop_duplicates('_name_norm')
+keep=['_name_norm',name_col]+[c for c in [code_col,party_col,const_col,start_col] if c]
+w=sp[sp['_date']>=pd.Timestamp('2024-12-18')].merge(uniq[keep],on='_name_norm',how='inner')
+print('SESSION_RANGE',str(w['_date'].min().date()),str(w['_date'].max().date()),'DEBATE_DAYS',int(w['_date'].dt.date.nunique()),'TD_SPEECH_ROWS',len(w),'MATCHED_TDS',w[name_col].nunique())
+# Aggregate TD speech metrics.
+g=w.groupby([name_col]+[c for c in [party_col,const_col,start_col] if c],dropna=False).agg(speech_count=('_words','size'),total_words=('_words','sum'),avg_words=('_words','mean'),median_words=('_words','median'),longest_speech_words=('_words','max'),speaking_days=('_date',lambda x:x.dt.date.nunique())).reset_index()
+def emit(label,df): print(label,json.dumps(df.to_dict('records'),ensure_ascii=False))
+emit('MOST_SPEECHES',g.sort_values(['speech_count','total_words'],ascending=False).head(10))
+emit('MOST_TOTAL_WORDS',g.sort_values(['total_words','speech_count'],ascending=False).head(10))
+emit('LONGEST_AVG_MIN20',g[g.speech_count>=20].sort_values(['avg_words','speech_count'],ascending=False).head(10))
+emit('LONGEST_SINGLE_SPEECH',g.sort_values(['longest_speech_words','total_words'],ascending=False).head(10))
+emit('MOST_SPEAKING_DAYS',g.sort_values(['speaking_days','speech_count'],ascending=False).head(10))
+# Fair low-end comparison: members whose current membership began no later than the first covered debate day, if start date exists.
+if start_col:
+    g['_start']=pd.to_datetime(g[start_col],errors='coerce')
+    eligible=g[(g['_start'].isna())|(g['_start']<=w['_date'].min())].copy()
+else: eligible=g.copy()
+emit('FEWEST_SPEECHES_FULL_WINDOW',eligible.sort_values(['speech_count','total_words']).head(15))
+# Locate the actual longest speech rows for headline verification.
+mx=w['_words'].max(); cols=[c for c in [name_col,party_col,const_col,'Debate Date','Debate Section','Debate Section Name','Speech Order'] if c in w.columns]
+emit('LONGEST_SPEECH_ROWS',w[w['_words']==mx][cols+['_words']].head(10))
