@@ -162,12 +162,37 @@ def render_slide(index: int, spec: dict, output: Path) -> None:
     image.save(output)
 
 
+def render_contact_sheet(slides: list[Path], output: Path) -> None:
+    thumb_w = 360
+    thumb_h = 450
+    gap = 28
+    margin = 40
+    label_h = 34
+    cols = 3
+    rows = 2
+    sheet_w = margin * 2 + cols * thumb_w + (cols - 1) * gap
+    sheet_h = margin * 2 + rows * (thumb_h + label_h) + (rows - 1) * gap
+    sheet = Image.new("RGB", (sheet_w, sheet_h), "#e9e6df")
+    draw = ImageDraw.Draw(sheet)
+    for i, path in enumerate(slides):
+        with Image.open(path) as im:
+            thumb = im.convert("RGB").resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
+        row, col = divmod(i, cols)
+        x = margin + col * (thumb_w + gap)
+        y = margin + row * (thumb_h + label_h + gap)
+        sheet.paste(thumb, (x, y))
+        draw.text((x + thumb_w // 2, y + thumb_h + 8), f"Slide {i + 1}", font=font(20, True), fill="#1d1d1b", anchor="ma")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(output)
+
+
 def render_all(output_dir: Path) -> list[Path]:
     outputs = []
     for idx, spec in enumerate(SLIDES, start=1):
         path = output_dir / f"slide_{idx:02d}.png"
         render_slide(idx, spec, path)
         outputs.append(path)
+    render_contact_sheet(outputs, output_dir / "contact_sheet.png")
     return outputs
 
 
@@ -176,3 +201,4 @@ if __name__ == "__main__":
     rendered = render_all(out)
     for path in rendered:
         print(path)
+    print(out / "contact_sheet.png")
