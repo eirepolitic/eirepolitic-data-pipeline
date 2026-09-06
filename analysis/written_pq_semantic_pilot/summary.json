@@ -1,0 +1,45 @@
+{
+  "answer_characteristic_counts": {},
+  "answer_topic_counts": {},
+  "attempted_sections": 5,
+  "average_tokens_per_successful_section": null,
+  "combined_topic_counts": {},
+  "failed_sections": 5,
+  "failure_examples": [
+    {
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_109",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+    },
+    {
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_1367",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+    },
+    {
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_169",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+    },
+    {
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_180",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+    },
+    {
+      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-05/writtens/dbsect_359",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+    }
+  ],
+  "model": "gpt-5.6-luna",
+  "pilot_version": 1,
+  "production_changed": false,
+  "proposed_new_tag_rows": 0,
+  "question_intent_counts": {},
+  "question_topic_counts": {},
+  "research_only": true,
+  "successful_sections": 0,
+  "target_sections": 300,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0
+  },
+  "validation_error_sections": 0
+}
