@@ -19,6 +19,7 @@ jobs:
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
       GH_TOKEN: ${{ github.token }}
+      PYTHONPATH: .
     steps:
       - uses: actions/checkout@v4
         with:
