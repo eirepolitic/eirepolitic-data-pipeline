@@ -1,19 +1,128 @@
-Traceback (most recent call last):
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/build_bill_content_snapshot.py", line 145, in <module>
-    raise SystemExit(main())
-                     ^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/build_bill_content_snapshot.py", line 108, in main
-    frames = {name: _read_csv(s3, bucket=args.bucket, key=key) for name, key in TABLE_KEYS.items()}
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/build_bill_content_snapshot.py", line 52, in _read_csv
-    obj = s3.get_object(Bucket=bucket, Key=key)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/client.py", line 606, in _api_call
-    return self._make_api_call(operation_name, kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/context.py", line 123, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/client.py", line 1094, in _make_api_call
-    raise error_class(parsed_response, operation_name)
-botocore.errorfactory.NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+{
+  "generated_at_utc": "2026-09-06T18:36:10.279523+00:00",
+  "batch_size": 6,
+  "logical_source_keys": {
+    "bills": "processed/oireachtas_unified/latest/csv/silver_bills.csv",
+    "stages": "processed/oireachtas_unified/latest/csv/silver_bill_stages.csv",
+    "sponsors": "processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv",
+    "bridge": "processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv",
+    "speeches": "processed/oireachtas_unified/latest/csv/silver_speeches.csv",
+    "divisions": "processed/oireachtas_unified/latest/csv/silver_divisions.csv",
+    "member_votes": "processed/oireachtas_unified/latest/csv/silver_member_votes.csv"
+  },
+  "resolved_source_keys": {
+    "bills": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_bills/csv/silver_bills.csv",
+    "stages": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_bill_stages/csv/silver_bill_stages.csv",
+    "sponsors": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_bill_sponsors/csv/silver_bill_sponsors.csv",
+    "bridge": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv",
+    "speeches": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_speeches/csv/silver_speeches.csv",
+    "divisions": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_divisions/csv/silver_divisions.csv",
+    "member_votes": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_votes/csv/silver_member_votes.csv"
+  },
+  "production_changed": false,
+  "classifier_calls": 0,
+  "audit": {
+    "ready": true,
+    "checks": {
+      "nonempty": true,
+      "one_row_per_bill": true,
+      "batch_size_respected": true,
+      "state_key_populated": true,
+      "unsafe_support_inference_absent": true,
+      "cream_list_relabelled": true
+    },
+    "bill_count": 406,
+    "status_counts": {
+      "Current": 259,
+      "Lapsed": 68,
+      "Enacted": 56,
+      "Defeated": 21,
+      "Withdrawn": 2
+    },
+    "series_bucket_counts": {
+      "second_stage": 180,
+      "committee_stage": 93,
+      "enacted": 56,
+      "first_stage": 47,
+      "defeated": 21,
+      "report_stage": 5,
+      "fifth_stage": 4
+    },
+    "series_batch_count": 70,
+    "bills_with_certified_debate": 168,
+    "bills_with_recorded_vote_evidence": 72
+  }
+}
+
+SERIES_BATCHES
+series_bucket_label  series_batch_id   
+Committee Stage      committee_stage-01    6
+                     committee_stage-02    6
+                     committee_stage-03    6
+                     committee_stage-04    6
+                     committee_stage-05    6
+                     committee_stage-06    6
+                     committee_stage-07    6
+                     committee_stage-08    6
+                     committee_stage-09    6
+                     committee_stage-10    6
+                     committee_stage-11    6
+                     committee_stage-12    6
+                     committee_stage-13    6
+                     committee_stage-14    6
+                     committee_stage-15    6
+                     committee_stage-16    3
+Defeated             defeated-01           6
+                     defeated-02           6
+                     defeated-03           6
+                     defeated-04           3
+Enacted              enacted-01            6
+                     enacted-02            6
+                     enacted-03            6
+                     enacted-04            6
+                     enacted-05            6
+                     enacted-06            6
+                     enacted-07            6
+                     enacted-08            6
+                     enacted-09            6
+                     enacted-10            2
+Fifth Stage          fifth_stage-01        4
+First Stage          first_stage-01        6
+                     first_stage-02        6
+                     first_stage-03        6
+                     first_stage-04        6
+                     first_stage-05        6
+                     first_stage-06        6
+                     first_stage-07        6
+                     first_stage-08        5
+Report Stage         report_stage-01       5
+Second Stage         second_stage-01       6
+                     second_stage-02       6
+                     second_stage-03       6
+                     second_stage-04       6
+                     second_stage-05       6
+                     second_stage-06       6
+                     second_stage-07       6
+                     second_stage-08       6
+                     second_stage-09       6
+                     second_stage-10       6
+                     second_stage-11       6
+                     second_stage-12       6
+                     second_stage-13       6
+                     second_stage-14       6
+                     second_stage-15       6
+                     second_stage-16       6
+                     second_stage-17       6
+                     second_stage-18       6
+                     second_stage-19       6
+                     second_stage-20       6
+                     second_stage-21       6
+                     second_stage-22       6
+                     second_stage-23       6
+                     second_stage-24       6
+                     second_stage-25       6
+                     second_stage-26       6
+                     second_stage-27       6
+                     second_stage-28       6
+                     second_stage-29       6
+                     second_stage-30       6
