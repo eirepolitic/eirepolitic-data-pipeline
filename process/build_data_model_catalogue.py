@@ -30,6 +30,11 @@ CATEGORY_ORDER = [
     "Other curated data",
 ]
 
+DATASET_DESCRIPTIONS = {
+    "written_question_answer_sections": "One record per official Written Parliamentary Question answer section, preserving the answer text and source-document evidence.",
+    "written_question_answer_bridge": "One record per Parliamentary Question linking the question to its observed official Written Answer section and XML match status.",
+}
+
 RELATIONSHIPS: dict[str, list[str]] = {
     "silver_houses": ["house_uri → silver_constituencies.house_uri", "house_uri / house_no → silver_member_memberships", "house_uri / house_no → silver_debate_records and silver_divisions"],
     "silver_constituencies": ["constituency_uri → silver_member_constituencies.constituency_uri", "constituency_name is carried onto historical member-vote and gold constituency outputs"],
@@ -46,7 +51,9 @@ RELATIONSHIPS: dict[str, list[str]] = {
     "silver_divisions": ["division_id → silver_division_tallies and silver_member_votes", "debate_id / debate_section_id → debate context where available", "division_id → division_context and vote metric foundations"],
     "silver_division_tallies": ["division_id → silver_divisions.division_id"],
     "silver_member_votes": ["division_id → silver_divisions.division_id", "member_code → silver_members.member_code", "party_name_at_vote and constituency_name_at_vote are time-aware historical attributes"],
-    "silver_questions": ["asked_by_member_code → silver_members.member_code", "debate_section_id → silver_debate_sections.debate_section_id when a transcript section is linked", "oral questions feed oral_question_sections and related participant/context foundations"],
+    "silver_questions": ["asked_by_member_code → silver_members.member_code", "debate_section_id → silver_debate_sections.debate_section_id when a transcript section is linked", "oral questions feed oral_question_sections and related participant/context foundations", "question_id → written_question_answer_bridge.question_id for written-answer linkage where available"],
+    "written_question_answer_bridge": ["question_id → silver_questions.question_id", "debate_section_id → written_question_answer_sections.debate_section_id", "question_xml_match_status preserves whether the XML question identifier was verified rather than hiding uncertain matches"],
+    "written_question_answer_sections": ["debate_section_id ← written_question_answer_bridge.debate_section_id", "one answer section can relate to multiple questions when the official source groups answers"],
     "silver_bills": ["bill_id → all silver_bill_* child/bridge tables", "bill_id → bill_debate_sections for certified section-level legislation context"],
     "silver_bill_versions": ["bill_id → silver_bills.bill_id", "source_file_id_* → silver_source_files.source_file_id where downloaded"],
     "silver_bill_stages": ["bill_id → silver_bills.bill_id"],
@@ -81,6 +88,8 @@ TRANSFORM_NOTES: dict[str, str] = {
     "silver_debate_sections": "Parsed from Oireachtas debate metadata/XML into deterministic section identifiers and parent/ordering structure.",
     "silver_member_votes": "Exploded from division membership payloads to one member-vote row; party and constituency are recorded as historical attributes at vote time.",
     "silver_questions": "Normalizes Oireachtas question records and source-document references; oral-question transcript participation is modelled separately and must not be read as question-taking attribution.",
+    "written_question_answer_sections": "Structurally extracts official Akoma Ntoso Written Answers XML at answer-section grain, preserving grouped answers, referrals/direct replies, embedded-table counts, source URLs and document/section hashes. No AI classification is used.",
+    "written_question_answer_bridge": "Builds a deterministic question-to-answer-section relationship and keeps XML question-ID verification status in a separate field so uncertain source matches remain visible.",
     "bill_debate_sections": "Certified exact Bill-to-section bridge. Debate-wide co-occurrence, conflicting source records and multi-Bill section anomalies are excluded.",
     "speech_context": "Assigns exactly one top-level context per speech using deterministic precedence across certified question, legislation and heading evidence; `other` is the explicit fallback.",
     "division_context": "Assigns one deterministic context per division using certified Bill relationships and section-level speech context without multiplying vote rows.",
@@ -170,6 +179,8 @@ def _source_text(name: str, meta: dict[str, Any]) -> str:
     if name in {"polls", "polling_indicator"}:
         source_file = "data_polls.csv" if name == "polls" else "data_pollingindicator.csv"
         return f"Irish Polling Indicator (IPI) GitHub dataset, `{source_file}`. Reuse/licence status is recorded by the ingestion as unconfirmed."
+    if name in {"written_question_answer_sections", "written_question_answer_bridge"}:
+        return "Official Houses of the Oireachtas Akoma Ntoso Written Answers XML. Historical/incremental extraction may use the daily main.xml while preserving each section's official source URL."
     if meta.get("kind") == "metric":
         return "Derived inside the EirePolitic political-metrics pipeline from the promoted Oireachtas batch; exact source semantics are defined in `configs/political_metrics/materialization.yml`."
     endpoint = meta.get("endpoint")
@@ -208,6 +219,10 @@ def _notes(name: str, meta: dict[str, Any], rows: int) -> str:
         notes.append("A missing vote row must not be interpreted as an abstention; eligibility/denominator logic lives in the metric foundations.")
     if name == "silver_questions":
         notes.append("Question records and transcript speech interventions are different grains.")
+    if name == "written_question_answer_sections":
+        notes.append("Answers are not copied onto every question row. Grouped answers, referrals, missing replies and embedded tables remain explicit source features.")
+    if name == "written_question_answer_bridge":
+        notes.append("The bridge preserves XML match status separately from the section relationship; do not treat every relationship as an independently verified XML question identifier.")
     if name in {"polls", "polling_indicator"}:
         notes.append("This is a separate polling production family, not part of the atomic Oireachtas batch pointer.")
     status = meta.get("status")
@@ -237,6 +252,9 @@ def _impl_links(name: str, meta: dict[str, Any]) -> str:
     links: list[tuple[str, str]] = []
     if name in {"polls", "polling_indicator"}:
         links.append(("polling ingestion", f"{GITHUB_ROOT}/extract/polling/ipi.py"))
+    elif name in {"written_question_answer_sections", "written_question_answer_bridge"}:
+        links.append(("Written PQ answer contract", f"{GITHUB_ROOT}/configs/political_metrics/written_question_answers.yml"))
+        links.append(("Written PQ deployment", f"{GITHUB_ROOT}/.github/workflows/written_pq_answer_foundation_deploy.yml"))
     elif meta.get("kind") == "metric":
         links.append(("metric contract", f"{GITHUB_ROOT}/configs/political_metrics/materialization.yml"))
         links.append(("metric pipeline", f"{GITHUB_ROOT}/political_metrics"))
@@ -282,9 +300,11 @@ def build(output: Path) -> dict[str, Any]:
     s3 = boto3.client("s3", region_name=REGION)
     registry = _load_yaml("configs/oireachtas/tables.yml").get("tables", {})
     materialization = _load_yaml("configs/political_metrics/materialization.yml")
+    written_answers = _load_yaml("configs/political_metrics/written_question_answers.yml")
     metric_meta = {}
     metric_meta.update(materialization.get("foundation_datasets", {}))
     metric_meta.update(materialization.get("result_datasets", {}))
+    metric_meta.update(written_answers.get("foundation_datasets", {}))
 
     batch_id, discovered = _discover(s3)
     production: list[dict[str, Any]] = []
@@ -347,7 +367,7 @@ def build(output: Path) -> dict[str, Any]:
         sample = meta["sample"]
         anchor = name.replace("_", "-")
         grain = ", ".join(meta.get("primary_key") or []) or "See columns / implementation"
-        desc = str(meta.get("description") or "Current promoted EirePolitic dataset.")
+        desc = str(meta.get("description") or DATASET_DESCRIPTIONS.get(name) or "Current promoted EirePolitic dataset.")
         index_rows.append(
             f'<tr><td><a href="#{anchor}"><code>{html.escape(name)}</code></a></td><td>{html.escape(_category(name))}</td><td>{html.escape(desc)}</td><td><code>{html.escape(grain)}</code></td><td>{len(frame):,}</td></tr>'
         )
