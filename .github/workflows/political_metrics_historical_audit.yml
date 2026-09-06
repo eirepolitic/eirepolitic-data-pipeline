@@ -35,6 +35,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/tmp_instagram_research_output.txt
+          git add diagnostics/tmp_instagram_research_output.txt diagnostics/pointer_member_check.json
           git commit -m "analysis: persist Instagram research output" || exit 0
           git push origin HEAD:analysis/instagram-candidates-all-data-20260903
