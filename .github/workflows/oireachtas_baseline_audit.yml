@@ -8,7 +8,7 @@ permissions:
   actions: read
 
 jobs:
-  diagnose-semantic-benchmark:
+  recover-semantic-benchmark-summary:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -16,22 +16,42 @@ jobs:
       TARGET_RUN_ID: '34006240512'
     steps:
       - uses: actions/checkout@v4
-      - name: Download failed benchmark logs
+      - name: Recover benchmark summary from logs
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p analysis/semantic_benchmark_diagnostic logs
+          mkdir -p analysis/written_pq_semantic_benchmark_recovered logs
           gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${TARGET_RUN_ID}/logs" > logs.zip
           unzip -q logs.zip -d logs
-          grep -RniE "Traceback|Error|Exception|failed|failure|completed.*target|validation|rate.limit|timeout|429|500|502|503|504" logs \
-            > analysis/semantic_benchmark_diagnostic/error_lines.txt || true
-          tail -n 250 "$(find logs -type f | sort | tail -n 1)" \
-            > analysis/semantic_benchmark_diagnostic/log_tail.txt || true
-      - name: Persist diagnostic
+          STEP_LOG="$(find logs -type f -name '*300-section semantic benchmark*' | head -n 1)"
+          cp "$STEP_LOG" analysis/written_pq_semantic_benchmark_recovered/benchmark_step.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('analysis/written_pq_semantic_benchmark_recovered/benchmark_step.log')
+          text=p.read_text(encoding='utf-8',errors='replace')
+          # Strip GitHub timestamp prefixes so the emitted pretty JSON becomes parseable.
+          clean='\n'.join(line.split('Z ',1)[1] if 'Z ' in line else line for line in text.splitlines())
+          decoder=json.JSONDecoder(); found=[]
+          for i,ch in enumerate(clean):
+              if ch!='{': continue
+              try:
+                  obj,end=decoder.raw_decode(clean[i:])
+              except Exception:
+                  continue
+              if isinstance(obj,dict) and 'pilot_version' in obj and 'attempted_sections' in obj:
+                  found.append(obj)
+          if not found:
+              raise SystemExit('No benchmark summary JSON found in logs')
+          summary=found[-1]
+          Path('analysis/written_pq_semantic_benchmark_recovered/summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True)+'\n')
+          print(json.dumps(summary,indent=2,ensure_ascii=False,sort_keys=True))
+          PY
+      - name: Persist recovered benchmark evidence
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/semantic_benchmark_diagnostic
-          git commit -m "Capture semantic benchmark failure diagnostic ${GITHUB_RUN_ID}" || true
+          git add analysis/written_pq_semantic_benchmark_recovered
+          git commit -m "Recover 300-section semantic benchmark summary ${GITHUB_RUN_ID}" || true
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin HEAD:"$GITHUB_REF_NAME"
