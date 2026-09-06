@@ -2,13 +2,19 @@ name: Data model documentation
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'process/build_data_model_catalogue.py'
+      - 'configs/oireachtas/tables.yml'
+      - 'configs/political_metrics/**'
+      - '.github/workflows/data_model_documentation.yml'
 
 permissions:
   contents: write
 
 concurrency:
-  group: data-model-documentation
-  cancel-in-progress: false
+  group: data-model-documentation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -46,6 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import html
           import json
           from pathlib import Path
 
@@ -61,7 +68,7 @@ jobs:
               assert dataset['sample_rows'] == expected, f'{name}: expected {expected} sample rows, got {dataset["sample_rows"]}'
               assert f'id="{name.replace("_", "-")}"' in page, f'{name}: missing section anchor'
               for column in dataset['columns']:
-                  assert f'>{column}</th>' in page or f'>{column.replace("&", "&amp;")}</th>' in page, f'{name}: missing sample column {column}'
+                  assert f'>{html.escape(column)}</th>' in page, f'{name}: missing sample column {column}'
           assert 'No elections dataset was discovered' in page
           print(json.dumps({
               'batch_id': manifest['batch_id'],
@@ -71,6 +78,7 @@ jobs:
           PY
 
       - name: Publish browser documentation preview
+        if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
