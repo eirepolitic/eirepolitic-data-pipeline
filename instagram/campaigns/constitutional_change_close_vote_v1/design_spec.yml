@@ -1,0 +1,89 @@
+campaign_id: constitutional_change_close_vote_v1
+format:
+  platform: instagram
+  type: carousel
+  slides: 6
+  aspect_ratio: "4:5"
+  target_size_px: "1080x1350"
+
+editorial:
+  tone: neutral_descriptive
+  primary_claim: "Planning for Constitutional Change Bill 2026 was defeated 69 Tá to 79 Níl at Second Stage on 8 July 2026."
+  mandatory_correction: "This was not a direct vote on Irish unity."
+  prohibited:
+    - "pro-unity versus anti-unity party map"
+    - "exact party vote totals"
+    - "claim that 69 TDs support unity and 79 oppose it"
+    - "claim that the Dáil voted against reunification"
+
+visual_system:
+  palette: eirepolitic_dark
+  style: editorial_data_explainer
+  density: low_to_medium
+  typography: large_headline_short_body
+  photography_required: false
+  maps_required: false
+  party_branding_required: false
+
+slides:
+  - id: 1
+    purpose: hook
+    layout: vote_result_cover
+    dominant_elements:
+      - headline
+      - "69 Tá"
+      - "79 Níl"
+      - "10-vote margin"
+    notes: "Do not use party colours. Treat Tá and Níl as vote categories, not political camps."
+
+  - id: 2
+    purpose: proposition
+    layout: title_plus_explainer
+    dominant_elements:
+      - "Planning for Constitutional Change Bill 2026"
+      - "Second Stage"
+      - "Not a direct vote on Irish unity"
+
+  - id: 3
+    purpose: mechanism
+    layout: vertical_process_flow
+    dominant_elements:
+      - "Government Green Paper"
+      - "consultation"
+      - "all-island Citizens' Assembly"
+      - "Oireachtas reporting"
+
+  - id: 4
+    purpose: supporters_case
+    layout: argument_card
+    dominant_elements:
+      - "Prepare before a referendum is imminent"
+      - "services / economy / governance / constitutional arrangements"
+    attribution: "Sinn Féin / Mary Lou McDonald"
+
+  - id: 5
+    purpose: government_case
+    layout: argument_card
+    dominant_elements:
+      - "Mechanism and timetable were the objection"
+      - "Shared Island / reconciliation / Good Friday Agreement"
+    attribution: "Government / Taoiseach Micheál Martin"
+
+  - id: 6
+    purpose: interpretation_guardrail
+    layout: result_plus_do_not_infer
+    dominant_elements:
+      - "69 Tá · 79 Níl"
+      - "Margin: 10"
+      - "Rejected this statutory planning process"
+      - "Not a direct measure of support for unity"
+
+sources:
+  frozen_record: instagram/campaigns/constitutional_change_close_vote_v1/source_record.md
+  research_case: docs/research/close_divisions/2026-07-08_constitutional_change.md
+  copy: instagram/campaigns/constitutional_change_close_vote_v1/carousel_copy.md
+
+rendering:
+  status: not_started
+  approval_required_before_render: true
+  publishing_enabled: false
