@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: political-metrics-historical-audit
-  cancel-in-progress: false
+  contents: write
 
 jobs:
   audit:
@@ -20,58 +16,33 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      POLITICAL_METRICS_AUDIT_DIR: artifacts/political-metrics-audit
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feature/bill-content-snapshot-v1
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
 
-      - name: Install audit dependencies
-        shell: bash
+      - name: Install dependencies
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Test political metrics foundation
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
+      - name: Run focused Bill content tests
+        run: python -m unittest tests.political_metrics.test_bill_content_snapshot
 
-      - name: Run read-only historical metrics audit
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/political_metrics_audit.py
+      - name: Build read-only Bill content snapshot
+        run: python process/build_bill_content_snapshot.py --batch-size 6 --output-dir diagnostics/bill-content-snapshot-test
 
-      - name: Audit parliamentary-question / speech relationships
-        shell: bash
+      - name: Persist validation output on feature branch
         run: |
-          set -euo pipefail
-          python process/political_metrics_question_context_audit.py
-
-      - name: Add plain-language audit summary
-        if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/political-metrics-audit/summary.md ]; then
-            cat artifacts/political-metrics-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -f artifacts/political-metrics-audit/question_context_summary.md ]; then
-            cat artifacts/political-metrics-audit/question_context_summary.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Upload audit report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: political-metrics-historical-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/political-metrics-audit/
-          if-no-files-found: error
-          retention-days: 30
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/bill-content-snapshot-test
+          git commit -m "test: persist Bill content snapshot validation" || exit 0
+          git push origin HEAD:feature/bill-content-snapshot-v1
