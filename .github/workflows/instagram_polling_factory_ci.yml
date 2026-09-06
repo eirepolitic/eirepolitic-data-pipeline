@@ -1,0 +1,119 @@
+name: Instagram polling factory CI
+
+on:
+  pull_request:
+    paths:
+      - 'instagram/projects/ipi_polling_factory_v1/**'
+      - '.github/workflows/instagram_polling_factory_*.yml'
+  push:
+    branches:
+      - 'feature/promote-instagram-factory-polling-*'
+    paths:
+      - 'instagram/projects/ipi_polling_factory_v1/**'
+      - '.github/workflows/instagram_polling_factory_*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install factory dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install pandas pyyaml pillow boto3 matplotlib
+
+      - name: Check out exact approved July factory
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/instagram-monthly-post-framework
+          git cat-file -e 386b933^{commit}
+          git worktree add /tmp/approved-instagram-factory 386b933
+          test "$(git -C /tmp/approved-instagram-factory rev-parse --short=7 HEAD)" = "386b933"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+
+      - name: Inject polling project into approved factory
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R instagram/projects/ipi_polling_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
+          cp instagram/campaigns/ipi_polling_snapshot_v1/fixtures/polling_indicator_fixture.csv /tmp/approved-instagram-factory/ipi_polling_fixture.csv
+          cd /tmp/approved-instagram-factory
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          path=Path('instagram/projects/ipi_polling_factory_v1/project.yml')
+          data=yaml.safe_load(path.read_text(encoding='utf-8'))
+          data['source']['indicator_csv']='ipi_polling_fixture.csv'
+          data['render']['max_items']=5
+          data['render']['trend_party_limit']=3
+          path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding='utf-8')
+          PY
+
+      - name: Run exact July recurring factory with polling adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/approved-instagram-factory
+          python -m instagram.factory.recurring \
+            --project-id ipi_polling_factory_v1 \
+            --period latest \
+            --output-root "$GITHUB_WORKSPACE/generated_factory_fixture"
+
+      - name: Validate factory output
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE/generated_factory_fixture/period=2026-07-31"
+          test -s "$ROOT/slides/01_latest_support.png"
+          test -s "$ROOT/slides/02_change_since_previous_model.png"
+          test -s "$ROOT/slides/03_recent_trend.png"
+          test -s "$ROOT/contact_sheets/three_slide_overview.jpg"
+          test -s "$ROOT/metadata/manifest.json"
+          test -s "$ROOT/ipi_polling_factory_review.zip"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('generated_factory_fixture/period=2026-07-31')
+          manifest=json.loads((root/'metadata/manifest.json').read_text(encoding='utf-8'))
+          assert manifest['factory_reference_commit']=='386b933'
+          assert manifest['factory_reference_workflow_run']==33894430571
+          assert manifest['review_state']=='pending_human_review'
+          assert manifest['publication_enabled'] is False
+          assert manifest['latest_model_date']=='2026-07-31'
+          assert manifest['previous_model_date']=='2026-07-30'
+          for path in manifest['slides']:
+              with Image.open(path) as image:
+                  assert image.size==(1080,1350)
+          latest_visual=json.loads((root/'metadata/01_latest_support_visual_manifest.json').read_text(encoding='utf-8'))
+          assert latest_visual['success'] is True
+          assert not latest_visual.get('warnings')
+          print('Exact July factory polling fixture validated.')
+          PY
+
+      - name: Upload fixture contact sheet
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipi-polling-factory-fixture-${{ github.run_id }}
+          path: generated_factory_fixture/
+          if-no-files-found: error
+          retention-days: 7
