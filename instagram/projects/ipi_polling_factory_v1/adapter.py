@@ -17,20 +17,19 @@ from instagram.visuals.renderers import horizontal_bar
 from instagram.projects.ipi_polling_factory_v1.renderers import render_diverging, render_methodology, render_trend
 
 PROJECT_ID = "ipi_polling_factory_v1"
-PARTY_LABELS = {
-    "FF": "Fianna Fáil",
-    "FG": "Fine Gael",
-    "SF": "Sinn Féin",
-    "LAB": "Labour",
-    "GP": "Green Party",
-    "SD": "Social Democrats",
-    "SPBP": "PBP-Solidarity",
-    "AU": "Aontú",
-    "II": "Independent Ireland",
-    "OTH": "Other",
-}
-PARTY_CODES = ["SF", "FF", "FG", "LAB", "SD", "GP", "SPBP", "II", "AU", "OTH"]
-POLL_METADATA_COLUMNS = ("date", "date_start", "date_end", "pollster", "sample_size")
+RAW_PARTIES = [
+    ("SF", "Sinn Féin"),
+    ("FG", "Fine Gael"),
+    ("FF", "Fianna Fáil"),
+    ("LAB", "Labour"),
+    ("SD", "Social Democrats"),
+    ("GP", "Green Party"),
+    ("SPBP", "PBP-Solidarity"),
+    ("AU", "Aontú"),
+    ("II", "Independent Ireland"),
+    ("IND_OTH_IT", "Independents / Other"),
+]
+REQUIRED_POLL_COLUMNS = ("date", "date_start", "date_end", "pollster", "sample_size")
 
 
 def _read_csv(uri: str) -> pd.DataFrame:
@@ -45,24 +44,15 @@ def _read_csv(uri: str) -> pd.DataFrame:
     return pd.read_csv(io.BytesIO(obj["Body"].read()))
 
 
-def _prepare(df: pd.DataFrame) -> pd.DataFrame:
-    if df.empty:
-        raise RuntimeError("IPI indicator table is empty")
-    if "date" not in df.columns or "cycle" not in df.columns:
-        raise RuntimeError("IPI indicator table must contain date and cycle")
-    result = df.copy()
-    result["_date"] = pd.to_datetime(result["date"], format="%Y-%m-%d", errors="coerce")
-    if result["_date"].isna().any():
-        raise RuntimeError("IPI indicator table contains invalid dates")
-    return result
-
-
 def _prepare_polls(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         raise RuntimeError("IPI raw polls table is empty")
-    missing = [column for column in POLL_METADATA_COLUMNS if column not in df.columns]
+    missing = [column for column in REQUIRED_POLL_COLUMNS if column not in df.columns]
     if missing:
-        raise RuntimeError(f"IPI raw polls table is missing metadata columns: {missing}")
+        raise RuntimeError(f"IPI raw polls table is missing required columns: {missing}")
+    if not any(code in df.columns for code, _ in RAW_PARTIES):
+        raise RuntimeError("IPI raw polls table contains no recognised party columns")
+
     result = df.copy()
     for source_col, parsed_col in (("date", "_date"), ("date_start", "_date_start"), ("date_end", "_date_end")):
         result[parsed_col] = pd.to_datetime(result[source_col], format="%Y-%m-%d", errors="coerce")
@@ -71,78 +61,75 @@ def _prepare_polls(df: pd.DataFrame) -> pd.DataFrame:
     result["_sample_size"] = pd.to_numeric(result["sample_size"], errors="coerce")
     if result["_sample_size"].isna().any() or (result["_sample_size"] <= 0).any():
         raise RuntimeError("IPI raw polls table contains invalid sample_size values")
+    result["pollster"] = result["pollster"].astype(str).str.strip()
     return result
 
 
-def _latest_and_previous(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
-    latest_date = df["_date"].max()
-    latest_rows = df.loc[df["_date"].eq(latest_date)]
-    if len(latest_rows) != 1:
-        raise RuntimeError(f"Expected one latest IPI row on {latest_date.date()}, found {len(latest_rows)}")
-    latest = latest_rows.iloc[0]
-    cycle = str(latest["cycle"])
-    earlier = df.loc[df["cycle"].astype(str).eq(cycle) & df["_date"].lt(latest_date)]
-    if earlier.empty:
-        raise RuntimeError(f"No previous IPI model date exists within cycle {cycle}")
-    previous_date = earlier["_date"].max()
-    previous_rows = earlier.loc[earlier["_date"].eq(previous_date)]
-    if len(previous_rows) != 1:
-        raise RuntimeError(f"Expected one previous IPI row on {previous_date.date()}, found {len(previous_rows)}")
-    return latest, previous_rows.iloc[0]
-
-
-def _latest_poll_metadata(polls: pd.DataFrame, latest_model_date: pd.Timestamp) -> dict[str, Any]:
-    eligible = polls.loc[polls["_date"].le(latest_model_date)].copy()
-    if eligible.empty:
-        raise RuntimeError(f"No raw poll is available on or before model date {latest_model_date.date()}")
-    latest_poll_date = eligible["_date"].max()
-    latest_records = eligible.loc[eligible["_date"].eq(latest_poll_date)].copy()
-    sort_columns = [column for column in ("source_row_number", "pollster") if column in latest_records.columns]
-    if sort_columns:
-        latest_records = latest_records.sort_values(sort_columns)
-    row = latest_records.iloc[-1]
-    quality_flags = str(row.get("quality_flags") or "").strip()
+def _poll_metadata(row: pd.Series) -> dict[str, Any]:
     return {
         "publication_date": str(row["date"]),
         "fieldwork_start": str(row["date_start"]),
         "fieldwork_end": str(row["date_end"]),
         "pollster": str(row["pollster"]),
         "sample_size": int(float(row["_sample_size"])),
-        "same_publication_date_count": int(len(latest_records)),
-        "quality_flags": quality_flags,
+        "quality_flags": str(row.get("quality_flags") or "").strip(),
     }
 
 
+def _latest_poll(polls: pd.DataFrame) -> pd.Series:
+    latest_date = polls["_date"].max()
+    rows = polls.loc[polls["_date"].eq(latest_date)].copy()
+    sort_columns = [column for column in ("source_row_number", "pollster") if column in rows.columns]
+    if sort_columns:
+        rows = rows.sort_values(sort_columns)
+    return rows.iloc[-1]
+
+
+def _select_previous_same_pollster(
+    polls: pd.DataFrame,
+    latest: pd.Series,
+    *,
+    target_days: int,
+    minimum_days: int,
+    maximum_days: int,
+) -> tuple[pd.Series, int, str]:
+    pollster = str(latest["pollster"])
+    latest_date = latest["_date"]
+    earlier = polls.loc[polls["pollster"].eq(pollster) & polls["_date"].lt(latest_date)].copy()
+    if earlier.empty:
+        raise RuntimeError(f"No previous poll is available from {pollster}")
+    earlier["_days_before"] = (latest_date - earlier["_date"]).dt.days
+    preferred = earlier.loc[earlier["_days_before"].between(minimum_days, maximum_days, inclusive="both")].copy()
+    if not preferred.empty:
+        preferred["_distance_from_target"] = (preferred["_days_before"] - target_days).abs()
+        preferred = preferred.sort_values(["_distance_from_target", "_date"], ascending=[True, False])
+        row = preferred.iloc[0]
+        return row, int(row["_days_before"]), "target_window"
+    earlier = earlier.sort_values("_date", ascending=False)
+    row = earlier.iloc[0]
+    return row, int(row["_days_before"]), "fallback_previous_wave"
+
+
 def _numeric(row: pd.Series, key: str) -> float | None:
+    if key not in row.index:
+        return None
     value = pd.to_numeric(pd.Series([row.get(key)]), errors="coerce").iloc[0]
     return None if pd.isna(value) else float(value)
 
 
 def _latest_rows(latest: pd.Series, limit: int) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for code in PARTY_CODES:
+    for code, label in RAW_PARTIES:
         value = _numeric(latest, code)
         if value is None:
             continue
-        lower = _numeric(latest, f"{code}_lo")
-        upper = _numeric(latest, f"{code}_hi")
-        if lower is None or upper is None:
-            raise RuntimeError(f"Missing uncertainty bounds for {code} on latest model date")
-        rows.append(
-            {
-                "party_code": code,
-                "label": PARTY_LABELS.get(code, code),
-                "value": round(value * 100, 1),
-                "low": round(lower * 100, 1),
-                "high": round(upper * 100, 1),
-            }
-        )
+        rows.append({"party_code": code, "label": label, "value": round(value, 1)})
     return sorted(rows, key=lambda item: item["value"], reverse=True)[:limit]
 
 
 def _change_rows(latest: pd.Series, previous: pd.Series, limit: int) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for code in PARTY_CODES:
+    for code, label in RAW_PARTIES:
         current = _numeric(latest, code)
         prior = _numeric(previous, code)
         if current is None or prior is None:
@@ -150,62 +137,69 @@ def _change_rows(latest: pd.Series, previous: pd.Series, limit: int) -> list[dic
         rows.append(
             {
                 "party_code": code,
-                "label": PARTY_LABELS.get(code, code),
-                "value": round((current - prior) * 100, 2),
-                "current_pct": round(current * 100, 2),
-                "previous_pct": round(prior * 100, 2),
+                "label": label,
+                "value": round(current - prior, 1),
+                "current_pct": round(current, 1),
+                "previous_pct": round(prior, 1),
             }
         )
     return sorted(rows, key=lambda item: item["value"], reverse=True)[:limit]
 
 
-def _trend_series(df: pd.DataFrame, latest: pd.Series, *, days: int, party_limit: int) -> list[dict[str, Any]]:
-    latest_date = latest["_date"]
-    cycle = str(latest["cycle"])
-    start = latest_date - pd.Timedelta(days=max(1, days))
-    window = df.loc[
-        df["cycle"].astype(str).eq(cycle)
-        & df["_date"].between(start, latest_date, inclusive="both")
+def _same_pollster_trend(
+    polls: pd.DataFrame,
+    latest: pd.Series,
+    previous: pd.Series,
+    *,
+    party_limit: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    pollster = str(latest["pollster"])
+    start_date = previous["_date"]
+    end_date = latest["_date"]
+    window = polls.loc[
+        polls["pollster"].eq(pollster)
+        & polls["_date"].between(start_date, end_date, inclusive="both")
     ].sort_values("_date")
-    ranked: list[tuple[str, float]] = []
-    for code in PARTY_CODES:
+    if len(window) < 2:
+        raise RuntimeError(f"Need at least two {pollster} polls to draw the raw-poll trend")
+
+    ranked: list[tuple[str, str, float]] = []
+    for code, label in RAW_PARTIES:
         value = _numeric(latest, code)
         if value is not None:
-            ranked.append((code, value))
-    codes = [code for code, _ in sorted(ranked, key=lambda pair: pair[1], reverse=True)[:party_limit]]
+            ranked.append((code, label, value))
+    selected = sorted(ranked, key=lambda item: item[2], reverse=True)[:party_limit]
+
     series: list[dict[str, Any]] = []
-    for code in codes:
+    for code, label, _ in selected:
         points = []
         for _, row in window.iterrows():
             value = _numeric(row, code)
             if value is not None:
-                points.append({"date": str(row["date"]), "value": round(value * 100, 2)})
-        if points:
-            series.append({"party_code": code, "label": PARTY_LABELS.get(code, code), "points": points})
-    return series
+                points.append({"date": str(row["date"]), "value": round(value, 1)})
+        if len(points) >= 2:
+            series.append({"party_code": code, "label": label, "points": points})
+
+    waves = [_poll_metadata(row) for _, row in window.iterrows()]
+    if not series:
+        raise RuntimeError(f"No comparable party series are available across the selected {pollster} polls")
+    return series, waves
 
 
-def _visual_template(
-    project: dict[str, Any],
-    *,
-    value_format: str = "percent",
-    legend_variant: str | None = None,
-) -> dict[str, Any]:
+def _visual_template(project: dict[str, Any], *, value_format: str = "percent") -> dict[str, Any]:
     render_cfg = project.get("render") or {}
     palette = render_cfg.get("palette") or {}
-    params = {
-        "width": 1032,
-        "height": 1210,
-        "max_items": int(render_cfg.get("max_items", 8)),
-        "sort": "descending",
-        "value_format": value_format,
-        "min_visual_rows": 4,
-    }
-    if legend_variant:
-        params["legend_variant"] = legend_variant
     return {
         "template_id": "horizontal_bar_draft_v1",
-        "params": params,
+        "params": {
+            "width": 1032,
+            "height": 1210,
+            "max_items": int(render_cfg.get("max_items", 8)),
+            "sort": "descending",
+            "value_format": value_format,
+            "min_visual_rows": 4,
+            "legend_variant": str(render_cfg.get("trend_legend_variant") or "single_row"),
+        },
         "palette": {
             "background": str(palette.get("background") or "#0f2f24"),
             "panel": str(palette.get("background") or "#0f2f24"),
@@ -235,34 +229,31 @@ def _assert_slide(path: Path) -> None:
             raise RuntimeError(f"Unexpected slide dimensions for {path}: {image.size}")
 
 
-def _methodology_entries(poll: dict[str, Any]) -> list[tuple[str, str]]:
-    publication_note = (
-        f"{poll['pollster']}, published {poll['publication_date']}; fieldwork {poll['fieldwork_start']} to "
-        f"{poll['fieldwork_end']}; sample size {poll['sample_size']:,}."
-    )
-    if poll["same_publication_date_count"] > 1:
-        publication_note = (
-            f"The feed contains {poll['same_publication_date_count']} polls published {poll['publication_date']}. "
-            f"One is {poll['pollster']}; fieldwork {poll['fieldwork_start']} to {poll['fieldwork_end']}; "
-            f"sample size {poll['sample_size']:,}."
-        )
+def _pretty_date(value: str) -> str:
+    return pd.Timestamp(value).strftime("%-d %b %Y")
+
+
+def _methodology_entries(latest: dict[str, Any], previous: dict[str, Any], comparison_days: int, wave_count: int) -> list[tuple[str, str]]:
     return [
         (
-            "What this is",
-            "The Irish Polling Indicator combines available Irish Dáil opinion polls into daily aggregated party-support estimates with 95% credible intervals.",
-        ),
-        ("Latest poll in the feed", publication_note),
-        (
-            "How the model helps",
-            "It accounts for sampling error and persistent differences between polling companies, often called house effects, while allowing support to change over time.",
+            "What these numbers are",
+            "Slides 1–3 use published voting-intention results from one polling company only. There is no IPI model, smoothing or daily estimate in this version.",
         ),
         (
-            "What the feed does not tell us",
-            "Our raw IPI feed does not include respondent geography or the full sampling and weighting design. Those details should be checked in the original pollster release.",
+            "Latest poll",
+            f"{latest['pollster']}, published {_pretty_date(latest['publication_date'])}; fieldwork {_pretty_date(latest['fieldwork_start'])} to {_pretty_date(latest['fieldwork_end'])}; sample size {latest['sample_size']:,}.",
         ),
         (
-            "How to read these slides",
-            "These are modelled estimates of current support, not the result of one poll and not a prediction of the next election result.",
+            "The comparison",
+            f"Slide 2 compares that poll with the same pollster's {_pretty_date(previous['publication_date'])} poll, {comparison_days} days earlier. Slide 3 plots all {wave_count} same-pollster waves in that interval.",
+        ),
+        (
+            "What each point means",
+            "Every marker on the trend chart is an actual published poll. The line simply connects those observations so the month-long direction is easier to see.",
+        ),
+        (
+            "Methodology caveat",
+            "The IPI feed gives pollster, fieldwork dates, publication date, sample size and party results. Full sampling and weighting details should be checked in the original pollster release.",
         ),
     ]
 
@@ -270,83 +261,81 @@ def _methodology_entries(poll: dict[str, Any]) -> list[tuple[str, str]]:
 def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) -> dict[str, Any]:
     source_cfg = project.get("source") or {}
     render_cfg = project.get("render") or {}
-    indicator_uri = str(source_cfg["indicator_csv"])
     polls_uri = str(source_cfg["polls_csv"])
-    source_label = str(source_cfg.get("source_label") or "Irish Polling Indicator (IPI)")
+    source_label = str(source_cfg.get("source_label") or "Irish Polling Indicator (IPI) raw polls")
     source_url = str(source_cfg.get("source_url") or "")
-    source_note = f"Source: {source_label}"
 
-    df = _prepare(_read_csv(indicator_uri))
     polls = _prepare_polls(_read_csv(polls_uri))
-    latest, previous = _latest_and_previous(df)
-    latest_poll = _latest_poll_metadata(polls, latest["_date"])
+    latest = _latest_poll(polls)
+    previous, comparison_days, comparison_selection = _select_previous_same_pollster(
+        polls,
+        latest,
+        target_days=int(render_cfg.get("target_comparison_days", 30)),
+        minimum_days=int(render_cfg.get("minimum_comparison_days", 28)),
+        maximum_days=int(render_cfg.get("maximum_comparison_days", 45)),
+    )
+    latest_meta = _poll_metadata(latest)
+    previous_meta = _poll_metadata(previous)
+    pollster = latest_meta["pollster"]
     limit = int(render_cfg.get("max_items", 8))
-    trend_days = int(render_cfg.get("trend_days", 90))
-    trend_party_limit = int(render_cfg.get("trend_party_limit", 5))
-    default_legend_variant = str(render_cfg.get("trend_legend_variant") or "two_row")
+    party_limit = int(render_cfg.get("trend_party_limit", 5))
+
     latest_rows = _latest_rows(latest, limit)
     change_rows = _change_rows(latest, previous, limit)
-    trend_series = _trend_series(df, latest, days=trend_days, party_limit=trend_party_limit)
+    trend_series, trend_waves = _same_pollster_trend(polls, latest, previous, party_limit=party_limit)
     if not latest_rows or not change_rows or not trend_series:
-        raise RuntimeError("Polling factory project requires latest, change and trend data")
+        raise RuntimeError("Raw-poll carousel requires latest, change and trend data")
 
-    latest_date = str(latest["date"])
-    previous_date = str(previous["date"])
-    period_key = latest_date
-    period_root = output_root / f"period={period_key}"
+    latest_date = latest_meta["publication_date"]
+    previous_date = previous_meta["publication_date"]
+    period_root = output_root / f"period={latest_date}"
     if period_root.exists():
         shutil.rmtree(period_root)
     slides_dir = period_root / "slides"
     assets_dir = period_root / "assets"
-    variants_dir = period_root / "variants"
     metadata_dir = period_root / "metadata"
     contact_dir = period_root / "contact_sheets"
-    for directory in (slides_dir, assets_dir, variants_dir, metadata_dir, contact_dir):
+    for directory in (slides_dir, assets_dir, metadata_dir, contact_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
     slide_defs = {str(item["id"]): item for item in (project.get("slides") or {}).get("definitions", [])}
     slide_paths = [
-        slides_dir / "01_latest_support.png",
-        slides_dir / "02_change_since_previous_model.png",
-        slides_dir / "03_recent_trend.png",
-        slides_dir / "04_methodology.png",
+        slides_dir / "01_latest_poll.png",
+        slides_dir / "02_change_same_pollster.png",
+        slides_dir / "03_one_month_polling.png",
+        slides_dir / "04_about_polling.png",
     ]
     visual_paths = [
-        assets_dir / "01_latest_support_visual.png",
+        assets_dir / "01_latest_poll_visual.png",
         assets_dir / "02_change_visual.png",
-        assets_dir / "03_trend_visual.png",
+        assets_dir / "03_poll_trend_visual.png",
     ]
-    trend_single_row_visual = variants_dir / "03_trend_single_row_visual.png"
-    trend_single_row_slide = variants_dir / "03_recent_trend_single_row.png"
 
     latest_manifest = horizontal_bar.render(
-        _visual_template(project, value_format="percent"),
+        _visual_template(project),
         {
-            "visual_id": "ipi-latest-support-factory",
+            "visual_id": "ipi-latest-raw-poll",
             "bindings": {"label": "label", "value": "value"},
-            "source_note": f"{source_note} · modelled support · {latest_date}",
-            "empty_message": "No current model estimates available",
+            "source_note": f"{pollster} · published {_pretty_date(latest_date)} · n={latest_meta['sample_size']:,} · source: IPI raw polls",
+            "empty_message": "No current poll results available",
         },
         latest_rows,
         visual_paths[0],
-        metadata_dir / "01_latest_support_visual.json",
-        metadata_dir / "01_latest_support_visual_manifest.json",
-        {
-            "project_id": PROJECT_ID,
-            "source_uri": indicator_uri,
-            "latest_model_date": latest_date,
-            "uncertainty_ranges": [{"party_code": row["party_code"], "low": row["low"], "high": row["high"]} for row in latest_rows],
-        },
+        metadata_dir / "01_latest_poll_visual.json",
+        metadata_dir / "01_latest_poll_visual_manifest.json",
+        {"project_id": PROJECT_ID, "source_uri": polls_uri, "latest_poll": latest_meta},
     )
     if latest_manifest.get("warnings"):
         raise RuntimeError(f"Approved horizontal-bar renderer warnings: {latest_manifest['warnings']}")
 
+    comparison_label = f"{pollster}: {_pretty_date(previous_date)} → {_pretty_date(latest_date)} ({comparison_days} days)"
     change_manifest = render_diverging(
         _visual_template(project),
         {
-            "visual_id": "ipi-change-factory",
-            "source_note": f"{source_note} · {previous_date} → {latest_date} · model-date change",
-            "empty_message": "No model-date change available",
+            "visual_id": "ipi-raw-poll-change",
+            "comparison_label": comparison_label,
+            "source_note": f"Same pollster comparison · percentage-point change · source: IPI raw polls",
+            "empty_message": "No comparable poll change available",
         },
         change_rows,
         visual_paths[1],
@@ -354,21 +343,25 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         metadata_dir / "02_change_visual_manifest.json",
         {
             "project_id": PROJECT_ID,
-            "source_uri": indicator_uri,
-            "previous_model_date": previous_date,
-            "latest_model_date": latest_date,
+            "source_uri": polls_uri,
+            "latest_poll": latest_meta,
+            "previous_poll": previous_meta,
+            "comparison_days": comparison_days,
+            "comparison_selection": comparison_selection,
         },
     )
     if change_manifest.get("warnings"):
         raise RuntimeError(f"Diverging renderer warnings: {change_manifest['warnings']}")
 
+    range_label = f"{pollster} · {_pretty_date(previous_date)} to {_pretty_date(latest_date)} · each marker = one poll"
     trend_manifest = render_trend(
-        _visual_template(project, legend_variant=default_legend_variant),
+        _visual_template(project),
         {
-            "visual_id": "ipi-trend-factory",
-            "source_note": f"{source_note} · {trend_days}-day modelled trend · same election cycle",
-            "empty_message": "No trend data available",
-            "legend_variant": default_legend_variant,
+            "visual_id": "ipi-raw-poll-trend",
+            "source_note": f"{len(trend_waves)} {pollster} polls · source: IPI raw polls",
+            "range_label": range_label,
+            "empty_message": "No same-pollster trend data available",
+            "legend_variant": "single_row",
         },
         trend_series,
         visual_paths[2],
@@ -376,85 +369,49 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         metadata_dir / "03_trend_visual_manifest.json",
         {
             "project_id": PROJECT_ID,
-            "source_uri": indicator_uri,
-            "latest_model_date": latest_date,
-            "trend_days": trend_days,
-            "cycle": str(latest["cycle"]),
+            "source_uri": polls_uri,
+            "pollster": pollster,
+            "comparison_days": comparison_days,
+            "waves": trend_waves,
         },
     )
     if trend_manifest.get("warnings"):
         raise RuntimeError(f"Trend renderer warnings: {trend_manifest['warnings']}")
 
-    trend_single_row_manifest = render_trend(
-        _visual_template(project, legend_variant="single_row"),
-        {
-            "visual_id": "ipi-trend-single-row-factory",
-            "source_note": f"{source_note} · {trend_days}-day modelled trend · same election cycle",
-            "empty_message": "No trend data available",
-            "legend_variant": "single_row",
-        },
-        trend_series,
-        trend_single_row_visual,
-        metadata_dir / "03_trend_single_row_visual.json",
-        metadata_dir / "03_trend_single_row_visual_manifest.json",
-        {
-            "project_id": PROJECT_ID,
-            "source_uri": indicator_uri,
-            "latest_model_date": latest_date,
-            "trend_days": trend_days,
-            "cycle": str(latest["cycle"]),
-            "variant": "single_row",
-        },
-    )
-    if trend_single_row_manifest.get("warnings"):
-        raise RuntimeError(f"Single-row trend renderer warnings: {trend_single_row_manifest['warnings']}")
-
     outer = [
         _render_outer(project, title=str(slide_defs["latest_support"]["title"]), visual_path=visual_paths[0], output_path=slide_paths[0]),
-        _render_outer(project, title=str(slide_defs["change_since_previous_model"]["title"]), visual_path=visual_paths[1], output_path=slide_paths[1]),
+        _render_outer(project, title=str(slide_defs["change_since_previous_poll"]["title"]), visual_path=visual_paths[1], output_path=slide_paths[1]),
         _render_outer(project, title=str(slide_defs["recent_trend"]["title"]), visual_path=visual_paths[2], output_path=slide_paths[2]),
     ]
-    single_row_outer = _render_outer(
-        project,
-        title=str(slide_defs["recent_trend"]["title"]),
-        visual_path=trend_single_row_visual,
-        output_path=trend_single_row_slide,
-    )
     methodology_manifest = render_methodology(
-        _methodology_entries(latest_poll),
+        _methodology_entries(latest_meta, previous_meta, comparison_days, len(trend_waves)),
         slide_paths[3],
         title=str(slide_defs["methodology"]["title"]),
     )
 
-    for path in [*slide_paths, trend_single_row_slide]:
+    for path in slide_paths:
         _assert_slide(path)
 
     contact_sheet(
         [
-            ("Latest estimates", slide_paths[0]),
+            ("Latest poll", slide_paths[0]),
             ("Up / down", slide_paths[1]),
-            ("Trend", slide_paths[2]),
-            ("How it works", slide_paths[3]),
+            ("One-month trend", slide_paths[2]),
+            ("About polling", slide_paths[3]),
         ],
         contact_dir / "four_slide_overview.jpg",
         columns=4,
     )
-    contact_sheet(
-        [("A · two-row legend", slide_paths[2]), ("B · single-row legend", trend_single_row_slide)],
-        contact_dir / "trend_legend_variants.jpg",
-        columns=2,
-    )
 
     caption = "\n".join(
         [
-            "Latest modelled Irish party-support estimates from the Irish Polling Indicator.",
+            f"A month of {pollster} polling, using published poll results rather than the IPI daily model.",
             "",
-            f"Latest model date: {latest_date}.",
-            f"Slide 2 compares the previous model date ({previous_date}) with the latest model date; it is not a comparison of two individual opinion polls.",
-            f"Slide 3 shows the most recent {trend_days} days within the same election cycle.",
-            f"Slide 4 explains the source and includes the latest raw poll metadata available in the IPI feed: {latest_poll['pollster']}, n={latest_poll['sample_size']:,}, published {latest_poll['publication_date']}.",
+            f"Latest poll: {_pretty_date(latest_date)}, n={latest_meta['sample_size']:,}.",
+            f"Slide 2 compares it with the same pollster's {_pretty_date(previous_date)} wave ({comparison_days} days earlier).",
+            f"Slide 3 plots all {len(trend_waves)} {pollster} polls between those dates; every marker is an actual poll.",
             "",
-            "The Irish Polling Indicator combines available polls and accounts for sampling error and pollster house effects. Its estimates are not a single opinion poll or an election forecast.",
+            "These are individual survey results, so normal polling uncertainty applies. Full sampling and weighting methodology should be checked in the original pollster release.",
             "",
             f"Source: {source_label}",
             source_url,
@@ -464,43 +421,40 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
 
     manifest = {
         "project_id": PROJECT_ID,
+        "data_mode": "raw_polls_only",
         "review_state": "pending_human_review",
         "publication_enabled": False,
         "factory_reference_commit": "386b933",
         "factory_reference_workflow_run": 33894430571,
-        "source_uri": indicator_uri,
-        "polls_source_uri": polls_uri,
+        "source_uri": polls_uri,
         "source_id": str(source_cfg.get("source_id") or "irish_polling_indicator"),
         "source_label": source_label,
         "source_url": source_url,
-        "cycle": str(latest["cycle"]),
-        "latest_model_date": latest_date,
-        "previous_model_date": previous_date,
-        "latest_poll_metadata": latest_poll,
-        "trend_days": trend_days,
-        "trend_legend_default": default_legend_variant,
+        "pollster": pollster,
+        "latest_poll": latest_meta,
+        "previous_poll": previous_meta,
+        "comparison_days": comparison_days,
+        "comparison_selection": comparison_selection,
+        "trend_waves": trend_waves,
+        "trend_legend_default": "single_row",
         "slides": [str(path) for path in slide_paths],
-        "variants": {
-            "trend_single_row": str(trend_single_row_slide),
-            "trend_legend_contact_sheet": str(contact_dir / "trend_legend_variants.jpg"),
-        },
         "contact_sheet": str(contact_dir / "four_slide_overview.jpg"),
         "caption": str(period_root / "caption.txt"),
         "visual_manifests": {
             "latest_support": latest_manifest,
             "change": change_manifest,
             "trend": trend_manifest,
-            "trend_single_row": trend_single_row_manifest,
             "methodology": methodology_manifest,
         },
-        "outer_layouts": [*outer, single_row_outer],
+        "outer_layouts": outer,
         "qa": {
             "expected_slide_count": 4,
             "actual_slide_count": len(slide_paths),
             "dimensions": [1080, 1350],
             "approved_factory_commit": "386b933",
             "source_footer_required": True,
-            "trend_variant_count": 2,
+            "model_data_used": False,
+            "same_pollster_only": True,
         },
     }
     (metadata_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
