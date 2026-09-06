@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/tmp_instagram_research.py", line 41, in <module>
+    eligible=[d for d in debate_days if (pd.isna(row._start) or d>=row._start.normalize()) and (pd.isna(row._end) or d<=row._end.normalize())]
+                                                 ^^^^^^^^^^
+AttributeError: 'Pandas' object has no attribute '_start'
