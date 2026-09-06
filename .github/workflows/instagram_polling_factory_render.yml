@@ -44,13 +44,13 @@ jobs:
           test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
           test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
 
-      - name: Inject polling project into approved factory
+      - name: Inject raw polling project into approved factory
         shell: bash
         run: |
           set -euo pipefail
           cp -R instagram/projects/ipi_polling_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
 
-      - name: Run approved July recurring factory against live IPI data
+      - name: Run approved July recurring factory against live raw IPI polls
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -64,7 +64,7 @@ jobs:
             --period latest \
             --output-root "$GITHUB_WORKSPACE/generated_factory_live"
 
-      - name: Validate live factory package
+      - name: Validate live raw-poll package
         id: validate
         shell: bash
         run: |
@@ -72,13 +72,11 @@ jobs:
           PERIOD_ROOT="$(find generated_factory_live -mindepth 1 -maxdepth 1 -type d -name 'period=*' | sort | tail -1)"
           test -n "$PERIOD_ROOT"
           for file in \
-            "$PERIOD_ROOT/slides/01_latest_support.png" \
-            "$PERIOD_ROOT/slides/02_change_since_previous_model.png" \
-            "$PERIOD_ROOT/slides/03_recent_trend.png" \
-            "$PERIOD_ROOT/slides/04_methodology.png" \
-            "$PERIOD_ROOT/variants/03_recent_trend_single_row.png" \
+            "$PERIOD_ROOT/slides/01_latest_poll.png" \
+            "$PERIOD_ROOT/slides/02_change_same_pollster.png" \
+            "$PERIOD_ROOT/slides/03_one_month_polling.png" \
+            "$PERIOD_ROOT/slides/04_about_polling.png" \
             "$PERIOD_ROOT/contact_sheets/four_slide_overview.jpg" \
-            "$PERIOD_ROOT/contact_sheets/trend_legend_variants.jpg" \
             "$PERIOD_ROOT/metadata/manifest.json" \
             "$PERIOD_ROOT/ipi_polling_factory_review.zip"; do
             test -s "$file"
@@ -92,24 +90,27 @@ jobs:
           manifest=json.loads((root/'metadata/manifest.json').read_text(encoding='utf-8'))
           assert manifest['factory_reference_commit']=='386b933'
           assert manifest['factory_reference_workflow_run']==33894430571
+          assert manifest['data_mode']=='raw_polls_only'
           assert manifest['review_state']=='pending_human_review'
           assert manifest['publication_enabled'] is False
           assert manifest['qa']['actual_slide_count']==4
-          assert manifest['qa']['trend_variant_count']==2
-          assert manifest['latest_poll_metadata']['sample_size'] > 0
+          assert manifest['qa']['model_data_used'] is False
+          assert manifest['qa']['same_pollster_only'] is True
+          assert manifest['comparison_days'] >= 28
+          assert manifest['trend_legend_default']=='single_row'
+          assert len(manifest['trend_waves']) >= 2
+          assert {wave['pollster'] for wave in manifest['trend_waves']}=={manifest['pollster']}
           for path in manifest['slides']:
               with Image.open(path) as image:
                   assert image.size==(1080,1350)
-          with Image.open(manifest['variants']['trend_single_row']) as image:
-              assert image.size==(1080,1350)
           trend=json.loads((root/'metadata/03_trend_visual_manifest.json').read_text(encoding='utf-8'))
-          assert trend['legend_variant']=='two_row'
-          assert len(trend['series_colors'])==manifest['qa'].get('trend_variant_count',2) or len(trend['series_colors'])>=3
+          assert trend['legend_variant']=='single_row'
           print(json.dumps({
-              'latest_model_date': manifest['latest_model_date'],
-              'previous_model_date': manifest['previous_model_date'],
-              'latest_poll_metadata': manifest['latest_poll_metadata'],
-              'cycle': manifest['cycle'],
+              'pollster': manifest['pollster'],
+              'latest_poll': manifest['latest_poll'],
+              'previous_poll': manifest['previous_poll'],
+              'comparison_days': manifest['comparison_days'],
+              'trend_wave_count': len(manifest['trend_waves']),
               'factory_commit': manifest['factory_reference_commit'],
           }, indent=2))
           PY
@@ -125,12 +126,10 @@ jobs:
           rm -rf "$REVIEW_DIR"
           mkdir -p "$REVIEW_DIR"
           cp "$PERIOD_ROOT/contact_sheets/four_slide_overview.jpg" "$REVIEW_DIR/contact-sheet.jpg"
-          cp "$PERIOD_ROOT/contact_sheets/trend_legend_variants.jpg" "$REVIEW_DIR/trend-variants.jpg"
-          cp "$PERIOD_ROOT/slides/01_latest_support.png" "$REVIEW_DIR/slide-01.png"
-          cp "$PERIOD_ROOT/slides/02_change_since_previous_model.png" "$REVIEW_DIR/slide-02.png"
-          cp "$PERIOD_ROOT/slides/03_recent_trend.png" "$REVIEW_DIR/slide-03.png"
-          cp "$PERIOD_ROOT/slides/04_methodology.png" "$REVIEW_DIR/slide-04.png"
-          cp "$PERIOD_ROOT/variants/03_recent_trend_single_row.png" "$REVIEW_DIR/trend-single-row.png"
+          cp "$PERIOD_ROOT/slides/01_latest_poll.png" "$REVIEW_DIR/slide-01.png"
+          cp "$PERIOD_ROOT/slides/02_change_same_pollster.png" "$REVIEW_DIR/slide-02.png"
+          cp "$PERIOD_ROOT/slides/03_one_month_polling.png" "$REVIEW_DIR/slide-03.png"
+          cp "$PERIOD_ROOT/slides/04_about_polling.png" "$REVIEW_DIR/slide-04.png"
           cp "$PERIOD_ROOT/caption.txt" "$REVIEW_DIR/caption.txt"
           cp "$PERIOD_ROOT/metadata/manifest.json" "$REVIEW_DIR/manifest.json"
           python - <<'PY'
@@ -140,8 +139,9 @@ jobs:
           root=Path('factory_web_review')
           manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
           caption=html.escape((root/'caption.txt').read_text(encoding='utf-8'))
-          poll=manifest['latest_poll_metadata']
-          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IPI polling · four-slide review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}h1,h2{{margin-bottom:8px}}.meta{{color:#cbbf9f;margin-bottom:22px;line-height:1.5}}.sheet{{width:100%;height:auto;display:block;margin:0 0 28px}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img,.variants img{{width:100%;height:auto}}.variants{{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}}pre{{white-space:pre-wrap;background:#173d30;padding:18px;border-radius:8px}}@media(max-width:1000px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:650px){{.slides,.variants{{grid-template-columns:1fr}}}}</style></head><body><main><h1>IPI polling · four-slide review</h1><div class="meta">Factory commit: {html.escape(str(manifest['factory_reference_commit']))} · Reference workflow: {manifest['factory_reference_workflow_run']} · Model date: {html.escape(str(manifest['latest_model_date']))}<br>Latest raw poll in feed: {html.escape(str(poll['pollster']))} · n={poll['sample_size']:,} · published {html.escape(str(poll['publication_date']))}</div><img class="sheet" src="contact-sheet.jpg" alt="Four-slide contact sheet"><div class="slides"><img src="slide-01.png" alt="Latest estimates"><img src="slide-02.png" alt="Who is up and down"><img src="slide-03.png" alt="Support trend"><img src="slide-04.png" alt="How polling works"></div><h2>Trend legend variants</h2><img class="sheet" src="trend-variants.jpg" alt="Trend legend comparison"><div class="variants"><div><h3>A · two-row legend (default)</h3><img src="slide-03.png" alt="Two-row legend"></div><div><h3>B · single-row legend</h3><img src="trend-single-row.png" alt="Single-row legend"></div></div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
+          latest=manifest['latest_poll']
+          previous=manifest['previous_poll']
+          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Raw polling · one-month review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}h1{{margin-bottom:8px}}.meta{{color:#cbbf9f;margin-bottom:22px;line-height:1.55}}.sheet{{width:100%;height:auto;display:block;margin:0 0 28px}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img{{width:100%;height:auto}}pre{{white-space:pre-wrap;background:#173d30;padding:18px;border-radius:8px}}@media(max-width:1000px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:650px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>Raw polling · one-month same-pollster review</h1><div class="meta">Pollster: {html.escape(manifest['pollster'])} · {html.escape(previous['publication_date'])} → {html.escape(latest['publication_date'])} · {manifest['comparison_days']} days · {len(manifest['trend_waves'])} poll waves<br>Latest poll sample: n={latest['sample_size']:,} · Fieldwork {html.escape(latest['fieldwork_start'])} to {html.escape(latest['fieldwork_end'])}<br>Data mode: raw polls only · no IPI daily model used</div><img class="sheet" src="contact-sheet.jpg" alt="Four-slide raw polling contact sheet"><div class="slides"><img src="slide-01.png" alt="Latest polling percentages"><img src="slide-02.png" alt="Who is up and down"><img src="slide-03.png" alt="One month of polling"><img src="slide-04.png" alt="About this polling"></div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
           (root/'index.html').write_text(page, encoding='utf-8')
           PY
 
@@ -156,20 +156,20 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "preview: IPI polling four-slide review ${GITHUB_RUN_ID}"
+          git commit -m "preview: raw IPI polling review ${GITHUB_RUN_ID}"
           git branch -M previews/ipi-polling-factory
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin HEAD:refs/heads/previews/ipi-polling-factory
           URL="https://raw.githack.com/${GITHUB_REPOSITORY}/previews/ipi-polling-factory/index.html"
           echo "FACTORY_REVIEW_URL=$URL"
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-            printf '## IPI polling · four-slide review\n\n[Open web-hosted review page](%s)\n' "$URL" >> "$GITHUB_STEP_SUMMARY"
+            printf '## Raw polling · one-month review\n\n[Open web-hosted review page](%s)\n' "$URL" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload backup package
         uses: actions/upload-artifact@v4
         with:
-          name: ipi-polling-approved-factory-${{ github.run_id }}
+          name: ipi-raw-poll-factory-${{ github.run_id }}
           path: generated_factory_live/
           if-no-files-found: error
           retention-days: 30
