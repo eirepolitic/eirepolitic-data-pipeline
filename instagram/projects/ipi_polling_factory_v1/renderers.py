@@ -10,7 +10,9 @@ matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
+from PIL import Image, ImageDraw
 
+from instagram.factory.render_primitives import BG, draw_glossary, draw_title
 from instagram.visuals.renderers.common import load_palette
 
 PLOT_BOTTOM = 0.14
@@ -20,6 +22,7 @@ PLOT_RIGHT = 0.97
 CATEGORY_FONT_SIZE = 16
 VALUE_FONT_SIZE = 15
 AXIS_FONT_SIZE = 12
+DEFAULT_TREND_COLORS = ["#d8b45f", "#f4ead7", "#79b8a4", "#df8a72", "#91a8d0"]
 
 
 def _write_json(path: str | Path, payload: dict[str, Any]) -> None:
@@ -116,14 +119,17 @@ def render_trend(
     params = template.get("params", {}) or {}
     width = int(params.get("width", 1032))
     height = int(params.get("height", 1210))
+    legend_variant = str(params.get("legend_variant") or sample.get("legend_variant") or "two_row")
     palette = load_palette(template)
+    raw_colors = template.get("series_colors") or sample.get("series_colors") or DEFAULT_TREND_COLORS
+    colors = [str(value) for value in raw_colors]
     warnings: list[str] = []
 
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
-    ax = fig.add_axes([0.13, PLOT_BOTTOM, 0.80, PLOT_TOP - PLOT_BOTTOM])
+    # Reserve the top band for a wide legend rather than overlaying it on the data.
+    ax = fig.add_axes([0.11, 0.14, 0.82, 0.68])
     ax.set_facecolor(palette["background"])
-    colors = [palette["accent"], palette["text"], palette["muted"], "#88a99a", "#b79a5a"]
     rendered = 0
     for idx, item in enumerate(series):
         label = str(item.get("label") or f"Series {idx + 1}")
@@ -148,15 +154,32 @@ def render_trend(
         dates = [pair[0] for pair in ordered]
         values = [pair[1] for pair in ordered]
         color = colors[idx % len(colors)]
-        ax.plot(dates, values, linewidth=2.5, color=color, label=label)
-        ax.scatter([dates[-1]], [values[-1]], s=22, color=color)
-        ax.annotate(f"{label} {values[-1]:.1f}%", xy=(dates[-1], values[-1]), xytext=(7, 0), textcoords="offset points", color=color, fontsize=12, fontweight="bold", va="center")
+        ax.plot(dates, values, linewidth=2.9, color=color, label=label)
+        ax.scatter([dates[-1]], [values[-1]], s=28, color=color, zorder=3)
         rendered += 1
 
+    legend_columns = 3 if legend_variant == "two_row" else max(1, rendered)
     if rendered == 0:
         ax.text(0.5, 0.5, str(sample.get("empty_message") or "No trend data available"), color=palette["muted"], fontsize=20, ha="center", va="center", transform=ax.transAxes)
     else:
-        ax.legend(frameon=False, fontsize=11, labelcolor=palette["text"], loc="upper left")
+        handles, labels = ax.get_legend_handles_labels()
+        legend = fig.legend(
+            handles,
+            labels,
+            frameon=False,
+            fontsize=12.5,
+            labelcolor=palette["text"],
+            loc="upper center",
+            bbox_to_anchor=(0.52, 0.91),
+            ncol=legend_columns,
+            columnspacing=1.8 if legend_variant == "two_row" else 1.2,
+            handlelength=2.2,
+            handletextpad=0.55,
+            borderaxespad=0.0,
+        )
+        for line in legend.get_lines():
+            line.set_linewidth(3.2)
+
     ax.grid(True, color=palette["grid"], alpha=0.18)
     ax.tick_params(axis="x", colors=palette["muted"], labelsize=AXIS_FONT_SIZE, rotation=25)
     ax.tick_params(axis="y", colors=palette["muted"], labelsize=AXIS_FONT_SIZE)
@@ -171,8 +194,41 @@ def render_trend(
     Path(output_png).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_png, format="png", facecolor=fig.get_facecolor())
     plt.close(fig)
-    metadata = {"created_at": _utc_now(), "input": input_metadata, "series": series, "renderer": "line_trend_factory_v1"}
-    manifest = {"success": True, "renderer": "line_trend_factory_v1", "output_path": str(output_png), "warnings": warnings, "series_rendered": rendered}
+    metadata = {
+        "created_at": _utc_now(),
+        "input": input_metadata,
+        "series": series,
+        "renderer": "line_trend_factory_v2",
+        "legend_variant": legend_variant,
+        "series_colors": colors[:rendered],
+    }
+    manifest = {
+        "success": True,
+        "renderer": "line_trend_factory_v2",
+        "output_path": str(output_png),
+        "warnings": warnings,
+        "series_rendered": rendered,
+        "legend_variant": legend_variant,
+        "series_colors": colors[:rendered],
+    }
     _write_json(metadata_path, metadata)
     _write_json(manifest_path, manifest)
     return manifest
+
+
+def render_methodology(entries: list[tuple[str, str]], output_png: str | Path, *, title: str) -> dict[str, Any]:
+    output_png = Path(output_png)
+    metrics = draw_glossary(entries, output_png)
+    # Reuse the approved glossary layout exactly, changing only its title text.
+    image = Image.open(output_png).convert("RGB")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((112, 34, 968, 169), fill=BG)
+    draw_title(image, [title])
+    image.save(output_png)
+    return {
+        "success": True,
+        "renderer": "approved_glossary_methodology_v1",
+        "output_path": str(output_png),
+        "warnings": [],
+        "glossary_metrics": metrics,
+    }
