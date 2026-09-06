@@ -5,20 +5,18 @@ on:
     paths:
       - 'process/instagram_render_polling_snapshot.py'
       - 'process/instagram_build_polling_review_page.py'
+      - 'instagram/polling/**'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
-      - 'instagram/media_generators/horizontal_bar_chart/**'
-      - 'instagram/media_generators/line_chart/**'
       - 'tests/test_instagram_polling_snapshot.py'
       - '.github/workflows/instagram_polling_snapshot*.yml'
   push:
     branches:
-      - 'feature/ipi-web-preview-*'
+      - 'feature/ipi-polling-reference-redesign-*'
     paths:
       - 'process/instagram_render_polling_snapshot.py'
       - 'process/instagram_build_polling_review_page.py'
+      - 'instagram/polling/**'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/**'
-      - 'instagram/media_generators/horizontal_bar_chart/**'
-      - 'instagram/media_generators/line_chart/**'
       - 'tests/test_instagram_polling_snapshot.py'
       - '.github/workflows/instagram_polling_snapshot*.yml'
 
@@ -48,7 +46,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m compileall process/instagram_render_polling_snapshot.py process/instagram_build_polling_review_page.py instagram/media_generators/horizontal_bar_chart instagram/media_generators/line_chart tests/test_instagram_polling_snapshot.py
+          python -m compileall process/instagram_render_polling_snapshot.py process/instagram_build_polling_review_page.py instagram/polling tests/test_instagram_polling_snapshot.py
 
       - name: Run polling carousel regression test
         shell: bash
@@ -75,5 +73,5 @@ jobs:
           assert page.count('data:image/png;base64,') == 3
           assert 'Source: Irish Polling Indicator (IPI)' in page
           assert 'Caption' in page
-          print('Self-contained polling browser review validated.')
+          print('Self-contained approved-style polling browser review validated.')
           PY
