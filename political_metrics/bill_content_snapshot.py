@@ -36,7 +36,6 @@ def _latest_stage_rows(stages: pd.DataFrame) -> pd.DataFrame:
     st["_stage_date"] = pd.to_datetime(st["stage_date"], errors="coerce")
     st["_stage_order"] = pd.to_numeric(st["order_in_bill"], errors="coerce")
     st["_row_order"] = range(len(st))
-    # Date is authoritative; progress/order breaks same-day ties; source row order is stable fallback.
     st = st.sort_values(["bill_id", "_stage_date", "_stage_order", "_row_order"], kind="stable")
     return st.groupby("bill_id", as_index=False).tail(1).copy()
 
@@ -171,14 +170,18 @@ def _context_rollup(
 
 def _bucket_for(status: str, stage_name: str) -> tuple[str, str, int]:
     status_key = (status or "").casefold()
-    if status_key == "enacted":
-        return "enacted", "Enacted", 0
-    if status_key == "defeated":
-        return "defeated", "Defeated", 90
+    terminal = {
+        "enacted": ("enacted", "Enacted", 0),
+        "defeated": ("defeated", "Defeated", 80),
+        "lapsed": ("lapsed", "Lapsed", 90),
+        "withdrawn": ("withdrawn", "Withdrawn", 91),
+    }
+    if status_key in terminal:
+        return terminal[status_key]
     stage_key = (stage_name or "").casefold()
     if stage_key in _STAGE_BUCKETS:
         return _STAGE_BUCKETS[stage_key]
-    return "review_required", stage_name or "Stage needs review", 99
+    return "review_required", stage_name or status or "Stage needs review", 99
 
 
 def build_bill_content_snapshot(
@@ -240,7 +243,6 @@ def build_bill_content_snapshot(
     out["series_bucket_label"] = [b[1] for b in buckets]
     out["series_bucket_order"] = [b[2] for b in buckets]
     out["series_group_label"] = out["series_bucket_label"]
-    # House stays explicit on every card while batching remains stage-based to avoid tiny carousels.
     out["house_badge"] = out["current_stage_house_name"].where(out["current_stage_house_name"].ne(""), out["origin_house_name"])
 
     out["_stage_date_sort"] = pd.to_datetime(out["current_stage_date"], errors="coerce")
@@ -302,6 +304,10 @@ def audit_bill_content_snapshot(frame: pd.DataFrame, *, batch_size: int = BATCH_
         "cream_list_relabelled": bool(
             df.loc[df["current_stage_name"].str.casefold().eq("cream list"), "series_bucket"]
             .eq("returned_amendments").all()
+        ),
+        "terminal_statuses_not_stage_bucketed": bool(
+            df.loc[df["status"].str.casefold().isin(["enacted", "defeated", "lapsed", "withdrawn"]), "series_bucket"]
+            .isin(["enacted", "defeated", "lapsed", "withdrawn"]).all()
         ),
     }
     return {
