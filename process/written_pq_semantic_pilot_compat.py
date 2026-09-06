@@ -19,13 +19,27 @@ def _strip_unsupported_json_schema_keywords(value: Any) -> Any:
 
 
 _original_schema = pilot.schema
+_original_classify = pilot.classify
 
 
 def compatible_schema(config):
     return _strip_unsupported_json_schema_keywords(_original_schema(config))
 
 
+def normalized_classify(client, config, record, model):
+    result, usage = _original_classify(client, config, record, model)
+    expected = [str(q["question_id"]) for q in record["questions"]]
+    first_by_id = {}
+    for item in result.get("questions", []):
+        qid = str(item.get("question_id", ""))
+        if qid in expected and qid not in first_by_id:
+            first_by_id[qid] = item
+    result["questions"] = [first_by_id[qid] for qid in expected if qid in first_by_id]
+    return result, usage
+
+
 pilot.schema = compatible_schema
+pilot.classify = normalized_classify
 
 if __name__ == "__main__":
     raise SystemExit(pilot.main())
