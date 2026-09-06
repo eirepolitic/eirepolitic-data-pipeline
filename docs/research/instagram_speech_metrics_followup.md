@@ -1,22 +1,22 @@
 # Instagram speech-metrics carousel follow-up
 
-Status: **Member coverage certified; carousel metrics ready for editorial selection**  
+Status: **Evidence certified; recommended carousel structure ready for editorial review**  
 Date: **6 September 2026**
 
 This refines candidate 2 in `instagram_post_candidates.md` into a multi-slide carousel about who speaks most, longest and most often in the current Dáil transcript history.
 
-## Proposed post
+## Recommended post
 
 **Working title:** Who talks most in the Dáil?
 
-Potential slides:
+Recommended slide sequence:
 
-1. most recorded transcript interventions;
-2. most total words spoken;
-3. longest average intervention, with a minimum-intervention threshold;
-4. longest single recorded intervention;
-5. most debate days with at least one intervention;
-6. fewest recorded interventions per eligible debate day, with a minimum eligibility threshold.
+1. **Most recorded transcript interventions**;
+2. **Most total words spoken**;
+3. **Longest average intervention** — minimum 20 interventions;
+4. **Longest single recorded intervention**;
+5. **Why role matters** — intervention count versus intervention length, using the Ceann Comhairle effect as the clearest example;
+6. optional: **Fewest recorded interventions per eligible debate day** — only if the editorial tone stays descriptive and the tenure denominator is shown.
 
 Do not use issue labels in this post.
 
@@ -67,9 +67,9 @@ The current compatibility speech history spans **18 December 2024 to 28 August 2
 - **163 debate days**;
 - **66,192 transcript rows**;
 - **65,749 rows already carry a native `member_code`**;
-- **65,740 interventions** remain after event-date Dáil-membership validation;
+- **65,748 event-date-valid Dáil-member interventions** in the final evidence probe;
 - **176 members** overlap the covered Dáil period;
-- **all 176** have at least one event-date-valid matched intervention in the covered speech surface.
+- **all 176** are represented by event-date-valid matched interventions in the covered speech surface.
 
 This is sufficient for the proposed member-level carousel, subject to metric-specific interpretation caveats below.
 
@@ -79,15 +79,15 @@ This is sufficient for the proposed member-level carousel, subject to metric-spe
 
 1. Micheál Martin — **6,126**;
 2. Verona Murphy — **5,161**;
-3. Simon Harris — **2,836**.
+3. Simon Harris — **2,837**.
 
-This is a count of transcript interventions, not prepared speeches. Presiding/procedural roles can generate many short interventions, so this slide should be labelled literally rather than as a performance ranking.
+This is a count of transcript interventions, not prepared speeches.
 
 ### Most total words
 
 1. Micheál Martin — **637,331 words**;
-2. Simon Harris — **532,221**;
-3. Jim O'Callaghan — **288,341**.
+2. Simon Harris — **532,448**;
+3. Jim O'Callaghan — **288,663**.
 
 This is cumulative transcript volume during the covered period, not speaking quality or effectiveness.
 
@@ -103,11 +103,18 @@ The final rendered post should state the minimum-intervention rule.
 
 ### Longest single recorded intervention
 
-1. Charlie McConalogue — **5,173 words**;
-2. Paschal Donohoe — **4,828**;
-3. Kieran O'Donnell — **4,748**.
+1. Charlie McConalogue — **5,173 words**, **15 April 2026**;
+2. Paschal Donohoe — **4,828**, **7 October 2025**;
+3. Kieran O'Donnell — **4,748**, **12 June 2025**.
 
-Before rendering, the exact winning transcript row/section should be frozen into the publication evidence bundle.
+The winning record is now frozen in the evidence bundle:
+
+- speech ID: `speech:19341339f777d0ef26d99a59`;
+- speaker: Charlie McConalogue;
+- date: 15 April 2026;
+- speech order: 470;
+- word count: 5,173;
+- opening text confirms the intervention concerned football.
 
 ### Most debate days with at least one intervention
 
@@ -115,17 +122,41 @@ Before rendering, the exact winning transcript row/section should be frozen into
 2. Ruairí Ó Murchú — **147 of 163**;
 3. Michael Collins — **144 of 163**.
 
-This is a presence-in-transcript measure, not chamber attendance. A TD can be present without producing a recorded intervention, and vice versa this metric does not measure full-day attendance.
+This is a presence-in-transcript measure, not chamber attendance.
 
 ### Lowest intervention rate among members with at least 50 eligible debate days
 
-A tenure-adjusted low-end comparison is now possible. Using **recorded interventions per eligible debate day** and requiring at least **50 eligible debate days**:
+A tenure-adjusted low-end comparison is possible. Using **recorded interventions per eligible debate day** and requiring at least **50 eligible debate days**:
 
 1. Sean Fleming — **12 interventions / 163 eligible days = 0.07 per day**;
 2. Willie O'Dea — **22 / 163 = 0.13**;
 3. Eamon Scanlon — **34 / 163 = 0.21**.
 
-For public copy, prefer **"fewest recorded interventions per eligible debate day"** rather than "least talkative TD". The latter overstates what transcript activity measures.
+For public copy, prefer **"fewest recorded interventions per eligible debate day"** rather than "least talkative TD".
+
+## Office / presiding-role effect
+
+The production office-history table confirms that raw intervention counts are structurally affected by parliamentary role.
+
+- **Verona Murphy** has served as **Ceann Comhairle since 18 December 2024**. She records **5,161 interventions** but a median intervention length of only **8 words** and average of **15.2 words**.
+- **John McGuinness** has served as **Leas-Cheann Comhairle since 19 February 2025**. He records **1,787 interventions** with a median of **7 words**.
+- By comparison, Micheál Martin records **6,126 interventions** with a median of **39 words**, while Simon Harris records **2,837** with a median of **133 words**.
+
+This is not a data defect. It is a useful result: presiding officers naturally generate many short procedural interventions. The carousel should explain this rather than treating every intervention as equivalent.
+
+The strongest treatment is a dedicated **"count isn't the whole story"** slide comparing frequency and typical intervention length.
+
+## Editorial recommendation
+
+The strongest five content slides are:
+
+1. **Most interventions** — Micheál Martin / Verona Murphy / Simon Harris;
+2. **Most total words** — Micheál Martin / Simon Harris / Jim O'Callaghan;
+3. **Longest average intervention** — Ciarán Ahern / Cormac Devlin / Barry Ward, with the 20-intervention threshold shown;
+4. **Longest single intervention** — Charlie McConalogue, with the exact 5,173-word record;
+5. **Count versus length** — explain why the Ceann Comhairle appears near the top of intervention counts while typical interventions are extremely short.
+
+The low-end ranking is statistically supportable with an eligible-day denominator, but it is the easiest slide to misread as a judgement about work rate. Keep it optional rather than central.
 
 ## Interpretation guardrails
 
@@ -139,10 +170,10 @@ For public copy, prefer **"fewest recorded interventions per eligible debate day
 
 ## Living next-step plan
 
-1. Editorially choose 4–6 of the certified metrics for the carousel.
-2. Freeze the production batch, coverage dates and metric definitions used for rendering.
-3. Retrieve and verify the exact transcript row for the longest-single-intervention slide.
-4. Decide whether the presiding-role effect should be shown as an explanatory slide or simply carried as a methodology note.
-5. Keep the wording descriptive: "recorded interventions", "total words", "eligible debate days" and "average intervention length".
+1. Treat this carousel as the refined form of candidate 2 in the main Instagram shortlist.
+2. Editorially decide whether to include the optional low-intervention-rate slide.
+3. Freeze the production batch, coverage dates and metric definitions when rendering.
+4. Keep the wording descriptive: "recorded interventions", "total words", "eligible debate days" and "average intervention length".
+5. If portraits or party labels are added later, resolve them from event-date member metadata rather than manually maintained current-member labels.
 
-No production source data was changed during this investigation. The initial incomplete-roster concern was resolved as a read-path mistake in the temporary diagnostic, not a production data defect.
+No production source data was changed during this investigation. Temporary evidence generation remains isolated on the unmerged analysis branch.
