@@ -36,13 +36,38 @@ def _quote_present(quote: str, source: str) -> bool:
     return bool(q) and q in _norm(source)
 
 
+def leaf_topic_tags(config: dict[str, Any]) -> list[str]:
+    tags: list[str] = []
+    for topic in config["broad_topics"]:
+        general = str(topic.get("general_tag") or "").strip()
+        if general:
+            tags.append(general)
+        tags.extend(str(child) for child in topic.get("children", []))
+    return tags
+
+
+def topic_parent_map(config: dict[str, Any]) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for topic in config["broad_topics"]:
+        parent = str(topic["id"])
+        general = str(topic.get("general_tag") or "").strip()
+        if general:
+            mapping[general] = parent
+        for child in topic.get("children", []):
+            mapping[str(child)] = parent
+    return mapping
+
+
 _original_schema = pilot.schema
 _original_classify = pilot.classify
 _original_build_exchange_frame = pilot.build_exchange_frame
 
 
 def compatible_schema(config):
-    return _strip_unsupported_json_schema_keywords(_original_schema(config))
+    value = _strip_unsupported_json_schema_keywords(_original_schema(config))
+    value["properties"].pop("combined_exchange", None)
+    value["required"] = [item for item in value["required"] if item != "combined_exchange"]
+    return value
 
 
 def clean_exchange_frame(questions, sections, bridge):
@@ -54,7 +79,10 @@ def clean_exchange_frame(questions, sections, bridge):
 def strict_prompt(config: dict[str, Any], record: dict[str, Any]) -> list[dict[str, str]]:
     taxonomy = []
     for parent in config["broad_topics"]:
-        taxonomy.append(f"{parent['id']}: {parent['label']}")
+        taxonomy.append(f"CATEGORY {parent['id']}: {parent['label']} (category name is NOT a selectable tag)")
+        general = str(parent.get("general_tag") or "").strip()
+        if general:
+            taxonomy.append(f"  - {general} [use only when this category is clearly relevant but no specific child tag fits]")
         taxonomy.extend(f"  - {child}" for child in parent.get("children", []))
 
     question_blocks = []
@@ -68,22 +96,33 @@ def strict_prompt(config: dict[str, Any], record: dict[str, Any]) -> list[dict[s
 
     system = (
         "You are performing research-only semantic indexing of Irish Parliamentary Questions. "
-        "Return three strictly separated semantic views: each QUESTION, the ANSWER, and the COMBINED_EXCHANGE. "
+        "Return ONLY per-QUESTION classifications and one ANSWER classification. The combined exchange view is derived later in code. "
         "Scope separation is mandatory. A QUESTION classification may use only that question's QUESTION_TEXT. "
         "The ANSWER classification may use only ANSWER_TEXT; never copy a topic, entity, or position from a question into the answer merely because the answer responds to it. "
-        "COMBINED_EXCHANGE may use both questions and answer. "
-        "Use multiple topic tags when genuinely relevant, preferring specific approved tags. "
-        "Do not use government_public_service, state_agencies, or public_service_delivery merely because a department/public body exists, is named, responds, or receives a referral; use those tags only when public administration, agency governance, or service-delivery arrangements are themselves a substantive subject. "
+        "Topic classification is multi-label, but choose only the selectable leaf/general tags listed beneath categories. Never output a CATEGORY id itself. "
+        "Prefer a precise child tag over a *_general tag. Use a *_general tag only when the category is genuinely substantive and no child fits. "
+        "Do not use government/public-service tags merely because a department, public body, agency, minister, referral, or reply exists; use them only when administration, governance, procurement, public-service staffing/delivery, state-agency structure, transparency, or local government is itself substantive. "
         "Referral/direct-reply mechanics belong in answer_characteristics and normally are not topic tags. "
+        "transport_fares means fares, ticket prices, fare reductions, or public-transport charges. energy_prices means electricity, gas, heating, fuel, or other energy prices; never use energy_prices for transport fares. "
+        "international_relations covers diplomacy and foreign-government engagement; defence tags require actual defence/security subject matter. "
+        "equality_discrimination covers accessibility/equality issues without implying courts, policing, or criminal justice. "
         "Do not infer political support/opposition, truthfulness, quality, evasiveness, effectiveness, motives, or unstated positions. "
-        "Known metadata such as department, TD, date and party are supplied separately. Do not turn them into semantic topics. "
+        "Known metadata such as department, TD, date and party are context only. Do not turn them into topics. "
         "Do not resolve pronouns or generic phrases such as 'my Department' into named entities from metadata; entity names must be explicitly present in the text for that scope. "
-        "Only use proposed_new_tags when the approved taxonomy genuinely lacks a useful recurring concept. "
-        "Every topic tag must have a short verbatim evidence quote from the SAME scope, and every entity/proposed tag evidence_quote must also occur verbatim in that scope. "
+        "Only use proposed_new_tags when no approved tag accurately captures a useful recurring concept; never force a semantically wrong nearby tag. "
+        "Every topic tag must have exactly matching topic_evidence with a short verbatim evidence quote from the SAME scope. "
+        "Every entity/proposed-tag evidence_quote must also occur verbatim in that scope. "
         "If ANSWER_TEXT is empty or contains no substantive wording, return no answer topic tags/entities/evidence and use no_substantive_answer as appropriate."
     )
+    repair_note = str(record.get("_repair_note") or "").strip()
+    if repair_note:
+        system += (
+            " This is a repair attempt after deterministic validation failed with: " + repair_note + ". "
+            "Correct the cited structural/evidence problems. In particular, copy evidence quotes exactly from the scoped source text and provide one evidence item for every topic tag."
+        )
+
     user = (
-        "APPROVED TOPIC TAXONOMY:\n" + "\n".join(taxonomy) +
+        "SELECTABLE TOPIC TAXONOMY:\n" + "\n".join(taxonomy) +
         "\n\nQUESTION INTENTS:\n- " + "\n- ".join(config["question_intents"]) +
         "\n\nANSWER CHARACTERISTICS:\n- " + "\n- ".join(config["answer_characteristics"]) +
         "\n\nSOURCE METADATA (context only; do not recreate it as semantic output):\n" +
@@ -94,8 +133,7 @@ def strict_prompt(config: dict[str, Any], record: dict[str, Any]) -> list[dict[s
     return [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
 
-def normalized_classify(client, config, record, model):
-    result, usage = _original_classify(client, config, record, model)
+def _normalize_questions(result: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
     expected = [str(q["question_id"]) for q in record["questions"]]
     first_by_id = {}
     for item in result.get("questions", []):
@@ -103,7 +141,36 @@ def normalized_classify(client, config, record, model):
         if qid in expected and qid not in first_by_id:
             first_by_id[qid] = item
     result["questions"] = [first_by_id[qid] for qid in expected if qid in first_by_id]
-    return result, usage
+    return result
+
+
+def _derive_combined(result: dict[str, Any]) -> dict[str, Any]:
+    ordered_tags: list[str] = []
+    evidence_by_tag: dict[str, dict[str, str]] = {}
+    proposed: list[dict[str, str]] = []
+    seen_proposed: set[str] = set()
+
+    scopes = list(result.get("questions", [])) + [result.get("answer", {})]
+    for obj in scopes:
+        for tag in obj.get("topic_tags", []):
+            if tag not in ordered_tags:
+                ordered_tags.append(tag)
+        for item in obj.get("topic_evidence", []):
+            tag = str(item.get("tag", ""))
+            if tag and tag not in evidence_by_tag:
+                evidence_by_tag[tag] = {"tag": tag, "evidence_quote": str(item.get("evidence_quote", ""))}
+        for item in obj.get("proposed_new_tags", []):
+            key = str(item.get("tag", "")).strip().casefold()
+            if key and key not in seen_proposed:
+                proposed.append(item)
+                seen_proposed.add(key)
+
+    result["combined_exchange"] = {
+        "topic_tags": ordered_tags,
+        "proposed_new_tags": proposed,
+        "topic_evidence": [evidence_by_tag[tag] for tag in ordered_tags if tag in evidence_by_tag],
+    }
+    return result
 
 
 def strict_validate_result(record: dict[str, Any], result: dict[str, Any], config: dict[str, Any]) -> list[str]:
@@ -113,7 +180,7 @@ def strict_validate_result(record: dict[str, Any], result: dict[str, Any], confi
     if sorted(expected) != sorted(actual_qids):
         errors.append("question_id_set_mismatch")
 
-    allowed = set(pilot.allowed_topic_tags(config))
+    allowed = set(leaf_topic_tags(config))
 
     def check_scope(scope: str, obj: dict[str, Any], source: str):
         tags = list(obj.get("topic_tags", []))
@@ -154,6 +221,32 @@ def strict_validate_result(record: dict[str, Any], result: dict[str, Any], confi
     return sorted(set(errors))
 
 
+def _run_once(client, config, record, model):
+    result, usage = _original_classify(client, config, record, model)
+    result = _normalize_questions(result, record)
+    result = _derive_combined(result)
+    return result, usage
+
+
+def normalized_classify(client, config, record, model):
+    result, usage = _run_once(client, config, record, model)
+    errors = strict_validate_result(record, result, config)
+    repaired = False
+    if errors:
+        repair_record = dict(record)
+        repair_record["_repair_note"] = ";".join(errors)
+        repaired_result, repaired_usage = _run_once(client, config, repair_record, model)
+        repaired_errors = strict_validate_result(record, repaired_result, config)
+        usage = {key: int(usage.get(key, 0)) + int(repaired_usage.get(key, 0)) for key in usage}
+        if len(repaired_errors) <= len(errors):
+            result = repaired_result
+            errors = repaired_errors
+            repaired = True
+    result["_pilot_meta"] = {"repair_attempted": repaired, "post_repair_validation_errors": errors}
+    return result, usage
+
+
+pilot.allowed_topic_tags = leaf_topic_tags
 pilot.schema = compatible_schema
 pilot.prompt = strict_prompt
 pilot.classify = normalized_classify
