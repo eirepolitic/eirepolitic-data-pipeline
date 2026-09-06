@@ -33,14 +33,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Run focused Bill content tests
-        run: python -m unittest tests.political_metrics.test_bill_content_snapshot
-
-      - name: Build read-only Bill content snapshot and capture diagnostics
+      - name: Run focused Bill tracker tests
         run: |
+          python -m unittest tests.political_metrics.test_bill_content_snapshot
+          python -m unittest tests.political_metrics.test_bill_editorial_series
+
+      - name: Build read-only Bill tracker and capture diagnostics
+        run: |
+          rm -rf diagnostics/bill-content-snapshot-test
           mkdir -p diagnostics/bill-content-snapshot-test
           set +e
-          python process/build_bill_content_snapshot.py --batch-size 6 --output-dir diagnostics/bill-content-snapshot-test > diagnostics/bill-content-snapshot-test/build.log 2>&1
+          python process/build_bill_content_snapshot.py --batch-size 6 --lookback-days 180 --output-dir diagnostics/bill-content-snapshot-test > diagnostics/bill-content-snapshot-test/build.log 2>&1
           echo $? > diagnostics/bill-content-snapshot-test/exit_code.txt
           set -e
 
@@ -48,6 +51,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/bill-content-snapshot-test
-          git commit -m "test: persist Bill content snapshot validation" || exit 0
+          git add -A diagnostics/bill-content-snapshot-test
+          git commit -m "test: persist scoped Bill tracker validation" || exit 0
           git push origin HEAD:feature/bill-content-snapshot-v1
