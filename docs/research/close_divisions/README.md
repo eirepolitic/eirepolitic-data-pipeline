@@ -1,6 +1,6 @@
 # Close-division research
 
-Status: **Research framework established; first three cases completed**  
+Status: **Framework established; first three cases completed; two strongest cases deepened into post briefs**  
 Date: **5 September 2026**
 
 This directory is the durable research record for close Dáil divisions that may support public-facing EirePolitic content.
@@ -33,8 +33,10 @@ This is a discovery threshold, not a claim that every such vote was politically 
    - distinguish arguments about substance from arguments about procedure/timing.
 
 4. **Analyse the voting coalition**
-   - group recorded votes by event-date party/member attribution where reliable;
+   - retain exact member-level recorded votes;
+   - resolve party at the event date where the membership history is complete;
    - keep recorded abstention separate from absence/non-voting;
+   - never treat an unresolved party join as an Independent or political category;
    - do not infer motive from party alignment alone.
 
 5. **Add external context**
@@ -60,6 +62,24 @@ This is a discovery threshold, not a claim that every such vote was politically 
 - [9 June 2026 — Order of Business / EU Migration and Asylum Pact debate request](2026-06-09_order_of_business.md)
 - [10 June 2026 — counselling-record disclosure amendment](2026-06-10_counselling_records.md)
 - [8 July 2026 — Planning for Constitutional Change Bill 2026](2026-07-08_constitutional_change.md)
+- [Instagram post briefs for the two strongest cases](post_briefs.md)
+
+## Deep-dive result
+
+The **Planning for Constitutional Change Bill** and **counselling-record disclosure amendment** both remain strong standalone content candidates after a deeper transcript and external-source pass.
+
+The constitutional-change case is the easier first production candidate because the proposition is simple to visualise and the principal caveat is political framing: the 69–79 division was on a statutory planning process/timetable, not a direct vote on Irish unity.
+
+The counselling-record case is equally substantive but more sensitive. The strongest framing is that both sides accepted the need for stronger privacy safeguards and disagreed over the legal threshold for exceptional disclosure and fair-trial protections.
+
+## Party-at-vote data-quality finding
+
+The member-vote surface contains exact member votes for both target divisions, but the raw `party_name_at_vote` field is blank. A research-only event-date join against `silver_member_parties` leaves a material unresolved set:
+
+- constitutional-change vote: party resolved for **84/148**, unresolved for **64/148**;
+- counselling-record amendment: party resolved for **86/146**, unresolved for **60/146**.
+
+The resolved rows support the broad Government/opposition pattern visible in the debates and reporting, but precise EirePolitic party totals are **not yet certified for publication**. `Unknown` means attribution coverage is incomplete, not that those TDs lacked a party.
 
 ## Important correction from initial exploration
 
@@ -85,8 +105,9 @@ Keep human/research review before publication for:
 
 ## Living next-step plan
 
-1. Use these three cases as the reference set for future close-division research.
-2. Add deterministic party/member vote breakdowns to each case once the event-date attribution extraction is run in a reusable form.
-3. For future production work, add a research-only close-division detector rather than changing existing voting denominators.
-4. Revisit the threshold after a larger history exists; <=10 is a discovery rule, not a permanent editorial definition.
-5. If a case becomes an Instagram post, freeze the exact division ID, proposition text, source links and snapshot date in the post's source record.
+1. Editorially review the two post briefs before any graphics are made.
+2. Produce the **Planning for Constitutional Change Bill** post first if one close-vote case is selected for immediate production.
+3. If the counselling-record case is selected, require an additional sensitivity/legal-copy check before final caption approval.
+4. Do not add party vote charts until event-date party attribution coverage is complete enough to certify exact totals.
+5. For future close votes, freeze the division ID, proposition, vote totals, source links and data snapshot in the post source record.
+6. Keep the temporary analysis branch `analysis/close-divisions-deep-dive-20260905` unmerged; it contains research-only workflow changes.
