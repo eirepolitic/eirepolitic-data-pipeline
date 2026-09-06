@@ -1,0 +1,160 @@
+name: Instagram polling factory render
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-polling-factory-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install factory dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install pandas pyyaml pillow boto3 matplotlib
+
+      - name: Check out exact approved July factory
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/instagram-monthly-post-framework
+          git cat-file -e 386b933^{commit}
+          git worktree add /tmp/approved-instagram-factory 386b933
+          test "$(git -C /tmp/approved-instagram-factory rev-parse --short=7 HEAD)" = "386b933"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+
+      - name: Inject polling project into approved factory
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R instagram/projects/ipi_polling_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
+
+      - name: Run approved July recurring factory against live IPI data
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          cd /tmp/approved-instagram-factory
+          python -m instagram.factory.recurring \
+            --project-id ipi_polling_factory_v1 \
+            --period latest \
+            --output-root "$GITHUB_WORKSPACE/generated_factory_live"
+
+      - name: Validate live factory package
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          PERIOD_ROOT="$(find generated_factory_live -mindepth 1 -maxdepth 1 -type d -name 'period=*' | sort | tail -1)"
+          test -n "$PERIOD_ROOT"
+          test -s "$PERIOD_ROOT/slides/01_latest_support.png"
+          test -s "$PERIOD_ROOT/slides/02_change_since_previous_model.png"
+          test -s "$PERIOD_ROOT/slides/03_recent_trend.png"
+          test -s "$PERIOD_ROOT/contact_sheets/three_slide_overview.jpg"
+          test -s "$PERIOD_ROOT/metadata/manifest.json"
+          test -s "$PERIOD_ROOT/ipi_polling_factory_review.zip"
+          python - "$PERIOD_ROOT" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          from PIL import Image
+          root=Path(sys.argv[1])
+          manifest=json.loads((root/'metadata/manifest.json').read_text(encoding='utf-8'))
+          assert manifest['factory_reference_commit']=='386b933'
+          assert manifest['factory_reference_workflow_run']==33894430571
+          assert manifest['review_state']=='pending_human_review'
+          assert manifest['publication_enabled'] is False
+          assert manifest['qa']['actual_slide_count']==3
+          for path in manifest['slides']:
+              with Image.open(path) as image:
+                  assert image.size==(1080,1350)
+          latest_visual=json.loads((root/'metadata/01_latest_support_visual_manifest.json').read_text(encoding='utf-8'))
+          assert latest_visual['success'] is True
+          assert not latest_visual.get('warnings')
+          print(json.dumps({
+              'latest_model_date': manifest['latest_model_date'],
+              'previous_model_date': manifest['previous_model_date'],
+              'cycle': manifest['cycle'],
+              'factory_commit': manifest['factory_reference_commit'],
+          }, indent=2))
+          PY
+          echo "period_root=$PERIOD_ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Build browser review page
+        shell: bash
+        env:
+          PERIOD_ROOT: ${{ steps.validate.outputs.period_root }}
+        run: |
+          set -euo pipefail
+          REVIEW_DIR="$GITHUB_WORKSPACE/factory_web_review"
+          rm -rf "$REVIEW_DIR"
+          mkdir -p "$REVIEW_DIR"
+          cp "$PERIOD_ROOT/contact_sheets/three_slide_overview.jpg" "$REVIEW_DIR/contact-sheet.jpg"
+          cp "$PERIOD_ROOT/slides/01_latest_support.png" "$REVIEW_DIR/slide-01.png"
+          cp "$PERIOD_ROOT/slides/02_change_since_previous_model.png" "$REVIEW_DIR/slide-02.png"
+          cp "$PERIOD_ROOT/slides/03_recent_trend.png" "$REVIEW_DIR/slide-03.png"
+          cp "$PERIOD_ROOT/caption.txt" "$REVIEW_DIR/caption.txt"
+          cp "$PERIOD_ROOT/metadata/manifest.json" "$REVIEW_DIR/manifest.json"
+          python - <<'PY'
+          from pathlib import Path
+          import html
+          import json
+          root=Path('factory_web_review')
+          manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          caption=html.escape((root/'caption.txt').read_text(encoding='utf-8'))
+          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IPI polling · approved factory review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}h1{{margin:0 0 8px}}.meta{{color:#cbbf9f;margin-bottom:22px}}.sheet{{width:100%;height:auto;display:block;margin:0 0 28px}}.slides{{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}}.slides img{{width:100%;height:auto}}pre{{white-space:pre-wrap;background:#173d30;padding:18px;border-radius:8px}}@media(max-width:900px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>IPI polling · approved July factory</h1><div class="meta">Factory commit: {html.escape(str(manifest['factory_reference_commit']))} · Reference workflow: {manifest['factory_reference_workflow_run']} · Model date: {html.escape(str(manifest['latest_model_date']))}</div><img class="sheet" src="contact-sheet.jpg" alt="Three-slide contact sheet"><div class="slides"><img src="slide-01.png" alt="Latest support"><img src="slide-02.png" alt="Change since previous model"><img src="slide-03.png" alt="Recent trend"></div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
+          (root/'index.html').write_text(page, encoding='utf-8')
+          PY
+
+      - name: Publish web review to preview branch
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd factory_web_review
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "preview: IPI polling approved factory ${GITHUB_RUN_ID}"
+          git branch -M previews/ipi-polling-factory
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/ipi-polling-factory
+          URL="https://raw.githack.com/${GITHUB_REPOSITORY}/previews/ipi-polling-factory/index.html"
+          echo "FACTORY_REVIEW_URL=$URL"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            printf '## IPI polling · approved factory review\n\n[Open web-hosted review page](%s)\n' "$URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload backup package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipi-polling-approved-factory-${{ github.run_id }}
+          path: generated_factory_live/
+          if-no-files-found: error
+          retention-days: 30
