@@ -1,6 +1,9 @@
 {
-  "generated_at_utc": "2026-09-06T18:36:10.279523+00:00",
+  "generated_at_utc": "2026-09-06T18:39:34.642574+00:00",
+  "as_of_date": "2026-09-06",
   "batch_size": 6,
+  "lookback_days": 180,
+  "scope_mode": "baseline_recent",
   "logical_source_keys": {
     "bills": "processed/oireachtas_unified/latest/csv/silver_bills.csv",
     "stages": "processed/oireachtas_unified/latest/csv/silver_bill_stages.csv",
@@ -21,7 +24,7 @@
   },
   "production_changed": false,
   "classifier_calls": 0,
-  "audit": {
+  "snapshot_audit": {
     "ready": true,
     "checks": {
       "nonempty": true,
@@ -51,78 +54,48 @@
     "series_batch_count": 70,
     "bills_with_certified_debate": 168,
     "bills_with_recorded_vote_evidence": 72
+  },
+  "series_audit": {
+    "ready": true,
+    "checks": {
+      "core_status_only": true,
+      "batch_size_respected": true,
+      "one_row_per_bill": true,
+      "no_lapsed_or_withdrawn": true,
+      "cream_list_public_label": true
+    },
+    "bill_count": 96,
+    "batch_count": 18,
+    "bucket_counts": {
+      "second_stage": 45,
+      "enacted": 34,
+      "committee_stage": 10,
+      "first_stage": 4,
+      "fifth_stage": 3
+    },
+    "change_type_counts": {
+      "baseline_recent": 96
+    }
   }
 }
 
-SERIES_BATCHES
-series_bucket_label  series_batch_id   
-Committee Stage      committee_stage-01    6
-                     committee_stage-02    6
-                     committee_stage-03    6
-                     committee_stage-04    6
-                     committee_stage-05    6
-                     committee_stage-06    6
-                     committee_stage-07    6
-                     committee_stage-08    6
-                     committee_stage-09    6
-                     committee_stage-10    6
-                     committee_stage-11    6
-                     committee_stage-12    6
-                     committee_stage-13    6
-                     committee_stage-14    6
-                     committee_stage-15    6
-                     committee_stage-16    3
-Defeated             defeated-01           6
-                     defeated-02           6
-                     defeated-03           6
-                     defeated-04           3
-Enacted              enacted-01            6
-                     enacted-02            6
-                     enacted-03            6
-                     enacted-04            6
-                     enacted-05            6
-                     enacted-06            6
-                     enacted-07            6
-                     enacted-08            6
-                     enacted-09            6
-                     enacted-10            2
-Fifth Stage          fifth_stage-01        4
-First Stage          first_stage-01        6
-                     first_stage-02        6
-                     first_stage-03        6
-                     first_stage-04        6
-                     first_stage-05        6
-                     first_stage-06        6
-                     first_stage-07        6
-                     first_stage-08        5
-Report Stage         report_stage-01       5
-Second Stage         second_stage-01       6
-                     second_stage-02       6
-                     second_stage-03       6
-                     second_stage-04       6
-                     second_stage-05       6
-                     second_stage-06       6
-                     second_stage-07       6
-                     second_stage-08       6
-                     second_stage-09       6
-                     second_stage-10       6
-                     second_stage-11       6
-                     second_stage-12       6
-                     second_stage-13       6
-                     second_stage-14       6
-                     second_stage-15       6
-                     second_stage-16       6
-                     second_stage-17       6
-                     second_stage-18       6
-                     second_stage-19       6
-                     second_stage-20       6
-                     second_stage-21       6
-                     second_stage-22       6
-                     second_stage-23       6
-                     second_stage-24       6
-                     second_stage-25       6
-                     second_stage-26       6
-                     second_stage-27       6
-                     second_stage-28       6
-                     second_stage-29       6
-                     second_stage-30       6
+EDITORIAL_BATCHES
+editorial_bucket_label  editorial_batch_id
+Committee Stage         committee_stage-01    6
+                        committee_stage-02    4
+Enacted                 enacted-01            6
+                        enacted-02            6
+                        enacted-03            6
+                        enacted-04            6
+                        enacted-05            6
+                        enacted-06            4
+Fifth Stage             fifth_stage-01        3
+First Stage             first_stage-01        4
+Second Stage            second_stage-01       6
+                        second_stage-02       6
+                        second_stage-03       6
+                        second_stage-04       6
+                        second_stage-05       6
+                        second_stage-06       6
+                        second_stage-07       6
+                        second_stage-08       3
