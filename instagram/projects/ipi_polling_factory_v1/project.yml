@@ -1,0 +1,39 @@
+project_id: ipi_polling_factory_v1
+adapter_module: instagram.projects.ipi_polling_factory_v1.adapter
+period:
+  default: latest
+source:
+  indicator_csv: s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polling_indicator.csv
+  source_id: irish_polling_indicator
+  source_label: Irish Polling Indicator (IPI)
+  source_url: https://github.com/Irish-Polling-Indicator/ipi-data
+render:
+  outer_layout: instagram/templates/layouts/title_text_media_v1.json
+  palette:
+    background: '#0f2f24'
+    text: '#f4ead7'
+    muted: '#c8bda8'
+    accent: '#d8b45f'
+    grid: '#f4ead7'
+  max_items: 8
+  trend_days: 90
+  trend_party_limit: 5
+slides:
+  definitions:
+    - id: latest_support
+      title: Where the parties stand now
+      renderer: horizontal_bar_uncertainty
+    - id: change_since_previous_model
+      title: What changed since the previous model
+      renderer: diverging_bar
+    - id: recent_trend
+      title: The recent polling trend
+      renderer: line_trend
+output:
+  local_root: instagram/production/output/ipi_polling_factory_v1
+publication:
+  enabled: false
+qa:
+  expected_slide_count: 3
+  expected_dimensions: [1080, 1350]
+  require_source_footer: true
