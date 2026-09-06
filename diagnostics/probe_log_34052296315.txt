@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/tmp_instagram_research.py", line 50, in <module>
+    w=w.merge(m[['member_code','membership_start','membership_end','_start','_end']],on='member_code',how='inner')
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py", line 12902, in merge
+    return merge(
+           ^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/reshape/merge.py", line 385, in merge
+    op = _MergeOperation(
+         ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/reshape/merge.py", line 1018, in __init__
+    ) = self._get_merge_keys()
+        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/reshape/merge.py", line 1633, in _get_merge_keys
+    left_keys.append(left._get_label_or_level_values(lk))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/generic.py", line 1764, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'member_code'
