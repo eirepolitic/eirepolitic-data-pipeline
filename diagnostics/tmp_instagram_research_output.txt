@@ -1,26 +1,45 @@
-TABLE member_profile_2025 ROWS 98 COLS ["member_code", "full_name", "constituency", "party", "photo_url", "top_issue_2025", "top_issue_count_2025", "vote_participation_pct_2025", "distinct_votes_participated_2025", "all_distinct_vote_ids_2025", "speech_count_2025", "speech_rank_2025"]
-TABLE speeches ROWS 3430 COLS ["speech_id", "debate_id", "debate_section_id", "debate_date", "speech_order", "speaker_ref", "speaker_name", "speaker_member_code", "speaker_match_method", "speaker_match_confidence", "speech_text", "speech_text_hash", "word_count", "char_count", "language", "source_file_id", "xml_source_key", "snapshot_date"]
-TABLE divisions ROWS 56 COLS ["division_id", "vote_id", "division_date", "chamber", "house_uri", "house_no", "committee_code", "subject", "outcome", "debate_id", "debate_section_id", "debate_show_as", "api_result_hash", "snapshot_date"]
-TABLE member_votes ROWS 8252 COLS ["member_vote_id", "division_id", "vote_id", "division_date", "member_code", "member_name", "vote_code", "vote_label", "party_name_at_vote", "constituency_name_at_vote", "snapshot_date"]
-TABLE bills ROWS 45 COLS ["bill_id", "bill_uri", "bill_no", "bill_year", "title", "short_title", "origin_house_uri", "origin_house_name", "bill_type", "status", "introduced_date", "last_event_date", "source_endpoint", "snapshot_date", "source_hash"]
-TABLE bill_stages ROWS 249 COLS ["bill_stage_id", "bill_id", "stage_name", "stage_date", "house_uri", "house_name", "stage_outcome", "order_in_bill", "snapshot_date"]
-TABLE bill_sponsors ROWS 84 COLS ["bill_sponsor_id", "bill_id", "sponsor_uri", "sponsor_name", "sponsor_role_uri", "sponsor_role_name", "is_primary", "sponsor_order", "snapshot_date"]
-TABLE classified ROWS 47275 COLS ["Debate Date", "Debate Section", "Debate Section Name", "Speaker Name", "Speech Text", "Speech Order", "speech_id", "PoliticalIssues"]
-SPEECHES_BY_YEAR {"2026": 3430}
-DEBATE_DAY_COUNT 10
-SPEECH_WORD_STATS {"count": 3430.0, "mean": 257.69, "std": 376.1, "min": 1.0, "25%": 19.0, "50%": 156.0, "75%": 326.0, "90%": 618.1, "95%": 883.1, "max": 4317.0}
-SPEECH_WORD_TOTAL 883872
-SPEECHES_UNDER_50_WORDS 1108
-SPEECHES_OVER_500_WORDS 495
-ISSUES_2025 {"Housing and Community Development": 3385, "Health": 3208, "Education": 2440, "International Affairs and Foreign Aid": 1699, "Government Operations": 1676, "Law/Crime and Family Issues": 1651, "Transportation": 1507, "Labor, Employment and Immigration": 1315, "Social Welfare": 1220, "Agriculture": 889, "Energy": 865, "Banking/Finance and Domestic Commerce": 690, "Defense": 514, "Environment": 467, "Macroeconomics": 423, "Civil Rights, Minority Issues and Civil Liberties": 415, "Culture and Arts": 390, "Foreign Trade": 320, "Public Lands and Water Management": 313, "Sports and Recreation": 266, "Space, Science, and Technology": 110, "State and Local Government Administration": 64, "Other/Miscellaneous": 56, "Domestic Terrorism": 53}
-ISSUES_2025_POLICY_TOTAL 23936
-DIVISION_KIND_TOTALS {"yes": 4206, "no": 4010, "abstain": 36, "other": 0}
-DIVISION_MARGIN_STATS {"count": 56.0, "mean": 28.07, "std": 23.21, "min": 9.0, "25%": 13.0, "50%": 14.5, "75%": 36.5, "max": 101.0}
-DIVISIONS_MARGIN_LE_5 0
-DIVISIONS_MARGIN_LE_10 3
-BILLS_BY_YEAR {"2024": 2, "2025": 7, "2026": 36}
-BILLS_STATUS {"Current": 39, "Defeated": 3, "Enacted": 3}
-BILLS_ORIGIN_HOUSE_NAME {"D\u00e1il \u00c9ireann": 38, "Seanad \u00c9ireann": 7}
-BILLS_REACHING_STAGE {"First Stage": 45, "Second Stage": 42, "Committee Stage": 29, "Fifth Stage": 27, "Report Stage": 27, "Cream List": 4, "Enacted": 3}
-SPONSORS_PER_BILL_STATS {"count": 45.0, "mean": 1.87, "std": 3.17, "min": 1.0, "25%": 1.0, "50%": 1.0, "75%": 1.0, "max": 21.0}
-BILLS_MULTI_SPONSOR 8
+CLOSE_DIVISIONS_COUNT 3
+[
+  {
+    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-09/vote_129",
+    "division_date": "2026-06-09",
+    "chamber": "dail",
+    "subject": "Question put: \"The amendment proposed to the arrangements on the Order of Business is hereby negatived and the proposed arrangements for the week's business are hereby agreed to.\"",
+    "outcome": "Carried",
+    "yes": 78,
+    "no": 69,
+    "abstain": 0,
+    "margin": 9,
+    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/main",
+    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/dbsect_5",
+    "debate_show_as": "An tOrd Gnó - Order of Business"
+  },
+  {
+    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130",
+    "division_date": "2026-06-10",
+    "chamber": "dail",
+    "subject": "Amendment put:",
+    "outcome": "Lost",
+    "yes": 68,
+    "no": 78,
+    "abstain": 0,
+    "margin": 10,
+    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/main",
+    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/dbsect_21",
+    "debate_show_as": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Report and Final Stages"
+  },
+  {
+    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_184",
+    "division_date": "2026-07-08",
+    "chamber": "dail",
+    "subject": "Question put:",
+    "outcome": "Lost",
+    "yes": 69,
+    "no": 79,
+    "abstain": 0,
+    "margin": 10,
+    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
+    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/dbsect_80",
+    "debate_show_as": "Planning for Constitutional Change Bill 2026: Second Stage (Resumed) [Private Members]"
+  }
+]
