@@ -1,45 +1,85 @@
 {
-  "answer_characteristic_counts": {},
-  "answer_topic_counts": {},
+  "answer_characteristic_counts": {
+    "direct_reply_promised_by_another_body": 3,
+    "factual_information_supplied": 4,
+    "funding_or_cost_figures_supplied": 1,
+    "legislation_or_regulation_discussed": 2,
+    "policy_explanation": 1,
+    "referred_to_another_body": 3,
+    "statistics_or_figures_supplied": 1,
+    "timeline_or_deadline_stated": 2
+  },
+  "answer_topic_counts": {
+    "cycling_walking": 1,
+    "enterprise_business": 1,
+    "government_public_service": 4,
+    "health": 1,
+    "legislation": 1,
+    "local_government": 1,
+    "procurement": 1,
+    "public_infrastructure": 1,
+    "public_spending": 3,
+    "public_transport": 1,
+    "roads": 1,
+    "transport": 1,
+    "transport_safety": 1
+  },
   "attempted_sections": 5,
-  "average_tokens_per_successful_section": null,
-  "combined_topic_counts": {},
-  "failed_sections": 5,
-  "failure_examples": [
-    {
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_109",
-      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
-    },
-    {
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_1367",
-      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
-    },
-    {
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_169",
-      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
-    },
-    {
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_180",
-      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
-    },
-    {
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-05/writtens/dbsect_359",
-      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'written_pq_semantic_index': In context=('properties', 'questions', 'items', 'properties', 'topic_tags'), 'uniqueItems' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
-    }
-  ],
+  "average_tokens_per_successful_section": 6305.6,
+  "combined_topic_counts": {
+    "cycling_walking": 1,
+    "enterprise_business": 1,
+    "government_public_service": 4,
+    "health": 1,
+    "legislation": 1,
+    "local_government": 1,
+    "procurement": 1,
+    "public_infrastructure": 1,
+    "public_service_staffing": 1,
+    "public_spending": 3,
+    "public_transport": 1,
+    "roads": 1,
+    "transport": 1,
+    "transport_safety": 1
+  },
+  "failed_sections": 0,
+  "failure_examples": [],
   "model": "gpt-5.6-luna",
   "pilot_version": 1,
   "production_changed": false,
   "proposed_new_tag_rows": 0,
-  "question_intent_counts": {},
-  "question_topic_counts": {},
+  "question_intent_counts": {
+    "request_action_or_intervention": 3,
+    "request_case_or_local_service_update": 1,
+    "request_explanation_or_rationale": 2,
+    "request_funding_or_cost": 3,
+    "request_policy_position": 2,
+    "request_staffing_or_capacity": 1,
+    "request_statistics_or_data": 4
+  },
+  "question_topic_counts": {
+    "cycling_walking": 1,
+    "enterprise_business": 1,
+    "government_public_service": 5,
+    "health": 1,
+    "legislation": 3,
+    "local_government": 1,
+    "procurement": 3,
+    "public_infrastructure": 1,
+    "public_service_staffing": 1,
+    "public_spending": 4,
+    "public_transport": 3,
+    "roads": 1,
+    "transport": 1,
+    "transport_safety": 3
+  },
   "research_only": true,
-  "successful_sections": 0,
+  "successful_sections": 5,
   "target_sections": 300,
   "usage": {
-    "input_tokens": 0,
-    "output_tokens": 0,
-    "total_tokens": 0
+    "input_tokens": 27433,
+    "output_tokens": 4095,
+    "total_tokens": 31528
   },
-  "validation_error_sections": 0
+  "validation_error_sections": 2
 }
