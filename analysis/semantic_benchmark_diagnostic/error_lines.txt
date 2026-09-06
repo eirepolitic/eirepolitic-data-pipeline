@@ -1,0 +1,60 @@
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:11:2026-09-06T02:21:04.9305002Z   AWS_SECRET_ACCESS_KEY: ***
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:25:2026-09-06T02:24:22.7098828Z {"completed": 25, "target": 300, "failures": 0, "input_tokens": 140027, "output_tokens": 14961, "total_tokens": 154988}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:26:2026-09-06T02:26:37.5226354Z {"completed": 50, "target": 300, "failures": 0, "input_tokens": 281434, "output_tokens": 29000, "total_tokens": 310434}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:27:2026-09-06T02:29:05.0425080Z {"completed": 75, "target": 300, "failures": 0, "input_tokens": 433466, "output_tokens": 45286, "total_tokens": 478752}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:28:2026-09-06T02:31:27.4965116Z {"completed": 100, "target": 300, "failures": 0, "input_tokens": 578643, "output_tokens": 61210, "total_tokens": 639853}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:29:2026-09-06T02:33:46.5784786Z {"completed": 125, "target": 300, "failures": 0, "input_tokens": 732414, "output_tokens": 76533, "total_tokens": 808947}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:30:2026-09-06T02:35:52.5929144Z {"completed": 150, "target": 300, "failures": 0, "input_tokens": 871229, "output_tokens": 91285, "total_tokens": 962514}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:31:2026-09-06T02:38:00.3669579Z {"completed": 175, "target": 300, "failures": 1, "input_tokens": 998751, "output_tokens": 103838, "total_tokens": 1102589}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:32:2026-09-06T02:40:54.5375271Z {"completed": 200, "target": 300, "failures": 1, "input_tokens": 1150735, "output_tokens": 126021, "total_tokens": 1276756}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:33:2026-09-06T02:42:50.7829408Z {"completed": 225, "target": 300, "failures": 1, "input_tokens": 1285976, "output_tokens": 139780, "total_tokens": 1425756}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:34:2026-09-06T02:44:45.4515598Z {"completed": 250, "target": 300, "failures": 1, "input_tokens": 1424676, "output_tokens": 151729, "total_tokens": 1576405}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:35:2026-09-06T02:47:01.8749207Z {"completed": 275, "target": 300, "failures": 1, "input_tokens": 1574900, "output_tokens": 166717, "total_tokens": 1741617}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:36:2026-09-06T02:49:06.3114218Z {"completed": 300, "target": 300, "failures": 1, "input_tokens": 1715710, "output_tokens": 181847, "total_tokens": 1897557}
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:74:2026-09-06T02:49:06.3889500Z     "data_statistics": 4,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:91:2026-09-06T02:49:06.3895503Z     "environmental_regulation": 3,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:247:2026-09-06T02:49:06.3950089Z     "rail": 4,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:248:2026-09-06T02:49:06.3950361Z     "regional_development": 2,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:274:2026-09-06T02:49:06.3959422Z   "failed_sections": 1,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:275:2026-09-06T02:49:06.3959726Z   "failure_examples": [
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:278:2026-09-06T02:49:06.3961336Z       "error": "JSONDecodeError: Unterminated string starting at: line 1 column 12319 (char 12318)"
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:375:2026-09-06T02:49:06.3995030Z     "public_infrastructure": 15,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:402:2026-09-06T02:49:06.4004500Z     "waste_recycling": 2,
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:414:2026-09-06T02:49:06.4008423Z   "validation_error_sections": 7
+logs/written-pq-semantic-pilot-v2/6_Run V2 300-section semantic benchmark.txt:416:2026-09-06T02:49:06.6809698Z ##[error]Process completed with exit code 1.
+logs/written-pq-semantic-pilot-v2/7_Persist research artifacts.txt:30:2026-09-06T02:49:07.4776821Z error: failed to push some refs to 'https://github.com/eirepolitic/eirepolitic-data-pipeline'
+logs/written-pq-semantic-pilot-v2/7_Persist research artifacts.txt:36:2026-09-06T02:49:07.4789643Z ##[error]Process completed with exit code 1.
+logs/written-pq-semantic-pilot-v2/2_Run actions_checkout@v4.txt:2:2026-09-06T02:20:50.7263504Z ##[group]Run actions/checkout@v4
+logs/written-pq-semantic-pilot-v2/2_Run actions_checkout@v4.txt:11:2026-09-06T02:20:50.7272504Z   fetch-depth: 1
+logs/written-pq-semantic-pilot-v2/2_Run actions_checkout@v4.txt:64:2026-09-06T02:20:50.9085037Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+logs/written-pq-semantic-pilot-v2/2_Run actions_checkout@v4.txt:66:2026-09-06T02:20:50.9312500Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+logs/written-pq-semantic-pilot-v2/2_Run actions_checkout@v4.txt:70:2026-09-06T02:20:50.9529504Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4fa23a71bed4e1c1c169465105919d43d4c79441:refs/remotes/origin/research/written-pq-semantic-pilot-20260905
+logs/0_written-pq-semantic-pilot-v2.txt:180:2026-09-06T02:20:54.0755008Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+logs/0_written-pq-semantic-pilot-v2.txt:271:2026-09-06T02:21:04.9303504Z env:
+logs/0_written-pq-semantic-pilot-v2.txt:274:2026-09-06T02:21:04.9305004Z   AWS_SECRET_ACCESS_KEY: ***
+logs/0_written-pq-semantic-pilot-v2.txt:288:2026-09-06T02:24:22.7098876Z {"completed": 25, "target": 300, "failures": 0, "input_tokens": 140027, "output_tokens": 14961, "total_tokens": 154988}
+logs/0_written-pq-semantic-pilot-v2.txt:289:2026-09-06T02:26:37.5226393Z {"completed": 50, "target": 300, "failures": 0, "input_tokens": 281434, "output_tokens": 29000, "total_tokens": 310434}
+logs/0_written-pq-semantic-pilot-v2.txt:290:2026-09-06T02:29:05.0425152Z {"completed": 75, "target": 300, "failures": 0, "input_tokens": 433466, "output_tokens": 45286, "total_tokens": 478752}
+logs/0_written-pq-semantic-pilot-v2.txt:291:2026-09-06T02:31:27.4965160Z {"completed": 100, "target": 300, "failures": 0, "input_tokens": 578643, "output_tokens": 61210, "total_tokens": 639853}
+logs/0_written-pq-semantic-pilot-v2.txt:292:2026-09-06T02:33:46.5784829Z {"completed": 125, "target": 300, "failures": 0, "input_tokens": 732414, "output_tokens": 76533, "total_tokens": 808947}
+logs/0_written-pq-semantic-pilot-v2.txt:293:2026-09-06T02:35:52.5929189Z {"completed": 150, "target": 300, "failures": 0, "input_tokens": 871229, "output_tokens": 91285, "total_tokens": 962514}
+logs/0_written-pq-semantic-pilot-v2.txt:294:2026-09-06T02:38:00.3669620Z {"completed": 175, "target": 300, "failures": 1, "input_tokens": 998751, "output_tokens": 103838, "total_tokens": 1102589}
+logs/0_written-pq-semantic-pilot-v2.txt:295:2026-09-06T02:40:54.5375316Z {"completed": 200, "target": 300, "failures": 1, "input_tokens": 1150735, "output_tokens": 126021, "total_tokens": 1276756}
+logs/0_written-pq-semantic-pilot-v2.txt:296:2026-09-06T02:42:50.7829445Z {"completed": 225, "target": 300, "failures": 1, "input_tokens": 1285976, "output_tokens": 139780, "total_tokens": 1425756}
+logs/0_written-pq-semantic-pilot-v2.txt:297:2026-09-06T02:44:45.4515664Z {"completed": 250, "target": 300, "failures": 1, "input_tokens": 1424676, "output_tokens": 151729, "total_tokens": 1576405}
+logs/0_written-pq-semantic-pilot-v2.txt:298:2026-09-06T02:47:01.8749248Z {"completed": 275, "target": 300, "failures": 1, "input_tokens": 1574900, "output_tokens": 166717, "total_tokens": 1741617}
+logs/0_written-pq-semantic-pilot-v2.txt:299:2026-09-06T02:49:06.3114261Z {"completed": 300, "target": 300, "failures": 1, "input_tokens": 1715710, "output_tokens": 181847, "total_tokens": 1897557}
+logs/0_written-pq-semantic-pilot-v2.txt:337:2026-09-06T02:49:06.3889502Z     "data_statistics": 4,
+logs/0_written-pq-semantic-pilot-v2.txt:353:2026-09-06T02:49:06.3895020Z     "enterprise_business": 6,
+logs/0_written-pq-semantic-pilot-v2.txt:407:2026-09-06T02:49:06.3914293Z     "special_education": 9,
+logs/0_written-pq-semantic-pilot-v2.txt:510:2026-09-06T02:49:06.3950091Z     "rail": 4,
+logs/0_written-pq-semantic-pilot-v2.txt:511:2026-09-06T02:49:06.3950364Z     "regional_development": 2,
+logs/0_written-pq-semantic-pilot-v2.txt:537:2026-09-06T02:49:06.3959424Z   "failed_sections": 1,
+logs/0_written-pq-semantic-pilot-v2.txt:538:2026-09-06T02:49:06.3959727Z   "failure_examples": [
+logs/0_written-pq-semantic-pilot-v2.txt:541:2026-09-06T02:49:06.3961339Z       "error": "JSONDecodeError: Unterminated string starting at: line 1 column 12319 (char 12318)"
+logs/0_written-pq-semantic-pilot-v2.txt:638:2026-09-06T02:49:06.3995037Z     "public_infrastructure": 15,
+logs/0_written-pq-semantic-pilot-v2.txt:665:2026-09-06T02:49:06.4004504Z     "waste_recycling": 2,
+logs/0_written-pq-semantic-pilot-v2.txt:677:2026-09-06T02:49:06.4008503Z   "validation_error_sections": 7
+logs/0_written-pq-semantic-pilot-v2.txt:679:2026-09-06T02:49:06.6809729Z ##[error]Process completed with exit code 1.
+logs/0_written-pq-semantic-pilot-v2.txt:709:2026-09-06T02:49:07.4776825Z error: failed to push some refs to 'https://github.com/eirepolitic/eirepolitic-data-pipeline'
+logs/0_written-pq-semantic-pilot-v2.txt:715:2026-09-06T02:49:07.4789650Z ##[error]Process completed with exit code 1.
