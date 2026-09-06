@@ -2,7 +2,7 @@
 
 ## Status
 
-Research pilot in progress on 2026-09-05/06.
+Research pilot completed through the first 300-section V2 benchmark on 2026-09-05/06.
 
 This work is **research-only**. It does not publish semantic classifications to production and does not change the production pointer.
 
@@ -22,7 +22,7 @@ The first-pass layer should make later targeted extraction possible without repe
 
 ## Core design decision: three semantic views
 
-The research explicitly preserves three views:
+The research preserves three views:
 
 1. **Question view** — what each submitted question is about and what information/action it requests.
 2. **Answer view** — what the official answer itself actually discusses and what kind of response it provides.
@@ -30,13 +30,13 @@ The research explicitly preserves three views:
 
 The question and answer must not be collapsed into one classification.
 
-In the clean V2 25-section pilot, **18 of 25 sections had different question and answer topic-tag sets**. This is strong evidence that the distinction is analytically meaningful.
+In the V2 25-section pilot, **18 of 25 sections had different question and answer topic-tag sets**. This is strong evidence that the distinction is analytically meaningful.
 
 ### Combined view should be derived
 
-In the same pilot, the combined topic set was always equal to the union of question and answer topic tags.
+In the same 25-section pilot, every combined topic set was equal to the union of question and answer topic tags.
 
-Therefore the current preferred design is:
+Therefore the preferred design is:
 
 `combined_topics = union(question_topics, answer_topics)`
 
@@ -315,25 +315,95 @@ Results:
 - all 25 combined topic sets equalled the question+answer union;
 - average model usage was approximately **6,189 total tokens per answer section** in this configuration.
 
-This was sufficient to justify a broader 300-section research benchmark.
+This justified the broader 300-section research benchmark.
+
+### V2 300-section benchmark
+
+Run `34006240512` attempted the full stratified 300-section benchmark.
+
+The model-call loop itself reached all 300 target sections. Aggregate results recovered from the GitHub Actions log were:
+
+- attempted sections: **300**;
+- successful parseable sections: **299**;
+- malformed/unparseable model responses: **1**;
+- sections with final deterministic validation errors: **7**;
+- proposed-new-tag rows: **3**;
+- input tokens: **1,715,710**;
+- output tokens: **181,847**;
+- total tokens: **1,897,557**;
+- average total tokens per successful section: **6,346.3**;
+- production changed: **false**.
+
+The one malformed response was for `2026-01-15` / `dbsect_490` and failed JSON parsing because the returned JSON string was truncated/unterminated. This is an operational robustness issue rather than evidence that the taxonomy itself failed. A production-quality runner must retry malformed structured output and preserve successful records even if one section fails.
+
+The benchmark job returned failure because the research runner was intentionally fail-closed when any model call failed. A separate artifact-persist step then also failed because the long-running workflow attempted to push to a branch that had advanced during execution. The final aggregate benchmark summary was subsequently recovered from the run logs without making additional model calls.
+
+#### What the 300-section benchmark supports
+
+The first-pass semantic routing architecture is technically viable, but **V2 is not yet approved for production**.
+
+The 299/300 structured-response success rate is encouraging, but 7/299 surviving deterministic validation failures are too many to silently accept in a production backfill. The correct production design must distinguish at least:
+
+- valid classification;
+- repaired-and-valid classification;
+- malformed response requiring retry;
+- unresolved validation failure requiring quarantine/review.
+
+No invalid row should be silently published as certified semantic metadata.
+
+The benchmark also confirms that the richer first-pass schema is token-heavy. Nearly 1.9 million tokens were used for only 300 answer sections. With roughly 96,675 production Written-answer sections, naïvely scaling this exact schema would imply hundreds of millions of tokens before retries/repairs.
+
+#### Descriptive benchmark patterns
+
+These counts describe the stratified 300-section research sample only; they are **not estimates of full-corpus prevalence**.
+
+Frequent question intents included:
+
+- `request_statistics_or_data`: 198;
+- `request_policy_status`: 118;
+- `request_action_or_intervention`: 114;
+- `request_funding_or_cost`: 90;
+- `request_policy_position`: 72.
+
+Frequent answer characteristics included:
+
+- `factual_information_supplied`: 188;
+- `referred_to_another_body`: 135;
+- `policy_explanation`: 133;
+- `direct_reply_promised_by_another_body`: 124;
+- `implementation_status_update`: 99;
+- `no_substantive_answer`: 92;
+- `future_action_or_commitment`: 88;
+- `legislation_or_regulation_discussed`: 80;
+- `statistics_or_figures_supplied`: 74;
+- `timeline_or_deadline_stated`: 63;
+- `funding_or_cost_figures_supplied`: 61.
+
+These results support the original idea that first-pass routing can do more than issue tagging. Intent and response-characteristic dimensions appear capable of selecting useful subsets for later specialised extraction—for example, commitments, statistics, funding, referrals and legislation.
+
+The three proposed-new-tag rows show that the controlled taxonomy still needs an escape hatch, but the low count does not by itself prove the taxonomy is complete because the proposed-tag contents were lost when the original benchmark artifacts failed to persist.
 
 ## Cost and scale implications
 
 The certified production corpus contains approximately 96,675 Written-answer sections.
 
-At roughly 6.2k total tokens per section, a naïve one-by-one full-corpus first pass would involve hundreds of millions of tokens.
+At the measured V2 300-section average of **6,346.3 total tokens per successful section**, a simple linear extrapolation is roughly **614 million total tokens** for 96,675 sections before accounting for retry/repair overhead or differences in full-corpus answer lengths.
+
+This is a planning estimate, not a billing estimate and not a statement of exact future usage.
 
 Therefore production design must consider:
 
 - reducing repeated static prompt/taxonomy tokens;
 - prompt caching where supported and economically useful;
 - batching/parallel execution rather than sequential calls;
-- possibly separating cheap routing classification from richer entity/evidence extraction;
+- separating cheap routing classification from richer entity/evidence extraction;
 - reusing classifications for unchanged source-section hashes;
 - calling the model only for new/changed sections after initial backfill;
-- evaluating whether every first-pass field is worth its token/output cost.
+- evaluating whether every first-pass field is worth its token/output cost;
+- retrying malformed structured output narrowly rather than rerunning whole batches;
+- quarantining unresolved validation failures rather than failing or republishing the entire corpus.
 
-No full-corpus model backfill should be approved solely because the 300-section research benchmark succeeds.
+No full-corpus model backfill should be approved solely because this 300-section research benchmark is broadly successful.
 
 ## What this first pass is not
 
@@ -369,24 +439,21 @@ The routing layer should make those passes cheaper and more targeted. For exampl
 
 ## Living next-step plan
 
-1. Complete the V2 stratified 300-section benchmark.
-2. Measure:
-   - final validation-error rate;
-   - repair-attempt rate and repair success;
-   - question/answer topic divergence;
-   - tag frequency/concentration;
-   - `*_general` tag use;
-   - proposed-new-tag frequency and quality;
-   - answer-characteristic frequency;
-   - average token usage and distribution by answer length;
-   - grouped/referral/no-answer behavior.
-3. Manually review a deliberately diverse subset of benchmark rows rather than relying on validator success alone.
-4. Refine taxonomy definitions only where evidence shows recurring confusion or missing concepts.
-5. Test a lower-token routing variant against the same benchmark to determine how much evidence/entity detail can be moved to later passes without materially harming routing quality.
-6. Compare exact outputs of the full V2 schema with a cheaper first-pass schema.
-7. Define a small human-reviewed gold set before production approval.
-8. Measure precision/recall or agreement per major output family against that gold set.
-9. Only after those results, design production tables and incremental model-call workflows.
-10. Separately pilot second-pass structured claim extraction on selected topics/answer characteristics.
+1. **Do not rerun the 300-section V2 benchmark simply to recreate lost artifacts.** The aggregate evidence has been recovered and additional identical calls would add cost without answering a new research question.
+2. Harden the research runner so every successful classification is checkpointed/preserved even when another record fails, and so malformed JSON gets a bounded targeted retry.
+3. Preserve unresolved validation failures as explicit quarantine records instead of treating them as publishable classifications.
+4. Create a **lower-token routing variant** on the same deterministic sample design. Move entities and per-topic verbatim evidence out of the cheapest first pass where possible, retaining only fields needed to route later analysis.
+5. Compare the lower-token variant with V2 on a bounded sample for:
+   - topic agreement;
+   - question-intent agreement;
+   - answer-characteristic agreement;
+   - validation failure rate;
+   - proposed-tag behavior;
+   - token reduction.
+6. Build a small human-reviewed gold set (including grouped answers, referral-only answers, long answers, empty/no-reply cases, and taxonomy edge cases).
+7. Measure classification agreement/error against the gold set. Deterministic validator success alone is not semantic accuracy.
+8. Review the three proposed-tag cases when a future targeted benchmark captures them durably; do not expand the production taxonomy from aggregate counts alone.
+9. Only after the cheaper routing benchmark and gold-set review, propose production semantic tables and incremental model-call workflows.
+10. Separately pilot second-pass structured claim extraction using subsets selected by answer characteristics such as `future_action_or_commitment`, `statistics_or_figures_supplied`, `funding_or_cost_figures_supplied`, and `legislation_or_regulation_discussed`.
 
 No production semantic-classification dataset is approved yet.
