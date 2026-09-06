@@ -1,45 +1,7 @@
-CLOSE_DIVISIONS_COUNT 3
-[
-  {
-    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-09/vote_129",
-    "division_date": "2026-06-09",
-    "chamber": "dail",
-    "subject": "Question put: \"The amendment proposed to the arrangements on the Order of Business is hereby negatived and the proposed arrangements for the week's business are hereby agreed to.\"",
-    "outcome": "Carried",
-    "yes": 78,
-    "no": 69,
-    "abstain": 0,
-    "margin": 9,
-    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/main",
-    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-09/debate/dbsect_5",
-    "debate_show_as": "An tOrd Gnó - Order of Business"
-  },
-  {
-    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130",
-    "division_date": "2026-06-10",
-    "chamber": "dail",
-    "subject": "Amendment put:",
-    "outcome": "Lost",
-    "yes": 68,
-    "no": 78,
-    "abstain": 0,
-    "margin": 10,
-    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/main",
-    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-06-10/debate/dbsect_21",
-    "debate_show_as": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026: Report and Final Stages"
-  },
-  {
-    "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_184",
-    "division_date": "2026-07-08",
-    "chamber": "dail",
-    "subject": "Question put:",
-    "outcome": "Lost",
-    "yes": 69,
-    "no": 79,
-    "abstain": 0,
-    "margin": 10,
-    "debate_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/main",
-    "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-07-08/debate/dbsect_80",
-    "debate_show_as": "Planning for Constitutional Change Bill 2026: Second Stage (Resumed) [Private Members]"
-  }
-]
+DEBATE_KEYS ["processed/oireachtas_unified/compat/debates/debate_speeches_classified_compat.csv", "processed/oireachtas_unified/compat/debates/parquets/debate_speeches_classified_compat.parquet"]
+ROWS 47275
+COLS ["Debate Date", "Debate Section", "Debate Section Name", "Speaker Name", "Speech Text", "Speech Order", "speech_id", "PoliticalIssues"]
+RESOLVED {"date": "Debate Date", "member": null, "name": "Speaker Name", "text": null}
+DATE_RANGE 2024-12-18 2026-02-26
+ROWS_BY_YEAR {"2024": 119, "2025": 38660, "2026": 8496}
+DEBATE_DAYS 116
