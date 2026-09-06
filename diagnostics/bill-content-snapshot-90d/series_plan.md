@@ -1,6 +1,6 @@
 # Bill tracker — proposed Instagram series
 
-Generated: `2026-09-06T18:41:34.147654+00:00`
+Generated: `2026-09-06T18:49:07.881016+00:00`
 
 Deterministic editorial planning artifact. No AI-generated Bill or debate summaries are included.
 
@@ -112,4 +112,4 @@ Deterministic editorial planning artifact. No AI-generated Bill or debate summar
 
 ## Card policy
 
-Use only source-backed title, stage/House, sponsor, certified debate links and certified division data directly. Plain-English Bill summaries and pro/con argument summaries require a separate sourced editorial step. Never treat debate participation as support or opposition without explicit position or vote evidence.
+Use only source-backed title, stage/House, sponsor, certified debate links and proposition-specific certified division data directly. Plain-English Bill summaries and pro/con argument summaries require a separate sourced editorial step. Never treat debate participation as support or opposition without explicit position or vote evidence.
