@@ -36,8 +36,13 @@ jobs:
       - name: Run focused Bill content tests
         run: python -m unittest tests.political_metrics.test_bill_content_snapshot
 
-      - name: Build read-only Bill content snapshot
-        run: python process/build_bill_content_snapshot.py --batch-size 6 --output-dir diagnostics/bill-content-snapshot-test
+      - name: Build read-only Bill content snapshot and capture diagnostics
+        run: |
+          mkdir -p diagnostics/bill-content-snapshot-test
+          set +e
+          python process/build_bill_content_snapshot.py --batch-size 6 --output-dir diagnostics/bill-content-snapshot-test > diagnostics/bill-content-snapshot-test/build.log 2>&1
+          echo $? > diagnostics/bill-content-snapshot-test/exit_code.txt
+          set -e
 
       - name: Persist validation output on feature branch
         run: |
