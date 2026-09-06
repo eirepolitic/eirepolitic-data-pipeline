@@ -1,9 +1,9 @@
 # Instagram speech-metrics carousel follow-up
 
-Status: **Promising candidate; member coverage needs one certification step before publication**  
+Status: **Member coverage certified; carousel metrics ready for editorial selection**  
 Date: **6 September 2026**
 
-This refines candidate 2 in `instagram_post_candidates.md` from a generic speech-length explainer into a multi-slide carousel about who speaks most, longest and most often in the current Dáil transcript history.
+This refines candidate 2 in `instagram_post_candidates.md` into a multi-slide carousel about who speaks most, longest and most often in the current Dáil transcript history.
 
 ## Proposed post
 
@@ -11,59 +11,138 @@ This refines candidate 2 in `instagram_post_candidates.md` from a generic speech
 
 Potential slides:
 
-1. most transcript interventions;
+1. most recorded transcript interventions;
 2. most total words spoken;
-3. longest average intervention, with a minimum-speech threshold;
+3. longest average intervention, with a minimum-intervention threshold;
 4. longest single recorded intervention;
 5. most debate days with at least one intervention;
-6. least transcript interventions, but only after a fair tenure/coverage denominator is certified.
+6. fewest recorded interventions per eligible debate day, with a minimum eligibility threshold.
 
 Do not use issue labels in this post.
 
-## Deterministic probe
+## Member-reference investigation
 
-The full-session compatibility speech history currently spans **18 December 2024 to 26 February 2026**, covering **116 debate days** and **47,275 transcript rows**.
+The earlier exploratory probe incorrectly read physical `processed/oireachtas_unified/latest/...` S3 objects directly. Under the immutable batch architecture, those physical legacy objects can be stale and are **not** the canonical production read surface.
 
-The compatibility table contains speaker names but not member IDs. A temporary read-only analysis therefore normalized speaker names and matched them to `gold_current_members`.
+Canonical reads must go through `extract.oireachtas.io_s3.get_bytes()` / `resolve_read_key()`, which resolves logical production keys through the active production batch pointer. Candidate builds similarly resolve logical keys inside the active candidate batch.
 
-That match produced **25,822 transcript interventions across 96 matched TD names**.
+The corrected production-pointer read on 6 September 2026 resolves to:
 
-Illustrative results from that matched subset:
+- `silver_members`: **176 rows**;
+- `silver_member_memberships`: **176 rows**;
+- `gold_current_members`: **174 rows**.
 
-- **Most transcript interventions:** Micheál Martin — **4,424**; Simon Harris — **2,074**; Pearse Doherty — **1,018**.
-- **Most total words:** Micheál Martin — **440,599**; Simon Harris — **392,995**; Dara Calleary — **153,097**.
-- **Longest average intervention, minimum 20 interventions:** Ciarán Ahern — **562 words**; Cormac Devlin — **517**; Emer Higgins — **411**.
-- **Longest single matched intervention:** Jennifer Carroll MacNeill — **4,517 words**, on 26 February 2025 in `Future of Healthcare for Longer, Healthier Lives: Statements`.
-- **Most speaking days:** Michael Collins — **102 of 116 covered debate days**; Ruth Coppinger — **98**; Pearse Doherty and Paul Gogarty — **95** each.
+Therefore the earlier 100/98-row observation was a diagnostic error, not an incomplete production roster.
 
-These are useful diagnostics, not yet publication-certified leaderboards.
+A permanent regression test now guards both behaviours:
 
-## Main caveat discovered
+- logical reads use the production pointer rather than stale direct objects;
+- candidate reads use the current candidate batch rather than production or stale direct objects.
 
-`gold_current_members` currently contains only **98 rows**, and the name match covers 96 of them. That is not a sufficient reference surface for a definitive whole-Dáil "most/least talkative TD" leaderboard.
+## Event-date membership model
 
-The low end is especially unsafe: a member can appear to have few speeches because of incomplete reference coverage, tenure, office changes, transcript-name variation or time outside the covered period.
+The data model explicitly supports members entering or leaving during a Dáil through dated membership fields:
 
-Therefore:
+- `membership_start`;
+- `membership_end`;
+- `house_no`;
+- `chamber`;
+- `is_current`.
 
-- do **not** publish "least talkative TD" yet;
-- do **not** describe the current top-end diagnostic as a complete all-TD ranking yet;
-- do not treat intervention counts or word totals as effectiveness, performance or quality;
-- preserve the distinction between a transcript intervention and a prepared speech.
+Member-level historical metrics should test the event date against the relevant membership interval rather than use today's roster as the historical denominator.
 
-## What is safe now
+**Catherine Connolly is a confirmed example:**
 
-The overall carousel concept is strong and should remain in the shortlist.
+- member code: `Catherine-Connolly.D.2016-10-03`;
+- 34th Dáil membership start: **29 November 2024**;
+- membership end: **25 October 2025**;
+- current-member flag: **false**.
 
-The metrics themselves are deterministic and visually useful. The remaining work is identity/eligibility certification, not classifier work.
+The speech analysis therefore includes her speeches while she was a TD and excludes dates after her membership ended. Within the covered transcript period she had **76 eligible debate days**, **370 recorded interventions**, and spoke on **64 eligible debate days**.
+
+## Certified speech-analysis coverage
+
+The current compatibility speech history spans **18 December 2024 to 28 August 2026**:
+
+- **163 debate days**;
+- **66,192 transcript rows**;
+- **65,749 rows already carry a native `member_code`**;
+- **65,740 interventions** remain after event-date Dáil-membership validation;
+- **176 members** overlap the covered Dáil period;
+- **all 176** have at least one event-date-valid matched intervention in the covered speech surface.
+
+This is sufficient for the proposed member-level carousel, subject to metric-specific interpretation caveats below.
+
+## Current headline metrics
+
+### Most recorded transcript interventions
+
+1. Micheál Martin — **6,126**;
+2. Verona Murphy — **5,161**;
+3. Simon Harris — **2,836**.
+
+This is a count of transcript interventions, not prepared speeches. Presiding/procedural roles can generate many short interventions, so this slide should be labelled literally rather than as a performance ranking.
+
+### Most total words
+
+1. Micheál Martin — **637,331 words**;
+2. Simon Harris — **532,221**;
+3. Jim O'Callaghan — **288,341**.
+
+This is cumulative transcript volume during the covered period, not speaking quality or effectiveness.
+
+### Longest average intervention
+
+Using a minimum of **20 recorded interventions** to avoid tiny-sample winners:
+
+1. Ciarán Ahern — **573 words** average;
+2. Cormac Devlin — **541**;
+3. Barry Ward — **509**.
+
+The final rendered post should state the minimum-intervention rule.
+
+### Longest single recorded intervention
+
+1. Charlie McConalogue — **5,173 words**;
+2. Paschal Donohoe — **4,828**;
+3. Kieran O'Donnell — **4,748**.
+
+Before rendering, the exact winning transcript row/section should be frozen into the publication evidence bundle.
+
+### Most debate days with at least one intervention
+
+1. Verona Murphy — **153 of 163 eligible debate days**;
+2. Ruairí Ó Murchú — **147 of 163**;
+3. Michael Collins — **144 of 163**.
+
+This is a presence-in-transcript measure, not chamber attendance. A TD can be present without producing a recorded intervention, and vice versa this metric does not measure full-day attendance.
+
+### Lowest intervention rate among members with at least 50 eligible debate days
+
+A tenure-adjusted low-end comparison is now possible. Using **recorded interventions per eligible debate day** and requiring at least **50 eligible debate days**:
+
+1. Sean Fleming — **12 interventions / 163 eligible days = 0.07 per day**;
+2. Willie O'Dea — **22 / 163 = 0.13**;
+3. Eamon Scanlon — **34 / 163 = 0.21**.
+
+For public copy, prefer **"fewest recorded interventions per eligible debate day"** rather than "least talkative TD". The latter overstates what transcript activity measures.
+
+## Interpretation guardrails
+
+- A transcript `speech` is an intervention, not necessarily a prepared standalone speech.
+- Intervention counts, words and speaking days do not measure political effectiveness, quality, influence or attendance.
+- Office-holder and chair/presiding roles can materially affect intervention counts and average length.
+- Raw session totals are valid descriptive totals but reflect time actually served in the Dáil; tenure-adjusted measures should use eligible debate days.
+- For averages, use a published minimum sample threshold.
+- For the low end, use an eligibility threshold and a rate, not raw counts.
+- Do not use the current-member roster alone for historical denominators; use event-date membership intervals.
 
 ## Living next-step plan
 
-1. Build or identify the complete current-Dáil member reference for the full covered period, using event-date membership where possible.
-2. Match every transcript speaker to member IDs and quantify unmatched/ambiguous names.
-3. Recalculate the six proposed carousel metrics on the certified TD population.
-4. For average speech length, retain a minimum-intervention threshold so tiny samples cannot top the ranking.
-5. For the low-end ranking, require full-period eligibility or normalize by eligible debate days; otherwise omit the "least talkative" slide.
-6. Once those checks pass, replace candidate 2 in the main Instagram shortlist with this carousel concept and freeze the publication snapshot.
+1. Editorially choose 4–6 of the certified metrics for the carousel.
+2. Freeze the production batch, coverage dates and metric definitions used for rendering.
+3. Retrieve and verify the exact transcript row for the longest-single-intervention slide.
+4. Decide whether the presiding-role effect should be shown as an explanatory slide or simply carried as a methodology note.
+5. Keep the wording descriptive: "recorded interventions", "total words", "eligible debate days" and "average intervention length".
 
-No production data or architecture was changed. Temporary diagnostics remain isolated on the unmerged analysis branch.
+No production source data was changed during this investigation. The initial incomplete-roster concern was resolved as a read-path mistake in the temporary diagnostic, not a production data defect.
