@@ -8,7 +8,7 @@ on:
       - '.github/workflows/instagram_polling_factory_*.yml'
   push:
     branches:
-      - 'feature/ipi-polling-carousel-polish-*'
+      - 'feature/ipi-raw-poll-carousel-*'
     paths:
       - 'instagram/projects/ipi_polling_factory_v1/**'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/fixtures/**'
@@ -52,12 +52,11 @@ jobs:
           test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
           test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
 
-      - name: Inject polling project and fixtures into approved factory
+      - name: Inject raw polling project and fixture into approved factory
         shell: bash
         run: |
           set -euo pipefail
           cp -R instagram/projects/ipi_polling_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
-          cp instagram/campaigns/ipi_polling_snapshot_v1/fixtures/polling_indicator_fixture.csv /tmp/approved-instagram-factory/ipi_polling_fixture.csv
           cp instagram/campaigns/ipi_polling_snapshot_v1/fixtures/polls_fixture.csv /tmp/approved-instagram-factory/ipi_polls_fixture.csv
           cd /tmp/approved-instagram-factory
           python - <<'PY'
@@ -65,14 +64,13 @@ jobs:
           import yaml
           path=Path('instagram/projects/ipi_polling_factory_v1/project.yml')
           data=yaml.safe_load(path.read_text(encoding='utf-8'))
-          data['source']['indicator_csv']='ipi_polling_fixture.csv'
           data['source']['polls_csv']='ipi_polls_fixture.csv'
           data['render']['max_items']=5
           data['render']['trend_party_limit']=3
           path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding='utf-8')
           PY
 
-      - name: Run exact July recurring factory with polling adapter
+      - name: Run exact July recurring factory with raw-poll adapter
         shell: bash
         run: |
           set -euo pipefail
@@ -82,18 +80,16 @@ jobs:
             --period latest \
             --output-root "$GITHUB_WORKSPACE/generated_factory_fixture"
 
-      - name: Validate factory output
+      - name: Validate raw-poll factory output
         shell: bash
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE/generated_factory_fixture/period=2026-07-31"
-          test -s "$ROOT/slides/01_latest_support.png"
-          test -s "$ROOT/slides/02_change_since_previous_model.png"
-          test -s "$ROOT/slides/03_recent_trend.png"
-          test -s "$ROOT/slides/04_methodology.png"
-          test -s "$ROOT/variants/03_recent_trend_single_row.png"
+          test -s "$ROOT/slides/01_latest_poll.png"
+          test -s "$ROOT/slides/02_change_same_pollster.png"
+          test -s "$ROOT/slides/03_one_month_polling.png"
+          test -s "$ROOT/slides/04_about_polling.png"
           test -s "$ROOT/contact_sheets/four_slide_overview.jpg"
-          test -s "$ROOT/contact_sheets/trend_legend_variants.jpg"
           test -s "$ROOT/metadata/manifest.json"
           test -s "$ROOT/ipi_polling_factory_review.zip"
           python - <<'PY'
@@ -104,36 +100,39 @@ jobs:
           manifest=json.loads((root/'metadata/manifest.json').read_text(encoding='utf-8'))
           assert manifest['factory_reference_commit']=='386b933'
           assert manifest['factory_reference_workflow_run']==33894430571
+          assert manifest['data_mode']=='raw_polls_only'
           assert manifest['review_state']=='pending_human_review'
           assert manifest['publication_enabled'] is False
-          assert manifest['latest_model_date']=='2026-07-31'
-          assert manifest['previous_model_date']=='2026-07-30'
+          assert manifest['pollster']=='Ireland Thinks'
+          assert manifest['latest_poll']['publication_date']=='2026-07-31'
+          assert manifest['previous_poll']['publication_date']=='2026-06-30'
+          assert manifest['comparison_days']==31
+          assert manifest['comparison_selection']=='target_window'
+          assert len(manifest['trend_waves'])==3
+          assert {wave['pollster'] for wave in manifest['trend_waves']}=={'Ireland Thinks'}
+          assert manifest['trend_legend_default']=='single_row'
           assert manifest['qa']['actual_slide_count']==4
-          assert manifest['qa']['trend_variant_count']==2
-          assert manifest['latest_poll_metadata']['pollster']=='Fixture Research'
-          assert manifest['latest_poll_metadata']['sample_size']==1044
-          assert manifest['trend_legend_default']=='two_row'
+          assert manifest['qa']['model_data_used'] is False
+          assert manifest['qa']['same_pollster_only'] is True
           for path in manifest['slides']:
               with Image.open(path) as image:
                   assert image.size==(1080,1350)
-          with Image.open(manifest['variants']['trend_single_row']) as image:
-              assert image.size==(1080,1350)
           trend=json.loads((root/'metadata/03_trend_visual_manifest.json').read_text(encoding='utf-8'))
           assert trend['success'] is True
-          assert trend['legend_variant']=='two_row'
-          assert len(trend['series_colors'])==3
-          trend_alt=json.loads((root/'metadata/03_trend_single_row_visual_manifest.json').read_text(encoding='utf-8'))
-          assert trend_alt['legend_variant']=='single_row'
+          assert trend['legend_variant']=='single_row'
+          trend_meta=json.loads((root/'metadata/03_trend_visual.json').read_text(encoding='utf-8'))
+          for series in trend_meta['series']:
+              assert len(series['points'])==3
           methodology=manifest['visual_manifests']['methodology']
           assert methodology['renderer']=='approved_glossary_methodology_v1'
           assert methodology['glossary_metrics']['entry_count']==5
-          print('Four-slide exact July factory polling fixture validated.')
+          print('Raw same-pollster one-month carousel validated.')
           PY
 
       - name: Upload fixture review package
         uses: actions/upload-artifact@v4
         with:
-          name: ipi-polling-factory-fixture-${{ github.run_id }}
+          name: ipi-raw-poll-factory-fixture-${{ github.run_id }}
           path: generated_factory_fixture/
           if-no-files-found: error
           retention-days: 7
