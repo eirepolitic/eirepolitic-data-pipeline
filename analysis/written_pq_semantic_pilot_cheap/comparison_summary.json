@@ -1,0 +1,18 @@
+{
+  "agreement": {
+    "answer_characteristic_jaccard": 0.87,
+    "answer_topic_jaccard": 0.7187,
+    "combined_topic_jaccard": 0.7227,
+    "question_intent_jaccard": 0.8693,
+    "question_topic_jaccard": 0.746
+  },
+  "cheap_avg_tokens_per_section": 3485.6,
+  "cheap_failed_sections": 0,
+  "cheap_total_tokens": 87141,
+  "cheap_validation_error_sections": 0,
+  "full_v2_avg_tokens_per_section": 6188.5,
+  "full_v2_total_tokens": 154712,
+  "note": "Agreement is model-vs-model on a 25-section research sample, not accuracy against human labels.",
+  "shared_sections": 25,
+  "token_reduction_pct": 43.68
+}
