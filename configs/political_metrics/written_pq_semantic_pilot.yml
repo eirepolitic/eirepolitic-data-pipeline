@@ -1,18 +1,21 @@
-pilot_version: 1
+pilot_version: 2
 purpose: Research-only first-pass semantic routing for Written Parliamentary Questions and official answers.
 model_call_unit: answer_section
 principles:
   - Known source metadata such as TD, department, date, party and answer status are not model-generated tags.
-  - Classify question text, answer text and the combined exchange separately.
+  - Classify each question text and the answer text separately.
+  - Derive the combined exchange topic view deterministically as the union of question and answer tags.
   - Topic classification is multi-label.
+  - The model selects leaf-level topic tags only; broad categories are derived deterministically from the taxonomy hierarchy.
   - Use only approved tags in `topic_tags`; genuinely missing concepts go to `proposed_new_tags`.
   - Do not infer support/opposition, truthfulness, effectiveness, evasiveness or political quality unless explicitly stated and separately researched.
-  - Every semantic output should be grounded in the supplied text.
+  - Every semantic output should be grounded in the supplied text for that scope.
   - Grouped answer sections are classified once, with separate classifications returned for each linked question.
 
 broad_topics:
   - id: economy
     label: Economy and public finances
+    general_tag: economy_general
     children:
       - taxation
       - public_spending
@@ -26,6 +29,7 @@ broad_topics:
       - consumer_affairs
   - id: health
     label: Health
+    general_tag: health_general
     children:
       - hospitals
       - waiting_lists
@@ -39,6 +43,7 @@ broad_topics:
       - child_health
   - id: housing
     label: Housing and planning
+    general_tag: housing_general
     children:
       - housing_supply
       - social_housing
@@ -50,6 +55,7 @@ broad_topics:
       - housing_standards
   - id: education
     label: Education
+    general_tag: education_general
     children:
       - schools
       - teachers_staffing
@@ -58,8 +64,9 @@ broad_topics:
       - further_education_training
       - school_transport
       - education_funding
-  - id: justice
+  - id: justice_rights
     label: Justice, policing and rights
+    general_tag: justice_rights_general
     children:
       - policing
       - courts
@@ -72,6 +79,7 @@ broad_topics:
       - immigration_asylum
   - id: social_protection
     label: Social protection and families
+    general_tag: social_protection_general
     children:
       - pensions
       - unemployment_support
@@ -81,8 +89,10 @@ broad_topics:
       - poverty_deprivation
   - id: transport
     label: Transport
+    general_tag: transport_general
     children:
       - public_transport
+      - transport_fares
       - roads
       - rail
       - aviation
@@ -91,6 +101,7 @@ broad_topics:
       - transport_safety
   - id: climate_environment
     label: Climate and environment
+    general_tag: climate_environment_general
     children:
       - climate_policy
       - emissions
@@ -101,6 +112,7 @@ broad_topics:
       - environmental_regulation
   - id: energy
     label: Energy
+    general_tag: energy_general
     children:
       - electricity
       - renewable_energy
@@ -110,6 +122,7 @@ broad_topics:
       - energy_security
   - id: agriculture_food
     label: Agriculture, food and rural affairs
+    general_tag: agriculture_food_general
     children:
       - farming
       - fisheries
@@ -119,6 +132,7 @@ broad_topics:
       - rural_development
   - id: work_employment
     label: Work and employment
+    general_tag: work_employment_general
     children:
       - employment
       - wages_pay
@@ -128,13 +142,15 @@ broad_topics:
       - skills_training
   - id: children_youth
     label: Children and youth
+    general_tag: children_youth_general
     children:
       - childcare
       - child_protection
       - youth_services
       - children_in_care
-  - id: foreign_defence
+  - id: foreign_affairs_defence
     label: Foreign affairs and defence
+    general_tag: foreign_affairs_defence_general
     children:
       - european_union
       - international_relations
@@ -144,6 +160,7 @@ broad_topics:
       - international_conflict
   - id: government_public_service
     label: Government and public administration
+    general_tag: government_public_service_general
     children:
       - public_service_delivery
       - procurement
@@ -154,6 +171,7 @@ broad_topics:
       - local_government
   - id: legislation_constitution
     label: Legislation, Constitution and elections
+    general_tag: legislation_constitution_general
     children:
       - legislation
       - constitutional_matters
@@ -161,6 +179,7 @@ broad_topics:
       - referendums
   - id: infrastructure_communications
     label: Infrastructure and communications
+    general_tag: infrastructure_communications_general
     children:
       - broadband_telecoms
       - postal_services
@@ -168,6 +187,7 @@ broad_topics:
       - digital_services
   - id: culture_media_sport
     label: Culture, media and sport
+    general_tag: culture_media_sport_general
     children:
       - arts_culture
       - media_broadcasting
@@ -176,6 +196,7 @@ broad_topics:
       - heritage
   - id: communities_regions
     label: Communities and regional development
+    general_tag: communities_regions_general
     children:
       - community_development
       - regional_development
@@ -184,8 +205,8 @@ broad_topics:
       - rural_services
   - id: other
     label: Other or cross-cutting
-    children:
-      - other
+    general_tag: other
+    children: []
 
 question_intents:
   - request_statistics_or_data
