@@ -22,7 +22,6 @@ result={'pointer':pointer,'row_counts':{'silver_members':len(members),'silver_me
 sp['_date']=pd.to_datetime(sp['Debate Date'],errors='coerce'); sp=sp[sp['_date']>=pd.Timestamp('2024-12-18')].copy(); sp['_words']=sp['Speech Text'].fillna('').astype(str).str.findall(r"\b\w+[\w’'\-]*\b").str.len(); debate_days=sorted(set(sp['_date'].dropna().dt.normalize()))
 result['coverage']={'start':str(sp['_date'].min().date()),'end':str(sp['_date'].max().date()),'debate_days':len(debate_days),'rows':len(sp)}
 
-# Prefer native member_code when the speech surface has it; only name-match missing IDs.
 if 'member_code' in sp.columns and sp['member_code'].astype(str).str.strip().ne('').any():
     w=sp.copy(); native_mask=w['member_code'].astype(str).str.strip().ne(''); result['native_member_code_rows']=int(native_mask.sum())
     if (~native_mask).any():
@@ -33,13 +32,11 @@ w=w[w['member_code'].astype(str).str.strip().ne('')].merge(members[['member_code
 
 m=mships.copy(); m['_start']=pd.to_datetime(m['membership_start'],errors='coerce'); m['_end']=pd.to_datetime(m['membership_end'],errors='coerce'); mask34=m['house_no'].astype(str).str.strip().eq('34'); m=m[mask34].copy() if mask34.any() else m[m['chamber'].astype(str).str.lower().str.contains('dáil|dail',regex=True)].copy(); period_start=sp['_date'].min().normalize(); period_end=sp['_date'].max().normalize(); m=m[(m['_start'].isna()|(m['_start']<=period_end))&(m['_end'].isna()|(m['_end']>=period_start))].copy()
 
-w=w.merge(m[['member_code','membership_start','membership_end','_start','_end']],on='member_code',how='inner'); w=w[(w['_start'].isna()|(w['_date']>=w['_start']))&(w['_end'].isna()|(w['_date']<=w['_end']+pd.Timedelta(days=1)-pd.Timedelta(microseconds=1)))].copy()
-dedupe_cols=[c for c in ['Debate Date','Debate ID','Debate Section','Speech Order','member_code'] if c in w.columns]; w=w.sort_values('_date').drop_duplicates(subset=dedupe_cols)
+w=w.merge(m[['member_code','membership_start','membership_end','_start','_end']],on='member_code',how='inner'); w=w[(w['_start'].isna()|(w['_date']>=w['_start']))&(w['_end'].isna()|(w['_date']<=w['_end']+pd.Timedelta(days=1)-pd.Timedelta(microseconds=1)))].copy(); dedupe_cols=[c for c in ['Debate Date','Debate ID','Debate Section','Speech Order','member_code'] if c in w.columns]; w=w.sort_values('_date').drop_duplicates(subset=dedupe_cols)
 
 elig=[]
-for row in m.sort_values(['member_code','_start']).itertuples(index=False):
-    eligible=[d for d in debate_days if (pd.isna(row._start) or d>=row._start.normalize()) and (pd.isna(row._end) or d<=row._end.normalize())]
-    elig.append({'member_code':row.member_code,'eligible_debate_days':len(eligible)})
+for _, row in m.sort_values(['member_code','_start']).iterrows():
+    st=row['_start']; en=row['_end']; eligible=[d for d in debate_days if (pd.isna(st) or d>=st.normalize()) and (pd.isna(en) or d<=en.normalize())]; elig.append({'member_code':row['member_code'],'eligible_debate_days':len(eligible)})
 elig=pd.DataFrame(elig).groupby('member_code',as_index=False)['eligible_debate_days'].max()
 agg=w.groupby(['member_code','full_name'],dropna=False).agg(intervention_count=('_words','size'),total_words=('_words','sum'),avg_words=('_words','mean'),median_words=('_words','median'),longest_intervention_words=('_words','max'),speaking_days=('_date',lambda x:x.dt.normalize().nunique())).reset_index().merge(elig,on='member_code',how='left'); agg['interventions_per_eligible_day']=agg['intervention_count']/agg['eligible_debate_days'].replace(0,pd.NA); agg['speaking_day_share']=agg['speaking_days']/agg['eligible_debate_days'].replace(0,pd.NA)
 member_elig=m[['member_code']].drop_duplicates().merge(members[['member_code','full_name']],on='member_code',how='left').merge(elig,on='member_code',how='left'); allagg=member_elig.merge(agg,on=['member_code','full_name','eligible_debate_days'],how='left')
