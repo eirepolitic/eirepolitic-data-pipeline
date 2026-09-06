@@ -10,14 +10,19 @@ def read(key):
     obj=s3.get_object(Bucket=BUCKET,Key=key)
     return pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False)
 
+def pair_counts(df, cols):
+    out=[]
+    for key,n in df.groupby(cols,dropna=False).size().items():
+        if not isinstance(key,tuple): key=(key,)
+        out.append({**{c:str(v) for c,v in zip(cols,key)},'count':int(n)})
+    return out
+
 b=read('processed/oireachtas_unified/latest/csv/silver_bills.csv')
 st=read('processed/oireachtas_unified/latest/csv/silver_bill_stages.csv')
 sp=read('processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv')
-
 print('BILL_ROWS',len(b))
 print('STATUS_COUNTS',json.dumps(b['status'].value_counts().to_dict(),ensure_ascii=False))
 
-# Sort stage history by date, then numeric progress order where possible, preserving source row order as tie-breaker.
 st=st.copy()
 st['_date']=pd.to_datetime(st['stage_date'],errors='coerce')
 st['_order']=pd.to_numeric(st['order_in_bill'],errors='coerce')
@@ -25,25 +30,17 @@ st['_row']=range(len(st))
 st=st.sort_values(['bill_id','_date','_order','_row'])
 latest=st.groupby('bill_id',as_index=False).tail(1).copy()
 latest=latest[['bill_id','stage_name','stage_date','house_name','stage_outcome','order_in_bill']]
-
 x=b.merge(latest,on='bill_id',how='left',suffixes=('','_latest'))
-print('ALL_LATEST_STAGE_COUNTS',json.dumps(x.groupby(['status','stage_name'],dropna=False).size().to_dict(),ensure_ascii=False,default=str))
+print('ALL_LATEST_STAGE_COUNTS',json.dumps(pair_counts(x,['status','stage_name']),ensure_ascii=False))
 current=x[x['status'].str.casefold()=='current'].copy()
 print('CURRENT_BILLS',len(current))
 print('CURRENT_STAGE_COUNTS',json.dumps(current['stage_name'].value_counts(dropna=False).to_dict(),ensure_ascii=False))
-print('CURRENT_STAGE_HOUSE_COUNTS',json.dumps(current.groupby(['stage_name','house_name'],dropna=False).size().to_dict(),ensure_ascii=False,default=str))
-
-# Enacted/non-current status detail
+print('CURRENT_STAGE_HOUSE_COUNTS',json.dumps(pair_counts(current,['stage_name','house_name']),ensure_ascii=False))
 for status,grp in x.groupby('status',dropna=False):
     print('STATUS_DETAIL',status,len(grp),json.dumps(grp['stage_name'].value_counts(dropna=False).to_dict(),ensure_ascii=False))
-
-# Per-bill compact rows, sorted for editorial grouping.
 cols=['bill_no','bill_year','short_title','title','status','origin_house_name','stage_name','house_name','stage_date','stage_outcome','order_in_bill']
-rows=current.sort_values(['stage_name','house_name','stage_date','bill_year','bill_no'])[cols].to_dict('records')
 print('CURRENT_BILL_ROWS')
-print(json.dumps(rows,ensure_ascii=False,indent=2))
-
-# Sponsor row count/name summary per bill for feasibility of bill cards.
+print(json.dumps(current.sort_values(['stage_name','house_name','stage_date','bill_year','bill_no'])[cols].to_dict('records'),ensure_ascii=False,indent=2))
 if not sp.empty:
     p=sp.groupby('bill_id').agg(sponsor_rows=('bill_id','size'),sponsor_names=('sponsor_name',lambda s:' | '.join(sorted(set(v for v in s if str(v).strip())))),sponsor_roles=('sponsor_role_name',lambda s:' | '.join(sorted(set(v for v in s if str(v).strip()))))).reset_index()
     c=current[['bill_id','bill_no','bill_year','short_title','stage_name','house_name']].merge(p,on='bill_id',how='left')
