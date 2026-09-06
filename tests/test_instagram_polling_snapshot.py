@@ -16,7 +16,7 @@ class InstagramPollingSnapshotTests(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.output_root, ignore_errors=True)
 
-    def test_fixture_renders_three_slide_carousel_with_source_change_and_trend(self) -> None:
+    def test_fixture_renders_three_slide_carousel_with_source_change_trend_and_approved_style(self) -> None:
         result = render_polling_snapshot(
             "instagram/campaigns/ipi_polling_snapshot_v1/render_spec_fixture.yml"
         )
@@ -30,13 +30,17 @@ class InstagramPollingSnapshotTests(unittest.TestCase):
         self.assertEqual(result["dimensions"], [1080, 1350])
         self.assertEqual(result["latest_model_date"], "2026-07-31")
         self.assertEqual(result["previous_model_date"], "2026-07-30")
+        self.assertEqual(result["render_style"], "approved_editorial_v1")
 
         self.assertEqual(len(result["slide_files"]), 3)
         for path in result["slide_files"]:
             output = Path(path)
             self.assertTrue(output.exists())
-            with Image.open(output) as image:
+            with Image.open(output).convert("RGB") as image:
                 self.assertEqual(image.size, (1080, 1350))
+                self.assertEqual(image.getpixel((540, 1340)), (15, 47, 36))
+                self.assertEqual(image.getpixel((540, 175)), (216, 180, 95))
+                self.assertEqual(image.getpixel((22, 22)), (216, 180, 95))
 
         caption = Path(result["caption_file"]).read_text(encoding="utf-8")
         self.assertIn("Source: Irish Polling Indicator (IPI)", caption)
@@ -47,6 +51,8 @@ class InstagramPollingSnapshotTests(unittest.TestCase):
         self.assertEqual(context["latest_model_date"], "2026-07-31")
         self.assertEqual(context["previous_model_date"], "2026-07-30")
         self.assertEqual(context["trend_days"], 90)
+        self.assertEqual(context["render_style"], "approved_editorial_v1")
+        self.assertEqual(context["visual_reference"], "workflow 33894430571 / party_issue_monthly_profile_v2")
         self.assertEqual(len(context["slides"]), 3)
 
         latest = context["latest_rows"]
