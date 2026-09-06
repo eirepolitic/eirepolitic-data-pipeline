@@ -83,7 +83,7 @@ def render_diverging(
         limit = max_abs * 1.45
         ax.set_xlim(-limit, limit)
         for idx, value in enumerate(values):
-            text = f"{value:+.1f} pp"
+            text = f"{value:+.1f}%"
             if value >= 0:
                 ax.annotate(text, xy=(value, idx), xytext=(8, 0), textcoords="offset points", color=palette["text"], fontsize=VALUE_FONT_SIZE, fontweight="bold", va="center", ha="left")
             else:
