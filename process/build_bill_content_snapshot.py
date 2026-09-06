@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build a reusable, read-only Bill content snapshot for editorial/social use.
 
-Reads the currently published Oireachtas silver/metric tables from S3 and writes
-local CSV/JSON/Markdown artifacts only. It does not update any production pointer
-or S3 object.
+Reads the currently published Oireachtas silver/metric tables through the active
+production batch pointer and writes local CSV/JSON/Markdown artifacts only. It
+does not update any production pointer or S3 object.
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from extract.oireachtas.batch import resolve_production_key
 from political_metrics.bill_content_snapshot import (
     BATCH_SIZE_DEFAULT,
     audit_bill_content_snapshot,
@@ -48,9 +49,16 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
-def _read_csv(s3, *, bucket: str, key: str) -> pd.DataFrame:
-    obj = s3.get_object(Bucket=bucket, Key=key)
-    return pd.read_csv(io.BytesIO(obj["Body"].read()), dtype=str, keep_default_na=False)
+def _read_csv(s3, *, bucket: str, logical_key: str) -> tuple[pd.DataFrame, str]:
+    resolved_key = resolve_production_key(s3, bucket=bucket, production_key=logical_key)
+    try:
+        obj = s3.get_object(Bucket=bucket, Key=resolved_key)
+    except Exception as exc:
+        raise FileNotFoundError(
+            f"Unable to read production source logical={logical_key!r} resolved={resolved_key!r}: {exc}"
+        ) from exc
+    frame = pd.read_csv(io.BytesIO(obj["Body"].read()), dtype=str, keep_default_na=False)
+    return frame, resolved_key
 
 
 def _series_plan_markdown(snapshot: pd.DataFrame, audit: dict, generated_at: str) -> str:
@@ -71,7 +79,7 @@ def _series_plan_markdown(snapshot: pd.DataFrame, audit: dict, generated_at: str
         "## Proposed batches",
         "",
     ]
-    for batch_id, group in snapshot.groupby("series_batch_id", sort=False):
+    for _batch_id, group in snapshot.groupby("series_batch_id", sort=False):
         label = group.iloc[0]["series_bucket_label"]
         batch_no = int(group.iloc[0]["series_batch_no"])
         batch_count = int(group.iloc[0]["series_batch_count"])
@@ -105,7 +113,11 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("--batch-size must be >= 1")
     generated_at = datetime.now(timezone.utc).isoformat()
     s3 = boto3.client("s3", region_name=args.region)
-    frames = {name: _read_csv(s3, bucket=args.bucket, key=key) for name, key in TABLE_KEYS.items()}
+    frames: dict[str, pd.DataFrame] = {}
+    resolved_keys: dict[str, str] = {}
+    for name, logical_key in TABLE_KEYS.items():
+        frames[name], resolved_keys[name] = _read_csv(s3, bucket=args.bucket, logical_key=logical_key)
+
     snapshot = build_bill_content_snapshot(
         bills=frames["bills"],
         stages=frames["stages"],
@@ -127,7 +139,8 @@ def main(argv: list[str] | None = None) -> int:
     manifest = {
         "generated_at_utc": generated_at,
         "batch_size": args.batch_size,
-        "source_keys": TABLE_KEYS,
+        "logical_source_keys": TABLE_KEYS,
+        "resolved_source_keys": resolved_keys,
         "production_changed": False,
         "classifier_calls": 0,
         "audit": audit,
