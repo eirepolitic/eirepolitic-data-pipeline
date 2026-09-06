@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: political-metrics-historical-audit
+  cancel-in-progress: false
 
 jobs:
   audit:
@@ -16,56 +20,58 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      POLITICAL_METRICS_AUDIT_DIR: artifacts/political-metrics-audit
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/bill-content-snapshot-v1
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
 
-      - name: Install dependencies
+      - name: Install audit dependencies
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Run focused Bill tracker tests
-        run: |
-          python -m unittest tests.political_metrics.test_bill_content_snapshot
-          python -m unittest tests.political_metrics.test_bill_editorial_series
-
-      - name: Build 90-day Bill tracker
-        run: |
-          rm -rf diagnostics/bill-content-snapshot-90d
-          python process/build_bill_content_snapshot.py --batch-size 6 --lookback-days 90 --output-dir diagnostics/bill-content-snapshot-90d
-
-      - name: Extract first six-Bill test batch
+      - name: Test political metrics foundation
         shell: bash
         run: |
-          python - <<'PY'
-          import json
-          import pandas as pd
-          from pathlib import Path
-          root=Path('diagnostics/bill-content-snapshot-90d')
-          df=pd.read_csv(root/'bill_series_candidates.csv',dtype=str,keep_default_na=False)
-          if df.empty:
-              sample=df
-          else:
-              first=df.iloc[0]['editorial_batch_id']
-              sample=df[df['editorial_batch_id']==first].copy()
-          sample.to_csv(root/'sample_batch.csv',index=False)
-          cols=[c for c in ['bill_id','bill_no','bill_year','short_title','title','status','current_stage_name','current_stage_house_name','current_stage_date','primary_sponsor_name','primary_sponsor_role_name','sponsor_attribution_status','certified_speech_count','certified_division_count','latest_division_id','latest_division_date','latest_division_subject','latest_division_outcome','latest_division_ta','latest_division_nil','latest_division_abstain','support_opposition_status','editorial_batch_id'] if c in sample]
-          (root/'sample_batch.json').write_text(json.dumps(sample[cols].to_dict('records'),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          PY
+          set -euo pipefail
+          python -m unittest discover -s tests/political_metrics -p 'test_*.py'
 
-      - name: Persist quarterly validation output
+      - name: Run read-only historical metrics audit
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A diagnostics/bill-content-snapshot-90d
-          git commit -m "test: persist 90-day Bill tracker validation" || exit 0
-          git push origin HEAD:feature/bill-content-snapshot-v1
+          set -euo pipefail
+          python process/political_metrics_audit.py
+
+      - name: Audit parliamentary-question / speech relationships
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/political_metrics_question_context_audit.py
+
+      - name: Add plain-language audit summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/political-metrics-audit/summary.md ]; then
+            cat artifacts/political-metrics-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f artifacts/political-metrics-audit/question_context_summary.md ]; then
+            cat artifacts/political-metrics-audit/question_context_summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: political-metrics-historical-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/political-metrics-audit/
+          if-no-files-found: error
+          retention-days: 30
