@@ -65,8 +65,12 @@ def render_diverging(
     values = [item["value"] for item in clean]
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
-    ax = fig.add_axes([PLOT_LEFT, PLOT_BOTTOM, PLOT_RIGHT - PLOT_LEFT, PLOT_TOP - PLOT_BOTTOM])
+    ax = fig.add_axes([PLOT_LEFT, PLOT_BOTTOM, PLOT_RIGHT - PLOT_LEFT, 0.72])
     ax.set_facecolor(palette["background"])
+
+    comparison_label = str(sample.get("comparison_label") or "").strip()
+    if comparison_label:
+        fig.text(0.52, 0.91, comparison_label, color=palette["text"], fontsize=13.5, fontweight="bold", ha="center", va="center")
 
     y = list(range(len(clean)))
     colors = [palette["accent"] if value >= 0 else palette["muted"] for value in values]
@@ -79,7 +83,7 @@ def render_diverging(
         limit = max_abs * 1.45
         ax.set_xlim(-limit, limit)
         for idx, value in enumerate(values):
-            text = f"{value:+.2f} pp"
+            text = f"{value:+.1f} pp"
             if value >= 0:
                 ax.annotate(text, xy=(value, idx), xytext=(8, 0), textcoords="offset points", color=palette["text"], fontsize=VALUE_FONT_SIZE, fontweight="bold", va="center", ha="left")
             else:
@@ -100,8 +104,8 @@ def render_diverging(
     Path(output_png).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_png, format="png", facecolor=fig.get_facecolor())
     plt.close(fig)
-    metadata = {"created_at": _utc_now(), "input": input_metadata, "rows": clean, "renderer": "diverging_bar_factory_v1"}
-    manifest = {"success": True, "renderer": "diverging_bar_factory_v1", "output_path": str(output_png), "warnings": warnings, "displayed_item_count": len(clean)}
+    metadata = {"created_at": _utc_now(), "input": input_metadata, "rows": clean, "renderer": "diverging_bar_factory_v2", "comparison_label": comparison_label}
+    manifest = {"success": True, "renderer": "diverging_bar_factory_v2", "output_path": str(output_png), "warnings": warnings, "displayed_item_count": len(clean), "comparison_label": comparison_label}
     _write_json(metadata_path, metadata)
     _write_json(manifest_path, manifest)
     return manifest
@@ -119,7 +123,7 @@ def render_trend(
     params = template.get("params", {}) or {}
     width = int(params.get("width", 1032))
     height = int(params.get("height", 1210))
-    legend_variant = str(params.get("legend_variant") or sample.get("legend_variant") or "two_row")
+    legend_variant = str(params.get("legend_variant") or sample.get("legend_variant") or "single_row")
     palette = load_palette(template)
     raw_colors = template.get("series_colors") or sample.get("series_colors") or DEFAULT_TREND_COLORS
     colors = [str(value) for value in raw_colors]
@@ -127,7 +131,6 @@ def render_trend(
 
     fig = plt.figure(figsize=(width / 150, height / 150), dpi=150)
     fig.patch.set_facecolor(palette["background"])
-    # Reserve the top band for a wide legend rather than overlaying it on the data.
     ax = fig.add_axes([0.11, 0.14, 0.82, 0.68])
     ax.set_facecolor(palette["background"])
     rendered = 0
@@ -154,8 +157,8 @@ def render_trend(
         dates = [pair[0] for pair in ordered]
         values = [pair[1] for pair in ordered]
         color = colors[idx % len(colors)]
-        ax.plot(dates, values, linewidth=2.9, color=color, label=label)
-        ax.scatter([dates[-1]], [values[-1]], s=28, color=color, zorder=3)
+        ax.plot(dates, values, linewidth=2.9, color=color, label=label, zorder=2)
+        ax.scatter(dates, values, s=42, color=color, edgecolors=palette["background"], linewidths=1.1, zorder=3)
         rendered += 1
 
     legend_columns = 3 if legend_variant == "two_row" else max(1, rendered)
@@ -172,7 +175,7 @@ def render_trend(
             loc="upper center",
             bbox_to_anchor=(0.52, 0.91),
             ncol=legend_columns,
-            columnspacing=1.8 if legend_variant == "two_row" else 1.2,
+            columnspacing=1.2 if legend_variant == "single_row" else 1.8,
             handlelength=2.2,
             handletextpad=0.55,
             borderaxespad=0.0,
@@ -180,10 +183,14 @@ def render_trend(
         for line in legend.get_lines():
             line.set_linewidth(3.2)
 
+    range_label = str(sample.get("range_label") or "").strip()
+    if range_label:
+        fig.text(0.52, 0.845, range_label, color=palette["muted"], fontsize=11.5, ha="center", va="center")
+
     ax.grid(True, color=palette["grid"], alpha=0.18)
     ax.tick_params(axis="x", colors=palette["muted"], labelsize=AXIS_FONT_SIZE, rotation=25)
     ax.tick_params(axis="y", colors=palette["muted"], labelsize=AXIS_FONT_SIZE)
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=3, maxticks=6))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=2, maxticks=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
     for spine in ax.spines.values():
         spine.set_visible(False)
@@ -198,18 +205,20 @@ def render_trend(
         "created_at": _utc_now(),
         "input": input_metadata,
         "series": series,
-        "renderer": "line_trend_factory_v2",
+        "renderer": "line_trend_factory_v3_raw_polls",
         "legend_variant": legend_variant,
         "series_colors": colors[:rendered],
+        "range_label": range_label,
     }
     manifest = {
         "success": True,
-        "renderer": "line_trend_factory_v2",
+        "renderer": "line_trend_factory_v3_raw_polls",
         "output_path": str(output_png),
         "warnings": warnings,
         "series_rendered": rendered,
         "legend_variant": legend_variant,
         "series_colors": colors[:rendered],
+        "range_label": range_label,
     }
     _write_json(metadata_path, metadata)
     _write_json(manifest_path, manifest)
@@ -219,7 +228,6 @@ def render_trend(
 def render_methodology(entries: list[tuple[str, str]], output_png: str | Path, *, title: str) -> dict[str, Any]:
     output_png = Path(output_png)
     metrics = draw_glossary(entries, output_png)
-    # Reuse the approved glossary layout exactly, changing only its title text.
     image = Image.open(output_png).convert("RGB")
     draw = ImageDraw.Draw(image)
     draw.rectangle((112, 34, 968, 169), fill=BG)
