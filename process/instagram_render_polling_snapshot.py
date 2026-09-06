@@ -17,10 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from instagram.media_generators.horizontal_bar_chart.generator import render as render_bar_chart
-from instagram.media_generators.line_chart.generator import render as render_line_chart
+from instagram.polling.editorial_renderer import render_change, render_latest_support, render_trend
 from instagram.renderer.attribution import required_footer_text, resolve_attributions
-from instagram.renderer.template_renderer import render_template_file
 
 DEFAULT_REGION = "ca-central-1"
 PARTY_LABELS = {
@@ -147,7 +145,7 @@ def build_trend_series(
     if window.empty:
         raise RuntimeError("No modeled IPI rows available in trend window")
 
-    ranked = []
+    ranked: list[tuple[str, float]] = []
     for code in party_codes:
         estimate = _numeric(latest, code)
         if estimate is not None:
@@ -167,29 +165,12 @@ def build_trend_series(
     return series
 
 
-def _render_slide(
-    *,
-    template: str,
-    palette: str,
-    title: str,
-    media_path: Path,
-    footer: str,
-    output_path: Path,
-    bindings_path: Path,
-) -> dict[str, Any]:
-    bindings = {
-        "bindings": {
-            "slide_title": title,
-            "main_media": str(media_path),
-            "footer_text": footer,
-        }
-    }
-    bindings_path.write_text(yaml.safe_dump(bindings, sort_keys=False, allow_unicode=True), encoding="utf-8")
-    manifest = render_template_file(template, bindings_path, output_path, palette)
-    with Image.open(output_path) as image:
+def _validate_slide(path: Path) -> None:
+    if not path.is_file() or path.stat().st_size == 0:
+        raise RuntimeError(f"Polling slide was not created: {path}")
+    with Image.open(path) as image:
         if image.size != (1080, 1350):
-            raise RuntimeError(f"Unexpected Instagram output dimensions for {output_path.name}: {image.size}")
-    return manifest
+            raise RuntimeError(f"Unexpected Instagram output dimensions for {path.name}: {image.size}")
 
 
 def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
@@ -226,113 +207,68 @@ def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
 
     latest_date = str(latest["date"])
     previous_date = str(previous["date"])
-    pretty_latest = pd.Timestamp(latest_date).strftime("%d %b %Y")
-    pretty_previous = pd.Timestamp(previous_date).strftime("%d %b %Y")
+    pretty_latest = pd.Timestamp(latest_date).strftime("%-d %b %Y")
+    pretty_previous = pd.Timestamp(previous_date).strftime("%-d %b %Y")
+    trend_start_date = min(point["date"] for item in trend_series for point in item["points"])
+    pretty_trend_start = pd.Timestamp(trend_start_date).strftime("%-d %b %Y")
 
     output_root = Path(spec.get("render", {}).get("output_root", "generated_posts/ipi_polling_snapshot_v1"))
-    media_root = output_root / "media"
     png_dir = output_root / "png"
     metadata_dir = output_root / "metadata"
-    for directory in (media_root, png_dir, metadata_dir):
-        directory.mkdir(parents=True, exist_ok=True)
-
-    palette = spec.get("render", {}).get("palette", "eirepolitic_dark")
-    template = spec.get("render", {}).get("template", "instagram/templates/layouts/big_media_title_v1.json")
-
-    latest_manifest = render_bar_chart(
-        {
-            "input": {"rows": latest_rows},
-            "params": {
-                "max_items": limit,
-                "sort": "descending",
-                "width": 920,
-                "height": 820,
-                "palette": palette,
-                "title": "Modelled party support",
-                "subtitle": f"IPI estimate · {pretty_latest} · whiskers show uncertainty range",
-                "value_suffix": "%",
-            },
-            "output": {},
-        },
-        media_root / "slide_01",
-    )
-    change_manifest = render_bar_chart(
-        {
-            "input": {"rows": change_rows},
-            "params": {
-                "max_items": limit,
-                "sort": "descending",
-                "width": 920,
-                "height": 820,
-                "palette": palette,
-                "title": "Change since previous model date",
-                "subtitle": f"{pretty_previous} → {pretty_latest} · percentage-point change",
-                "value_suffix": " pp",
-                "signed_values": True,
-            },
-            "output": {},
-        },
-        media_root / "slide_02",
-    )
-    trend_manifest = render_line_chart(
-        {
-            "input": {"series": trend_series},
-            "params": {
-                "width": 920,
-                "height": 820,
-                "palette": palette,
-                "title": f"{trend_days}-day polling trend",
-                "subtitle": f"Top {len(trend_series)} parties by latest IPI estimate · same election cycle",
-                "value_suffix": "%",
-            },
-        },
-        media_root / "slide_03",
-    )
+    png_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
 
     slides = [
         {
             "index": 1,
             "kind": "latest_support",
-            "title": spec.get("copy", {}).get("slide_1_title", "Where the parties stand now"),
-            "media": Path(latest_manifest["output_path"]),
             "output": png_dir / "slide-01-latest-party-support.png",
         },
         {
             "index": 2,
             "kind": "change_since_previous_model_date",
-            "title": spec.get("copy", {}).get("slide_2_title", "What changed since yesterday's model"),
-            "media": Path(change_manifest["output_path"]),
             "output": png_dir / "slide-02-change.png",
         },
         {
             "index": 3,
             "kind": "trend",
-            "title": spec.get("copy", {}).get("slide_3_title", "The recent trend"),
-            "media": Path(trend_manifest["output_path"]),
             "output": png_dir / "slide-03-trend.png",
         },
     ]
 
-    render_manifests = []
+    render_latest_support(
+        latest_rows,
+        title=spec.get("copy", {}).get("slide_1_title", "Where the parties stand now"),
+        model_date=pretty_latest,
+        source_text=footer,
+        output_path=slides[0]["output"],
+    )
+    render_change(
+        change_rows,
+        title=spec.get("copy", {}).get("slide_2_title", "What changed since the previous model"),
+        previous_date=pretty_previous,
+        latest_date=pretty_latest,
+        source_text=footer,
+        output_path=slides[1]["output"],
+    )
+    render_trend(
+        trend_series,
+        title=spec.get("copy", {}).get("slide_3_title", "The recent polling trend"),
+        start_date=pretty_trend_start,
+        latest_date=pretty_latest,
+        source_text=footer,
+        output_path=slides[2]["output"],
+    )
+
     for slide in slides:
-        render_manifests.append(
-            _render_slide(
-                template=template,
-                palette=palette,
-                title=slide["title"],
-                media_path=slide["media"],
-                footer=footer,
-                output_path=slide["output"],
-                bindings_path=metadata_dir / f"bindings_slide_{slide['index']:02d}.yml",
-            )
-        )
+        _validate_slide(slide["output"])
 
     source = next(item for item in attributions if item["source_id"] == "irish_polling_indicator")
     caption_lines = [
         spec.get("copy", {}).get("caption_intro", "Latest modelled Irish party-support estimates from the Irish Polling Indicator."),
         "",
         f"Latest model date: {pretty_latest}.",
-        f"Slide 1 shows the central model estimate with the published uncertainty range.",
+        "Slide 1 shows the central model estimate with the published uncertainty range.",
         f"Slide 2 shows the percentage-point change from the previous modeled date ({pretty_previous}); it is not a comparison of two individual polls.",
         f"Slide 3 shows the last {trend_days} days within the same election cycle for the leading parties by latest model estimate.",
         "",
@@ -348,11 +284,13 @@ def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
     context = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "campaign": "ipi_polling_snapshot_v1",
+        "visual_reference": "workflow 33894430571 / party_issue_monthly_profile_v2",
         "source_table": spec["data"]["source_table"],
         "source_attributions": attributions,
         "cycle": str(latest["cycle"]),
         "latest_model_date": latest_date,
         "previous_model_date": previous_date,
+        "trend_start_date": trend_start_date,
         "trend_days": trend_days,
         "latest_rows": latest_rows,
         "change_rows": change_rows,
@@ -362,12 +300,8 @@ def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
             for slide in slides
         ],
         "caption_file": str(caption_path),
-        "chart_warnings": {
-            "latest": latest_manifest.get("warnings", []),
-            "change": change_manifest.get("warnings", []),
-            "trend": trend_manifest.get("warnings", []),
-        },
-        "render_warnings": [manifest.get("warnings", []) for manifest in render_manifests],
+        "render_style": "approved_editorial_v1",
+        "render_warnings": [],
         "dimensions": [1080, 1350],
         "publish_ready": False,
         "review_required": True,
@@ -378,6 +312,8 @@ def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
     review = {
         "success": True,
         "campaign": context["campaign"],
+        "visual_reference": context["visual_reference"],
+        "render_style": context["render_style"],
         "latest_model_date": latest_date,
         "previous_model_date": previous_date,
         "slide_count": 3,
@@ -390,6 +326,7 @@ def render_polling_snapshot(spec_path: str | Path) -> dict[str, Any]:
         "publish_ready": False,
         "review_required": True,
         "checks": [
+            "Confirm the redesign matches the approved July visual system and spacing.",
             "Confirm IPI source footer is visible on all three slides.",
             "Confirm caption source reference is present.",
             "Confirm latest estimates and uncertainty ranges match post_context.json.",
