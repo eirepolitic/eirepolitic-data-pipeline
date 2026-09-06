@@ -5,29 +5,24 @@
     {
       "answer_tags": [],
       "combined_tags": [
-        "health",
         "health_staffing"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_1367",
       "question_tags": [
-        "health",
         "health_staffing"
       ]
     },
     {
       "answer_tags": [
         "legislation",
-        "public_transport",
         "transport_safety"
       ],
       "combined_tags": [
         "legislation",
-        "public_transport",
         "transport_safety"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_169",
       "question_tags": [
-        "public_transport",
         "transport_safety"
       ]
     },
@@ -35,13 +30,13 @@
       "answer_tags": [
         "cycling_walking",
         "legislation",
-        "public_infrastructure",
+        "public_spending",
         "roads"
       ],
       "combined_tags": [
         "cycling_walking",
         "legislation",
-        "public_infrastructure",
+        "public_spending",
         "roads"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_180",
@@ -54,44 +49,40 @@
       "answer_tags": [],
       "combined_tags": [
         "disability_services",
-        "health",
         "waiting_lists"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-05/writtens/dbsect_881",
       "question_tags": [
         "disability_services",
-        "health",
         "waiting_lists"
       ]
     },
     {
       "answer_tags": [
-        "budget",
         "public_spending",
-        "public_transport"
+        "public_transport",
+        "transport_fares"
       ],
       "combined_tags": [
-        "budget",
-        "energy_prices",
         "public_spending",
-        "public_transport"
+        "public_transport",
+        "transport_fares"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-11/writtens/dbsect_155",
       "question_tags": [
-        "energy_prices",
-        "public_transport"
+        "transport_fares"
       ]
     },
     {
       "answer_tags": [],
       "combined_tags": [
-        "public_service_staffing",
-        "work_employment"
+        "immigration_asylum",
+        "public_service_staffing"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-18/writtens/dbsect_448",
       "question_tags": [
-        "public_service_staffing",
-        "work_employment"
+        "immigration_asylum",
+        "public_service_staffing"
       ]
     },
     {
@@ -112,16 +103,12 @@
       "answer_tags": [],
       "combined_tags": [
         "digital_services",
-        "government_public_service",
-        "procurement",
-        "public_spending"
+        "procurement"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-19/writtens/dbsect_274",
       "question_tags": [
         "digital_services",
-        "government_public_service",
-        "procurement",
-        "public_spending"
+        "procurement"
       ]
     },
     {
@@ -140,52 +127,30 @@
     },
     {
       "answer_tags": [
-        "planning"
+        "planning",
+        "public_spending",
+        "state_agencies"
       ],
       "combined_tags": [
         "biodiversity",
         "planning",
-        "public_spending"
+        "public_spending",
+        "state_agencies",
+        "transparency_foi"
       ],
       "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-02-25/writtens/dbsect_441",
       "question_tags": [
         "biodiversity",
         "planning",
-        "public_spending"
+        "public_spending",
+        "transparency_foi"
       ]
     }
   ],
   "question_answer_different_tag_set_sections": 18,
   "question_answer_same_tag_set_sections": 7,
   "sections": 25,
-  "validation_error_counts": {
-    "answer_topic_evidence_coverage_mismatch": 1,
-    "answer_topic_evidence_not_in_scope": 2,
-    "combined_topic_evidence_coverage_mismatch": 1,
-    "question_topic_evidence_coverage_mismatch": 1
-  },
-  "validation_error_rows": [
-    {
-      "answer_chars": "3204",
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-01-22/writtens/dbsect_180",
-      "question_date": "2025-01-22",
-      "recipient": "Transport",
-      "validation_errors": "answer_topic_evidence_not_in_scope"
-    },
-    {
-      "answer_chars": "5440",
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-04/writtens/dbsect_641",
-      "question_date": "2025-03-04",
-      "recipient": "Health",
-      "validation_errors": "answer_topic_evidence_not_in_scope"
-    },
-    {
-      "answer_chars": "1000",
-      "debate_section_id": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2025-03-25/writtens/dbsect_692",
-      "question_date": "2025-03-25",
-      "recipient": "Rural",
-      "validation_errors": "answer_topic_evidence_coverage_mismatch;combined_topic_evidence_coverage_mismatch;question_topic_evidence_coverage_mismatch"
-    }
-  ],
-  "validation_error_sections": 3
+  "validation_error_counts": {},
+  "validation_error_rows": [],
+  "validation_error_sections": 0
 }
