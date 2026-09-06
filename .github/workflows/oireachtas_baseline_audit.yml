@@ -12,7 +12,7 @@ env:
 jobs:
   written-pq-semantic-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -33,20 +33,20 @@ jobs:
         run: |
           python -m py_compile process/written_pq_semantic_pilot.py
           python -m py_compile process/written_pq_semantic_pilot_compat.py
-      - name: Run 5-section diagnostic pilot
+      - name: Run 25-section semantic pilot
         id: pilot
         continue-on-error: true
         run: |
           rm -rf analysis/written_pq_semantic_pilot
           python process/written_pq_semantic_pilot_compat.py \
             --sample-size 300 \
-            --max-calls 5 \
+            --max-calls 25 \
             --output-dir analysis/written_pq_semantic_pilot
-      - name: Persist research diagnostics
+      - name: Persist research artifacts
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add analysis/written_pq_semantic_pilot || true
-          git commit -m "Capture Written PQ semantic pilot diagnostic ${GITHUB_RUN_ID}" || true
+          git commit -m "Capture 25-section Written PQ semantic pilot ${GITHUB_RUN_ID}" || true
           git push origin HEAD:${GITHUB_REF_NAME}
