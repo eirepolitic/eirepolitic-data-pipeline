@@ -1,0 +1,246 @@
+pilot_version: 1
+purpose: Research-only first-pass semantic routing for Written Parliamentary Questions and official answers.
+model_call_unit: answer_section
+principles:
+  - Known source metadata such as TD, department, date, party and answer status are not model-generated tags.
+  - Classify question text, answer text and the combined exchange separately.
+  - Topic classification is multi-label.
+  - Use only approved tags in `topic_tags`; genuinely missing concepts go to `proposed_new_tags`.
+  - Do not infer support/opposition, truthfulness, effectiveness, evasiveness or political quality unless explicitly stated and separately researched.
+  - Every semantic output should be grounded in the supplied text.
+  - Grouped answer sections are classified once, with separate classifications returned for each linked question.
+
+broad_topics:
+  - id: economy
+    label: Economy and public finances
+    children:
+      - taxation
+      - public_spending
+      - budget
+      - inflation_cost_of_living
+      - economic_growth
+      - debt_borrowing
+      - enterprise_business
+      - banking_finance
+      - insurance
+      - consumer_affairs
+  - id: health
+    label: Health
+    children:
+      - hospitals
+      - waiting_lists
+      - primary_care
+      - mental_health
+      - disability_services
+      - health_staffing
+      - medicines_pharmacy
+      - public_health
+      - older_people_care
+      - child_health
+  - id: housing
+    label: Housing and planning
+    children:
+      - housing_supply
+      - social_housing
+      - homelessness
+      - rental_market
+      - housing_affordability
+      - planning
+      - housing_supports
+      - housing_standards
+  - id: education
+    label: Education
+    children:
+      - schools
+      - teachers_staffing
+      - special_education
+      - higher_education
+      - further_education_training
+      - school_transport
+      - education_funding
+  - id: justice
+    label: Justice, policing and rights
+    children:
+      - policing
+      - courts
+      - prisons
+      - crime
+      - domestic_sexual_violence
+      - family_law
+      - civil_liberties
+      - equality_discrimination
+      - immigration_asylum
+  - id: social_protection
+    label: Social protection and families
+    children:
+      - pensions
+      - unemployment_support
+      - disability_payments
+      - carers
+      - child_family_support
+      - poverty_deprivation
+  - id: transport
+    label: Transport
+    children:
+      - public_transport
+      - roads
+      - rail
+      - aviation
+      - maritime_transport
+      - cycling_walking
+      - transport_safety
+  - id: climate_environment
+    label: Climate and environment
+    children:
+      - climate_policy
+      - emissions
+      - biodiversity
+      - waste_recycling
+      - water
+      - air_quality
+      - environmental_regulation
+  - id: energy
+    label: Energy
+    children:
+      - electricity
+      - renewable_energy
+      - fossil_fuels
+      - energy_prices
+      - grid_infrastructure
+      - energy_security
+  - id: agriculture_food
+    label: Agriculture, food and rural affairs
+    children:
+      - farming
+      - fisheries
+      - forestry
+      - food_policy
+      - animal_health_welfare
+      - rural_development
+  - id: work_employment
+    label: Work and employment
+    children:
+      - employment
+      - wages_pay
+      - workplace_rights
+      - industrial_relations
+      - public_service_staffing
+      - skills_training
+  - id: children_youth
+    label: Children and youth
+    children:
+      - childcare
+      - child_protection
+      - youth_services
+      - children_in_care
+  - id: foreign_defence
+    label: Foreign affairs and defence
+    children:
+      - european_union
+      - international_relations
+      - overseas_aid
+      - defence_forces
+      - neutrality_security_policy
+      - international_conflict
+  - id: government_public_service
+    label: Government and public administration
+    children:
+      - public_service_delivery
+      - procurement
+      - state_agencies
+      - transparency_foi
+      - data_statistics
+      - government_reform
+      - local_government
+  - id: legislation_constitution
+    label: Legislation, Constitution and elections
+    children:
+      - legislation
+      - constitutional_matters
+      - elections_voting
+      - referendums
+  - id: infrastructure_communications
+    label: Infrastructure and communications
+    children:
+      - broadband_telecoms
+      - postal_services
+      - public_infrastructure
+      - digital_services
+  - id: culture_media_sport
+    label: Culture, media and sport
+    children:
+      - arts_culture
+      - media_broadcasting
+      - sport
+      - tourism
+      - heritage
+  - id: communities_regions
+    label: Communities and regional development
+    children:
+      - community_development
+      - regional_development
+      - islands
+      - urban_regeneration
+      - rural_services
+  - id: other
+    label: Other or cross-cutting
+    children:
+      - other
+
+question_intents:
+  - request_statistics_or_data
+  - request_funding_or_cost
+  - request_policy_position
+  - request_policy_status
+  - request_implementation_status
+  - request_timeline_or_deadline
+  - request_explanation_or_rationale
+  - request_action_or_intervention
+  - request_case_or_local_service_update
+  - request_legislative_status
+  - request_staffing_or_capacity
+  - request_eligibility_or_rules
+  - request_review_or_investigation
+  - other
+
+answer_characteristics:
+  - factual_information_supplied
+  - statistics_or_figures_supplied
+  - funding_or_cost_figures_supplied
+  - policy_position_stated
+  - policy_explanation
+  - implementation_status_update
+  - future_action_or_commitment
+  - timeline_or_deadline_stated
+  - legislation_or_regulation_discussed
+  - information_not_held_or_unavailable
+  - referred_to_another_body
+  - direct_reply_promised_by_another_body
+  - table_or_structured_data_present
+  - previous_pq_or_previous_answer_referenced
+  - no_substantive_answer
+  - other
+
+entity_types:
+  - organisation
+  - programme_scheme
+  - legislation
+  - place
+  - public_body
+  - policy_initiative
+  - named_fund
+  - other
+
+pilot_sample:
+  target_answer_sections: 300
+  deterministic_seed: 20260905
+  stratify_by:
+    - answer_year
+    - recipient
+    - answer_length_band
+    - grouped_answer
+    - referred_or_direct_reply
+    - answer_status
+
+research_only: true
+production_publish: false
