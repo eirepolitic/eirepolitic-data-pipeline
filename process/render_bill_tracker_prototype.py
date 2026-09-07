@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 import yaml
 
-from instagram.renderer.template_renderer import render_template
-from instagram.renderer.template_renderer import load_json
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from instagram.renderer.template_renderer import load_json, render_template
+
 BINDINGS = ROOT / "instagram/campaigns/bill_tracker_v1/prototype_bindings.yml"
 OUT = ROOT / "instagram/campaigns/bill_tracker_v1/previews"
 
