@@ -41,56 +41,90 @@ def _draw_lines(draw: ImageDraw.ImageDraw, lines: list[str], *, x: int, y: int, 
     return current
 
 
-def render_cover_media(edition: dict[str, Any], output_png: str | Path) -> dict[str, Any]:
+def render_cover_media(edition: dict[str, Any], bills: list[dict[str, Any]], output_png: str | Path) -> dict[str, Any]:
+    if len(bills) != 6:
+        raise RuntimeError(f"Bill Tracker cover expects six Bills; found {len(bills)}")
+
     image = Image.new("RGB", (MEDIA_W, MEDIA_H), BG)
     draw = ImageDraw.Draw(image)
 
-    draw.text((LEFT, 60), "EIREPOLITIC BILL TRACKER", font=font(25, True), fill=ACCENT, anchor="la")
+    draw.text((LEFT, 50), "EIREPOLITIC BILL TRACKER", font=font(23, True), fill=ACCENT, anchor="la")
+
     headline_font, headline_lines = _wrapped_lines(
         draw,
         str(edition["cover_headline"]),
-        start_size=58,
+        start_size=52,
         min_size=42,
-        max_width=CONTENT_W,
-        max_lines=3,
-        bold=True,
-    )
-    y = _draw_lines(draw, headline_lines, x=LEFT, y=155, text_font=headline_font, fill=TEXT, line_gap=12)
-    y += 34
-    draw.rectangle((LEFT, y, RIGHT, y + 4), fill=ACCENT)
-    y += 55
-
-    subtitle_font, subtitle_lines = _wrapped_lines(
-        draw,
-        str(edition["cover_subtitle"]),
-        start_size=31,
-        min_size=26,
-        max_width=CONTENT_W,
-        max_lines=4,
-    )
-    y = _draw_lines(draw, subtitle_lines, x=LEFT, y=y, text_font=subtitle_font, fill=TEXT, line_gap=11)
-    y += 70
-
-    draw.text((LEFT, y), "IN THIS EDITION", font=font(22, True), fill=ACCENT, anchor="la")
-    y += 55
-    topics_font, topics_lines = _wrapped_lines(
-        draw,
-        str(edition["cover_topics"]),
-        start_size=29,
-        min_size=25,
         max_width=CONTENT_W,
         max_lines=2,
         bold=True,
     )
-    y = _draw_lines(draw, topics_lines, x=LEFT, y=y, text_font=topics_font, fill=TEXT, line_gap=10)
+    y = _draw_lines(draw, headline_lines, x=LEFT, y=125, text_font=headline_font, fill=TEXT, line_gap=10)
+    y += 26
+    draw.rectangle((LEFT, y, RIGHT, y + 4), fill=ACCENT)
+    y += 36
 
-    draw.text((LEFT, MEDIA_H - 110), "Swipe for six one-page Bill explainers →", font=font(25, True), fill=TEXT, anchor="la")
-    draw.text((LEFT, MEDIA_H - 58), f"Source: {edition['source_footer']}", font=font(16), fill=MUTED, anchor="la")
+    subtitle_font, subtitle_lines = _wrapped_lines(
+        draw,
+        str(edition["cover_subtitle"]),
+        start_size=23,
+        min_size=20,
+        max_width=CONTENT_W,
+        max_lines=3,
+    )
+    y = _draw_lines(draw, subtitle_lines, x=LEFT, y=y, text_font=subtitle_font, fill=MUTED, line_gap=7)
+    y += 30
+
+    draw.text((LEFT, y), "IN THIS PART", font=font(19, True), fill=ACCENT, anchor="la")
+    y += 39
+
+    list_start = y
+    max_bottom = MEDIA_H - 86
+    available = max_bottom - list_start
+    per_item = available // 6
+    if per_item < 90:
+        raise RuntimeError(f"Bill Tracker cover has insufficient list space: {per_item}px per Bill")
+
+    list_metrics: list[dict[str, Any]] = []
+    for index, bill in enumerate(bills, start=1):
+        item_y = list_start + (index - 1) * per_item
+        draw.text((LEFT, item_y + 4), f"{index}.", font=font(22, True), fill=ACCENT, anchor="la")
+        formal = str(bill["formal_title"])
+        title_font, title_lines = _wrapped_lines(
+            draw,
+            formal,
+            start_size=22,
+            min_size=17,
+            max_width=CONTENT_W - 60,
+            max_lines=3,
+            bold=True,
+        )
+        end_y = _draw_lines(
+            draw,
+            title_lines,
+            x=LEFT + 54,
+            y=item_y,
+            text_font=title_font,
+            fill=TEXT,
+            line_gap=4,
+        )
+        if end_y > item_y + per_item - 8:
+            raise RuntimeError(f"Cover Bill title overflows its row: {formal!r}")
+        list_metrics.append({"index": index, "formal_title": formal, "lines": len(title_lines), "font_size": title_font.size})
+
+    draw.text((LEFT, MEDIA_H - 42), f"Source: {edition['source_footer']}", font=font(14), fill=MUTED, anchor="la")
 
     output_png = Path(output_png)
     output_png.parent.mkdir(parents=True, exist_ok=True)
     image.save(output_png)
-    return {"success": True, "renderer": "bill_tracker_cover_media_v1", "warnings": [], "headline_lines": len(headline_lines)}
+    return {
+        "success": True,
+        "renderer": "bill_tracker_cover_list_media_v2",
+        "warnings": [],
+        "headline_lines": len(headline_lines),
+        "subtitle_lines": len(subtitle_lines),
+        "bill_list": list_metrics,
+    }
 
 
 def render_bill_media(bill: dict[str, Any], output_png: str | Path) -> dict[str, Any]:
