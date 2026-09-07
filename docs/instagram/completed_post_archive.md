@@ -6,7 +6,7 @@ Purpose: preserve approved finished social posts and the agent-authored creation
 
 This repository owns:
 
-`s3://eirepolitic-data/completed-posts/eirepolitic-data-pipeline/`
+`s3://eirepolitic-data/instagram/completed-posts/eirepolitic-data-pipeline/`
 
 Each approved post is immutable once archived:
 
@@ -33,11 +33,11 @@ The creating agent should write the summary after human approval and before arch
 
 Do not claim tools, checks or methodology that were not actually used.
 
-## Archive workflow
+## Archive behavior
 
 Use `.github/workflows/completed_post_archive.yml`. It accepts an asset Git ref/directory and a summary Git ref/path separately, allowing generated preview branches to provide the finished files while `main` stores the durable agent summary.
 
-The workflow validates metadata, copies only declared assets, generates SHA-256 provenance, rejects an existing `post_id`, uploads the immutable bundle and updates `index.json` under a concurrency lock.
+The workflow validates metadata, copies only declared assets, generates SHA-256 provenance, uploads recoverable content, updates `index.json` idempotently, and writes `provenance.json` last as the completion marker. A matching completed archive can repair a missing catalog entry without modifying the finished assets; a conflicting summary fails closed.
 
 ## Reference workflow
 
