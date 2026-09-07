@@ -74,7 +74,7 @@ jobs:
           for file in \
             "$PERIOD_ROOT/slides/01_latest_poll.png" \
             "$PERIOD_ROOT/slides/02_change_same_pollster.png" \
-            "$PERIOD_ROOT/slides/03_one_month_polling.png" \
+            "$PERIOD_ROOT/slides/03_six_month_polling.png" \
             "$PERIOD_ROOT/slides/04_about_polling.png" \
             "$PERIOD_ROOT/contact_sheets/four_slide_overview.jpg" \
             "$PERIOD_ROOT/metadata/manifest.json" \
@@ -96,10 +96,14 @@ jobs:
           assert manifest['qa']['actual_slide_count']==4
           assert manifest['qa']['model_data_used'] is False
           assert manifest['qa']['same_pollster_only'] is True
-          assert manifest['comparison_days'] >= 28
+          assert manifest['qa']['comparison_and_trend_windows_independent'] is True
+          assert 28 <= manifest['comparison_days'] <= 45
+          assert manifest['trend_window_days']==183
           assert manifest['trend_legend_default']=='single_row'
-          assert len(manifest['trend_waves']) >= 2
+          assert manifest['trend_wave_count'] >= 2
+          assert len(manifest['trend_waves'])==manifest['trend_wave_count']
           assert {wave['pollster'] for wave in manifest['trend_waves']}=={manifest['pollster']}
+          assert manifest['trend_end_date']==manifest['latest_poll']['publication_date']
           for path in manifest['slides']:
               with Image.open(path) as image:
                   assert image.size==(1080,1350)
@@ -110,7 +114,11 @@ jobs:
               'latest_poll': manifest['latest_poll'],
               'previous_poll': manifest['previous_poll'],
               'comparison_days': manifest['comparison_days'],
-              'trend_wave_count': len(manifest['trend_waves']),
+              'trend_window_days': manifest['trend_window_days'],
+              'trend_start_date': manifest['trend_start_date'],
+              'trend_end_date': manifest['trend_end_date'],
+              'trend_actual_span_days': manifest['trend_actual_span_days'],
+              'trend_wave_count': manifest['trend_wave_count'],
               'factory_commit': manifest['factory_reference_commit'],
           }, indent=2))
           PY
@@ -128,7 +136,7 @@ jobs:
           cp "$PERIOD_ROOT/contact_sheets/four_slide_overview.jpg" "$REVIEW_DIR/contact-sheet.jpg"
           cp "$PERIOD_ROOT/slides/01_latest_poll.png" "$REVIEW_DIR/slide-01.png"
           cp "$PERIOD_ROOT/slides/02_change_same_pollster.png" "$REVIEW_DIR/slide-02.png"
-          cp "$PERIOD_ROOT/slides/03_one_month_polling.png" "$REVIEW_DIR/slide-03.png"
+          cp "$PERIOD_ROOT/slides/03_six_month_polling.png" "$REVIEW_DIR/slide-03.png"
           cp "$PERIOD_ROOT/slides/04_about_polling.png" "$REVIEW_DIR/slide-04.png"
           cp "$PERIOD_ROOT/caption.txt" "$REVIEW_DIR/caption.txt"
           cp "$PERIOD_ROOT/metadata/manifest.json" "$REVIEW_DIR/manifest.json"
@@ -141,7 +149,7 @@ jobs:
           caption=html.escape((root/'caption.txt').read_text(encoding='utf-8'))
           latest=manifest['latest_poll']
           previous=manifest['previous_poll']
-          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Raw polling · one-month review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}h1{{margin-bottom:8px}}.meta{{color:#cbbf9f;margin-bottom:22px;line-height:1.55}}.sheet{{width:100%;height:auto;display:block;margin:0 0 28px}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img{{width:100%;height:auto}}pre{{white-space:pre-wrap;background:#173d30;padding:18px;border-radius:8px}}@media(max-width:1000px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:650px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>Raw polling · one-month same-pollster review</h1><div class="meta">Pollster: {html.escape(manifest['pollster'])} · {html.escape(previous['publication_date'])} → {html.escape(latest['publication_date'])} · {manifest['comparison_days']} days · {len(manifest['trend_waves'])} poll waves<br>Latest poll sample: n={latest['sample_size']:,} · Fieldwork {html.escape(latest['fieldwork_start'])} to {html.escape(latest['fieldwork_end'])}<br>Data mode: raw polls only · no IPI daily model used</div><img class="sheet" src="contact-sheet.jpg" alt="Four-slide raw polling contact sheet"><div class="slides"><img src="slide-01.png" alt="Latest polling percentages"><img src="slide-02.png" alt="Who is up and down"><img src="slide-03.png" alt="One month of polling"><img src="slide-04.png" alt="About this polling"></div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
+          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Raw polling · six-month review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}h1{{margin-bottom:8px}}.meta{{color:#cbbf9f;margin-bottom:22px;line-height:1.55}}.sheet{{width:100%;height:auto;display:block;margin:0 0 28px}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img{{width:100%;height:auto}}pre{{white-space:pre-wrap;background:#173d30;padding:18px;border-radius:8px}}@media(max-width:1000px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:650px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>Raw polling · six-month same-pollster review</h1><div class="meta">Pollster: {html.escape(manifest['pollster'])}<br>Slide 2 comparison: {html.escape(previous['publication_date'])} → {html.escape(latest['publication_date'])} · {manifest['comparison_days']} days<br>Slide 3 trend: {html.escape(manifest['trend_start_date'])} → {html.escape(manifest['trend_end_date'])} · {manifest['trend_wave_count']} actual poll waves · configured window {manifest['trend_window_days']} days<br>Latest poll sample: n={latest['sample_size']:,} · Fieldwork {html.escape(latest['fieldwork_start'])} to {html.escape(latest['fieldwork_end'])}<br>Data mode: raw polls only · no IPI daily model used</div><img class="sheet" src="contact-sheet.jpg" alt="Four-slide raw polling contact sheet"><div class="slides"><img src="slide-01.png" alt="Latest polling percentages"><img src="slide-02.png" alt="Who is up and down"><img src="slide-03.png" alt="Six months of polling"><img src="slide-04.png" alt="About this polling"></div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
           (root/'index.html').write_text(page, encoding='utf-8')
           PY
 
@@ -163,7 +171,7 @@ jobs:
           URL="https://raw.githack.com/${GITHUB_REPOSITORY}/previews/ipi-polling-factory/index.html"
           echo "FACTORY_REVIEW_URL=$URL"
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-            printf '## Raw polling · one-month review\n\n[Open web-hosted review page](%s)\n' "$URL" >> "$GITHUB_STEP_SUMMARY"
+            printf '## Raw polling · six-month review\n\n[Open web-hosted review page](%s)\n' "$URL" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload backup package
