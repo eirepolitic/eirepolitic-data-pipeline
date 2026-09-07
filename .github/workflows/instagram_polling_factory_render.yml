@@ -20,26 +20,54 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install pandas pyyaml pillow boto3 matplotlib
       - name: Check out approved factory
-        shell: bash
         run: |
-          set -euo pipefail
           git fetch origin feature/instagram-monthly-post-framework
           git worktree add /tmp/approved-instagram-factory 386b933
       - run: cp -R instagram/projects/bill_tracker_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
-      - name: Render and capture result
+      - name: Render
+        run: |
+          cd /tmp/approved-instagram-factory
+          python -m instagram.factory.recurring --project-id bill_tracker_factory_v1 --period latest --output-root "$GITHUB_WORKSPACE/generated_bill_tracker"
+      - name: Validate and build review
         shell: bash
         run: |
-          set +e
-          mkdir -p diagnostics/bill-tracker-cover-list
-          cd /tmp/approved-instagram-factory
-          python -m instagram.factory.recurring --project-id bill_tracker_factory_v1 --period latest --output-root "$GITHUB_WORKSPACE/generated_bill_tracker" > "$GITHUB_WORKSPACE/diagnostics/bill-tracker-cover-list/render.log" 2>&1
-          code=$?
-          echo "$code" > "$GITHUB_WORKSPACE/diagnostics/bill-tracker-cover-list/exit_code.txt"
-          set -e
-      - name: Persist diagnostic
+          set -euo pipefail
+          PERIOD_ROOT="$(find generated_bill_tracker -mindepth 1 -maxdepth 1 -type d -name 'period=*' | sort | tail -1)"
+          python - "$PERIOD_ROOT" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from PIL import Image
+          root=Path(sys.argv[1]); m=json.loads((root/'metadata/manifest.json').read_text())
+          cover=m['media_manifests']['cover']
+          assert cover['renderer']=='bill_tracker_cover_list_media_v2'
+          assert len(cover['bill_list'])==6
+          assert all(row['lines']<=3 and row['font_size']>=17 for row in cover['bill_list'])
+          assert m['qa']['actual_slide_count']==8
+          for p in m['slides']:
+              with Image.open(p) as im: assert im.size==(1080,1350)
+          PY
+          REVIEW=bill_tracker_web_review
+          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
+          cp "$PERIOD_ROOT/contact_sheets/eight_slide_overview.jpg" "$REVIEW/contact-sheet.jpg"
+          i=1; for src in "$PERIOD_ROOT"/slides/*.png; do cp "$src" "$REVIEW/slide-$(printf '%02d' "$i").png"; i=$((i+1)); done
+          cp "$PERIOD_ROOT/caption.txt" "$REVIEW/caption.txt"
+          cp "$PERIOD_ROOT/metadata/manifest.json" "$REVIEW/manifest.json"
+          python - <<'PY'
+          from pathlib import Path
+          import html
+          r=Path('bill_tracker_web_review'); cap=html.escape((r/'caption.txt').read_text())
+          imgs=''.join(f'<img src="slide-{i:02d}.png">' for i in range(1,9))
+          (r/'index.html').write_text(f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial}}main{{max-width:1500px;margin:auto;padding:24px}}.sheet{{width:100%}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img{{width:100%}}pre{{white-space:pre-wrap;background:#173d30;padding:18px}}@media(max-width:900px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:600px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>Bills of the Current Session · Enacted Part 1</h1><img class="sheet" src="contact-sheet.jpg"><div class="slides">{imgs}</div><h2>Caption</h2><pre>{cap}</pre></main></body></html>''',encoding='utf-8')
+          PY
+      - name: Publish review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/bill-tracker-cover-list
-          git commit -m "test: persist Bill Tracker cover-list render diagnostic" || exit 0
-          git push origin HEAD:feature/bill-content-snapshot-v1
+          cd bill_tracker_web_review
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add . && git commit -m "preview: Bill Tracker cover list ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-factory-v1
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-factory-v1
