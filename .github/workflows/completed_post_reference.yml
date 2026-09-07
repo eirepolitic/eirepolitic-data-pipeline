@@ -1,0 +1,57 @@
+name: Completed post reference
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: Optional post ID to fetch; leave blank to list catalog only
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BUCKET: eirepolitic-data
+      PREFIX: completed-posts/eirepolitic-data-pipeline
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Fetch archive catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors
+          cat index.json
+          printf '## Completed post catalog\n\n```json\n' >> "$GITHUB_STEP_SUMMARY"
+          cat index.json >> "$GITHUB_STEP_SUMMARY"
+          printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fetch selected post
+        if: ${{ inputs.post_id != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p completed-post
+          aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" completed-post/ --recursive --only-show-errors
+          test -s completed-post/agent-summary.json
+          test -s completed-post/agent-summary.md
+          test -s completed-post/provenance.json
+
+      - name: Upload selected reference bundle
+        if: ${{ inputs.post_id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: completed-post-${{ inputs.post_id }}
+          path: completed-post/
+          if-no-files-found: error
+          retention-days: 7
