@@ -25,17 +25,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Fetch archive catalog
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors || printf '{"schema_version":1,"posts":[]}\n' > index.json
           cat index.json
           printf '## Completed post catalog\n\n```json\n' >> "$GITHUB_STEP_SUMMARY"
           cat index.json >> "$GITHUB_STEP_SUMMARY"
           printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
-
       - name: Fetch selected post
         if: ${{ inputs.post_id != '' }}
         shell: bash
@@ -46,7 +44,6 @@ jobs:
           test -s completed-post/agent-summary.json
           test -s completed-post/agent-summary.md
           test -s completed-post/provenance.json
-
       - name: Upload selected reference bundle
         if: ${{ inputs.post_id != '' }}
         uses: actions/upload-artifact@v4
