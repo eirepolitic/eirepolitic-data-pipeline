@@ -1,0 +1,551 @@
+{
+  "project_id": "bill_tracker_factory_v1",
+  "edition_id": "current-session-enacted-part-1",
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "factory_reference_commit": "386b933",
+  "factory_reference_workflow_run": 33894430571,
+  "approved_reference_post_id": "2026-09-06-ipi-polling-carousel",
+  "source_label": "Houses of the Oireachtas + official departmental material",
+  "slides": [
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/01_cover.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/02_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/03_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/04_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/05_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/06_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/07_bill.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/08_about_bill_tracker.png"
+  ],
+  "contact_sheet": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/contact_sheets/eight_slide_overview.jpg",
+  "caption": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/caption.txt",
+  "media_manifests": {
+    "cover": {
+      "success": true,
+      "renderer": "bill_tracker_cover_list_media_v2",
+      "warnings": [],
+      "headline_lines": 1,
+      "subtitle_lines": 3,
+      "bill_list": [
+        {
+          "index": 1,
+          "formal_title": "Development (Strategic Gas Reserve) Bill 2026",
+          "lines": 1,
+          "font_size": 22
+        },
+        {
+          "index": 2,
+          "formal_title": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026",
+          "lines": 2,
+          "font_size": 22
+        },
+        {
+          "index": 3,
+          "formal_title": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026",
+          "lines": 2,
+          "font_size": 22
+        },
+        {
+          "index": 4,
+          "formal_title": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026",
+          "lines": 2,
+          "font_size": 22
+        },
+        {
+          "index": 5,
+          "formal_title": "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026",
+          "lines": 2,
+          "font_size": 22
+        },
+        {
+          "index": 6,
+          "formal_title": "Regulation of Artificial Intelligence Bill 2026",
+          "lines": 1,
+          "font_size": 22
+        }
+      ]
+    },
+    "bill_1": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "Strategic Gas Reserve",
+      "what_lines": 4,
+      "case_lines": 2,
+      "concern_lines": 3,
+      "final_body_y": 749
+    },
+    "bill_2": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "Israeli Settlement Goods Ban",
+      "what_lines": 3,
+      "case_lines": 2,
+      "concern_lines": 3,
+      "final_body_y": 748
+    },
+    "bill_3": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "Criminal, Civil & Defence Changes",
+      "what_lines": 4,
+      "case_lines": 3,
+      "concern_lines": 3,
+      "final_body_y": 813
+    },
+    "bill_4": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "Housing & Tenancies",
+      "what_lines": 4,
+      "case_lines": 2,
+      "concern_lines": 3,
+      "final_body_y": 781
+    },
+    "bill_5": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "Pharmacy Contraception",
+      "what_lines": 3,
+      "case_lines": 2,
+      "concern_lines": 2,
+      "final_body_y": 715
+    },
+    "bill_6": {
+      "success": true,
+      "renderer": "bill_tracker_bill_media_v1",
+      "warnings": [],
+      "display_title": "AI Regulation",
+      "what_lines": 3,
+      "case_lines": 2,
+      "concern_lines": 3,
+      "final_body_y": 708
+    },
+    "methodology": {
+      "success": true,
+      "renderer": "approved_glossary_methodology_v1",
+      "output_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/slides/08_about_bill_tracker.png",
+      "warnings": [],
+      "glossary_metrics": {
+        "final_y": 1236,
+        "entry_count": 5,
+        "content_bounds": {
+          "left": 135,
+          "right": 945,
+          "max_width": 810
+        },
+        "min_text_left_px": 135,
+        "max_text_right_px": 944,
+        "left_overflow_count": 0,
+        "right_overflow_count": 0,
+        "text_bounds": [
+          {
+            "kind": "term",
+            "text": "What this edition covers",
+            "bbox_px": [
+              135,
+              230,
+              535,
+              252
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Six enacted Bills from the current parliamentary session. Each Bill",
+            "bbox_px": [
+              135,
+              287,
+              895,
+              309
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "gets one overview slide; detailed Bill posts can follow separately.",
+            "bbox_px": [
+              135,
+              321,
+              884,
+              343
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Bill status and stages",
+            "bbox_px": [
+              135,
+              397,
+              489,
+              425
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Status, stage and House come from Oireachtas Bill records. The",
+            "bbox_px": [
+              135,
+              460,
+              872,
+              482
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "recurring tracker will compare snapshots so later editions can focus",
+            "bbox_px": [
+              135,
+              494,
+              915,
+              516
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "on Bills that are new, changed stage or became enacted.",
+            "bbox_px": [
+              135,
+              528,
+              794,
+              550
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Debate summaries",
+            "bbox_px": [
+              135,
+              604,
+              442,
+              626
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Debate points are summarised only where the certified Bill-to-section",
+            "bbox_px": [
+              135,
+              661,
+              937,
+              683
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "relationship supports the relevant transcript context. A person",
+            "bbox_px": [
+              135,
+              695,
+              854,
+              717
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "speaking in a debate is not automatically treated as a supporter or",
+            "bbox_px": [
+              135,
+              729,
+              908,
+              751
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "opponent.",
+            "bbox_px": [
+              135,
+              763,
+              252,
+              785
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Recorded votes",
+            "bbox_px": [
+              135,
+              839,
+              389,
+              861
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "A Bill-linked division may concern an amendment or procedural",
+            "bbox_px": [
+              135,
+              896,
+              867,
+              918
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "proposition. Tá and Níl totals are described as support or opposition to",
+            "bbox_px": [
+              135,
+              929,
+              944,
+              952
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "the Bill only when the exact proposition supports that interpretation.",
+            "bbox_px": [
+              135,
+              964,
+              927,
+              986
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Sources",
+            "bbox_px": [
+              135,
+              1041,
+              265,
+              1062
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Houses of the Oireachtas records, EirePolitic deterministic Bill links",
+            "bbox_px": [
+              135,
+              1097,
+              905,
+              1117
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "and relevant official departmental material. No classifier call is",
+            "bbox_px": [
+              135,
+              1131,
+              858,
+              1153
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "required for the tracker mechanics.",
+            "bbox_px": [
+              135,
+              1165,
+              542,
+              1187
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          }
+        ]
+      }
+    }
+  },
+  "outer_layouts": [
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Bills of the Current Session",
+          "rendered_lines": [
+            "Bills of the Current Session"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Strategic Gas Reserve",
+          "rendered_lines": [
+            "Strategic Gas Reserve"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Israeli Settlement Goods Ban",
+          "rendered_lines": [
+            "Israeli Settlement Goods Ban"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 2,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Criminal, Civil & Defence Changes",
+          "rendered_lines": [
+            "Criminal, Civil & Defence",
+            "Changes"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Housing & Tenancies",
+          "rendered_lines": [
+            "Housing & Tenancies"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Pharmacy Contraception",
+          "rendered_lines": [
+            "Pharmacy Contraception"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "AI Regulation",
+          "rendered_lines": [
+            "AI Regulation"
+          ],
+          "clipped": false
+        }
+      ]
+    }
+  ],
+  "qa": {
+    "expected_slide_count": 8,
+    "actual_slide_count": 8,
+    "dimensions": [
+      1080,
+      1350
+    ],
+    "approved_factory_commit": "386b933",
+    "approved_outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+    "approved_methodology_component": "draw_glossary",
+    "source_footer_required": true,
+    "bill_count": 6,
+    "publication_enabled": false
+  },
+  "package": {
+    "zip": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_bill_tracker/period=current-session-enacted-part-1/bill_tracker_factory_review.zip",
+    "file_count": 18,
+    "sha256": "b3aba431e90f097b3de92e0701a2582652cdf8f9e61474e46924c3e2ec8b89a5",
+    "files": [
+      "assets/01_cover_media.png",
+      "assets/02_bill_media.png",
+      "assets/03_bill_media.png",
+      "assets/04_bill_media.png",
+      "assets/05_bill_media.png",
+      "assets/06_bill_media.png",
+      "assets/07_bill_media.png",
+      "caption.txt",
+      "contact_sheets/eight_slide_overview.jpg",
+      "metadata/manifest.json",
+      "slides/01_cover.png",
+      "slides/02_bill.png",
+      "slides/03_bill.png",
+      "slides/04_bill.png",
+      "slides/05_bill.png",
+      "slides/06_bill.png",
+      "slides/07_bill.png",
+      "slides/08_about_bill_tracker.png"
+    ]
+  }
+}
