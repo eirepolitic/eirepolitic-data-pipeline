@@ -1,0 +1,28 @@
+project_id: bill_tracker_factory_v1
+adapter_module: instagram.projects.bill_tracker_factory_v1.adapter
+period:
+  default: latest
+source:
+  draft_content: instagram/campaigns/bill_tracker_v1/test_draft.md
+  source_label: Houses of the Oireachtas + official departmental material
+render:
+  outer_layout: instagram/templates/layouts/title_text_media_v1.json
+  palette:
+    background: '#0f2f24'
+    text: '#f4ead7'
+    muted: '#c8bda8'
+    accent: '#d8b45f'
+  max_bills_per_carousel: 6
+slides:
+  expected_bill_count: 6
+  include_cover: true
+  include_methodology: true
+output:
+  local_root: instagram/production/output/bill_tracker_factory_v1
+publication:
+  enabled: false
+qa:
+  expected_slide_count: 8
+  expected_dimensions: [1080, 1350]
+  require_source_footer: true
+  approved_factory_commit: 386b933

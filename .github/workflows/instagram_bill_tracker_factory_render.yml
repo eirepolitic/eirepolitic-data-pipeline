@@ -1,0 +1,132 @@
+name: Instagram Bill Tracker factory render
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-bill-tracker-factory-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install factory dependencies
+        run: python -m pip install pandas pyyaml pillow boto3 matplotlib
+
+      - name: Check out exact approved July factory
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/instagram-monthly-post-framework
+          git cat-file -e 386b933^{commit}
+          git worktree add /tmp/approved-instagram-factory 386b933
+          test "$(git -C /tmp/approved-instagram-factory rev-parse --short=7 HEAD)" = "386b933"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+
+      - name: Inject Bill Tracker project into approved factory
+        run: cp -R instagram/projects/bill_tracker_factory_v1 /tmp/approved-instagram-factory/instagram/projects/
+
+      - name: Render Bill Tracker
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/approved-instagram-factory
+          python -m instagram.factory.recurring \
+            --project-id bill_tracker_factory_v1 \
+            --period latest \
+            --output-root "$GITHUB_WORKSPACE/generated_bill_tracker"
+
+      - name: Validate package
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          PERIOD_ROOT="$(find generated_bill_tracker -mindepth 1 -maxdepth 1 -type d -name 'period=*' | sort | tail -1)"
+          test -n "$PERIOD_ROOT"
+          test -s "$PERIOD_ROOT/contact_sheets/eight_slide_overview.jpg"
+          test -s "$PERIOD_ROOT/metadata/manifest.json"
+          test -s "$PERIOD_ROOT/bill_tracker_factory_review.zip"
+          python - "$PERIOD_ROOT" <<'PY'
+          import json, sys
+          from pathlib import Path
+          from PIL import Image
+          root=Path(sys.argv[1])
+          manifest=json.loads((root/'metadata/manifest.json').read_text(encoding='utf-8'))
+          assert manifest['factory_reference_commit']=='386b933'
+          assert manifest['approved_reference_post_id']=='2026-09-06-ipi-polling-carousel'
+          assert manifest['review_state']=='pending_human_review'
+          assert manifest['publication_enabled'] is False
+          assert manifest['qa']['actual_slide_count']==8
+          assert manifest['qa']['approved_outer_layout']=='instagram/templates/layouts/title_text_media_v1.json'
+          for path in manifest['slides']:
+              with Image.open(path) as image:
+                  assert image.size==(1080,1350)
+          PY
+          echo "period_root=$PERIOD_ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Build browser review page
+        shell: bash
+        env:
+          PERIOD_ROOT: ${{ steps.validate.outputs.period_root }}
+        run: |
+          set -euo pipefail
+          REVIEW_DIR="$GITHUB_WORKSPACE/bill_tracker_web_review"
+          rm -rf "$REVIEW_DIR"
+          mkdir -p "$REVIEW_DIR"
+          cp "$PERIOD_ROOT/contact_sheets/eight_slide_overview.jpg" "$REVIEW_DIR/contact-sheet.jpg"
+          i=1
+          for src in "$PERIOD_ROOT"/slides/*.png; do
+            cp "$src" "$REVIEW_DIR/slide-$(printf '%02d' "$i").png"
+            i=$((i+1))
+          done
+          cp "$PERIOD_ROOT/caption.txt" "$REVIEW_DIR/caption.txt"
+          cp "$PERIOD_ROOT/metadata/manifest.json" "$REVIEW_DIR/manifest.json"
+          python - <<'PY'
+          from pathlib import Path
+          import html
+          root=Path('bill_tracker_web_review')
+          caption=html.escape((root/'caption.txt').read_text(encoding='utf-8'))
+          imgs=''.join(f'<img src="slide-{i:02d}.png" alt="Bill Tracker slide {i}">' for i in range(1,9))
+          page=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EirePolitic Bill Tracker review</title><style>body{{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}}main{{max-width:1500px;margin:auto;padding:24px}}.meta{{color:#c8bda8;margin-bottom:22px}}.sheet{{width:100%;height:auto;display:block;margin-bottom:28px}}.slides{{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}}.slides img{{width:100%;height:auto}}pre{{white-space:pre-wrap;background:#173d30;padding:18px}}@media(max-width:1000px){{.slides{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:650px){{.slides{{grid-template-columns:1fr}}}}</style></head><body><main><h1>Bill Tracker · approved-factory review</h1><div class="meta">Pinned factory: 386b933 · approved reference: 6 Sep 2026 polling carousel · publication disabled</div><img class="sheet" src="contact-sheet.jpg" alt="Bill Tracker contact sheet"><div class="slides">{imgs}</div><h2>Caption</h2><pre>{caption}</pre></main></body></html>'''
+          (root/'index.html').write_text(page,encoding='utf-8')
+          PY
+
+      - name: Publish browser review
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd bill_tracker_web_review
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "preview: Bill Tracker approved factory ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-factory-v1
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-factory-v1
+
+      - name: Upload backup package
+        uses: actions/upload-artifact@v4
+        with:
+          name: bill-tracker-approved-factory-${{ github.run_id }}
+          path: generated_bill_tracker/
+          if-no-files-found: error
+          retention-days: 30
