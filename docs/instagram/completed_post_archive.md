@@ -6,7 +6,9 @@ Purpose: preserve approved finished social posts and the agent-authored creation
 
 This repository owns:
 
-`s3://eirepolitic-data/instagram/completed-posts/eirepolitic-data-pipeline/`
+`s3://eirepolitic-data/instagram/previews/completed-posts/eirepolitic-data-pipeline/`
+
+The archive sits beneath the existing private Instagram S3 namespace because that is the repository's established least-privilege write boundary. The `completed-posts` subtree is durable reference storage, not an approval or publishing queue.
 
 Each approved post is immutable once archived:
 
@@ -15,21 +17,11 @@ Each approved post is immutable once archived:
 `<post_id>/agent-summary.md`
 `<post_id>/provenance.json`
 
-The repo-level catalog is:
-
-`index.json`
+The repo-level catalog is `index.json`.
 
 ## Agent summary requirement
 
-The creating agent should write the summary after human approval and before archival. It must record:
-
-- stable post ID, title, platform, repository and completion timestamp;
-- every final asset to preserve;
-- repo/workflow/rendering tools actually used;
-- the ordered creation process;
-- important design/data decisions;
-- QA performed and approvals obtained;
-- sources, limitations, related workflows and PRs when applicable.
+The creating agent should write the summary after human approval and before archival. It must record the stable post ID, title, platform, repository and completion timestamp; every final asset; repo/workflow/rendering tools actually used; ordered creation process; important design/data decisions; QA and approvals; and sources, limitations, related workflows and PRs when applicable.
 
 Do not claim tools, checks or methodology that were not actually used.
 
