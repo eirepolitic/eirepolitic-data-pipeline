@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 15
     env:
       BUCKET: eirepolitic-data
-      PREFIX: instagram/completed-posts/eirepolitic-data-pipeline
+      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
       POST_ID: 2026-09-06-ipi-polling-carousel
     steps:
       - name: Check out archive tooling and summary
