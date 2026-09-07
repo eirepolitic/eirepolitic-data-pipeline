@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 10
     env:
       BUCKET: eirepolitic-data
-      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel/
+      ROOT: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,17 +23,20 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: List approved bundle objects
+      - name: Fetch required approved archive summaries
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf diagnostics/completed-post-reference/selected
           mkdir -p diagnostics/completed-post-reference/selected
-          aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX" > diagnostics/completed-post-reference/selected/object-list.json
-      - name: Persist object list
+          aws s3 cp "s3://$BUCKET/$ROOT/agent-summary.md" diagnostics/completed-post-reference/selected/agent-summary.md --only-show-errors
+          aws s3 cp "s3://$BUCKET/$ROOT/agent-summary.json" diagnostics/completed-post-reference/selected/agent-summary.json --only-show-errors
+          aws s3 cp "s3://$BUCKET/$ROOT/provenance.json" diagnostics/completed-post-reference/selected/provenance.json --only-show-errors
+      - name: Persist summaries
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/completed-post-reference/selected/object-list.json
-          git commit -m "analysis: persist approved polling object list" || exit 0
+          git add diagnostics/completed-post-reference/selected
+          git commit -m "analysis: persist approved polling archive summaries" || exit 0
           git push origin HEAD:analysis/bill-tracker-approved-reference
