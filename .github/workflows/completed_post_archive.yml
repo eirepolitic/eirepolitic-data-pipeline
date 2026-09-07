@@ -1,0 +1,113 @@
+name: Completed post archive
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: Stable immutable post ID
+        required: true
+        type: string
+      asset_ref:
+        description: Git ref containing the final assets
+        required: true
+        default: main
+        type: string
+      asset_dir:
+        description: Directory within asset_ref containing final assets
+        required: true
+        type: string
+      summary_ref:
+        description: Git ref containing the agent summary
+        required: true
+        default: main
+        type: string
+      summary_path:
+        description: Path to agent-summary JSON within summary_ref
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: completed-post-archive-eirepolitic-data-pipeline
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BUCKET: eirepolitic-data
+      PREFIX: completed-posts/eirepolitic-data-pipeline
+    steps:
+      - name: Check out archive tooling
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: tooling
+
+      - name: Check out final assets
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.asset_ref }}
+          path: asset-source
+
+      - name: Check out agent summary
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.summary_ref }}
+          path: summary-source
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Validate and prepare immutable archive bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tooling/tools/completed_post_archive.py prepare \
+            --source-dir "asset-source/${{ inputs.asset_dir }}" \
+            --summary "summary-source/${{ inputs.summary_path }}" \
+            --out-dir archive-bundle \
+            --repo Eirepolitic-data-pipeline \
+            --post-id "${{ inputs.post_id }}"
+
+      - name: Reject duplicate post ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/" --max-items 1 --query 'length(Contents)' --output text)"
+          if [ "$COUNT" != "0" ] && [ "$COUNT" != "None" ]; then
+            echo "Archive already exists for post_id=${{ inputs.post_id }}" >&2
+            exit 1
+          fi
+
+      - name: Upload immutable post bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" --recursive --only-show-errors
+
+      - name: Update repository archive index
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors || printf '{"schema_version":1,"posts":[]}\n' > index.json
+          python tooling/tools/completed_post_archive.py update-index \
+            --index index.json \
+            --summary archive-bundle/agent-summary.json \
+            --s3-uri "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/"
+          aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
+
+      - name: Verify uploaded provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" verify-provenance.json --only-show-errors
+          cmp archive-bundle/provenance.json verify-provenance.json
+          printf '## Completed post archived\n\n- Post ID: `%s`\n- S3: `s3://%s/%s/%s/`\n' "${{ inputs.post_id }}" "$BUCKET" "$PREFIX" "${{ inputs.post_id }}" >> "$GITHUB_STEP_SUMMARY"
