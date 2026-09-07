@@ -72,16 +72,26 @@ jobs:
             --out-dir archive-bundle \
             --repo Eirepolitic-data-pipeline \
             --post-id "${{ inputs.post_id }}"
-      - name: Reject completed duplicate post ID
+      - name: Inspect existing completed archive
+        id: existing
         shell: bash
         run: |
           set -euo pipefail
-          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/provenance.json" --max-keys 1 --query 'KeyCount' --output text)"
-          if [ "$COUNT" != "0" ]; then
-            echo "Completed archive already exists for post_id=${{ inputs.post_id }}" >&2
-            exit 1
+          if aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" existing-provenance.json --only-show-errors; then
+            aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/agent-summary.json" existing-summary.json --only-show-errors
+            python - <<'PY'
+          import json
+          expected=json.load(open('archive-bundle/agent-summary.json', encoding='utf-8'))
+          existing=json.load(open('existing-summary.json', encoding='utf-8'))
+          assert existing == expected, 'completed archive exists with different agent summary'
+          print('matching completed archive found; catalog repair is allowed')
+          PY
+            echo "completed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "completed=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Upload recoverable archive content
+        if: ${{ steps.existing.outputs.completed != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -97,19 +107,18 @@ jobs:
             --s3-uri "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/"
           aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
       - name: Write completion marker
+        if: ${{ steps.existing.outputs.completed != 'true' }}
         shell: bash
-        run: |
-          set -euo pipefail
-          aws s3 cp archive-bundle/provenance.json "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" --only-show-errors
+        run: aws s3 cp archive-bundle/provenance.json "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" --only-show-errors
       - name: Verify completed archive
         shell: bash
         run: |
           set -euo pipefail
           aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" verify-provenance.json --only-show-errors
-          cmp archive-bundle/provenance.json verify-provenance.json
           aws s3 cp "s3://$BUCKET/$PREFIX/index.json" verify-index.json --only-show-errors
           python - <<'PY'
           import json
           data=json.load(open('verify-index.json', encoding='utf-8'))
           assert any(x['post_id']=='${{ inputs.post_id }}' for x in data['posts'])
+          print('completed archive and catalog verified')
           PY
