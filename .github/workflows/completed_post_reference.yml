@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 10
     env:
       BUCKET: eirepolitic-data
-      ROOT: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel
+      ROOT: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel/assets
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,20 +23,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Fetch required approved archive summaries
+      - name: Fetch approved finished assets
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf diagnostics/completed-post-reference/selected
-          mkdir -p diagnostics/completed-post-reference/selected
-          aws s3 cp "s3://$BUCKET/$ROOT/agent-summary.md" diagnostics/completed-post-reference/selected/agent-summary.md --only-show-errors
-          aws s3 cp "s3://$BUCKET/$ROOT/agent-summary.json" diagnostics/completed-post-reference/selected/agent-summary.json --only-show-errors
-          aws s3 cp "s3://$BUCKET/$ROOT/provenance.json" diagnostics/completed-post-reference/selected/provenance.json --only-show-errors
-      - name: Persist summaries
+          mkdir -p diagnostics/completed-post-reference/selected/assets
+          for f in slide-01.png slide-02.png slide-03.png slide-04.png contact-sheet.jpg caption.txt manifest.json; do
+            aws s3 cp "s3://$BUCKET/$ROOT/$f" "diagnostics/completed-post-reference/selected/assets/$f" --only-show-errors
+          done
+      - name: Persist finished assets
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/completed-post-reference/selected
-          git commit -m "analysis: persist approved polling archive summaries" || exit 0
+          git add diagnostics/completed-post-reference/selected/assets
+          git commit -m "analysis: persist approved polling finished assets" || exit 0
           git push origin HEAD:analysis/bill-tracker-approved-reference
