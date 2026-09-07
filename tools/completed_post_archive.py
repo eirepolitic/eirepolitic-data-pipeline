@@ -84,12 +84,20 @@ def prepare(source_dir: Path, summary_path: Path, out_dir: Path, repo: str, post
 def update_index(index_path: Path, summary_path: Path, s3_uri: str) -> None:
     summary = _load(summary_path)
     index = _load(index_path) if index_path.exists() else {"schema_version": 1, "posts": []}
-    if any(x["post_id"] == summary["post_id"] for x in index["posts"]):
-        raise ValueError(f"post_id already exists in index: {summary['post_id']}")
-    index["posts"].append({
-        "post_id": summary["post_id"], "title": summary["title"], "created_at": summary["created_at"],
-        "platform": summary["platform"], "repository": summary["repository"], "s3_uri": s3_uri,
-    })
+    entry = {
+        "post_id": summary["post_id"],
+        "title": summary["title"],
+        "created_at": summary["created_at"],
+        "platform": summary["platform"],
+        "repository": summary["repository"],
+        "s3_uri": s3_uri,
+    }
+    existing = next((x for x in index["posts"] if x["post_id"] == summary["post_id"]), None)
+    if existing is not None:
+        if existing != entry:
+            raise ValueError(f"post_id already exists with different metadata: {summary['post_id']}")
+        return
+    index["posts"].append(entry)
     index["posts"] = sorted(index["posts"], key=lambda x: (x["created_at"], x["post_id"]), reverse=True)
     index_path.write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
 
@@ -98,13 +106,20 @@ def main() -> None:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="command", required=True)
     prep = sub.add_parser("prepare")
-    prep.add_argument("--source-dir", type=Path, required=True); prep.add_argument("--summary", type=Path, required=True)
-    prep.add_argument("--out-dir", type=Path, required=True); prep.add_argument("--repo", required=True); prep.add_argument("--post-id", required=True)
+    prep.add_argument("--source-dir", type=Path, required=True)
+    prep.add_argument("--summary", type=Path, required=True)
+    prep.add_argument("--out-dir", type=Path, required=True)
+    prep.add_argument("--repo", required=True)
+    prep.add_argument("--post-id", required=True)
     idx = sub.add_parser("update-index")
-    idx.add_argument("--index", type=Path, required=True); idx.add_argument("--summary", type=Path, required=True); idx.add_argument("--s3-uri", required=True)
+    idx.add_argument("--index", type=Path, required=True)
+    idx.add_argument("--summary", type=Path, required=True)
+    idx.add_argument("--s3-uri", required=True)
     args = p.parse_args()
-    if args.command == "prepare": prepare(args.source_dir, args.summary, args.out_dir, args.repo, args.post_id)
-    else: update_index(args.index, args.summary, args.s3_uri)
+    if args.command == "prepare":
+        prepare(args.source_dir, args.summary, args.out_dir, args.repo, args.post_id)
+    else:
+        update_index(args.index, args.summary, args.s3_uri)
 
 
 if __name__ == "__main__":
