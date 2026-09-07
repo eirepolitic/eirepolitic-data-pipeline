@@ -1,0 +1,44 @@
+name: Completed post archive CI
+
+on:
+  pull_request:
+    paths:
+      - 'tools/completed_post_archive.py'
+      - 'tests/test_completed_post_archive.py'
+      - 'completed_posts/**'
+      - 'docs/instagram/completed_post_archive.md'
+      - '.github/workflows/completed_post_*.yml'
+  push:
+    branches:
+      - 'feature/completed-post-s3-archive'
+    paths:
+      - 'tools/completed_post_archive.py'
+      - 'tests/test_completed_post_archive.py'
+      - 'completed_posts/**'
+      - 'docs/instagram/completed_post_archive.md'
+      - '.github/workflows/completed_post_*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run archive unit tests
+        run: python -m unittest tests.test_completed_post_archive -v
+      - name: Validate committed polling summary shape
+        run: |
+          python - <<'PY'
+          import json
+          from tools.completed_post_archive import validate_summary
+          p='completed_posts/summaries/2026-09-06-ipi-polling-carousel.json'
+          s=json.load(open(p, encoding='utf-8'))
+          validate_summary(s, 'Eirepolitic-data-pipeline', s['post_id'])
+          print('summary valid')
+          PY
