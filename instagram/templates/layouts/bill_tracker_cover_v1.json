@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0",
+  "template_id": "bill_tracker_cover_v1",
+  "description": "EirePolitic Bill Tracker carousel cover using the established dark editorial visual system",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {
+    "type": "solid",
+    "color": "{palette.background}"
+  },
+  "elements": [
+    {
+      "id": "card_bg",
+      "type": "rectangle",
+      "x": 56,
+      "y": 56,
+      "w": 968,
+      "h": 1238,
+      "radius": 36,
+      "fill": "{palette.panel_background}",
+      "stroke": "{palette.border}",
+      "stroke_width": 2
+    },
+    {
+      "id": "top_accent",
+      "type": "rectangle",
+      "x": 92,
+      "y": 104,
+      "w": 168,
+      "h": 10,
+      "radius": 5,
+      "fill": "{palette.accent}"
+    },
+    {
+      "id": "kicker",
+      "type": "text",
+      "placeholder": "kicker",
+      "x": 92,
+      "y": 144,
+      "w": 896,
+      "h": 54,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 28,
+        "min_font_size": 22,
+        "color": "{palette.accent}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    },
+    {
+      "id": "headline",
+      "type": "text",
+      "placeholder": "headline",
+      "x": 92,
+      "y": 252,
+      "w": 896,
+      "h": 330,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 82,
+        "min_font_size": 58,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 4,
+        "shrink_to_fit": true,
+        "line_spacing": 10
+      }
+    },
+    {
+      "id": "rule",
+      "type": "rectangle",
+      "x": 92,
+      "y": 624,
+      "w": 896,
+      "h": 4,
+      "fill": "{palette.accent}"
+    },
+    {
+      "id": "subtitle",
+      "type": "text",
+      "placeholder": "subtitle",
+      "x": 92,
+      "y": 670,
+      "w": 896,
+      "h": 190,
+      "style": {
+        "font_size": 36,
+        "min_font_size": 28,
+        "color": "{palette.text_muted}",
+        "align": "left",
+        "valign": "top",
+        "max_lines": 4,
+        "shrink_to_fit": true,
+        "line_spacing": 10
+      }
+    },
+    {
+      "id": "topics_panel",
+      "type": "rectangle",
+      "x": 92,
+      "y": 914,
+      "w": 896,
+      "h": 176,
+      "radius": 28,
+      "fill": "{palette.panel_background_alt}"
+    },
+    {
+      "id": "topics_label",
+      "type": "text",
+      "text": "IN THIS EDITION",
+      "x": 126,
+      "y": 944,
+      "w": 828,
+      "h": 34,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 22,
+        "color": "{palette.accent}",
+        "align": "left",
+        "valign": "middle"
+      }
+    },
+    {
+      "id": "topics",
+      "type": "text",
+      "placeholder": "topics",
+      "x": 126,
+      "y": 994,
+      "w": 828,
+      "h": 62,
+      "style": {
+        "font_size": 28,
+        "min_font_size": 22,
+        "color": "{palette.text_primary}",
+        "align": "left",
+        "valign": "middle",
+        "max_lines": 2,
+        "shrink_to_fit": true,
+        "line_spacing": 8
+      }
+    },
+    {
+      "id": "swipe",
+      "type": "text",
+      "placeholder": "swipe_text",
+      "x": 92,
+      "y": 1150,
+      "w": 896,
+      "h": 54,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 28,
+        "color": "{palette.text_primary}",
+        "align": "right",
+        "valign": "middle"
+      }
+    },
+    {
+      "id": "footer_left",
+      "type": "text",
+      "placeholder": "account_name",
+      "x": 92,
+      "y": 1240,
+      "w": 420,
+      "h": 28,
+      "style": {
+        "font_family": "default_bold",
+        "font_size": 19,
+        "color": "{palette.text_muted}",
+        "align": "left",
+        "valign": "middle"
+      }
+    },
+    {
+      "id": "footer_right",
+      "type": "text",
+      "placeholder": "edition_label",
+      "x": 536,
+      "y": 1240,
+      "w": 452,
+      "h": 28,
+      "style": {
+        "font_size": 19,
+        "color": "{palette.text_muted}",
+        "align": "right",
+        "valign": "middle",
+        "max_lines": 1,
+        "shrink_to_fit": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "template_id": "bill_tracker_card_v1",
+  "description": "Reusable EirePolitic Bill Tracker overview card",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {"type": "solid", "color": "{palette.background}"},
+  "elements": [
+    {"id":"card_bg","type":"rectangle","x":56,"y":56,"w":968,"h":1238,"radius":36,"fill":"{palette.panel_background}","stroke":"{palette.border}","stroke_width":2},
+    {"id":"status_pill","type":"rectangle","x":92,"y":96,"w":210,"h":54,"radius":27,"fill":"{palette.accent}"},
+    {"id":"status_text","type":"text","placeholder":"status_text","x":110,"y":103,"w":174,"h":40,"style":{"font_family":"default_bold","font_size":22,"min_font_size":18,"color":"{palette.background}","align":"center","valign":"middle","max_lines":1,"shrink_to_fit":true}},
+    {"id":"counter","type":"text","placeholder":"counter_text","x":744,"y":102,"w":244,"h":40,"style":{"font_family":"default_bold","font_size":22,"color":"{palette.text_muted}","align":"right","valign":"middle"}},
+    {"id":"bill_title","type":"text","placeholder":"bill_title","x":92,"y":186,"w":896,"h":198,"style":{"font_family":"default_bold","font_size":54,"min_font_size":38,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":4,"shrink_to_fit":true,"line_spacing":7}},
+    {"id":"sponsor","type":"text","placeholder":"sponsor_text","x":92,"y":400,"w":896,"h":58,"style":{"font_size":27,"min_font_size":21,"color":"{palette.text_muted}","align":"left","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":5}},
+    {"id":"rule_top","type":"rectangle","x":92,"y":486,"w":896,"h":3,"fill":"{palette.accent}"},
+    {"id":"what_label","type":"text","text":"WHAT IT DOES","x":92,"y":524,"w":896,"h":34,"style":{"font_family":"default_bold","font_size":22,"color":"{palette.accent}","align":"left","valign":"middle"}},
+    {"id":"what_body","type":"text","placeholder":"what_it_does","x":92,"y":574,"w":896,"h":194,"style":{"font_size":31,"min_font_size":24,"color":"{palette.text_primary}","align":"left","valign":"top","max_lines":5,"shrink_to_fit":true,"line_spacing":8}},
+    {"id":"debate_panel","type":"rectangle","x":92,"y":804,"w":896,"h":286,"radius":26,"fill":"{palette.panel_background_alt}"},
+    {"id":"debate_label","type":"text","text":"MAIN DEBATE","x":124,"y":832,"w":832,"h":34,"style":{"font_family":"default_bold","font_size":22,"color":"{palette.accent}","align":"left","valign":"middle"}},
+    {"id":"for_label","type":"text","text":"CASE MADE FOR IT","x":124,"y":886,"w":280,"h":30,"style":{"font_family":"default_bold","font_size":19,"color":"{palette.text_primary}","align":"left","valign":"middle"}},
+    {"id":"for_body","type":"text","placeholder":"case_for","x":124,"y":924,"w":832,"h":74,"style":{"font_size":23,"min_font_size":19,"color":"{palette.text_muted}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":5}},
+    {"id":"concern_label","type":"text","text":"CONCERNS RAISED","x":124,"y":1012,"w":280,"h":30,"style":{"font_family":"default_bold","font_size":19,"color":"{palette.text_primary}","align":"left","valign":"middle"}},
+    {"id":"concern_body","type":"text","placeholder":"concerns","x":124,"y":1050,"w":832,"h":64,"style":{"font_size":23,"min_font_size":19,"color":"{palette.text_muted}","align":"left","valign":"top","max_lines":3,"shrink_to_fit":true,"line_spacing":5}},
+    {"id":"meta_line","type":"text","placeholder":"meta_text","x":92,"y":1148,"w":896,"h":56,"style":{"font_family":"default_bold","font_size":20,"min_font_size":17,"color":"{palette.text_primary}","align":"left","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":4}},
+    {"id":"source_line","type":"text","placeholder":"source_text","x":92,"y":1220,"w":896,"h":44,"style":{"font_size":18,"min_font_size":15,"color":"{palette.text_muted}","align":"left","valign":"middle","max_lines":2,"shrink_to_fit":true,"line_spacing":3}}
+  ]
+}
