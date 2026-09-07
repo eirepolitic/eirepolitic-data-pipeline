@@ -149,19 +149,19 @@ def _change_rows(latest: pd.Series, previous: pd.Series, limit: int) -> list[dic
 def _same_pollster_trend(
     polls: pd.DataFrame,
     latest: pd.Series,
-    previous: pd.Series,
     *,
+    window_days: int,
     party_limit: int,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], int]:
     pollster = str(latest["pollster"])
-    start_date = previous["_date"]
     end_date = latest["_date"]
+    cutoff_date = end_date - pd.Timedelta(days=window_days)
     window = polls.loc[
         polls["pollster"].eq(pollster)
-        & polls["_date"].between(start_date, end_date, inclusive="both")
+        & polls["_date"].between(cutoff_date, end_date, inclusive="both")
     ].sort_values("_date")
     if len(window) < 2:
-        raise RuntimeError(f"Need at least two {pollster} polls to draw the raw-poll trend")
+        raise RuntimeError(f"Need at least two {pollster} polls within {window_days} days to draw the raw-poll trend")
 
     ranked: list[tuple[str, str, float]] = []
     for code, label in RAW_PARTIES:
@@ -183,7 +183,8 @@ def _same_pollster_trend(
     waves = [_poll_metadata(row) for _, row in window.iterrows()]
     if not series:
         raise RuntimeError(f"No comparable party series are available across the selected {pollster} polls")
-    return series, waves
+    actual_span_days = int((window["_date"].max() - window["_date"].min()).days)
+    return series, waves, actual_span_days
 
 
 def _visual_template(project: dict[str, Any], *, value_format: str = "percent") -> dict[str, Any]:
@@ -233,11 +234,18 @@ def _pretty_date(value: str) -> str:
     return pd.Timestamp(value).strftime("%-d %b %Y")
 
 
-def _methodology_entries(latest: dict[str, Any], previous: dict[str, Any], comparison_days: int, wave_count: int) -> list[tuple[str, str]]:
+def _methodology_entries(
+    latest: dict[str, Any],
+    previous: dict[str, Any],
+    comparison_days: int,
+    trend_waves: list[dict[str, Any]],
+) -> list[tuple[str, str]]:
+    trend_start = trend_waves[0]["publication_date"]
+    trend_end = trend_waves[-1]["publication_date"]
     return [
         (
             "What these numbers are",
-            "Slides 1–3 use published voting-intention results from one polling company only. There is no IPI model, smoothing or daily estimate in this version.",
+            "Slides 1–3 use actual published voting-intention polls from one polling company only. No IPI model, smoothing or daily estimate is used.",
         ),
         (
             "Latest poll",
@@ -245,15 +253,15 @@ def _methodology_entries(latest: dict[str, Any], previous: dict[str, Any], compa
         ),
         (
             "The comparison",
-            f"Slide 2 compares that poll with the same pollster's {_pretty_date(previous['publication_date'])} poll, {comparison_days} days earlier. Slide 3 plots all {wave_count} same-pollster waves in that interval.",
+            f"Slide 2 compares that poll with the same pollster's {_pretty_date(previous['publication_date'])} wave, {comparison_days} days earlier.",
         ),
         (
-            "What each point means",
-            "Every marker on the trend chart is an actual published poll. The line simply connects those observations so the month-long direction is easier to see.",
+            "Six-month trend",
+            f"Slide 3 shows {len(trend_waves)} same-pollster polls from {_pretty_date(trend_start)} to {_pretty_date(trend_end)}. Every marker is an actual published poll; lines only connect observations.",
         ),
         (
-            "Methodology caveat",
-            "The IPI feed gives pollster, fieldwork dates, publication date, sample size and party results. Full sampling and weighting details should be checked in the original pollster release.",
+            "Source and methodology",
+            "The IPI feed provides pollster, fieldwork dates, publication date, sample size and party results. Full sampling and weighting methodology should be checked in the original pollster release.",
         ),
     ]
 
@@ -279,15 +287,23 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     pollster = latest_meta["pollster"]
     limit = int(render_cfg.get("max_items", 8))
     party_limit = int(render_cfg.get("trend_party_limit", 5))
+    trend_window_days = int(render_cfg.get("trend_window_days", 183))
 
     latest_rows = _latest_rows(latest, limit)
     change_rows = _change_rows(latest, previous, limit)
-    trend_series, trend_waves = _same_pollster_trend(polls, latest, previous, party_limit=party_limit)
+    trend_series, trend_waves, trend_actual_span_days = _same_pollster_trend(
+        polls,
+        latest,
+        window_days=trend_window_days,
+        party_limit=party_limit,
+    )
     if not latest_rows or not change_rows or not trend_series:
         raise RuntimeError("Raw-poll carousel requires latest, change and trend data")
 
     latest_date = latest_meta["publication_date"]
     previous_date = previous_meta["publication_date"]
+    trend_start_date = trend_waves[0]["publication_date"]
+    trend_end_date = trend_waves[-1]["publication_date"]
     period_root = output_root / f"period={latest_date}"
     if period_root.exists():
         shutil.rmtree(period_root)
@@ -302,7 +318,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     slide_paths = [
         slides_dir / "01_latest_poll.png",
         slides_dir / "02_change_same_pollster.png",
-        slides_dir / "03_one_month_polling.png",
+        slides_dir / "03_six_month_polling.png",
         slides_dir / "04_about_polling.png",
     ]
     visual_paths = [
@@ -334,7 +350,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         {
             "visual_id": "ipi-raw-poll-change",
             "comparison_label": comparison_label,
-            "source_note": f"Same pollster comparison · percentage-point change · source: IPI raw polls",
+            "source_note": "Same pollster comparison · change in displayed poll percentages · source: IPI raw polls",
             "empty_message": "No comparable poll change available",
         },
         change_rows,
@@ -353,7 +369,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     if change_manifest.get("warnings"):
         raise RuntimeError(f"Diverging renderer warnings: {change_manifest['warnings']}")
 
-    range_label = f"{pollster} · {_pretty_date(previous_date)} to {_pretty_date(latest_date)} · each marker = one poll"
+    range_label = f"{pollster} · {_pretty_date(trend_start_date)} to {_pretty_date(trend_end_date)} · each marker = one actual poll"
     trend_manifest = render_trend(
         _visual_template(project),
         {
@@ -371,7 +387,10 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
             "project_id": PROJECT_ID,
             "source_uri": polls_uri,
             "pollster": pollster,
-            "comparison_days": comparison_days,
+            "trend_window_days": trend_window_days,
+            "trend_start_date": trend_start_date,
+            "trend_end_date": trend_end_date,
+            "trend_actual_span_days": trend_actual_span_days,
             "waves": trend_waves,
         },
     )
@@ -384,7 +403,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         _render_outer(project, title=str(slide_defs["recent_trend"]["title"]), visual_path=visual_paths[2], output_path=slide_paths[2]),
     ]
     methodology_manifest = render_methodology(
-        _methodology_entries(latest_meta, previous_meta, comparison_days, len(trend_waves)),
+        _methodology_entries(latest_meta, previous_meta, comparison_days, trend_waves),
         slide_paths[3],
         title=str(slide_defs["methodology"]["title"]),
     )
@@ -396,7 +415,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         [
             ("Latest poll", slide_paths[0]),
             ("Up / down", slide_paths[1]),
-            ("One-month trend", slide_paths[2]),
+            ("Six-month trend", slide_paths[2]),
             ("About polling", slide_paths[3]),
         ],
         contact_dir / "four_slide_overview.jpg",
@@ -405,11 +424,11 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
 
     caption = "\n".join(
         [
-            f"A month of {pollster} polling, using published poll results rather than the IPI daily model.",
+            f"Six months of {pollster} polling, using actual published poll results rather than the IPI daily model.",
             "",
             f"Latest poll: {_pretty_date(latest_date)}, n={latest_meta['sample_size']:,}.",
             f"Slide 2 compares it with the same pollster's {_pretty_date(previous_date)} wave ({comparison_days} days earlier).",
-            f"Slide 3 plots all {len(trend_waves)} {pollster} polls between those dates; every marker is an actual poll.",
+            f"Slide 3 shows all {len(trend_waves)} {pollster} polls from {_pretty_date(trend_start_date)} to {_pretty_date(trend_end_date)} inside the {trend_window_days}-day trend window; every marker is an actual published poll.",
             "",
             "These are individual survey results, so normal polling uncertainty applies. Full sampling and weighting methodology should be checked in the original pollster release.",
             "",
@@ -435,6 +454,11 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         "previous_poll": previous_meta,
         "comparison_days": comparison_days,
         "comparison_selection": comparison_selection,
+        "trend_window_days": trend_window_days,
+        "trend_start_date": trend_start_date,
+        "trend_end_date": trend_end_date,
+        "trend_actual_span_days": trend_actual_span_days,
+        "trend_wave_count": len(trend_waves),
         "trend_waves": trend_waves,
         "trend_legend_default": "single_row",
         "slides": [str(path) for path in slide_paths],
@@ -455,6 +479,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
             "source_footer_required": True,
             "model_data_used": False,
             "same_pollster_only": True,
+            "comparison_and_trend_windows_independent": True,
         },
     }
     (metadata_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")

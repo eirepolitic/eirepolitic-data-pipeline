@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - 'feature/ipi-raw-poll-carousel-*'
+      - 'feature/ipi-six-month-polling-trend-*'
     paths:
       - 'instagram/projects/ipi_polling_factory_v1/**'
       - 'instagram/campaigns/ipi_polling_snapshot_v1/fixtures/**'
@@ -87,12 +88,13 @@ jobs:
           ROOT="$GITHUB_WORKSPACE/generated_factory_fixture/period=2026-07-31"
           test -s "$ROOT/slides/01_latest_poll.png"
           test -s "$ROOT/slides/02_change_same_pollster.png"
-          test -s "$ROOT/slides/03_one_month_polling.png"
+          test -s "$ROOT/slides/03_six_month_polling.png"
           test -s "$ROOT/slides/04_about_polling.png"
           test -s "$ROOT/contact_sheets/four_slide_overview.jpg"
           test -s "$ROOT/metadata/manifest.json"
           test -s "$ROOT/ipi_polling_factory_review.zip"
           python - <<'PY'
+          import csv
           import json
           from pathlib import Path
           from PIL import Image
@@ -108,8 +110,14 @@ jobs:
           assert manifest['previous_poll']['publication_date']=='2026-06-30'
           assert manifest['comparison_days']==31
           assert manifest['comparison_selection']=='target_window'
-          assert len(manifest['trend_waves'])==3
+          assert manifest['trend_window_days']==183
+          assert manifest['trend_start_date']=='2026-02-01'
+          assert manifest['trend_end_date']=='2026-07-31'
+          assert manifest['trend_actual_span_days']==180
+          assert manifest['trend_wave_count']==8
+          assert len(manifest['trend_waves'])==8
           assert {wave['pollster'] for wave in manifest['trend_waves']}=={'Ireland Thinks'}
+          assert manifest['qa']['comparison_and_trend_windows_independent'] is True
           assert manifest['trend_legend_default']=='single_row'
           assert manifest['qa']['actual_slide_count']==4
           assert manifest['qa']['model_data_used'] is False
@@ -117,16 +125,25 @@ jobs:
           for path in manifest['slides']:
               with Image.open(path) as image:
                   assert image.size==(1080,1350)
+
+          fixture=list(csv.DictReader(Path('instagram/campaigns/ipi_polling_snapshot_v1/fixtures/polls_fixture.csv').open(encoding='utf-8')))
+          expected_dates=[row['date'] for row in fixture if row['pollster']=='Ireland Thinks' and '2026-01-29' <= row['date'] <= '2026-07-31']
+          assert expected_dates==[wave['publication_date'] for wave in manifest['trend_waves']]
+          assert any(row['pollster']=='Red C' and '2026-01-29' <= row['date'] <= '2026-07-31' for row in fixture)
+
           trend=json.loads((root/'metadata/03_trend_visual_manifest.json').read_text(encoding='utf-8'))
           assert trend['success'] is True
           assert trend['legend_variant']=='single_row'
           trend_meta=json.loads((root/'metadata/03_trend_visual.json').read_text(encoding='utf-8'))
+          assert trend_meta['input']['trend_window_days']==183
+          assert trend_meta['input']['trend_start_date']=='2026-02-01'
+          assert trend_meta['input']['trend_end_date']=='2026-07-31'
           for series in trend_meta['series']:
-              assert len(series['points'])==3
+              assert [point['date'] for point in series['points']]==expected_dates
           methodology=manifest['visual_manifests']['methodology']
           assert methodology['renderer']=='approved_glossary_methodology_v1'
           assert methodology['glossary_metrics']['entry_count']==5
-          print('Raw same-pollster one-month carousel validated.')
+          print('Raw same-pollster six-month trend validated; slide 2 remains a 31-day comparison.')
           PY
 
       - name: Upload fixture review package

@@ -26,6 +26,7 @@ render:
   target_comparison_days: 30
   minimum_comparison_days: 28
   maximum_comparison_days: 45
+  trend_window_days: 183
   trend_legend_variant: single_row
 slides:
   definitions:
@@ -36,7 +37,7 @@ slides:
       title: Who's Up and Who's Down?
       renderer: diverging_bar
     - id: recent_trend
-      title: One Month of Polling
+      title: Six Months of Polling
       renderer: line_trend
     - id: methodology
       title: About This Polling
