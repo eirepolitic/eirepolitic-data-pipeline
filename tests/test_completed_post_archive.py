@@ -7,7 +7,7 @@ from tools.completed_post_archive import prepare, update_index
 
 
 class CompletedPostArchiveTests(unittest.TestCase):
-    def test_prepare_and_index(self):
+    def test_prepare_and_idempotent_index(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source = root / "source"
@@ -36,24 +36,45 @@ class CompletedPostArchiveTests(unittest.TestCase):
             provenance = json.loads((out / "provenance.json").read_text())
             self.assertEqual(provenance["files"][0]["path"], "assets/slide.png")
             self.assertEqual(len(provenance["files"][0]["sha256"]), 64)
+
             index = root / "index.json"
-            update_index(index, out / "agent-summary.json", "s3://bucket/prefix/post-1/")
-            data = json.loads(index.read_text())
-            self.assertEqual(data["posts"][0]["post_id"], "post-1")
+            uri = "s3://bucket/prefix/post-1/"
+            update_index(index, out / "agent-summary.json", uri)
+            first = index.read_text()
+            update_index(index, out / "agent-summary.json", uri)
+            self.assertEqual(index.read_text(), first)
+            self.assertEqual(json.loads(first)["posts"][0]["post_id"], "post-1")
+
+            changed = json.loads((out / "agent-summary.json").read_text())
+            changed["title"] = "Different title"
+            changed_path = root / "changed.json"
+            changed_path.write_text(json.dumps(changed), encoding="utf-8")
             with self.assertRaises(ValueError):
-                update_index(index, out / "agent-summary.json", "s3://bucket/prefix/post-1/")
+                update_index(index, changed_path, uri)
 
     def test_rejects_non_completed_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            source = root / "source"; source.mkdir(); (source / "a").write_text("x")
+            source = root / "source"
+            source.mkdir()
+            (source / "a").write_text("x")
             summary = {
-                "schema_version": 1, "post_id": "p", "title": "x", "status": "draft",
-                "repository": "Eirepolitic-data-pipeline", "created_by": "agent", "created_at": "now",
-                "platform": "Instagram", "assets": ["a"], "tools_used": ["x"], "process": ["x"],
-                "qa": ["x"], "decisions": ["x"]
+                "schema_version": 1,
+                "post_id": "p",
+                "title": "x",
+                "status": "draft",
+                "repository": "Eirepolitic-data-pipeline",
+                "created_by": "agent",
+                "created_at": "now",
+                "platform": "Instagram",
+                "assets": ["a"],
+                "tools_used": ["x"],
+                "process": ["x"],
+                "qa": ["x"],
+                "decisions": ["x"],
             }
-            path = root / "summary.json"; path.write_text(json.dumps(summary))
+            path = root / "summary.json"
+            path.write_text(json.dumps(summary))
             with self.assertRaises(ValueError):
                 prepare(source, path, root / "out", "Eirepolitic-data-pipeline", "p")
 

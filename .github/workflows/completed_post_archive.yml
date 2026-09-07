@@ -46,26 +46,22 @@ jobs:
         with:
           ref: main
           path: tooling
-
       - name: Check out final assets
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.asset_ref }}
           path: asset-source
-
       - name: Check out agent summary
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.summary_ref }}
           path: summary-source
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Validate and prepare immutable archive bundle
         shell: bash
         run: |
@@ -76,23 +72,20 @@ jobs:
             --out-dir archive-bundle \
             --repo Eirepolitic-data-pipeline \
             --post-id "${{ inputs.post_id }}"
-
-      - name: Reject duplicate post ID
+      - name: Reject completed duplicate post ID
         shell: bash
         run: |
           set -euo pipefail
-          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/" --max-keys 1 --query 'KeyCount' --output text)"
+          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/provenance.json" --max-keys 1 --query 'KeyCount' --output text)"
           if [ "$COUNT" != "0" ]; then
-            echo "Archive already exists for post_id=${{ inputs.post_id }}" >&2
+            echo "Completed archive already exists for post_id=${{ inputs.post_id }}" >&2
             exit 1
           fi
-
-      - name: Upload immutable post bundle
+      - name: Upload recoverable archive content
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" --recursive --only-show-errors
-
+          aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" --recursive --exclude provenance.json --only-show-errors
       - name: Update repository archive index
         shell: bash
         run: |
@@ -103,11 +96,20 @@ jobs:
             --summary archive-bundle/agent-summary.json \
             --s3-uri "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/"
           aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
-
-      - name: Verify uploaded provenance
+      - name: Write completion marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp archive-bundle/provenance.json "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" --only-show-errors
+      - name: Verify completed archive
         shell: bash
         run: |
           set -euo pipefail
           aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" verify-provenance.json --only-show-errors
           cmp archive-bundle/provenance.json verify-provenance.json
-          printf '## Completed post archived\n\n- Post ID: `%s`\n- S3: `s3://%s/%s/%s/`\n' "${{ inputs.post_id }}" "$BUCKET" "$PREFIX" "${{ inputs.post_id }}" >> "$GITHUB_STEP_SUMMARY"
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" verify-index.json --only-show-errors
+          python - <<'PY'
+          import json
+          data=json.load(open('verify-index.json', encoding='utf-8'))
+          assert any(x['post_id']=='${{ inputs.post_id }}' for x in data['posts'])
+          PY
