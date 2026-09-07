@@ -12,8 +12,7 @@ jobs:
     timeout-minutes: 10
     env:
       BUCKET: eirepolitic-data
-      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
-      POST_ID: 2026-09-06-ipi-polling-carousel
+      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel/
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,20 +23,17 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Fetch approved bundle
+      - name: List approved bundle objects
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf diagnostics/completed-post-reference/selected
           mkdir -p diagnostics/completed-post-reference/selected
-          aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/" diagnostics/completed-post-reference/selected/ --recursive --only-show-errors
-          find diagnostics/completed-post-reference/selected -maxdepth 4 -type f -printf '%P\t%s bytes\n' | sort > diagnostics/completed-post-reference/selected/file-list.txt
-          cat diagnostics/completed-post-reference/selected/file-list.txt
-      - name: Persist approved reference on analysis branch
+          aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX" > diagnostics/completed-post-reference/selected/object-list.json
+      - name: Persist object list
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/completed-post-reference/selected
-          git commit -m "analysis: persist approved polling carousel bundle" || exit 0
+          git add diagnostics/completed-post-reference/selected/object-list.json
+          git commit -m "analysis: persist approved polling object list" || exit 0
           git push origin HEAD:analysis/bill-tracker-approved-reference
