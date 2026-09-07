@@ -1,0 +1,86 @@
+name: Seed completed polling post 2026-09-06
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: completed-post-archive-eirepolitic-data-pipeline
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BUCKET: eirepolitic-data
+      PREFIX: completed-posts/eirepolitic-data-pipeline
+      POST_ID: 2026-09-06-ipi-polling-carousel
+    steps:
+      - name: Check out archive tooling and summary
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: tooling
+
+      - name: Check out approved preview assets
+        uses: actions/checkout@v4
+        with:
+          ref: previews/ipi-polling-factory
+          path: asset-source
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Prepare archive bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tooling/tools/completed_post_archive.py prepare \
+            --source-dir asset-source \
+            --summary tooling/completed_posts/summaries/2026-09-06-ipi-polling-carousel.json \
+            --out-dir archive-bundle \
+            --repo Eirepolitic-data-pipeline \
+            --post-id "$POST_ID"
+
+      - name: Reject duplicate post ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/$POST_ID/" --max-items 1 --query 'length(Contents)' --output text)"
+          if [ "$COUNT" != "0" ] && [ "$COUNT" != "None" ]; then
+            echo "Archive already exists for $POST_ID" >&2
+            exit 1
+          fi
+
+      - name: Upload immutable bundle and update index
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/$POST_ID/" --recursive --only-show-errors
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors || printf '{"schema_version":1,"posts":[]}\n' > index.json
+          python tooling/tools/completed_post_archive.py update-index \
+            --index index.json \
+            --summary archive-bundle/agent-summary.json \
+            --s3-uri "s3://$BUCKET/$PREFIX/$POST_ID/"
+          aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
+
+      - name: Verify archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/provenance.json" verify-provenance.json --only-show-errors
+          cmp archive-bundle/provenance.json verify-provenance.json
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" verify-index.json --only-show-errors
+          python - <<'PY'
+          import json
+          data=json.load(open('verify-index.json', encoding='utf-8'))
+          assert any(x['post_id']=='2026-09-06-ipi-polling-carousel' for x in data['posts'])
+          print('archive and index verified')
+          PY
