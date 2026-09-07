@@ -2,14 +2,9 @@ name: Completed post reference
 
 on:
   workflow_dispatch:
-    inputs:
-      post_id:
-        description: Optional post ID to fetch; leave blank to list catalog only
-        required: false
-        type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   reference:
@@ -19,6 +14,9 @@ jobs:
       BUCKET: eirepolitic-data
       PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: analysis/bill-tracker-approved-reference
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -29,26 +27,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors || printf '{"schema_version":1,"posts":[]}\n' > index.json
-          cat index.json
-          printf '## Completed post catalog\n\n```json\n' >> "$GITHUB_STEP_SUMMARY"
-          cat index.json >> "$GITHUB_STEP_SUMMARY"
-          printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
-      - name: Fetch selected post
-        if: ${{ inputs.post_id != '' }}
+          mkdir -p diagnostics/completed-post-reference
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" diagnostics/completed-post-reference/index.json --only-show-errors
+      - name: Persist catalog on analysis branch
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p completed-post
-          aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" completed-post/ --recursive --only-show-errors
-          test -s completed-post/agent-summary.json
-          test -s completed-post/agent-summary.md
-          test -s completed-post/provenance.json
-      - name: Upload selected reference bundle
-        if: ${{ inputs.post_id != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: completed-post-${{ inputs.post_id }}
-          path: completed-post/
-          if-no-files-found: error
-          retention-days: 7
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/completed-post-reference/index.json
+          git commit -m "analysis: persist completed-post archive index" || exit 0
+          git push origin HEAD:analysis/bill-tracker-approved-reference
