@@ -73,7 +73,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     media_manifests: dict[str, Any] = {}
 
     cover_media = assets_dir / "01_cover_media.png"
-    media_manifests["cover"] = render_cover_media(edition, cover_media)
+    media_manifests["cover"] = render_cover_media(edition, bills, cover_media)
     cover_slide = slides_dir / "01_cover.png"
     outer_layouts.append(_render_outer(project, title=str(edition["cover_title"]), visual_path=cover_media, output_path=cover_slide))
     slide_paths.append(cover_slide)
@@ -100,9 +100,9 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     contact_sheet(list(zip(labels, slide_paths)), contact_path, columns=4)
 
     caption = "\n".join([
-        "Six recent laws worth knowing about — explained in plain English.",
+        "Bills of the Current Session — Enacted, Part 1.",
         "",
-        "This first Bill Tracker prototype covers six Bills enacted in July 2026. Each slide gives a short description of what the law does, who introduced it, and the main debate around it.",
+        "This first part covers six enacted Bills from the current parliamentary session. Each slide gives a short description of what the law does, who introduced it, and the main debate around it.",
         "",
         "Recorded divisions are only described as support/opposition where the exact proposition supports that interpretation. A linked vote may instead concern an amendment or procedural question.",
         "",
