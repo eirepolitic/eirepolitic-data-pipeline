@@ -13,6 +13,7 @@ jobs:
     env:
       BUCKET: eirepolitic-data
       PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
+      POST_ID: 2026-09-06-ipi-polling-carousel
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,17 +24,22 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Fetch archive catalog
+      - name: Fetch approved bundle
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p diagnostics/completed-post-reference
-          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" diagnostics/completed-post-reference/index.json --only-show-errors
-      - name: Persist catalog on analysis branch
+          rm -rf diagnostics/completed-post-reference/selected
+          mkdir -p diagnostics/completed-post-reference/selected
+          aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/" diagnostics/completed-post-reference/selected/ --recursive --only-show-errors
+          test -s diagnostics/completed-post-reference/selected/agent-summary.md
+          test -s diagnostics/completed-post-reference/selected/agent-summary.json
+          test -s diagnostics/completed-post-reference/selected/provenance.json
+          find diagnostics/completed-post-reference/selected -maxdepth 3 -type f -printf '%P\t%s bytes\n' | sort > diagnostics/completed-post-reference/selected/file-list.txt
+      - name: Persist approved reference on analysis branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/completed-post-reference/index.json
-          git commit -m "analysis: persist completed-post archive index" || exit 0
+          git add diagnostics/completed-post-reference/selected
+          git commit -m "analysis: persist approved polling carousel reference" || exit 0
           git push origin HEAD:analysis/bill-tracker-approved-reference
