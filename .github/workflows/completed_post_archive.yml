@@ -39,7 +39,7 @@ jobs:
     timeout-minutes: 15
     env:
       BUCKET: eirepolitic-data
-      PREFIX: instagram/completed-posts/eirepolitic-data-pipeline
+      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
     steps:
       - name: Check out archive tooling
         uses: actions/checkout@v4
