@@ -1,0 +1,699 @@
+{
+  "project_id": "ipi_polling_factory_v1",
+  "data_mode": "raw_polls_only",
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "factory_reference_commit": "386b933",
+  "factory_reference_workflow_run": 33894430571,
+  "source_uri": "s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polls.csv",
+  "source_id": "irish_polling_indicator",
+  "source_label": "Irish Polling Indicator (IPI) raw polls",
+  "source_url": "https://github.com/Irish-Polling-Indicator/ipi-data",
+  "pollster": "Ireland Thinks",
+  "latest_poll": {
+    "publication_date": "2026-09-06",
+    "fieldwork_start": "2026-09-04",
+    "fieldwork_end": "2026-09-04",
+    "pollster": "Ireland Thinks",
+    "sample_size": 1044,
+    "quality_flags": "nan"
+  },
+  "previous_poll": {
+    "publication_date": "2026-08-02",
+    "fieldwork_start": "2026-07-31",
+    "fieldwork_end": "2026-07-31",
+    "pollster": "Ireland Thinks",
+    "sample_size": 1384,
+    "quality_flags": "nan"
+  },
+  "comparison_days": 35,
+  "comparison_selection": "target_window",
+  "trend_window_days": 183,
+  "trend_start_date": "2026-04-05",
+  "trend_end_date": "2026-09-06",
+  "trend_actual_span_days": 154,
+  "trend_wave_count": 6,
+  "trend_waves": [
+    {
+      "publication_date": "2026-04-05",
+      "fieldwork_start": "2026-04-02",
+      "fieldwork_end": "2026-04-03",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1286,
+      "quality_flags": "nan"
+    },
+    {
+      "publication_date": "2026-05-03",
+      "fieldwork_start": "2026-05-01",
+      "fieldwork_end": "2026-05-01",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1774,
+      "quality_flags": "nan"
+    },
+    {
+      "publication_date": "2026-06-07",
+      "fieldwork_start": "2026-06-04",
+      "fieldwork_end": "2026-06-05",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1625,
+      "quality_flags": "nan"
+    },
+    {
+      "publication_date": "2026-07-05",
+      "fieldwork_start": "2026-07-03",
+      "fieldwork_end": "2026-07-03",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1279,
+      "quality_flags": "nan"
+    },
+    {
+      "publication_date": "2026-08-02",
+      "fieldwork_start": "2026-07-31",
+      "fieldwork_end": "2026-07-31",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1384,
+      "quality_flags": "nan"
+    },
+    {
+      "publication_date": "2026-09-06",
+      "fieldwork_start": "2026-09-04",
+      "fieldwork_end": "2026-09-04",
+      "pollster": "Ireland Thinks",
+      "sample_size": 1044,
+      "quality_flags": "nan"
+    }
+  ],
+  "trend_legend_default": "single_row",
+  "slides": [
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/slides/01_latest_poll.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/slides/02_change_same_pollster.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/slides/03_six_month_polling.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/slides/04_about_polling.png"
+  ],
+  "contact_sheet": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/contact_sheets/four_slide_overview.jpg",
+  "caption": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/caption.txt",
+  "visual_manifests": {
+    "latest_support": {
+      "success": true,
+      "visual_id": "ipi-latest-raw-poll",
+      "template_id": "horizontal_bar_draft_v1",
+      "renderer": "horizontal_bar",
+      "output_png": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/assets/01_latest_poll_visual.png",
+      "metadata_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/metadata/01_latest_poll_visual.json",
+      "width": 1032,
+      "height": 1210,
+      "plot_bounds": [
+        0.41101925872093026,
+        0.14,
+        0.5589807412790697,
+        0.78
+      ],
+      "plot_vertical_fill_ratio": 0.78,
+      "plot_area_ratio": 0.436,
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 73.14,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 8,
+        "max_wrapped_label_lines": 1,
+        "max_value_label_x_ratio": 0.9577,
+        "displayed_item_count": 8,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 382.17,
+        "plot_left_ratio": 0.411,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Sinn Féin",
+            "rendered_label": "Sinn Féin",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              236.64,
+              1030.2,
+              409.59,
+              1069.21
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Fine Gael",
+            "rendered_label": "Fine Gael",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              234.32,
+              912.73,
+              409.59,
+              950.74
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Fianna Fáil",
+            "rendered_label": "Fianna Fáil",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              209.76,
+              794.25,
+              409.59,
+              833.26
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Social Democrats",
+            "rendered_label": "Social Democrats",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              77.59,
+              676.78,
+              409.59,
+              714.79
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Aontú",
+            "rendered_label": "Aontú",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              298.24,
+              558.3,
+              409.59,
+              597.31
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Independent Ireland",
+            "rendered_label": "Independent Ireland",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              440.83,
+              409.59,
+              478.84
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Labour",
+            "rendered_label": "Labour",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              278.59,
+              322.85,
+              409.59,
+              360.86
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Green Party",
+            "rendered_label": "Green Party",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              186.1,
+              204.88,
+              409.59,
+              242.89
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 21.0,
+            "text": "21%",
+            "font_size": 15,
+            "bbox_px": [
+              901.66,
+              1038.59,
+              976.66,
+              1069.84
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 19.0,
+            "text": "19%",
+            "font_size": 15,
+            "bbox_px": [
+              857.77,
+              920.61,
+              932.77,
+              951.86
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 17.0,
+            "text": "17%",
+            "font_size": 15,
+            "bbox_px": [
+              813.88,
+              802.64,
+              888.88,
+              833.89
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 10.0,
+            "text": "10%",
+            "font_size": 15,
+            "bbox_px": [
+              660.28,
+              684.66,
+              735.28,
+              715.91
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 8.0,
+            "text": "8%",
+            "font_size": 15,
+            "bbox_px": [
+              616.39,
+              566.69,
+              669.39,
+              597.94
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 7.0,
+            "text": "7%",
+            "font_size": 15,
+            "bbox_px": [
+              594.45,
+              448.71,
+              647.45,
+              479.96
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 3.0,
+            "text": "3%",
+            "font_size": 15,
+            "bbox_px": [
+              506.67,
+              330.74,
+              559.67,
+              361.99
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 3.0,
+            "text": "3%",
+            "font_size": 15,
+            "bbox_px": [
+              506.67,
+              212.76,
+              559.67,
+              244.01
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      },
+      "warnings": [],
+      "created_at": "2026-09-07T00:50:58.320581+00:00"
+    },
+    "change": {
+      "success": true,
+      "renderer": "diverging_bar_factory_v2",
+      "output_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/assets/02_change_visual.png",
+      "warnings": [],
+      "displayed_item_count": 8,
+      "comparison_label": "Ireland Thinks: 2 Aug 2026 → 6 Sep 2026 (35 days)"
+    },
+    "trend": {
+      "success": true,
+      "renderer": "line_trend_factory_v3_raw_polls",
+      "output_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/assets/03_poll_trend_visual.png",
+      "warnings": [],
+      "series_rendered": 5,
+      "legend_variant": "single_row",
+      "series_colors": [
+        "#d8b45f",
+        "#f4ead7",
+        "#79b8a4",
+        "#df8a72",
+        "#91a8d0"
+      ],
+      "range_label": "Ireland Thinks · 5 Apr 2026 to 6 Sep 2026 · each marker = one actual poll"
+    },
+    "methodology": {
+      "success": true,
+      "renderer": "approved_glossary_methodology_v1",
+      "output_path": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/slides/04_about_polling.png",
+      "warnings": [],
+      "glossary_metrics": {
+        "final_y": 1146,
+        "entry_count": 5,
+        "content_bounds": {
+          "left": 135,
+          "right": 945,
+          "max_width": 810
+        },
+        "min_text_left_px": 135,
+        "max_text_right_px": 943,
+        "left_overflow_count": 0,
+        "right_overflow_count": 0,
+        "text_bounds": [
+          {
+            "kind": "term",
+            "text": "What these numbers are",
+            "bbox_px": [
+              135,
+              230,
+              539,
+              252
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Slides 1–3 use actual published voting-intention polls from one polling",
+            "bbox_px": [
+              135,
+              287,
+              943,
+              309
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "company only. No IPI model, smoothing or daily estimate is used.",
+            "bbox_px": [
+              135,
+              321,
+              887,
+              343
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Latest poll",
+            "bbox_px": [
+              135,
+              397,
+              308,
+              425
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Ireland Thinks, published 6 Sep 2026; fieldwork 4 Sep 2026 to 4 Sep",
+            "bbox_px": [
+              135,
+              460,
+              924,
+              482
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "2026; sample size 1,044.",
+            "bbox_px": [
+              135,
+              494,
+              425,
+              516
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "The comparison",
+            "bbox_px": [
+              135,
+              570,
+              395,
+              598
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Slide 2 compares that poll with the same pollster's 2 Aug 2026 wave,",
+            "bbox_px": [
+              135,
+              633,
+              934,
+              655
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "35 days earlier.",
+            "bbox_px": [
+              135,
+              667,
+              312,
+              689
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Six-month trend",
+            "bbox_px": [
+              135,
+              743,
+              401,
+              765
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Slide 3 shows 6 same-pollster polls from 5 Apr 2026 to 6 Sep 2026.",
+            "bbox_px": [
+              135,
+              800,
+              911,
+              822
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "Every marker is an actual published poll; lines only connect",
+            "bbox_px": [
+              135,
+              834,
+              821,
+              856
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "observations.",
+            "bbox_px": [
+              135,
+              868,
+              290,
+              885
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "term",
+            "text": "Source and methodology",
+            "bbox_px": [
+              135,
+              944,
+              543,
+              972
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "The IPI feed provides pollster, fieldwork dates, publication date,",
+            "bbox_px": [
+              135,
+              1007,
+              870,
+              1029
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "sample size and party results. Full sampling and weighting",
+            "bbox_px": [
+              135,
+              1041,
+              811,
+              1063
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          },
+          {
+            "kind": "body",
+            "text": "methodology should be checked in the original pollster release.",
+            "bbox_px": [
+              135,
+              1075,
+              867,
+              1097
+            ],
+            "left_overflow": false,
+            "right_overflow": false
+          }
+        ]
+      }
+    }
+  },
+  "outer_layouts": [
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Latest Polling Percentages",
+          "rendered_lines": [
+            "Latest Polling Percentages"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Who's Up and Who's Down?",
+          "rendered_lines": [
+            "Who's Up and Who's Down?"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Six Months of Polling",
+          "rendered_lines": [
+            "Six Months of Polling"
+          ],
+          "clipped": false
+        }
+      ]
+    }
+  ],
+  "qa": {
+    "expected_slide_count": 4,
+    "actual_slide_count": 4,
+    "dimensions": [
+      1080,
+      1350
+    ],
+    "approved_factory_commit": "386b933",
+    "source_footer_required": true,
+    "model_data_used": false,
+    "same_pollster_only": true,
+    "comparison_and_trend_windows_independent": true
+  },
+  "package": {
+    "zip": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_factory_live/period=2026-09-06/ipi_polling_factory_review.zip",
+    "file_count": 16,
+    "sha256": "4cf96730035673b8b7f79d0e3d47c02d093b6fb9742ae685e358b925439dac9f",
+    "files": [
+      "assets/01_latest_poll_visual.png",
+      "assets/02_change_visual.png",
+      "assets/03_poll_trend_visual.png",
+      "caption.txt",
+      "contact_sheets/four_slide_overview.jpg",
+      "metadata/01_latest_poll_visual.json",
+      "metadata/01_latest_poll_visual_manifest.json",
+      "metadata/02_change_visual.json",
+      "metadata/02_change_visual_manifest.json",
+      "metadata/03_trend_visual.json",
+      "metadata/03_trend_visual_manifest.json",
+      "metadata/manifest.json",
+      "slides/01_latest_poll.png",
+      "slides/02_change_same_pollster.png",
+      "slides/03_six_month_polling.png",
+      "slides/04_about_polling.png"
+    ]
+  }
+}
