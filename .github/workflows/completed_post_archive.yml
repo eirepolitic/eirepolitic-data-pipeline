@@ -81,8 +81,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/" --max-items 1 --query 'length(Contents)' --output text)"
-          if [ "$COUNT" != "0" ] && [ "$COUNT" != "None" ]; then
+          COUNT="$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "$PREFIX/${{ inputs.post_id }}/" --max-keys 1 --query 'KeyCount' --output text)"
+          if [ "$COUNT" != "0" ]; then
             echo "Archive already exists for post_id=${{ inputs.post_id }}" >&2
             exit 1
           fi
