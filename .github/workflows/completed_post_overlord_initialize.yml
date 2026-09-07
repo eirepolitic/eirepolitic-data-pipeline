@@ -1,0 +1,52 @@
+name: Initialize Overlord completed post archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  initialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BUCKET: eirepolitic-data
+      PREFIX: instagram/previews/completed-posts/overlord
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Ensure Overlord archive catalog exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors; then
+            python - <<'PY'
+          import json
+          data=json.load(open('index.json', encoding='utf-8'))
+          assert data.get('schema_version') == 1
+          assert isinstance(data.get('posts'), list)
+          print('existing Overlord completed-post index is valid')
+          PY
+          else
+            printf '{"schema_version":1,"posts":[]}\n' > index.json
+            aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
+          fi
+
+      - name: Verify Overlord archive catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws s3 cp "s3://$BUCKET/$PREFIX/index.json" verify-index.json --only-show-errors
+          python - <<'PY'
+          import json
+          data=json.load(open('verify-index.json', encoding='utf-8'))
+          assert data['schema_version'] == 1
+          assert isinstance(data['posts'], list)
+          print(json.dumps(data, indent=2))
+          PY
