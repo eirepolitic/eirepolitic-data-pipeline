@@ -1,0 +1,81 @@
+{
+  "project_id": "bill_tracker_vote_options_v1",
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "factory_reference_commit": "386b933",
+  "source_division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_162",
+  "source_proposition": "Remaining sections and Title agreed; Fourth Stage completed; Bill passed",
+  "overall": {
+    "eligible": 174,
+    "for": 90,
+    "against": 57,
+    "abstain": 0,
+    "no_recorded_vote": 27
+  },
+  "slides": [
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_vote_options/period=sample/slides/01_option_a_overall_vote.png",
+    "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_vote_options/period=sample/slides/02_option_b_party_breakdown.png"
+  ],
+  "contact_sheet": "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/generated_vote_options/period=sample/contact_sheets/vote_options.jpg",
+  "renderers": {
+    "option_a": {
+      "success": true,
+      "renderer": "bill_vote_option_a_v1",
+      "overall": {
+        "for": 90,
+        "against": 57,
+        "abstain": 0,
+        "no_recorded_vote": 27,
+        "eligible": 174
+      }
+    },
+    "option_b": {
+      "success": true,
+      "renderer": "bill_vote_option_b_v1",
+      "party_rows": 6,
+      "abstain": 0
+    }
+  },
+  "outer": {
+    "option_a": {
+      "layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 1,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Strategic Gas Reserve · Vote",
+          "rendered_lines": [
+            "Strategic Gas Reserve · Vote"
+          ],
+          "clipped": false
+        }
+      ]
+    },
+    "option_b": {
+      "layout": "instagram/templates/layouts/title_text_media_v1.json",
+      "text_metrics": [
+        {
+          "requested_font_size": 56,
+          "actual_font_size": 56,
+          "line_count": 2,
+          "truncated": false,
+          "element_id": "title",
+          "source_text": "Strategic Gas Reserve · Party Split",
+          "rendered_lines": [
+            "Strategic Gas Reserve · Party",
+            "Split"
+          ],
+          "clipped": false
+        }
+      ]
+    }
+  },
+  "notes": [
+    "No recorded vote is not equivalent to absent.",
+    "Party attribution is reconstructed from date-correct silver_member_parties history because party_name_at_vote is blank in these vote rows.",
+    "No ambiguous party histories were found for the vote date."
+  ]
+}
