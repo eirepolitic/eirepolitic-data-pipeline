@@ -1,4 +1,64 @@
-Traceback (most recent call last):
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/tmp_bill_vote_visual_probe.py", line 5, in <module>
-    from extract.oireachtas.batch import resolve_production_key
-ModuleNotFoundError: No module named 'extract'
+TABLE bills 406 ['bill_id', 'bill_uri', 'bill_no', 'bill_year', 'title', 'short_title', 'origin_house_uri', 'origin_house_name', 'bill_type', 'status', 'introduced_date', 'last_event_date', 'source_endpoint', 'snapshot_date', 'source_hash']
+TABLE bridge 371 ['bill_id', 'debate_section_id', 'debate_id', 'debate_date', 'source_section_eid', 'debate_show_as', 'evidence_method', 'source_bill_debate_count', 'source_bill_debate_ids_json', 'certification_version', 'source_batch_id', 'calculated_at_utc', 'contract_version']
+TABLE divisions 401 ['division_id', 'vote_id', 'division_date', 'chamber', 'house_uri', 'house_no', 'committee_code', 'subject', 'outcome', 'debate_id', 'debate_section_id', 'debate_show_as', 'api_result_hash', 'snapshot_date']
+TABLE member_votes 59325 ['member_vote_id', 'division_id', 'vote_id', 'division_date', 'member_code', 'member_name', 'vote_code', 'vote_label', 'party_name_at_vote', 'constituency_name_at_vote', 'snapshot_date']
+SAMPLE_BILLS [
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/74",
+    "title": "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026",
+    "short_title": "Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026",
+    "status": "Enacted"
+  },
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/72",
+    "title": "Development (Strategic Gas Reserve) Bill 2026",
+    "short_title": "Development (Strategic Gas Reserve) Bill 2026",
+    "status": "Enacted"
+  },
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/69",
+    "title": "Regulation of Artificial Intelligence Bill 2026",
+    "short_title": "Regulation of Artificial Intelligence Bill 2026",
+    "status": "Enacted"
+  },
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/58",
+    "title": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026",
+    "short_title": "Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026",
+    "status": "Enacted"
+  },
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/57",
+    "title": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026",
+    "short_title": "Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026",
+    "status": "Enacted"
+  },
+  {
+    "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/1",
+    "title": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026",
+    "short_title": "Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026",
+    "status": "Enacted"
+  }
+]
+
+BILL Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026 DIVISIONS 3
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-01-28/vote_16", "date": "2026-01-28", "house": "", "subject": "Question put:", "outcome": "Carried", "heuristic_type": "generic_question_put", "counts": {"for": 80, "against": 65}, "party_rows": [{"party": "", "for": 80, "against": 65, "abstain": 0, "other": 0, "total": 145}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130", "date": "2026-06-10", "house": "", "subject": "Amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 78, "for": 68}, "party_rows": [{"party": "", "for": 68, "against": 78, "abstain": 0, "other": 0, "total": 146}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_131", "date": "2026-06-10", "house": "", "subject": "Question put:", "outcome": "Carried", "heuristic_type": "generic_question_put", "counts": {"for": 102, "against": 45}, "party_rows": [{"party": "", "for": 102, "against": 45, "abstain": 0, "other": 0, "total": 147}]}
+
+BILL Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026 DIVISIONS 1
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-07/vote_169", "date": "2026-07-07", "house": "", "subject": "Amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 79, "for": 67}, "party_rows": [{"party": "", "for": 67, "against": 79, "abstain": 0, "other": 0, "total": 146}]}
+
+BILL Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026 DIVISIONS 3
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_172", "date": "2026-07-08", "house": "", "subject": "Amendment to amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 81, "for": 68}, "party_rows": [{"party": "", "for": 68, "against": 81, "abstain": 0, "other": 0, "total": 149}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_173", "date": "2026-07-08", "house": "", "subject": "Amendment put:", "outcome": "Carried", "heuristic_type": "amendment", "counts": {"for": 80, "against": 58}, "party_rows": [{"party": "", "for": 80, "against": 58, "abstain": 0, "other": 0, "total": 138}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_174", "date": "2026-07-08", "house": "", "subject": "Question put:", "outcome": "Carried", "heuristic_type": "generic_question_put", "counts": {"for": 80, "against": 67}, "party_rows": [{"party": "", "for": 80, "against": 67, "abstain": 0, "other": 0, "total": 147}]}
+
+BILL Regulation of Artificial Intelligence Bill 2026 DIVISIONS 2
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_166", "date": "2026-06-30", "house": "", "subject": "Amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 81, "for": 57}, "party_rows": [{"party": "", "for": 57, "against": 81, "abstain": 0, "other": 0, "total": 138}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_167", "date": "2026-06-30", "house": "", "subject": "Question put:", "outcome": "Carried", "heuristic_type": "generic_question_put", "counts": {"for": 81, "against": 58}, "party_rows": [{"party": "", "for": 81, "against": 58, "abstain": 0, "other": 0, "total": 139}]}
+
+BILL Development (Strategic Gas Reserve) Bill 2026 DIVISIONS 3
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_160", "date": "2026-06-30", "house": "", "subject": "Amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 94, "for": 58}, "party_rows": [{"party": "", "for": 58, "against": 94, "abstain": 0, "other": 0, "total": 152}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_161", "date": "2026-06-30", "house": "", "subject": "Amendment put:", "outcome": "Lost", "heuristic_type": "amendment", "counts": {"against": 94, "for": 56}, "party_rows": [{"party": "", "for": 56, "against": 94, "abstain": 0, "other": 0, "total": 150}]}
+{"division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_162", "date": "2026-06-30", "house": "", "subject": "Question put:", "outcome": "Carried", "heuristic_type": "generic_question_put", "counts": {"for": 90, "against": 57}, "party_rows": [{"party": "", "for": 90, "against": 57, "abstain": 0, "other": 0, "total": 147}]}
