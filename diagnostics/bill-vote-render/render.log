@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 65, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 59, in main
+    result = run_project(args.project_id, period=args.period, output_root=args.output_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 49, in run_project
+    raise RuntimeError(f"Unexpected review state: {result.get('review_state')!r}")
+RuntimeError: Unexpected review state: 'analysis_only'
