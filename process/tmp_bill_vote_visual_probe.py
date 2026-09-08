@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import io, json, os, re
+import io, json, os, sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import boto3, pandas as pd
 from extract.oireachtas.batch import resolve_production_key
 
@@ -11,7 +17,6 @@ KEYS={
 'bridge':'processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv',
 'divisions':'processed/oireachtas_unified/latest/csv/silver_divisions.csv',
 'member_votes':'processed/oireachtas_unified/latest/csv/silver_member_votes.csv',
-'memberships':'processed/oireachtas_unified/latest/csv/silver_memberships.csv',
 }
 
 def read(logical):
@@ -35,7 +40,6 @@ sel=b[b['title'].isin(sample_titles) | b['short_title'].isin(sample_titles)].cop
 print('SAMPLE_BILLS',json.dumps(sel[[c for c in ['bill_id','title','short_title','status'] if c in sel]].to_dict('records'),ensure_ascii=False,indent=2))
 
 joined=br.merge(sel[['bill_id','title','short_title']],on='bill_id',how='inner').merge(dv,on='debate_section_id',how='inner',suffixes=('','_division'))
-# unique divisions per bill
 joined=joined.drop_duplicates(['bill_id','division_id'])
 for bid,g in joined.groupby('bill_id'):
     title=g.iloc[0]['short_title'] or g.iloc[0]['title']
@@ -43,7 +47,6 @@ for bid,g in joined.groupby('bill_id'):
     for _,r in g.sort_values('division_date').iterrows():
         did=r['division_id']
         v=mv[mv['division_id']==did].copy()
-        # normalize labels
         raw=v['vote_label'].fillna('').str.strip().str.casefold() if 'vote_label' in v else pd.Series([],dtype=str)
         def kind(x):
             if x in ['yes','ta','tá','aye','for']: return 'for'
@@ -63,7 +66,6 @@ for bid,g in joined.groupby('bill_id'):
             party_rows=[{'party':idx,**{c:int(row[c]) for c in ['for','against','abstain','other','total']}} for idx,row in p.iterrows()]
         subj=str(r.get('subject','') or r.get('division_subject','') or '')
         outcome=str(r.get('outcome','') or '')
-        # heuristic proposition type only for diagnostics, not publishing
         low=subj.casefold()
         if 'amendment' in low: ptype='amendment'
         elif 'second stage' in low or 'read a second time' in low: ptype='second_stage'
