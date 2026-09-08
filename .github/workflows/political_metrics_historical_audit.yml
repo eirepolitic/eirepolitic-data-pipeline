@@ -24,18 +24,18 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
-      - name: Run vote visual probe and capture output
+      - name: Run party vote probe
         shell: bash
         run: |
-          mkdir -p diagnostics/bill-vote-visual
+          mkdir -p diagnostics/bill-vote-party
           set +e
-          python process/tmp_bill_vote_visual_probe.py > diagnostics/bill-vote-visual/output.txt 2>&1
-          echo $? > diagnostics/bill-vote-visual/exit_code.txt
+          python process/tmp_bill_vote_party_probe.py > diagnostics/bill-vote-party/output.txt 2>&1
+          echo $? > diagnostics/bill-vote-party/exit_code.txt
           set -e
-      - name: Persist diagnostic
+      - name: Persist diagnostics
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/bill-vote-visual
-          git commit -m "analysis: persist bill vote visual probe" || exit 0
+          git add diagnostics/bill-vote-party
+          git commit -m "analysis: persist date-correct bill vote party probe" || exit 0
           git push origin HEAD:analysis/bill-vote-visual-options
