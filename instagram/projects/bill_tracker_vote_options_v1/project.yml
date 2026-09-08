@@ -1,0 +1,14 @@
+project_id: bill_tracker_vote_options_v1
+adapter_module: instagram.projects.bill_tracker_vote_options_v1.adapter
+period:
+  default: sample
+render:
+  outer_layout: instagram/templates/layouts/title_text_media_v1.json
+output:
+  local_root: instagram/production/output/bill_tracker_vote_options_v1
+publication:
+  enabled: false
+qa:
+  expected_slide_count: 2
+  expected_dimensions: [1080, 1350]
+  approved_factory_commit: 386b933
