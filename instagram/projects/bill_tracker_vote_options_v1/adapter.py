@@ -55,7 +55,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
 
     manifest = {
         "project_id": PROJECT_ID,
-        "review_state": "analysis_only",
+        "review_state": "pending_human_review",
         "publication_enabled": False,
         "factory_reference_commit": FACTORY_REFERENCE_COMMIT,
         "source_division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_162",
