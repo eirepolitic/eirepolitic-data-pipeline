@@ -25,53 +25,22 @@ jobs:
           set -euo pipefail
           git fetch origin feature/instagram-monthly-post-framework
           git worktree add /tmp/approved-instagram-factory 386b933
-          test "$(git -C /tmp/approved-instagram-factory rev-parse --short=7 HEAD)" = "386b933"
       - name: Inject vote comparison project
         run: cp -R instagram/projects/bill_tracker_vote_options_v1 /tmp/approved-instagram-factory/instagram/projects/
-      - name: Render comparison
+      - name: Render and capture diagnostics
+        shell: bash
         run: |
+          mkdir -p diagnostics/bill-vote-render
+          set +e
           cd /tmp/approved-instagram-factory
-          python -m instagram.factory.recurring --project-id bill_tracker_vote_options_v1 --period sample --output-root "$GITHUB_WORKSPACE/generated_vote_options"
-      - name: Validate and build browser review
+          python -m instagram.factory.recurring --project-id bill_tracker_vote_options_v1 --period sample --output-root "$GITHUB_WORKSPACE/generated_vote_options" > "$GITHUB_WORKSPACE/diagnostics/bill-vote-render/render.log" 2>&1
+          echo $? > "$GITHUB_WORKSPACE/diagnostics/bill-vote-render/exit_code.txt"
+          set -e
+      - name: Persist diagnostics
         shell: bash
         run: |
-          set -euo pipefail
-          ROOT="generated_vote_options/period=sample"
-          test -s "$ROOT/slides/01_option_a_overall_vote.png"
-          test -s "$ROOT/slides/02_option_b_party_breakdown.png"
-          test -s "$ROOT/contact_sheets/vote_options.jpg"
-          test -s "$ROOT/metadata/manifest.json"
-          python - "$ROOT" <<'PY'
-          import json,sys
-          from pathlib import Path
-          from PIL import Image
-          root=Path(sys.argv[1]); m=json.loads((root/'metadata/manifest.json').read_text())
-          assert m['factory_reference_commit']=='386b933'
-          assert m['overall']=={'eligible':174,'for':90,'against':57,'abstain':0,'no_recorded_vote':27}
-          assert m['publication_enabled'] is False
-          for p in m['slides']:
-              with Image.open(p) as im: assert im.size==(1080,1350)
-          PY
-          REVIEW=bill_vote_options_web
-          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
-          cp "$ROOT/contact_sheets/vote_options.jpg" "$REVIEW/contact-sheet.jpg"
-          cp "$ROOT/slides/01_option_a_overall_vote.png" "$REVIEW/option-a.png"
-          cp "$ROOT/slides/02_option_b_party_breakdown.png" "$REVIEW/option-b.png"
-          cp "$ROOT/metadata/manifest.json" "$REVIEW/manifest.json"
-          cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker vote options</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1300px;margin:auto;padding:24px}.meta{color:#c8bda8;line-height:1.5}.sheet{width:100%;margin:20px 0 28px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.grid img{width:100%}h2{color:#d8b45f}@media(max-width:800px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Bill Tracker · vote visual options</h1><div class="meta">Strategic Gas Reserve Bill · Dáil passage vote · 30 June 2026<br>90 Tá · 57 Níl · 0 abstentions · 27 no recorded vote · 174 eligible TDs<br>Approved factory 386b933 · analysis only</div><img class="sheet" src="contact-sheet.jpg"><div class="grid"><div><h2>A · Overall chamber bar</h2><img src="option-a.png"></div><div><h2>B · Overall + party split</h2><img src="option-b.png"></div></div></main></body></html>
-          HTML
-      - name: Publish review
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          cd bill_vote_options_web
-          git init
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "preview: Bill Tracker vote options ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-vote-options
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-vote-options
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/bill-vote-render
+          git commit -m "analysis: persist Bill Tracker vote render diagnostics" || exit 0
+          git push origin HEAD:analysis/bill-vote-visual-options
