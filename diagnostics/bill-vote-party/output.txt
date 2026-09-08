@@ -1,0 +1,306 @@
+TABLE member_votes 59325 ['member_vote_id', 'division_id', 'vote_id', 'division_date', 'member_code', 'member_name', 'vote_code', 'vote_label', 'party_name_at_vote', 'constituency_name_at_vote', 'snapshot_date']
+TABLE member_parties 178 ['member_party_id', 'membership_id', 'member_code', 'party_uri', 'party_name', 'party_start', 'party_end', 'is_current', 'snapshot_date']
+TABLE memberships 176 ['membership_id', 'member_code', 'member_uri', 'house_uri', 'house_no', 'house_code', 'chamber', 'membership_start', 'membership_end', 'is_current', 'source_hash', 'snapshot_date']
+TABLE members 176 ['member_code', 'member_uri', 'full_name', 'first_name', 'last_name', 'display_name', 'gender', 'member_key', 'is_current_member', 'latest_party_name', 'latest_constituency_name', 'latest_house_no', 'source_endpoint', 'snapshot_date', 'source_hash']
+AMBIGUOUS_PARTY_MEMBERS {}
+RECORDED_VOTE_DUP_MEMBER 0
+RECORDED_COUNTS {"for": 90, "against": 57}
+ELIGIBLE_MEMBER_COUNT 174
+RECORDED_MEMBER_COUNT 147
+NO_RECORDED_VOTE_COUNT 27
+VOTERS_NOT_IN_ELIGIBLE_SET []
+OVERALL {"for": 90, "against": 57, "abstain": 0, "other": 0, "no_recorded_vote": 27, "eligible": 174}
+PARTY_ROWS [
+  {
+    "party": "Fianna Fáil",
+    "eligible": 48,
+    "for": 42,
+    "against": 0,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 6,
+    "recorded": 42
+  },
+  {
+    "party": "Sinn Féin",
+    "eligible": 39,
+    "for": 0,
+    "against": 31,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 8,
+    "recorded": 31
+  },
+  {
+    "party": "Fine Gael",
+    "eligible": 38,
+    "for": 35,
+    "against": 0,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 3,
+    "recorded": 35
+  },
+  {
+    "party": "Independent",
+    "eligible": 15,
+    "for": 10,
+    "against": 2,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 3,
+    "recorded": 12
+  },
+  {
+    "party": "Social Democrats",
+    "eligible": 12,
+    "for": 0,
+    "against": 12,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 0,
+    "recorded": 12
+  },
+  {
+    "party": "Labour Party",
+    "eligible": 11,
+    "for": 0,
+    "against": 7,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 4,
+    "recorded": 7
+  },
+  {
+    "party": "Independent Ireland",
+    "eligible": 4,
+    "for": 3,
+    "against": 0,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 1,
+    "recorded": 3
+  },
+  {
+    "party": "People Before Profit-Solidarity",
+    "eligible": 3,
+    "for": 0,
+    "against": 3,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 0,
+    "recorded": 3
+  },
+  {
+    "party": "Aontú",
+    "eligible": 2,
+    "for": 0,
+    "against": 0,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 2,
+    "recorded": 0
+  },
+  {
+    "party": "100% RDR",
+    "eligible": 1,
+    "for": 0,
+    "against": 1,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 0,
+    "recorded": 1
+  },
+  {
+    "party": "Green Party",
+    "eligible": 1,
+    "for": 0,
+    "against": 1,
+    "abstain": 0,
+    "other": 0,
+    "no_recorded_vote": 0,
+    "recorded": 1
+  }
+]
+VOTE_SAMPLE [
+  {
+    "member_code": "Charles-Ward.D.2024-11-29",
+    "member_name": "Ward, Charles.",
+    "vote_kind": "against",
+    "party_name": "100% RDR"
+  },
+  {
+    "member_code": "Catherine-Ardagh.S.2016-04-25",
+    "member_name": "Ardagh, Catherine.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Tom-Brabazon.D.2024-11-29",
+    "member_name": "Brabazon, Tom.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Shay-Brennan.D.2024-11-29",
+    "member_name": "Brennan, Shay.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Mary-Butler.D.2016-10-03",
+    "member_name": "Butler, Mary.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Malcolm-Byrne.D.2019-11-29",
+    "member_name": "Byrne, Malcolm.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Thomas-Byrne.D.2007-06-14",
+    "member_name": "Byrne, Thomas.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Michael-Cahill.D.2024-11-29",
+    "member_name": "Cahill, Michael.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Dara-Calleary.D.2007-06-14",
+    "member_name": "Calleary, Dara.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Jack-Chambers.D.2016-10-03",
+    "member_name": "Chambers, Jack.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Peter-'Chap'-Cleere.D.2024-11-29",
+    "member_name": "Cleere, Peter 'Chap'.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Niall-Collins.D.2007-06-14",
+    "member_name": "Collins, Niall.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "John-Connolly.D.2024-11-29",
+    "member_name": "Connolly, John.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Cathal-Crowe.D.2020-02-08",
+    "member_name": "Crowe, Cathal.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Martin-Daly.D.2024-11-29",
+    "member_name": "Daly, Martin.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Aisling-Dempsey.D.2024-11-29",
+    "member_name": "Dempsey, Aisling.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Cormac-Devlin.D.2020-02-08",
+    "member_name": "Devlin, Cormac.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Albert-Dolan.D.2024-11-29",
+    "member_name": "Dolan, Albert.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Timmy-Dooley.S.2002-09-12",
+    "member_name": "Dooley, Timmy.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Seán-Fleming.D.1997-06-26",
+    "member_name": "Fleming, Sean.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Norma-Foley.D.2020-02-08",
+    "member_name": "Foley, Norma.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Pat-the-Cope-Gallagher.D.1981-06-30",
+    "member_name": "Gallagher, Pat the Cope.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "John-Lahart.D.2016-10-03",
+    "member_name": "Lahart, John.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "James-Lawless.D.2016-10-03",
+    "member_name": "Lawless, James.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Paul-McAuliffe.D.2020-02-08",
+    "member_name": "McAuliffe, Paul.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Charlie-McConalogue.D.2011-03-09",
+    "member_name": "McConalogue, Charlie.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Tony-McCormack.D.2024-11-29",
+    "member_name": "McCormack, Tony.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Séamus-McGrath.D.2024-11-29",
+    "member_name": "McGrath, Séamus.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Erin-McGreehan.S.2020-06-29",
+    "member_name": "McGreehan, Erin.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  },
+  {
+    "member_code": "Aindrias-Moynihan.D.2016-10-03",
+    "member_name": "Moynihan, Aindrias.",
+    "vote_kind": "for",
+    "party_name": "Fianna Fáil"
+  }
+]
