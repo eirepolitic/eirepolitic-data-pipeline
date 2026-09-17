@@ -1,0 +1,96 @@
+name: Director factory v1 identity check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "instagram/factory/**"
+      - "instagram/visuals/**"
+      - "instagram/projects/party_issue_monthly_profile_v2/**"
+      - "configs/reference/party_assets_v1.csv"
+      - "instagram/reference/issue_presentation_labels.yml"
+  pull_request:
+    paths:
+      - "instagram/factory/**"
+      - "instagram/visuals/**"
+      - "instagram/projects/party_issue_monthly_profile_v2/**"
+      - "configs/reference/party_assets_v1.csv"
+      - "instagram/reference/issue_presentation_labels.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify promoted factory v1 files remain byte-identical to approved commit 386b933
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e 386b933^{commit}
+
+          FILES=(
+            configs/reference/party_assets_v1.csv
+            instagram/factory/__init__.py
+            instagram/factory/oireachtas_source.py
+            instagram/factory/package.py
+            instagram/factory/party_asset_registry.py
+            instagram/factory/ready.py
+            instagram/factory/recurring.py
+            instagram/factory/render_primitives.py
+            instagram/factory/review.py
+            instagram/projects/party_issue_monthly_profile_v2/__init__.py
+            instagram/projects/party_issue_monthly_profile_v2/adapter.py
+            instagram/projects/party_issue_monthly_profile_v2/project.yml
+            instagram/reference/issue_presentation_labels.yml
+            instagram/visuals/__init__.py
+            instagram/visuals/renderers/__init__.py
+            instagram/visuals/renderers/common.py
+            instagram/visuals/renderers/horizontal_bar.py
+            instagram/visuals/s3_resolver.py
+          )
+
+          fail=0
+          for f in "${FILES[@]}"; do
+            test -f "$f" || { echo "MISSING: $f"; fail=1; continue; }
+            current="$(git hash-object "$f")"
+            approved="$(git rev-parse 386b933:"$f")"
+            if [ "$current" != "$approved" ]; then
+              echo "DRIFTED: $f  current=$current  approved(386b933)=$approved"
+              fail=1
+            fi
+          done
+
+          if [ "$fail" -ne 0 ]; then
+            echo
+            echo "One or more files under the frozen factory v1 path no longer match the"
+            echo "approved reference commit 386b933. If this drift is intentional (a real"
+            echo "fix or improvement), it must be reviewed as a factory version change,"
+            echo "not merged silently under the v1 promotion."
+            exit 1
+          fi
+          echo "All 17 promoted factory v1 text/code files remain byte-identical to 386b933."
+
+      - name: Verify approved corner assets remain byte-identical to 386b933 (via pinned worktree)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The four approved Instagram corner PNGs are intentionally NOT duplicated onto
+          # main's tree. They are pixel-critical binary assets, and this repository's
+          # established production pattern (see .github/workflows/instagram_polling_factory_render.yml)
+          # never trusts main for them: it checks out a worktree pinned to the approved
+          # commit 386b933 and hash-verifies the assets there before every render. Any
+          # workflow that renders party_issue_monthly_profile_v2 must follow the same
+          # worktree-pinning pattern rather than reading instagram/templates/assets/ from
+          # main directly. This step only re-confirms 386b933 itself has not been rewritten.
+          git fetch origin --tags --force 2>/dev/null || true
+          git cat-file -e 386b933^{commit}
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+          echo "386b933 corner asset blob hashes unchanged. Any renderer must worktree-pin to 386b933 to read them."
