@@ -10,7 +10,7 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 101 workflows in the repo)
+  generated_from: GitHub Actions workflows API (all 140 workflows in the repo)
   generated_at_last_hand_sync: "2026-09-17"
   workflows:
     - id: 232687901
@@ -417,6 +417,162 @@ inventory:
       name: Oireachtas post-promotion verification
       path: .github/workflows/oireachtas_post_promotion_verify.yml
       state: active
+    - id: 297334648
+      name: Oireachtas Production-Sized Refresh Dry Run (Manual)
+      path: .github/workflows/oireachtas_production_refresh_dry_run.yml
+      state: active
+    - id: 313201502
+      name: Oireachtas questions partition integration patch
+      path: .github/workflows/oireachtas_questions_partition_patch.yml
+      state: active
+    - id: 313202148
+      name: Oireachtas questions partition validation
+      path: .github/workflows/oireachtas_questions_partition_validation.yml
+      state: active
+    - id: 314642410
+      name: Oireachtas reusable refresh
+      path: .github/workflows/oireachtas_refresh_reusable.yml
+      state: active
+    - id: 307332237
+      name: Oireachtas Refresh Validation Orchestrator
+      path: .github/workflows/oireachtas_refresh_validation_orchestrator.yml
+      state: active
+    - id: 314620789
+      name: Oireachtas release readiness
+      path: .github/workflows/oireachtas_release_readiness.yml
+      state: active
+    - id: 312777406
+      name: Oireachtas repair CI
+      path: .github/workflows/oireachtas_repair_ci.yml
+      state: active
+    - id: 328303252
+      name: Oireachtas Speech Candidate-only S3 Validation
+      path: .github/workflows/oireachtas_speech_candidate_s3_validation.yml
+      state: active
+    - id: 328296254
+      name: Oireachtas Speech Classifier v2 CI
+      path: .github/workflows/oireachtas_speech_classifier_v2_ci.yml
+      state: active
+    - id: 287859326
+      name: Oireachtas Table Test (Manual)
+      path: .github/workflows/oireachtas_table_test.yml
+      state: active
+    - id: 315899199
+      name: Oireachtas validation checkpoint 2
+      path: .github/workflows/oireachtas_validation_checkpoint2.yml
+      state: active
+    - id: 315899895
+      name: Fix Oireachtas checkpoint 2 validator
+      path: .github/workflows/oireachtas_validation_checkpoint2_fix.yml
+      state: active
+    - id: 315915420
+      name: Oireachtas validation checkpoint 3
+      path: .github/workflows/oireachtas_validation_checkpoint3.yml
+      state: active
+    - id: 316318458
+      name: Oireachtas validation checkpoint 4
+      path: .github/workflows/oireachtas_validation_checkpoint4.yml
+      state: active
+    - id: 316327584
+      name: Oireachtas validation checkpoint 5
+      path: .github/workflows/oireachtas_validation_checkpoint5.yml
+      state: active
+    - id: 316328553
+      name: Oireachtas validation checkpoint 6
+      path: .github/workflows/oireachtas_validation_checkpoint6.yml
+      state: active
+    - id: 316329880
+      name: Oireachtas validation checkpoint 7
+      path: .github/workflows/oireachtas_validation_checkpoint7.yml
+      state: active
+    - id: 315883240
+      name: Oireachtas validation diagnostics
+      path: .github/workflows/oireachtas_validation_debug.yml
+      state: active
+    - id: 316400238
+      name: Oireachtas validation fixes acceptance
+      path: .github/workflows/oireachtas_validation_fixes_acceptance.yml
+      state: active
+    - id: 316341017
+      name: Oireachtas validation fixes candidate
+      path: .github/workflows/oireachtas_validation_fixes_candidate.yml
+      state: active
+    - id: 316333333
+      name: Oireachtas validation fixes CI
+      path: .github/workflows/oireachtas_validation_fixes_ci.yml
+      state: active
+    - id: 315882719
+      name: Oireachtas validation framework
+      path: .github/workflows/oireachtas_validation_framework.yml
+      state: active
+    - id: 314642413
+      name: Oireachtas reusable validation
+      path: .github/workflows/oireachtas_validation_reusable.yml
+      state: active
+    - id: 294426406
+      name: Oireachtas Weekly Refresh
+      path: .github/workflows/oireachtas_weekly_refresh.yml
+      state: active
+    - id: 294432103
+      name: Oireachtas Yearly Refresh
+      path: .github/workflows/oireachtas_yearly_refresh.yml
+      state: active
+    - id: 346861118
+      name: Party Asset Registry Audit
+      path: .github/workflows/party_assets_audit.yml
+      state: active
+    - id: 347028753
+      name: Party Asset Publication Candidate Review
+      path: .github/workflows/party_assets_publication_review.yml
+      state: active
+    - id: 346868085
+      name: Party Asset Review Build
+      path: .github/workflows/party_assets_review.yml
+      state: active
+    - id: 347664882
+      name: Political metrics historical audit
+      path: .github/workflows/political_metrics_historical_audit.yml
+      state: active
+    - id: 349858570
+      name: Temporary referendum bounded validation
+      path: .github/workflows/referendum-bounded-validation.yml
+      state: active
+    - id: 349860444
+      name: Temporary research summary update
+      path: .github/workflows/research-summary-update.yml
+      state: active
+    - id: 258254877
+      name: Ridiculous Sentences Experiments (Manual)
+      path: .github/workflows/ridiculous_sentences_experiments.yml
+      state: active
+    - id: 257522562
+      name: Ridiculous Sentences Weekly (Manual)
+      path: .github/workflows/ridiculous_sentences_weekly.yml
+      state: active
+    - id: 347640221
+      name: Sinn Fein Exhaustive Logo Review
+      path: .github/workflows/sinn_fein_exhaustive_review.yml
+      state: active
+    - id: 347655334
+      name: Social Democrats Boxed Logo Preview
+      path: .github/workflows/social_democrats_boxed_logo.yml
+      state: active
+    - id: 347650242
+      name: Social Democrats Exhaustive Logo Review
+      path: .github/workflows/social_democrats_exhaustive_review.yml
+      state: active
+    - id: 349811663
+      name: Deploy broader deterministic speech context
+      path: .github/workflows/speech_context_deploy.yml
+      state: active
+    - id: 226713770
+      name: Unified Speech Issue Classifier (Manual)
+      path: .github/workflows/speech_issue_classifier.yml
+      state: active
+    - id: 351231826
+      name: Deploy Written PQ answer foundations
+      path: .github/workflows/written_pq_answer_foundation_deploy.yml
+      state: active
 # END AUTO-GENERATED
 
 # Hand-maintained, human-reviewed. Only the workflows the Director actually
@@ -429,6 +585,18 @@ annotated:
     purpose: Byte-identity drift guard for the Phase 1 promoted factory v1 files, against reference commit 386b933.
     status: active, current, required
     ref_state: main (added Phase 1)
+
+  director_catalogue_drift_ci.yml:
+    purpose: >
+      Regenerates this file's `inventory` block (and projects.yml's
+      `directory_listing` block) from a live GitHub Actions/projects.yml
+      read via process/build_director_catalogue.py --check, and fails CI on
+      drift. Triggers on push/PR to director/workflows.yml,
+      director/projects.yml, instagram/projects/**/project.yml,
+      .github/workflows/**, and process/build_director_catalogue.py, plus a
+      daily cron.
+    status: active, current, required
+    ref_state: main (added Phase 2)
 
   instagram_polling_factory_render.yml:
     purpose: Production render for ipi_polling_factory_v1 — worktree-pins its assets, builds review page, force-pushes previews/ipi-polling-factory.
@@ -499,11 +667,13 @@ category_buckets:
   # about each workflow's actual current purpose. See `annotated` above for
   # anything the Director should treat as verified.
   oireachtas_data_pipeline_historical: >
-    ~60 workflows prefixed oireachtas_ — batch/checkpoint/compat-adapter/
+    64 workflows prefixed oireachtas_ — batch/checkpoint/compat-adapter/
     diagnostic/patch/validation runs from the Oireachtas data-pipeline
     build-out. oireachtas_monthly_refresh.yml is the recurring production
     job (see refs.yml oireachtas_data_pipeline); the rest read as
-    development-history diagnostics, not investigated individually.
+    development-history diagnostics, not investigated individually. Count
+    corrected 2026-09-17 (was "~60") once the `list_workflows` pagination
+    bug below was fixed and the full set became visible.
   instagram_factory_build_trail: See annotated.instagram_factory_generic_validate.yml above.
   instagram_experimental_manual_tests: >
     instagram_campaign_render.yml, instagram_constituency_test.yml,
@@ -532,7 +702,51 @@ category_buckets:
     QA one-offs for the party logo registry (configs/reference/party_assets_v1.csv).
   contextual_and_division_deploys: >
     contextual_monthly_voting_deploy.yml, contextual_vote_foundations_deploy.yml,
-    division_context_deploy.yml, bill_debate_sections_deploy.yml — not
+    division_context_deploy.yml, bill_debate_sections_deploy.yml,
+    speech_context_deploy.yml, written_pq_answer_foundation_deploy.yml — not
     investigated; names suggest downstream-contract deploys feeding the
     party project's source batches. Cross-reference with data_products.yml
     if reproducing a specific batch's provenance.
+  newly_surfaced_in_pagination_fix: >
+    38 workflows added to this inventory on 2026-09-17 when a
+    `list_workflows` MCP-tool pagination bug was found and fixed (the tool
+    silently caps results at 100 without auto-paginating; this file's
+    inventory had been built from an incomplete ~100-workflow snapshot
+    since Phase 2's first draft — see refs.yml and the Phase 2 PR history
+    for the full account). None of these are individually investigated;
+    they are grouped here by naming pattern only, same discipline as the
+    other coarse buckets above. party_assets_audit.yml,
+    party_assets_publication_review.yml, party_assets_review.yml — likely
+    join party_logo_reviews in scope (party asset registry QA) but not
+    confirmed. sinn_fein_exhaustive_review.yml,
+    social_democrats_boxed_logo.yml, social_democrats_exhaustive_review.yml
+    — likely join party_logo_reviews (per-party logo QA, same pattern as
+    fianna_fail_exhaustive_review.yml / fine_gael_color_review.yml).
+    instagram_option5_constituency_cover_ai.yml,
+    instagram_option5_member_profile_ai.yml — likely join
+    instagram_experimental_manual_tests (Option 5 AI-visuals experiments,
+    see refs.yml option5_ai_visuals). instagram_factory_generic_plan_update.yml,
+    instagram_factory_generic_validate.yml siblings
+    instagram_factory_horizontal_profile_update.yml,
+    instagram_factory_party_project.yml, instagram_factory_phase1_plan_update.yml,
+    instagram_factory_phase2_plan_update.yml, instagram_factory_phase2_quality_patch.yml,
+    instagram_factory_real_data_policy_update.yml, instagram_factory_text_bounds_wiring.yml,
+    instagram_factory_text_quality_patch.yml, instagram_factory_text_status_plan_update.yml,
+    instagram_factory_validate.yml, instagram_factory_validation_plan_status_update.yml,
+    instagram_factory_visual_validation_plan_update.yml,
+    instagram_contact_sheet_two_column_patch.yml — likely join
+    instagram_factory_build_trail (recurring-factory build history, see
+    annotated.instagram_factory_generic_validate.yml above).
+    ipi_ingestion.yml, ipi_ingestion_ci.yml, monthly_extract.yml,
+    referendum-bounded-validation.yml, research-summary-update.yml,
+    political_metrics_historical_audit.yml, build_member_profile_metrics_2025.yml,
+    data_model_documentation.yml, speech_issue_classifier.yml — likely
+    oireachtas-data-pipeline-adjacent (ingestion/extraction/documentation
+    utilities); could arguably belong in
+    oireachtas_data_pipeline_historical or manual_utility_tools instead.
+    ridiculous_sentences_experiments.yml, ridiculous_sentences_weekly.yml
+    — name suggests an unrelated content experiment, not investigated,
+    presumed out of scope for Director capability-tracking. This entire
+    bucket is a placeholder for future classification, not a finished
+    review — treat every workflow in it as needs_review if it becomes
+    relevant to a task.
