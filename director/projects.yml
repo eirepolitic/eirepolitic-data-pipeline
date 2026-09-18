@@ -10,15 +10,15 @@ directory_listing:
   generated_from: instagram/projects/*/project.yml on main
   generated_at_last_hand_sync: "2026-09-17"
   projects:
+    - project_id: ipi_polling_factory_v1
+      path: instagram/projects/ipi_polling_factory_v1/
+      cadence: latest
+      adapter_module: instagram.projects.ipi_polling_factory_v1.adapter
     - project_id: party_issue_monthly_profile_v2
       path: instagram/projects/party_issue_monthly_profile_v2/
       status_field_in_project_yml: approved
       cadence: monthly
       adapter_module: instagram.projects.party_issue_monthly_profile_v2.adapter
-    - project_id: ipi_polling_factory_v1
-      path: instagram/projects/ipi_polling_factory_v1/
-      cadence: latest
-      adapter_module: instagram.projects.ipi_polling_factory_v1.adapter
 # END AUTO-GENERATED
 
 notes:
