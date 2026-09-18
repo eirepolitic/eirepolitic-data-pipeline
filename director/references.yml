@@ -1,0 +1,74 @@
+# director/references.yml — completed-post classification (plan §3.6).
+#
+# Hand-maintained, human-reviewed. The Director reads
+# `canonical_visual_reference` for design questions ("what should this look
+# like") and `production_references` for "did the pipeline work correctly"
+# questions. Never treat the latest run as the aesthetic target without
+# checking here first — latest run != canonical reference (see the July vs.
+# August 2026 timestamps below, the concrete case this rule exists for).
+
+party_issue_monthly_profile_v2:
+  canonical_visual_reference:
+    period: "2026-07"
+    generated_at: "2026-09-04T16:19:41Z"
+    workflow_run_id: 33800066946
+    workflow_run_number: 247
+    source_batch: contextual-vote-foundations-20260904-1
+    party_count: 11
+    slide_count: 55
+    qa: "55/55 PASS"
+    reference_file: instagram/reference/regression/party_issue_monthly_profile_v2_july_2026.json
+    rationale: >
+      Sufficient debate volume for the visualisations to show intended
+      design. Regenerated after the glossary glyph-bound fix.
+    completed_post_archive_status:
+      git_tracked_summary: present (completed_posts/summaries/2026-07-party-speech-breakdown-carousel.json, added Phase 2)
+      s3_index_entry: not_yet_present
+      note: >
+        See the Phase 2 PR body for exactly what's blocking the S3 side:
+        the rendered assets for this run live under
+        s3://eirepolitic-data/processed/instagram/party_issue_monthly_profile_v2/period=2026-07/...,
+        not on a git preview branch, and the existing
+        completed_post_archive.yml workflow only reads assets from a git
+        ref. This needs either an S3-source variant of that workflow or a
+        one-off seed workflow (matching the pattern
+        completed_post_seed_20260906_polling.yml used for the polling
+        post) before the S3 index.json gets a second entry.
+
+  production_references:
+    - period: "2026-08"
+      generated_at: "2026-09-03T21:55:14Z"
+      source: instagram/reference/regression/august_2026_speech_validation.json
+      rationale: >
+        Generated from an older batch, before the glossary glyph-bound fix
+        that produced the July canonical render. Proves recurring
+        generation, QA, and truthful sparse-data handling — not the
+        aesthetic target.
+      note: >
+        This file predates Phase 2 (it was one of the 21 files promoted in
+        Phase 1). Its exact contents were not re-read during Phase 2
+        research; treat the summary above as inherited from plan §1.6, not
+        independently re-verified this phase.
+
+ipi_polling_factory_v1:
+  production_references:
+    - post_id: 2026-09-06-ipi-polling-carousel
+      status: completed
+      archived: true
+      s3_prefix: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-09-06-ipi-polling-carousel/
+      git_summary: completed_posts/summaries/2026-09-06-ipi-polling-carousel.json
+      rationale: >
+        The one entry in the completed-post archive as of Phase 0/1/2. Real
+        production render, fully archived (agent-summary.json/md,
+        provenance.json, assets all in S3; index.json lists it).
+  canonical_visual_reference: not_yet_designated
+
+bill_tracker_series:
+  canonical_visual_reference: not_yet_designated
+  note: >
+    Validated run 34163813979 (eight 1080x1350 slides) exists but the
+    branch is an active draft (PR #130, do-not-merge pending visual
+    review — see refs.yml). Do not archive or treat any Bill Tracker
+    render as an approved reference until that PR's visual review
+    concludes; archiving a not-yet-approved render here would misrepresent
+    it as a completed post.
