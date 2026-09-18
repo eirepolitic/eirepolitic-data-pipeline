@@ -17,7 +17,7 @@ directory_listing:
       adapter_module: instagram.projects.party_issue_monthly_profile_v2.adapter
     - project_id: ipi_polling_factory_v1
       path: instagram/projects/ipi_polling_factory_v1/
-      cadence: "on-demand (period.default: latest)"
+      cadence: latest
       adapter_module: instagram.projects.ipi_polling_factory_v1.adapter
 # END AUTO-GENERATED
 
@@ -38,6 +38,11 @@ notes:
 
   ipi_polling_factory_v1:
     purpose: Raw-polling-data Instagram carousel (latest support, change since previous poll, six-month trend, methodology).
+    cadence_note: >
+      project.yml's period.default is literally "latest" (see
+      directory_listing above) — there is no fixed monthly cadence like
+      party_issue_monthly_profile_v2; this project is dispatched on-demand
+      against whatever the current polling data supports.
     ref_state: see refs.yml (merged, on main independent of Phase 1 promotion)
     source: s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polls.csv (Irish Polling Indicator raw polls)
     slides: [latest_support, change_since_previous_poll, recent_trend, methodology]
