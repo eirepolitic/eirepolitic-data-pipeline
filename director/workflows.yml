@@ -10,7 +10,7 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 100 workflows in the repo)
+  generated_from: GitHub Actions workflows API (all 101 workflows in the repo)
   generated_at_last_hand_sync: "2026-09-17"
   workflows:
     - id: 232687901
@@ -80,6 +80,10 @@ inventory:
     - id: 349807844
       name: Temporary demographic polling bounded validation
       path: .github/workflows/demographic-polling-bounded-validation.yml
+      state: active
+    - id: 361059448
+      name: Director catalogue drift check
+      path: .github/workflows/director_catalogue_drift_ci.yml
       state: active
     - id: 360182953
       name: Director factory v1 identity check
