@@ -1,0 +1,66 @@
+# director/data_products.yml — datasets, tables, metrics, pointer rules.
+# Hand-maintained. Points at the existing pipeline rather than re-describing
+# it — see plan §9 ("what will not be rebuilt") and §6.4 for the workflow
+# this file supports.
+
+pointer_resolution:
+  pointer_file: processed/oireachtas_unified/pointers/production.json
+  resolves_to: an immutable batch id
+  per_table_lineage: ETag + row-count per table key
+  enforcement: >
+    instagram/factory/oireachtas_source.py enforces
+    require_batch_status: validated before a project may consume data.
+  known_drift_fact:
+    observed_2026-09-16:
+      canonical_render_batch: contextual-vote-foundations-20260904-1 (2026-09-04)
+      then_current_production_pointer_batch: written-pq-answers-20260905-1 (2026-09-06)
+      tables_compared_identical_by_etag:
+        - silver_speeches
+        - enrichment_speech_issue_labels
+        - silver_member_memberships
+        - silver_member_parties
+    caveat: >
+      This is a measured fact about one comparison at one point in time,
+      not a standing guarantee. Before assuming a re-render will reproduce
+      the canonical reference, re-check ETags for the specific tables the
+      project depends on against the current production pointer.
+
+required_tables_by_project:
+  party_issue_monthly_profile_v2:
+    - silver_speeches
+    - enrichment_speech_issue_labels
+    - silver_member_memberships
+    - silver_member_parties
+    - silver_member_constituencies
+  ipi_polling_factory_v1:
+    - s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polls.csv (not a pointer-resolved table — a direct S3 CSV path)
+
+s3_output_partitioning:
+  convention: >
+    processed/instagram/<project_id>/period=<YYYY-MM>/source_batch=<batch>/github_run=<run_id>/
+      parties/<party-key>/slides/*.png
+      parties/<party-key>/metadata/variant-2/*.json
+      parties/<party-key>/manifest.json
+      contact_sheets/*.jpg
+  currently_used_by: [party_issue_monthly_profile_v2]
+  note: >
+    Period, source batch, and run ID are all in the path — this is the
+    provenance the Director needs, already present. Point new projects at
+    this convention rather than inventing a new one.
+
+reference_asset_registry:
+  party_assets: configs/reference/party_assets_v1.csv
+  canonical_logo_uri_template: "s3://eirepolitic-data/processed/reference/party_assets/v1/assets/{party_key}/logo.png"
+  canonical_dimensions: [1600, 1600]
+
+metrics_and_contracts:
+  location: political_metrics/, configs/*/downstream_contracts.yml
+  status: "merged production (see refs.yml political_metrics_contracts)"
+  note: Not rebuilt or re-described in detail here — read the contracts directly when a metric question comes up; this file is an index, not a copy.
+
+data_product_workflow: >
+  Per plan §6.4: source -> schema -> extraction -> transformation ->
+  immutable batch -> validation -> downstream contract -> availability.
+  Reuses extract/ + political_metrics/ + configs/*/downstream_contracts.yml
+  patterns. No new pipeline architecture should be introduced for a request
+  that fits this shape.

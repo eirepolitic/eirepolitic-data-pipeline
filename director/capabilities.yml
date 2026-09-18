@@ -1,0 +1,98 @@
+# director/capabilities.yml — what the factory can do today.
+# Hand-maintained. For per-capability state/ref, see refs.yml (the keystone).
+# For per-project schedule/data, see projects.yml.
+
+recurring_render:
+  summary: >
+    Deterministic, data-driven Instagram carousel rendering from validated
+    Oireachtas/polling data, via instagram/factory/recurring.py. Two
+    adapters exist today (see projects.yml): party_issue_monthly_profile_v2
+    and ipi_polling_factory_v1. Each defines its own manifest shape and QA
+    checks — there is no normalized render contract yet (Phase 3).
+  entry_point: instagram/factory/recurring.py
+  gate: >
+    Every adapter must return review_state: pending_human_review and
+    publication_enabled: false. recurring.py hard-fails otherwise. This
+    guardrail must never be weakened.
+
+review_and_ready_gate:
+  summary: >
+    Human review workflow over a rendered run, item- and slide-granular.
+  entry_points: [instagram/factory/review.py, instagram/factory/ready.py]
+  schema:
+    review_state.json:
+      overall_status: unreviewed | in_review | approved | changes_requested | rejected
+      publishing_allowed: always false — never set true by these files
+      items: { <item_slug>: { status, slides: { <slide_id>: status } } }
+      history: "[{timestamp, reviewer, item_slug, slide_id, status, note}]"
+    run_manifest.json (fields ready.py writes):
+      review_state, approved, ready_for_posting, ready_for_posting_at,
+      ready_for_posting_by, ready_for_posting_note, publishing_allowed
+  gate: >
+    mark_ready_for_posting() raises unless every item AND every slide is
+    exactly "approved". No partial approval shortcut exists or should be
+    added.
+
+preview_hosting:
+  summary: >
+    Render workflows build a self-contained review page and force-push it
+    to a previews/<slug> branch, giving a deterministic
+    raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/<slug>/index.html
+    URL. Contact sheets and a slide-download zip are included.
+  known_live_preview_branches_as_of_phase0:
+    - previews/ipi-polling-factory
+    - previews/bill-tracker-factory-v1
+    - previews/bill-tracker-vote-options
+    - previews/data-model
+    - previews/ipi-polling
+  caveat: >
+    Today this URL is only written to the GitHub Actions step summary, not
+    anywhere machine-readable. Phase 3/4 write it to
+    director/sessions/<id>/runs/<run_id>.json instead.
+
+completed_post_archive:
+  summary: >
+    S3-backed catalogue of finished, published-quality posts, used as
+    design/QA reference material. See references.yml for which entries are
+    canonical vs. production references, and workflows.yml for the five
+    completed_post_*.yml workflows.
+  storage:
+    bucket: eirepolitic-data
+    prefix_pattern: instagram/previews/completed-posts/<repo-or-namespace>/<post_id>/
+    index: "index.json at the namespace root — {schema_version, posts: [...]}"
+    entry_files: [agent-summary.json, agent-summary.md, provenance.json, plus the post's rendered assets]
+  namespaces_observed: [eirepolitic-data-pipeline, overlord]
+  depth_as_of_phase0: 1 (2026-09-06-ipi-polling-carousel only)
+  depth_as_of_phase2: see references.yml — a second entry's git-tracked summary was added; S3 index status is tracked there, not assumed complete just because this file was updated.
+
+data_resolution:
+  summary: >
+    processed/oireachtas_unified/pointers/production.json resolves to an
+    immutable batch; per-table keys carry ETag + row-count lineage.
+    instagram/factory/oireachtas_source.py enforces require_batch_status:
+    validated. Reused as-is, not rebuilt — see refs.yml oireachtas_data_pipeline.
+  known_fact_as_of_phase0: >
+    The production pointer can move to a newer validated batch than the one
+    a canonical render used, while the specific tables a project depends on
+    stay byte-identical (verified by ETag for the four party-project
+    tables, 2026-09-16). This is a fact about that one comparison, not a
+    guarantee that holds forever — re-verify before assuming reproducibility
+    for a new render.
+
+qa_pattern:
+  summary: >
+    Today: inline Python assert statements per render workflow (~195/132
+    lines each, ten shared steps, everything else hardcoded per product).
+    Phase 3 (not started) replaces this with declarative QA driven off each
+    project.yml's qa: block, executed by instagram/factory/qa.py against a
+    normalized RenderResult.
+  status: not_yet_built
+
+visual_tuning:
+  summary: See visuals.yml for the actual knob → feedback-phrase mapping.
+
+needs_review:
+  - instagram/campaigns/ (see refs.yml: instagram_campaigns) — one-off campaign spec pattern, not classified.
+  - instagram/media_generators/ (see refs.yml: instagram_media_generators) — a second renderer set (horizontal_bar_chart, line_chart, ranking_table), relationship to instagram/visuals/renderers/ not established.
+  - instagram/polling/editorial_renderer.py (see refs.yml: instagram_polling_editorial_renderer) — not investigated.
+  - refs.yml celtic_corner_variants entry — inherited from Phase 0, not re-verified.

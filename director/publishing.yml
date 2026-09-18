@@ -1,0 +1,29 @@
+# director/publishing.yml — publishing state and gates.
+# Hand-maintained. Read semantics.md first — the gate described there is
+# absolute and is not relaxed by anything in this file.
+
+status: blocked_in_v1
+
+stack:
+  ref_state: see refs.yml publishing_stack (draft, six-branch chain #107→#112, base ops/investigate-instagram-publishing-20260903)
+  design: Mocked Meta HTTP client, DynamoDB ledger, EventBridge scheduler, Lambda publisher.
+  what_exists: Research and code across the six-PR chain. Not rebuilt (plan §9).
+  what_does_not_exist: No Meta app, no account conversion, no credentials, no scheduler running, no publish path exercised against a real endpoint.
+
+v1_action_pending_phase_6:
+  - Consolidate the six-branch stack into one branch rebased on main.
+  - Keep it draft.
+  - Record its exact resulting state here.
+  - Nothing gets enabled as part of this consolidation — it is a cleanup/legibility step, not a launch step.
+
+hard_gates_enforced_in_code:
+  - "instagram/factory/recurring.py hard-fails any adapter that doesn't return {review_state: pending_human_review, publication_enabled: false}."
+  - instagram/factory/review.py always sets publishing_allowed: false on every review-state write.
+  - instagram/factory/ready.py sets publishing_allowed: false even once a run is marked ready_for_posting, and only allows that mark once every item and every slide is approved.
+
+director_response_to_publish_requests: >
+  "Publish this" is answered with the publishing status recorded above,
+  never executed. Enabling unattended publishing is a separate, explicitly
+  designed, explicitly Warren-approved piece of work — not something the
+  Director proposes, drafts silently, or treats as an implicit next step
+  once rendering/review works end to end.

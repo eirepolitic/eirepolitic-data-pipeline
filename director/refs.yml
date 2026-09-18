@@ -1,0 +1,161 @@
+# director/refs.yml — the keystone capability → state map.
+#
+# Hand-maintained, human-reviewed. Do not let this drift from reality: when
+# a PR merges, a branch is deleted, or a pin is lifted, update the entry in
+# the same PR that changes the underlying thing.
+#
+# state values: merged | pinned | draft | experimental | superseded
+#
+# This file classifies every capability named in the implementation plan's
+# §1.2 capability-state table, updated for what Phase 1 actually did.
+
+- capability: recurring_instagram_factory
+  state: merged
+  ref: main
+  version: v1
+  frozen_from: 386b933
+  merged_by: pull_request_143
+  verified_by: .github/workflows/director_factory_v1_identity_ci.yml
+  notes: >
+    instagram/factory/, instagram/visuals/renderers/, party_asset_registry,
+    render_primitives promoted to main 2026-09-17. CI hash-verifies these
+    files against 386b933 on every push/PR. The four approved corner PNGs
+    (instagram/templates/assets/corner_{tl,tr,bl,br}.png) are NOT on main —
+    see the `corner_assets_pinned` entry below.
+
+- capability: corner_assets_pinned
+  state: pinned
+  ref: 386b933
+  notes: >
+    instagram/templates/assets/corner_{tl,tr,bl,br}.png. Deliberately left
+    off main: this sandbox's only GitHub write path (Sly_Director_GitHub
+    MCP upsert_file/upsert_files) stores content as literal text and cannot
+    carry binary data losslessly (proven by a probe test, see plan §1.8).
+    Any renderer for party_issue_monthly_profile_v2 must worktree-pin to
+    386b933 to read these files, exactly as
+    instagram_polling_factory_render.yml already does for its own assets.
+    Lift this pin (copy the PNGs onto main, shrink this entry into
+    recurring_instagram_factory) only if a session ever gets real git push
+    or a binary-safe write path to this repo.
+
+- capability: party_issue_monthly_profile_v2
+  state: merged
+  ref: main
+  path: instagram/projects/party_issue_monthly_profile_v2/
+  depends_on: [recurring_instagram_factory, corner_assets_pinned]
+  canonical_reference: see references.yml (party_issue_monthly_profile_v2.canonical_visual_reference)
+  notes: Project code merged as part of the Phase 1 factory promotion.
+
+- capability: ipi_polling_factory_v1
+  state: merged
+  ref: main
+  path: instagram/projects/ipi_polling_factory_v1/
+  workflows: [instagram_polling_factory_render.yml, instagram_polling_factory_ci.yml]
+  notes: >
+    Already on main independent of the Phase 1 promotion. Uses its own
+    worktree-pinning pattern for its assets; not affected by the
+    corner_assets_pinned entry above (different project, different assets).
+
+- capability: completed_post_archive
+  state: merged
+  ref: main
+  workflows:
+    - completed_post_archive.yml
+    - completed_post_archive_ci.yml
+    - completed_post_reference.yml
+    - completed_post_overlord_initialize.yml
+  notes: >
+    S3-backed catalogue at s3://eirepolitic-data/instagram/previews/completed-posts/.
+    One entry as of Phase 0 (2026-09-06 IPI polling carousel). Phase 2 adds
+    a second, git-tracked summary for the July 2026 party render — see
+    references.yml and the Phase 2 PR notes for what is and isn't done on
+    the S3 side yet.
+
+- capability: political_metrics_contracts
+  state: merged
+  ref: main
+  path: political_metrics/
+  notes: Downstream contracts pattern (configs/*/downstream_contracts.yml) — not touched by the Director; reused as-is per plan §6.4.
+
+- capability: oireachtas_data_pipeline
+  state: merged
+  ref: main
+  path: extract/, process/oireachtas_*.py
+  notes: >
+    Extraction, immutable-batch, and production-pointer resolution
+    (processed/oireachtas_unified/pointers/production.json). validated
+    batch status enforced in instagram/factory/oireachtas_source.py. Not
+    rebuilt — see plan §9.
+
+- capability: bill_tracker_series
+  state: draft
+  ref: feature/bill-content-snapshot-v1
+  pull_request: 130
+  do_not_merge_until: visual review approved
+  validated_by_run: 34163813979
+  notes: 72 commits, 15 files, mergeable, clean. Eight 1080x1350 slides validated. Explicitly marked do-not-merge pending visual review — the Director must not merge or archive this as approved.
+
+- capability: publishing_stack
+  state: draft
+  ref: ops/investigate-instagram-publishing-20260903
+  pull_requests: [107, 108, 109, 110, 111, 112]
+  notes: >
+    Six-branch stack, ~70 commits total. Mocked Meta HTTP client, DynamoDB
+    ledger, EventBridge scheduler, Lambda publisher design. Not rebuilt.
+    v1 action (Phase 6, not started): consolidate into one branch rebased
+    on main, keep draft, record exact state in publishing.yml. Nothing
+    enabled. See semantics.md publishing gate.
+
+- capability: bannerbear_placid_template_pipeline
+  state: superseded
+  ref: main
+  path: instagram/mappings/, instagram/specs/, instagram/templates/, instagram/renderer/
+  superseded_by: recurring_instagram_factory
+  notes: >
+    The pipeline instagram/README.md (pre-Phase-2) documented. Bannerbear
+    and Placid provider render paths plus a local_html fallback. Explicitly
+    scoped as visuals-only, no publishing. instagram/README.md was replaced
+    in Phase 2 to point at director/ instead of describing this as current;
+    the code itself (instagram/renderer/, instagram/templates/) was not
+    removed or judged — only the misleading top-level doc was.
+
+- capability: option5_ai_visuals
+  state: experimental
+  workflows:
+    - instagram_option5_constituency_cover_ai.yml
+    - instagram_option5_member_profile_ai.yml
+  notes: AI-edited visual generation test workflows. Not independently re-verified during Phase 2 research; inherited from Phase 0 findings (plan §1.2).
+
+- capability: celtic_corner_variants
+  state: experimental
+  notes: >
+    Referenced in the Phase 0 findings (plan §1.2) as an experimental
+    visual variant. Not independently located or re-verified during Phase
+    2 research — flagged for a future session to confirm or remove this
+    entry rather than carried forward as fact.
+
+- capability: instagram_campaigns
+  state: needs_classification
+  path: instagram/campaigns/
+  notes: >
+    One-off campaign specs distinct from the recurring instagram/projects/
+    pattern: _template, constitutional_change_close_vote_v1,
+    ipi_polling_snapshot_v1, member_profile_batch_v1. Discovered during
+    Phase 2 tree research; not covered by plan §1.2 and not yet classified
+    into merged/draft/experimental. A future session should read each
+    campaign_brief.md/progress_log.md before assigning a state.
+
+- capability: instagram_media_generators
+  state: needs_classification
+  path: instagram/media_generators/
+  notes: >
+    horizontal_bar_chart, line_chart, ranking_table generators — a
+    separate renderer set from instagram/visuals/renderers/ (which only
+    has horizontal_bar.py + common.py, promoted in Phase 1). Relationship
+    between the two renderer sets (parallel systems vs. one superseding
+    the other) not established during Phase 2 research.
+
+- capability: instagram_polling_editorial_renderer
+  state: needs_classification
+  path: instagram/polling/editorial_renderer.py
+  notes: Discovered during Phase 2 tree research, not investigated further. Distinct from instagram/projects/ipi_polling_factory_v1/renderers.py.

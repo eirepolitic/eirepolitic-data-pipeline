@@ -1,3 +1,32 @@
+# Instagram — start at `director/`
+
+> **This document is superseded as the entry point for the Instagram
+> content pipeline.** It described the Bannerbear/Placid template-test
+> pipeline, which was the state of this folder before the deterministic
+> factory (`instagram/factory/`, `instagram/visuals/`,
+> `instagram/projects/`) was promoted to `main` in Phase 1 of the
+> EirePolitic Director project (2026-09-17).
+>
+> **For current, authoritative information about what this folder can do,
+> start at [`director/README.md`](../director/README.md)** — specifically
+> [`director/refs.yml`](../director/refs.yml) for what's merged/pinned/draft,
+> and [`director/capabilities.yml`](../director/capabilities.yml) for what
+> the factory can render today.
+>
+> The Bannerbear/Placid pipeline this document describes still exists in
+> the repository (`instagram/mappings/`, `instagram/specs/`,
+> `instagram/templates/`, `instagram/renderer/`) and has not been removed
+> or evaluated as part of this change — see
+> [`director/refs.yml`](../director/refs.yml)'s
+> `bannerbear_placid_template_pipeline` entry (state: `superseded`). It is
+> preserved below, unedited, so nothing that was true when it was written
+> is silently lost — only the framing (this being the current/primary
+> pipeline doc) has changed.
+
+---
+
+## Historical: original document (describes the pre-factory template-test pipeline)
+
 # Instagram Infographic Template Test Pipeline
 
 This folder now supports three render paths for Instagram infographic visuals:
