@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "post_id": "2026-07-party-speech-breakdown-carousel",
+  "title": "Party Speech Breakdown carousel — July 2026 (canonical reference)",
+  "status": "completed",
+  "repository": "Eirepolitic-data-pipeline",
+  "created_by": "Claude (Cowork), Sly Director project — EirePolitic Director Phase 2",
+  "created_at": "2026-09-04T16:19:41Z",
+  "platform": "Instagram",
+  "assets": [
+    "parties/100-rdr/manifest.json",
+    "parties/aontu/manifest.json",
+    "parties/fianna-fail/manifest.json",
+    "parties/fine-gael/manifest.json",
+    "parties/green-party/manifest.json",
+    "parties/independent/manifest.json",
+    "parties/independent-ireland/manifest.json",
+    "parties/labour-party/manifest.json",
+    "parties/people-before-profit-solidarity/manifest.json",
+    "parties/sinn-fein/manifest.json",
+    "parties/social-democrats/manifest.json"
+  ],
+  "tools_used": [
+    "instagram/factory/recurring.py (recurring render orchestrator)",
+    "instagram/projects/party_issue_monthly_profile_v2/adapter.py",
+    "instagram/visuals/renderers/horizontal_bar.py",
+    "instagram/factory/oireachtas_source.py (validated-batch data resolution)",
+    "instagram/factory/party_asset_registry.py",
+    "configs/reference/party_assets_v1.csv (party logo registry)"
+  ],
+  "process": [
+    "Resolved the oireachtas_unified production pointer to the immutable, validated batch contextual-vote-foundations-20260904-1.",
+    "Loaded silver_speeches, enrichment_speech_issue_labels, silver_member_memberships, silver_member_parties, silver_member_constituencies for the July 2026 period.",
+    "Computed per-party issue metrics (most_discussed_issues, more_than_average, more_per_td) via the party_issue_monthly_profile_v2 metrics adapter.",
+    "Rendered 5 slides per party (cover, most_discussed_issues, more_than_average, more_per_td, glossary) for 11 parties using instagram/visuals/renderers/horizontal_bar.py (analytical variant 2) and the title_text_media_v1 outer layout — 55 slides total.",
+    "Ran declarative-equivalent QA (inline asserts, pre-dating Phase 3's declarative QA module): slide count, party count, no text clipping, no text truncation, glossary presence, review-state and publication-disabled checks.",
+    "GitHub Actions run 33800066946 (run #247), branch commissioning/instagram-party-monthly-profile-v2."
+  ],
+  "qa": [
+    "55/55 slides passed QA",
+    "party_count: 11 (matches configs/reference/party_assets_v1.csv)",
+    "slides_per_party: 5",
+    "dimensions: 1080x1350 for every slide",
+    "publication_enabled: false enforced",
+    "review_state: pending_human_review enforced",
+    "no text clipping",
+    "no text truncation",
+    "glossary slide present"
+  ],
+  "decisions": [
+    "Applied a 1.10x cover-logo scale override for fine-gael, labour-party, and independent-ireland to correct source-art sizing (instagram/projects/party_issue_monthly_profile_v2/project.yml cover.scale_overrides).",
+    "Applied the neutral cleanup treatment for the social-democrats party key (project.yml cover.neutral_cleanup_party_keys).",
+    "Used analytical variant 2 (instagram/visuals/renderers/horizontal_bar.py), inherited from source run 33448590338 (commit 7f10fb0454d0da6d58b4c5c5b2e5aacc39844052).",
+    "Regenerated this render after a glossary glyph-bound fix, which is why it supersedes an earlier same-period attempt as the canonical visual reference."
+  ],
+  "sources": [
+    "s3://eirepolitic-data (processed/oireachtas_unified, batch contextual-vote-foundations-20260904-1)",
+    "configs/reference/party_assets_v1.csv",
+    "Oireachtas Dáil debate speeches, classified by issue"
+  ],
+  "limitations": [
+    "This is the canonical visual reference for party_issue_monthly_profile_v2, not the latest production run — see director/references.yml for the distinction and the August 2026 production reference.",
+    "This summary was authored in Phase 2 (2026-09-17) from instagram/reference/regression/party_issue_monthly_profile_v2_july_2026.json and the implementation plan's Phase 0 findings, not from a fresh re-render.",
+    "The assets list above is the per-party manifest.json paths only, per the S3 output-partitioning convention documented in director/data_products.yml. The full 55-slide-plus-contact-sheet filename list has not been individually verified against a live S3 listing.",
+    "This git-tracked summary is the input a future archive run consumes — as of Phase 2, the S3 side (instance under s3://eirepolitic-data/instagram/previews/completed-posts/eirepolitic-data-pipeline/) has not been created for this post; see director/references.yml completed_post_archive_status for exactly what remains."
+  ],
+  "related_workflows": [
+    "party_issue_monthly_profile_v2 render, run 33800066946 (#247), branch commissioning/instagram-party-monthly-profile-v2",
+    "analytical-variant source run 33448590338 (#203), commit 7f10fb0454d0da6d58b4c5c5b2e5aacc39844052"
+  ]
+}
