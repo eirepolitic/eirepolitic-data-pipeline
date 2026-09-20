@@ -24,6 +24,9 @@ lives only in Claude instructions.
 9. For publishing readiness, read `publishing.yml`. Publishing is blocked in
    v1 regardless of what this file says — see `semantics.md`.
 10. Per-conversation decision state (Phase 4) lives under `sessions/<id>/`.
+11. For the step-by-step procedure behind each row of the task routing
+    table below — including exactly when to write session state and when
+    to stop and ask Warren — read `workflows_v1.md` (Phase 5).
 
 ## Generated vs. hand-maintained
 
@@ -38,8 +41,8 @@ lives only in Claude instructions.
 - **Hand-maintained, human-reviewed**: `refs.yml` (state judgments),
   `references.yml` (canonical-vs-production classification),
   `semantics.md`, `capabilities.yml`, `data_products.yml`, `visuals.yml`,
-  `publishing.yml`, and the non-generated parts of `projects.yml` and
-  `workflows.yml` (purpose/notes columns).
+  `publishing.yml`, `workflows_v1.md`, and the non-generated parts of
+  `projects.yml` and `workflows.yml` (purpose/notes columns).
 
 ## Size discipline
 
@@ -52,10 +55,10 @@ detail belongs in `docs/`, not here.
 
 | Request | Route |
 |---|---|
-| "Generate this month's X" | Existing-series workflow — resolve project in `projects.yml`, resolve period, check data readiness, dispatch render |
-| "Let's make a post" | New-post collaboration loop — content idea, references, one prototype slide, full render, feedback, approval |
-| "Slide 3 is too crowded" | Modify-from-feedback — map to a knob in `visuals.yml` |
-| "Add this dataset" / "add a metric" | Data-product workflow — see `data_products.yml` |
+| "Generate this month's X" | Existing-series workflow — resolve project in `projects.yml`, resolve period, check data readiness, dispatch render. Procedure: `workflows_v1.md` §6.2 |
+| "Let's make a post" | New-post collaboration loop — content idea, references, one prototype slide, full render, feedback, approval. Procedure: `workflows_v1.md` §6.1 |
+| "Slide 3 is too crowded" | Modify-from-feedback — map to a knob in `visuals.yml`. Procedure: `workflows_v1.md` §6.3 |
+| "Add this dataset" / "add a metric" | Data-product workflow — see `data_products.yml`. Procedure: `workflows_v1.md` §6.4 |
 | "I need a visual like this" | Capability check in `capabilities.yml` first — extend before rebuilding |
 | "Fix this broken post" | Resolve ref state in `refs.yml` first, then diagnose |
 | "Schedule this" | Automation — requires explicit approval from Warren |
