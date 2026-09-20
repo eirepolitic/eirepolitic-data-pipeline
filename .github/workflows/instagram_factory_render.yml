@@ -178,6 +178,7 @@ jobs:
         run: |
           set -euo pipefail
           URL="https://raw.githack.com/${GITHUB_REPOSITORY}/previews/${PREVIEW_SLUG}/index.html"
+          SESSION_BRANCH="sly/session/${SESSION_ID}"
           RUN_RECORD=$(python - <<PY
           import json
           print(json.dumps({
@@ -192,7 +193,7 @@ jobs:
             -H "Authorization: Bearer ${GITHUB_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/director/sessions/${SESSION_ID}/runs/${GITHUB_RUN_ID}.json" \
-            -d "{\"message\":\"Record render run ${GITHUB_RUN_ID} for session ${SESSION_ID}\",\"content\":\"${CONTENT_B64}\",\"branch\":\"main\"}" \
+            -d "{\"message\":\"Record render run ${GITHUB_RUN_ID} for session ${SESSION_ID}\",\"content\":\"${CONTENT_B64}\",\"branch\":\"${SESSION_BRANCH}\"}" \
             | python -c "import json,sys; d=json.load(sys.stdin); print('OK' if 'content' in d else f'FAILED: {d}')"
 
       - name: Upload backup package
