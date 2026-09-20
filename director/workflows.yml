@@ -10,8 +10,8 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 140 workflows in the repo)
-  generated_at_last_hand_sync: "2026-09-17"
+  generated_from: GitHub Actions workflows API (all 141 workflows in the repo)
+  generated_at_last_hand_sync: "2026-09-20"
   workflows:
     - id: 232687901
       name: Run Absence Reason (Manual)
@@ -152,6 +152,10 @@ inventory:
     - id: 317074987
       name: .github/workflows/instagram_factory_real_data_policy_update.yml
       path: .github/workflows/instagram_factory_real_data_policy_update.yml
+      state: active
+    - id: 362791776
+      name: Instagram factory render (generic)
+      path: .github/workflows/instagram_factory_render.yml
       state: active
     - id: 326683215
       name: .github/workflows/instagram_factory_text_bounds_wiring.yml
@@ -598,9 +602,32 @@ annotated:
     status: active, current, required
     ref_state: main (added Phase 2)
 
+  instagram_factory_render.yml:
+    purpose: >
+      Generic, project-agnostic render workflow (plan §3.4) — dispatches
+      instagram.factory.render_pipeline.run_and_normalize() against any
+      project_id, running it through the shared contract.py/normalize.py/
+      qa.py, building the review page via review_page.py, and force-pushing
+      previews/<slug>. Replaces the need for a new bespoke ~200-line
+      workflow per content product. Worktree-pins to 386b933 for the
+      corner-asset binaries per the corner_assets_pinned constraint (§1.8),
+      same as instagram_polling_factory_render.yml.
+    status: active, current, production (Phase 3, added 2026-09-20)
+    ref_state: main (Batch 1, pushed by Warren — plan §1.13)
+    verified_by: >
+      Three live dispatches 2026-09-20 (party_issue_monthly_profile_v2 x2 —
+      default period 2026-08 and an explicit 2026-07 regression check —
+      plus ipi_polling_factory_v1 default period): all conclusion=success,
+      all declarative QA checks PASS. See plan §1.13 and the session record
+      director/sessions/2026-09-20-phase3-close-out/.
+
   instagram_polling_factory_render.yml:
     purpose: Production render for ipi_polling_factory_v1 — worktree-pins its assets, builds review page, force-pushes previews/ipi-polling-factory.
     status: active, current, production
+    superseded_by: >
+      instagram_factory_render.yml (Phase 3, 2026-09-20). Kept live per
+      plan §3.4 ("existing per-project workflows are kept"); new renders
+      for this project should prefer the generic workflow going forward.
   instagram_polling_factory_ci.yml:
     purpose: CI for the polling factory project.
     status: active, current, production
