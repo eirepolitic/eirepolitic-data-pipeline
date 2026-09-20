@@ -1,0 +1,24 @@
+{
+  "session_id": "2026-09-20-phase5-existing-series-demo",
+  "branch": "sly/session/2026-09-20-phase5-existing-series-demo",
+  "created_at": "2026-09-20T23:30:00Z",
+  "updated_at": "2026-09-20T23:30:00Z",
+  "intent": "Phase 5 (plan §5/§6.2): demonstrate the existing-series workflow end-to-end with session_id wired through the generic render workflow, closing the loop between Phase 3's dispatch pipeline and Phase 4's session-state layer. Not a real Warren content request -- a mechanical self-test of the routing table's first row (director/README.md: \"Generate this month's X\").",
+  "resolved_project": null,
+  "resolved_period": null,
+  "data_sources": [],
+  "references_consulted": ["director/README.md (task routing table)", "director/projects.yml"],
+  "decisions": [
+    {
+      "question": "Which project to use for the existing-series demo dispatch?",
+      "choice": "ipi_polling_factory_v1",
+      "rationale": "cadence: latest, dispatched on-demand with no monthly content decision to make -- the cleanest mechanical proof of resolve-project -> dispatch -> QA -> review-link -> session-record without inventing a fake Warren decision.",
+      "timestamp": "2026-09-20T23:30:00Z"
+    }
+  ],
+  "slide_plan": [],
+  "visual_decisions": {},
+  "runs": [],
+  "feedback": [],
+  "approval_state": "in_progress"
+}
