@@ -43,18 +43,26 @@
   ref: main
   path: instagram/projects/party_issue_monthly_profile_v2/
   depends_on: [recurring_instagram_factory, corner_assets_pinned]
+  workflows: [instagram_factory_render.yml]
   canonical_reference: see references.yml (party_issue_monthly_profile_v2.canonical_visual_reference)
-  notes: Project code merged as part of the Phase 1 factory promotion.
+  notes: >
+    Project code merged as part of the Phase 1 factory promotion.
+    Live-render-verified end-to-end 2026-09-20 via the generic workflow
+    (Phase 3, plan §1.13): a July 2026 dispatch matched the canonical
+    reference's party/slide counts with all declarative QA checks passing
+    — see director/sessions/2026-09-20-phase3-close-out/.
 
 - capability: ipi_polling_factory_v1
   state: merged
   ref: main
   path: instagram/projects/ipi_polling_factory_v1/
-  workflows: [instagram_polling_factory_render.yml, instagram_polling_factory_ci.yml]
+  workflows: [instagram_polling_factory_render.yml, instagram_polling_factory_ci.yml, instagram_factory_render.yml]
   notes: >
     Already on main independent of the Phase 1 promotion. Uses its own
     worktree-pinning pattern for its assets; not affected by the
     corner_assets_pinned entry above (different project, different assets).
+    Also live-render-verified via the generic workflow 2026-09-20 (Phase 3,
+    plan §1.13), alongside its existing bespoke workflow.
 
 - capability: completed_post_archive
   state: merged
