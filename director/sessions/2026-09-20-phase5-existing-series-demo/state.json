@@ -2,11 +2,11 @@
   "session_id": "2026-09-20-phase5-existing-series-demo",
   "branch": "sly/session/2026-09-20-phase5-existing-series-demo",
   "created_at": "2026-09-20T23:30:00Z",
-  "updated_at": "2026-09-20T23:30:00Z",
+  "updated_at": "2026-09-20T23:25:00Z",
   "intent": "Phase 5 (plan §5/§6.2): demonstrate the existing-series workflow end-to-end with session_id wired through the generic render workflow, closing the loop between Phase 3's dispatch pipeline and Phase 4's session-state layer. Not a real Warren content request -- a mechanical self-test of the routing table's first row (director/README.md: \"Generate this month's X\").",
-  "resolved_project": null,
-  "resolved_period": null,
-  "data_sources": [],
+  "resolved_project": "ipi_polling_factory_v1",
+  "resolved_period": "2026-09-13",
+  "data_sources": ["s3://eirepolitic-data/processed/polling/irish_polling_indicator/latest/csv/polls.csv"],
   "references_consulted": ["director/README.md (task routing table)", "director/projects.yml"],
   "decisions": [
     {
@@ -18,7 +18,21 @@
   ],
   "slide_plan": [],
   "visual_decisions": {},
-  "runs": [],
+  "runs": [
+    {
+      "run_id": "35544517116",
+      "workflow": "instagram_factory_render.yml",
+      "project_id": "ipi_polling_factory_v1",
+      "period": null,
+      "resolved_period": "2026-09-13",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/ipi_polling_factory_v1/index.html",
+      "commit": "24e46c4ac87e0125355dc518ad5c57938f86b84d",
+      "qa_all_passed": true,
+      "dispatched_by": "claude",
+      "timestamp": "2026-09-20T23:23:47Z",
+      "purpose": "Phase 5 existing-series workflow + session-state wiring demonstration"
+    }
+  ],
   "feedback": [],
-  "approval_state": "in_progress"
+  "approval_state": "approved"
 }
