@@ -2,9 +2,9 @@
   "session_id": "2026-09-21-monthly-questions-overview",
   "branch": "sly/session/2026-09-21-monthly-questions-overview",
   "created_at": "2026-09-21T17:00:00Z",
-  "updated_at": "2026-09-21T17:00:00Z",
-  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; moving to build (workflows_v1.md §6.1).",
-  "resolved_project": null,
+  "updated_at": "2026-09-21T17:52:00Z",
+  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; build in progress (workflows_v1.md §6.1).",
+  "resolved_project": "pq_monthly_overview_v1",
   "resolved_period": "2026-07",
   "data_sources": [
     "processed/oireachtas_unified/pointers/production.json -> batch written-pq-answers-20260905-1 (status validated, promoted 2026-09-06)",
@@ -23,9 +23,25 @@
     "configs/political_metrics/catalogue/questions.yml",
     "configs/political_metrics/written_question_answers.yml",
     "political_metrics/calculators/questions.py",
+    "political_metrics/commission.py",
+    "political_metrics/periods.py",
+    "political_metrics/temporal_joins.py",
     "political_metrics/written_question_answers.py",
     "process/political_metrics_question_commission.py",
-    "instagram/projects/party_issue_monthly_profile_v2/project.yml"
+    "instagram/projects/party_issue_monthly_profile_v2/project.yml",
+    "instagram/projects/party_issue_monthly_profile_v2/adapter.py",
+    "instagram/visuals/renderers/horizontal_bar.py",
+    "instagram/factory/recurring.py",
+    "instagram/factory/normalize.py",
+    "instagram/factory/contract.py",
+    "instagram/factory/qa.py",
+    "instagram/factory/oireachtas_source.py",
+    "instagram/factory/render_pipeline.py",
+    "instagram/factory/render_primitives.py",
+    "instagram/renderer/template_renderer.py",
+    "instagram/templates/layouts/title_text_media_v1.json",
+    ".github/workflows/instagram_factory_render.yml",
+    ".github/workflows/director_factory_v1_identity_ci.yml"
   ],
   "decisions": [
     {"question": "Content idea (§6.1 gate 1)", "choice": "Monthly Questions Overview, re-rendered monthly for the last completed month", "rationale": "Warren's request; supported by existing questions metrics layer and written-answer foundations", "timestamp": "2026-09-21T17:00:00Z"},
@@ -38,11 +54,13 @@
     {"question": "Fewest-questions comparison", "choice": "Show gap from the median of eligible TDs, labelled 'typical TD'", "rationale": "Mean (~66 in July) is inflated by a few very heavy askers; median (~40) is robust", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Fewest-questions tone", "choice": "Direct, named ranking with neutral factual title ('Fewest questions submitted'); no effort-characterising language; caveat in description or final slide", "rationale": "Warren wants to call out low askers; semantics.md requires neutral, factual framing", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Party comparison", "choice": "Questions per TD (non-office TDs), alongside totals", "rationale": "Raw totals reflect party size (catalogue caveat)", "timestamp": "2026-09-21T17:00:00Z"},
-    {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z"}
+    {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Duplicate question_id handling (§6.1 gate 3 build)", "choice": "Dedupe silver_questions on question_id (keep first occurrence) before eligibility/ranking, rather than hard-failing like process/political_metrics_question_commission.py does", "rationale": "Warren: dedupe and record the count — a recurring monthly post can't hard-fail on a source data-quality issue it doesn't control; the exact counts are written to the run's run_manifest.json (data_quality.question_dedupe) for the record", "timestamp": "2026-09-21T17:51:00Z"},
+    {"question": "Prototype scope (§6.1 gate 2 — visual options)", "choice": "Build only the 'Most questions submitted' (top 10 TDs) slide first as instagram/projects/pq_monthly_overview_v1/, reusing horizontal_bar.py and title_text_media_v1.json unmodified; get Warren's visual-direction decision before building the other six slides", "rationale": "workflows_v1.md §6.1 step 4 — prototype ONE representative slide before scaling to a full carousel (the Bill Tracker lesson)", "timestamp": "2026-09-21T17:51:00Z"}
   ],
   "slide_plan": [
     {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month"},
-    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party"},
+    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "prototyped, run 35634477456, awaiting visual-direction decision"},
     {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')"},
     {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals"},
     {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle"},
@@ -50,7 +68,36 @@
     {"id": "methodology", "title": "Methodology and sources", "content": "Sources, batch id, definitions, caveats (PQs are one of several mechanisms; referral flag is keyword-based; absences not accounted for)"}
   ],
   "visual_decisions": {},
-  "runs": [],
+  "runs": [
+    {
+      "run_id": "35634477456",
+      "workflow": "instagram_factory_render.yml",
+      "project_id": "pq_monthly_overview_v1",
+      "period": "2026-07",
+      "dispatched_from_ref": "sly/feature/pq-monthly-overview-v1",
+      "commit": "4bf3ce5e3269f038cc9827d25f719e1a71dcc330",
+      "conclusion": "success",
+      "qa": "PASS (expected_slide_count, require_publication_disabled, require_review_state all PASS)",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1/index.html",
+      "source_batch_id": "written-pq-answers-20260905-1",
+      "top_askers_rendered": [
+        {"member": "Ken O'Flynn", "party": "Independent Ireland", "count": 418},
+        {"member": "Pa Daly", "party": "Sinn Féin", "count": 322},
+        {"member": "John Brady", "party": "Sinn Féin", "count": 254},
+        {"member": "Aindrias Moynihan", "party": "Fianna Fáil", "count": 250},
+        {"member": "Peadar Tóibín", "party": "Aontú", "count": 250},
+        {"member": "Michael Cahill", "party": "Fianna Fáil", "count": 225},
+        {"member": "Barry Ward", "party": "Fine Gael", "count": 218},
+        {"member": "Pádraig Rice", "party": "Social Democrats", "count": 210},
+        {"member": "Conor D. McGuinness", "party": "Sinn Féin", "count": 206},
+        {"member": "Pádraig O'Sullivan", "party": "Fianna Fáil", "count": 198}
+      ],
+      "top_askers_rendered_note": "Matches the discovery-phase top-3 figures already logged (Ken O'Flynn 418, Pa Daly 322, John Brady 254), confirming the dedupe/eligibility logic reproduced the same counts.",
+      "flagged_issue": "On the rendered slide, 'Conor D. McGuinness (Sinn Féin)' wraps to 3 lines and visually overlaps the adjacent 'Pádraig Rice' and 'Pádraig O'Sullivan' rows. horizontal_bar.py's clipping/truncation QA checks bbox-vs-figure bounds, not row-to-row spacing for multi-line wrapped labels, so this passed declarative QA but is a real visual defect. Cause: the 'Name (Party)' label format used for this slide produces longer labels than party_issue_monthly_profile_v2's short issue-category labels the renderer was tuned against. Needs a visual-direction decision (see review link) — options include a shorter/abbreviated party tag, dropping party from the bar label in favour of a legend, or a smaller font / taller row height for this slide.",
+      "dedupe_note": "July's duplicate question_id rows were deduped (keep-first) before eligibility/ranking; exact counts are in this run's run_manifest.json (data_quality.question_dedupe) under generated_render/period=2026-07/, retained in the run's GitHub Actions artifact for 30 days, not yet copied into this session folder.",
+      "timestamp": "2026-09-21T17:50:39Z"
+    }
+  ],
   "feedback": [],
-  "approval_state": "in_progress"
+  "approval_state": "pending_visual_direction"
 }
