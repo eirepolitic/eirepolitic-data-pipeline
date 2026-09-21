@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<stdin>", line 15, in <module>
+  File "/tmp/approved-instagram-factory/instagram/factory/render_pipeline.py", line 49, in run_and_normalize
+    raw = recurring.run_project(project_id, period=period, output_root=output_root)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 45, in run_project
+    result = generate(project=project, period_spec=resolved_period, output_root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter.py", line 337, in generate
+    slide_b = _render_slide(
+              ^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter.py", line 193, in _render_slide
+    raise RuntimeError(f"Visual QA warnings for {variant_id}: {visual_manifest['warnings']}")
+RuntimeError: Visual QA warnings for top_askers_v2_colored_legend: ['legend_clipped_to_figure']
