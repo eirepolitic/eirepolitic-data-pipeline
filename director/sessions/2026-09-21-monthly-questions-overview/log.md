@@ -24,12 +24,26 @@ The constituency slide was dropped. Oral questions and office-holders asking bec
 
 The fewest-questions slide excludes office-holders, party leaders (via a hand-maintained list) and TDs not seated all month. It uses a single month and compares each TD against the median ('typical TD'). The wording is direct but factual. Absences are ignored for now; Warren will add absence data later.
 
+## Build: prototype slide (2026-09-21, this build)
+Built `instagram/projects/pq_monthly_overview_v1/` on branch `feature/pq-monthly-overview-v1` (commit `4bf3ce5`), modeled on `party_issue_monthly_profile_v2`:
+
+- **adapter.py** loads `silver_questions` + membership/party/constituency/member tables from the validated production batch (`written-pq-answers-20260905-1`), filters to July 2026, **dedupes duplicate `question_id` rows** (keep-first) before eligibility/ranking rather than hard-failing like `process/political_metrics_question_commission.py` does, computes eligible-TD question counts via the existing `political_metrics.calculators.questions` layer, and ranks the top 10.
+- Reuses `instagram/visuals/renderers/horizontal_bar.py` and the `title_text_media_v1.json` outer layout **unmodified** — no new renderer.
+- Added a `normalize_result()` shim for the new project_id in `instagram/factory/normalize.py` (not part of the frozen v1 file set, so free to extend) so the project runs through the existing generic `instagram_factory_render.yml` workflow.
+- `publication.enabled: false` throughout; QA declares `expected_slide_count: 1`, `require_publication_disabled`, `require_review_state`.
+
+Dispatched `instagram_factory_render.yml` (run `35634477456`, from `sly/feature/pq-monthly-overview-v1`, period `2026-07`, `session_id` set) — **passed on the first attempt**. Review page: https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1/index.html
+
+Rendered top 10 matches the discovery-phase spot-check (Ken O'Flynn 418, Pa Daly 322, John Brady 254), confirming the dedupe/eligibility logic reproduces the same counts as the earlier manual analysis.
+
+**Visual issue found:** the `Name (Party)` label format produces a 3-line wrap for at least one TD ("Conor D. McGuinness (Sinn Féin)"), and horizontal_bar.py doesn't add extra row spacing for wrapped labels, so it visually overlaps the neighbouring rows. Declarative QA (bbox-vs-figure clipping) doesn't catch row-to-row overlap, so this passed QA but is a real defect — flagged for Warren's visual-direction decision along with the label format itself, since party_issue_monthly_profile_v2's renderer was tuned against short one-line issue labels, not `Name (Party)` combinations.
+
 ## Build notes / open issues
-- The existing commissioning script hard-fails on duplicate question_id. July has 11 duplicates, so a decision or fix is needed.
-- Department labels need a display-name mapping.
-- A party-leader list needs creating with its sources.
+- Duplicate `question_id` handling: **resolved** for this build — deduped (keep-first), exact counts recorded in the run's `run_manifest.json` (`data_quality.question_dedupe`), currently only retained in the run's 30-day GitHub Actions artifact, not yet copied into this session folder.
+- Department labels need a display-name mapping — not yet needed (no slide built yet uses departments).
+- A party-leader list needs creating with its sources — needed for the fewest-askers slide, not yet built.
 - The 28 July date concentration needs explaining before any 'busiest day' framing.
-- Existing instagram/visuals/renderers/horizontal_bar.py covers most slides. Per §6.1, one prototype slide comes first, then a visual-direction gate with Warren.
+- **Open for Warren's visual-direction decision:** the top-askers label overlap above, and whether the `Name (Party)` bar-label format and current palette/layout are right before building the other six slides.
 
 ## Status
-Content gate passed. Build not started. approval_state: in_progress.
+Content gate passed. Prototype slide built and rendered (run `35634477456`, QA PASS). **approval_state: pending_visual_direction** — waiting on Warren's review of the link above before scaling to the full seven-slide carousel.
