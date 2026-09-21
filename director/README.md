@@ -5,6 +5,11 @@ Claude Director (Sly Director project) today, and is designed to be read
 identically by a future ChatGPT / "High Director V2" — nothing operational
 lives only in Claude instructions.
 
+**New agent, no prior context?** Start at
+[`docs/director_agent_reference.md`](../docs/director_agent_reference.md)
+instead — a single self-contained handoff page (operating rules, autonomy
+boundary, this file, and `semantics.md`) written for exactly that case.
+
 ## How to use this tree
 
 1. **Start at `refs.yml`.** It is the keystone: capability → state
