@@ -107,6 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           cd /tmp/approved-instagram-factory
+          {
           python - <<'PY'
           import json
           import os
@@ -151,10 +152,34 @@ jobs:
           (review_dir / "index.html").write_text(html_out, encoding="utf-8")
           print(f"Review page staged at {review_dir} ({len(staged.slides)} slides, {len(staged.contact_sheets)} contact sheets)")
           PY
+          } 2>&1 | tee /tmp/render_output.log
+          RENDER_STATUS="${PIPESTATUS[0]}"
           {
             echo "project_id=${PROJECT_ID}"
             echo "preview_slug=${PREVIEW_SLUG_INPUT:-$PROJECT_ID}"
           } >> "$GITHUB_OUTPUT"
+          exit "$RENDER_STATUS"
+
+      - name: Upload render diagnostics (always, for debugging)
+        if: ${{ always() && github.event.inputs.session_id != '' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SESSION_ID: ${{ github.event.inputs.session_id }}
+        run: |
+          set -uo pipefail
+          OUT=/tmp/render_output.log
+          if [ ! -f "$OUT" ]; then
+            echo "No render output was captured for run ${GITHUB_RUN_ID} (step likely did not start)." > "$OUT"
+          fi
+          SESSION_BRANCH="sly/session/${SESSION_ID}"
+          CONTENT_B64=$(base64 -w0 < "$OUT")
+          curl -sS -X PUT \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/director/sessions/${SESSION_ID}/runs/${GITHUB_RUN_ID}-render-output.log" \
+            -d "{\"message\":\"Render diagnostics for run ${GITHUB_RUN_ID}\",\"content\":\"${CONTENT_B64}\",\"branch\":\"${SESSION_BRANCH}\"}" \
+            | python3 -c "import json,sys; d=json.load(sys.stdin); print('OK' if 'content' in d else f'FAILED: {d}')"
 
       - name: Publish web review to preview branch
         shell: bash
