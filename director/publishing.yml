@@ -5,16 +5,50 @@
 status: blocked_in_v1
 
 stack:
-  ref_state: see refs.yml publishing_stack (draft, six-branch chain #107→#112, base ops/investigate-instagram-publishing-20260903)
+  ref_state: >-
+    Consolidated (Phase 6, 2026-09-21): draft PR #149
+    (branch sly/director-phase6-publishing-consolidated, base main @
+    a798b31cc014bb102e7dd420dd181119631c9ea1) replaces the prior
+    six-branch chain #107→#112 as the reference for this stack's code
+    and research. The original six-PR chain (base
+    ops/investigate-instagram-publishing-20260903) remains open/untouched
+    in refs.yml publishing_stack for history but is no longer the active
+    reference; PR #149 is.
   design: Mocked Meta HTTP client, DynamoDB ledger, EventBridge scheduler, Lambda publisher.
-  what_exists: Research and code across the six-PR chain. Not rebuilt (plan §9).
+  what_exists: Research and code across the six-PR chain, now consolidated onto PR #149 (see phase_6_consolidation below).
   what_does_not_exist: No Meta app, no account conversion, no credentials, no scheduler running, no publish path exercised against a real endpoint.
 
+phase_6_consolidation:
+  completed_at: "2026-09-21"
+  pull_request: "https://github.com/eirepolitic/eirepolitic-data-pipeline/pull/149"
+  branch: sly/director-phase6-publishing-consolidated
+  base_at_consolidation: main @ a798b31cc014bb102e7dd420dd181119631c9ea1
+  draft: true
+  files_changed: 45
+  additions: 18604
+  deletions: 0
+  contents:
+    - .github/workflows/instagram_publishing_foundation_ci.yml
+    - docs/implementation/instagram_publishing_implementation_plan.md
+    - docs/research/instagram_publishing/01_repo_review.md .. 19_recommendation.md (19 files, all steps complete)
+    - docs/research/instagram_publishing_research_plan.md
+    - infra/publishing/dynamodb.yml (CloudFormation template, repository-only, not deployed)
+    - instagram/caption_templates/member_profile.yml
+    - "publishing/*.py (15 files: __init__, assets, caption_templates, control, dynamodb_ledger, execution, fingerprints, ledger, meta_http_client, meta_provider, models, publisher, scheduler, timezone, validation)"
+    - "tests/test_instagram_*.py (6 files: dynamodb_ledger, meta_http_client, meta_publisher, publication_control, publishing_foundation, scheduler_execution)"
+  deliberately_excluded: >-
+    33 files from the original six-PR stack that were pre-existing staleness
+    from the stack's 2026-09-03 divergence point (not new content from this
+    work). Carrying them forward would have regressed the completed Phase 1
+    frozen-render-identity work and the Phase 2 instagram/README.md fix
+    already on main. Every one of the 45 files above was verified
+    file-by-file against the stack tip (feature/instagram-meta-http-client-20260905)
+    before being committed to PR #149.
+  nature: Cleanup/legibility step only. Nothing enabled, connected, or launched.
+
 v1_action_pending_phase_6:
-  - Consolidate the six-branch stack into one branch rebased on main.
-  - Keep it draft.
-  - Record its exact resulting state here.
-  - Nothing gets enabled as part of this consolidation — it is a cleanup/legibility step, not a launch step.
+  status: complete
+  note: See phase_6_consolidation above for the exact resulting state.
 
 hard_gates_enforced_in_code:
   - "instagram/factory/recurring.py hard-fails any adapter that doesn't return {review_state: pending_human_review, publication_enabled: false}."
