@@ -145,9 +145,55 @@ def _normalize_ipi_polling_factory_v1(
     )
 
 
+def _normalize_pq_monthly_overview_v1(
+    project: dict[str, Any], raw: dict[str, Any], *, output_root: Path
+) -> RenderResult:
+    """pq_monthly_overview_v1 (prototype, single-slide build — director
+    session 2026-09-21-monthly-questions-overview). The adapter returns a
+    flat `slides` list of PNG paths directly (unlike the party project's
+    per-party manifest structure), and its own `run_manifest.json` (written
+    to `output_root`) carries the full readability/QA/dedupe detail for the
+    session log, but nothing here needs to re-open it — the raw dict already
+    has everything the contract needs.
+    """
+    render_cfg = project.get("render") or {}
+    width = int(render_cfg.get("width", 1080))
+    height = int(render_cfg.get("height", 1350))
+
+    period_root = Path(raw["output_root"])
+    slides = [
+        SlideRef(id=Path(str(slide_path)).stem, path=str(slide_path), width=width, height=height)
+        for slide_path in (raw.get("slides") or [])
+    ]
+
+    declared_qa = project.get("qa") or {}
+    expected_slide_count = int(declared_qa.get("expected_slide_count", raw.get("slide_count", len(slides))))
+
+    return RenderResult(
+        project_id=str(raw["project_id"]),
+        period_key=str(raw["period"]),
+        output_root=str(period_root),
+        slides=tuple(slides),
+        contact_sheets=(),
+        caption_path=None,
+        manifest_path=raw.get("manifest_path"),
+        package=None,
+        qa=QASummary(
+            expected_slide_count=expected_slide_count,
+            actual_slide_count=int(raw.get("slide_count", len(slides))),
+            dimensions=(width, height),
+        ),
+        review_state=str(raw["review_state"]),
+        publication_enabled=raw["publication_enabled"],
+        source_batch_id=raw.get("source_batch_id"),
+        raw=raw,
+    )
+
+
 NORMALIZERS: dict[str, Callable[..., RenderResult]] = {
     "party_issue_monthly_profile_v2": _normalize_party_issue_monthly_profile_v2,
     "ipi_polling_factory_v1": _normalize_ipi_polling_factory_v1,
+    "pq_monthly_overview_v1": _normalize_pq_monthly_overview_v1,
 }
 
 
