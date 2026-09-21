@@ -1,0 +1,24 @@
+template_id: member_profile
+version: 1
+
+components:
+  attribution:
+    required: false
+  disclaimer:
+    required: false
+
+hashtags:
+  default:
+    - "#EirePolitic"
+    - "#IrishPolitics"
+    - "#DailEireann"
+    - "#Oireachtas"
+    - "#DataPolitics"
+
+attribution: null
+disclaimer: null
+
+editorial_notes:
+  - "This template preserves the current Member Profile default hashtags as drafting defaults."
+  - "The exact final caption must be stored in PublicationRequest before approval."
+  - "Do not copy internal review text such as 'Review before publishing' into a public caption automatically."
