@@ -37,15 +37,16 @@ from .horizontal_bar import (
 
 PLOT_BOTTOM = 0.14
 PLOT_RIGHT = 0.97
-PLOT_HEIGHT = 0.68  # shorter than horizontal_bar.py's 0.78 — the gap above is the legend band
+PLOT_HEIGHT = 0.66  # shorter than horizontal_bar.py's 0.78 — the gap above is the legend band
 # The legend's anchor (its lower-center point, per loc="lower center") sits just
 # above the plot's top edge and grows upward into the reserved band (PLOT_BOTTOM +
-# PLOT_HEIGHT = 0.82 to figure top = 1.0, an 0.18 figure-fraction gap — enough for
-# 2-3 legend rows at LEGEND_FONT_SIZE before it would run into the figure edge).
+# PLOT_HEIGHT = 0.80 to figure top = 1.0, a 0.20 figure-fraction gap — enough for
+# up to ~5 two-column legend rows at LEGEND_FONT_SIZE before it would run into the
+# figure edge; the render() function itself checks this and raises if it doesn't).
 LEGEND_ANCHOR_Y = PLOT_BOTTOM + PLOT_HEIGHT + 0.015
 MIN_PLOT_LEFT = 0.28
 MAX_PLOT_LEFT = 0.42
-LEGEND_FONT_SIZE = 13
+LEGEND_FONT_SIZE = 12
 
 
 def render(
@@ -165,11 +166,28 @@ def render(
     # left-to-right order matching sample["group_legend_order"] if given
     # (falls back to first-seen order) — never reordered by value, so a
     # party's position in the legend stays stable render to render.
+    #
+    # Full party names vary a lot in length ("Fine Gael" vs "People Before
+    # Profit-Solidarity"), and a wide multi-column legend of long names can
+    # run past the figure's left/right edge even though there's plenty of
+    # vertical room above the plot. Two guards keep it inside the canvas
+    # regardless of which parties show up in a given month: a hard cap on
+    # legend text length (full names still live in group_legend_labels /
+    # the run manifest — only the on-image label is shortened), and a lower
+    # column count than a one-line legend would use, since this canvas is
+    # narrow (1032px) relative to typical party-name lengths.
+    LEGEND_MAX_LABEL_CHARS = 18
+    LEGEND_MAX_COLUMNS = 2
+
+    def _short_legend_label(text: str) -> str:
+        text = str(text)
+        return text if len(text) <= LEGEND_MAX_LABEL_CHARS else text[: LEGEND_MAX_LABEL_CHARS - 1].rstrip() + "…"
+
     present_groups = list(dict.fromkeys(groups))
     legend_order = [g for g in (sample.get("group_legend_order") or []) if g in present_groups]
     legend_order += [g for g in present_groups if g not in legend_order]
     legend_handles = [mpatches.Patch(facecolor=group_colors.get(g, fallback_color), edgecolor="none") for g in legend_order]
-    legend_texts = [group_legend_labels.get(g, g) for g in legend_order]
+    legend_texts = [_short_legend_label(group_legend_labels.get(g, g)) for g in legend_order]
     legend = None
     if legend_order:
         legend = fig.legend(
@@ -177,14 +195,14 @@ def render(
             legend_texts,
             loc="lower center",
             bbox_to_anchor=(0.5, LEGEND_ANCHOR_Y),
-            ncol=min(len(legend_order), 4),
+            ncol=min(len(legend_order), LEGEND_MAX_COLUMNS),
             frameon=False,
             fontsize=LEGEND_FONT_SIZE,
             labelcolor=palette["text"],
             handlelength=1.1,
             handleheight=1.1,
-            columnspacing=1.4,
-            handletextpad=0.6,
+            columnspacing=1.1,
+            handletextpad=0.5,
         )
 
     fig.canvas.draw()
