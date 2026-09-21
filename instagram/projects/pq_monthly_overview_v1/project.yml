@@ -4,11 +4,14 @@ status: prototype
 purpose: >
   Prototype for the Monthly Questions Overview recurring Instagram post — a
   high-level picture of Dáil Parliamentary Questions asked and answered in
-  the previous month. This is a single-slide prototype ("Most questions
-  submitted") built to get a visual-direction decision from Warren before
-  the remaining six slides in the agreed content spec are built
-  (director/workflows_v1.md §6.1, session
-  director/sessions/2026-09-21-monthly-questions-overview/).
+  the previous month. This build renders TWO comparable visual-direction
+  variants of the same slide ("Most questions submitted") so Warren can pick
+  a direction before the remaining six slides in the agreed content spec are
+  built (director/workflows_v1.md §6.1, session
+  director/sessions/2026-09-21-monthly-questions-overview/): option A keeps
+  the single-accent-color horizontal_bar renderer with a party acronym in
+  each label ("Name (XX)"); option B uses a new horizontal_bar_grouped
+  renderer that colors each bar by party with a legend.
 adapter_module: instagram.projects.pq_monthly_overview_v1.adapter
 
 period:
@@ -34,16 +37,22 @@ metrics:
   denominator: none_this_slide_is_a_simple_ranking
 
 slides:
-  expected_count: 1
+  expected_count: 2
   definitions:
-    - id: top_askers
+    - id: top_askers_v1_acronym
       title: Most questions submitted
       value_format: integer
+      variant: option_a_party_acronym_label
+    - id: top_askers_v2_colored_legend
+      title: Most questions submitted
+      value_format: integer
+      variant: option_b_colored_bars_with_legend
 
 render:
   width: 1080
   height: 1350
   analytical_renderer: instagram.visuals.renderers.horizontal_bar
+  analytical_renderer_grouped: instagram.visuals.renderers.horizontal_bar_grouped
   outer_layout: instagram/templates/layouts/title_text_media_v1.json
   min_visual_rows: 4
   palette:
@@ -54,7 +63,7 @@ render:
     grid: '#f4ead7'
 
 qa:
-  expected_slide_count: 1
+  expected_slide_count: 2
   require_publication_disabled: true
   require_review_state: pending_human_review
 
