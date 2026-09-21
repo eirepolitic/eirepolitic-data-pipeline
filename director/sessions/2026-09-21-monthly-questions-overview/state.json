@@ -1,0 +1,56 @@
+{
+  "session_id": "2026-09-21-monthly-questions-overview",
+  "branch": "sly/session/2026-09-21-monthly-questions-overview",
+  "created_at": "2026-09-21T17:00:00Z",
+  "updated_at": "2026-09-21T17:00:00Z",
+  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; moving to build (workflows_v1.md §6.1).",
+  "resolved_project": null,
+  "resolved_period": "2026-07",
+  "data_sources": [
+    "processed/oireachtas_unified/pointers/production.json -> batch written-pq-answers-20260905-1 (status validated, promoted 2026-09-06)",
+    "silver_questions (batch copy) — coverage Feb 2025 to 2026-07-28; no August 2026 data in production",
+    "metrics/event/written_question_answer_sections (batch copy)",
+    "silver_members, silver_member_parties, silver_member_offices, silver_member_memberships, silver_member_constituencies (batch copies)"
+  ],
+  "references_consulted": [
+    "director/refs.yml",
+    "director/semantics.md",
+    "director/data_products.yml",
+    "director/workflows_v1.md",
+    "director/workflows.yml",
+    "director/capabilities.yml",
+    "director/sessions/README.md",
+    "configs/political_metrics/catalogue/questions.yml",
+    "configs/political_metrics/written_question_answers.yml",
+    "political_metrics/calculators/questions.py",
+    "political_metrics/written_question_answers.py",
+    "process/political_metrics_question_commission.py",
+    "instagram/projects/party_issue_monthly_profile_v2/project.yml"
+  ],
+  "decisions": [
+    {"question": "Content idea (§6.1 gate 1)", "choice": "Monthly Questions Overview, re-rendered monthly for the last completed month", "rationale": "Warren's request; supported by existing questions metrics layer and written-answer foundations", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Test month", "choice": "July 2026", "rationale": "August 2026 absent from production batch; July is the latest full month available", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Slide list", "choice": "Headline stats; Top 10 askers; Fewest 10 askers; Party questions per TD; Departments asked; Answers and referrals; Methodology/sources", "rationale": "Agreed after July data review", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Constituency slide", "choice": "Dropped", "rationale": "July per-TD constituency ranking driven by single TDs (e.g. Cork North-Central 418 of 918 from one TD); duplicates top-askers slide", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Oral questions and office-holders asking", "choice": "Folded into notes on other slides, not their own slides", "rationale": "Oral under 2% of July questions; 32 of 40 office-holders asked none", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions slide eligibility", "choice": "Exclude office-holders (from silver_member_offices), party leaders (hand-maintained config list), and TDs not seated for the full month", "rationale": "These groups structurally do not use PQs; including them would be misleading", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions period", "choice": "Single month (not rolling 3-month)", "rationale": "Warren: absences should be documented as data; he will add absence data later. Ignore absences for now; covered by caveat.", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions comparison", "choice": "Show gap from the median of eligible TDs, labelled 'typical TD'", "rationale": "Mean (~66 in July) is inflated by a few very heavy askers; median (~40) is robust", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions tone", "choice": "Direct, named ranking with neutral factual title ('Fewest questions submitted'); no effort-characterising language; caveat in description or final slide", "rationale": "Warren wants to call out low askers; semantics.md requires neutral, factual framing", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Party comparison", "choice": "Questions per TD (non-office TDs), alongside totals", "rationale": "Raw totals reflect party size (catalogue caveat)", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z"}
+  ],
+  "slide_plan": [
+    {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month"},
+    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party"},
+    {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')"},
+    {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals"},
+    {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle"},
+    {"id": "answers", "title": "What happened to the answers", "content": "Reply present / reply not received / referred for direct reply, with the most-referred department(s)"},
+    {"id": "methodology", "title": "Methodology and sources", "content": "Sources, batch id, definitions, caveats (PQs are one of several mechanisms; referral flag is keyword-based; absences not accounted for)"}
+  ],
+  "visual_decisions": {},
+  "runs": [],
+  "feedback": [],
+  "approval_state": "in_progress"
+}
