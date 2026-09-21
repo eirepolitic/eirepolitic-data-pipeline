@@ -14,14 +14,74 @@ from instagram.factory.oireachtas_source import (
     require_completed_calendar_month,
     resolve_validated_production_batch,
 )
+from instagram.factory.party_asset_registry import resolve_party_asset
 from instagram.factory.render_primitives import ACCENT, BG, MUTED, TEXT
 from instagram.renderer.template_renderer import render_template
-from instagram.visuals.renderers import horizontal_bar
+from instagram.visuals.renderers import horizontal_bar, horizontal_bar_grouped
 from political_metrics.calculators.questions import member_question_metrics, prepare_eligible_td_questions
 from political_metrics.commission import filter_period
 from political_metrics.periods import resolve_period
 
 PROJECT_ID = "pq_monthly_overview_v1"
+
+# First-cut party acronyms for the "Name (XX)" label option (visual-direction
+# option A, session 2026-09-21-monthly-questions-overview). These are the
+# common short forms used in Irish political coverage, not derived from any
+# registry — if Warren picks this direction, promote to a proper reference
+# file (alongside configs/reference/party_assets_v1.csv) rather than editing
+# this dict further.
+PARTY_ACRONYM = {
+    "100-rdr": "RDR",
+    "aontu": "AON",
+    "fianna-fail": "FF",
+    "fine-gael": "FG",
+    "green-party": "GP",
+    "independent": "IND",
+    "independent-ireland": "II",
+    "labour-party": "LAB",
+    "people-before-profit-solidarity": "PBPS",
+    "sinn-fein": "SF",
+    "social-democrats": "SD",
+}
+
+# Abstract categorical identity colors for the colored-bars-with-legend option
+# (visual-direction option B). Values are the dataviz skill's validated
+# default categorical palette (dark mode), validated against this project's
+# #0f2f24 chart background — see the session log for the validator run.
+# These are NOT official party brand colors; they exist only to make each
+# bar's party visually distinguishable, with the legend and value labels
+# carrying the actual identity (never color alone). The eight parties/groups
+# most likely to appear in a top-10 TD chart each get a distinct slot from
+# the 8-hue palette; the three smallest/rarest groups reuse the nearest slot
+# — see the session log for the caveat on what happens if a future month's
+# top 10 ever needs to distinguish more than 8 of these at once.
+PARTY_COLOR = {
+    "fianna-fail": "#3987e5",
+    "sinn-fein": "#d95926",
+    "fine-gael": "#199e70",
+    "independent-ireland": "#c98500",
+    "social-democrats": "#d55181",
+    "green-party": "#008300",
+    "labour-party": "#e66767",
+    "aontu": "#9085e9",
+    "independent": "#3987e5",
+    "people-before-profit-solidarity": "#d95926",
+    "100-rdr": "#199e70",
+}
+PARTY_LEGEND_ORDER = [
+    "fianna-fail",
+    "sinn-fein",
+    "fine-gael",
+    "independent-ireland",
+    "social-democrats",
+    "green-party",
+    "labour-party",
+    "aontu",
+    "independent",
+    "people-before-profit-solidarity",
+    "100-rdr",
+]
+FALLBACK_PARTY_COLOR = "#9c9c94"
 
 
 def _period_label(period) -> str:
@@ -70,6 +130,13 @@ def _dedupe_questions(questions: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, 
     }
 
 
+def _party_key(party_name: str) -> str:
+    try:
+        return resolve_party_asset(party_name).party_key
+    except Exception:
+        return "other"
+
+
 def _variant_template(project: dict[str, Any], value_format: str) -> dict[str, Any]:
     render_cfg = project.get("render") or {}
     palette = render_cfg.get("palette") or {}
@@ -91,6 +158,61 @@ def _variant_template(project: dict[str, Any], value_format: str) -> dict[str, A
             "accent": str(palette.get("accent") or ACCENT),
             "grid": str(palette.get("grid") or TEXT),
         },
+    }
+
+
+def _render_slide(
+    *,
+    variant_id: str,
+    slide_title: str,
+    body_text: str,
+    rows: list[dict[str, Any]],
+    renderer_module,
+    render_kwargs: dict[str, Any],
+    period_root: Path,
+    layout: dict[str, Any],
+    slide_index: int,
+) -> dict[str, Any]:
+    assets_dir = period_root / "assets"
+    metadata_dir = period_root / "metadata"
+    slides_dir = period_root / "slides"
+    visual_path = assets_dir / f"{slide_index:02d}_{variant_id}-visual.png"
+    visual_metadata_path = metadata_dir / f"{slide_index:02d}_{variant_id}-visual.json"
+    visual_manifest_path = metadata_dir / f"{slide_index:02d}_{variant_id}-visual-manifest.json"
+
+    visual_manifest = renderer_module.render(
+        render_kwargs["template"],
+        render_kwargs["sample"],
+        rows,
+        visual_path,
+        visual_metadata_path,
+        visual_manifest_path,
+        render_kwargs["input_metadata"],
+    )
+    if visual_manifest.get("warnings"):
+        raise RuntimeError(f"Visual QA warnings for {variant_id}: {visual_manifest['warnings']}")
+
+    slide_path = slides_dir / f"{slide_index:02d}_{variant_id}.png"
+    rendered = render_template(
+        layout,
+        {
+            "slide_title": slide_title,
+            "body_text": body_text,
+            "main_media": str(visual_path),
+            "footer_text": str(render_kwargs["sample"].get("source_note") or ""),
+        },
+        slide_path,
+    )
+    if rendered.warnings:
+        raise RuntimeError(f"Outer layout warnings for {variant_id}: {rendered.warnings}")
+
+    return {
+        "id": variant_id,
+        "title": slide_title,
+        "path": str(slide_path.relative_to(period_root)),
+        "visual_asset": str(visual_path.relative_to(period_root)),
+        "readability": visual_manifest.get("readability") or {},
+        "slide_path_abs": str(slide_path),
     }
 
 
@@ -133,6 +255,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     member["member_name"] = member["member_name"].fillna(member["member_code"])
     member["party_name_resolved"] = member["party_name_resolved"].fillna("Unknown")
     member["display_party_name"] = member["party_name_resolved"].map(_display_party_name)
+    member["party_key"] = member["party_name_resolved"].map(_party_key)
 
     max_items = int((project.get("metrics") or {}).get("max_items", 10))
     top = member.sort_values(
@@ -142,13 +265,15 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     if top.empty:
         raise RuntimeError(f"No eligible TD question counts to rank for {period_key}")
 
-    top["chart_label"] = top["member_name"] + " (" + top["display_party_name"] + ")"
-    rows = [{"label": row.chart_label, "value": int(row.question_count)} for row in top.itertuples(index=False)]
+    top["acronym"] = top["party_key"].map(lambda key: PARTY_ACRONYM.get(key, key.upper()[:3]))
+    top["chart_label_acronym"] = top["member_name"] + " (" + top["acronym"] + ")"
+
     top_asker_records = [
         {
             "member_code": row.member_code,
             "member_name": row.member_name,
             "party_name": row.display_party_name,
+            "party_key": row.party_key,
             "question_count": int(row.question_count),
             "question_day_count": int(row.question_day_count),
         }
@@ -161,61 +286,84 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         # previous failed attempt must never leak into the new package.
         shutil.rmtree(period_root)
     period_root.mkdir(parents=True, exist_ok=True)
-
-    assets_dir = period_root / "assets"
-    metadata_dir = period_root / "metadata"
-    slides_dir = period_root / "slides"
-    assets_dir.mkdir(parents=True, exist_ok=True)
-    metadata_dir.mkdir(parents=True, exist_ok=True)
-    slides_dir.mkdir(parents=True, exist_ok=True)
-
-    visual_path = assets_dir / "01_top_askers-visual.png"
-    visual_metadata_path = metadata_dir / "01_top_askers-visual.json"
-    visual_manifest_path = metadata_dir / "01_top_askers-visual-manifest.json"
-
-    sample = {
-        "visual_id": f"{PROJECT_ID}-top_askers-{period_key}",
-        "bindings": {"label": "label", "value": "value"},
-        "source_note": f"{period_label} Dáil parliamentary questions · Houses of the Oireachtas / Eirepolitic",
-        "empty_message": "No data available",
-    }
-    slide_title = "Most questions submitted"
-    visual_manifest = horizontal_bar.render(
-        _variant_template(project, "integer"),
-        sample,
-        rows,
-        visual_path,
-        visual_metadata_path,
-        visual_manifest_path,
-        {
-            "project_id": PROJECT_ID,
-            "source_batch_id": batch.batch_id,
-            "period_start": period.start.isoformat(),
-            "period_end": period.end.isoformat(),
-            "metric_id": "top_askers",
-        },
-    )
-    if visual_manifest.get("warnings"):
-        raise RuntimeError(f"Visual QA warnings for top_askers: {visual_manifest['warnings']}")
+    (period_root / "assets").mkdir(parents=True, exist_ok=True)
+    (period_root / "metadata").mkdir(parents=True, exist_ok=True)
+    (period_root / "slides").mkdir(parents=True, exist_ok=True)
 
     render_cfg = project.get("render") or {}
     layout_path = Path(str(render_cfg["outer_layout"]))
     layout = json.loads(layout_path.read_text(encoding="utf-8"))
-    slide_path = slides_dir / "01_top_askers.png"
-    body_text = f"Top {len(rows)} TDs by parliamentary questions submitted, {period_label}"
-    footer_text = sample["source_note"]
-    rendered = render_template(
-        layout,
-        {
-            "slide_title": slide_title,
-            "body_text": body_text,
-            "main_media": str(visual_path),
-            "footer_text": footer_text,
+    source_note = f"{period_label} Dáil parliamentary questions · Houses of the Oireachtas / Eirepolitic"
+
+    slide_title = "Most questions submitted"
+
+    # --- Option A: horizontal_bar.py (unmodified), party acronym in the label ---
+    rows_acronym = [{"label": row.chart_label_acronym, "value": int(row.question_count)} for row in top.itertuples(index=False)]
+    slide_a = _render_slide(
+        variant_id="top_askers_v1_acronym",
+        slide_title=slide_title,
+        body_text=f"Option A — party acronym · Top {len(rows_acronym)} TDs, {period_label}",
+        rows=rows_acronym,
+        renderer_module=horizontal_bar,
+        render_kwargs={
+            "template": _variant_template(project, "integer"),
+            "sample": {
+                "visual_id": f"{PROJECT_ID}-top_askers_v1_acronym-{period_key}",
+                "bindings": {"label": "label", "value": "value"},
+                "source_note": source_note,
+                "empty_message": "No data available",
+            },
+            "input_metadata": {
+                "project_id": PROJECT_ID,
+                "source_batch_id": batch.batch_id,
+                "period_start": period.start.isoformat(),
+                "period_end": period.end.isoformat(),
+                "metric_id": "top_askers_v1_acronym",
+            },
         },
-        slide_path,
+        period_root=period_root,
+        layout=layout,
+        slide_index=1,
     )
-    if rendered.warnings:
-        raise RuntimeError(f"Outer layout warnings for top_askers: {rendered.warnings}")
+
+    # --- Option B: horizontal_bar_grouped.py, colored by party + legend ---
+    rows_colored = [
+        {"label": row.member_name, "value": int(row.question_count), "group": row.party_key}
+        for row in top.itertuples(index=False)
+    ]
+    group_legend_labels: dict[str, str] = {}
+    for row in top.itertuples(index=False):
+        group_legend_labels[row.party_key] = row.display_party_name
+    slide_b = _render_slide(
+        variant_id="top_askers_v2_colored_legend",
+        slide_title=slide_title,
+        body_text=f"Option B — colored by party (see legend) · Top {len(rows_colored)} TDs, {period_label}",
+        rows=rows_colored,
+        renderer_module=horizontal_bar_grouped,
+        render_kwargs={
+            "template": _variant_template(project, "integer"),
+            "sample": {
+                "visual_id": f"{PROJECT_ID}-top_askers_v2_colored_legend-{period_key}",
+                "bindings": {"label": "label", "value": "value", "group": "group"},
+                "source_note": source_note,
+                "empty_message": "No data available",
+                "group_colors": PARTY_COLOR,
+                "group_legend_labels": group_legend_labels,
+                "group_legend_order": PARTY_LEGEND_ORDER,
+                "group_fallback_color": FALLBACK_PARTY_COLOR,
+            },
+            "input_metadata": {
+                "project_id": PROJECT_ID,
+                "source_batch_id": batch.batch_id,
+                "period_start": period.start.isoformat(),
+                "period_end": period.end.isoformat(),
+                "metric_id": "top_askers_v2_colored_legend",
+            },
+        },
+        period_root=period_root,
+        layout=layout,
+        slide_index=2,
+    )
 
     run_manifest = {
         "project_id": PROJECT_ID,
@@ -239,19 +387,20 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
             "ranking": "distinct question_id per member_code, deduped, descending by count then question_day_count then name",
             "max_items": max_items,
         },
-        "slides": [
-            {
-                "id": "top_askers",
-                "title": slide_title,
-                "path": str(slide_path.relative_to(period_root)),
-                "visual_asset": str(visual_path.relative_to(period_root)),
-                "readability": visual_manifest.get("readability") or {},
-                "rows": top_asker_records,
-            }
-        ],
+        "visual_direction_options": {
+            "note": "Two variants of the same slide, for Warren's visual-direction decision (workflows_v1.md §6.1 step 4).",
+            "option_a": "top_askers_v1_acronym — horizontal_bar.py unmodified, label = 'Name (XX)' party acronym",
+            "option_b": "top_askers_v2_colored_legend — new horizontal_bar_grouped.py renderer, bars colored by party with a legend",
+        },
+        "top_askers": top_asker_records,
+        "slides": [slide_a, slide_b],
         "review_state": "pending_human_review",
         "publication_enabled": False,
     }
+    slide_a_path_abs = slide_a["slide_path_abs"]
+    slide_b_path_abs = slide_b["slide_path_abs"]
+    for slide in run_manifest["slides"]:
+        slide.pop("slide_path_abs", None)
     manifest_path = period_root / "run_manifest.json"
     manifest_path.write_text(json.dumps(run_manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
 
@@ -260,10 +409,10 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         "project_id": PROJECT_ID,
         "period": period_key,
         "source_batch_id": batch.batch_id,
-        "slide_count": 1,
+        "slide_count": 2,
         "output_root": str(period_root),
         "manifest_path": str(manifest_path),
-        "slides": [str(slide_path)],
+        "slides": [slide_a_path_abs, slide_b_path_abs],
         "duplicate_question_id_count": dedupe_stats["duplicate_question_id_count"],
         "duplicate_row_count_removed": dedupe_stats["duplicate_row_count_removed"],
         "review_state": "pending_human_review",
