@@ -1,0 +1,71 @@
+project_id: pq_monthly_overview_v1
+version: 1
+status: prototype
+purpose: >
+  Prototype for the Monthly Questions Overview recurring Instagram post — a
+  high-level picture of Dáil Parliamentary Questions asked and answered in
+  the previous month. This is a single-slide prototype ("Most questions
+  submitted") built to get a visual-direction decision from Warren before
+  the remaining six slides in the agreed content spec are built
+  (director/workflows_v1.md §6.1, session
+  director/sessions/2026-09-21-monthly-questions-overview/).
+adapter_module: instagram.projects.pq_monthly_overview_v1.adapter
+
+period:
+  cadence: monthly
+  mode: completed_calendar_month
+  default: last_completed_month
+
+source:
+  provider: oireachtas_unified
+  pointer: processed/oireachtas_unified/pointers/production.json
+  require_immutable_batch: true
+  required_tables:
+    - silver_questions
+    - silver_member_memberships
+    - silver_member_parties
+    - silver_member_constituencies
+    - silver_members
+  require_batch_status: validated
+
+metrics:
+  adapter: pq_monthly_overview_v1_top_askers
+  max_items: 10
+  denominator: none_this_slide_is_a_simple_ranking
+
+slides:
+  expected_count: 1
+  definitions:
+    - id: top_askers
+      title: Most questions submitted
+      value_format: integer
+
+render:
+  width: 1080
+  height: 1350
+  analytical_renderer: instagram.visuals.renderers.horizontal_bar
+  outer_layout: instagram/templates/layouts/title_text_media_v1.json
+  min_visual_rows: 4
+  palette:
+    background: '#0f2f24'
+    text: '#f4ead7'
+    muted: '#c8bda8'
+    accent: '#d8b45f'
+    grid: '#f4ead7'
+
+qa:
+  expected_slide_count: 1
+  require_publication_disabled: true
+  require_review_state: pending_human_review
+
+output:
+  local_root: instagram/production/output/pq_monthly_overview_v1
+  s3_prefix: processed/instagram/pq_monthly_overview_v1
+  zip_prefix: pq-monthly-overview-v1
+
+review:
+  state: pending_human_review
+  generation_and_publication_separate: true
+
+publication:
+  enabled: false
