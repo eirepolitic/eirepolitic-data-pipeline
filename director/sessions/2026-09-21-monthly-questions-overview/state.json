@@ -2,7 +2,7 @@
   "session_id": "2026-09-21-monthly-questions-overview",
   "branch": "sly/session/2026-09-21-monthly-questions-overview",
   "created_at": "2026-09-21T17:00:00Z",
-  "updated_at": "2026-09-21T17:52:00Z",
+  "updated_at": "2026-09-21T19:40:00Z",
   "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; build in progress (workflows_v1.md §6.1).",
   "resolved_project": "pq_monthly_overview_v1",
   "resolved_period": "2026-07",
@@ -38,10 +38,13 @@
     "instagram/factory/oireachtas_source.py",
     "instagram/factory/render_pipeline.py",
     "instagram/factory/render_primitives.py",
+    "instagram/factory/party_asset_registry.py",
     "instagram/renderer/template_renderer.py",
     "instagram/templates/layouts/title_text_media_v1.json",
+    "configs/reference/party_assets_v1.csv",
     ".github/workflows/instagram_factory_render.yml",
-    ".github/workflows/director_factory_v1_identity_ci.yml"
+    ".github/workflows/director_factory_v1_identity_ci.yml",
+    "dataviz skill (Anthropic) — color-formula.md, palette.md"
   ],
   "decisions": [
     {"question": "Content idea (§6.1 gate 1)", "choice": "Monthly Questions Overview, re-rendered monthly for the last completed month", "rationale": "Warren's request; supported by existing questions metrics layer and written-answer foundations", "timestamp": "2026-09-21T17:00:00Z"},
@@ -56,11 +59,16 @@
     {"question": "Party comparison", "choice": "Questions per TD (non-office TDs), alongside totals", "rationale": "Raw totals reflect party size (catalogue caveat)", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Duplicate question_id handling (§6.1 gate 3 build)", "choice": "Dedupe silver_questions on question_id (keep first occurrence) before eligibility/ranking, rather than hard-failing like process/political_metrics_question_commission.py does", "rationale": "Warren: dedupe and record the count — a recurring monthly post can't hard-fail on a source data-quality issue it doesn't control; the exact counts are written to the run's run_manifest.json (data_quality.question_dedupe) for the record", "timestamp": "2026-09-21T17:51:00Z"},
-    {"question": "Prototype scope (§6.1 gate 2 — visual options)", "choice": "Build only the 'Most questions submitted' (top 10 TDs) slide first as instagram/projects/pq_monthly_overview_v1/, reusing horizontal_bar.py and title_text_media_v1.json unmodified; get Warren's visual-direction decision before building the other six slides", "rationale": "workflows_v1.md §6.1 step 4 — prototype ONE representative slide before scaling to a full carousel (the Bill Tracker lesson)", "timestamp": "2026-09-21T17:51:00Z"}
+    {"question": "Prototype scope (§6.1 gate 2 — visual options)", "choice": "Build only the 'Most questions submitted' (top 10 TDs) slide first as instagram/projects/pq_monthly_overview_v1/, reusing horizontal_bar.py and title_text_media_v1.json unmodified; get Warren's visual-direction decision before building the other six slides", "rationale": "workflows_v1.md §6.1 step 4 — prototype ONE representative slide before scaling to a full carousel (the Bill Tracker lesson)", "timestamp": "2026-09-21T17:51:00Z"},
+    {"question": "Label-overlap defect on the first prototype", "choice": "Warren confirmed the assessment (3-line-wrap 'Name (Party)' labels overlapping neighbouring rows) and asked for two comparable fixes to be built and rendered side by side rather than picking one blind", "rationale": "Warren's own words: try a party-acronym label ('Name (XX)') as one option, and colored bars by party with a legend as a second option", "timestamp": "2026-09-21T19:15:00Z"},
+    {"question": "Visual-direction option A implementation", "choice": "top_askers_v1_acronym — horizontal_bar.py used completely unmodified (frozen file, never touched); label format changed from 'Name (Party)' to 'Name (XX)' using a 2-4 letter party acronym", "rationale": "Shortening the label directly fixes the wrap/overlap without touching any frozen renderer code", "timestamp": "2026-09-21T19:15:00Z"},
+    {"question": "Visual-direction option B implementation", "choice": "top_askers_v2_colored_legend — new instagram/visuals/renderers/horizontal_bar_grouped.py module (not frozen, project-owned) that imports horizontal_bar.py's proven label-wrap/clip helpers unchanged and adds per-bar color-by-party plus a legend", "rationale": "horizontal_bar.py is in the CI-frozen v1 file set (byte-identity-checked against 386b933) and can't be edited for a one-off feature; a new sibling module that reuses its internals avoids duplicating proven logic while adding what it doesn't do", "timestamp": "2026-09-21T19:15:00Z"},
+    {"question": "Option B color palette", "choice": "Anthropic dataviz skill's validated default categorical palette (dark-mode steps), colors are abstract per-party identity slots — not official party brand colors — with a legend + value labels as the required secondary encoding", "rationale": "Ran the skill's validate_palette.js against the project's actual #0f2f24 chart background: ALL CHECKS PASS with one WARN (green slot contrast, 2.92:1), mitigated per the skill's own rule by the always-present value labels and legend text", "timestamp": "2026-09-21T19:15:00Z"},
+    {"question": "instagram_factory_render.yml changes made along the way", "choice": "Edited three times (existing file, not first appearance, so within normal Director authority): (1) inject any new instagram/visuals/renderers/*.py file the project adds, not just the fixed party_issue_monthly_profile_v2-era file list; (2) capture the render step's stdout/stderr and push it to director/sessions/<id>/runs/<run_id>-render-output.log so failures are debuggable (GitHub's own log-download endpoint isn't reachable from this environment's network); (3) also push the adapter's run_manifest.json to director/sessions/<id>/runs/<run_id>-run-manifest.json so per-run detail (like the dedupe count) is readable without the 30-day Actions artifact", "rationale": "First attempt at the two-variant render failed with an ImportError because the injection step didn't know about the new renderer module; without the diagnostics log the second failure (a legend clipping the figure) would have been a black box", "timestamp": "2026-09-21T19:35:00Z"}
   ],
   "slide_plan": [
     {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month"},
-    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "prototyped, run 35634477456, awaiting visual-direction decision"},
+    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "two visual-direction variants rendered (run 35646123979), awaiting Warren's pick between option A (acronym label) and option B (colored bars + legend)"},
     {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')"},
     {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals"},
     {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle"},
@@ -80,6 +88,47 @@
       "qa": "PASS (expected_slide_count, require_publication_disabled, require_review_state all PASS)",
       "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1/index.html",
       "source_batch_id": "written-pq-answers-20260905-1",
+      "note": "Single-slide prototype, party-name-in-label format. Superseded by the two-variant build below after Warren flagged a label-overlap defect.",
+      "flagged_issue": "'Conor D. McGuinness (Sinn Féin)' wrapped to 3 lines and visually overlapped neighbouring rows; horizontal_bar.py's clipping QA checks bbox-vs-figure bounds only, not row-to-row overlap for wrapped labels, so this passed QA but was a real defect. Warren confirmed the assessment.",
+      "timestamp": "2026-09-21T17:50:39Z"
+    },
+    {
+      "run_id": "35642966347",
+      "conclusion": "failure",
+      "note": "First attempt at the two-variant build. ImportError: instagram_factory_render.yml's injection step only copied a fixed list of factory/ files plus the project dir — it never picked up the new instagram/visuals/renderers/horizontal_bar_grouped.py module. Fixed by editing the workflow to inject any new renderer module the project adds.",
+      "timestamp": "2026-09-21T19:09:21Z"
+    },
+    {
+      "run_id": "35643254682",
+      "conclusion": "failure",
+      "note": "Injection fix worked, but no diagnostics existed yet to see why it still failed (GitHub's log-download endpoint isn't reachable from this environment). Added a diagnostics step that tees render output to the session branch before retrying.",
+      "timestamp": "2026-09-21T19:12:14Z"
+    },
+    {
+      "run_id": "35645238352",
+      "conclusion": "failure",
+      "note": "Diagnostics log (director/sessions/.../runs/35645238352-render-output.log) showed RuntimeError: legend_clipped_to_figure for option B. Root cause: the legend used full party names (e.g. 'People Before Profit-Solidarity') across up to 4 columns on a narrow 1032px canvas. Fixed in horizontal_bar_grouped.py: capped on-image legend label length (18 chars + ellipsis, full names retained in the manifest), dropped to 2 legend columns, trimmed font/spacing.",
+      "timestamp": "2026-09-21T19:31:11Z"
+    },
+    {
+      "run_id": "35645890623",
+      "conclusion": "success",
+      "note": "Both variants rendered clean (visually verified by downloading both PNGs). This run's diagnostics-log push worked, but the run_manifest.json push looked in the wrong directory (searched the pinned worktree path instead of $GITHUB_WORKSPACE) so it found nothing — fixed and re-run as 35646123979 below purely to capture the manifest (no code change to the adapter or renderers).",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html",
+      "timestamp": "2026-09-21T19:37:27Z"
+    },
+    {
+      "run_id": "35646123979",
+      "workflow": "instagram_factory_render.yml",
+      "project_id": "pq_monthly_overview_v1",
+      "period": "2026-07",
+      "dispatched_from_ref": "sly/feature/pq-monthly-overview-v1",
+      "commit": "0ae4937ab7e5bf4c4f086adfc2a841c1b19ea933",
+      "conclusion": "success",
+      "qa": "PASS (expected_slide_count: 2, require_publication_disabled, require_review_state all PASS)",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html",
+      "source_batch_id": "written-pq-answers-20260905-1",
+      "manifest_url": "director/sessions/2026-09-21-monthly-questions-overview/runs/35646123979-run-manifest.json",
       "top_askers_rendered": [
         {"member": "Ken O'Flynn", "party": "Independent Ireland", "count": 418},
         {"member": "Pa Daly", "party": "Sinn Féin", "count": 322},
@@ -92,12 +141,13 @@
         {"member": "Conor D. McGuinness", "party": "Sinn Féin", "count": 206},
         {"member": "Pádraig O'Sullivan", "party": "Fianna Fáil", "count": 198}
       ],
-      "top_askers_rendered_note": "Matches the discovery-phase top-3 figures already logged (Ken O'Flynn 418, Pa Daly 322, John Brady 254), confirming the dedupe/eligibility logic reproduced the same counts.",
-      "flagged_issue": "On the rendered slide, 'Conor D. McGuinness (Sinn Féin)' wraps to 3 lines and visually overlaps the adjacent 'Pádraig Rice' and 'Pádraig O'Sullivan' rows. horizontal_bar.py's clipping/truncation QA checks bbox-vs-figure bounds, not row-to-row spacing for multi-line wrapped labels, so this passed declarative QA but is a real visual defect. Cause: the 'Name (Party)' label format used for this slide produces longer labels than party_issue_monthly_profile_v2's short issue-category labels the renderer was tuned against. Needs a visual-direction decision (see review link) — options include a shorter/abbreviated party tag, dropping party from the bar label in favour of a legend, or a smaller font / taller row height for this slide.",
-      "dedupe_note": "July's duplicate question_id rows were deduped (keep-first) before eligibility/ranking; exact counts are in this run's run_manifest.json (data_quality.question_dedupe) under generated_render/period=2026-07/, retained in the run's GitHub Actions artifact for 30 days, not yet copied into this session folder.",
-      "timestamp": "2026-09-21T17:50:39Z"
+      "dedupe_note": "data_quality.question_dedupe for this run: raw_row_count=8911, deduped_row_count=8911, duplicate_question_id_count=0, duplicate_row_count_removed=0. This contradicts the '11 duplicate question IDs' noted at session kickoff — flagged to Warren rather than assumed resolved; possible causes: the earlier count used a different definition of 'duplicate' or a different data slice, or the source data has since changed. Not yet root-caused.",
+      "visual_verification": "Both slides downloaded from the preview branch and visually inspected: option A (top_askers_v1_acronym) — no wrapping/overlap, all 10 acronym labels legible on one line. Option B (top_askers_v2_colored_legend) — 6 distinct party colors, 2-column legend fits cleanly above the plot, no clipping, all bars distinguishable by color plus the legend/value labels as required secondary encoding.",
+      "timestamp": "2026-09-21T19:39:36Z"
     }
   ],
-  "feedback": [],
+  "feedback": [
+    {"from": "Warren", "on": "run 35634477456 (single-slide prototype)", "content": "Assessment (label overlap) confirmed correct; chart otherwise good. Asked for two comparable fixes to be built and compared: (A) two/one-letter party acronym in the label, e.g. 'Name (SF)'; (B) colored bars by party with a legend detailing which party is which color.", "timestamp": "2026-09-21T19:00:00Z"}
+  ],
   "approval_state": "pending_visual_direction"
 }
