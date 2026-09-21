@@ -24,7 +24,7 @@ The constituency slide was dropped. Oral questions and office-holders asking bec
 
 The fewest-questions slide excludes office-holders, party leaders (via a hand-maintained list) and TDs not seated all month. It uses a single month and compares each TD against the median ('typical TD'). The wording is direct but factual. Absences are ignored for now; Warren will add absence data later.
 
-## Build: prototype slide (2026-09-21, this build)
+## Build: prototype slide (2026-09-21, first build)
 Built `instagram/projects/pq_monthly_overview_v1/` on branch `feature/pq-monthly-overview-v1` (commit `4bf3ce5`), modeled on `party_issue_monthly_profile_v2`:
 
 - **adapter.py** loads `silver_questions` + membership/party/constituency/member tables from the validated production batch (`written-pq-answers-20260905-1`), filters to July 2026, **dedupes duplicate `question_id` rows** (keep-first) before eligibility/ranking rather than hard-failing like `process/political_metrics_question_commission.py` does, computes eligible-TD question counts via the existing `political_metrics.calculators.questions` layer, and ranks the top 10.
@@ -32,18 +32,42 @@ Built `instagram/projects/pq_monthly_overview_v1/` on branch `feature/pq-monthly
 - Added a `normalize_result()` shim for the new project_id in `instagram/factory/normalize.py` (not part of the frozen v1 file set, so free to extend) so the project runs through the existing generic `instagram_factory_render.yml` workflow.
 - `publication.enabled: false` throughout; QA declares `expected_slide_count: 1`, `require_publication_disabled`, `require_review_state`.
 
-Dispatched `instagram_factory_render.yml` (run `35634477456`, from `sly/feature/pq-monthly-overview-v1`, period `2026-07`, `session_id` set) — **passed on the first attempt**. Review page: https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1/index.html
+Dispatched `instagram_factory_render.yml` (run `35634477456`) — **passed on the first attempt**.
 
-Rendered top 10 matches the discovery-phase spot-check (Ken O'Flynn 418, Pa Daly 322, John Brady 254), confirming the dedupe/eligibility logic reproduces the same counts as the earlier manual analysis.
+Rendered top 10 matches the discovery-phase spot-check. **Visual issue found:** the `Name (Party)` label format produces a 3-line wrap for at least one TD ("Conor D. McGuinness (Sinn Féin)"), overlapping the neighbouring rows — flagged for Warren's visual-direction decision.
 
-**Visual issue found:** the `Name (Party)` label format produces a 3-line wrap for at least one TD ("Conor D. McGuinness (Sinn Féin)"), and horizontal_bar.py doesn't add extra row spacing for wrapped labels, so it visually overlaps the neighbouring rows. Declarative QA (bbox-vs-figure clipping) doesn't catch row-to-row overlap, so this passed QA but is a real defect — flagged for Warren's visual-direction decision along with the label format itself, since party_issue_monthly_profile_v2's renderer was tuned against short one-line issue labels, not `Name (Party)` combinations.
+## Warren's feedback
+"Your assessment is correct. The chart looks good. However, the labels are too long and therefore overwrap the rows." Asked for two comparable versions instead of picking a fix blind: (A) a two/one-letter party acronym in the label, e.g. "Conor McGuinness (SF)"; (B) bars colored by party with a legend detailing which party is which color.
+
+## Build: two visual-direction variants (2026-09-21, this build)
+
+**Option A — `top_askers_v1_acronym`**: `horizontal_bar.py` used completely unmodified. Label format changed from `Name (Party)` to `Name (XX)`, a first-cut 2-4 letter acronym per party (`PARTY_ACRONYM` dict in `adapter.py`; not derived from any registry — worth promoting to a proper reference file alongside `configs/reference/party_assets_v1.csv` if this direction is picked). This directly fixes the wrap/overlap since the labels are now short enough to stay on one line for all 10 TDs.
+
+**Option B — `top_askers_v2_colored_legend`**: new `instagram/visuals/renderers/horizontal_bar_grouped.py`. `horizontal_bar.py` is in the CI-frozen v1 file set (byte-identity-checked against `386b933` by `director_factory_v1_identity_ci.yml`) so it can't be edited for a one-off feature — this new sibling module imports its proven label-wrap/clip/truncation-detection helpers unchanged and adds only what it doesn't do: one bar color per party (`ax.barh(..., color=bar_colors)`) plus a `fig.legend(...)` mapping color to party. Colors are the Anthropic dataviz skill's validated default categorical palette (dark-mode steps) — abstract per-party identity slots, not official party brand colors — validated with `validate_palette.js` against this project's actual `#0f2f24` chart background: **ALL CHECKS PASS**, one WARN on the green slot's contrast (2.92:1), mitigated per the skill's own rule by the always-present value labels and legend text (the required secondary encoding).
+
+`adapter.py`'s `generate()` now renders both slides in one call; `project.yml` updated to `expected_count: 2` / `qa.expected_slide_count: 2` with both slide definitions.
+
+### Debugging this build (three failed attempts before it rendered clean)
+1. **Run `35642966347` — ImportError.** `instagram_factory_render.yml`'s injection step only copies a fixed list of `instagram/factory/*.py` files plus the requested project directory into the pinned/frozen factory worktree — it had no way to know about the new `horizontal_bar_grouped.py` renderer module, so importing it in the pinned worktree failed. **Fix:** edited the workflow (existing file, not its first appearance, so within normal Director authority — no AWS-secrets-first-appearance or publish gate involved) to also copy any `instagram/visuals/renderers/*.py` file the project ships that isn't already in the pinned worktree, guarded so it never touches the frozen renderers themselves.
+2. **Run `35643254682` — failed again, no visibility why.** GitHub's own log-download endpoint isn't reachable from this environment's network (egress proxy blocks `results-receiver.actions.githubusercontent.com`), so the failure was a black box. **Fix:** added a diagnostics step (`if: always()`) that tees the render step's stdout/stderr and pushes it to `director/sessions/<id>/runs/<run_id>-render-output.log` on this session branch, readable via the GitHub connector.
+3. **Run `35645238352` — RuntimeError: `legend_clipped_to_figure` for option B.** The diagnostics log pinpointed it immediately: the legend used full party names (some quite long, e.g. "People Before Profit-Solidarity") across up to 4 columns on a narrow 1032px canvas — comfortably wider than the figure on plausible party combinations, even though there was always enough vertical room. **Fix:** capped the on-image legend label length (18 characters + ellipsis; full names still live in the manifest's `group_legend_labels`), dropped to 2 legend columns, trimmed the legend font size and spacing, and gave the legend band a bit more vertical headroom.
+4. **Run `35645890623` — success.** Both slides rendered and were visually verified (downloaded both PNGs via the preview branch and inspected them directly): option A shows all 10 acronym labels on one line with no overlap; option B shows 6 distinct, legible party colors with a clean 2-column legend, no clipping. The run's diagnostics-log push worked, but the follow-up push of `run_manifest.json` (added to also capture the exact dedupe count, see below) looked in the wrong directory and found nothing.
+5. **Run `35646123979` — re-run purely to capture the manifest** (no code change to the adapter or either renderer, just the workflow's manifest-search path fixed from the pinned worktree to `$GITHUB_WORKSPACE`). Confirms the same output as run `35645890623`. Manifest: `director/sessions/2026-09-21-monthly-questions-overview/runs/35646123979-run-manifest.json`.
+
+### Dedupe count — now captured, and it doesn't match the kickoff note
+This run's `data_quality.question_dedupe`: `raw_row_count=8911`, `deduped_row_count=8911`, **`duplicate_question_id_count=0`**, `duplicate_row_count_removed=0`. The kickoff instruction said "July has 11 duplicate question IDs" — this run found none. Not root-caused yet; possible explanations are a different definition of "duplicate" in whatever produced the original 11, a different data slice, or the source data changing between then and now (the validated batch is the same, `written-pq-answers-20260905-1`, so a batch change is unlikely but not ruled out). Flagging this to Warren rather than quietly treating either number as correct.
+
+Review page (both slides): https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html
 
 ## Build notes / open issues
-- Duplicate `question_id` handling: **resolved** for this build — deduped (keep-first), exact counts recorded in the run's `run_manifest.json` (`data_quality.question_dedupe`), currently only retained in the run's 30-day GitHub Actions artifact, not yet copied into this session folder.
+- Duplicate `question_id` handling: dedupe-not-hard-fail logic is built and working; **the actual count this run was 0**, contradicting the kickoff note of 11 — needs Warren's input on which is right (see above).
 - Department labels need a display-name mapping — not yet needed (no slide built yet uses departments).
 - A party-leader list needs creating with its sources — needed for the fewest-askers slide, not yet built.
 - The 28 July date concentration needs explaining before any 'busiest day' framing.
-- **Open for Warren's visual-direction decision:** the top-askers label overlap above, and whether the `Name (Party)` bar-label format and current palette/layout are right before building the other six slides.
+- Option B's legend currently ellipsizes any party name over 18 characters (e.g. would show "Independent Irela…" if that party appeared) — cosmetically minor but worth a cleaner truncation (e.g. a short-name lookup instead of a character cut) if option B is picked.
+- If option A is picked, the first-cut `PARTY_ACRONYM` dict in `adapter.py` should be promoted to a proper reference file rather than staying inline.
+- `instagram_factory_render.yml` now also injects any project-added `instagram/visuals/renderers/*.py` module and pushes render diagnostics + the run manifest to the session branch on every run — this is a general improvement, not specific to this project, and should keep working for future projects that add their own non-frozen renderer variants.
+- **Open for Warren's visual-direction decision:** pick option A (acronym label) or option B (colored bars + legend) — see the review link above — before scaling to the full seven-slide carousel.
 
 ## Status
-Content gate passed. Prototype slide built and rendered (run `35634477456`, QA PASS). **approval_state: pending_visual_direction** — waiting on Warren's review of the link above before scaling to the full seven-slide carousel.
+Content gate passed. Two visual-direction variants built and rendered clean (run `35646123979`, QA PASS). **approval_state: pending_visual_direction** — waiting on Warren's pick between option A and option B before scaling to the full seven-slide carousel.
