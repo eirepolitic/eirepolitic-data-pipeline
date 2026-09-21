@@ -180,7 +180,7 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/director/sessions/${SESSION_ID}/runs/${GITHUB_RUN_ID}-render-output.log" \
             -d "{\"message\":\"Render diagnostics for run ${GITHUB_RUN_ID}\",\"content\":\"${CONTENT_B64}\",\"branch\":\"${SESSION_BRANCH}\"}" \
             | python3 -c "import json,sys; d=json.load(sys.stdin); print('OK' if 'content' in d else f'FAILED: {d}')"
-          MANIFEST=$(find /tmp/approved-instagram-factory/generated_render -maxdepth 2 -name run_manifest.json 2>/dev/null | head -n1 || true)
+          MANIFEST=$(find generated_render -maxdepth 2 -name run_manifest.json 2>/dev/null | head -n1 || true)
           if [ -n "$MANIFEST" ] && [ -f "$MANIFEST" ]; then
             MANIFEST_B64=$(base64 -w0 < "$MANIFEST")
             curl -sS -X PUT \
