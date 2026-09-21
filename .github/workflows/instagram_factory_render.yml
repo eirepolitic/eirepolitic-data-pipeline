@@ -80,6 +80,19 @@ jobs:
           cp instagram/factory/qa.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/review_page.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/render_pipeline.py /tmp/approved-instagram-factory/instagram/factory/
+          # A project can also ship its own additional (non-frozen) renderer
+          # module under instagram/visuals/renderers/ — e.g. a variant that
+          # imports and reuses a frozen renderer's internals rather than
+          # duplicating them. The frozen renderers themselves
+          # (horizontal_bar.py, __init__.py, common.py, s3_resolver.py, ...)
+          # already live in the pinned worktree and are never touched here;
+          # this only adds files that don't already exist there.
+          for extra_renderer in instagram/visuals/renderers/*.py; do
+            base="$(basename "$extra_renderer")"
+            if [ ! -f "/tmp/approved-instagram-factory/instagram/visuals/renderers/${base}" ]; then
+              cp "$extra_renderer" "/tmp/approved-instagram-factory/instagram/visuals/renderers/${base}"
+            fi
+          done
 
       - name: Render, run declarative QA, and stage the review page
         id: render
