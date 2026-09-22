@@ -1,0 +1,1305 @@
+{
+  "project_id": "pq_monthly_overview_v1",
+  "generated_at_utc": "2026-09-22T23:20:03.058497+00:00",
+  "period": {
+    "key": "2026-07",
+    "start": "2026-07-01",
+    "end": "2026-07-31",
+    "label": "July 2026"
+  },
+  "source_batch_id": "written-pq-answers-20260905-1",
+  "source_pointer": {
+    "batch_id": "written-pq-answers-20260905-1",
+    "manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "contextual-monthly-voting-20260904-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-06T00:07:10+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "34000036601"
+  },
+  "source_batch_manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+  "source_batch_status": "validated",
+  "sources": {
+    "silver_questions": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_questions/csv/silver_questions.csv",
+      "etag": "24533698547cb6136da662633a5d220e",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:05+00:00",
+      "row_count": 121355,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_memberships": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_memberships/csv/silver_member_memberships.csv",
+      "etag": "22b1201e3ac5e49a761d5671c006c7fa",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:02+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_parties": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_parties/csv/silver_member_parties.csv",
+      "etag": "fdb8ccea44b8e44c20ba03a5d9a39f54",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:03+00:00",
+      "row_count": 178,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_constituencies": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_constituencies/csv/silver_member_constituencies.csv",
+      "etag": "439680bd71ac491bbf664278f8962f8c",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:01+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_members": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_members/csv/silver_members.csv",
+      "etag": "e8fbd0aa4ed719745509711f02f580b5",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:04+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    }
+  },
+  "data_quality": {
+    "question_dedupe": {
+      "raw_row_count": 8911,
+      "deduped_row_count": 8911,
+      "duplicate_question_id_count": 0,
+      "duplicate_row_count_removed": 0
+    },
+    "note": "silver_questions contained duplicate question_id rows for this period; deduped by keeping the first occurrence per question_id before eligibility and ranking. Warren reviewed 2026-09-22 and asked to leave this as-is for now."
+  },
+  "calculation": {
+    "eligibility": "active Dáil membership on question_date (prepare_eligible_td_questions)",
+    "period_end_roster": "active Dáil membership at period.end, party as of period.end (temporal_join + attach_event_party)",
+    "top_askers": "distinct question_id per member_code, deduped, descending by count then question_day_count then name",
+    "fewest_askers": "period-end roster filtered to membership_start <= period.start (seated full period), left-joined to question counts (0 if none), ascending",
+    "party_per_td": "grouped_question_metrics by party_name / period-end TD count per party",
+    "departments": "recipient_distribution grouped by to_minister_or_department, top 8 by count",
+    "answers": "written_question_answer_bridge joined to written_question_answer_sections by debate_section_id, grouped by answer_status",
+    "month_over_month": "current vs previous calendar month, both computed from the same source batch (see data_products.yml known_drift_fact caveat)"
+  },
+  "caveats": [
+    "Fewest questions submitted does not exclude office-holders or party leaders from the ranking — no reference list of current office-holders/party leaders exists yet in this pipeline. This is a data gap, not an editorial choice; Warren, let us know if you want a hand-maintained list added.",
+    "written_question_answer_sections/written_question_answer_bridge were not available in this run's source batch (NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.). The 'What happened to the answers' slide shows a placeholder instead of real figures — check whether that dataset has been carried into the current production batch."
+  ],
+  "visual_direction": {
+    "note": "top_askers uses Warren's approved option B design (colored bars + legend), decided 2026-09-22."
+  },
+  "top_askers": [
+    {
+      "member_code": "Ken-O'Flynn.D.2024-11-29",
+      "member_name": "Ken O'Flynn",
+      "party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "question_count": 418,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Pa-Daly.D.2020-02-08",
+      "member_name": "Pa Daly",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 322,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "John-Brady.D.2016-10-03",
+      "member_name": "John Brady",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 254,
+      "question_day_count": 6
+    },
+    {
+      "member_code": "Aindrias-Moynihan.D.2016-10-03",
+      "member_name": "Aindrias Moynihan",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 250,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Peadar-Tóibín.D.2011-03-09",
+      "member_name": "Peadar Tóibín",
+      "party_name": "Aontú",
+      "party_key": "aontu",
+      "question_count": 250,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Michael-Cahill.D.2024-11-29",
+      "member_name": "Michael Cahill",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 225,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Barry-Ward.S.2020-03-30",
+      "member_name": "Barry Ward",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 218,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Pádraig-Rice.D.2024-11-29",
+      "member_name": "Pádraig Rice",
+      "party_name": "Social Democrats",
+      "party_key": "social-democrats",
+      "question_count": 210,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Conor-D-McGuinness.D.2024-11-29",
+      "member_name": "Conor D. McGuinness",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 206,
+      "question_day_count": 5
+    },
+    {
+      "member_code": "Pádraig-O'Sullivan.D.2019-11-29",
+      "member_name": "Pádraig O'Sullivan",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 198,
+      "question_day_count": 8
+    }
+  ],
+  "fewest_askers": [
+    {
+      "member_code": "Alan-Dillon.D.2020-02-08",
+      "member_name": "Alan Dillon",
+      "party_name": "Fine Gael",
+      "question_count": 0
+    },
+    {
+      "member_code": "Charlie-McConalogue.D.2011-03-09",
+      "member_name": "Charlie McConalogue",
+      "party_name": "Fianna Fáil",
+      "question_count": 0
+    },
+    {
+      "member_code": "Colm-Brophy.D.2016-10-03",
+      "member_name": "Colm Brophy",
+      "party_name": "Fine Gael",
+      "question_count": 0
+    },
+    {
+      "member_code": "Dara-Calleary.D.2007-06-14",
+      "member_name": "Dara Calleary",
+      "party_name": "Fianna Fáil",
+      "question_count": 0
+    },
+    {
+      "member_code": "Darragh-O'Brien.D.2007-06-14",
+      "member_name": "Darragh O'Brien",
+      "party_name": "Fianna Fáil",
+      "question_count": 0
+    },
+    {
+      "member_code": "Emer-Higgins.D.2020-02-08",
+      "member_name": "Emer Higgins",
+      "party_name": "Fine Gael",
+      "question_count": 0
+    },
+    {
+      "member_code": "Helen-McEntee.D.2013-03-27",
+      "member_name": "Helen McEntee",
+      "party_name": "Fine Gael",
+      "question_count": 0
+    },
+    {
+      "member_code": "Hildegarde-Naughton.S.2013-07-19",
+      "member_name": "Hildegarde Naughton",
+      "party_name": "Fine Gael",
+      "question_count": 0
+    },
+    {
+      "member_code": "Jack-Chambers.D.2016-10-03",
+      "member_name": "Jack Chambers",
+      "party_name": "Fianna Fáil",
+      "question_count": 0
+    },
+    {
+      "member_code": "James-Browne.D.2016-10-03",
+      "member_name": "James Browne",
+      "party_name": "Fianna Fáil",
+      "question_count": 0
+    }
+  ],
+  "party_per_td": [
+    {
+      "party_name": "Aontú",
+      "td_count": 2,
+      "question_count": 336,
+      "questions_per_td": 168.0
+    },
+    {
+      "party_name": "Green Party",
+      "td_count": 1,
+      "question_count": 142,
+      "questions_per_td": 142.0
+    },
+    {
+      "party_name": "Independent Ireland",
+      "td_count": 4,
+      "question_count": 474,
+      "questions_per_td": 118.5
+    },
+    {
+      "party_name": "People Before Profit-Solidarity",
+      "td_count": 3,
+      "question_count": 264,
+      "questions_per_td": 88.0
+    },
+    {
+      "party_name": "Sinn Féin",
+      "td_count": 39,
+      "question_count": 2568,
+      "questions_per_td": 65.85
+    },
+    {
+      "party_name": "Social Democrats",
+      "td_count": 12,
+      "question_count": 762,
+      "questions_per_td": 63.5
+    },
+    {
+      "party_name": "Fianna Fáil",
+      "td_count": 48,
+      "question_count": 2084,
+      "questions_per_td": 43.42
+    },
+    {
+      "party_name": "Labour Party",
+      "td_count": 11,
+      "question_count": 440,
+      "questions_per_td": 40.0
+    },
+    {
+      "party_name": "Fine Gael",
+      "td_count": 38,
+      "question_count": 1388,
+      "questions_per_td": 36.53
+    },
+    {
+      "party_name": "Independents",
+      "td_count": 15,
+      "question_count": 436,
+      "questions_per_td": 29.07
+    },
+    {
+      "party_name": "100% RDR",
+      "td_count": 1,
+      "question_count": 17,
+      "questions_per_td": 17.0
+    }
+  ],
+  "departments": [
+    {
+      "recipient": "Health",
+      "question_count": 2167,
+      "question_share": 0.2432
+    },
+    {
+      "recipient": "Education",
+      "question_count": 851,
+      "question_share": 0.0955
+    },
+    {
+      "recipient": "Justice",
+      "question_count": 785,
+      "question_share": 0.0881
+    },
+    {
+      "recipient": "Children",
+      "question_count": 687,
+      "question_share": 0.0771
+    },
+    {
+      "recipient": "Transport",
+      "question_count": 668,
+      "question_share": 0.075
+    },
+    {
+      "recipient": "Housing",
+      "question_count": 639,
+      "question_share": 0.0717
+    },
+    {
+      "recipient": "Agriculture",
+      "question_count": 422,
+      "question_share": 0.0474
+    },
+    {
+      "recipient": "Finance",
+      "question_count": 354,
+      "question_share": 0.0397
+    }
+  ],
+  "answers": {
+    "data_available": false,
+    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+  },
+  "national_headline": {
+    "current": {
+      "question_count": 8911,
+      "asking_member_count": 141,
+      "question_day_count": 9,
+      "question_type_count": 2,
+      "recipient_count": 18
+    },
+    "previous": {
+      "question_count": 7568,
+      "asking_member_count": 140,
+      "question_day_count": 10,
+      "question_type_count": 2,
+      "recipient_count": 18
+    },
+    "written_count": 8752,
+    "oral_count": 159
+  },
+  "slides": [
+    {
+      "id": "headline",
+      "title": "Parliamentary Questions: July 2026",
+      "path": "slides/01_headline.png"
+    },
+    {
+      "id": "top_askers",
+      "title": "Most questions submitted",
+      "path": "slides/02_top_askers.png",
+      "visual_asset": "assets/02_top_askers-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "value_label_font_size": 15,
+        "axis_font_size": 12,
+        "bar_thickness_px": 52.51,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 10,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9532,
+        "displayed_item_count": 10,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 351.0,
+        "plot_left_ratio": 0.3808,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "legend_group_count": 6,
+        "legend_clipped_to_figure": false,
+        "groups_without_color_mapping": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Ken O'Flynn",
+            "rendered_label": "Ken O'Flynn",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              153.29,
+              950.54,
+              378.42,
+              988.55
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pa Daly",
+            "rendered_label": "Pa Daly",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              237.1,
+              865.84,
+              378.42,
+              903.85
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "John Brady",
+            "rendered_label": "John Brady",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              173.42,
+              781.14,
+              378.42,
+              819.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Aindrias Moynihan",
+            "rendered_label": "Aindrias Moynihan",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              696.44,
+              378.42,
+              734.45
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Peadar Tóibín",
+            "rendered_label": "Peadar Tóibín",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              126.14,
+              611.24,
+              378.42,
+              650.25
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Michael Cahill",
+            "rendered_label": "Michael Cahill",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              113.42,
+              527.04,
+              378.42,
+              565.05
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Barry Ward",
+            "rendered_label": "Barry Ward",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              166.14,
+              442.34,
+              378.42,
+              480.35
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig Rice",
+            "rendered_label": "Pádraig Rice",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              143.1,
+              357.14,
+              378.42,
+              396.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Conor D. McGuinness",
+            "rendered_label": "Conor D.\nMcGuinness",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              149.42,
+              244.55,
+              378.42,
+              335.58
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig O'Sullivan",
+            "rendered_label": "Pádraig O'Sullivan",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              34.1,
+              187.74,
+              378.42,
+              226.75
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 418.0,
+            "text": "418",
+            "font_size": 15,
+            "bbox_px": [
+              906.56,
+              958.43,
+              972.56,
+              989.68
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 322.0,
+            "text": "322",
+            "font_size": 15,
+            "bbox_px": [
+              792.44,
+              873.73,
+              858.44,
+              904.98
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 254.0,
+            "text": "254",
+            "font_size": 15,
+            "bbox_px": [
+              711.6,
+              789.03,
+              777.6,
+              820.28
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              706.85,
+              704.33,
+              772.85,
+              735.58
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              706.85,
+              619.62,
+              772.85,
+              650.88
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 225.0,
+            "text": "225",
+            "font_size": 15,
+            "bbox_px": [
+              677.13,
+              534.93,
+              743.13,
+              566.18
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 218.0,
+            "text": "218",
+            "font_size": 15,
+            "bbox_px": [
+              668.81,
+              450.23,
+              734.81,
+              481.48
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 210.0,
+            "text": "210",
+            "font_size": 15,
+            "bbox_px": [
+              659.3,
+              365.53,
+              725.3,
+              396.78
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 206.0,
+            "text": "206",
+            "font_size": 15,
+            "bbox_px": [
+              654.55,
+              280.83,
+              720.55,
+              312.08
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 198.0,
+            "text": "198",
+            "font_size": 15,
+            "bbox_px": [
+              645.04,
+              196.12,
+              711.04,
+              227.38
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "fewest_askers",
+      "title": "Fewest questions submitted",
+      "path": "slides/03_fewest_askers.png",
+      "visual_asset": "assets/03_fewest_askers-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 0.0,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 10,
+        "max_wrapped_label_lines": 0,
+        "max_value_label_x_ratio": 0.0,
+        "displayed_item_count": 10,
+        "empty_state": true,
+        "empty_message": "No data available",
+        "max_category_label_width_px": 392.34,
+        "plot_left_ratio": 0.42,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [],
+        "value_text_bounds": []
+      }
+    },
+    {
+      "id": "party_per_td",
+      "title": "Questions per TD by party",
+      "path": "slides/04_party_per_td.png",
+      "visual_asset": "assets/04_party_per_td-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 53.2,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 11,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9579,
+        "displayed_item_count": 11,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 382.17,
+        "plot_left_ratio": 0.411,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Aontú",
+            "rendered_label": "Aontú",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              298.24,
+              1046.29,
+              409.59,
+              1085.3
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Green Party",
+            "rendered_label": "Green Party",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              186.1,
+              960.99,
+              409.59,
+              999.0
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Independent Ireland",
+            "rendered_label": "Independent Ireland",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              875.19,
+              409.59,
+              913.2
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "People Before Profit-Solidarity",
+            "rendered_label": "People Before\nProfit-Solidarity",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              116.07,
+              761.0,
+              409.59,
+              852.03
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Sinn Féin",
+            "rendered_label": "Sinn Féin",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              236.64,
+              703.09,
+              409.59,
+              742.1
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Social Democrats",
+            "rendered_label": "Social Democrats",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              77.59,
+              617.79,
+              409.59,
+              655.8
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Fianna Fáil",
+            "rendered_label": "Fianna Fáil",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              209.76,
+              531.49,
+              409.59,
+              570.5
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Labour Party",
+            "rendered_label": "Labour Party",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              169.28,
+              446.19,
+              409.59,
+              484.2
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Fine Gael",
+            "rendered_label": "Fine Gael",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              234.32,
+              360.39,
+              409.59,
+              398.4
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Independents",
+            "rendered_label": "Independents",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              150.59,
+              274.59,
+              409.59,
+              312.6
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "100% RDR",
+            "rendered_label": "100% RDR",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              208.59,
+              188.79,
+              409.59,
+              226.8
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 168.0,
+            "text": "168.00",
+            "font_size": 15,
+            "bbox_px": [
+              854.75,
+              1054.68,
+              976.75,
+              1085.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 142.0,
+            "text": "142.00",
+            "font_size": 15,
+            "bbox_px": [
+              790.69,
+              968.88,
+              912.69,
+              1000.13
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 118.5,
+            "text": "118.50",
+            "font_size": 15,
+            "bbox_px": [
+              732.79,
+              883.08,
+              854.79,
+              914.33
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 88.0,
+            "text": "88.00",
+            "font_size": 15,
+            "bbox_px": [
+              657.65,
+              797.28,
+              757.65,
+              828.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 65.85,
+            "text": "65.85",
+            "font_size": 15,
+            "bbox_px": [
+              603.08,
+              711.48,
+              703.08,
+              742.73
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 63.5,
+            "text": "63.50",
+            "font_size": 15,
+            "bbox_px": [
+              597.29,
+              625.68,
+              697.29,
+              656.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 43.42,
+            "text": "43.42",
+            "font_size": 15,
+            "bbox_px": [
+              547.81,
+              539.88,
+              647.81,
+              571.13
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 40.0,
+            "text": "40.00",
+            "font_size": 15,
+            "bbox_px": [
+              539.39,
+              454.08,
+              639.39,
+              485.33
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 36.53,
+            "text": "36.53",
+            "font_size": 15,
+            "bbox_px": [
+              530.84,
+              368.28,
+              630.84,
+              399.53
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 29.07,
+            "text": "29.07",
+            "font_size": 15,
+            "bbox_px": [
+              512.46,
+              282.48,
+              612.46,
+              313.73
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 17.0,
+            "text": "17.00",
+            "font_size": 15,
+            "bbox_px": [
+              482.72,
+              196.68,
+              582.72,
+              227.93
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "departments",
+      "title": "Departments asked most",
+      "path": "slides/05_departments.png",
+      "visual_asset": "assets/05_departments-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 73.14,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 8,
+        "max_wrapped_label_lines": 1,
+        "max_value_label_x_ratio": 0.9588,
+        "displayed_item_count": 8,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 210.17,
+        "plot_left_ratio": 0.28,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Health",
+            "rendered_label": "Health",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              149.38,
+              1030.7,
+              274.38,
+              1068.71
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Education",
+            "rendered_label": "Education",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              85.38,
+              912.73,
+              274.38,
+              950.74
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Justice",
+            "rendered_label": "Justice",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              149.38,
+              794.75,
+              274.38,
+              832.76
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Children",
+            "rendered_label": "Children",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              115.2,
+              676.78,
+              274.38,
+              714.79
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Transport",
+            "rendered_label": "Transport",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              95.89,
+              559.06,
+              274.38,
+              596.56
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Housing",
+            "rendered_label": "Housing",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              119.38,
+              440.83,
+              274.38,
+              478.84
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Agriculture",
+            "rendered_label": "Agriculture",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              64.2,
+              322.85,
+              274.38,
+              360.86
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Finance",
+            "rendered_label": "Finance",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              129.11,
+              204.88,
+              274.38,
+              242.89
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 2167.0,
+            "text": "2,167",
+            "font_size": 15,
+            "bbox_px": [
+              871.72,
+              1038.59,
+              971.72,
+              1069.84
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 851.0,
+            "text": "851",
+            "font_size": 15,
+            "bbox_px": [
+              527.94,
+              920.61,
+              593.94,
+              951.86
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 785.0,
+            "text": "785",
+            "font_size": 15,
+            "bbox_px": [
+              510.7,
+              802.64,
+              576.7,
+              833.89
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 687.0,
+            "text": "687",
+            "font_size": 15,
+            "bbox_px": [
+              485.09,
+              684.66,
+              551.09,
+              715.91
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 668.0,
+            "text": "668",
+            "font_size": 15,
+            "bbox_px": [
+              480.13,
+              566.69,
+              546.13,
+              597.94
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 639.0,
+            "text": "639",
+            "font_size": 15,
+            "bbox_px": [
+              472.56,
+              448.71,
+              538.56,
+              479.96
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 422.0,
+            "text": "422",
+            "font_size": 15,
+            "bbox_px": [
+              415.87,
+              330.74,
+              481.87,
+              361.99
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 354.0,
+            "text": "354",
+            "font_size": 15,
+            "bbox_px": [
+              398.1,
+              212.76,
+              464.1,
+              244.01
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "answers",
+      "title": "What happened to the answers",
+      "path": "slides/06_answers.png"
+    },
+    {
+      "id": "methodology",
+      "title": "Methodology and sources",
+      "path": "slides/07_methodology.png"
+    }
+  ],
+  "review_state": "pending_human_review",
+  "publication_enabled": false
+}
