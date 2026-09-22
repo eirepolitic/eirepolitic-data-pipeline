@@ -2,16 +2,18 @@ project_id: pq_monthly_overview_v1
 version: 1
 status: prototype
 purpose: >
-  Prototype for the Monthly Questions Overview recurring Instagram post — a
-  high-level picture of Dáil Parliamentary Questions asked and answered in
-  the previous month. This build renders TWO comparable visual-direction
-  variants of the same slide ("Most questions submitted") so Warren can pick
-  a direction before the remaining six slides in the agreed content spec are
-  built (director/workflows_v1.md §6.1, session
-  director/sessions/2026-09-21-monthly-questions-overview/): option A keeps
-  the single-accent-color horizontal_bar renderer with a party acronym in
-  each label ("Name (XX)"); option B uses a new horizontal_bar_grouped
-  renderer that colors each bar by party with a legend.
+  Monthly Questions Overview recurring Instagram post — a high-level picture of
+  Dáil Parliamentary Questions asked and answered in the previous month. Warren
+  picked the visual direction for the "Most questions submitted" slide on
+  2026-09-22 (colored bars by party with a 3-column/2-row legend, chart enlarged
+  into the freed space — horizontal_bar_grouped renderer) and asked to proceed to
+  the remaining six slides in the agreed content spec
+  (director/workflows_v1.md §6.1, session
+  director/sessions/2026-09-21-monthly-questions-overview/). This build renders
+  the full seven-slide carousel: headline, top_askers, fewest_askers,
+  party_per_td, departments, answers, methodology. Still pending human review and
+  final approval (workflows_v1.md §6.1 step 6) before this graduates past
+  prototype status.
 adapter_module: instagram.projects.pq_monthly_overview_v1.adapter
 
 period:
@@ -29,6 +31,8 @@ source:
     - silver_member_parties
     - silver_member_constituencies
     - silver_members
+    - written_question_answer_sections
+    - written_question_answer_bridge
   require_batch_status: validated
 
 metrics:
@@ -37,16 +41,41 @@ metrics:
   denominator: none_this_slide_is_a_simple_ranking
 
 slides:
-  expected_count: 2
+  expected_count: 7
   definitions:
-    - id: top_askers_v1_acronym
+    - id: headline
+      title: "Parliamentary Questions: <Month YYYY>"
+      kind: text
+      content: total questions, written/oral split, TDs asking, sitting days, change vs previous month
+    - id: top_askers
       title: Most questions submitted
+      kind: chart
       value_format: integer
-      variant: option_a_party_acronym_label
-    - id: top_askers_v2_colored_legend
-      title: Most questions submitted
+      variant: colored_bars_with_legend_option_b
+    - id: fewest_askers
+      title: Fewest questions submitted
+      kind: chart
       value_format: integer
-      variant: option_b_colored_bars_with_legend
+      content: bottom 10 eligible TDs seated the full period, by question count; does not exclude office-holders/party leaders (data gap, see methodology)
+    - id: party_per_td
+      title: Questions per TD by party
+      kind: chart
+      value_format: decimal_2
+      content: questions per TD by party, using the period-end TD roster as the denominator
+    - id: departments
+      title: Departments asked most
+      kind: chart
+      value_format: integer
+      content: top departments/ministers by recorded question count
+    - id: answers
+      title: What happened to the answers
+      kind: chart
+      value_format: integer
+      content: written questions by answer_status (reply received / not received / unresolved), from written_question_answer_bridge + written_question_answer_sections
+    - id: methodology
+      title: Methodology and sources
+      kind: text
+      content: sources, batch id, definitions, caveats
 
 render:
   width: 1080
@@ -54,6 +83,7 @@ render:
   analytical_renderer: instagram.visuals.renderers.horizontal_bar
   analytical_renderer_grouped: instagram.visuals.renderers.horizontal_bar_grouped
   outer_layout: instagram/templates/layouts/title_text_media_v1.json
+  text_layout: instagram/templates/layouts/text_block_v1.json
   min_visual_rows: 4
   palette:
     background: '#0f2f24'
@@ -63,7 +93,7 @@ render:
     grid: '#f4ead7'
 
 qa:
-  expected_slide_count: 2
+  expected_slide_count: 7
   require_publication_disabled: true
   require_review_state: pending_human_review
 
