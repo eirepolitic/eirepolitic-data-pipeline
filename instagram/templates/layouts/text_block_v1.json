@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "template_id": "text_block_v1",
+  "description": "Title plus up to six stacked text lines and a footer, for stat-summary and methodology slides that carry no chart image.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {"type": "solid", "color": "{palette.background}"},
+  "elements": [
+    {"id": "title", "type": "text", "placeholder": "slide_title", "x": 76, "y": 72, "w": 928, "h": 120, "style": {"font_family": "default_bold", "font_size": 52, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true}},
+    {"id": "line_1", "type": "text", "placeholder": "line_1", "x": 76, "y": 224, "w": 928, "h": 150, "style": {"font_size": 34, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 20, "line_spacing": 10}},
+    {"id": "line_2", "type": "text", "placeholder": "line_2", "x": 76, "y": 384, "w": 928, "h": 150, "style": {"font_size": 34, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 20, "line_spacing": 10}},
+    {"id": "line_3", "type": "text", "placeholder": "line_3", "x": 76, "y": 544, "w": 928, "h": 150, "style": {"font_size": 34, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 20, "line_spacing": 10}},
+    {"id": "line_4", "type": "text", "placeholder": "line_4", "x": 76, "y": 704, "w": 928, "h": 150, "style": {"font_size": 34, "color": "{palette.text_primary}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 20, "line_spacing": 10}},
+    {"id": "line_5", "type": "text", "placeholder": "line_5", "x": 76, "y": 864, "w": 928, "h": 150, "style": {"font_size": 32, "color": "{palette.text_muted}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 18, "line_spacing": 10}},
+    {"id": "line_6", "type": "text", "placeholder": "line_6", "x": 76, "y": 1024, "w": 928, "h": 150, "style": {"font_size": 30, "color": "{palette.text_muted}", "align": "left", "max_lines": 2, "shrink_to_fit": true, "min_font_size": 16, "line_spacing": 10}},
+    {"id": "footer", "type": "text", "placeholder": "footer_text", "x": 76, "y": 1222, "w": 928, "h": 56, "style": {"font_size": 24, "color": "{palette.text_muted}", "align": "center", "valign": "middle", "max_lines": 2}}
+  ]
+}
