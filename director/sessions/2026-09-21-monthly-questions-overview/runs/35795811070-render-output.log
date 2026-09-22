@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<stdin>", line 15, in <module>
+  File "/tmp/approved-instagram-factory/instagram/factory/render_pipeline.py", line 49, in run_and_normalize
+    raw = recurring.run_project(project_id, period=period, output_root=output_root)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 45, in run_project
+    result = generate(project=project, period_spec=resolved_period, output_root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter.py", line 335, in generate
+    frames, source_lineage = load_csv_tables(batch, required_tables, s3=s3)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/oireachtas_source.py", line 70, in load_csv_tables
+    obj = s3.get_object(Bucket=batch.bucket, Key=key)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
