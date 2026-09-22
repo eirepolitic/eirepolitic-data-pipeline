@@ -31,8 +31,13 @@ source:
     - silver_member_parties
     - silver_member_constituencies
     - silver_members
-    - written_question_answer_sections
-    - written_question_answer_bridge
+  # written_question_answer_sections / written_question_answer_bridge are loaded
+  # separately by the adapter, outside this hard-required list: they're a
+  # contract-approved but separately-published dataset, and whether they've been
+  # carried into the current production batch isn't guaranteed the way the core
+  # silver_* tables are (director/data_products.yml known_drift_fact). A gap
+  # there degrades the "answers" slide to a placeholder rather than failing the
+  # whole render — see adapter.py's answer_tables_available handling.
   require_batch_status: validated
 
 metrics:
