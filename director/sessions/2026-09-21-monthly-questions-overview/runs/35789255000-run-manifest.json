@@ -1,0 +1,780 @@
+{
+  "project_id": "pq_monthly_overview_v1",
+  "generated_at_utc": "2026-09-22T21:53:46.302035+00:00",
+  "period": {
+    "key": "2026-07",
+    "start": "2026-07-01",
+    "end": "2026-07-31",
+    "label": "July 2026"
+  },
+  "source_batch_id": "written-pq-answers-20260905-1",
+  "source_pointer": {
+    "batch_id": "written-pq-answers-20260905-1",
+    "manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "contextual-monthly-voting-20260904-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-06T00:07:10+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "34000036601"
+  },
+  "source_batch_manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+  "source_batch_status": "validated",
+  "sources": {
+    "silver_questions": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_questions/csv/silver_questions.csv",
+      "etag": "24533698547cb6136da662633a5d220e",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:05+00:00",
+      "row_count": 121355,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_memberships": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_memberships/csv/silver_member_memberships.csv",
+      "etag": "22b1201e3ac5e49a761d5671c006c7fa",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:02+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_parties": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_parties/csv/silver_member_parties.csv",
+      "etag": "fdb8ccea44b8e44c20ba03a5d9a39f54",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:03+00:00",
+      "row_count": 178,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_member_constituencies": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_constituencies/csv/silver_member_constituencies.csv",
+      "etag": "439680bd71ac491bbf664278f8962f8c",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:01+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    "silver_members": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_members/csv/silver_members.csv",
+      "etag": "e8fbd0aa4ed719745509711f02f580b5",
+      "version_id": null,
+      "last_modified": "2026-09-05T23:59:04+00:00",
+      "row_count": 176,
+      "source_batch_id": "written-pq-answers-20260905-1"
+    }
+  },
+  "data_quality": {
+    "question_dedupe": {
+      "raw_row_count": 8911,
+      "deduped_row_count": 8911,
+      "duplicate_question_id_count": 0,
+      "duplicate_row_count_removed": 0
+    },
+    "note": "silver_questions contained duplicate question_id rows for this period; deduped by keeping the first occurrence per question_id before eligibility and ranking. See dedupe stats above for the exact counts."
+  },
+  "calculation": {
+    "eligibility": "active Dáil membership on question_date (prepare_eligible_td_questions)",
+    "ranking": "distinct question_id per member_code, deduped, descending by count then question_day_count then name",
+    "max_items": 10
+  },
+  "visual_direction_options": {
+    "note": "Two variants of the same slide, for Warren's visual-direction decision (workflows_v1.md §6.1 step 4).",
+    "option_a": "top_askers_v1_acronym — horizontal_bar.py unmodified, label = 'Name (XX)' party acronym",
+    "option_b": "top_askers_v2_colored_legend — new horizontal_bar_grouped.py renderer, bars colored by party with a legend"
+  },
+  "top_askers": [
+    {
+      "member_code": "Ken-O'Flynn.D.2024-11-29",
+      "member_name": "Ken O'Flynn",
+      "party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "question_count": 418,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Pa-Daly.D.2020-02-08",
+      "member_name": "Pa Daly",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 322,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "John-Brady.D.2016-10-03",
+      "member_name": "John Brady",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 254,
+      "question_day_count": 6
+    },
+    {
+      "member_code": "Aindrias-Moynihan.D.2016-10-03",
+      "member_name": "Aindrias Moynihan",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 250,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Peadar-Tóibín.D.2011-03-09",
+      "member_name": "Peadar Tóibín",
+      "party_name": "Aontú",
+      "party_key": "aontu",
+      "question_count": 250,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Michael-Cahill.D.2024-11-29",
+      "member_name": "Michael Cahill",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 225,
+      "question_day_count": 9
+    },
+    {
+      "member_code": "Barry-Ward.S.2020-03-30",
+      "member_name": "Barry Ward",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 218,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Pádraig-Rice.D.2024-11-29",
+      "member_name": "Pádraig Rice",
+      "party_name": "Social Democrats",
+      "party_key": "social-democrats",
+      "question_count": 210,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Conor-D-McGuinness.D.2024-11-29",
+      "member_name": "Conor D. McGuinness",
+      "party_name": "Sinn Féin",
+      "party_key": "sinn-fein",
+      "question_count": 206,
+      "question_day_count": 5
+    },
+    {
+      "member_code": "Pádraig-O'Sullivan.D.2019-11-29",
+      "member_name": "Pádraig O'Sullivan",
+      "party_name": "Fianna Fáil",
+      "party_key": "fianna-fail",
+      "question_count": 198,
+      "question_day_count": 8
+    }
+  ],
+  "slides": [
+    {
+      "id": "top_askers_v1_acronym",
+      "title": "Most questions submitted",
+      "path": "slides/01_top_askers_v1_acronym.png",
+      "visual_asset": "assets/01_top_askers_v1_acronym-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "category_label_font_size_requested": 18,
+        "category_label_font_size_minimum": 14,
+        "category_label_font_shrunk": false,
+        "value_label_font_size": 15,
+        "value_label_font_size_requested": 16,
+        "value_label_font_size_minimum": 14,
+        "value_label_font_shrunk": true,
+        "axis_font_size": 12,
+        "bar_thickness_px": 58.52,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 10,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9543,
+        "displayed_item_count": 10,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 377.62,
+        "plot_left_ratio": 0.4066,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Ken O'Flynn (II)",
+            "rendered_label": "Ken O'Flynn (II)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              115.92,
+              1042.5,
+              405.04,
+              1080.51
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pa Daly (SF)",
+            "rendered_label": "Pa Daly (SF)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              175.73,
+              948.12,
+              405.04,
+              986.13
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "John Brady (SF)",
+            "rendered_label": "John Brady (SF)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              112.04,
+              853.74,
+              405.04,
+              891.75
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Aindrias Moynihan (FF)",
+            "rendered_label": "Aindrias\nMoynihan (FF)",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              135.04,
+              730.97,
+              405.04,
+              822.0
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Peadar Tóibín (AON)",
+            "rendered_label": "Peadar Tóibín (AON)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              664.48,
+              405.04,
+              703.49
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Michael Cahill (FF)",
+            "rendered_label": "Michael Cahill (FF)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              54.04,
+              570.6,
+              405.04,
+              608.61
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Barry Ward (FG)",
+            "rendered_label": "Barry Ward (FG)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              99.76,
+              476.22,
+              405.04,
+              514.23
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig Rice (SD)",
+            "rendered_label": "Pádraig Rice (SD)",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              74.73,
+              381.34,
+              405.04,
+              420.35
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Conor D. McGuinness (SF)",
+            "rendered_label": "Conor D.\nMcGuinness (SF)",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              88.04,
+              259.07,
+              405.04,
+              350.1
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig O'Sullivan (FF)",
+            "rendered_label": "Pádraig\nO'Sullivan (FF)",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              129.04,
+              164.19,
+              405.04,
+              256.22
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 418.0,
+            "text": "418",
+            "font_size": 15,
+            "bbox_px": [
+              908.48,
+              1050.39,
+              974.48,
+              1081.64
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 322.0,
+            "text": "322",
+            "font_size": 15,
+            "bbox_px": [
+              800.03,
+              956.01,
+              866.03,
+              987.26
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 254.0,
+            "text": "254",
+            "font_size": 15,
+            "bbox_px": [
+              723.22,
+              861.63,
+              789.22,
+              892.88
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              718.7,
+              767.25,
+              784.7,
+              798.5
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              718.7,
+              672.87,
+              784.7,
+              704.12
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 225.0,
+            "text": "225",
+            "font_size": 15,
+            "bbox_px": [
+              690.46,
+              578.49,
+              756.46,
+              609.74
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 218.0,
+            "text": "218",
+            "font_size": 15,
+            "bbox_px": [
+              682.55,
+              484.11,
+              748.55,
+              515.36
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 210.0,
+            "text": "210",
+            "font_size": 15,
+            "bbox_px": [
+              673.51,
+              389.73,
+              739.51,
+              420.98
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 206.0,
+            "text": "206",
+            "font_size": 15,
+            "bbox_px": [
+              669.0,
+              295.35,
+              735.0,
+              326.6
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 198.0,
+            "text": "198",
+            "font_size": 15,
+            "bbox_px": [
+              659.96,
+              200.97,
+              725.96,
+              232.22
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "top_askers_v2_colored_legend",
+      "title": "Most questions submitted",
+      "path": "slides/02_top_askers_v2_colored_legend.png",
+      "visual_asset": "assets/02_top_askers_v2_colored_legend-visual.png",
+      "readability": {
+        "category_label_font_size": 18,
+        "value_label_font_size": 15,
+        "axis_font_size": 12,
+        "bar_thickness_px": 52.51,
+        "min_visual_rows": 4,
+        "effective_visual_row_count": 10,
+        "max_wrapped_label_lines": 2,
+        "max_value_label_x_ratio": 0.9532,
+        "displayed_item_count": 10,
+        "empty_state": false,
+        "empty_message": "",
+        "max_category_label_width_px": 351.0,
+        "plot_left_ratio": 0.3808,
+        "category_text_clipped_count": 0,
+        "value_text_clipped_count": 0,
+        "truncated_label_count": 0,
+        "legend_group_count": 6,
+        "legend_clipped_to_figure": false,
+        "groups_without_color_mapping": 0,
+        "category_text_bounds": [
+          {
+            "raw_label": "Ken O'Flynn",
+            "rendered_label": "Ken O'Flynn",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              153.29,
+              950.54,
+              378.42,
+              988.55
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pa Daly",
+            "rendered_label": "Pa Daly",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              237.1,
+              865.84,
+              378.42,
+              903.85
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "John Brady",
+            "rendered_label": "John Brady",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              173.42,
+              781.14,
+              378.42,
+              819.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Aindrias Moynihan",
+            "rendered_label": "Aindrias Moynihan",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              27.42,
+              696.44,
+              378.42,
+              734.45
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Peadar Tóibín",
+            "rendered_label": "Peadar Tóibín",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              126.14,
+              611.24,
+              378.42,
+              650.25
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Michael Cahill",
+            "rendered_label": "Michael Cahill",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              113.42,
+              527.04,
+              378.42,
+              565.05
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Barry Ward",
+            "rendered_label": "Barry Ward",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              166.14,
+              442.34,
+              378.42,
+              480.35
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig Rice",
+            "rendered_label": "Pádraig Rice",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              143.1,
+              357.14,
+              378.42,
+              396.15
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Conor D. McGuinness",
+            "rendered_label": "Conor D.\nMcGuinness",
+            "font_size": 18,
+            "line_count": 2,
+            "truncated": false,
+            "bbox_px": [
+              149.42,
+              244.55,
+              378.42,
+              335.58
+            ],
+            "clipped_to_figure": false
+          },
+          {
+            "raw_label": "Pádraig O'Sullivan",
+            "rendered_label": "Pádraig O'Sullivan",
+            "font_size": 18,
+            "line_count": 1,
+            "truncated": false,
+            "bbox_px": [
+              34.1,
+              187.74,
+              378.42,
+              226.75
+            ],
+            "clipped_to_figure": false
+          }
+        ],
+        "value_text_bounds": [
+          {
+            "value": 418.0,
+            "text": "418",
+            "font_size": 15,
+            "bbox_px": [
+              906.56,
+              958.43,
+              972.56,
+              989.68
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 322.0,
+            "text": "322",
+            "font_size": 15,
+            "bbox_px": [
+              792.44,
+              873.73,
+              858.44,
+              904.98
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 254.0,
+            "text": "254",
+            "font_size": 15,
+            "bbox_px": [
+              711.6,
+              789.03,
+              777.6,
+              820.28
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              706.85,
+              704.33,
+              772.85,
+              735.58
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 250.0,
+            "text": "250",
+            "font_size": 15,
+            "bbox_px": [
+              706.85,
+              619.62,
+              772.85,
+              650.88
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 225.0,
+            "text": "225",
+            "font_size": 15,
+            "bbox_px": [
+              677.13,
+              534.93,
+              743.13,
+              566.18
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 218.0,
+            "text": "218",
+            "font_size": 15,
+            "bbox_px": [
+              668.81,
+              450.23,
+              734.81,
+              481.48
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 210.0,
+            "text": "210",
+            "font_size": 15,
+            "bbox_px": [
+              659.3,
+              365.53,
+              725.3,
+              396.78
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 206.0,
+            "text": "206",
+            "font_size": 15,
+            "bbox_px": [
+              654.55,
+              280.83,
+              720.55,
+              312.08
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          },
+          {
+            "value": 198.0,
+            "text": "198",
+            "font_size": 15,
+            "bbox_px": [
+              645.04,
+              196.12,
+              711.04,
+              227.38
+            ],
+            "clipped_to_axes": false,
+            "clipped_to_figure": false
+          }
+        ]
+      }
+    }
+  ],
+  "review_state": "pending_human_review",
+  "publication_enabled": false
+}
