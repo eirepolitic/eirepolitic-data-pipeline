@@ -334,6 +334,25 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     required_tables = [str(value) for value in ((project.get("source") or {}).get("required_tables") or [])]
     frames, source_lineage = load_csv_tables(batch, required_tables, s3=s3)
 
+    # written_question_answer_sections/written_question_answer_bridge are a
+    # separately-published (contract-approved) dataset, not part of the core
+    # silver_* unified tables — whether they've been carried into *this*
+    # production batch isn't guaranteed the way the core tables are (see
+    # director/data_products.yml's known_drift_fact caveat). Loading them
+    # outside the required_tables set means a gap here degrades the "answers"
+    # slide only, rather than hard-failing the whole 7-slide render.
+    answer_tables_available = True
+    answer_tables_error = ""
+    try:
+        answer_frames, answer_lineage = load_csv_tables(
+            batch, ["written_question_answer_sections", "written_question_answer_bridge"], s3=s3
+        )
+        frames.update(answer_frames)
+        source_lineage.update(answer_lineage)
+    except Exception as exc:  # noqa: BLE001 - deliberately broad: any load failure degrades gracefully
+        answer_tables_available = False
+        answer_tables_error = f"{type(exc).__name__}: {exc}"
+
     memberships = frames["silver_member_memberships"]
     member_parties = frames["silver_member_parties"]
     member_constituencies = frames["silver_member_constituencies"]
@@ -643,79 +662,101 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     slides.append(slide_departments)
 
     # ===== Slide 6: answers (what happened to written-question answers) =====
-    answer_sections = frames["written_question_answer_sections"][
-        ["debate_section_id", "answer_status", "referred_or_direct_reply"]
-    ].copy()
-    answer_sections["referred_or_direct_reply"] = _parse_bool_series(answer_sections["referred_or_direct_reply"])
-    answer_bridge = frames["written_question_answer_bridge"][
-        ["question_id", "debate_section_id"]
-    ].copy()
-    written_eligible_ids = set(
-        eligible.loc[eligible["question_type"].fillna("").str.strip().str.lower().eq("written"), "question_id"].astype(str)
-    )
-    total_written = len(written_eligible_ids)
-    bridge_period = answer_bridge[answer_bridge["question_id"].astype(str).isin(written_eligible_ids)].copy()
-    joined = bridge_period.merge(answer_sections, on="debate_section_id", how="left")
-    covered_question_ids = set(joined.loc[joined["answer_status"].notna(), "question_id"].astype(str))
-    uncovered_count = total_written - len(covered_question_ids)
-    status_counts = (
-        joined[joined["answer_status"].notna()]
-        .drop_duplicates("question_id")
-        .groupby("answer_status")["question_id"]
-        .nunique()
-    )
-    referred_count = int(
-        joined.loc[joined["question_id"].astype(str).isin(covered_question_ids), "referred_or_direct_reply"]
-        .fillna(False)
-        .astype(bool)
-        .sum()
-    )
-    answers_rows = [
-        {"label": ANSWER_STATUS_LABELS.get(str(status), str(status)), "value": int(count)}
-        for status, count in status_counts.items()
-    ]
-    answers_records = {
-        "total_written_questions": total_written,
-        "covered_by_answer_record": len(covered_question_ids),
-        "uncovered_by_answer_record": uncovered_count,
-        "status_counts": {str(k): int(v) for k, v in status_counts.items()},
-        "referred_or_direct_reply_count": referred_count,
-    }
-    if uncovered_count > 0:
+    answers_records: dict[str, Any] = {"data_available": answer_tables_available}
+    if not answer_tables_available:
         caveats.append(
-            f"{uncovered_count} of {total_written} written questions this period had no matching answer record "
-            "in written_question_answer_bridge/sections and are excluded from the 'What happened to the answers' slide."
+            "written_question_answer_sections/written_question_answer_bridge were not available in this run's "
+            f"source batch ({answer_tables_error}). The 'What happened to the answers' slide shows a placeholder "
+            "instead of real figures — check whether that dataset has been carried into the current production batch."
         )
-    answers_body = (
-        f"Of {total_written} written questions asked in {period_label}, this shows what the official record "
-        f"shows happened to the answer. {referred_count} were flagged in the source as referred for a direct reply."
-    )
-    slide_answers = _render_slide(
-        variant_id="answers",
-        slide_title="What happened to the answers",
-        body_text=answers_body,
-        rows=answers_rows,
-        renderer_module=horizontal_bar,
-        render_kwargs={
-            "template": _chart_template(project, value_format="integer", sort="descending", max_items=6, min_visual_rows=3),
-            "sample": {
-                "visual_id": f"{PROJECT_ID}-answers-{period_key}",
-                "bindings": {"label": "label", "value": "value"},
-                "source_note": source_note,
-                "empty_message": "No data available",
+        answers_records["error"] = answer_tables_error
+        slide_answers = _render_text_slide(
+            slide_id="answers",
+            slide_title="What happened to the answers",
+            lines=[
+                "Written-answer status data was not available in this run's source batch.",
+                "This slide is a placeholder — no figures are shown here to avoid guessing.",
+                "See the run's caveats for the exact lookup error.",
+            ],
+            footer_text=source_note,
+            period_root=period_root,
+            layout=text_layout,
+            slide_index=6,
+        )
+    else:
+        answer_sections = frames["written_question_answer_sections"][
+            ["debate_section_id", "answer_status", "referred_or_direct_reply"]
+        ].copy()
+        answer_sections["referred_or_direct_reply"] = _parse_bool_series(answer_sections["referred_or_direct_reply"])
+        answer_bridge = frames["written_question_answer_bridge"][
+            ["question_id", "debate_section_id"]
+        ].copy()
+        written_eligible_ids = set(
+            eligible.loc[eligible["question_type"].fillna("").str.strip().str.lower().eq("written"), "question_id"].astype(str)
+        )
+        total_written = len(written_eligible_ids)
+        bridge_period = answer_bridge[answer_bridge["question_id"].astype(str).isin(written_eligible_ids)].copy()
+        joined = bridge_period.merge(answer_sections, on="debate_section_id", how="left")
+        covered_question_ids = set(joined.loc[joined["answer_status"].notna(), "question_id"].astype(str))
+        uncovered_count = total_written - len(covered_question_ids)
+        status_counts = (
+            joined[joined["answer_status"].notna()]
+            .drop_duplicates("question_id")
+            .groupby("answer_status")["question_id"]
+            .nunique()
+        )
+        referred_count = int(
+            joined.loc[joined["question_id"].astype(str).isin(covered_question_ids), "referred_or_direct_reply"]
+            .fillna(False)
+            .astype(bool)
+            .sum()
+        )
+        answers_rows = [
+            {"label": ANSWER_STATUS_LABELS.get(str(status), str(status)), "value": int(count)}
+            for status, count in status_counts.items()
+        ]
+        answers_records.update({
+            "total_written_questions": total_written,
+            "covered_by_answer_record": len(covered_question_ids),
+            "uncovered_by_answer_record": uncovered_count,
+            "status_counts": {str(k): int(v) for k, v in status_counts.items()},
+            "referred_or_direct_reply_count": referred_count,
+        })
+        if uncovered_count > 0:
+            caveats.append(
+                f"{uncovered_count} of {total_written} written questions this period had no matching answer record "
+                "in written_question_answer_bridge/sections and are excluded from the 'What happened to the answers' slide."
+            )
+        answers_body = (
+            f"Of {total_written} written questions asked in {period_label}, this shows what the official record "
+            f"shows happened to the answer. {referred_count} were flagged in the source as referred for a direct reply."
+        )
+        slide_answers = _render_slide(
+            variant_id="answers",
+            slide_title="What happened to the answers",
+            body_text=answers_body,
+            rows=answers_rows,
+            renderer_module=horizontal_bar,
+            render_kwargs={
+                "template": _chart_template(project, value_format="integer", sort="descending", max_items=6, min_visual_rows=3),
+                "sample": {
+                    "visual_id": f"{PROJECT_ID}-answers-{period_key}",
+                    "bindings": {"label": "label", "value": "value"},
+                    "source_note": source_note,
+                    "empty_message": "No data available",
+                },
+                "input_metadata": {
+                    "project_id": PROJECT_ID,
+                    "source_batch_id": batch.batch_id,
+                    "period_start": period.start.isoformat(),
+                    "period_end": period.end.isoformat(),
+                    "metric_id": "answers",
+                },
             },
-            "input_metadata": {
-                "project_id": PROJECT_ID,
-                "source_batch_id": batch.batch_id,
-                "period_start": period.start.isoformat(),
-                "period_end": period.end.isoformat(),
-                "metric_id": "answers",
-            },
-        },
-        period_root=period_root,
-        layout=layout,
-        slide_index=6,
-    )
+            period_root=period_root,
+            layout=layout,
+            slide_index=6,
+        )
     slides.append(slide_answers)
 
     # ===== Slide 7: methodology =====
