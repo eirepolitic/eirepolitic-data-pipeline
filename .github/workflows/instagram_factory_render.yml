@@ -93,6 +93,20 @@ jobs:
               cp "$extra_renderer" "/tmp/approved-instagram-factory/instagram/visuals/renderers/${base}"
             fi
           done
+          # Same idea for a project-added (non-frozen) template layout under
+          # instagram/templates/layouts/ — e.g. a new text-only layout that
+          # doesn't exist in the pinned worktree yet. Existing frozen layout
+          # files already there are never touched here.
+          if [ -d instagram/templates/layouts ]; then
+            for extra_layout in instagram/templates/layouts/*.json; do
+              [ -e "$extra_layout" ] || continue
+              base="$(basename "$extra_layout")"
+              if [ ! -f "/tmp/approved-instagram-factory/instagram/templates/layouts/${base}" ]; then
+                mkdir -p /tmp/approved-instagram-factory/instagram/templates/layouts
+                cp "$extra_layout" "/tmp/approved-instagram-factory/instagram/templates/layouts/${base}"
+              fi
+            done
+          fi
 
       - name: Render, run declarative QA, and stage the review page
         id: render
