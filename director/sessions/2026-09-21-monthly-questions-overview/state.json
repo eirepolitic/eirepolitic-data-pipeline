@@ -2,15 +2,15 @@
   "session_id": "2026-09-21-monthly-questions-overview",
   "branch": "sly/session/2026-09-21-monthly-questions-overview",
   "created_at": "2026-09-21T17:00:00Z",
-  "updated_at": "2026-09-22T21:56:00Z",
-  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; visual direction (option B, colored bars + legend, 3-col/2-row) picked by Warren; now scaling to the full seven-slide carousel (workflows_v1.md §6.1).",
+  "updated_at": "2026-09-22T23:25:00Z",
+  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; visual direction (option B, colored bars + legend, 3-col/2-row) picked by Warren; full 7-slide carousel now built and rendering, blocked on a fewest_askers design decision before final approval.",
   "resolved_project": "pq_monthly_overview_v1",
   "resolved_period": "2026-07",
   "data_sources": [
     "processed/oireachtas_unified/pointers/production.json -> batch written-pq-answers-20260905-1 (status validated, promoted 2026-09-06)",
-    "silver_questions (batch copy) — coverage Feb 2025 to 2026-07-28; no August 2026 data in production",
-    "metrics/event/written_question_answer_sections (batch copy)",
-    "silver_members, silver_member_parties, silver_member_offices, silver_member_memberships, silver_member_constituencies (batch copies)"
+    "silver_questions (batch copy) — coverage Feb 2025 to 2026-07-28; no August 2026 data in production (confirmed again 2026-09-22, run 35796492112)",
+    "silver_members, silver_member_parties, silver_member_memberships, silver_member_constituencies (batch copies)",
+    "written_question_answer_sections / written_question_answer_bridge — contract-approved (configs/political_metrics/written_question_answers.yml) but NOT present in the current production batch (confirmed 2026-09-22, run 35795811070: botocore NoSuchKey); loaded optionally, with the 'answers' slide degrading to a placeholder when absent"
   ],
   "references_consulted": [
     "director/refs.yml",
@@ -27,7 +27,10 @@
     "political_metrics/periods.py",
     "political_metrics/temporal_joins.py",
     "political_metrics/written_question_answers.py",
+    "political_metrics/eligibility.py",
     "process/political_metrics_question_commission.py",
+    "process/political_metrics_written_question_answers_candidate.py",
+    "process/political_metrics_materialization_commission.py",
     "instagram/projects/party_issue_monthly_profile_v2/project.yml",
     "instagram/projects/party_issue_monthly_profile_v2/adapter.py",
     "instagram/visuals/renderers/horizontal_bar.py",
@@ -52,30 +55,36 @@
     {"question": "Slide list", "choice": "Headline stats; Top 10 askers; Fewest 10 askers; Party questions per TD; Departments asked; Answers and referrals; Methodology/sources", "rationale": "Agreed after July data review", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Constituency slide", "choice": "Dropped", "rationale": "July per-TD constituency ranking driven by single TDs (e.g. Cork North-Central 418 of 918 from one TD); duplicates top-askers slide", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Oral questions and office-holders asking", "choice": "Folded into notes on other slides, not their own slides", "rationale": "Oral under 2% of July questions; 32 of 40 office-holders asked none", "timestamp": "2026-09-21T17:00:00Z"},
-    {"question": "Fewest-questions slide eligibility", "choice": "Exclude office-holders (from silver_member_offices), party leaders (hand-maintained config list), and TDs not seated for the full month", "rationale": "These groups structurally do not use PQs; including them would be misleading", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions slide eligibility", "choice": "Exclude office-holders (from silver_member_offices), party leaders (hand-maintained config list), and TDs not seated for the full month", "rationale": "These groups structurally do not use PQs; including them would be misleading", "timestamp": "2026-09-21T17:00:00Z", "status": "NOT YET BUILT as of the 2026-09-22 full-carousel build — no office-holder/party-leader reference list exists anywhere in the pipeline (confirmed by search); a caveat was substituted instead. See the 2026-09-22 'Issue found' decision below for why this now needs Warren's input rather than staying a caveat."},
     {"question": "Fewest-questions period", "choice": "Single month (not rolling 3-month)", "rationale": "Warren: absences should be documented as data; he will add absence data later. Ignore absences for now; covered by caveat.", "timestamp": "2026-09-21T17:00:00Z"},
-    {"question": "Fewest-questions comparison", "choice": "Show gap from the median of eligible TDs, labelled 'typical TD'", "rationale": "Mean (~66 in July) is inflated by a few very heavy askers; median (~40) is robust", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Fewest-questions comparison", "choice": "Show gap from the median of eligible TDs, labelled 'typical TD'", "rationale": "Mean (~66 in July) is inflated by a few very heavy askers; median (~40) is robust", "timestamp": "2026-09-21T17:00:00Z", "status": "NOT YET BUILT as of the 2026-09-22 full-carousel build — the slide as built is a plain ascending ranking of raw counts, no median comparison. See the 2026-09-22 'Issue found' decision below."},
     {"question": "Fewest-questions tone", "choice": "Direct, named ranking with neutral factual title ('Fewest questions submitted'); no effort-characterising language; caveat in description or final slide", "rationale": "Warren wants to call out low askers; semantics.md requires neutral, factual framing", "timestamp": "2026-09-21T17:00:00Z"},
     {"question": "Party comparison", "choice": "Questions per TD (non-office TDs), alongside totals", "rationale": "Raw totals reflect party size (catalogue caveat)", "timestamp": "2026-09-21T17:00:00Z"},
-    {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z"},
+    {"question": "Who is asked most", "choice": "Departments (question recipient labels, mapped to display names), with answering minister as subtitle", "rationale": "Some ministers hold two portfolios, so person and department rankings differ", "timestamp": "2026-09-21T17:00:00Z", "status": "Built without the answering-minister subtitle (not yet needed/available in a display-name-mapped form) — departments slide uses recipient labels straight from the source record."},
     {"question": "Duplicate question_id handling (§6.1 gate 3 build)", "choice": "Dedupe silver_questions on question_id (keep first occurrence) before eligibility/ranking, rather than hard-failing like process/political_metrics_question_commission.py does", "rationale": "Warren: dedupe and record the count — a recurring monthly post can't hard-fail on a source data-quality issue it doesn't control; the exact counts are written to the run's run_manifest.json (data_quality.question_dedupe) for the record", "timestamp": "2026-09-21T17:51:00Z"},
     {"question": "Prototype scope (§6.1 gate 2 — visual options)", "choice": "Build only the 'Most questions submitted' (top 10 TDs) slide first as instagram/projects/pq_monthly_overview_v1/, reusing horizontal_bar.py and title_text_media_v1.json unmodified; get Warren's visual-direction decision before building the other six slides", "rationale": "workflows_v1.md §6.1 step 4 — prototype ONE representative slide before scaling to a full carousel (the Bill Tracker lesson)", "timestamp": "2026-09-21T17:51:00Z"},
     {"question": "Label-overlap defect on the first prototype", "choice": "Warren confirmed the assessment (3-line-wrap 'Name (Party)' labels overlapping neighbouring rows) and asked for two comparable fixes to be built and rendered side by side rather than picking one blind", "rationale": "Warren's own words: try a party-acronym label ('Name (XX)') as one option, and colored bars by party with a legend as a second option", "timestamp": "2026-09-21T19:15:00Z"},
     {"question": "Visual-direction option A implementation", "choice": "top_askers_v1_acronym — horizontal_bar.py used completely unmodified (frozen file, never touched); label format changed from 'Name (Party)' to 'Name (XX)' using a 2-4 letter party acronym", "rationale": "Shortening the label directly fixes the wrap/overlap without touching any frozen renderer code", "timestamp": "2026-09-21T19:15:00Z"},
     {"question": "Visual-direction option B implementation", "choice": "top_askers_v2_colored_legend — new instagram/visuals/renderers/horizontal_bar_grouped.py module (not frozen, project-owned) that imports horizontal_bar.py's proven label-wrap/clip helpers unchanged and adds per-bar color-by-party plus a legend", "rationale": "horizontal_bar.py is in the CI-frozen v1 file set (byte-identity-checked against 386b933) and can't be edited for a one-off feature; a new sibling module that reuses its internals avoids duplicating proven logic while adding what it doesn't do", "timestamp": "2026-09-21T19:15:00Z"},
     {"question": "Option B color palette", "choice": "Anthropic dataviz skill's validated default categorical palette (dark-mode steps), colors are abstract per-party identity slots — not official party brand colors — with a legend + value labels as the required secondary encoding", "rationale": "Ran the skill's validate_palette.js against the project's actual #0f2f24 chart background: ALL CHECKS PASS with one WARN (green slot contrast, 2.92:1), mitigated per the skill's own rule by the always-present value labels and legend text", "timestamp": "2026-09-21T19:15:00Z"},
-    {"question": "instagram_factory_render.yml changes made along the way", "choice": "Edited three times (existing file, not first appearance, so within normal Director authority): (1) inject any new instagram/visuals/renderers/*.py file the project adds, not just the fixed party_issue_monthly_profile_v2-era file list; (2) capture the render step's stdout/stderr and push it to director/sessions/<id>/runs/<run_id>-render-output.log so failures are debuggable (GitHub's own log-download endpoint isn't reachable from this environment's network); (3) also push the adapter's run_manifest.json to director/sessions/<id>/runs/<run_id>-run-manifest.json so per-run detail (like the dedupe count) is readable without the 30-day Actions artifact", "rationale": "First attempt at the two-variant render failed with an ImportError because the injection step didn't know about the new renderer module; without the diagnostics log the second failure (a legend clipping the figure) would have been a black box", "timestamp": "2026-09-21T19:35:00Z"},
+    {"question": "instagram_factory_render.yml changes made along the way (2026-09-21)", "choice": "Edited three times (existing file, not first appearance, so within normal Director authority): (1) inject any new instagram/visuals/renderers/*.py file the project adds, not just the fixed party_issue_monthly_profile_v2-era file list; (2) capture the render step's stdout/stderr and push it to director/sessions/<id>/runs/<run_id>-render-output.log so failures are debuggable (GitHub's own log-download endpoint isn't reachable from this environment's network); (3) also push the adapter's run_manifest.json to director/sessions/<id>/runs/<run_id>-run-manifest.json so per-run detail (like the dedupe count) is readable without the 30-day Actions artifact", "rationale": "First attempt at the two-variant render failed with an ImportError because the injection step didn't know about the new renderer module; without the diagnostics log the second failure (a legend clipping the figure) would have been a black box", "timestamp": "2026-09-21T19:35:00Z"},
     {"question": "Visual-direction pick (§6.1 gate — Warren's call)", "choice": "Option B (colored bars by party + legend), with one modification: legend laid out as 3 columns x 2 rows instead of 2 columns x 3 rows, and the chart enlarged into the vertical space the shorter legend frees up", "rationale": "Warren's own words: 'I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger.'", "timestamp": "2026-09-22T21:50:00Z"},
-    {"question": "Option B legend/chart tuning for the 3-col/2-row layout", "choice": "horizontal_bar_grouped.py: LEGEND_MAX_COLUMNS 2 -> 3; PLOT_HEIGHT 0.66 -> 0.70 (legend band 0.185 -> 0.16 figure-fraction gap, still ample for 2 rows given the old 3-row layout fit comfortably in a similar-sized band); LEGEND_MAX_LABEL_CHARS 18 -> 13 and column/handle spacing trimmed, since 3 columns leaves less horizontal room per column on the 1032px canvas than 2 did", "rationale": "3 columns needs less vertical room (2 rows vs 3) but more horizontal room per row than 2 columns did on the same canvas width — tightened the horizontal safety margins (which is what actually caused the earlier legend_clipped_to_figure failure at ncol=4) rather than the vertical ones", "timestamp": "2026-09-22T21:50:00Z"}
+    {"question": "Option B legend/chart tuning for the 3-col/2-row layout", "choice": "horizontal_bar_grouped.py: LEGEND_MAX_COLUMNS 2 -> 3; PLOT_HEIGHT 0.66 -> 0.70 (legend band 0.185 -> 0.16 figure-fraction gap, still ample for 2 rows given the old 3-row layout fit comfortably in a similar-sized band); LEGEND_MAX_LABEL_CHARS 18 -> 13 and column/handle spacing trimmed, since 3 columns leaves less horizontal room per column on the 1032px canvas than 2 did", "rationale": "3 columns needs less vertical room (2 rows vs 3) but more horizontal room per row than 2 columns did on the same canvas width — tightened the horizontal safety margins (which is what actually caused the earlier legend_clipped_to_figure failure at ncol=4) rather than the vertical ones", "timestamp": "2026-09-22T21:50:00Z"},
+    {"question": "Proceed to remaining six slides (Warren's call)", "choice": "\"leave as is for the dedupes. We can investigate that in the future. It's not a big enough proportion to be concerned about. Let's proceed now to the other slides.\"", "rationale": "Warren's explicit instruction, authorizing the full 7-slide build using the settled top_askers visual treatment", "timestamp": "2026-09-22T22:00:00Z"},
+    {"question": "New text-only layout for headline/methodology/answers-placeholder", "choice": "instagram/templates/layouts/text_block_v1.json — title + 6 independently-bound text-line placeholders + footer, non-frozen (instagram/templates/layouts/*.json is confirmed NOT part of the CI-frozen v1 file set)", "rationale": "template_renderer.py's text_lines() collapses embedded newlines within a single placeholder's text, so a multi-line stat block needs one placeholder per line rather than one placeholder with \\n\\n separators", "timestamp": "2026-09-22T22:30:00Z"},
+    {"question": "Answer-tables missing from current production batch", "choice": "Load written_question_answer_sections/written_question_answer_bridge in a separate try/except-wrapped call, outside project.yml's hard required_tables; degrade the 'answers' slide to an honest text placeholder (no fabricated figures) when the load fails, rather than aborting the whole 7-slide render", "rationale": "Run 35795811070 failed with botocore NoSuchKey — the tables are contract-approved (configs/political_metrics/written_question_answers.yml) but not present in the current production batch (written-pq-answers-20260905-1), confirming director/data_products.yml's known_drift_fact caveat that batch/table availability isn't guaranteed across time even for approved contracts", "timestamp": "2026-09-22T23:07:00Z"},
+    {"question": "instagram_factory_render.yml changes made this build (2026-09-22)", "choice": "Edited again (existing file, not first appearance): inject any project-added instagram/templates/layouts/*.json file that doesn't already exist in the pinned worktree, mirroring the existing pattern for extra renderer modules", "rationale": "Run 35796641892 failed with FileNotFoundError on text_block_v1.json — the injection step had no equivalent for new (non-frozen) template layout files, only for renderer modules", "timestamp": "2026-09-22T23:18:00Z"},
+    {"question": "Verification-render period override", "choice": "Dispatched with an explicit period: \"2026-07\" instead of the project default last_completed_month", "rationale": "Run 35796492112 confirmed (again) that August 2026 is not yet in production data — last_completed_month resolves to August given today's date (2026-09-22), which is a real data gap, not a code bug; July is the same month already analyzed and shown to Warren, so it's the right month for verifying the carousel renders correctly. This is a one-off dispatch parameter for THIS verification, not a change to the project's default period behavior (which should still correctly use last_completed_month once August data is in production).", "timestamp": "2026-09-22T23:16:00Z"},
+    {"question": "Issue found: fewest_askers has no usable content for July 2026 (and likely most months)", "choice": "NOT resolved unilaterally — flagged to Warren rather than silently redesigned or routed around", "rationale": "All 10 of July's lowest-count eligible TDs asked exactly zero questions (Alan Dillon, Charlie McConalogue, Colm Brophy, Dara Calleary, Darragh O'Brien, Emer Higgins, Helen McEntee, Hildegarde Naughton, Jack Chambers, James Browne — all read as office-holders/senior figures, consistent with the discovery-phase finding that 32 of 40 office-holders asked none). A plain ascending bar chart has nothing to show when every bar is zero-length; the frozen horizontal_bar.py renderer additionally can't distinguish this from 'no data' (empty_state = not clean_rows or max(values) <= 0) and shows a 'No data available' placeholder instead. This traces back to the originally agreed office-holder-exclusion + median-comparison design for this slide never having been built (only a caveat was substituted, since no office-holder/party-leader reference list exists in the pipeline) — that gap is now a real content problem, not just a caveat, since the pattern looks likely to recur most months. Options for Warren to choose from: (a) build the office-holder/party-leader exclusion from a hand-maintained list Warren supplies, restoring the original design; (b) render this case as a text slide (names only) when there's a mass zero-tie; (c) show only the non-zero low askers, if any exist that month; (d) something else. This is the content-idea/visual-direction gate (workflows_v1.md §6.1) — Warren's call, not the Director's.", "timestamp": "2026-09-22T23:25:00Z"}
   ],
   "slide_plan": [
-    {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month"},
-    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "Visual direction decided: Warren picked option B (colored bars + legend) with the 3-col/2-row legend + enlarged-chart modification; rendered clean (run 35789255000, legend_clipped_to_figure: false). This slide's design is now settled; next is scaling the same treatment to the remaining six slides."},
-    {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')"},
-    {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals"},
-    {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle"},
-    {"id": "answers", "title": "What happened to the answers", "content": "Reply present / reply not received / referred for direct reply, with the most-referred department(s)"},
-    {"id": "methodology", "title": "Methodology and sources", "content": "Sources, batch id, definitions, caveats (PQs are one of several mechanisms; referral flag is keyword-based; absences not accounted for)"}
+    {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month", "status": "Built (text_block_v1.json layout). Rendered clean, visually verified (run 35796810745)."},
+    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "Visual direction decided: Warren picked option B (colored bars + legend) with the 3-col/2-row legend + enlarged-chart modification; rendered clean (run 35789255000 and again in the full carousel, run 35796810745). Settled."},
+    {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')", "status": "BROKEN as built (run 35796810745): renders as 'No data available' because all 10 lowest-count July TDs asked exactly zero questions — the frozen renderer treats all-zero as empty, and a raw ascending bar chart has nothing to show regardless. Median-comparison and office-holder-exclusion design (originally agreed) was never built. Needs Warren's design decision — see the 2026-09-22 'Issue found' decision above. NOT ready for final approval."},
+    {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals", "status": "Built (uses the full period-end TD roster as the denominator, not a non-office-only count — same office-holder data gap noted as a caveat). Rendered clean, visually verified (run 35796810745): 11-row chart, no clipping, 'People Before Profit-Solidarity' wraps cleanly to 2 lines."},
+    {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle", "status": "Built without display-name mapping or answering-minister subtitle (recipient labels straight from source). Rendered clean, visually verified (run 35796810745): 8-row chart, no issues."},
+    {"id": "answers", "title": "What happened to the answers", "content": "Reply present / reply not received / referred for direct reply, with the most-referred department(s)", "status": "Built with graceful degradation to a text placeholder when written_question_answer_sections/bridge are unavailable. Confirmed those tables ARE currently unavailable in the production batch (run 35795811070/35796810745) — this run rendered the placeholder, not the real chart. Placeholder renders clean, visually verified (run 35796810745). Real chart logic exists and is syntax-correct but has never actually rendered against real answer data — untested until those tables are back in a production batch."},
+    {"id": "methodology", "title": "Methodology and sources", "content": "Sources, batch id, definitions, caveats (PQs are one of several mechanisms; referral flag is keyword-based; absences not accounted for)", "status": "Built (text_block_v1.json layout). Rendered clean, visually verified (run 35796810745)."}
   ],
   "visual_decisions": {
     "top_askers": {
@@ -86,6 +95,9 @@
       "decided_by": "Warren",
       "decided_at": "2026-09-22T21:50:00Z",
       "confirming_run": "35789255000"
+    },
+    "fewest_askers": {
+      "status": "UNRESOLVED — see decisions log entry 'Issue found: fewest_askers has no usable content' (2026-09-22T23:25:00Z). Needs Warren's input before any implementation."
     }
   },
   "runs": [
@@ -141,19 +153,7 @@
       "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html",
       "source_batch_id": "written-pq-answers-20260905-1",
       "manifest_url": "director/sessions/2026-09-21-monthly-questions-overview/runs/35646123979-run-manifest.json",
-      "top_askers_rendered": [
-        {"member": "Ken O'Flynn", "party": "Independent Ireland", "count": 418},
-        {"member": "Pa Daly", "party": "Sinn Féin", "count": 322},
-        {"member": "John Brady", "party": "Sinn Féin", "count": 254},
-        {"member": "Aindrias Moynihan", "party": "Fianna Fáil", "count": 250},
-        {"member": "Peadar Tóibín", "party": "Aontú", "count": 250},
-        {"member": "Michael Cahill", "party": "Fianna Fáil", "count": 225},
-        {"member": "Barry Ward", "party": "Fine Gael", "count": 218},
-        {"member": "Pádraig Rice", "party": "Social Democrats", "count": 210},
-        {"member": "Conor D. McGuinness", "party": "Sinn Féin", "count": 206},
-        {"member": "Pádraig O'Sullivan", "party": "Fianna Fáil", "count": 198}
-      ],
-      "dedupe_note": "data_quality.question_dedupe for this run: raw_row_count=8911, deduped_row_count=8911, duplicate_question_id_count=0, duplicate_row_count_removed=0. This contradicts the '11 duplicate question IDs' noted at session kickoff — flagged to Warren rather than assumed resolved; possible causes: the earlier count used a different definition of 'duplicate' or a different data slice, or the source data has since changed. Not yet root-caused; Warren has not yet responded to this specific flag.",
+      "dedupe_note": "data_quality.question_dedupe for this run: raw_row_count=8911, deduped_row_count=8911, duplicate_question_id_count=0, duplicate_row_count_removed=0. This contradicts the '11 duplicate question IDs' noted at session kickoff — flagged to Warren rather than assumed resolved. Warren's later reply (2026-09-22): leave as-is, not a big enough proportion to be concerned about, investigate in the future.",
       "visual_verification": "Both slides downloaded from the preview branch and visually inspected: option A (top_askers_v1_acronym) — no wrapping/overlap, all 10 acronym labels legible on one line. Option B (top_askers_v2_colored_legend) — 6 distinct party colors, 2-column legend fits cleanly above the plot, no clipping, all bars distinguishable by color plus the legend/value labels as required secondary encoding.",
       "timestamp": "2026-09-21T19:39:36Z"
     },
@@ -173,11 +173,52 @@
       "readability_confirmed": "slide 2 (top_askers_v2_colored_legend) readability.legend_group_count: 6, legend_clipped_to_figure: false, category_text_clipped_count: 0, value_text_clipped_count: 0, truncated_label_count: 0, groups_without_color_mapping: 0",
       "visual_verification": "Downloaded slide-002-02-top-askers-v2-colored-legend.png from the preview branch and inspected directly: 3-column/2-row legend (Fianna Fáil / Fine Gael / Social Democrats on row 1, Sinn Féin / Independent Ireland / Aontú on row 2), no clipping or overlap, chart visibly larger than the prior 2-col/3-row build.",
       "timestamp": "2026-09-22T21:53:46Z"
+    },
+    {
+      "run_id": "35795646995",
+      "conclusion": "failure",
+      "note": "First attempt at the full 7-slide carousel. Dispatched with factory_ref mistakenly set to the feature branch instead of left at its 386b933 default — factory_ref pins a separate hash-verified worktree, not where the project's own code comes from. Broke the corner-PNG hash verification step. Fixed by redispatching without factory_ref.",
+      "timestamp": "2026-09-22T23:04:55Z"
+    },
+    {
+      "run_id": "35795811070",
+      "conclusion": "failure",
+      "note": "botocore.errorfactory.NoSuchKey inside load_csv_tables() — written_question_answer_sections/bridge not present in the current production batch. Fixed: adapter.py loads these two tables in a separate try/except-wrapped call; on failure, 'answers' slide degrades to a text placeholder instead of aborting the whole render. project.yml's required_tables trimmed back to the 5 core silver_* tables.",
+      "timestamp": "2026-09-22T23:06:54Z"
+    },
+    {
+      "run_id": "35796492112",
+      "conclusion": "failure",
+      "note": "RuntimeError: No Dáil-eligible questions found for 2026-08. period: last_completed_month resolved to August 2026 (today is 2026-09-22), but August 2026 is not yet in production data (already noted in this session's discovery phase) — a real data gap, not a code bug. Redispatched with an explicit period: '2026-07' for this verification render instead.",
+      "timestamp": "2026-09-22T23:15:00Z"
+    },
+    {
+      "run_id": "35796641892",
+      "conclusion": "failure",
+      "note": "FileNotFoundError: instagram/templates/layouts/text_block_v1.json — the workflow's injection step had no equivalent of its 'inject new renderer modules' pattern for new template layout files. Fixed by adding the same pattern for instagram/templates/layouts/*.json.",
+      "timestamp": "2026-09-22T23:16:45Z"
+    },
+    {
+      "run_id": "35796810745",
+      "workflow": "instagram_factory_render.yml",
+      "project_id": "pq_monthly_overview_v1",
+      "period": "2026-07",
+      "dispatched_from_ref": "sly/feature/pq-monthly-overview-v1",
+      "commit": "843f12ab479796e5b8a0bae3b138f87854c88664",
+      "conclusion": "success",
+      "qa": "PASS (expected_slide_count: 7, require_publication_disabled, require_review_state all PASS)",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-full-carousel/index.html",
+      "source_batch_id": "written-pq-answers-20260905-1",
+      "manifest_url": "director/sessions/2026-09-21-monthly-questions-overview/runs/35796810745-run-manifest.json",
+      "note": "First clean full 7-slide carousel render. Numbers match the July discovery-phase spot-check exactly (8,911 questions, 8,752 written/159 oral, 141 TDs asking, Ken O'Flynn 418 top asker). answers slide correctly rendered the placeholder (data_available: false), confirming the answer tables really are absent from the current production batch.",
+      "visual_verification": "All 7 PNGs downloaded from the preview branch (previews/pq-monthly-overview-v1-full-carousel) and inspected directly. 6 of 7 clean: headline, top_askers, party_per_td, departments, answers (placeholder), methodology. fewest_askers is BROKEN — renders 'No data available' despite 10 real records in the manifest, because all 10 values are 0 and the frozen renderer's empty_state check treats max(values)<=0 as no-data. See the state-level 'Issue found' decision for full detail and options for Warren.",
+      "timestamp": "2026-09-22T23:18:53Z"
     }
   ],
   "feedback": [
     {"from": "Warren", "on": "run 35634477456 (single-slide prototype)", "content": "Assessment (label overlap) confirmed correct; chart otherwise good. Asked for two comparable fixes to be built and compared: (A) two/one-letter party acronym in the label, e.g. 'Name (SF)'; (B) colored bars by party with a legend detailing which party is which color.", "timestamp": "2026-09-21T19:00:00Z"},
-    {"from": "Warren", "on": "run 35646123979 (both options rendered, review link sent)", "content": "\"I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger.\"", "timestamp": "2026-09-22T21:50:00Z"}
+    {"from": "Warren", "on": "run 35646123979 (both options rendered, review link sent)", "content": "\"I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger.\"", "timestamp": "2026-09-22T21:50:00Z"},
+    {"from": "Warren", "on": "dedupe count discrepancy (flagged after run 35646123979)", "content": "\"leave as is for the dedupes. We can investigate that in the future. It's not a big enough proportion to be concerned about. Let's proceed now to the other slides.\"", "timestamp": "2026-09-22T22:00:00Z"}
   ],
-  "approval_state": "visual_direction_approved_pending_full_carousel"
+  "approval_state": "full_carousel_built_pending_fewest_askers_design_decision"
 }
