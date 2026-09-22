@@ -36,7 +36,7 @@ Dispatched `instagram_factory_render.yml` (run `35634477456`) — **passed on th
 
 Rendered top 10 matches the discovery-phase spot-check. **Visual issue found:** the `Name (Party)` label format produces a 3-line wrap for at least one TD ("Conor D. McGuinness (Sinn Féin)"), overlapping the neighbouring rows — flagged for Warren's visual-direction decision.
 
-## Warren's feedback
+## Warren's feedback (round 1)
 "Your assessment is correct. The chart looks good. However, the labels are too long and therefore overwrap the rows." Asked for two comparable versions instead of picking a fix blind: (A) a two/one-letter party acronym in the label, e.g. "Conor McGuinness (SF)"; (B) bars colored by party with a legend detailing which party is which color.
 
 ## Build: two visual-direction variants (2026-09-21, this build)
@@ -54,20 +54,33 @@ Rendered top 10 matches the discovery-phase spot-check. **Visual issue found:** 
 4. **Run `35645890623` — success.** Both slides rendered and were visually verified (downloaded both PNGs via the preview branch and inspected them directly): option A shows all 10 acronym labels on one line with no overlap; option B shows 6 distinct, legible party colors with a clean 2-column legend, no clipping. The run's diagnostics-log push worked, but the follow-up push of `run_manifest.json` (added to also capture the exact dedupe count, see below) looked in the wrong directory and found nothing.
 5. **Run `35646123979` — re-run purely to capture the manifest** (no code change to the adapter or either renderer, just the workflow's manifest-search path fixed from the pinned worktree to `$GITHUB_WORKSPACE`). Confirms the same output as run `35645890623`. Manifest: `director/sessions/2026-09-21-monthly-questions-overview/runs/35646123979-run-manifest.json`.
 
-### Dedupe count — now captured, and it doesn't match the kickoff note
-This run's `data_quality.question_dedupe`: `raw_row_count=8911`, `deduped_row_count=8911`, **`duplicate_question_id_count=0`**, `duplicate_row_count_removed=0`. The kickoff instruction said "July has 11 duplicate question IDs" — this run found none. Not root-caused yet; possible explanations are a different definition of "duplicate" in whatever produced the original 11, a different data slice, or the source data changing between then and now (the validated batch is the same, `written-pq-answers-20260905-1`, so a batch change is unlikely but not ruled out). Flagging this to Warren rather than quietly treating either number as correct.
+### Dedupe count — captured, doesn't match the kickoff note, still unresolved
+This run's `data_quality.question_dedupe`: `raw_row_count=8911`, `deduped_row_count=8911`, **`duplicate_question_id_count=0`**, `duplicate_row_count_removed=0`. The kickoff instruction said "July has 11 duplicate question IDs" — this run found none. Not root-caused; flagged to Warren alongside the option A/B review link. Warren has not yet responded to this specific point — still open.
 
-Review page (both slides): https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html
+## Warren's feedback (round 2) — visual direction decided
+Sent Warren the review link with both options and the dedupe discrepancy. His reply: "I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger."
+
+## Build: option B legend/chart tuning per Warren's pick (2026-09-22)
+Edited `horizontal_bar_grouped.py` on `sly/feature/pq-monthly-overview-v1`:
+- `LEGEND_MAX_COLUMNS` 2 → 3 (Warren's ask: 3 columns × 2 rows instead of 2 × 3, for the same 6 parties).
+- `PLOT_HEIGHT` 0.66 → 0.70 — a 2-row legend needs less vertical room than the earlier 3-row layout, so the freed space (now a 0.16 figure-fraction gap above the plot, vs. 0.185 before) goes into the chart itself, per Warren's "fill in the remaining space by making the chart slightly larger."
+- `LEGEND_MAX_LABEL_CHARS` 18 → 13, plus tighter `columnspacing`/`handletextpad` — three columns leaves less horizontal room per column on the fixed 1032px canvas than two did, and the earlier real failure (run `35645238352`) was a *horizontal* legend overflow (at `ncol=4`, uncapped names), not a vertical one — so the horizontal safety margin, not the vertical one, is what needed tightening for the extra column.
+
+One slip along the way, caught and fixed before it could matter: the first commit for this change (`9266e575`) accidentally pushed placeholder text instead of the real file content — caught immediately by reading the file back from the branch before dispatching anything, and corrected in a follow-up commit (`8e304045`) before any render ran against it.
+
+Dispatched `instagram_factory_render.yml` (run `35789255000`) — **passed on the first attempt**. QA PASS (`expected_slide_count: 2`), option B's readability block shows `legend_clipped_to_figure: false`, `legend_group_count: 6`, zero clipped/truncated labels. Downloaded the rendered PNG and inspected it directly: clean 3-column/2-row legend (Fianna Fáil / Fine Gael / Social Democrats on row one, Sinn Féin / Independent Ireland / Aontú on row two), no overlap or clipping, and the chart is visibly larger than the prior 2-col/3-row build.
+
+Review page (still shows both slides — option A is unchanged from run `35646123979`; option B is now the final, approved layout): https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html
 
 ## Build notes / open issues
-- Duplicate `question_id` handling: dedupe-not-hard-fail logic is built and working; **the actual count this run was 0**, contradicting the kickoff note of 11 — needs Warren's input on which is right (see above).
+- **Dedupe count still unresolved**: this run's actual count is 0, contradicting the kickoff note of 11 — still needs Warren's input on which is right, or whether it no longer matters now that the pipeline dedupes defensively either way.
 - Department labels need a display-name mapping — not yet needed (no slide built yet uses departments).
 - A party-leader list needs creating with its sources — needed for the fewest-askers slide, not yet built.
 - The 28 July date concentration needs explaining before any 'busiest day' framing.
-- Option B's legend currently ellipsizes any party name over 18 characters (e.g. would show "Independent Irela…" if that party appeared) — cosmetically minor but worth a cleaner truncation (e.g. a short-name lookup instead of a character cut) if option B is picked.
-- If option A is picked, the first-cut `PARTY_ACRONYM` dict in `adapter.py` should be promoted to a proper reference file rather than staying inline.
+- Option B's legend still ellipsizes any party name over 13 characters (tightened from 18 for the 3-column layout) — cosmetically minor but worth a cleaner truncation (e.g. a short-name lookup instead of a character cut) at some point; full names remain correct in the run manifest regardless.
+- Option A (`PARTY_ACRONYM` dict in `adapter.py`) is now the non-selected variant — kept rendering alongside option B for reference/comparison, but no further investment planned unless Warren changes his mind.
 - `instagram_factory_render.yml` now also injects any project-added `instagram/visuals/renderers/*.py` module and pushes render diagnostics + the run manifest to the session branch on every run — this is a general improvement, not specific to this project, and should keep working for future projects that add their own non-frozen renderer variants.
-- **Open for Warren's visual-direction decision:** pick option A (acronym label) or option B (colored bars + legend) — see the review link above — before scaling to the full seven-slide carousel.
+- **Visual direction is now settled (option B, 3-col/2-row legend, enlarged chart).** Next: scale this same renderer/treatment approach to the remaining six slides in the agreed content spec, then the full-carousel render and final-approval gates (workflows_v1.md §6.2–6.3, both Warren's calls).
 
 ## Status
-Content gate passed. Two visual-direction variants built and rendered clean (run `35646123979`, QA PASS). **approval_state: pending_visual_direction** — waiting on Warren's pick between option A and option B before scaling to the full seven-slide carousel.
+Content gate passed. Visual-direction gate passed — Warren picked option B with the 3-col/2-row legend + enlarged-chart modification, confirmed rendering clean (run `35789255000`, QA PASS, `legend_clipped_to_figure: false`). **approval_state: visual_direction_approved_pending_full_carousel** — next step is building out the remaining six slides using this settled visual treatment, then the full-carousel render and Warren's final approval.
