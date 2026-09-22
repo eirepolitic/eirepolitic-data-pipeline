@@ -2,8 +2,8 @@
   "session_id": "2026-09-21-monthly-questions-overview",
   "branch": "sly/session/2026-09-21-monthly-questions-overview",
   "created_at": "2026-09-21T17:00:00Z",
-  "updated_at": "2026-09-21T19:40:00Z",
-  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; build in progress (workflows_v1.md §6.1).",
+  "updated_at": "2026-09-22T21:56:00Z",
+  "intent": "New recurring monthly post type: Monthly Questions Overview — a high-level picture of Dáil Parliamentary Questions asked and answered in the previous month. One of three new monthly post types (with Monthly Speeches Overview and Monthly Bill Summary). Discovery phase complete; content spec agreed with Warren; visual direction (option B, colored bars + legend, 3-col/2-row) picked by Warren; now scaling to the full seven-slide carousel (workflows_v1.md §6.1).",
   "resolved_project": "pq_monthly_overview_v1",
   "resolved_period": "2026-07",
   "data_sources": [
@@ -64,18 +64,30 @@
     {"question": "Visual-direction option A implementation", "choice": "top_askers_v1_acronym — horizontal_bar.py used completely unmodified (frozen file, never touched); label format changed from 'Name (Party)' to 'Name (XX)' using a 2-4 letter party acronym", "rationale": "Shortening the label directly fixes the wrap/overlap without touching any frozen renderer code", "timestamp": "2026-09-21T19:15:00Z"},
     {"question": "Visual-direction option B implementation", "choice": "top_askers_v2_colored_legend — new instagram/visuals/renderers/horizontal_bar_grouped.py module (not frozen, project-owned) that imports horizontal_bar.py's proven label-wrap/clip helpers unchanged and adds per-bar color-by-party plus a legend", "rationale": "horizontal_bar.py is in the CI-frozen v1 file set (byte-identity-checked against 386b933) and can't be edited for a one-off feature; a new sibling module that reuses its internals avoids duplicating proven logic while adding what it doesn't do", "timestamp": "2026-09-21T19:15:00Z"},
     {"question": "Option B color palette", "choice": "Anthropic dataviz skill's validated default categorical palette (dark-mode steps), colors are abstract per-party identity slots — not official party brand colors — with a legend + value labels as the required secondary encoding", "rationale": "Ran the skill's validate_palette.js against the project's actual #0f2f24 chart background: ALL CHECKS PASS with one WARN (green slot contrast, 2.92:1), mitigated per the skill's own rule by the always-present value labels and legend text", "timestamp": "2026-09-21T19:15:00Z"},
-    {"question": "instagram_factory_render.yml changes made along the way", "choice": "Edited three times (existing file, not first appearance, so within normal Director authority): (1) inject any new instagram/visuals/renderers/*.py file the project adds, not just the fixed party_issue_monthly_profile_v2-era file list; (2) capture the render step's stdout/stderr and push it to director/sessions/<id>/runs/<run_id>-render-output.log so failures are debuggable (GitHub's own log-download endpoint isn't reachable from this environment's network); (3) also push the adapter's run_manifest.json to director/sessions/<id>/runs/<run_id>-run-manifest.json so per-run detail (like the dedupe count) is readable without the 30-day Actions artifact", "rationale": "First attempt at the two-variant render failed with an ImportError because the injection step didn't know about the new renderer module; without the diagnostics log the second failure (a legend clipping the figure) would have been a black box", "timestamp": "2026-09-21T19:35:00Z"}
+    {"question": "instagram_factory_render.yml changes made along the way", "choice": "Edited three times (existing file, not first appearance, so within normal Director authority): (1) inject any new instagram/visuals/renderers/*.py file the project adds, not just the fixed party_issue_monthly_profile_v2-era file list; (2) capture the render step's stdout/stderr and push it to director/sessions/<id>/runs/<run_id>-render-output.log so failures are debuggable (GitHub's own log-download endpoint isn't reachable from this environment's network); (3) also push the adapter's run_manifest.json to director/sessions/<id>/runs/<run_id>-run-manifest.json so per-run detail (like the dedupe count) is readable without the 30-day Actions artifact", "rationale": "First attempt at the two-variant render failed with an ImportError because the injection step didn't know about the new renderer module; without the diagnostics log the second failure (a legend clipping the figure) would have been a black box", "timestamp": "2026-09-21T19:35:00Z"},
+    {"question": "Visual-direction pick (§6.1 gate — Warren's call)", "choice": "Option B (colored bars by party + legend), with one modification: legend laid out as 3 columns x 2 rows instead of 2 columns x 3 rows, and the chart enlarged into the vertical space the shorter legend frees up", "rationale": "Warren's own words: 'I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger.'", "timestamp": "2026-09-22T21:50:00Z"},
+    {"question": "Option B legend/chart tuning for the 3-col/2-row layout", "choice": "horizontal_bar_grouped.py: LEGEND_MAX_COLUMNS 2 -> 3; PLOT_HEIGHT 0.66 -> 0.70 (legend band 0.185 -> 0.16 figure-fraction gap, still ample for 2 rows given the old 3-row layout fit comfortably in a similar-sized band); LEGEND_MAX_LABEL_CHARS 18 -> 13 and column/handle spacing trimmed, since 3 columns leaves less horizontal room per column on the 1032px canvas than 2 did", "rationale": "3 columns needs less vertical room (2 rows vs 3) but more horizontal room per row than 2 columns did on the same canvas width — tightened the horizontal safety margins (which is what actually caused the earlier legend_clipped_to_figure failure at ncol=4) rather than the vertical ones", "timestamp": "2026-09-22T21:50:00Z"}
   ],
   "slide_plan": [
     {"id": "headline", "title": "Parliamentary Questions: <Month YYYY>", "content": "Total questions, written/oral split, TDs asking, question dates, change vs previous month"},
-    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "two visual-direction variants rendered (run 35646123979), awaiting Warren's pick between option A (acronym label) and option B (colored bars + legend)"},
+    {"id": "top_askers", "title": "Most questions submitted", "content": "Top 10 TDs by count, with party", "status": "Visual direction decided: Warren picked option B (colored bars + legend) with the 3-col/2-row legend + enlarged-chart modification; rendered clean (run 35789255000, legend_clipped_to_figure: false). This slide's design is now settled; next is scaling the same treatment to the remaining six slides."},
     {"id": "fewest_askers", "title": "Fewest questions submitted", "content": "Bottom 10 eligible TDs by count, with party and gap to median ('typical TD')"},
     {"id": "party_per_td", "title": "Questions per TD by party", "content": "Questions per non-office TD by party, with totals"},
     {"id": "departments", "title": "Departments asked most", "content": "Top departments by question count, display-name mapped; answering minister as subtitle"},
     {"id": "answers", "title": "What happened to the answers", "content": "Reply present / reply not received / referred for direct reply, with the most-referred department(s)"},
     {"id": "methodology", "title": "Methodology and sources", "content": "Sources, batch id, definitions, caveats (PQs are one of several mechanisms; referral flag is keyword-based; absences not accounted for)"}
   ],
-  "visual_decisions": {},
+  "visual_decisions": {
+    "top_askers": {
+      "chosen_option": "option_b_colored_bars_with_legend",
+      "renderer": "instagram.visuals.renderers.horizontal_bar_grouped",
+      "legend_layout": "3 columns x 2 rows",
+      "chart_size": "PLOT_HEIGHT 0.70 (enlarged from the 0.66 used in the 2-col/3-row build, using the space the shorter legend freed up)",
+      "decided_by": "Warren",
+      "decided_at": "2026-09-22T21:50:00Z",
+      "confirming_run": "35789255000"
+    }
+  },
   "runs": [
     {
       "run_id": "35634477456",
@@ -141,13 +153,31 @@
         {"member": "Conor D. McGuinness", "party": "Sinn Féin", "count": 206},
         {"member": "Pádraig O'Sullivan", "party": "Fianna Fáil", "count": 198}
       ],
-      "dedupe_note": "data_quality.question_dedupe for this run: raw_row_count=8911, deduped_row_count=8911, duplicate_question_id_count=0, duplicate_row_count_removed=0. This contradicts the '11 duplicate question IDs' noted at session kickoff — flagged to Warren rather than assumed resolved; possible causes: the earlier count used a different definition of 'duplicate' or a different data slice, or the source data has since changed. Not yet root-caused.",
+      "dedupe_note": "data_quality.question_dedupe for this run: raw_row_count=8911, deduped_row_count=8911, duplicate_question_id_count=0, duplicate_row_count_removed=0. This contradicts the '11 duplicate question IDs' noted at session kickoff — flagged to Warren rather than assumed resolved; possible causes: the earlier count used a different definition of 'duplicate' or a different data slice, or the source data has since changed. Not yet root-caused; Warren has not yet responded to this specific flag.",
       "visual_verification": "Both slides downloaded from the preview branch and visually inspected: option A (top_askers_v1_acronym) — no wrapping/overlap, all 10 acronym labels legible on one line. Option B (top_askers_v2_colored_legend) — 6 distinct party colors, 2-column legend fits cleanly above the plot, no clipping, all bars distinguishable by color plus the legend/value labels as required secondary encoding.",
       "timestamp": "2026-09-21T19:39:36Z"
+    },
+    {
+      "run_id": "35789255000",
+      "workflow": "instagram_factory_render.yml",
+      "project_id": "pq_monthly_overview_v1",
+      "period": "2026-07",
+      "dispatched_from_ref": "sly/feature/pq-monthly-overview-v1",
+      "commit": "8e3040458906eb09407cea4c7af1c066963c5181",
+      "conclusion": "success",
+      "qa": "PASS (expected_slide_count: 2, require_publication_disabled, require_review_state all PASS)",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/pq-monthly-overview-v1-options/index.html",
+      "source_batch_id": "written-pq-answers-20260905-1",
+      "manifest_url": "director/sessions/2026-09-21-monthly-questions-overview/runs/35789255000-run-manifest.json",
+      "note": "Warren picked option B with a modification: legend to 3 columns x 2 rows (was 2 x 3), chart enlarged (PLOT_HEIGHT 0.66 -> 0.70) into the space the shorter legend frees up. horizontal_bar_grouped.py updated (LEGEND_MAX_COLUMNS, PLOT_HEIGHT, LEGEND_MAX_LABEL_CHARS tightened 18 -> 13 for the extra column's horizontal squeeze). This run is option B only in its final, approved layout — option A (top_askers_v1_acronym) is unchanged from run 35646123979 and still renders alongside it since project.yml still defines both slides.",
+      "readability_confirmed": "slide 2 (top_askers_v2_colored_legend) readability.legend_group_count: 6, legend_clipped_to_figure: false, category_text_clipped_count: 0, value_text_clipped_count: 0, truncated_label_count: 0, groups_without_color_mapping: 0",
+      "visual_verification": "Downloaded slide-002-02-top-askers-v2-colored-legend.png from the preview branch and inspected directly: 3-column/2-row legend (Fianna Fáil / Fine Gael / Social Democrats on row 1, Sinn Féin / Independent Ireland / Aontú on row 2), no clipping or overlap, chart visibly larger than the prior 2-col/3-row build.",
+      "timestamp": "2026-09-22T21:53:46Z"
     }
   ],
   "feedback": [
-    {"from": "Warren", "on": "run 35634477456 (single-slide prototype)", "content": "Assessment (label overlap) confirmed correct; chart otherwise good. Asked for two comparable fixes to be built and compared: (A) two/one-letter party acronym in the label, e.g. 'Name (SF)'; (B) colored bars by party with a legend detailing which party is which color.", "timestamp": "2026-09-21T19:00:00Z"}
+    {"from": "Warren", "on": "run 35634477456 (single-slide prototype)", "content": "Assessment (label overlap) confirmed correct; chart otherwise good. Asked for two comparable fixes to be built and compared: (A) two/one-letter party acronym in the label, e.g. 'Name (SF)'; (B) colored bars by party with a legend detailing which party is which color.", "timestamp": "2026-09-21T19:00:00Z"},
+    {"from": "Warren", "on": "run 35646123979 (both options rendered, review link sent)", "content": "\"I prefer option B. One modification should be that instead of two columns of three rows for the legend, make it three columns, two rows, and fill in the remaining space by making the chart slightly larger.\"", "timestamp": "2026-09-22T21:50:00Z"}
   ],
-  "approval_state": "pending_visual_direction"
+  "approval_state": "visual_direction_approved_pending_full_carousel"
 }
