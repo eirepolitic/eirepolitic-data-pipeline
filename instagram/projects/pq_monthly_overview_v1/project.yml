@@ -9,11 +9,13 @@ purpose: >
   into the freed space — horizontal_bar_grouped renderer) and asked to proceed to
   the remaining six slides in the agreed content spec
   (director/workflows_v1.md §6.1, session
-  director/sessions/2026-09-21-monthly-questions-overview/). This build renders
-  the full seven-slide carousel: headline, top_askers, fewest_askers,
-  party_per_td, departments, answers, methodology. Still pending human review and
-  final approval (workflows_v1.md §6.1 step 6) before this graduates past
-  prototype status.
+  director/sessions/2026-09-21-monthly-questions-overview/). "Fewest questions
+  submitted" now excludes office-holders (silver_member_offices) and lists every
+  TD who asked no questions by name when that's under 25% of the eligible pool,
+  per Warren's 2026-09-22 instructions. This build renders the full seven-slide
+  carousel: headline, top_askers, fewest_askers, party_per_td, departments,
+  answers, methodology. Still pending human review and final approval
+  (workflows_v1.md §6.1 step 6) before this graduates past prototype status.
 adapter_module: instagram.projects.pq_monthly_overview_v1.adapter
 
 period:
@@ -31,6 +33,7 @@ source:
     - silver_member_parties
     - silver_member_constituencies
     - silver_members
+    - silver_member_offices
   # written_question_answer_sections / written_question_answer_bridge are loaded
   # separately by the adapter, outside this hard-required list: they're a
   # contract-approved but separately-published dataset, and whether they've been
@@ -59,9 +62,14 @@ slides:
       variant: colored_bars_with_legend_option_b
     - id: fewest_askers
       title: Fewest questions submitted
-      kind: chart
+      kind: chart_or_text
       value_format: integer
-      content: bottom 10 eligible TDs seated the full period, by question count; does not exclude office-holders/party leaders (data gap, see methodology)
+      content: >-
+        non-office-holder eligible TDs seated the full period (office-holders
+        excluded via silver_member_offices; party leaders are not excluded —
+        not tracked anywhere in the pipeline, see methodology). If under 25%
+        of that pool asked zero questions, lists all of them by name as a
+        text slide; otherwise a bottom-10-by-count chart.
     - id: party_per_td
       title: Questions per TD by party
       kind: chart
