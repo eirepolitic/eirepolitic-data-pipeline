@@ -1,0 +1,27 @@
+=== RENDER SUMMARY ===
+{
+  "project_id": "pq_monthly_overview_v1",
+  "period_key": "2026-07",
+  "source_batch_id": "written-pq-answers-20260905-1",
+  "slide_count": 7,
+  "qa_all_passed": true,
+  "qa_checks": [
+    {
+      "name": "expected_slide_count",
+      "passed": true,
+      "detail": "declared 7, actual 7"
+    },
+    {
+      "name": "require_publication_disabled",
+      "passed": true,
+      "detail": "publication_enabled=False"
+    },
+    {
+      "name": "require_review_state",
+      "passed": true,
+      "detail": "declared 'pending_human_review', actual 'pending_human_review'"
+    }
+  ],
+  "preview_slug": "pq-monthly-overview-v1-full-carousel"
+}
+Review page staged at /home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/factory_web_review (7 slides, 0 contact sheets)
