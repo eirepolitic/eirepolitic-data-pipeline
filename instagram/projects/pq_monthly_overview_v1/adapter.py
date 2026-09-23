@@ -161,6 +161,54 @@ def _party_key(party_name: str) -> str:
         return "other"
 
 
+def _office_holder_codes(offices: pd.DataFrame, *, period) -> set[str]:
+    """member_codes holding a ministerial-type office (Minister, Minister of
+    State, Taoiseach, Ceann Comhairle, Leas-Cheann Comhairle — the roles
+    actually recorded in silver_member_offices, confirmed live against the
+    current production batch 2026-09-22) at any point that overlaps the
+    period.
+
+    Does NOT cover party leaders — no party-leader reference data exists
+    anywhere in this pipeline (confirmed live 2026-09-22). Per Warren's
+    instruction that day: flag that as a missing component to add in
+    future and drop it from this slide's scope for now, rather than guess
+    at a hand-maintained list.
+    """
+    if offices.empty:
+        return set()
+    starts = pd.to_datetime(offices["office_start"], errors="coerce").dt.date
+    ends = pd.to_datetime(offices["office_end"], errors="coerce").dt.date
+    overlaps = starts.notna() & (starts <= period.end) & (ends.isna() | (ends >= period.start))
+    return set(offices.loc[overlaps, "member_code"].dropna().unique())
+
+
+def _chunk_into_lines(items: list[str], num_slots: int, *, max_chars_per_slot: int = 170) -> list[str]:
+    """Greedily pack items (already formatted strings, e.g. 'Name (XX)') into
+    up to num_slots comma-joined lines, each kept under max_chars_per_slot so
+    text_block_v1's per-slot wrap+shrink-to-fit can still render it cleanly
+    (each slot already wraps to up to 2 lines on its own). If there are more
+    items than fit in num_slots lines at that budget, the overflow is merged
+    into the final slot rather than silently dropped.
+    """
+    if not items:
+        return []
+    lines: list[str] = []
+    current: list[str] = []
+    for item in items:
+        candidate = current + [item]
+        if current and len(", ".join(candidate)) > max_chars_per_slot:
+            lines.append(", ".join(current))
+            current = [item]
+        else:
+            current = candidate
+    if current:
+        lines.append(", ".join(current))
+    if len(lines) > num_slots:
+        head, tail = lines[: num_slots - 1], lines[num_slots - 1 :]
+        lines = head + [" · ".join(tail)]
+    return lines
+
+
 def _period_end_roster(
     memberships: pd.DataFrame,
     member_parties: pd.DataFrame,
@@ -357,6 +405,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     member_parties = frames["silver_member_parties"]
     member_constituencies = frames["silver_member_constituencies"]
     members_table = frames["silver_members"]
+    offices = frames["silver_member_offices"]
 
     raw_questions = frames["silver_questions"]
     period_questions = filter_period(raw_questions, "question_date", period)
@@ -500,64 +549,123 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     )
     slides.append(slide_top_askers)
 
-    # ===== Slide 3: fewest_askers (bottom 10 eligible TDs, seated the full period) =====
-    fewest_max_items = 10
+    # ===== Slide 3: fewest_askers =====
+    # Warren's instruction (2026-09-22): exclude office-holders using the data
+    # if they're identifiable there; they are (silver_member_offices, checked
+    # live). Party leaders are NOT identifiable anywhere in the pipeline
+    # (checked live) — flagged as a caveat/future component, dropped from
+    # scope rather than guessed at. If under 25% of the remaining eligible
+    # TDs asked zero questions, list all of them by name instead of a
+    # bottom-10 chart — a chart has nothing to show when every bar would be
+    # zero-length, and the frozen horizontal_bar.py renderer can't tell "no
+    # data" from "all-zero data" apart anyway.
+    office_holder_codes = _office_holder_codes(offices, period=period)
     full_month_roster = roster[roster["seated_full_period"]].copy()
-    fewest = full_month_roster.merge(
+    fewest_pool = full_month_roster[~full_month_roster["member_code"].isin(office_holder_codes)].copy()
+    fewest_pool = fewest_pool.merge(
         member_counts[["member_code", "question_count"]], on="member_code", how="left"
     )
-    fewest["question_count"] = fewest["question_count"].fillna(0).astype(int)
-    fewest["acronym"] = fewest["party_key"].map(lambda key: PARTY_ACRONYM.get(key, key.upper()[:3]))
-    fewest["chart_label"] = fewest["member_name"] + " (" + fewest["acronym"] + ")"
-    fewest_sorted = fewest.sort_values(
-        ["question_count", "member_name"], ascending=[True, True]
-    ).head(fewest_max_items).copy()
+    fewest_pool["question_count"] = fewest_pool["question_count"].fillna(0).astype(int)
+    fewest_pool["acronym"] = fewest_pool["party_key"].map(lambda key: PARTY_ACRONYM.get(key, key.upper()[:3]))
+    fewest_pool["chart_label"] = fewest_pool["member_name"] + " (" + fewest_pool["acronym"] + ")"
+
+    office_holders_excluded_count = int(len(full_month_roster) - len(fewest_pool))
+    total_pool = int(len(fewest_pool))
+    zero_pool = fewest_pool[fewest_pool["question_count"] == 0].copy()
+    zero_count = int(len(zero_pool))
+    zero_proportion = (zero_count / total_pool) if total_pool else 0.0
+
     caveats.append(
-        "Fewest questions submitted does not exclude office-holders or party leaders from the ranking — "
-        "no reference list of current office-holders/party leaders exists yet in this pipeline. This is a "
-        "data gap, not an editorial choice; Warren, let us know if you want a hand-maintained list added."
+        f"'Fewest questions submitted' excludes {office_holders_excluded_count} TD(s) holding a ministerial-type "
+        "office (Minister, Minister of State, Taoiseach, Ceann Comhairle, or Leas-Cheann Comhairle) active at any "
+        "point in the month, using the Oireachtas member-offices record (silver_member_offices). It does not "
+        "exclude party leaders — no party-leader reference data exists anywhere in this pipeline yet; this is a "
+        "missing component to add in future, not an editorial choice."
     )
-    fewest_rows = [
-        {"label": row.chart_label, "value": int(row.question_count)} for row in fewest_sorted.itertuples(index=False)
-    ]
-    fewest_records = [
-        {
-            "member_code": row.member_code,
-            "member_name": row.member_name,
-            "party_name": row.display_party_name,
-            "question_count": int(row.question_count),
-        }
-        for row in fewest_sorted.itertuples(index=False)
-    ]
-    slide_fewest = _render_slide(
-        variant_id="fewest_askers",
-        slide_title="Fewest questions submitted",
-        body_text=(
-            f"The {len(fewest_rows)} TDs seated for the whole of {period_label} with the fewest recorded "
-            "parliamentary questions. Does not exclude office-holders or party leaders — see methodology."
-        ),
-        rows=fewest_rows,
-        renderer_module=horizontal_bar,
-        render_kwargs={
-            "template": _chart_template(project, value_format="integer", sort="ascending", max_items=fewest_max_items),
-            "sample": {
-                "visual_id": f"{PROJECT_ID}-fewest_askers-{period_key}",
-                "bindings": {"label": "label", "value": "value"},
-                "source_note": source_note,
-                "empty_message": "No data available",
+
+    if total_pool and zero_proportion < 0.25:
+        zero_pool_sorted = zero_pool.sort_values("member_name")
+        zero_names = [f"{row.member_name} ({row.acronym})" for row in zero_pool_sorted.itertuples(index=False)]
+        summary_line = (
+            f"{zero_count} of {total_pool} non-office-holder TDs seated all of {period_label} "
+            f"({zero_proportion:.0%}) asked no parliamentary questions:"
+        )
+        name_lines = _chunk_into_lines(zero_names, num_slots=5)
+        slide_fewest = _render_text_slide(
+            slide_id="fewest_askers",
+            slide_title="Fewest questions submitted",
+            lines=[summary_line] + name_lines,
+            footer_text=source_note,
+            period_root=period_root,
+            layout=text_layout,
+            slide_index=3,
+        )
+        fewest_records = [
+            {
+                "member_code": row.member_code,
+                "member_name": row.member_name,
+                "party_name": row.display_party_name,
+                "question_count": 0,
+            }
+            for row in zero_pool_sorted.itertuples(index=False)
+        ]
+    else:
+        fewest_max_items = 10
+        fewest_sorted = fewest_pool.sort_values(
+            ["question_count", "member_name"], ascending=[True, True]
+        ).head(fewest_max_items).copy()
+        if not total_pool:
+            caveats.append(
+                "No eligible non-office-holder TDs seated the full month were found — 'Fewest questions submitted' "
+                "has nothing to show this period."
+            )
+        else:
+            caveats.append(
+                f"{zero_count} of {total_pool} ({zero_proportion:.0%}) non-office-holder TDs asked no questions — "
+                "at or above the 25% threshold for listing everyone by name, so this slide shows the bottom 10 by "
+                "count instead. This branch has not been visually verified yet; flag to Warren if it looks wrong."
+            )
+        fewest_rows = [
+            {"label": row.chart_label, "value": int(row.question_count)} for row in fewest_sorted.itertuples(index=False)
+        ]
+        fewest_records = [
+            {
+                "member_code": row.member_code,
+                "member_name": row.member_name,
+                "party_name": row.display_party_name,
+                "question_count": int(row.question_count),
+            }
+            for row in fewest_sorted.itertuples(index=False)
+        ]
+        slide_fewest = _render_slide(
+            variant_id="fewest_askers",
+            slide_title="Fewest questions submitted",
+            body_text=(
+                f"The {len(fewest_rows)} non-office-holder TDs seated for the whole of {period_label} with the "
+                "fewest recorded parliamentary questions."
+            ),
+            rows=fewest_rows,
+            renderer_module=horizontal_bar,
+            render_kwargs={
+                "template": _chart_template(project, value_format="integer", sort="ascending", max_items=fewest_max_items),
+                "sample": {
+                    "visual_id": f"{PROJECT_ID}-fewest_askers-{period_key}",
+                    "bindings": {"label": "label", "value": "value"},
+                    "source_note": source_note,
+                    "empty_message": "No data available",
+                },
+                "input_metadata": {
+                    "project_id": PROJECT_ID,
+                    "source_batch_id": batch.batch_id,
+                    "period_start": period.start.isoformat(),
+                    "period_end": period.end.isoformat(),
+                    "metric_id": "fewest_askers",
+                },
             },
-            "input_metadata": {
-                "project_id": PROJECT_ID,
-                "source_batch_id": batch.batch_id,
-                "period_start": period.start.isoformat(),
-                "period_end": period.end.isoformat(),
-                "metric_id": "fewest_askers",
-            },
-        },
-        period_root=period_root,
-        layout=layout,
-        slide_index=3,
-    )
+            period_root=period_root,
+            layout=layout,
+            slide_index=3,
+        )
     slides.append(slide_fewest)
 
     # ===== Slide 4: party_per_td (questions per TD, by party, period-end roster) =====
@@ -765,8 +873,9 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         f"Data batch: {batch.batch_id}",
         "A question is eligible if asked by a TD with active Dáil membership on the question date; party and "
         "constituency reflect the TD's Oireachtas-listed affiliation on that date, not their current one.",
-        "'Fewest questions submitted' and 'Questions per TD by party' do not exclude office-holders or party "
-        "leaders from the TD count — a data gap, not an editorial choice.",
+        "'Fewest questions submitted' excludes TDs holding a ministerial-type office (Minister, Minister of State, "
+        "Taoiseach, Ceann Comhairle, Leas-Cheann Comhairle) during the month, but not party leaders (not yet "
+        "tracked in this pipeline); 'Questions per TD by party' counts every serving TD, office-holders included.",
         "Answer-status figures (written questions only) reflect the official record as published and may not "
         "cover every question asked this period; see run notes for exact coverage.",
     ]
@@ -806,7 +915,7 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
             "eligibility": "active Dáil membership on question_date (prepare_eligible_td_questions)",
             "period_end_roster": "active Dáil membership at period.end, party as of period.end (temporal_join + attach_event_party)",
             "top_askers": "distinct question_id per member_code, deduped, descending by count then question_day_count then name",
-            "fewest_askers": "period-end roster filtered to membership_start <= period.start (seated full period), left-joined to question counts (0 if none), ascending",
+            "fewest_askers": "period-end roster filtered to membership_start <= period.start (seated full period) and not an office-holder overlapping the period (silver_member_offices); if under 25% of that pool asked zero questions, lists all of them by name, otherwise the bottom 10 by count",
             "party_per_td": "grouped_question_metrics by party_name / period-end TD count per party",
             "departments": "recipient_distribution grouped by to_minister_or_department, top 8 by count",
             "answers": "written_question_answer_bridge joined to written_question_answer_sections by debate_section_id, grouped by answer_status",
@@ -818,6 +927,13 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
         },
         "top_askers": top_asker_records,
         "fewest_askers": fewest_records,
+        "fewest_askers_stats": {
+            "office_holders_excluded_count": office_holders_excluded_count,
+            "eligible_pool_after_exclusion": total_pool,
+            "zero_question_count": zero_count,
+            "zero_question_proportion": round(zero_proportion, 4),
+            "rendered_as": "text_list_all_zero_askers" if (total_pool and zero_proportion < 0.25) else "bottom_10_chart",
+        },
         "party_per_td": party_per_td_records,
         "departments": departments_records,
         "answers": answers_records,
