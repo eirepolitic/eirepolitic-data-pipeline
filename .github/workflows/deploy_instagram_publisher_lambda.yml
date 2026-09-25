@@ -1,0 +1,47 @@
+name: Deploy Instagram Publisher Lambda
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: instagram-publishing
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.INSTAGRAM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Build Lambda package
+        run: |
+          rm -rf lambda-package lambda-package.zip
+          mkdir -p lambda-package/publishing
+          cp publishing/__init__.py lambda-package/publishing/
+          cp publishing/lambda_handler.py lambda-package/publishing/
+          cd lambda-package
+          zip -r ../lambda-package.zip publishing
+
+      - name: Deploy Lambda code
+        run: |
+          aws lambda update-function-code \
+            --function-name eirepolitic-instagram-publisher \
+            --zip-file fileb://lambda-package.zip \
+            --no-cli-pager
+          aws lambda wait function-updated \
+            --function-name eirepolitic-instagram-publisher
+
+      - name: Verify deployed configuration
+        run: |
+          aws lambda get-function-configuration \
+            --function-name eirepolitic-instagram-publisher \
+            --query '{FunctionName:FunctionName,Runtime:Runtime,Handler:Handler,LastUpdateStatus:LastUpdateStatus}' \
+            --no-cli-pager
