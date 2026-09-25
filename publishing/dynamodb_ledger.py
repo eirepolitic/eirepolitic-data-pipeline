@@ -113,7 +113,7 @@ class DynamoDBPublicationLedger:
                 Key=self._key(request.publication_id),
                 UpdateExpression=(
                     "SET publication_version = :new_version, #state = :draft, request = :request "
-                    "REMOVE approval, schedule"
+                    "REMOVE approval, schedule, scheduled_at_utc"
                 ),
                 ConditionExpression="publication_version = :previous_version",
                 ExpressionAttributeNames={"#state": "state"},
@@ -157,7 +157,7 @@ class DynamoDBPublicationLedger:
         try:
             response = self.table.update_item(
                 Key=self._key(schedule.publication_id),
-                UpdateExpression="SET schedule = :schedule, #state = :target_state",
+                UpdateExpression="SET schedule = :schedule, #state = :target_state, scheduled_at_utc = :scheduled_at_utc",
                 ConditionExpression=(
                     "publication_version = :version AND attribute_exists(approval) "
                     "AND (#state = :approved OR #state = :scheduled)"
@@ -166,6 +166,7 @@ class DynamoDBPublicationLedger:
                 ExpressionAttributeValues={
                     ":schedule": asdict(schedule),
                     ":target_state": target_state,
+                    ":scheduled_at_utc": schedule.scheduled_at_utc,
                     ":version": schedule.publication_version,
                     ":approved": "approved",
                     ":scheduled": "scheduled",
