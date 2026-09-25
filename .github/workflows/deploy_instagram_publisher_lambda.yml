@@ -39,6 +39,15 @@ jobs:
           aws lambda wait function-updated \
             --function-name eirepolitic-instagram-publisher
 
+      - name: Configure repository Lambda handler
+        run: |
+          aws lambda update-function-configuration \
+            --function-name eirepolitic-instagram-publisher \
+            --handler publishing.lambda_handler.lambda_handler \
+            --no-cli-pager
+          aws lambda wait function-updated \
+            --function-name eirepolitic-instagram-publisher
+
       - name: Verify deployed configuration
         run: |
           aws lambda get-function-configuration \
