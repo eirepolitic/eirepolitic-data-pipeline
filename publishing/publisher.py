@@ -151,8 +151,15 @@ class InstagramPublisher:
         message = request.instagram.first_comment
         if not message or not attempt.published_media_id:
             return attempt
-        if not should_execute_operation(attempt, "first_comment"):
+
+        # First comment is a post-publish secondary action. The shared operation
+        # guard intentionally blocks all work once state is "published", so use
+        # the operation record itself to allow one immediate comment attempt.
+        # Any recorded attempt (including uncertainty) suppresses further calls.
+        existing = next((op for op in attempt.operations if op.operation_key == "first_comment"), None)
+        if existing is not None:
             return attempt
+
         attempt = begin_operation(attempt, "first_comment")
         self.persist_attempt(attempt)
         try:
