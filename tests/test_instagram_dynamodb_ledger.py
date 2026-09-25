@@ -37,20 +37,20 @@ class FakeDynamoTable:
             raise _conditional_failure()
 
         values = kwargs["ExpressionAttributeValues"]
-        expression = kwargs["UpdateExpression"]
         if ":new_version" in values:
             self.item["publication_version"] = values[":new_version"]
             self.item["state"] = "draft"
             self.item["request"] = deepcopy(values[":request"])
             self.item.pop("approval", None)
             self.item.pop("schedule", None)
+            self.item.pop("scheduled_at_utc", None)
         elif ":approval" in values:
             self.item["approval"] = deepcopy(values[":approval"])
             self.item["state"] = "approved"
         elif ":target_state" in values:
             self.item["schedule"] = deepcopy(values[":schedule"])
             self.item["state"] = values[":target_state"]
-            self.item["scheduled_at_utc"] = values[":schedule"]["scheduled_at_utc"]
+            self.item["scheduled_at_utc"] = values[":scheduled_at_utc"]
         elif ":cancelled" in values:
             self.item["state"] = "cancelled"
             if ":schedule" in values:
@@ -157,6 +157,7 @@ def test_approval_and_schedule_are_conditional() -> None:
     scheduled = ledger.put_schedule(_schedule())
     assert scheduled.state == "scheduled"
     assert scheduled.schedule.scheduled_at_utc == "2026-09-08T18:30:00Z"
+    assert table.item["scheduled_at_utc"] == "2026-09-08T18:30:00Z"
     assert "attribute_exists(approval)" in table.last_call[1]["ConditionExpression"]
 
 
