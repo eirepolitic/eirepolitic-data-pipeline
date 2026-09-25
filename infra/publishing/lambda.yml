@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Eirepolitic Instagram publisher Lambda (publishing hard-gated)
+
+Parameters:
+  CodeS3Bucket:
+    Type: String
+  CodeS3Key:
+    Type: String
+  InstagramSecretName:
+    Type: String
+    Default: eirepolitic/instagram/publishing
+  MetaGraphVersion:
+    Type: String
+    Default: v25.0
+
+Resources:
+  InstagramPublisherRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ReadInstagramPublishingSecret
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${InstagramSecretName}-*
+
+  InstagramPublisherFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: eirepolitic-instagram-publisher
+      Runtime: python3.13
+      Handler: publishing.lambda_handler.lambda_handler
+      Role: !GetAtt InstagramPublisherRole.Arn
+      Timeout: 30
+      MemorySize: 128
+      Environment:
+        Variables:
+          INSTAGRAM_SECRET_NAME: !Ref InstagramSecretName
+          META_GRAPH_VERSION: !Ref MetaGraphVersion
+      Code:
+        S3Bucket: !Ref CodeS3Bucket
+        S3Key: !Ref CodeS3Key
+
+Outputs:
+  FunctionName:
+    Value: !Ref InstagramPublisherFunction
+  RoleArn:
+    Value: !GetAtt InstagramPublisherRole.Arn
