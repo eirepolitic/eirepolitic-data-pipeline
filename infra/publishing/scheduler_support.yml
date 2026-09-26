@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  EventBridge Scheduler support resources for Eirepolitic Instagram publishing.
+  Creates no publication schedules and does not enable Instagram publishing.
+
+Parameters:
+  PublisherFunctionName:
+    Type: String
+    Default: eirepolitic-instagram-publisher
+  ScheduleGroupName:
+    Type: String
+    Default: eirepolitic-instagram
+  DeadLetterQueueName:
+    Type: String
+    Default: eirepolitic-instagram-scheduler-dlq
+
+Resources:
+  InstagramScheduleGroup:
+    Type: AWS::Scheduler::ScheduleGroup
+    Properties:
+      Name: !Ref ScheduleGroupName
+      Tags:
+        - Key: application
+          Value: eirepolitic-instagram-publishing
+        - Key: component
+          Value: scheduler
+
+  InstagramSchedulerDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: !Ref DeadLetterQueueName
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: application
+          Value: eirepolitic-instagram-publishing
+        - Key: component
+          Value: scheduler-dlq
+
+  InstagramSchedulerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: eirepolitic-instagram-scheduler-execution
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      Policies:
+        - PolicyName: InvokeEirepoliticInstagramPublisher
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: InvokePublisherLambda
+                Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${PublisherFunctionName}
+              - Sid: SendFailedInvocationToDlq
+                Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !GetAtt InstagramSchedulerDeadLetterQueue.Arn
+      Tags:
+        - Key: application
+          Value: eirepolitic-instagram-publishing
+        - Key: component
+          Value: scheduler-execution-role
+
+  InstagramSchedulerDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: eirepolitic-instagram-scheduler-dlq-not-empty
+      AlarmDescription: >-
+        Indicates that EventBridge Scheduler could not deliver an Instagram
+        publication invocation after its configured retries.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt InstagramSchedulerDeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  ScheduleGroupName:
+    Description: EventBridge Scheduler group used by the publication control service.
+    Value: !Ref InstagramScheduleGroup
+  SchedulerExecutionRoleArn:
+    Description: Role ARN supplied to EventBridge Scheduler targets.
+    Value: !GetAtt InstagramSchedulerExecutionRole.Arn
+  SchedulerDeadLetterQueueArn:
+    Description: Standard SQS DLQ ARN supplied to EventBridge Scheduler targets.
+    Value: !GetAtt InstagramSchedulerDeadLetterQueue.Arn
+  SchedulerDeadLetterQueueUrl:
+    Description: SQS DLQ URL for operational inspection.
+    Value: !Ref InstagramSchedulerDeadLetterQueue
+  PublisherFunctionArn:
+    Description: Existing publisher Lambda ARN targeted by schedules.
+    Value: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${PublisherFunctionName}
