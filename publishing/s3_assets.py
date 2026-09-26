@@ -97,24 +97,39 @@ class S3ApprovedAssetStore:
         )
 
     def _put_once(self, *, key: str, body: bytes, sha256: str, asset_package_id: str) -> None:
+        expected_hash = sha256.removeprefix("sha256:")
+        existing = self._head_if_exists(key)
+        if existing is not None:
+            self._verify_existing(key, existing, expected_hash, asset_package_id)
+            return
+
+        self.s3.put_object(
+            Bucket=self.bucket,
+            Key=key,
+            Body=body,
+            ContentType="image/jpeg",
+            Metadata={
+                "sha256": expected_hash,
+                "asset-package-id": asset_package_id,
+            },
+        )
+        uploaded = self.s3.head_object(Bucket=self.bucket, Key=key)
+        self._verify_existing(key, uploaded, expected_hash, asset_package_id)
+
+    def _head_if_exists(self, key: str):
         try:
-            self.s3.put_object(
-                Bucket=self.bucket,
-                Key=key,
-                Body=body,
-                ContentType="image/jpeg",
-                IfNoneMatch="*",
-                Metadata={
-                    "sha256": sha256.removeprefix("sha256:"),
-                    "asset-package-id": asset_package_id,
-                },
-            )
+            return self.s3.head_object(Bucket=self.bucket, Key=key)
         except ClientError as exc:
-            code = exc.response.get("Error", {}).get("Code")
+            code = str(exc.response.get("Error", {}).get("Code", ""))
             status = exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
-            if code not in {"PreconditionFailed", "412"} and status != 412:
-                raise
-            existing = self.s3.head_object(Bucket=self.bucket, Key=key)
-            existing_hash = existing.get("Metadata", {}).get("sha256")
-            if existing_hash != sha256.removeprefix("sha256:"):
-                raise RuntimeError(f"immutable S3 key already exists with different content: {key}") from exc
+            if code in {"404", "NoSuchKey", "NotFound"} or status == 404:
+                return None
+            raise
+
+    @staticmethod
+    def _verify_existing(key: str, head: dict, expected_hash: str, asset_package_id: str) -> None:
+        metadata = head.get("Metadata", {})
+        if metadata.get("sha256") != expected_hash:
+            raise RuntimeError(f"immutable S3 key already exists with different content: {key}")
+        if metadata.get("asset-package-id") != asset_package_id:
+            raise RuntimeError(f"immutable S3 key already exists for a different asset package: {key}")
