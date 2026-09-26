@@ -13,6 +13,7 @@ on:
           - deploy-scheduler-support
           - deploy-runtime-support
           - healthcheck
+          - gate-lock-check
           - infrastructure-status
 
 permissions:
@@ -178,6 +179,31 @@ jobs:
           assert response.get('statusCode') == 200, response
           assert response.get('body') == expected, response
           print(json.dumps({'statusCode': 200, 'body': expected}, indent=2))
+          PY
+
+      - name: Verify Gate 4 publishing lock
+        if: ${{ env.OPERATION == 'gate-lock-check' }}
+        run: |
+          aws lambda invoke \
+            --function-name eirepolitic-instagram-publisher \
+            --cli-binary-format raw-in-base64-out \
+            --payload '{"action":"publish"}' \
+            --query StatusCode \
+            --output text \
+            gate-lock-response.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          response = json.loads(Path('gate-lock-response.json').read_text(encoding='utf-8'))
+          assert response == {
+              'statusCode': 403,
+              'body': {
+                  'error': 'publishing_not_enabled',
+                  'publishing_enabled': False,
+              },
+          }, response
+          print(json.dumps(response, indent=2))
           PY
 
       - name: Show infrastructure status
