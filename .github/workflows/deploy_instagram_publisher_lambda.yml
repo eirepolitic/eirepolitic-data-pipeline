@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Controlled AWS operation
-        required: true
-        default: deploy-lambda
+        description: Controlled AWS operation. Leave blank to use HIGH_DIRECTOR_AWS_OPERATION.
+        required: false
         type: choice
         options:
           - deploy-lambda
@@ -17,6 +16,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  OPERATION: ${{ inputs.operation || vars.HIGH_DIRECTOR_AWS_OPERATION || 'infrastructure-status' }}
 
 jobs:
   operate:
@@ -56,12 +58,13 @@ jobs:
 
       - name: Verify High Director AWS session
         run: |
+          echo "operation=$OPERATION"
           aws sts get-caller-identity \
             --query '{Account:Account,Arn:Arn}' \
             --no-cli-pager
 
       - name: Build Lambda package
-        if: ${{ inputs.operation == 'deploy-lambda' }}
+        if: ${{ env.OPERATION == 'deploy-lambda' }}
         run: |
           rm -rf lambda-package lambda-package.zip
           mkdir -p lambda-package/publishing
@@ -71,7 +74,7 @@ jobs:
           zip -r ../lambda-package.zip publishing
 
       - name: Deploy Lambda code
-        if: ${{ inputs.operation == 'deploy-lambda' }}
+        if: ${{ env.OPERATION == 'deploy-lambda' }}
         run: |
           aws lambda update-function-code \
             --function-name eirepolitic-instagram-publisher \
@@ -81,7 +84,7 @@ jobs:
             --function-name eirepolitic-instagram-publisher
 
       - name: Configure repository Lambda handler
-        if: ${{ inputs.operation == 'deploy-lambda' }}
+        if: ${{ env.OPERATION == 'deploy-lambda' }}
         run: |
           aws lambda update-function-configuration \
             --function-name eirepolitic-instagram-publisher \
@@ -91,7 +94,7 @@ jobs:
             --function-name eirepolitic-instagram-publisher
 
       - name: Verify deployed Lambda configuration
-        if: ${{ inputs.operation == 'deploy-lambda' }}
+        if: ${{ env.OPERATION == 'deploy-lambda' }}
         run: |
           aws lambda get-function-configuration \
             --function-name eirepolitic-instagram-publisher \
@@ -99,11 +102,11 @@ jobs:
             --no-cli-pager
 
       - name: Validate ledger template
-        if: ${{ inputs.operation == 'deploy-ledger' }}
+        if: ${{ env.OPERATION == 'deploy-ledger' }}
         run: aws cloudformation validate-template --template-body file://infra/publishing/dynamodb.yml --no-cli-pager
 
       - name: Deploy publication ledger
-        if: ${{ inputs.operation == 'deploy-ledger' }}
+        if: ${{ env.OPERATION == 'deploy-ledger' }}
         run: |
           aws cloudformation deploy \
             --stack-name eirepolitic-instagram-publication-ledger \
@@ -116,11 +119,11 @@ jobs:
             --no-cli-pager
 
       - name: Validate scheduler-support template
-        if: ${{ inputs.operation == 'deploy-scheduler-support' }}
+        if: ${{ env.OPERATION == 'deploy-scheduler-support' }}
         run: aws cloudformation validate-template --template-body file://infra/publishing/scheduler_support.yml --no-cli-pager
 
       - name: Deploy scheduler support
-        if: ${{ inputs.operation == 'deploy-scheduler-support' }}
+        if: ${{ env.OPERATION == 'deploy-scheduler-support' }}
         run: |
           aws cloudformation deploy \
             --stack-name eirepolitic-instagram-scheduler-support \
@@ -134,7 +137,7 @@ jobs:
             --no-cli-pager
 
       - name: Invoke read-only publisher healthcheck
-        if: ${{ inputs.operation == 'healthcheck' }}
+        if: ${{ env.OPERATION == 'healthcheck' }}
         run: |
           aws lambda invoke \
             --function-name eirepolitic-instagram-publisher \
@@ -160,7 +163,7 @@ jobs:
           PY
 
       - name: Show infrastructure status
-        if: ${{ inputs.operation == 'infrastructure-status' }}
+        if: ${{ env.OPERATION == 'infrastructure-status' }}
         run: |
           for stack in \
             eirepolitic-instagram-publication-ledger \
