@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pillow
-      - name: Generate revised B3 v2
+      - name: Generate revised B3 v3
         run: python process/tmp_publish_bill_party_variants.py
       - name: Build hosted review
         shell: bash
@@ -26,10 +26,10 @@ jobs:
           set -euo pipefail
           REVIEW=bill_party_variants_web
           rm -rf "$REVIEW" && mkdir -p "$REVIEW"
-          cp artifacts/bill-party-variants/variant-b3-revised-v2.png "$REVIEW/variant-b3-revised-v2.png"
-          cp artifacts/bill-party-variants/contact-sheet-v2.png "$REVIEW/contact-sheet-v2.png"
+          cp artifacts/bill-party-variants/variant-b3-revised-v3.png "$REVIEW/variant-b3-revised-v3.png"
+          cp artifacts/bill-party-variants/contact-sheet-v3.png "$REVIEW/contact-sheet-v3.png"
           cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Revised B3 v2</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1200px;margin:auto;padding:24px}.meta{color:#c8bda8}.sheet,.slide{width:100%;height:auto;display:block;margin:22px 0;background:white}</style></head><body><main><h1>Bill Tracker · Revised B3 v2</h1><div class="meta">Hosted image review</div><img class="sheet" src="contact-sheet-v2.png"><img class="slide" src="variant-b3-revised-v2.png"></main></body></html>
+          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Revised B3 v3</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1200px;margin:auto;padding:24px}.meta{color:#c8bda8}.sheet,.slide{width:100%;height:auto;display:block;margin:22px 0;background:white}</style></head><body><main><h1>Bill Tracker · Revised B3 v3</h1><div class="meta">Hosted image review</div><img class="sheet" src="contact-sheet-v3.png"><img class="slide" src="variant-b3-revised-v3.png"></main></body></html>
           HTML
       - name: Publish preview branch
         shell: bash
@@ -42,7 +42,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "preview: revised B3 v2 ${GITHUB_RUN_ID}"
+          git commit -m "preview: revised B3 v3 ${GITHUB_RUN_ID}"
           git branch -M previews/bill-tracker-party-variants
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin HEAD:refs/heads/previews/bill-tracker-party-variants
