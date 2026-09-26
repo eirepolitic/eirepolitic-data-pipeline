@@ -1,13 +1,13 @@
 # Bill tracker Instagram series
 
-Status: **prototype validated against production; editorial test draft in progress**  
-Date: **6 September 2026**
+Status: **prototype validated against production; two-post enacted prototype in visual review**  
+Date: **26 September 2026**
 
 ## Objective
 
 Create a repeatable EirePolitic content product that periodically explains Bills which are newly introduced, have moved stage, or have become enacted. The same deterministic dataset should be reusable for Instagram, Appsmith, Power BI or future editorial surfaces.
 
-The social format is six Bills per carousel. Each Bill gets one overview card. Detailed single-Bill posts can follow where audience interest warrants them.
+The approved social format for the current prototype is **two posts with three Bills each**. Each Bill receives **two consecutive slides**: a plain-English explainer followed immediately by the exact linked vote breakdown. Each post therefore contains eight slides: cover, three explainer/vote pairs, and methodology/sources.
 
 ## Important correction from live production
 
@@ -19,7 +19,7 @@ The earlier exploratory 45-Bill view was not the full production universe. Resol
 - Defeated: **21**
 - Withdrawn: **2**
 
-An exhaustive current-Bill catalogue would therefore require roughly 43 six-Bill carousels and is not suitable as a recurring Instagram edition.
+An exhaustive current-Bill catalogue is not suitable as a recurring Instagram edition.
 
 ## Recommended recurring model
 
@@ -41,7 +41,7 @@ Two read-only production tests were run:
 ### 180-day baseline
 
 - selected Current/Enacted Bills: **96**
-- six-Bill carousel batches: **18**
+- six-Bill data batches: **18**
 - Second Stage: 45
 - Enacted: 34
 - Committee Stage: 10
@@ -51,7 +51,7 @@ Two read-only production tests were run:
 ### 90-day baseline
 
 - selected Current/Enacted Bills: **59**
-- six-Bill carousel batches: **13**
+- six-Bill data batches: **13**
 - Enacted: 25
 - Second Stage: 22
 - Committee Stage: 7
@@ -110,7 +110,7 @@ Modes:
 - `baseline_recent`: first edition; Current/Enacted Bills whose last event falls inside the requested lookback.
 - `snapshot_delta`: subsequent editions; only new Bills or Bills whose deterministic state key differs from the previous snapshot.
 
-The output is deterministically batched at six Bills per carousel within editorial stage/status buckets.
+The deterministic layer may batch six Bills internally, but the approved Instagram production format now splits each six-Bill editorial set into **two three-Bill posts**.
 
 ## Persistence
 
@@ -131,23 +131,44 @@ Recommended eventual prefix:
 
 `processed/editorial/bill_tracker`
 
-## Card content contract
+## Instagram post contract
 
-The base Bill card should contain:
+Each three-Bill post uses this fixed order:
 
-1. **Bill name**
-2. **Status / stage + House**
-3. **What it does** — one short sourced plain-English summary
-4. **Introduced by** — exact source sponsor person or ministerial office; do not invent a person from an office label
-5. **Main debate** — one short case-for point and one short concern/criticism where the certified debate record supports both
-6. **Recorded vote** — only if the proposition being voted on can be identified and described accurately
-7. **Source/date footer**
+1. Cover — `Bills of the Current Session`, category/part identifier, short explanation, and exact three-Bill list.
+2. Bill 1 explainer.
+3. Bill 1 vote breakdown.
+4. Bill 2 explainer.
+5. Bill 2 vote breakdown.
+6. Bill 3 explainer.
+7. Bill 3 vote breakdown.
+8. Methodology / sources.
+
+### Explainer slide contract
+
+The explainer must work for a reader with no assumed knowledge of Irish politics or parliamentary procedure. It should explain:
+
+- what the Bill does in plain English;
+- practical effects;
+- who introduced it where useful;
+- why supporters argued for it;
+- concerns or arguments raised against it;
+- what the specific next-slide vote was deciding;
+- what a Tá meant;
+- what a Níl meant;
+- what carrying or defeating that proposition did to the Bill.
+
+### Vote slide contract
+
+The vote slide must show the exact proposition/stage/date, overall 100% stacked result, Tá, Níl, abstain where present, **no recorded vote** as a separate category, date-correct party rows, aligned numerical columns, and smaller groups below.
+
+`No recorded vote` must not be relabelled as `absent` without separate evidence.
 
 ## Critical support/opposition rule
 
 A speaker appearing in a Bill debate is **not** evidence that the speaker supports or opposes the Bill.
 
-A Bill-linked division is also not automatically the final vote on the Bill. It may concern an amendment, stage motion or another proposition. For example, the current Israeli-settlements Bill sample has a linked 67–79 division whose proposition is an amendment; those numbers must not be presented as overall support/opposition to the Bill.
+A Bill-linked division is also not automatically the final vote on the Bill. It may concern an amendment, stage motion or another proposition. For example, the current Israeli-settlements Bill sample has a linked 67–79 division whose proposition is amendment No. 16; those numbers must not be presented as overall support/opposition to the Bill.
 
 Therefore:
 
@@ -158,12 +179,26 @@ Therefore:
 
 A future enhancement should materialize **all Bill-linked divisions with proposition/stage labels**, rather than relying on the latest linked division alone.
 
+## Strategic Gas Reserve verified vote context
+
+For the **Development (Strategic Gas Reserve) Bill 2026**, the 30 June 2026 Dáil division is suitable for a passage framing because the Chair put a combined question covering the remaining sections, Title, Fourth Stage and passage of the Bill.
+
+Editorial interpretation for this specific division:
+
+- **Tá** = pass the Bill through the Dáil in the form then before the House and send it onward;
+- **Níl** = reject that passage motion;
+- result = **90 Tá, 57 Níl, 27 no recorded vote, 174 eligible TDs**;
+- effect = the motion carried and the Bill moved to the Seanad;
+- the Bill was subsequently enacted on **23 July 2026**.
+
+The explainer copy should remain simple. The current visual-review wording explains that TDs are members of the Dáil and that the Seanad is Ireland's second parliamentary chamber rather than assuming those terms are already understood.
+
 ## Validation completed
 
 Focused unit tests cover:
 
 - latest-stage selection;
-- six-Bill batching;
+- six-Bill deterministic batching;
 - House preservation;
 - `Cream List` public relabel;
 - terminal status bucketing;
@@ -179,25 +214,27 @@ Read-only GitHub validation runs included:
 
 No production data changed and no classifier calls were made.
 
-## First test carousel
+## Current enacted prototype split
 
-For the design/content prototype, use the first six most recently enacted Bills returned by the 90-day run:
+### Post 1 — Enacted · Part 1
 
 1. Development (Strategic Gas Reserve) Bill 2026
 2. Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026
 3. Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026
-4. Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026
-5. Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026
-6. Regulation of Artificial Intelligence Bill 2026
 
-These provide a useful test because they span energy, foreign affairs/trade, justice/defence, housing, health and AI regulation, while all sharing the same clear terminal status.
+### Post 2 — Enacted · Part 2
+
+1. Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026
+2. Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026
+3. Regulation of Artificial Intelligence Bill 2026
 
 ## Living next-step plan
 
-1. Finish and editorially review the six-Bill enacted test carousel.
-2. Add proposition/stage classification for Bill-linked divisions before any recurring "supporters vs detractors" treatment.
-3. Restore the temporary validation workflow changes and remove diagnostic files before opening the feature PR.
-4. Keep the permanent `bill_content_snapshot.yml` workflow manual initially.
-5. After the first content review, decide whether to enable the separate S3 editorial state prefix.
-6. Capture a second snapshot before choosing 3-month versus 6-month automation; use the observed delta count, not an assumed cadence.
-7. If approved, schedule the workflow and persist each audited snapshot so future editions automatically contain only changed Bills.
+1. Finish visual review of the Strategic Gas Reserve explainer while preserving the already-approved B3-derived vote layout.
+2. Build the Israeli Settlements pair next; label the 7 July 2026, 67–79 division explicitly as **amendment No. 16**, not a final Bill passage vote.
+3. Build the Criminal Law, Civil Law and Defence pair.
+4. Complete Post 1 cover and methodology slide using the approved recurring factory visual treatment.
+5. After Post 1 is stable, repeat the same two-slide-per-Bill pattern for Bills 4–6 in Post 2.
+6. Migrate the reviewed slide-specific work into `instagram/projects/bill_tracker_factory_v1/` and keep publication disabled with `pending_human_review` until explicit approval.
+7. Keep the permanent `bill_content_snapshot.yml` workflow manual initially; capture a second snapshot before choosing an automated cadence.
+8. If recurring output is approved, persist audited snapshots under the separate editorial state prefix so later editions can focus on changed Bills only.
