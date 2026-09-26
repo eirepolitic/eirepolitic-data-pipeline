@@ -10,8 +10,8 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 141 workflows in the repo)
-  generated_at_last_hand_sync: "2026-09-20"
+  generated_from: GitHub Actions workflows API (all 142 workflows in the repo)
+  generated_at_last_hand_sync: "2026-09-26"
   workflows:
     - id: 232687901
       name: Run Absence Reason (Manual)
@@ -80,6 +80,10 @@ inventory:
     - id: 349807844
       name: Temporary demographic polling bounded validation
       path: .github/workflows/demographic-polling-bounded-validation.yml
+      state: active
+    - id: 366700813
+      name: Deploy Instagram Publisher Lambda
+      path: .github/workflows/deploy_instagram_publisher_lambda.yml
       state: active
     - id: 361059448
       name: Director catalogue drift check
