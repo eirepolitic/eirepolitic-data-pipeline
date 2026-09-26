@@ -56,6 +56,16 @@ def draw_centered_wrapped(d,y,text,f,fill,width,gap=7,max_lines=None):
         tw,h=measure(d,line,f); d.text(((W-tw)/2,y),line,font=f,fill=fill); y += h+gap
     return y
 
+def draw_centered_block(d,rect,text,f,fill,gap=7,max_lines=None):
+    x1,y1,x2,y2=rect
+    lines=wrap(d,text,f,x2-x1)
+    if max_lines is not None and len(lines)>max_lines: raise RuntimeError(f'copy overflow ({len(lines)} lines): {text}')
+    block='\n'.join(lines)
+    bbox=d.multiline_textbbox((0,0),block,font=f,spacing=gap,align='center')
+    if bbox[2]-bbox[0] > x2-x1 or bbox[3]-bbox[1] > y2-y1:
+        raise RuntimeError(f'centered block overflow: {text}')
+    d.multiline_text(((x1+x2)/2,(y1+y2)/2),block,font=f,fill=fill,spacing=gap,align='center',anchor='mm')
+
 def add_ornaments(im):
     specs = [('corner_tl.png',(0,0)),('corner_tr.png',(W,0)),('corner_bl.png',(0,H)),('corner_br.png',(W,H))]
     for filename,(ax,ay) in specs:
@@ -94,18 +104,19 @@ def build_cover():
     centered(d,120,'BILLS OF THE',font(30,True),ACCENT)
     centered(d,165,'CURRENT SESSION',font(56,True),TEXT)
     d.rectangle([185,242,895,248],fill=ACCENT)
-    centered(d,282,'ENACTED · PART 1',font(28,True),ACCENT)
-    draw_centered_wrapped(d,345,'Three recently enacted Bills, explained in plain English — what each does, the arguments around it, and what the recorded vote shown actually decided.',font(23),TEXT,820,gap=9,max_lines=5)
-    centered(d,520,'IN THIS PART',font(24,True),ACCENT)
+    centered(d,282,'ENACTED · POST 1',font(28,True),ACCENT)
+    draw_centered_wrapped(d,345,'These are the Bills that have been passed so far this session. These are the first three of six that we’re going to look at.',font(23),TEXT,820,gap=9,max_lines=4)
+    centered(d,520,'IN THIS POST',font(24,True),ACCENT)
     y=575
     for i,title in enumerate(POST1_BILLS,1):
-        d.rounded_rectangle([95,y,985,y+180],radius=20,fill=PANEL,outline='#31594a',width=2)
-        d.ellipse([125,y+46,181,y+102],fill=ACCENT)
-        num=str(i); nw,nh=measure(d,num,font(24,True)); d.text((153-nw/2,y+74-nh/2),num,font=font(24,True),fill=BG)
-        end=draw_wrapped(d,210,y+38,title,font(25,True),TEXT,720,gap=7,max_lines=4)
-        if end>y+155: raise RuntimeError(f'cover bill title overflow: {title}')
+        box_left,box_top,box_right,box_bottom=95,y,985,y+180
+        d.rounded_rectangle([box_left,box_top,box_right,box_bottom],radius=20,fill=PANEL,outline='#31594a',width=2)
+        circle_cx,circle_cy,r=153,y+90,28
+        d.ellipse([circle_cx-r,circle_cy-r,circle_cx+r,circle_cy+r],fill=ACCENT)
+        d.text((circle_cx,circle_cy),str(i),font=font(24,True),fill=BG,anchor='mm')
+        draw_centered_block(d,(210,y+18,965,y+162),title,font(25,True),TEXT,gap=7,max_lines=4)
         y += 202
-    footer(d,'EirePolitic · Enacted · Part 1')
+    footer(d,'EirePolitic · Enacted · Post 1')
     im.convert('RGB').save(OUT/'00-title-enacted-part-1.png')
 
 def bar(d,x,y,w,h,yes,no,nr):
