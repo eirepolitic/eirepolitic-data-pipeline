@@ -2,24 +2,12 @@ name: Deploy Instagram Publisher Lambda
 
 on:
   workflow_dispatch:
-    inputs:
-      operation:
-        description: Controlled AWS operation
-        required: true
-        default: deploy-lambda
-        type: choice
-        options:
-          - deploy-lambda
-          - deploy-ledger
-          - deploy-scheduler-support
-          - healthcheck
-          - infrastructure-status
 
 permissions:
   contents: read
 
 jobs:
-  operate:
+  deploy:
     runs-on: ubuntu-latest
     environment: instagram-publishing
     steps:
@@ -33,14 +21,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      - name: Resolve AWS account and CloudFormation role
-        if: ${{ inputs.operation == 'deploy-ledger' || inputs.operation == 'deploy-scheduler-support' }}
-        run: |
-          account_id="$(aws sts get-caller-identity --query Account --output text)"
-          echo "CFN_ROLE_ARN=arn:aws:iam::${account_id}:role/eirepolitic-instagram-cloudformation-execution" >> "$GITHUB_ENV"
-
       - name: Build Lambda package
-        if: ${{ inputs.operation == 'deploy-lambda' }}
         run: |
           rm -rf lambda-package lambda-package.zip
           mkdir -p lambda-package/publishing
@@ -50,7 +31,6 @@ jobs:
           zip -r ../lambda-package.zip publishing
 
       - name: Deploy Lambda code
-        if: ${{ inputs.operation == 'deploy-lambda' }}
         run: |
           aws lambda update-function-code \
             --function-name eirepolitic-instagram-publisher \
@@ -60,7 +40,6 @@ jobs:
             --function-name eirepolitic-instagram-publisher
 
       - name: Configure repository Lambda handler
-        if: ${{ inputs.operation == 'deploy-lambda' }}
         run: |
           aws lambda update-function-configuration \
             --function-name eirepolitic-instagram-publisher \
@@ -69,90 +48,9 @@ jobs:
           aws lambda wait function-updated \
             --function-name eirepolitic-instagram-publisher
 
-      - name: Verify deployed Lambda configuration
-        if: ${{ inputs.operation == 'deploy-lambda' }}
+      - name: Verify deployed configuration
         run: |
           aws lambda get-function-configuration \
             --function-name eirepolitic-instagram-publisher \
             --query '{FunctionName:FunctionName,Runtime:Runtime,Handler:Handler,LastUpdateStatus:LastUpdateStatus}' \
             --no-cli-pager
-
-      - name: Validate ledger template
-        if: ${{ inputs.operation == 'deploy-ledger' }}
-        run: aws cloudformation validate-template --template-body file://infra/publishing/dynamodb.yml --no-cli-pager
-
-      - name: Deploy publication ledger
-        if: ${{ inputs.operation == 'deploy-ledger' }}
-        run: |
-          aws cloudformation deploy \
-            --stack-name eirepolitic-instagram-publication-ledger \
-            --template-file infra/publishing/dynamodb.yml \
-            --role-arn "$CFN_ROLE_ARN" \
-            --no-fail-on-empty-changeset \
-            --no-cli-pager
-          aws cloudformation describe-stacks \
-            --stack-name eirepolitic-instagram-publication-ledger \
-            --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' \
-            --no-cli-pager
-
-      - name: Validate scheduler-support template
-        if: ${{ inputs.operation == 'deploy-scheduler-support' }}
-        run: aws cloudformation validate-template --template-body file://infra/publishing/scheduler_support.yml --no-cli-pager
-
-      - name: Deploy scheduler support
-        if: ${{ inputs.operation == 'deploy-scheduler-support' }}
-        run: |
-          aws cloudformation deploy \
-            --stack-name eirepolitic-instagram-scheduler-support \
-            --template-file infra/publishing/scheduler_support.yml \
-            --role-arn "$CFN_ROLE_ARN" \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --no-fail-on-empty-changeset \
-            --no-cli-pager
-          aws cloudformation describe-stacks \
-            --stack-name eirepolitic-instagram-scheduler-support \
-            --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' \
-            --no-cli-pager
-
-      - name: Invoke read-only publisher healthcheck
-        if: ${{ inputs.operation == 'healthcheck' }}
-        run: |
-          aws lambda invoke \
-            --function-name eirepolitic-instagram-publisher \
-            --cli-binary-format raw-in-base64-out \
-            --payload '{"action":"healthcheck"}' \
-            --query StatusCode \
-            --output text \
-            healthcheck-response.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          response = json.loads(Path('healthcheck-response.json').read_text(encoding='utf-8'))
-          expected = {
-              'meta_connected': True,
-              'instagram_id_matches': True,
-              'username_present': True,
-              'publishing_enabled': False,
-          }
-          assert response.get('statusCode') == 200, response
-          assert response.get('body') == expected, response
-          print(json.dumps({'statusCode': 200, 'body': expected}, indent=2))
-          PY
-
-      - name: Show infrastructure status
-        if: ${{ inputs.operation == 'infrastructure-status' }}
-        run: |
-          for stack in \
-            eirepolitic-instagram-publication-ledger \
-            eirepolitic-instagram-scheduler-support
-          do
-            if aws cloudformation describe-stacks --stack-name "$stack" --no-cli-pager >/tmp/stack.json 2>/dev/null; then
-              aws cloudformation describe-stacks \
-                --stack-name "$stack" \
-                --query 'Stacks[0].{StackName:StackName,Status:StackStatus,Outputs:Outputs}' \
-                --no-cli-pager
-            else
-              echo "$stack: NOT_CREATED"
-            fi
-          done
