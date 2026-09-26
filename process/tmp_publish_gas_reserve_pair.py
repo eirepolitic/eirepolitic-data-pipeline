@@ -49,10 +49,10 @@ def draw_centered_wrapped(d,y,text,f,fill,width,gap=7,max_lines=None):
         tw,h=measure(d,line,f); d.text(((W-tw)/2,y),line,font=f,fill=fill); y += h+gap
     return y
 
-def panel(d,x,y,w,h,heading,body,body_size=20):
+def panel(d,x,y,w,h,heading,body,body_size=25):
     d.rounded_rectangle([x,y,x+w,y+h],radius=20,fill=PANEL,outline='#31594a',width=2)
     d.text((x+24,y+20),heading,font=font(21,True),fill=ACCENT)
-    end_y=draw_wrapped(d,x+24,y+58,body,font(body_size),TEXT,w-48,gap=7,max_lines=7)
+    end_y=draw_wrapped(d,x+24,y+58,body,font(body_size),TEXT,w-48,gap=3,max_lines=8)
     if end_y > y+h-18:
         raise RuntimeError(f'panel overflow: {heading}')
 
