@@ -67,7 +67,7 @@ def build_explainer():
     centered(d,54,'Development (Strategic Gas Reserve) Bill 2026',font(36,True),TEXT)
     d.rectangle([110,118,970,123],fill=ACCENT)
     centered(d,146,'WHAT IT DOES & WHAT THE DÁIL VOTE MEANT',font(22,True),ACCENT)
-    centered(d,184,'Government Bill · Minister for Climate, Energy and the Environment',font(18),MUTED)
+    centered(d,184,'Introduced by the Government · Minister for Climate, Energy and the Environment',font(17),MUTED)
 
     panel(d,60,232,460,270,'WHAT THE BILL DOES',
           'Sets up a special legal route for approving a strategic gas reserve at Cahiracon, Co. Clare. It replaces the normal planning route for this project, but environmental assessments still apply.')
@@ -83,14 +83,14 @@ def build_explainer():
     explainer_end = draw_centered_wrapped(
         d,928,
         'TDs — members of the Dáil — were voting on one combined question that completed the Bill\'s remaining Dáil steps and passed it. A Tá meant pass the Bill and send it on. A Níl meant reject that passage motion.',
-        font(19),TEXT,850,gap=8,max_lines=5)
-    result_y = explainer_end + 10
+        font(23),TEXT,850,gap=7,max_lines=6)
+    result_y = explainer_end + 8
     centered(d,result_y,'RESULT',font(19,True),MUTED)
     centered(d,result_y+32,'90 Tá · 57 Níl — carried',font(27,True),TEXT)
     effect_end = draw_centered_wrapped(
         d,result_y+78,
         'The Bill passed the Dáil and moved to the Seanad, Ireland\'s second parliamentary chamber.',
-        font(18,True),MUTED,850,gap=6,max_lines=3)
+        font(22,True),MUTED,850,gap=6,max_lines=3)
     if effect_end > 1186:
         raise RuntimeError(f'bottom vote box overflow: final_y={effect_end}')
 
