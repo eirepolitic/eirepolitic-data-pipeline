@@ -42,10 +42,19 @@ def draw_wrapped(d,x,y,text,f,fill,width,gap=7,max_lines=None):
         d.text((x,y),line,font=f,fill=fill); _,h=measure(d,line,f); y += h+gap
     return y
 
-def panel(d,x,y,w,h,heading,body,body_size=18):
+def draw_centered_wrapped(d,y,text,f,fill,width,gap=7,max_lines=None):
+    lines=wrap(d,text,f,width)
+    if max_lines is not None and len(lines)>max_lines: raise RuntimeError(f'copy overflow ({len(lines)} lines): {text}')
+    for line in lines:
+        tw,h=measure(d,line,f); d.text(((W-tw)/2,y),line,font=f,fill=fill); y += h+gap
+    return y
+
+def panel(d,x,y,w,h,heading,body,body_size=20):
     d.rounded_rectangle([x,y,x+w,y+h],radius=20,fill=PANEL,outline='#31594a',width=2)
     d.text((x+24,y+20),heading,font=font(21,True),fill=ACCENT)
-    draw_wrapped(d,x+24,y+56,body,font(body_size),TEXT,w-48,gap=6,max_lines=7)
+    end_y=draw_wrapped(d,x+24,y+58,body,font(body_size),TEXT,w-48,gap=7,max_lines=7)
+    if end_y > y+h-18:
+        raise RuntimeError(f'panel overflow: {heading}')
 
 def bar(d,x,y,w,h,yes,no,nr):
     total=max(1,yes+no+nr); segs=[(yes,FOR),(no,AGAINST),(nr,NO_VOTE)]; segs=[s for s in segs if s[0]>0]; cur=x
@@ -59,16 +68,35 @@ def build_explainer():
     d.rectangle([110,118,970,123],fill=ACCENT)
     centered(d,146,'WHAT IT DOES & WHAT THE DÁIL VOTE MEANT',font(22,True),ACCENT)
     centered(d,184,'Government Bill · Minister for Climate, Energy and the Environment',font(18),MUTED)
-    panel(d,60,236,460,245,'WHAT THE BILL DOES','Creates a bespoke approval route for a strategic gas reserve intended for emergency energy security. For this project, the normal Planning and Development Acts are disapplied, while environmental assessment requirements remain.')
-    panel(d,560,236,460,245,'PRACTICAL EFFECT','Allows the Minister to decide the development application directly under accelerated timelines. The Government said the reserve would be State-owned and State-controlled and used as emergency back-up rather than to increase normal gas demand.')
-    panel(d,60,512,460,260,'CASE MADE FOR IT','Supporters argued Ireland remains highly dependent on imported gas and needs a back-up supply if imports are disrupted. The Government presented the reserve as a temporary energy-security measure during the transition to renewables.')
-    panel(d,560,512,460,260,'CONCERNS RAISED','Opponents argued the reserve risks locking Ireland into fossil-fuel infrastructure, weakening climate objectives and bypassing normal planning safeguards. They also criticised the accelerated timetable and limited scrutiny of amendments.')
-    d.rounded_rectangle([60,805,1020,1128],radius=22,fill='#102b22',outline=ACCENT,width=3)
-    centered(d,833,'WHAT THE 30 JUNE DÁIL VOTE MEANT',font(24,True),ACCENT)
-    draw_wrapped(d,92,882,'The Chair put one combined question: agree the remaining sections and Title, complete Fourth Stage, and pass the Bill. A Tá therefore meant passing the Bill through the Dáil in the form then before the House; a Níl meant rejecting that passage motion.',font(20),TEXT,896,gap=8,max_lines=6)
-    d.text((92,1025),'Result:',font=font(20,True),fill=MUTED); d.text((180,1025),'90 Tá · 57 Níl — carried',font=font(22,True),fill=TEXT)
-    draw_wrapped(d,92,1068,'Effect: the Bill completed its Dáil stages and was sent to the Seanad. It was subsequently enacted on 23 July 2026.',font(18,True),MUTED,896,gap=6,max_lines=3)
-    d.rectangle([70,1235,1010,1238],fill=ACCENT); centered(d,1250,'Sources: Houses of the Oireachtas bill text, explanatory memorandum and Dáil debate record',font(15),MUTED)
+
+    panel(d,60,232,460,270,'WHAT THE BILL DOES',
+          'Sets up a special legal route for approving a strategic gas reserve at Cahiracon, Co. Clare. It replaces the normal planning route for this project, but environmental assessments still apply.')
+    panel(d,560,232,460,270,'PRACTICAL EFFECT',
+          'The Minister could decide the project directly under a faster process. The reserve is intended for emergencies if Ireland\'s normal gas supplies are seriously disrupted.')
+    panel(d,60,526,460,286,'WHY SOME TDs BACKED IT',
+          'Supporters said Ireland relies heavily on imported gas and needs a back-up supply if imports are seriously disrupted. They described it as an energy-security measure while Ireland moves toward renewables.')
+    panel(d,560,526,460,286,'WHY SOME TDs OPPOSED IT',
+          'Critics said the project could prolong reliance on fossil fuels. They also objected to the special planning route, faster timetable and limited time for scrutiny.')
+
+    d.rounded_rectangle([60,850,1020,1206],radius=22,fill='#102b22',outline=ACCENT,width=3)
+    centered(d,878,'WHAT THE 30 JUNE DÁIL VOTE MEANT',font(24,True),ACCENT)
+    explainer_end = draw_centered_wrapped(
+        d,928,
+        'TDs — members of the Dáil — were voting on one combined question that completed the Bill\'s remaining Dáil steps and passed it. A Tá meant pass the Bill and send it on. A Níl meant reject that passage motion.',
+        font(19),TEXT,850,gap=8,max_lines=5)
+    result_y = explainer_end + 10
+    centered(d,result_y,'RESULT',font(19,True),MUTED)
+    centered(d,result_y+32,'90 Tá · 57 Níl — carried',font(27,True),TEXT)
+    effect_end = draw_centered_wrapped(
+        d,result_y+78,
+        'The Bill passed the Dáil and moved to the Seanad, Ireland\'s second parliamentary chamber.',
+        font(18,True),MUTED,850,gap=6,max_lines=3)
+    if effect_end > 1186:
+        raise RuntimeError(f'bottom vote box overflow: final_y={effect_end}')
+
+    d.rectangle([70,1235,1010,1238],fill=ACCENT)
+    centered(d,1250,'Sources: Houses of the Oireachtas bill text, explanatory memorandum and Dáil debate record',font(15),MUTED)
+    assert im.size == (1080,1350)
     im.save(OUT/'01-gas-reserve-explainer.png')
 
 def build_vote():
@@ -88,10 +116,13 @@ def build_vote():
             tw,_=measure(d,n,font(20,True)); d.text((cx-tw/2,y+5),n,font=font(20,True),fill=color)
     centered(d,1064,'Smaller groups',font(27,True),ACCENT); centered(d,1102,'Aontú 0 / 0 / 2 · Green 0 / 1 / 0 · 100% Redress 0 / 1 / 0',font(22),MUTED)
     d.rectangle([70,1235,1010,1238],fill=ACCENT); centered(d,1248,'Row format: Tá · Níl · No vote',font(16,True),MUTED); centered(d,1274,'No recorded vote is shown separately and does not automatically mean absent.',font(15),MUTED)
+    assert im.size == (1080,1350)
     im.save(OUT/'02-gas-reserve-vote.png')
 
 def build_contact_sheet():
     slides=[Image.open(OUT/'01-gas-reserve-explainer.png').convert('RGB'),Image.open(OUT/'02-gas-reserve-vote.png').convert('RGB')]
+    for slide in slides:
+        assert slide.size == (1080,1350)
     sheet=Image.new('RGB',(1600,1120),'white'); d=ImageDraw.Draw(sheet); d.text((40,24),'Bill Tracker · Strategic Gas Reserve · two-slide pattern',font=font(28,True),fill='black')
     for slide,x in zip(slides,[40,820]): slide.thumbnail((720,900)); sheet.paste(slide,(x,90))
     sheet.save(OUT/'contact-sheet.png')
