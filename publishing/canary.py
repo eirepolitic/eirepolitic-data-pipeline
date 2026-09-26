@@ -43,11 +43,6 @@ class CanaryPreparationResult:
     alt_text: str
 
 
-def _annotate_failure(stage: str, exc: Exception) -> None:
-    message = f"{type(exc).__name__}: {exc}".replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-    print(f"::error title=Instagram canary {stage}::{message}")
-
-
 def render_canary_source(path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -83,25 +78,16 @@ def prepare_canary(
     ledger = DynamoDBPublicationLedger(table)
     control = PublicationControlService(ledger)
 
-    try:
-        with TemporaryDirectory(prefix="instagram-canary-") as directory:
-            source = render_canary_source(Path(directory) / "canary.png")
-            package = S3ApprovedAssetStore(s3_client, bucket).finalize_package(
-                project_id=CANARY_PROJECT_ID,
-                period=CANARY_PERIOD,
-                asset_package_id=CANARY_ASSET_PACKAGE_ID,
-                sources=[SourceAsset(source, alt_text=CANARY_ALT_TEXT)],
-            )
-    except Exception as exc:
-        _annotate_failure("asset finalization/upload", exc)
-        raise
+    with TemporaryDirectory(prefix="instagram-canary-") as directory:
+        source = render_canary_source(Path(directory) / "canary.png")
+        package = S3ApprovedAssetStore(s3_client, bucket).finalize_package(
+            project_id=CANARY_PROJECT_ID,
+            period=CANARY_PERIOD,
+            asset_package_id=CANARY_ASSET_PACKAGE_ID,
+            sources=[SourceAsset(source, alt_text=CANARY_ALT_TEXT)],
+        )
 
-    try:
-        asset_store.put(package)
-    except Exception as exc:
-        _annotate_failure("asset package persistence", exc)
-        raise
-
+    asset_store.put(package)
     request = PublicationRequest(
         publication_id=CANARY_PUBLICATION_ID,
         publication_version=1,
@@ -124,13 +110,9 @@ def prepare_canary(
 
     try:
         record = control.create_draft(request, package)
-    except Exception as create_exc:
-        try:
-            record = control.get(CANARY_PUBLICATION_ID)
-            if record.request != request:
-                raise create_exc
-        except Exception as exc:
-            _annotate_failure("draft persistence", exc)
+    except Exception:
+        record = control.get(CANARY_PUBLICATION_ID)
+        if record.request != request:
             raise
 
     asset = package.media[0]
