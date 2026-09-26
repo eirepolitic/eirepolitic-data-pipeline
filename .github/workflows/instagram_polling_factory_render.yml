@@ -14,23 +14,53 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: analysis/bill-vote-visual-options
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install pillow
-      - name: Generate Strategic Gas Reserve pair
+      - name: Restore and verify approved factory ornaments
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/approved-factory-assets
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git rev-parse 386b933:instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
+          git show 386b933:instagram/templates/assets/corner_tl.png > artifacts/approved-factory-assets/corner_tl.png
+          git show 386b933:instagram/templates/assets/corner_tr.png > artifacts/approved-factory-assets/corner_tr.png
+          git show 386b933:instagram/templates/assets/corner_bl.png > artifacts/approved-factory-assets/corner_bl.png
+          git show 386b933:instagram/templates/assets/corner_br.png > artifacts/approved-factory-assets/corner_br.png
+      - name: Generate Post 1 framing review
         run: python process/tmp_publish_gas_reserve_pair.py
+      - name: Validate dimensions
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          for p in sorted(Path('artifacts/bill-gas-reserve-pair').glob('*.png')):
+              if p.name == 'contact-sheet.png':
+                  continue
+              im=Image.open(p)
+              assert im.size == (1080,1350), (p,im.size)
+              print(p, im.size)
+          PY
       - name: Build hosted review
         shell: bash
         run: |
           set -euo pipefail
-          REVIEW=bill_gas_reserve_pair_web
+          REVIEW=bill_post1_framing_web
           rm -rf "$REVIEW" && mkdir -p "$REVIEW"
+          cp artifacts/bill-gas-reserve-pair/00-title-enacted-part-1.png "$REVIEW/00-title-enacted-part-1.png"
           cp artifacts/bill-gas-reserve-pair/01-gas-reserve-explainer.png "$REVIEW/01-gas-reserve-explainer.png"
           cp artifacts/bill-gas-reserve-pair/02-gas-reserve-vote.png "$REVIEW/02-gas-reserve-vote.png"
+          cp artifacts/bill-gas-reserve-pair/07-glossary-parliamentary-terms.png "$REVIEW/07-glossary-parliamentary-terms.png"
+          cp artifacts/bill-gas-reserve-pair/08-glossary-vote-terms.png "$REVIEW/08-glossary-vote-terms.png"
           cp artifacts/bill-gas-reserve-pair/contact-sheet.png "$REVIEW/contact-sheet.png"
           cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Strategic Gas Reserve pair</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}.meta{color:#c8bda8;line-height:1.5}.sheet{width:100%;height:auto;display:block;margin:22px 0;background:white}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid img{width:100%;height:auto;display:block}@media(max-width:900px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Bill Tracker · Strategic Gas Reserve</h1><div class="meta">Two-slide production pattern: explanation first, certified Dáil passage vote second.</div><img class="sheet" src="contact-sheet.png"><div class="grid"><img src="01-gas-reserve-explainer.png"><img src="02-gas-reserve-vote.png"></div></main></body></html>
+          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Post 1 framing review</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}.meta{color:#c8bda8;line-height:1.5}.sheet{width:100%;height:auto;display:block;margin:22px 0;background:white}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.card h2{font-size:18px;color:#d8b45f}.card img{width:100%;height:auto;display:block}@media(max-width:900px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Bills of the Current Session · Enacted · Part 1</h1><div class="meta">Framing review: new title slide and two glossary/methodology slides, shown with the approved Strategic Gas Reserve explainer/vote pair for visual continuity.</div><img class="sheet" src="contact-sheet.png"><div class="grid"><div class="card"><h2>Title</h2><img src="00-title-enacted-part-1.png"></div><div class="card"><h2>Approved explainer</h2><img src="01-gas-reserve-explainer.png"></div><div class="card"><h2>Approved vote</h2><img src="02-gas-reserve-vote.png"></div><div class="card"><h2>Glossary: parliamentary terms</h2><img src="07-glossary-parliamentary-terms.png"></div><div class="card"><h2>Glossary: vote terms & safeguards</h2><img src="08-glossary-vote-terms.png"></div></div></main></body></html>
           HTML
       - name: Publish preview branch
         shell: bash
@@ -38,12 +68,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cd bill_gas_reserve_pair_web
+          cd bill_post1_framing_web
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "preview: Strategic Gas Reserve pair ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-gas-reserve-pair
+          git commit -m "preview: Bill Tracker Post 1 framing ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-post1-framing
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-gas-reserve-pair
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-post1-framing
