@@ -31,7 +31,7 @@ jobs:
           python -m pip install pytest boto3 pyyaml pillow cfn-lint
 
       - name: Compile publication package and tests
-        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py tests/test_instagram_meta_http_client.py tests/test_instagram_lambda_handler.py tests/test_instagram_s3_assets.py
+        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_dynamodb_runtime.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py tests/test_instagram_meta_http_client.py tests/test_instagram_lambda_handler.py tests/test_instagram_s3_assets.py
 
       - name: Validate publishing CloudFormation
         run: cfn-lint infra/publishing/*.yml
@@ -58,6 +58,7 @@ jobs:
             tests/test_instagram_publishing_foundation.py \
             tests/test_instagram_publication_control.py \
             tests/test_instagram_dynamodb_ledger.py \
+            tests/test_instagram_dynamodb_runtime.py \
             tests/test_instagram_scheduler_execution.py \
             tests/test_instagram_meta_publisher.py \
             tests/test_instagram_meta_http_client.py \
