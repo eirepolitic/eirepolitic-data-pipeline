@@ -11,6 +11,7 @@ on:
           - deploy-lambda
           - deploy-ledger
           - deploy-scheduler-support
+          - deploy-runtime-support
           - healthcheck
           - infrastructure-status
 
@@ -68,8 +69,7 @@ jobs:
         run: |
           rm -rf lambda-package lambda-package.zip
           mkdir -p lambda-package/publishing
-          cp publishing/__init__.py lambda-package/publishing/
-          cp publishing/lambda_handler.py lambda-package/publishing/
+          cp publishing/*.py lambda-package/publishing/
           cd lambda-package
           zip -r ../lambda-package.zip publishing
 
@@ -136,6 +136,24 @@ jobs:
             --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' \
             --no-cli-pager
 
+      - name: Validate runtime-support template
+        if: ${{ env.OPERATION == 'deploy-runtime-support' }}
+        run: aws cloudformation validate-template --template-body file://infra/publishing/runtime_support.yml --no-cli-pager
+
+      - name: Deploy runtime support
+        if: ${{ env.OPERATION == 'deploy-runtime-support' }}
+        run: |
+          aws cloudformation deploy \
+            --stack-name eirepolitic-instagram-runtime-support \
+            --template-file infra/publishing/runtime_support.yml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset \
+            --no-cli-pager
+          aws cloudformation describe-stacks \
+            --stack-name eirepolitic-instagram-runtime-support \
+            --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' \
+            --no-cli-pager
+
       - name: Invoke read-only publisher healthcheck
         if: ${{ env.OPERATION == 'healthcheck' }}
         run: |
@@ -167,7 +185,8 @@ jobs:
         run: |
           for stack in \
             eirepolitic-instagram-publication-ledger \
-            eirepolitic-instagram-scheduler-support
+            eirepolitic-instagram-scheduler-support \
+            eirepolitic-instagram-runtime-support
           do
             if aws cloudformation describe-stacks --stack-name "$stack" --no-cli-pager >/tmp/stack.json 2>/dev/null; then
               aws cloudformation describe-stacks \
