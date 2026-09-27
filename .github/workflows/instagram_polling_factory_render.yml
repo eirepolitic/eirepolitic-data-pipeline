@@ -17,22 +17,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Audit six Bill vote records
-        run: python process/tmp_audit_bill_tracker_votes.py
-      - name: Publish audit branch
+      - name: Inspect vote payload
+        run: python process/tmp_audit_vote_payload_shape.py
+      - name: Publish payload sample
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir audit-web
-          cp bill-vote-audit.json audit-web/bill-vote-audit.json
+          cp vote-payload-sample.json audit-web/vote-payload-sample.json
           cd audit-web
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "analysis: six Bill vote audit ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-vote-audit
+          git commit -m "analysis: vote payload sample ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-vote-payload
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-vote-audit
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-vote-payload
