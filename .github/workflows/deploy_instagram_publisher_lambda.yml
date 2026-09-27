@@ -143,7 +143,7 @@ jobs:
           python -m pip install --quiet boto3 pillow
           function_arn="$(aws lambda get-function --function-name eirepolitic-instagram-publisher --query 'Configuration.FunctionArn' --output text)"
           role_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerExecutionRoleArn'].OutputValue | [0]" --output text)"
-          dlq_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='DeadLetterQueueArn'].OutputValue | [0]" --output text)"
+          dlq_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerDeadLetterQueueArn'].OutputValue | [0]" --output text)"
           FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" python - <<'PY'
           import json, os, boto3
           from dataclasses import asdict
