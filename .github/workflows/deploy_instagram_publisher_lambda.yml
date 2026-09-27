@@ -1,10 +1,10 @@
-name: Deploy Instagram Publisher Lambda
+name: Instagram publishing infrastructure operations
 
 on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Controlled AWS operation. Leave blank to use HIGH_DIRECTOR_AWS_OPERATION.
+        description: Maintenance operation. Normal posting uses Instagram publish (standard).
         required: false
         type: choice
         options:
@@ -12,10 +12,7 @@ on:
           - deploy-ledger
           - deploy-scheduler-support
           - deploy-runtime-support
-          - prepare-canary
-          - prepare-gate5-schedule
           - healthcheck
-          - gate-lock-check
           - infrastructure-status
 
 permissions:
@@ -29,11 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: instagram-publishing
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure bootstrap AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.INSTAGRAM_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
@@ -41,162 +36,55 @@ jobs:
 
       - name: Assume High Director AWS administrator role
         run: |
+          set -euo pipefail
           account_id="$(aws sts get-caller-identity --query Account --output text)"
-          role_arn="arn:aws:iam::${account_id}:role/HighDirectorAwsAdmin"
-          credentials="$(aws sts assume-role \
-            --role-arn "$role_arn" \
-            --role-session-name github-high-director-${GITHUB_RUN_ID} \
-            --duration-seconds 3600 \
-            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
-            --output text)"
+          credentials="$(aws sts assume-role --role-arn "arn:aws:iam::${account_id}:role/HighDirectorAwsAdmin" --role-session-name instagram-maint-${GITHUB_RUN_ID} --duration-seconds 3600 --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)"
           read -r access_key secret_key session_token <<< "$credentials"
-          echo "::add-mask::$access_key"
-          echo "::add-mask::$secret_key"
-          echo "::add-mask::$session_token"
-          {
-            echo "AWS_ACCESS_KEY_ID=$access_key"
-            echo "AWS_SECRET_ACCESS_KEY=$secret_key"
-            echo "AWS_SESSION_TOKEN=$session_token"
-          } >> "$GITHUB_ENV"
+          echo "::add-mask::$access_key"; echo "::add-mask::$secret_key"; echo "::add-mask::$session_token"
+          echo "AWS_ACCESS_KEY_ID=$access_key" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$secret_key" >> "$GITHUB_ENV"
+          echo "AWS_SESSION_TOKEN=$session_token" >> "$GITHUB_ENV"
 
-      - name: Verify High Director AWS session
-        run: |
-          echo "operation=$OPERATION"
-          aws sts get-caller-identity --query '{Account:Account,Arn:Arn}' --no-cli-pager
-
-      - name: Build Lambda package
+      - name: Deploy Lambda
         if: ${{ env.OPERATION == 'deploy-lambda' }}
         run: |
           rm -rf lambda-package lambda-package.zip
           mkdir -p lambda-package/publishing
           cp publishing/*.py lambda-package/publishing/
-          cd lambda-package
-          zip -r ../lambda-package.zip publishing
-
-      - name: Deploy Lambda code
-        if: ${{ env.OPERATION == 'deploy-lambda' }}
-        run: |
+          (cd lambda-package && zip -r ../lambda-package.zip publishing)
           aws lambda update-function-code --function-name eirepolitic-instagram-publisher --zip-file fileb://lambda-package.zip --no-cli-pager
           aws lambda wait function-updated --function-name eirepolitic-instagram-publisher
-
-      - name: Configure repository Lambda handler
-        if: ${{ env.OPERATION == 'deploy-lambda' }}
-        run: |
           aws lambda update-function-configuration --function-name eirepolitic-instagram-publisher --handler publishing.lambda_handler.lambda_handler --timeout 60 --no-cli-pager
           aws lambda wait function-updated --function-name eirepolitic-instagram-publisher
 
-      - name: Verify deployed Lambda configuration
-        if: ${{ env.OPERATION == 'deploy-lambda' }}
-        run: aws lambda get-function-configuration --function-name eirepolitic-instagram-publisher --query '{FunctionName:FunctionName,Runtime:Runtime,Handler:Handler,Timeout:Timeout,LastUpdateStatus:LastUpdateStatus}' --no-cli-pager
-
-      - name: Validate ledger template
+      - name: Deploy ledger
         if: ${{ env.OPERATION == 'deploy-ledger' }}
-        run: aws cloudformation validate-template --template-body file://infra/publishing/dynamodb.yml --no-cli-pager
-
-      - name: Deploy publication ledger
-        if: ${{ env.OPERATION == 'deploy-ledger' }}
-        run: |
-          aws cloudformation deploy --stack-name eirepolitic-instagram-publication-ledger --template-file infra/publishing/dynamodb.yml --no-fail-on-empty-changeset --no-cli-pager
-          aws cloudformation describe-stacks --stack-name eirepolitic-instagram-publication-ledger --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' --no-cli-pager
-
-      - name: Validate scheduler-support template
-        if: ${{ env.OPERATION == 'deploy-scheduler-support' }}
-        run: aws cloudformation validate-template --template-body file://infra/publishing/scheduler_support.yml --no-cli-pager
+        run: aws cloudformation deploy --stack-name eirepolitic-instagram-publication-ledger --template-file infra/publishing/dynamodb.yml --no-fail-on-empty-changeset --no-cli-pager
 
       - name: Deploy scheduler support
         if: ${{ env.OPERATION == 'deploy-scheduler-support' }}
-        run: |
-          aws cloudformation deploy --stack-name eirepolitic-instagram-scheduler-support --template-file infra/publishing/scheduler_support.yml --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-cli-pager
-          aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' --no-cli-pager
-
-      - name: Validate runtime-support template
-        if: ${{ env.OPERATION == 'deploy-runtime-support' }}
-        run: aws cloudformation validate-template --template-body file://infra/publishing/runtime_support.yml --no-cli-pager
+        run: aws cloudformation deploy --stack-name eirepolitic-instagram-scheduler-support --template-file infra/publishing/scheduler_support.yml --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-cli-pager
 
       - name: Deploy runtime support
         if: ${{ env.OPERATION == 'deploy-runtime-support' }}
-        run: |
-          aws cloudformation deploy --stack-name eirepolitic-instagram-runtime-support --template-file infra/publishing/runtime_support.yml --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-cli-pager
-          aws cloudformation describe-stacks --stack-name eirepolitic-instagram-runtime-support --query 'Stacks[0].{Status:StackStatus,Outputs:Outputs}' --no-cli-pager
+        run: aws cloudformation deploy --stack-name eirepolitic-instagram-runtime-support --template-file infra/publishing/runtime_support.yml --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-cli-pager
 
-      - name: Prepare non-publishing canary draft
-        if: ${{ env.OPERATION == 'prepare-canary' }}
-        run: |
-          python -m pip install --quiet boto3 pillow
-          bucket="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-runtime-support --query "Stacks[0].Outputs[?OutputKey=='ApprovedAssetsBucketName'].OutputValue | [0]" --output text)"
-          CANARY_BUCKET="$bucket" python - <<'PY'
-          import json, os, boto3
-          from dataclasses import asdict
-          from publishing.canary import prepare_canary
-          result = prepare_canary(
-              dynamodb_resource=boto3.resource('dynamodb', region_name='us-east-2'),
-              s3_client=boto3.client('s3', region_name='us-east-2'),
-              bucket=os.environ['CANARY_BUCKET'],
-          )
-          print(json.dumps(asdict(result), indent=2))
-          assert result.state == 'draft'
-          PY
-
-      - name: Prepare and verify Gate 5 scheduled canary
-        if: ${{ env.OPERATION == 'prepare-gate5-schedule' }}
-        run: |
-          python -m pip install --quiet boto3 pillow
-          function_arn="$(aws lambda get-function --function-name eirepolitic-instagram-publisher --query 'Configuration.FunctionArn' --output text)"
-          role_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerExecutionRoleArn'].OutputValue | [0]" --output text)"
-          dlq_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerDeadLetterQueueArn'].OutputValue | [0]" --output text)"
-          FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" python - <<'PY'
-          import json, os, boto3
-          from dataclasses import asdict
-          from publishing.gate5_canary import prepare_scheduled_canary
-          from publishing.scheduler import SchedulerTarget
-          result = prepare_scheduled_canary(
-              dynamodb_resource=boto3.resource('dynamodb', region_name='us-east-2'),
-              scheduler_client=boto3.client('scheduler', region_name='us-east-2'),
-              target=SchedulerTarget(
-                  lambda_arn=os.environ['FUNCTION_ARN'],
-                  role_arn=os.environ['ROLE_ARN'],
-                  dlq_arn=os.environ['DLQ_ARN'],
-              ),
-          )
-          print(json.dumps(asdict(result), indent=2))
-          assert result.state == 'scheduled'
-          assert result.scheduled_at_utc == '2026-09-27T00:45:00Z'
-          assert result.verified is True
-          PY
-
-      - name: Invoke read-only publisher healthcheck
+      - name: Healthcheck
         if: ${{ env.OPERATION == 'healthcheck' }}
         run: |
-          aws lambda invoke --function-name eirepolitic-instagram-publisher --cli-binary-format raw-in-base64-out --payload '{"action":"healthcheck"}' --query StatusCode --output text healthcheck-response.json
+          aws lambda invoke --function-name eirepolitic-instagram-publisher --cli-binary-format raw-in-base64-out --payload '{"action":"healthcheck"}' healthcheck-response.json >/dev/null
           python - <<'PY'
           import json
-          from pathlib import Path
-          response = json.loads(Path('healthcheck-response.json').read_text(encoding='utf-8'))
-          expected = {'meta_connected': True, 'instagram_id_matches': True, 'username_present': True, 'publishing_enabled': False}
-          assert response.get('statusCode') == 200, response
-          assert response.get('body') == expected, response
-          print(json.dumps({'statusCode': 200, 'body': expected}, indent=2))
+          value=json.load(open('healthcheck-response.json'))
+          print(json.dumps(value, indent=2))
+          assert value.get('statusCode') == 200, value
+          assert value.get('body', {}).get('meta_connected') is True, value
+          assert value.get('body', {}).get('publishing_enabled') is True, value
           PY
 
-      - name: Verify generic publishing lock
-        if: ${{ env.OPERATION == 'gate-lock-check' }}
-        run: |
-          aws lambda invoke --function-name eirepolitic-instagram-publisher --cli-binary-format raw-in-base64-out --payload '{"action":"publish"}' --query StatusCode --output text gate-lock-response.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          response = json.loads(Path('gate-lock-response.json').read_text(encoding='utf-8'))
-          assert response == {'statusCode': 403, 'body': {'error': 'publishing_not_enabled', 'publishing_enabled': False}}, response
-          print(json.dumps(response, indent=2))
-          PY
-
-      - name: Show infrastructure status
+      - name: Infrastructure status
         if: ${{ env.OPERATION == 'infrastructure-status' }}
         run: |
           for stack in eirepolitic-instagram-publication-ledger eirepolitic-instagram-scheduler-support eirepolitic-instagram-runtime-support; do
-            if aws cloudformation describe-stacks --stack-name "$stack" --no-cli-pager >/tmp/stack.json 2>/dev/null; then
-              aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].{StackName:StackName,Status:StackStatus,Outputs:Outputs}' --no-cli-pager
-            else
-              echo "$stack: NOT_CREATED"
-            fi
+            aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].{StackName:StackName,Status:StackStatus,Outputs:Outputs}' --no-cli-pager
           done

@@ -10,8 +10,7 @@ import boto3
 
 SECRET_NAME = os.environ.get("INSTAGRAM_SECRET_NAME", "eirepolitic/instagram/publishing")
 GRAPH_VERSION = os.environ.get("META_GRAPH_VERSION", "v25.0")
-GATE5_PUBLICATION_ID = "instagram-scheduled-canary-20260926"
-GATE5_PUBLICATION_VERSION = 1
+TABLE_NAME = os.environ.get("INSTAGRAM_PUBLICATION_TABLE", "eirepolitic-publications")
 
 secrets = boto3.client("secretsmanager")
 
@@ -36,32 +35,67 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
-def _execute_gate5_scheduled_canary(event: dict[str, object]) -> dict[str, object]:
+def _mark_published(table, publication_id: str, version: int, media_id: str, expected_state: str) -> None:
+    table.update_item(
+        Key={"pk": f"PUB#{publication_id}", "sk": "CONTROL"},
+        UpdateExpression="SET #state = :published, published_media_id = :media_id",
+        ConditionExpression="publication_version = :version AND #state = :expected_state",
+        ExpressionAttributeNames={"#state": "state"},
+        ExpressionAttributeValues={
+            ":published": "published",
+            ":expected_state": expected_state,
+            ":version": version,
+            ":media_id": media_id,
+        },
+    )
+
+
+def _execute_publication(*, publication_id: str, expected_version: int, trigger: str) -> dict[str, object]:
     from publishing.aws_runtime import AwsInstagramPublishingRuntime
+    from publishing.control import PublicationControlService
     from publishing.publisher import PublishingNeedsAttention, PublishingOutcomeUncertain
 
-    if (
-        event.get("publication_id") != GATE5_PUBLICATION_ID
-        or int(event.get("expected_version", -1)) != GATE5_PUBLICATION_VERSION
-    ):
-        return {"statusCode": 403, "body": {"error": "scheduled_canary_not_authorized"}}
+    if trigger not in {"immediate", "scheduled"}:
+        return {"statusCode": 400, "body": {"error": "invalid_trigger"}}
 
     dynamodb = boto3.resource("dynamodb", region_name="us-east-2")
     runtime = AwsInstagramPublishingRuntime(
         dynamodb_resource=dynamodb,
         s3_client=boto3.client("s3", region_name="us-east-2"),
         secrets_client=boto3.client("secretsmanager", region_name="us-east-2"),
+        table_name=TABLE_NAME,
     )
+    control = PublicationControlService(runtime.ledger)
+    record = control.get(publication_id)
+    if record.request.publication_version != expected_version:
+        return {"statusCode": 409, "body": {"error": "publication_version_mismatch"}}
+    if record.state == "published":
+        return {
+            "statusCode": 200,
+            "body": {
+                "publication_id": publication_id,
+                "state": "published",
+                "already_published": True,
+                "published_media_id": getattr(record, "published_media_id", None),
+            },
+        }
+
+    expected_state = "scheduled" if trigger == "scheduled" else "approved"
+    if record.state != expected_state:
+        return {
+            "statusCode": 409,
+            "body": {"error": "publication_not_executable", "state": record.state, "expected_state": expected_state},
+        }
 
     last_attention = None
     for _ in range(6):
         try:
             attempt = runtime.execute(
-                publication_id=GATE5_PUBLICATION_ID,
-                expected_version=GATE5_PUBLICATION_VERSION,
-                trigger="scheduled",
-                worker_id="gate5-scheduler-worker-20260926",
-                attempt_id="gate5-scheduler-attempt-20260926",
+                publication_id=publication_id,
+                expected_version=expected_version,
+                trigger=trigger,
+                worker_id=f"instagram-{trigger}-worker",
+                attempt_id=f"{publication_id}-v{expected_version}",
                 now_utc=_utc_now(),
             )
         except PublishingNeedsAttention as exc:
@@ -69,51 +103,34 @@ def _execute_gate5_scheduled_canary(event: dict[str, object]) -> dict[str, objec
             time.sleep(8)
             continue
         except PublishingOutcomeUncertain as exc:
-            return {
-                "statusCode": 409,
-                "body": {
-                    "publication_id": GATE5_PUBLICATION_ID,
-                    "state": "outcome_uncertain",
-                    "detail": str(exc),
-                },
-            }
+            raise RuntimeError(f"Instagram publication outcome uncertain: {exc}") from exc
 
         if attempt.state == "published" and attempt.published_media_id:
-            table = dynamodb.Table("eirepolitic-publications")
-            table.update_item(
-                Key={"pk": f"PUB#{GATE5_PUBLICATION_ID}", "sk": "CONTROL"},
-                UpdateExpression="SET #state = :published, published_media_id = :media_id",
-                ConditionExpression="publication_version = :version AND #state = :scheduled",
-                ExpressionAttributeNames={"#state": "state"},
-                ExpressionAttributeValues={
-                    ":published": "published",
-                    ":scheduled": "scheduled",
-                    ":version": GATE5_PUBLICATION_VERSION,
-                    ":media_id": attempt.published_media_id,
-                },
+            _mark_published(
+                dynamodb.Table(TABLE_NAME),
+                publication_id,
+                expected_version,
+                attempt.published_media_id,
+                expected_state,
             )
             return {
                 "statusCode": 200,
                 "body": {
-                    "publication_id": GATE5_PUBLICATION_ID,
+                    "publication_id": publication_id,
                     "state": "published",
                     "published_media_id": attempt.published_media_id,
                 },
             }
 
-    raise RuntimeError(f"Meta container did not become publishable during scheduled canary: {last_attention}")
+    raise RuntimeError(f"Meta container did not become publishable in bounded polling window: {last_attention}")
 
 
 def lambda_handler(event, context):
-    """AWS entrypoint with a single Gate 5 scheduled-canary exception."""
     event = event or {}
-    if event.get("publication_id") == GATE5_PUBLICATION_ID:
-        return _execute_gate5_scheduled_canary(event)
+    action = event.get("action")
 
-    token, instagram_id = _credentials()
-    action = event.get("action", "healthcheck")
-
-    if action == "healthcheck":
+    if action == "healthcheck" or (not action and "publication_id" not in event):
+        token, instagram_id = _credentials()
         account = _meta_get(f"/{instagram_id}?fields=id,username", token)
         return {
             "statusCode": 200,
@@ -121,14 +138,22 @@ def lambda_handler(event, context):
                 "meta_connected": True,
                 "instagram_id_matches": str(account.get("id")) == str(instagram_id),
                 "username_present": bool(account.get("username")),
-                "publishing_enabled": False,
+                "publishing_enabled": True,
             },
         }
 
-    return {
-        "statusCode": 403,
-        "body": {
-            "error": "publishing_not_enabled",
-            "publishing_enabled": False,
-        },
-    }
+    if action == "execute_publication":
+        return _execute_publication(
+            publication_id=str(event["publication_id"]),
+            expected_version=int(event["expected_version"]),
+            trigger="immediate",
+        )
+
+    if "publication_id" in event and "expected_version" in event and action is None:
+        return _execute_publication(
+            publication_id=str(event["publication_id"]),
+            expected_version=int(event["expected_version"]),
+            trigger="scheduled",
+        )
+
+    return {"statusCode": 403, "body": {"error": "unsupported_publication_action"}}
