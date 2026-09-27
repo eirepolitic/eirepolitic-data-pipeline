@@ -1,0 +1,47 @@
+{
+  "session_id": "2026-09-27-recorded-voting-participation",
+  "branch": "sly/session/2026-09-27-recorded-voting-participation",
+  "created_at": "2026-09-27T21:48:00Z",
+  "updated_at": "2026-09-27T21:48:00Z",
+  "intent": "Develop a neutral Instagram carousel explaining recorded Dáil voting participation over the latest complete six-month period supported by one production batch, at TD, party and constituency levels, through the Director evidence/prototype/review workflow. Do not publish or schedule.",
+  "resolved_project": null,
+  "resolved_period": null,
+  "data_sources": [],
+  "references_consulted": [
+    "docs/director_agent_reference.md",
+    "director/refs.yml",
+    "director/semantics.md",
+    "director/README.md",
+    "director/references.yml",
+    "director/visuals.yml",
+    "director/workflows_v1.md",
+    "director/capabilities.yml",
+    "director/data_products.yml",
+    "director/projects.yml",
+    "director/publishing.yml",
+    "docs/operations/instagram_publishing_standard.md",
+    "instagram/PUBLISHING.md",
+    "director/sessions/README.md",
+    "docs/research/contextual_voting.md",
+    "docs/research/contextual_voting_metrics.md"
+  ],
+  "decisions": [
+    {
+      "question": "Has the human content-direction gate been satisfied?",
+      "choice": "Yes for the content idea only; later visual and final approval gates remain open.",
+      "rationale": "The operator explicitly supplied the topic, target period, metric, editorial constraints, required validation and desired slide structure.",
+      "timestamp": "2026-09-27T21:48:00Z"
+    },
+    {
+      "question": "How should no recorded vote be interpreted?",
+      "choice": "Only as no recorded vote; never as proof of absence or attendance failure.",
+      "rationale": "This is required by both the operator and live repository voting semantics.",
+      "timestamp": "2026-09-27T21:48:00Z"
+    }
+  ],
+  "slide_plan": [],
+  "visual_decisions": {},
+  "runs": [],
+  "feedback": [],
+  "approval_state": "in_progress"
+}
