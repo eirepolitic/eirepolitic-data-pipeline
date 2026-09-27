@@ -4,14 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       factory_run_id:
-        description: GitHub Actions run ID from Instagram factory render (generic)
-        required: true
+        description: GitHub Actions run ID from Instagram factory render (generic). Agents may use INSTAGRAM_FACTORY_RUN_ID instead.
+        required: false
+        default: ''
       approved_by:
-        description: Human/operator identity approving the exact reviewed factory output
-        required: true
+        description: Human/operator identity approving the exact reviewed output. Agents may use INSTAGRAM_APPROVED_BY.
+        required: false
+        default: ''
       mode:
         description: Publish immediately or schedule once
-        required: true
+        required: false
         type: choice
         options: [scheduled, immediate]
         default: scheduled
@@ -38,6 +40,13 @@ permissions:
 
 env:
   AWS_REGION: us-east-2
+  FACTORY_RUN_ID: ${{ inputs.factory_run_id || vars.INSTAGRAM_FACTORY_RUN_ID }}
+  APPROVED_BY: ${{ inputs.approved_by || vars.INSTAGRAM_APPROVED_BY }}
+  MODE: ${{ inputs.mode || vars.INSTAGRAM_PUBLISH_MODE || 'scheduled' }}
+  SCHEDULED_LOCAL: ${{ inputs.scheduled_local || vars.INSTAGRAM_SCHEDULED_LOCAL }}
+  TIMEZONE_NAME: ${{ inputs.timezone || vars.INSTAGRAM_TIMEZONE || 'America/Vancouver' }}
+  CAPTION_OVERRIDE: ${{ inputs.caption_override || vars.INSTAGRAM_CAPTION_OVERRIDE }}
+  OPTIONS_JSON: ${{ inputs.options_json || vars.INSTAGRAM_OPTIONS_JSON || '{}' }}
 
 jobs:
   publish:
@@ -51,22 +60,34 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Validate request inputs
+        run: |
+          set -euo pipefail
+          test -n "$FACTORY_RUN_ID" || { echo "factory_run_id / INSTAGRAM_FACTORY_RUN_ID is required"; exit 1; }
+          test -n "$APPROVED_BY" || { echo "approved_by / INSTAGRAM_APPROVED_BY is required"; exit 1; }
+          case "$MODE" in scheduled|immediate) ;; *) echo "mode must be scheduled or immediate"; exit 1;; esac
+          if [ "$MODE" = "scheduled" ] && [ -z "$SCHEDULED_LOCAL" ]; then
+            echo "scheduled_local / INSTAGRAM_SCHEDULED_LOCAL is required when mode=scheduled"
+            exit 1
+          fi
+          python - <<'PY'
+          import json, os
+          value=json.loads(os.environ['OPTIONS_JSON'])
+          assert isinstance(value, dict), 'options_json must be a JSON object'
+          PY
+
       - name: Download exact factory artifact
         env:
           GH_TOKEN: ${{ github.token }}
-          FACTORY_RUN_ID: ${{ inputs.factory_run_id }}
         run: |
           set -euo pipefail
           mkdir -p factory_artifact
           gh run download "$FACTORY_RUN_ID" --dir factory_artifact
           handoff="$(find factory_artifact -name publication_handoff.json -type f -print -quit)"
-          test -n "$handoff"
-          root="$(dirname "$handoff")"
-          echo "FACTORY_ARTIFACT_ROOT=$root" >> "$GITHUB_ENV"
-          echo "Factory handoff: $handoff"
+          test -n "$handoff" || { echo "publication_handoff.json not found; use a factory run created after the publishing standard was installed"; exit 1; }
+          echo "FACTORY_ARTIFACT_ROOT=$(dirname "$handoff")" >> "$GITHUB_ENV"
 
-      - name: Configure bootstrap AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.INSTAGRAM_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
@@ -83,35 +104,12 @@ jobs:
             --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
             --output text)"
           read -r access_key secret_key session_token <<< "$credentials"
-          echo "::add-mask::$access_key"
-          echo "::add-mask::$secret_key"
-          echo "::add-mask::$session_token"
-          {
-            echo "AWS_ACCESS_KEY_ID=$access_key"
-            echo "AWS_SECRET_ACCESS_KEY=$secret_key"
-            echo "AWS_SESSION_TOKEN=$session_token"
-          } >> "$GITHUB_ENV"
-
-      - name: Validate request inputs
-        env:
-          MODE: ${{ inputs.mode }}
-          SCHEDULED_LOCAL: ${{ inputs.scheduled_local }}
-        run: |
-          set -euo pipefail
-          if [ "$MODE" = "scheduled" ] && [ -z "$SCHEDULED_LOCAL" ]; then
-            echo "scheduled_local is required when mode=scheduled"
-            exit 1
-          fi
+          echo "::add-mask::$access_key"; echo "::add-mask::$secret_key"; echo "::add-mask::$session_token"
+          echo "AWS_ACCESS_KEY_ID=$access_key" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$secret_key" >> "$GITHUB_ENV"
+          echo "AWS_SESSION_TOKEN=$session_token" >> "$GITHUB_ENV"
 
       - name: Prepare immutable publication and approval
-        env:
-          FACTORY_RUN_ID: ${{ inputs.factory_run_id }}
-          APPROVED_BY: ${{ inputs.approved_by }}
-          MODE: ${{ inputs.mode }}
-          SCHEDULED_LOCAL: ${{ inputs.scheduled_local }}
-          TIMEZONE_NAME: ${{ inputs.timezone }}
-          CAPTION_OVERRIDE: ${{ inputs.caption_override }}
-          OPTIONS_JSON: ${{ inputs.options_json }}
         run: |
           set -euo pipefail
           python -m pip install --quiet boto3 pillow
@@ -150,24 +148,16 @@ jobs:
           PY
 
       - name: Publish immediately when requested
-        if: ${{ inputs.mode == 'immediate' }}
+        if: ${{ env.MODE == 'immediate' }}
         run: |
           set -euo pipefail
           payload="$(python - <<'PY'
           import json
           value=json.load(open('publication-result.json'))
-          print(json.dumps({
-              'action':'execute_publication',
-              'publication_id':value['publication_id'],
-              'expected_version':value['publication_version'],
-          }, separators=(',', ':')))
+          print(json.dumps({'action':'execute_publication','publication_id':value['publication_id'],'expected_version':value['publication_version']}, separators=(',', ':')))
           PY
           )"
-          aws lambda invoke \
-            --function-name eirepolitic-instagram-publisher \
-            --cli-binary-format raw-in-base64-out \
-            --payload "$payload" \
-            immediate-response.json >/dev/null
+          aws lambda invoke --function-name eirepolitic-instagram-publisher --cli-binary-format raw-in-base64-out --payload "$payload" immediate-response.json >/dev/null
           python - <<'PY'
           import json
           value=json.load(open('immediate-response.json'))
@@ -177,5 +167,4 @@ jobs:
           PY
 
       - name: Summary
-        run: |
-          cat publication-result.json
+        run: cat publication-result.json
