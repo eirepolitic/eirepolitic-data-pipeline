@@ -79,6 +79,7 @@ jobs:
           cp instagram/factory/normalize.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/qa.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/review_page.py /tmp/approved-instagram-factory/instagram/factory/
+          cp instagram/factory/publication_handoff.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/render_pipeline.py /tmp/approved-instagram-factory/instagram/factory/
 
       - name: Render, run declarative QA, and stage the review page
