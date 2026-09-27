@@ -7,6 +7,7 @@ status: enabled
 canonical_runbook: docs/operations/instagram_publishing_standard.md
 agent_quick_start: instagram/PUBLISHING.md
 standard_workflow: .github/workflows/instagram_publish_standard.yml
+schedule_inventory_workflow: .github/workflows/instagram_schedule_inventory.yml
 factory_workflow: .github/workflows/instagram_factory_render.yml
 maintenance_workflow: .github/workflows/deploy_instagram_publisher_lambda.yml
 
@@ -24,6 +25,17 @@ production_state:
   gate_5_canary: >-
     Real one-time EventBridge Scheduler canary published successfully at the
     requested Pacific time and was manually deleted after verification.
+
+schedule_inventory:
+  canonical_ledger: eirepolitic-publications
+  canonical_index: state-scheduled_at-index
+  scheduled_state: scheduled
+  scheduler_group: eirepolitic-instagram
+  rule: >-
+    DynamoDB is the authoritative schedule calendar. EventBridge Scheduler is
+    the live execution mirror and one-time schedules delete themselves after
+    execution. Before choosing a time for a new scheduled post, agents must run
+    Instagram schedule inventory and review the upcoming calendar.
 
 factory_boundary:
   publication_enabled: false
