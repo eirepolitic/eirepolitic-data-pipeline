@@ -10,6 +10,12 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,22 +23,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Inspect vote payload
-        run: python process/tmp_audit_vote_payload_shape.py
-      - name: Publish payload sample
+      - run: python -m pip install boto3 pandas
+      - name: Build five-division party audit
+        run: python process/tmp_bill_vote_party_probe_all.py
+      - name: Publish party audit
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir audit-web
-          cp vote-payload-sample.json audit-web/vote-payload-sample.json
+          cp artifacts/bill-vote-party-audit.json audit-web/bill-vote-party-audit.json
           cd audit-web
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "analysis: vote payload sample ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-vote-payload
+          git commit -m "analysis: five Bill party audit ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-party-audit-all
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-vote-payload
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-party-audit-all
