@@ -1,0 +1,181 @@
+name: Instagram publish (standard)
+
+on:
+  workflow_dispatch:
+    inputs:
+      factory_run_id:
+        description: GitHub Actions run ID from Instagram factory render (generic)
+        required: true
+      approved_by:
+        description: Human/operator identity approving the exact reviewed factory output
+        required: true
+      mode:
+        description: Publish immediately or schedule once
+        required: true
+        type: choice
+        options: [scheduled, immediate]
+        default: scheduled
+      scheduled_local:
+        description: Local publish time YYYY-MM-DDTHH:MM:SS (required for scheduled mode)
+        required: false
+        default: ''
+      timezone:
+        description: IANA timezone for scheduled_local
+        required: false
+        default: America/Vancouver
+      caption_override:
+        description: Exact caption only when the factory artifact has no caption
+        required: false
+        default: ''
+      options_json:
+        description: Optional JSON for alt_text, media_tags, collaborators, location_id, first_comment
+        required: false
+        default: '{}'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  AWS_REGION: us-east-2
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: instagram-publishing
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download exact factory artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FACTORY_RUN_ID: ${{ inputs.factory_run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p factory_artifact
+          gh run download "$FACTORY_RUN_ID" --dir factory_artifact
+          handoff="$(find factory_artifact -name publication_handoff.json -type f -print -quit)"
+          test -n "$handoff"
+          root="$(dirname "$handoff")"
+          echo "FACTORY_ARTIFACT_ROOT=$root" >> "$GITHUB_ENV"
+          echo "Factory handoff: $handoff"
+
+      - name: Configure bootstrap AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.INSTAGRAM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Assume High Director AWS administrator role
+        run: |
+          set -euo pipefail
+          account_id="$(aws sts get-caller-identity --query Account --output text)"
+          credentials="$(aws sts assume-role \
+            --role-arn "arn:aws:iam::${account_id}:role/HighDirectorAwsAdmin" \
+            --role-session-name instagram-publish-${GITHUB_RUN_ID} \
+            --duration-seconds 3600 \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)"
+          read -r access_key secret_key session_token <<< "$credentials"
+          echo "::add-mask::$access_key"
+          echo "::add-mask::$secret_key"
+          echo "::add-mask::$session_token"
+          {
+            echo "AWS_ACCESS_KEY_ID=$access_key"
+            echo "AWS_SECRET_ACCESS_KEY=$secret_key"
+            echo "AWS_SESSION_TOKEN=$session_token"
+          } >> "$GITHUB_ENV"
+
+      - name: Validate request inputs
+        env:
+          MODE: ${{ inputs.mode }}
+          SCHEDULED_LOCAL: ${{ inputs.scheduled_local }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = "scheduled" ] && [ -z "$SCHEDULED_LOCAL" ]; then
+            echo "scheduled_local is required when mode=scheduled"
+            exit 1
+          fi
+
+      - name: Prepare immutable publication and approval
+        env:
+          FACTORY_RUN_ID: ${{ inputs.factory_run_id }}
+          APPROVED_BY: ${{ inputs.approved_by }}
+          MODE: ${{ inputs.mode }}
+          SCHEDULED_LOCAL: ${{ inputs.scheduled_local }}
+          TIMEZONE_NAME: ${{ inputs.timezone }}
+          CAPTION_OVERRIDE: ${{ inputs.caption_override }}
+          OPTIONS_JSON: ${{ inputs.options_json }}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet boto3 pillow
+          bucket="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-runtime-support --query "Stacks[0].Outputs[?OutputKey=='ApprovedAssetsBucketName'].OutputValue | [0]" --output text)"
+          function_arn="$(aws lambda get-function --function-name eirepolitic-instagram-publisher --query 'Configuration.FunctionArn' --output text)"
+          role_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerExecutionRoleArn'].OutputValue | [0]" --output text)"
+          dlq_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerDeadLetterQueueArn'].OutputValue | [0]" --output text)"
+          BUCKET="$bucket" FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" python - <<'PY'
+          import json, os, boto3
+          from dataclasses import asdict
+          from pathlib import Path
+          from publishing.scheduler import SchedulerTarget
+          from publishing.standard_pipeline import prepare_standard_publication
+
+          result = prepare_standard_publication(
+              artifact_root=Path(os.environ['FACTORY_ARTIFACT_ROOT']),
+              factory_run_id=os.environ['FACTORY_RUN_ID'],
+              approved_by=os.environ['APPROVED_BY'],
+              mode=os.environ['MODE'],
+              bucket=os.environ['BUCKET'],
+              dynamodb_resource=boto3.resource('dynamodb', region_name='us-east-2'),
+              s3_client=boto3.client('s3', region_name='us-east-2'),
+              scheduler_client=boto3.client('scheduler', region_name='us-east-2'),
+              scheduler_target=SchedulerTarget(
+                  lambda_arn=os.environ['FUNCTION_ARN'],
+                  role_arn=os.environ['ROLE_ARN'],
+                  dlq_arn=os.environ['DLQ_ARN'],
+              ),
+              scheduled_local=os.environ.get('SCHEDULED_LOCAL') or None,
+              timezone_name=os.environ.get('TIMEZONE_NAME') or 'America/Vancouver',
+              caption_override=os.environ.get('CAPTION_OVERRIDE') or None,
+              options_json=os.environ.get('OPTIONS_JSON') or '{}',
+          )
+          Path('publication-result.json').write_text(json.dumps(asdict(result), indent=2), encoding='utf-8')
+          print(json.dumps(asdict(result), indent=2))
+          PY
+
+      - name: Publish immediately when requested
+        if: ${{ inputs.mode == 'immediate' }}
+        run: |
+          set -euo pipefail
+          payload="$(python - <<'PY'
+          import json
+          value=json.load(open('publication-result.json'))
+          print(json.dumps({
+              'action':'execute_publication',
+              'publication_id':value['publication_id'],
+              'expected_version':value['publication_version'],
+          }, separators=(',', ':')))
+          PY
+          )"
+          aws lambda invoke \
+            --function-name eirepolitic-instagram-publisher \
+            --cli-binary-format raw-in-base64-out \
+            --payload "$payload" \
+            immediate-response.json >/dev/null
+          python - <<'PY'
+          import json
+          value=json.load(open('immediate-response.json'))
+          print(json.dumps(value, indent=2))
+          assert value.get('statusCode') == 200, value
+          assert value.get('body', {}).get('state') == 'published', value
+          PY
+
+      - name: Summary
+        run: |
+          cat publication-result.json
