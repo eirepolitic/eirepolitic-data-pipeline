@@ -5,7 +5,7 @@ on:
     inputs:
       operation:
         description: Maintenance operation. Normal posting uses Instagram publish (standard).
-        required: true
+        required: false
         type: choice
         options:
           - deploy-lambda
@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 env:
-  OPERATION: ${{ inputs.operation }}
+  OPERATION: ${{ inputs.operation || vars.HIGH_DIRECTOR_AWS_OPERATION || 'infrastructure-status' }}
 
 jobs:
   operate:
