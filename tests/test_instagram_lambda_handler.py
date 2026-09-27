@@ -18,56 +18,43 @@ def _load(monkeypatch):
     return importlib.import_module("publishing.lambda_handler")
 
 
-def test_healthcheck_is_read_only(monkeypatch):
+def test_healthcheck_reports_enabled_publishing_system(monkeypatch):
     module = _load(monkeypatch)
     monkeypatch.setattr(module, "_meta_get", lambda path, token: {"id": "123", "username": "eirepolitic"})
-
     result = module.lambda_handler({"action": "healthcheck"}, None)
-
     assert result["statusCode"] == 200
-    assert result["body"] == {
-        "meta_connected": True,
-        "instagram_id_matches": True,
-        "username_present": True,
-        "publishing_enabled": False,
-    }
+    assert result["body"]["meta_connected"] is True
+    assert result["body"]["publishing_enabled"] is True
 
 
-def test_publish_actions_are_hard_blocked(monkeypatch):
-    module = _load(monkeypatch)
-
-    result = module.lambda_handler({"action": "publish"}, None)
-
-    assert result["statusCode"] == 403
-    assert result["body"]["error"] == "publishing_not_enabled"
-    assert result["body"]["publishing_enabled"] is False
-
-
-def test_only_exact_gate5_scheduled_identity_uses_scheduler_path(monkeypatch):
+def test_immediate_publication_routes_through_generic_executor(monkeypatch):
     module = _load(monkeypatch)
     monkeypatch.setattr(
         module,
-        "_execute_gate5_scheduled_canary",
-        lambda event: {
-            "statusCode": 200,
-            "body": {
-                "publication_id": "instagram-scheduled-canary-20260926",
-                "state": "published",
-                "published_media_id": "media-456",
-            },
-        },
+        "_execute_publication",
+        lambda **kwargs: {"statusCode": 200, "body": {**kwargs, "state": "published"}},
     )
+    result = module.lambda_handler(
+        {"action": "execute_publication", "publication_id": "pub-1", "expected_version": 2}, None
+    )
+    assert result["statusCode"] == 200
+    assert result["body"]["trigger"] == "immediate"
+    assert result["body"]["publication_id"] == "pub-1"
 
-    allowed = module.lambda_handler(
-        {"publication_id": "instagram-scheduled-canary-20260926", "expected_version": 1},
-        None,
-    )
-    blocked = module.lambda_handler(
-        {"publication_id": "some-other-publication", "expected_version": 1, "action": "publish"},
-        None,
-    )
 
-    assert allowed["statusCode"] == 200
-    assert allowed["body"]["published_media_id"] == "media-456"
-    assert blocked["statusCode"] == 403
-    assert blocked["body"]["error"] == "publishing_not_enabled"
+def test_scheduler_payload_routes_through_same_executor(monkeypatch):
+    module = _load(monkeypatch)
+    monkeypatch.setattr(
+        module,
+        "_execute_publication",
+        lambda **kwargs: {"statusCode": 200, "body": {**kwargs, "state": "published"}},
+    )
+    result = module.lambda_handler({"publication_id": "pub-2", "expected_version": 1}, None)
+    assert result["statusCode"] == 200
+    assert result["body"]["trigger"] == "scheduled"
+
+
+def test_unsupported_action_is_blocked(monkeypatch):
+    module = _load(monkeypatch)
+    result = module.lambda_handler({"action": "publish"}, None)
+    assert result == {"statusCode": 403, "body": {"error": "unsupported_publication_action"}}
