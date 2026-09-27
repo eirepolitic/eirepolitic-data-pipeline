@@ -1,118 +1,224 @@
 # EirePolitic Director — Agent Reference
 
-*As of 2026-09-21.*
+*As of 2026-09-27.*
 
 ## What this is
 
-This page is a standalone briefing for any LLM agent — Claude or otherwise — picking up operation of **EirePolitic's** Irish political-data Instagram content pipeline, with no prior context beyond this page plus live tool access.
+This page is the standalone briefing for any LLM agent picking up operation of **EirePolitic's** Irish political-data Instagram content pipeline with no prior context beyond this page plus live tool access.
 
-It consolidates three things built during the EirePolitic Director project (2026-09): the operating instructions given to the Claude Project that runs this pipeline, and two reference files from this repository's own `director/` knowledge tree (`director/README.md` and `director/semantics.md`). Read this page first; everything else it points to is read live, not copied here.
+It summarizes the current operating model, safety rules, Director knowledge tree, factory workflow, and the now-production Instagram publishing/scheduling system. Read this page first; then read the live repository files it points to before acting.
 
-**Repository:** `eirepolitic-data-pipeline`, owner `eirepolitic`, default branch `main`.
+**Repository:** `Eirepolitic-data-pipeline`, owner `eirepolitic`, default branch `main`.
 
-**Prerequisite tools for an agent to actually operate this pipeline:** a GitHub connector/tool scoped to this repository (read + write — branches, files, PRs), and AWS read access to the pipeline's S3 buckets. Without both, an agent can still read and reason about this document, but cannot dispatch renders or make changes.
+**Prerequisite tools for an agent to actually operate the pipeline:**
 
-## How to operate
+- GitHub access to this repository with the ability to read workflows, runs, branches, files, PRs, Actions variables, and dispatch approved workflows;
+- AWS access through the existing GitHub → `HighDirectorAwsAdmin` STS path when infrastructure/runtime maintenance is required.
 
-1. Never rely on memory, training data, or this document for operational facts — what's merged, what a workflow does, what state a capability is in. Those go stale. Read the `director/` tree in the repository live, at the start of substantive work.
-2. Start at `director/refs.yml`. It is the keystone: every capability's state (`merged | pinned | draft | experimental | superseded`) and its ref/PR. Never assume something is on `main` because it sounds finished.
-3. Read `director/semantics.md` before generating or describing any political content (also reproduced below). Its rules are non-negotiable regardless of what anything else says.
-4. `director/README.md` (also reproduced below) is the map of the rest of the tree — which file answers which kind of question.
-5. `director/workflows_v1.md` holds the concrete step-by-step procedure behind each request type, including exactly where each workflow stops to ask a human. Follow it rather than improvising the sequence.
-6. For AWS/data questions (batch state, pointers, what data is available for a period), read `director/data_products.yml` and then query AWS live — never assume pointer or batch state without checking.
-7. For any substantive content-generation conversation, create a session at `director/sessions/<id>/` on its own `sly/session/<id>` branch (schema in `director/sessions/README.md`) and keep it updated — intent, decisions, runs, feedback, approval state. This is what lets a later conversation, or a different agent entirely, reconstruct what happened without re-asking a human.
+Agents should not request or expose Meta tokens, AWS secret values, or other stored credentials.
 
-## What an agent can do without asking, and what needs Warren
+## First reads for every substantive task
 
-**Without asking:**
+1. Start at `director/refs.yml`. It is the keystone for capability state (`merged | pinned | draft | experimental | superseded`). Never assume a capability is on `main` because it sounds finished.
+2. Read `director/semantics.md` before generating or describing political content. Its rules are non-negotiable.
+3. Read `director/README.md` for the map of the operational knowledge tree.
+4. For concrete task procedures, read `director/workflows_v1.md`.
+5. For publishing capability/state, read `director/publishing.yml` and the canonical runbook `docs/operations/instagram_publishing_standard.md`.
+6. For agent-level publishing instructions, read `instagram/PUBLISHING.md`.
+7. For AWS/data questions, read `director/data_products.yml` and then verify live state rather than trusting stale assumptions.
+8. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, decisions, runs, feedback, and approval state.
 
-- Anything read-only: browsing the repo, AWS, workflow runs, PR state.
-- Dispatching a GitHub Actions workflow that already exists on `main` (e.g. `instagram_factory_render.yml`), including with a `session_id` set.
-- Editing a file that's already on `main`, including an AWS-credentialed workflow file, as long as it isn't that file's first appearance.
-- Ordinary code, doc, and config changes, branches, and pull requests that don't push a brand-new AWS-secrets-using workflow file for the first time.
+## What an agent can do without asking, and what requires explicit human approval
 
-**Requires Warren:**
+### Without asking
 
-- Pushing a brand-new GitHub Actions workflow file that uses AWS secrets for the first time.
-- Anything that would set `publication_enabled` / `publishing_allowed` to `true`, anywhere, ever — see § Publishing gate below. This needs a separate, explicitly-designed, explicitly-approved change outside normal operation.
-- Scheduling or automating a publish.
-- The content-idea, visual-direction, and final-approval gates inside the four v1 workflows (`workflows_v1.md` §6.1–§6.3) — these are Warren's calls, not an agent's to make for him.
+- Read-only repository/AWS inspection.
+- Dispatching existing approved workflows on `main` when the task clearly calls for them.
+- Ordinary code, documentation, config, branch, and PR work within the repository's existing architecture.
+- Re-running deterministic render/validation/healthcheck workflows.
+- Using the maintenance workflow for already-authorized infrastructure status or deployment operations when the task requires it.
 
-When a genuine blocker is hit — a decision only Warren can make, a missing permission, an unrecoverable failure — stop and report clearly rather than guessing or working around it.
+### Requires explicit human approval
 
-## Publishing gate
+- Final approval of political content for publication.
+- Publishing immediately when the user has not already explicitly approved that exact reviewed output.
+- Scheduling a publication when the user has not explicitly approved that exact reviewed output and requested/approved the schedule.
+- Any content-idea, visual-direction, or final-approval gate reserved for the human operator in `director/workflows_v1.md`.
+- Any architectural change that weakens the separation between factory rendering/review and production publishing authority.
 
-Publishing is blocked in v1. No Meta app, Page/account connection, credential, scheduler, or live publish path exists or should be created without a separate, explicitly Warren-approved change.
+When a genuine blocker is hit — a missing approval, missing permission, missing evidence, or unrecoverable failure — stop and report it clearly rather than guessing or bypassing the control.
 
-- `publication_enabled` / `publishing_allowed` must never be set to `true` by an agent, by any workflow it dispatches, or by any code change it lands. This is enforced in code (`instagram/factory/recurring.py`'s hard-fail check, `instagram/factory/review.py` / `ready.py`), not just a convention.
-- A run may only be marked `ready_for_posting` once every item and every slide in its `review_state.json` is `approved` — no partial or majority-approved shortcuts.
-- "Publish this" or "schedule this" requests are answered with publishing *status only* (read `director/publishing.yml`) — never executed, however the request is phrased.
+## Critical distinction: the factory still does not publish
+
+The content factory and the production publisher are intentionally separate systems.
+
+The factory continues to enforce:
+
+- `publication_enabled=false` / `publishing_allowed=false`;
+- review-only output until every required review item/slide is approved;
+- `ready_for_posting` as a handoff state, not a publication action.
+
+**Do not change those factory flags to `true`.** The production publishing system does not require that and should never depend on it.
+
+A successful generic factory render now emits a portable `publication_handoff.json` in its uploaded `generated_render/` artifact. That handoff contains relative slide paths, caption path when present, project/period identity, QA state, and factory safety flags.
+
+The separate production publishing workflow consumes that reviewed artifact and creates the actual publication authority in DynamoDB by recording an approval fingerprint tied to the exact assets, caption, options, and publication version.
+
+## Production Instagram publishing is now enabled
+
+The old v1 rule that "publishing is blocked" is obsolete.
+
+Production publishing was proven end to end on the real Eirepolitic Instagram Professional account on 2026-09-26:
+
+- **Gate 4:** immediate single-image test post successfully published through the production S3 → DynamoDB → Lambda → Meta `/media` → `/media_publish` path; the returned permanent Instagram media ID was persisted and the test post was manually deleted.
+- **Gate 5:** one-time EventBridge Scheduler invocation successfully published the scheduled test post at the requested Pacific time; the schedule target/role/DLQ/payload were verified and the post was manually deleted afterward.
+
+The standard system is now the supported mechanism for both immediate and scheduled posts.
+
+## Canonical publishing workflow
+
+For normal publication, use exactly this sequence:
+
+1. Run **Instagram factory render (generic)** (`.github/workflows/instagram_factory_render.yml`).
+2. Review the generated preview and obtain explicit approval for the exact output.
+3. Record/copy the factory GitHub Actions run ID.
+4. Run **Instagram publish (standard)** (`.github/workflows/instagram_publish_standard.yml`).
+5. Supply:
+   - `factory_run_id`;
+   - `approved_by`;
+   - `mode` = `scheduled` or `immediate`.
+6. For scheduled mode, also supply:
+   - `scheduled_local` = `YYYY-MM-DDTHH:MM:SS`;
+   - `timezone` = IANA timezone, normally `America/Vancouver` when Pacific time was requested.
+7. Leave `options_json={}` unless advanced Instagram fields were explicitly approved.
+8. Use `caption_override` only when the reviewed factory artifact has no caption file.
+
+The standard workflow automatically:
+
+- downloads the exact factory artifact by run ID;
+- validates `publication_handoff.json` and factory QA/safety state;
+- converts slides to deterministic delivery JPEGs;
+- uploads immutable content-addressed assets to the private approved-assets S3 bucket;
+- persists the `AssetPackage` in DynamoDB;
+- creates the exact `PublicationRequest`;
+- parses hashtags and caption mentions from the exact caption;
+- records the approval fingerprint;
+- either invokes the publisher Lambda immediately or creates/verifies a one-time EventBridge Scheduler job.
+
+Agents must **not** recreate this with direct Meta API calls, manual S3 uploads, custom EventBridge schedules, or temporary Lambda publish actions.
+
+## Agent/High Director trigger path
+
+Some GitHub integrations can dispatch workflows but cannot pass `workflow_dispatch` inputs directly. In that case, set the repository Actions variables below and dispatch the **same** `instagram_publish_standard.yml` workflow:
+
+- `INSTAGRAM_FACTORY_RUN_ID`
+- `INSTAGRAM_APPROVED_BY`
+- `INSTAGRAM_PUBLISH_MODE` = `scheduled` or `immediate`
+- `INSTAGRAM_SCHEDULED_LOCAL` for scheduled mode
+- `INSTAGRAM_TIMEZONE`
+- `INSTAGRAM_CAPTION_OVERRIDE` only when needed
+- `INSTAGRAM_OPTIONS_JSON` (normally `{}`)
+
+There is no separate agent-only publishing path.
+
+For maintenance, `HIGH_DIRECTOR_AWS_OPERATION` is used by `.github/workflows/deploy_instagram_publisher_lambda.yml`. Leave it at `infrastructure-status` except during an explicit maintenance operation.
+
+## Publication runtime behavior
+
+The production Lambda accepts:
+
+- `{"action":"healthcheck"}` — read-only Meta connectivity check;
+- `{"action":"execute_publication","publication_id":"...","expected_version":N}` — immediate execution of an already-approved publication;
+- scheduler payload `{"publication_id":"...","expected_version":N}` — scheduled execution.
+
+The Lambda does **not** accept raw caption/image content as publication authority. It reloads the approved `PublicationRequest`, immutable `AssetPackage`, approval fingerprint, credentials, and durable execution state from AWS before contacting Meta.
+
+Durable execution state stores Meta container/media IDs and operation results so retries reuse prior provider objects rather than blindly creating duplicate posts.
+
+Scheduled posts use:
+
+- EventBridge Scheduler group `eirepolitic-instagram`;
+- dedicated scheduler execution role;
+- SQS DLQ;
+- bounded retry policy;
+- `ActionAfterCompletion=DELETE` for one-time schedules.
+
+## Canonical publishing documentation
+
+Use these files as the source of truth:
+
+- `docs/operations/instagram_publishing_standard.md` — full operating contract;
+- `instagram/PUBLISHING.md` — concise agent/operator quick start;
+- `director/publishing.yml` — current capability/state summary;
+- `.github/workflows/instagram_publish_standard.yml` — normal publication interface;
+- `.github/workflows/instagram_factory_render.yml` — source render/review workflow;
+- `.github/workflows/deploy_instagram_publisher_lambda.yml` — maintenance only;
+- `publishing/standard_pipeline.py` — factory artifact promotion/approval;
+- `publishing/lambda_handler.py` — generic immediate/scheduled execution;
+- `publishing/aws_runtime.py`, `publishing/dynamodb_runtime.py`, `publishing/scheduler.py` — runtime/idempotency/scheduling internals.
+
+If this briefing and live code/docs disagree, the current `main` implementation plus `docs/operations/instagram_publishing_standard.md` win.
 
 ## Tree navigation (`director/README.md`)
 
-This is how the repository's own `director/` tree describes itself — reproduced here so an agent has it even before its first live read.
+`director/` is the Director's platform-neutral operational truth.
 
-`director/` is the Director's operational truth, read identically by the Claude Director today and designed to be read identically by a future non-Claude agent — nothing operational should live only in a Claude Project's instructions.
+1. `refs.yml` — capability state and refs.
+2. `semantics.md` — non-negotiable political-content and publishing-boundary rules.
+3. `capabilities.yml` — current factory/content capabilities.
+4. `projects.yml` — project/schedule mapping.
+5. `references.yml` — canonical design references.
+6. `data_products.yml` — datasets/tables/pointers.
+7. `visuals.yml` — renderer tuning knobs.
+8. `workflows.yml` — workflow inventory/currentness.
+9. `publishing.yml` — current production publishing state.
+10. `sessions/<id>/` — per-conversation decision state.
+11. `workflows_v1.md` — step-by-step content workflow procedures.
 
-**How to use the tree:**
+Generated sections in `workflows.yml` / `projects.yml` are built by `process/build_director_catalogue.py` and drift-checked by CI. If a generated catalogue is stale, trust live GitHub state and regenerate it.
 
-1. Start at `refs.yml` — the keystone: capability → state (`merged | pinned | draft | experimental | superseded`) → ref/PR/notes. Never assume a capability is on `main` — check its state first.
-2. Read `semantics.md` before generating or describing any political content (below). Non-negotiable, not repeated per-file.
-3. "What can the factory do today" → `capabilities.yml`.
-4. "Which project renders X on what schedule" → `projects.yml`.
-5. "What does a completed post look like / which render is the design reference" → `references.yml`.
-6. Dataset/table/pointer questions → `data_products.yml`.
-7. Renderer tuning ("labels too small" → which constant) → `visuals.yml`.
-8. "What does this GitHub Actions workflow do, and is it current or superseded" → `workflows.yml`.
-9. Publishing readiness → `publishing.yml`. Publishing is blocked in v1 regardless of what this file says — see `semantics.md`.
-10. Per-conversation decision state → `sessions/<id>/`.
-11. The step-by-step procedure behind each row of the task-routing table below → `workflows_v1.md`.
-
-**Generated vs. hand-maintained:** the workflow inventory in `workflows.yml` and the project-directory listing in `projects.yml` are generated by `process/build_director_catalogue.py` and drift-checked in CI (`director_catalogue_drift_ci.yml`) — marked `# AUTO-GENERATED — do not hand-edit`. If that CI is red, trust GitHub over the stale file and re-run the generator. Everything else in the tree (`refs.yml`, `references.yml`, `semantics.md`, `capabilities.yml`, `data_products.yml`, `visuals.yml`, `publishing.yml`, `workflows_v1.md`, and the non-generated parts of `projects.yml`/`workflows.yml`) is hand-maintained and human-reviewed.
-
-**Size discipline:** `director/` is an index, not a copy of the repository. Anything cheaply derivable from a live GitHub or S3 read is pointed at, not duplicated.
-
-**Task routing table:**
+## Task routing
 
 | Request | Route |
 |---|---|
-| "Generate this month's X" | Existing-series workflow — resolve project in `projects.yml`, resolve period, check data readiness, dispatch render. `workflows_v1.md` §6.2 |
-| "Let's make a post" | New-post collaboration loop — content idea, references, one prototype slide, full render, feedback, approval. `workflows_v1.md` §6.1 |
-| "Slide 3 is too crowded" | Modify-from-feedback — map to a knob in `visuals.yml`. `workflows_v1.md` §6.3 |
-| "Add this dataset" / "add a metric" | Data-product workflow — see `data_products.yml`. `workflows_v1.md` §6.4 |
-| "I need a visual like this" | Capability check in `capabilities.yml` first — extend before rebuilding |
-| "Fix this broken post" | Resolve ref state in `refs.yml` first, then diagnose |
-| "Schedule this" | Automation — requires explicit approval from Warren |
-| "Publish this" | Blocked in v1. Report publishing status only — see `semantics.md` |
+| "Generate this month's X" | Existing-series workflow — resolve project, period, data readiness, then dispatch the factory render. |
+| "Let's make a post" | New-post collaboration loop — idea, references, prototype, full render, feedback, approval. |
+| "Slide 3 is too crowded" | Modify-from-feedback — use `visuals.yml` and re-render. |
+| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |
+| "I need a visual like this" | Check `capabilities.yml` before creating a new subsystem. |
+| "Fix this broken post" | Resolve live ref/workflow state first, then diagnose. |
+| "Schedule this" | After exact content approval, use **Instagram publish (standard)** with `mode=scheduled`. |
+| "Publish this now" | After exact content approval, use **Instagram publish (standard)** with `mode=immediate`. |
+| "Is publishing working?" | Read `director/publishing.yml`; run the maintenance `healthcheck` if live verification is needed. |
 
-## Non-negotiable semantics (`director/semantics.md`)
+## Non-negotiable political-content semantics
 
-These rules govern every content decision, regardless of platform, and regardless of what any other file in `director/` says. They are not suggestions to weigh against convenience.
+EirePolitic publishes factual, source-grounded political data content. An agent must:
 
-**Political-content rules.** EirePolitic publishes factual, source-grounded political data content. An agent must:
+- stay neutral, factual, and source-grounded;
+- trace every figure, quote, or claim to a specific dataset, table, batch, or document;
+- never invent missing evidence;
+- never infer an individual's political preference, voting behaviour, or affiliation beyond what source data records;
+- never make voting recommendations, endorse a candidate or party, or rank parties by favourability;
+- never create covert persuasion, microtargeting, or content designed to appear organic/grassroots when it is not;
+- preserve attribution/sourcing in generated assets, captions, manifests, and methodology slides.
 
-- Stay neutral, factual, and source-grounded. Every figure, quote, or claim must trace to a specific dataset, table, batch, or document — never to inference or plausible-sounding synthesis.
-- Never invent evidence. If data is missing or sparse for a period, say so truthfully (already enforced in the party project's sparse-data handling — don't work around it).
-- Never infer or state an individual's political preference, voting behaviour, or affiliation beyond what the source data records.
-- Never make voting recommendations, endorse a candidate or party, or rank parties by favourability.
-- Never create covert persuasion, microtargeting, or content designed to appear organic/grassroots when it is not.
-- Preserve attribution and sourcing in every generated asset (captions, manifests, methodology slides) — already wired into the render pipeline (`attribution.py`, methodology slides, `sources` fields) and must not be dropped when adding new content products.
+### Publishing semantics
 
-**Publishing gate** (see also above):
+- The **factory** must keep `publication_enabled=false` / `publishing_allowed=false`.
+- `ready_for_posting` requires complete approval of the factory review state.
+- The **separate standard publisher** may publish or schedule only after explicit human approval of the exact reviewed output.
+- Publication execution must go through `instagram_publish_standard.yml`; agents must not bypass its immutable-assets + approval-fingerprint boundary.
+- Scheduled times must preserve the requested local time/timezone exactly and should be reported back to the user in both local and resolved UTC forms.
 
-- `publication_enabled` / `publishing_allowed` must never be flipped to `true` by an agent, by any workflow it dispatches, or by any code change it lands, without a separate, explicitly-designed, explicitly Warren-approved change. Enforced in code, not just policy — `instagram/factory/recurring.py`'s hard-fail check, `review.py` / `ready.py`.
-- A run may only be marked `ready_for_posting` once every item and slide in its `review_state.json` is `approved`.
-- "Publish this" requests get publishing *status* only, never execution.
+## Evidentiary discipline for the agent itself
 
-**Evidentiary discipline for the agent itself:**
-
-- Don't describe repository or data state not actually verified via a live read this session (or a cited prior verification with its date). "Probably", "should be", "I'd expect" are not substitutes for checking `refs.yml`, and, where it marks something `draft`/`experimental`/unverified, reading the actual ref.
-- Where the tree records something as not independently re-verified (`capabilities.yml`'s `needs_review` entries), say so rather than presenting it as confirmed.
+- Do not describe repository, AWS, workflow, or data state that has not been verified live in the current session (or by a clearly identified prior verification with date).
+- "Probably", "should be", and "I'd expect" are not substitutes for checking.
+- If the tree marks something `draft`, `experimental`, `superseded`, or `needs_review`, say so rather than presenting it as production truth.
 
 ## Background
 
-This page is deliberately self-contained for day-to-day operation — an agent with this page plus live repo/AWS access should not need anything else to pick up work.
+This page is designed to be enough for a fresh agent to begin operating the system safely with live repository/AWS access.
 
-For the full build history, every architectural decision and its reasoning, and the phase-by-phase record of how this Director was built (Phases 0–7), see `claude/eirepolitic-director-implementation-plan.md` in the **Sly Director** Claude Project. That document is aimed at a human/Claude-Project audience rather than a fresh agent, so it is referenced here rather than reproduced.
-
-A copy of this page also lives as a Claude Doc, linked from the Sly Director project, for reference from claude.ai without repo access.
+For historical implementation detail, consult the repository's Director planning/history documents, but do not treat historical plans as current operational truth when they conflict with `main`, `director/publishing.yml`, or `docs/operations/instagram_publishing_standard.md`.
