@@ -15,7 +15,7 @@ jobs:
           ref: main
           fetch-depth: 0
       - name: Update agent data-documentation guidance
-        shell: python
+        shell: python {0}
         run: |
           from pathlib import Path
 
@@ -47,22 +47,28 @@ jobs:
               text = '\n'.join(lines) + '\n'
 
               marker = '## What an agent can do without asking, and what requires explicit human approval'
-              section = f'''## Using the data documentation
-
-The live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.
-
-**Catalogue:** {catalogue}
-
-Use it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.
-
-The catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.
-
-'''
+              section_lines = [
+                  '## Using the data documentation',
+                  '',
+                  'The live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.',
+                  '',
+                  f'**Catalogue:** {catalogue}',
+                  '',
+                  'Use it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.',
+                  '',
+                  'The catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.',
+                  '',
+              ]
+              section = '\n'.join(section_lines) + '\n'
+              if marker not in text:
+                  raise SystemExit('Insertion marker not found')
               text = text.replace(marker, section + marker, 1)
 
               old_route = '| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |'
-              new_route = f'''| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model]({catalogue}), then verify the relevant live production pointer/files before using the data. |
-| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model]({catalogue}) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
+              new_route = '\n'.join([
+                  f'| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model]({catalogue}), then verify the relevant live production pointer/files before using the data. |',
+                  f'| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model]({catalogue}) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |',
+              ])
               if old_route not in text:
                   raise SystemExit('Task-routing data row not found')
               text = text.replace(old_route, new_route, 1)
