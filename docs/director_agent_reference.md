@@ -27,8 +27,19 @@ Agents should not request or expose Meta tokens, AWS secret values, or other sto
 6. For concrete task procedures, read `director/workflows_v1.md`.
 7. For publishing capability/state, read `director/publishing.yml` and the canonical runbook `docs/operations/instagram_publishing_standard.md`.
 8. For agent-level publishing instructions, read `instagram/PUBLISHING.md`.
-9. For AWS/data questions, read `director/data_products.yml` and then verify live state rather than trusting stale assumptions.
-10. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.
+9. Before choosing, joining, interpreting, or describing EirePolitic political datasets, read the **Irish Politics Data Model** catalogue: https://eirepolitic.github.io/projects/data/irish-politics-data-model/. It is the human- and agent-readable map of the current usable model, including dataset grain, source, transformations, relationships, current columns, physical location, caveats, and real example rows.
+10. For AWS/data questions and operational data-product state, also read `director/data_products.yml` and then verify live production pointers/files rather than trusting stale assumptions. The catalogue explains what data is available; `director/data_products.yml` and live state determine what is operationally current.
+11. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.
+
+## Using the data documentation
+
+The live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.
+
+**Catalogue:** https://eirepolitic.github.io/projects/data/irish-politics-data-model/
+
+Use it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.
+
+The catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.
 
 ## What an agent can do without asking, and what requires explicit human approval
 
@@ -244,7 +255,8 @@ Generated sections in `workflows.yml` / `projects.yml` are built by `process/bui
 | "Generate this month's X" | Existing-series workflow — resolve project, period, data readiness, then dispatch the factory render. |
 | "Let's make a post" | New-post collaboration loop — inspect references/archive, establish evidence, prototype one representative slide, confirm direction, then scale to the full render. |
 | "Slide 3 is too crowded" | Modify-from-feedback — use `visuals.yml`, make the smallest reusable change, and re-render in the same session. |
-| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |
+| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/), then verify the relevant live production pointer/files before using the data. |
+| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |
 | "I need a visual like this" | Check `capabilities.yml` and `references.yml` before creating a new subsystem. |
 | "Fix this broken post" | Resolve live ref/workflow state first, then diagnose. |
 | "Schedule this" | After exact content approval, first run **Instagram schedule inventory**; then use **Instagram publish (standard)** with `mode=scheduled`. |
