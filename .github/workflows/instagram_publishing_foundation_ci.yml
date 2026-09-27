@@ -6,9 +6,13 @@ on:
     paths:
       - 'publishing/**'
       - 'infra/publishing/**'
+      - 'instagram/factory/publication_handoff.py'
+      - 'instagram/factory/render_pipeline.py'
       - 'instagram/caption_templates/**'
       - 'tests/test_instagram_*.py'
+      - '.github/workflows/instagram_publish_standard.yml'
       - '.github/workflows/instagram_publishing_foundation_ci.yml'
+      - '.github/workflows/deploy_instagram_publisher_lambda.yml'
 
 permissions:
   contents: read
@@ -30,8 +34,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest boto3 pyyaml pillow cfn-lint
 
-      - name: Compile publication package and tests
-        run: python -m compileall publishing tests/test_instagram_publishing_foundation.py tests/test_instagram_publication_control.py tests/test_instagram_dynamodb_ledger.py tests/test_instagram_dynamodb_runtime.py tests/test_instagram_scheduler_execution.py tests/test_instagram_meta_publisher.py tests/test_instagram_meta_http_client.py tests/test_instagram_lambda_handler.py tests/test_instagram_s3_assets.py tests/test_instagram_canary.py
+      - name: Compile publishing code and Instagram tests
+        run: python -m compileall publishing instagram/factory/publication_handoff.py instagram/factory/render_pipeline.py tests/test_instagram_*.py
 
       - name: Validate publishing CloudFormation
         run: cfn-lint infra/publishing/*.yml
@@ -41,7 +45,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import yaml
-
           for path in Path('instagram/caption_templates').glob('*.yml'):
               with path.open(encoding='utf-8') as handle:
                   value = yaml.safe_load(handle)
@@ -49,23 +52,12 @@ jobs:
               print(f'validated {path}')
           PY
 
-      - name: Run publication tests
+      - name: Run all Instagram publication tests
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
         run: |
           set +e
-          python -m pytest \
-            tests/test_instagram_publishing_foundation.py \
-            tests/test_instagram_publication_control.py \
-            tests/test_instagram_dynamodb_ledger.py \
-            tests/test_instagram_dynamodb_runtime.py \
-            tests/test_instagram_scheduler_execution.py \
-            tests/test_instagram_meta_publisher.py \
-            tests/test_instagram_meta_http_client.py \
-            tests/test_instagram_lambda_handler.py \
-            tests/test_instagram_s3_assets.py \
-            tests/test_instagram_canary.py \
-            -vv --tb=long --junitxml=pytest-results.xml 2>&1 | tee pytest-output.txt
+          python -m pytest tests/test_instagram_*.py -vv --tb=long --junitxml=pytest-results.xml 2>&1 | tee pytest-output.txt
           status=${PIPESTATUS[0]}
           exit "$status"
 
@@ -75,16 +67,13 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import xml.etree.ElementTree as ET
-
           message = None
           report = Path('pytest-results.xml')
           if report.exists():
               try:
                   root = ET.parse(report).getroot()
                   for case in root.iter('testcase'):
-                      problem = case.find('failure')
-                      if problem is None:
-                          problem = case.find('error')
+                      problem = case.find('failure') or case.find('error')
                       if problem is not None:
                           node = f"{case.get('classname', '')}::{case.get('name', '')}".strip(':')
                           detail = problem.get('message') or (problem.text or '').strip()
@@ -92,16 +81,13 @@ jobs:
                           break
               except ET.ParseError as exc:
                   message = f"Could not parse pytest-results.xml: {exc}"
-
           if not message:
               output = Path('pytest-output.txt')
               if output.exists():
                   lines = [line.strip() for line in output.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()]
                   message = ' | '.join(lines[-12:])
-
           if not message:
-              message = 'Pytest failed without a readable JUnit or captured-output diagnostic.'
-
+              message = 'Pytest failed without a readable diagnostic.'
           message = message[:3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
           print(f'::error title=Instagram publishing pytest failure::{message}')
           PY
