@@ -1,22 +1,18 @@
 name: Temporary director data-doc update
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/_temp_update_director_data_docs.yml'
-      - 'docs/director_agent_reference.md'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   update:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: main
           fetch-depth: 0
       - name: Update agent data-documentation guidance
         shell: python
@@ -45,7 +41,7 @@ jobs:
           text = text.replace(old_route, new_route, 1)
 
           path.write_text(text, encoding='utf-8')
-      - name: Commit update to PR branch
+      - name: Commit update to main
         shell: bash
         run: |
           set -euo pipefail
@@ -57,4 +53,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/director_agent_reference.md
           git commit -m 'docs: refer agents to political data catalogue'
-          git push origin HEAD:${GITHUB_HEAD_REF}
+          git push origin HEAD:main
