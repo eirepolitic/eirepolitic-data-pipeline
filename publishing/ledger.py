@@ -34,19 +34,14 @@ class PublicationLedger(Protocol):
     def record_approval(self, approval: PublicationApproval) -> PublicationRecord: ...
     def put_schedule(self, schedule: PublicationSchedule) -> PublicationRecord: ...
     def cancel(self, publication_id: str) -> PublicationRecord: ...
-    def list_by_state(
-        self,
-        state: str,
-        *,
-        scheduled_from_utc: str | None = None,
-    ) -> list[PublicationRecord]: ...
+    def list_by_state(self, state: str) -> list[PublicationRecord]: ...
 
 
 class InMemoryPublicationLedger:
     """Thread-safe reference implementation used for control-plane tests.
 
-    DynamoDB implements the same behavioral contract in production. This class is
-    not intended as production persistence.
+    DynamoDB will implement the same behavioral contract later. This class is not
+    intended as production persistence.
     """
 
     def __init__(self) -> None:
@@ -136,21 +131,6 @@ class InMemoryPublicationLedger:
             self._records[publication_id] = record
             return record
 
-    def list_by_state(
-        self,
-        state: str,
-        *,
-        scheduled_from_utc: str | None = None,
-    ) -> list[PublicationRecord]:
+    def list_by_state(self, state: str) -> list[PublicationRecord]:
         with self._lock:
-            records = [record for record in self._records.values() if record.state == state]
-            if scheduled_from_utc is not None:
-                records = [
-                    record
-                    for record in records
-                    if record.schedule is not None and record.schedule.scheduled_at_utc >= scheduled_from_utc
-                ]
-            return sorted(
-                records,
-                key=lambda record: record.schedule.scheduled_at_utc if record.schedule is not None else "",
-            )
+            return [record for record in self._records.values() if record.state == state]
