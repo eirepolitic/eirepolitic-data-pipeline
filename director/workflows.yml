@@ -10,8 +10,8 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 142 workflows in the repo)
-  generated_at_last_hand_sync: "2026-09-26"
+  generated_from: GitHub Actions workflows API (all 143 workflows in the repo)
+  generated_at_last_hand_sync: "2026-09-27"
   workflows:
     - id: 232687901
       name: Run Absence Reason (Manual)
@@ -82,7 +82,7 @@ inventory:
       path: .github/workflows/demographic-polling-bounded-validation.yml
       state: active
     - id: 366700813
-      name: Deploy Instagram Publisher Lambda
+      name: Instagram publishing infrastructure operations
       path: .github/workflows/deploy_instagram_publisher_lambda.yml
       state: active
     - id: 361059448
@@ -212,6 +212,10 @@ inventory:
     - id: 350336964
       name: Instagram polling snapshot render
       path: .github/workflows/instagram_polling_snapshot_render.yml
+      state: active
+    - id: 368581506
+      name: Instagram publish (standard)
+      path: .github/workflows/instagram_publish_standard.yml
       state: active
     - id: 351098527
       name: Instagram publishing foundation CI
