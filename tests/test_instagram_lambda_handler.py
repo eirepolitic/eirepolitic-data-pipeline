@@ -12,7 +12,7 @@ def _load(monkeypatch):
             "SecretString": json.dumps({"page_access_token": "token", "instagram_account_id": "123"})
         }
     )
-    fake_boto3 = types.SimpleNamespace(client=lambda service: fake_client)
+    fake_boto3 = types.SimpleNamespace(client=lambda service, **kwargs: fake_client)
     monkeypatch.setitem(sys.modules, "boto3", fake_boto3)
     sys.modules.pop("publishing.lambda_handler", None)
     return importlib.import_module("publishing.lambda_handler")
@@ -41,3 +41,33 @@ def test_publish_actions_are_hard_blocked(monkeypatch):
     assert result["statusCode"] == 403
     assert result["body"]["error"] == "publishing_not_enabled"
     assert result["body"]["publishing_enabled"] is False
+
+
+def test_only_exact_gate5_scheduled_identity_uses_scheduler_path(monkeypatch):
+    module = _load(monkeypatch)
+    monkeypatch.setattr(
+        module,
+        "_execute_gate5_scheduled_canary",
+        lambda event: {
+            "statusCode": 200,
+            "body": {
+                "publication_id": "instagram-scheduled-canary-20260926",
+                "state": "published",
+                "published_media_id": "media-456",
+            },
+        },
+    )
+
+    allowed = module.lambda_handler(
+        {"publication_id": "instagram-scheduled-canary-20260926", "expected_version": 1},
+        None,
+    )
+    blocked = module.lambda_handler(
+        {"publication_id": "some-other-publication", "expected_version": 1},
+        None,
+    )
+
+    assert allowed["statusCode"] == 200
+    assert allowed["body"]["published_media_id"] == "media-456"
+    assert blocked["statusCode"] == 200
+    assert blocked["body"]["publishing_enabled"] is False
