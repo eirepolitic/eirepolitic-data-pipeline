@@ -33,12 +33,16 @@ def list_upcoming_scheduled_publications(
     scheduler = EventBridgePublicationScheduler(scheduler_client, scheduler_target)
     now = now_utc or datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
-    records = ledger.list_by_state("scheduled", scheduled_from_utc=now)
-    items: list[ScheduledPublicationInventoryItem] = []
+    records = [
+        record
+        for record in ledger.list_by_state("scheduled")
+        if record.schedule is not None and record.schedule.scheduled_at_utc >= now
+    ]
+    records.sort(key=lambda record: record.schedule.scheduled_at_utc if record.schedule is not None else "")
 
+    items: list[ScheduledPublicationInventoryItem] = []
     for record in records:
-        if record.schedule is None:
-            continue
+        assert record.schedule is not None
         schedule_name = scheduler.schedule_name(record.schedule)
         try:
             live = scheduler_client.get_schedule(Name=schedule_name, GroupName=scheduler_target.group_name)
