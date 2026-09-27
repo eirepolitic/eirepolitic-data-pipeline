@@ -63,11 +63,11 @@ def test_only_exact_gate5_scheduled_identity_uses_scheduler_path(monkeypatch):
         None,
     )
     blocked = module.lambda_handler(
-        {"publication_id": "some-other-publication", "expected_version": 1},
+        {"publication_id": "some-other-publication", "expected_version": 1, "action": "publish"},
         None,
     )
 
     assert allowed["statusCode"] == 200
     assert allowed["body"]["published_media_id"] == "media-456"
-    assert blocked["statusCode"] == 200
-    assert blocked["body"]["publishing_enabled"] is False
+    assert blocked["statusCode"] == 403
+    assert blocked["body"]["error"] == "publishing_not_enabled"
