@@ -1,0 +1,60 @@
+name: Temporary director data-doc update
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/_temp_update_director_data_docs.yml'
+      - 'docs/director_agent_reference.md'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Update agent data-documentation guidance
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('docs/director_agent_reference.md')
+          text = path.read_text(encoding='utf-8')
+
+          old = '''9. For AWS/data questions, read `director/data_products.yml` and then verify live state rather than trusting stale assumptions.\n10. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.'''
+          new = '''9. Before choosing, joining, interpreting, or describing EirePolitic political datasets, read the **Irish Politics Data Model** catalogue: https://eirepolitic.github.io/projects/data/irish-politics-data-model/. It is the human- and agent-readable map of the current usable model, including dataset grain, source, transformations, relationships, current columns, physical location, caveats, and real example rows.\n10. For AWS/data questions and operational data-product state, also read `director/data_products.yml` and then verify live production pointers/files rather than trusting stale assumptions. The catalogue explains what data is available; `director/data_products.yml` and live state determine what is operationally current.\n11. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.'''
+          if old not in text:
+              raise SystemExit('Expected First reads block not found')
+          text = text.replace(old, new, 1)
+
+          marker = '''## What an agent can do without asking, and what requires explicit human approval'''
+          section = '''## Using the data documentation\n\nThe live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.\n\n**Catalogue:** https://eirepolitic.github.io/projects/data/irish-politics-data-model/\n\nUse it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.\n\nThe catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.\n\n'''
+          if marker not in text:
+              raise SystemExit('Insertion marker not found')
+          text = text.replace(marker, section + marker, 1)
+
+          old_route = '''| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
+          new_route = '''| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/), then verify the relevant live production pointer/files before using the data. |\n| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
+          if old_route not in text:
+              raise SystemExit('Expected task-routing row not found')
+          text = text.replace(old_route, new_route, 1)
+
+          path.write_text(text, encoding='utf-8')
+      - name: Commit update to PR branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- docs/director_agent_reference.md; then
+            echo 'Director reference already updated.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/director_agent_reference.md
+          git commit -m 'docs: refer agents to political data catalogue'
+          git push origin HEAD:${GITHUB_HEAD_REF}
