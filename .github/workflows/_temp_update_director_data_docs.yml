@@ -21,24 +21,51 @@ jobs:
 
           path = Path('docs/director_agent_reference.md')
           text = path.read_text(encoding='utf-8')
+          catalogue = 'https://eirepolitic.github.io/projects/data/irish-politics-data-model/'
 
-          old = '''9. For AWS/data questions, read `director/data_products.yml` and then verify live state rather than trusting stale assumptions.\n10. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.'''
-          new = '''9. Before choosing, joining, interpreting, or describing EirePolitic political datasets, read the **Irish Politics Data Model** catalogue: https://eirepolitic.github.io/projects/data/irish-politics-data-model/. It is the human- and agent-readable map of the current usable model, including dataset grain, source, transformations, relationships, current columns, physical location, caveats, and real example rows.\n10. For AWS/data questions and operational data-product state, also read `director/data_products.yml` and then verify live production pointers/files rather than trusting stale assumptions. The catalogue explains what data is available; `director/data_products.yml` and live state determine what is operationally current.\n11. For substantive content-generation work, use the session mechanism under `director/sessions/<id>/` so later agents can reconstruct intent, references, data sources, decisions, runs, feedback, and approval state.'''
-          if old not in text:
-              raise SystemExit('Expected First reads block not found')
-          text = text.replace(old, new, 1)
+          if '## Using the data documentation' not in text:
+              lines = text.splitlines()
+              start = lines.index('## First reads for every substantive task')
+              end = next(i for i in range(start + 1, len(lines)) if lines[i].startswith('## '))
+              first_reads = lines[start:end]
+              replaced = False
+              new_block = []
+              for line in first_reads:
+                  if line.startswith('9. For AWS/data questions'):
+                      new_block.extend([
+                          f'9. Before choosing, joining, interpreting, or describing EirePolitic political datasets, read the **Irish Politics Data Model** catalogue: {catalogue}. It is the human- and agent-readable map of the current usable model, including dataset grain, source, transformations, relationships, current columns, physical location, caveats, and real example rows.',
+                          '10. For AWS/data questions and operational data-product state, also read `director/data_products.yml` and then verify live production pointers/files rather than trusting stale assumptions. The catalogue explains what data is available; `director/data_products.yml` and live state determine what is operationally current.',
+                      ])
+                      replaced = True
+                  elif line.startswith('10. For substantive content-generation work'):
+                      new_block.append('11.' + line[len('10.'):])
+                  else:
+                      new_block.append(line)
+              if not replaced:
+                  raise SystemExit('AWS/data First reads line not found')
+              lines[start:end] = new_block
+              text = '\n'.join(lines) + '\n'
 
-          marker = '''## What an agent can do without asking, and what requires explicit human approval'''
-          section = '''## Using the data documentation\n\nThe live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.\n\n**Catalogue:** https://eirepolitic.github.io/projects/data/irish-politics-data-model/\n\nUse it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.\n\nThe catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.\n\n'''
-          if marker not in text:
-              raise SystemExit('Insertion marker not found')
-          text = text.replace(marker, section + marker, 1)
+              marker = '## What an agent can do without asking, and what requires explicit human approval'
+              section = f'''## Using the data documentation
 
-          old_route = '''| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
-          new_route = '''| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/), then verify the relevant live production pointer/files before using the data. |\n| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model](https://eirepolitic.github.io/projects/data/irish-politics-data-model/) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
-          if old_route not in text:
-              raise SystemExit('Expected task-routing row not found')
-          text = text.replace(old_route, new_route, 1)
+The live **Irish Politics Data Model** catalogue is the default starting point when an agent needs to answer questions such as “what data do we have?”, “which table contains this?”, “what does one row represent?”, “which identifier should I join on?”, or “what do the actual values look like?”.
+
+**Catalogue:** {catalogue}
+
+Use it to discover and understand the current production datasets before writing new extraction/query logic. In particular, inspect the documented **grain, source, transformations, relationships, caveats, schema, and real example rows** for every dataset you intend to use. Do not guess table or column names from memory, and do not assume that similarly named identifiers are enforced foreign keys unless the catalogue or implementation establishes the relationship.
+
+The catalogue is documentation, not a substitute for live verification. When freshness, availability, batch identity, or operational state matters, resolve the active production pointer/manifest and inspect the current files/workflows. If the catalogue and live implementation disagree, prefer the current production implementation and update the documentation rather than silently relying on stale catalogue text.
+
+'''
+              text = text.replace(marker, section + marker, 1)
+
+              old_route = '| "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |'
+              new_route = f'''| "What data do we have?" / "which table should I use?" | Start with the [Irish Politics Data Model]({catalogue}), then verify the relevant live production pointer/files before using the data. |
+| "Add this dataset" / "add a metric" | Review the existing model in the [Irish Politics Data Model]({catalogue}) first, then use the data-product workflow — `data_products.yml` / `workflows_v1.md`. |'''
+              if old_route not in text:
+                  raise SystemExit('Task-routing data row not found')
+              text = text.replace(old_route, new_route, 1)
 
           path.write_text(text, encoding='utf-8')
       - name: Commit update to main
