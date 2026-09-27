@@ -7,12 +7,76 @@ Production Instagram publishing uses one supported path:
 1. run `.github/workflows/instagram_factory_render.yml`;
 2. visually review the generated preview;
 3. note the factory GitHub Actions run ID;
-4. run `.github/workflows/instagram_publish_standard.yml` with that run ID;
-5. choose `scheduled` or `immediate`;
-6. for scheduled mode, supply a local timestamp and IANA timezone;
-7. let the workflow promote the reviewed artifact, approve the exact fingerprint, and publish/schedule it.
+4. **before choosing a scheduled time, run `.github/workflows/instagram_schedule_inventory.yml` and review all upcoming scheduled posts**;
+5. run `.github/workflows/instagram_publish_standard.yml` with that run ID;
+6. choose `scheduled` or `immediate`;
+7. for scheduled mode, supply a local timestamp and IANA timezone;
+8. let the workflow promote the reviewed artifact, approve the exact fingerprint, and publish/schedule it.
 
 Agents must not rebuild this flow manually with ad-hoc S3 uploads, direct Meta calls, custom EventBridge schedules, or one-off Lambda actions.
+
+## Where scheduled posts are kept
+
+There are two related stores, with different roles:
+
+### Canonical schedule ledger — DynamoDB
+
+The authoritative record of scheduled Instagram publications is the DynamoDB table:
+
+`eirepolitic-publications`
+
+Scheduled control records have:
+
+- `state = scheduled`;
+- `scheduled_local`;
+- `timezone`;
+- `scheduled_at_utc`;
+- publication ID/version;
+- project/period identity;
+- approval and immutable asset references.
+
+The table has the `state-scheduled_at-index` index, which is the canonical way to list upcoming scheduled posts in chronological order.
+
+This ledger remains authoritative even after a one-time EventBridge schedule deletes itself following execution.
+
+### Live execution mirror — EventBridge Scheduler
+
+The live one-time execution jobs are in EventBridge Scheduler group:
+
+`eirepolitic-instagram`
+
+These jobs are an execution mirror of the DynamoDB schedule record. They are not the long-term calendar/source of truth because one-time schedules use `ActionAfterCompletion=DELETE`.
+
+A valid upcoming scheduled publication should normally have:
+
+- a DynamoDB control record in `scheduled` state; and
+- a matching enabled EventBridge schedule with the expected publication ID/version payload, target Lambda, execution role, and DLQ.
+
+The schedule inventory workflow cross-checks these two layers and flags a missing/mismatched EventBridge job.
+
+## Mandatory pre-scheduling check
+
+Before an agent selects a time for a new scheduled post, it must run:
+
+**Instagram schedule inventory**  
+`.github/workflows/instagram_schedule_inventory.yml`
+
+This is a read-only workflow. It queries upcoming `scheduled` records from DynamoDB in chronological order and verifies the matching EventBridge schedule for each one.
+
+The workflow summary shows, for every upcoming post:
+
+- requested local publish time;
+- timezone;
+- project ID;
+- publication ID;
+- live Scheduler state;
+- whether the EventBridge schedule matches the ledger record.
+
+If the inventory is empty, there are no upcoming scheduled Instagram publications in the canonical ledger.
+
+If the inventory shows a missing or mismatched EventBridge schedule, treat that as an operational issue to resolve before adding another schedule.
+
+The agent should use this inventory to choose a new time that does not unintentionally collide with existing scheduled content. The repository does not currently impose an automatic minimum spacing rule; spacing/editorial cadence remains an operator/content decision informed by the inventory.
 
 ## Inputs agents should use
 
@@ -104,12 +168,13 @@ When asked to publish a factory-generated post:
 1. confirm the factory run has completed and its preview has been reviewed;
 2. obtain the factory run ID;
 3. do not edit generated assets during the publishing step;
-4. trigger `Instagram publish (standard)`;
-5. use `scheduled` unless the user explicitly asks for immediate publishing;
-6. use the user's requested timezone/time exactly;
-7. report the resolved local and UTC scheduled time;
-8. after the workflow succeeds, report the publication ID and schedule state;
-9. do not create parallel custom scheduling/publishing mechanisms.
+4. if scheduling, run `Instagram schedule inventory` and review existing upcoming posts before proposing/choosing a time;
+5. trigger `Instagram publish (standard)`;
+6. use `scheduled` unless the user explicitly asks for immediate publishing;
+7. use the user's requested timezone/time exactly;
+8. report the resolved local and UTC scheduled time;
+9. after the workflow succeeds, report the publication ID and schedule state;
+10. do not create parallel custom scheduling/publishing mechanisms.
 
 If the factory artifact has no caption, stop and obtain/provide the exact approved caption via `caption_override`. Do not invent missing publication copy unless the user has explicitly asked the agent to write it.
 
@@ -122,9 +187,11 @@ Supported maintenance operations are Lambda deployment, the three CloudFormation
 ## Canonical implementation files
 
 - `.github/workflows/instagram_factory_render.yml`
+- `.github/workflows/instagram_schedule_inventory.yml`
 - `.github/workflows/instagram_publish_standard.yml`
 - `.github/workflows/deploy_instagram_publisher_lambda.yml`
 - `instagram/factory/publication_handoff.py`
+- `publishing/schedule_inventory.py`
 - `publishing/standard_pipeline.py`
 - `publishing/lambda_handler.py`
 - `publishing/aws_runtime.py`

@@ -38,6 +38,7 @@ Agents should not request or expose Meta tokens, AWS secret values, or other sto
 - Dispatching existing approved workflows on `main` when the task clearly calls for them.
 - Ordinary code, documentation, config, branch, and PR work within the repository's existing architecture.
 - Re-running deterministic render/validation/healthcheck workflows.
+- Running the read-only Instagram schedule inventory before choosing a new scheduled slot.
 - Using the maintenance workflow for already-authorized infrastructure status or deployment operations when the task requires it.
 
 ### Requires explicit human approval
@@ -77,6 +78,56 @@ Production publishing was proven end to end on the real Eirepolitic Instagram Pr
 
 The standard system is now the supported mechanism for both immediate and scheduled posts.
 
+## Where scheduled posts are kept and how to inspect the calendar
+
+Future agents must not infer schedule availability from chat history, old workflow runs, or EventBridge alone.
+
+### Canonical schedule calendar: DynamoDB
+
+The authoritative record of future Instagram publications is the DynamoDB table:
+
+`eirepolitic-publications`
+
+A future scheduled publication has a control record with:
+
+- `state = scheduled`;
+- `scheduled_local`;
+- `timezone`;
+- `scheduled_at_utc`;
+- publication ID/version;
+- project/period identity;
+- approval and immutable asset references.
+
+The table's `state-scheduled_at-index` index is the canonical chronological schedule/calendar query.
+
+### Live execution mirror: EventBridge Scheduler
+
+The corresponding one-time execution job lives in EventBridge Scheduler group:
+
+`eirepolitic-instagram`
+
+EventBridge is **not** the durable calendar. One-time schedules use `ActionAfterCompletion=DELETE`, so the live Scheduler job disappears after execution. DynamoDB remains the authoritative historical/control record.
+
+### Mandatory pre-scheduling workflow
+
+Before proposing or choosing a time for a new scheduled post, run:
+
+**Instagram schedule inventory**  
+`.github/workflows/instagram_schedule_inventory.yml`
+
+This read-only workflow:
+
+1. queries future `state=scheduled` publication records from DynamoDB in chronological order;
+2. shows each post's local time, timezone, project ID, and publication ID;
+3. looks up the expected matching EventBridge Scheduler job;
+4. reports the live Scheduler state and whether it matches the ledger record.
+
+If the inventory is empty, there are no upcoming scheduled Instagram posts in the canonical ledger.
+
+If an inventory row says the Scheduler job is missing or mismatched, treat that as an operational inconsistency to resolve before adding another schedule.
+
+Use this inventory to decide where a new post fits relative to already-planned content. There is currently **no automatic minimum-spacing rule** enforced by the code; editorial cadence/spacing remains an operator decision informed by the visible inventory and the user's instructions.
+
 ## Canonical publishing workflow
 
 For normal publication, use exactly this sequence:
@@ -84,16 +135,17 @@ For normal publication, use exactly this sequence:
 1. Run **Instagram factory render (generic)** (`.github/workflows/instagram_factory_render.yml`).
 2. Review the generated preview and obtain explicit approval for the exact output.
 3. Record/copy the factory GitHub Actions run ID.
-4. Run **Instagram publish (standard)** (`.github/workflows/instagram_publish_standard.yml`).
-5. Supply:
+4. **If scheduling, run Instagram schedule inventory and review all upcoming posts before selecting the new time.**
+5. Run **Instagram publish (standard)** (`.github/workflows/instagram_publish_standard.yml`).
+6. Supply:
    - `factory_run_id`;
    - `approved_by`;
    - `mode` = `scheduled` or `immediate`.
-6. For scheduled mode, also supply:
+7. For scheduled mode, also supply:
    - `scheduled_local` = `YYYY-MM-DDTHH:MM:SS`;
    - `timezone` = IANA timezone, normally `America/Vancouver` when Pacific time was requested.
-7. Leave `options_json={}` unless advanced Instagram fields were explicitly approved.
-8. Use `caption_override` only when the reviewed factory artifact has no caption file.
+8. Leave `options_json={}` unless advanced Instagram fields were explicitly approved.
+9. Use `caption_override` only when the reviewed factory artifact has no caption file.
 
 The standard workflow automatically:
 
@@ -123,6 +175,8 @@ Some GitHub integrations can dispatch workflows but cannot pass `workflow_dispat
 
 There is no separate agent-only publishing path.
 
+For scheduled mode, still run `instagram_schedule_inventory.yml` first. Do not select a time solely from repository variables or prior conversation context.
+
 For maintenance, `HIGH_DIRECTOR_AWS_OPERATION` is used by `.github/workflows/deploy_instagram_publisher_lambda.yml`. Leave it at `infrastructure-status` except during an explicit maintenance operation.
 
 ## Publication runtime behavior
@@ -139,7 +193,9 @@ Durable execution state stores Meta container/media IDs and operation results so
 
 Scheduled posts use:
 
-- EventBridge Scheduler group `eirepolitic-instagram`;
+- DynamoDB table `eirepolitic-publications` as the canonical schedule ledger;
+- DynamoDB index `state-scheduled_at-index` for the upcoming calendar;
+- EventBridge Scheduler group `eirepolitic-instagram` as the live execution mirror;
 - dedicated scheduler execution role;
 - SQS DLQ;
 - bounded retry policy;
@@ -152,9 +208,11 @@ Use these files as the source of truth:
 - `docs/operations/instagram_publishing_standard.md` — full operating contract;
 - `instagram/PUBLISHING.md` — concise agent/operator quick start;
 - `director/publishing.yml` — current capability/state summary;
+- `.github/workflows/instagram_schedule_inventory.yml` — read-only upcoming schedule/calendar view;
 - `.github/workflows/instagram_publish_standard.yml` — normal publication interface;
 - `.github/workflows/instagram_factory_render.yml` — source render/review workflow;
 - `.github/workflows/deploy_instagram_publisher_lambda.yml` — maintenance only;
+- `publishing/schedule_inventory.py` — canonical schedule-ledger/Scheduler cross-check;
 - `publishing/standard_pipeline.py` — factory artifact promotion/approval;
 - `publishing/lambda_handler.py` — generic immediate/scheduled execution;
 - `publishing/aws_runtime.py`, `publishing/dynamodb_runtime.py`, `publishing/scheduler.py` — runtime/idempotency/scheduling internals.
@@ -189,7 +247,8 @@ Generated sections in `workflows.yml` / `projects.yml` are built by `process/bui
 | "Add this dataset" / "add a metric" | Data-product workflow — `data_products.yml` / `workflows_v1.md`. |
 | "I need a visual like this" | Check `capabilities.yml` and `references.yml` before creating a new subsystem. |
 | "Fix this broken post" | Resolve live ref/workflow state first, then diagnose. |
-| "Schedule this" | After exact content approval, use **Instagram publish (standard)** with `mode=scheduled`. |
+| "Schedule this" | After exact content approval, first run **Instagram schedule inventory**; then use **Instagram publish (standard)** with `mode=scheduled`. |
+| "What is already scheduled?" | Run **Instagram schedule inventory** and treat DynamoDB `eirepolitic-publications` as the canonical calendar. |
 | "Publish this now" | After exact content approval, use **Instagram publish (standard)** with `mode=immediate`. |
 | "Is publishing working?" | Read `director/publishing.yml`; run the maintenance `healthcheck` if live verification is needed. |
 
@@ -375,13 +434,15 @@ EirePolitic publishes factual, source-grounded political data content. An agent 
 - The **factory** must keep `publication_enabled=false` / `publishing_allowed=false`.
 - `ready_for_posting` requires complete approval of the factory review state.
 - The **separate standard publisher** may publish or schedule only after explicit human approval of the exact reviewed output.
+- Before selecting a scheduled time, the agent must run `instagram_schedule_inventory.yml` and review the canonical upcoming schedule from DynamoDB.
 - Publication execution must go through `instagram_publish_standard.yml`; agents must not bypass its immutable-assets + approval-fingerprint boundary.
 - Scheduled times must preserve the requested local time/timezone exactly and should be reported back to the user in both local and resolved UTC forms.
 
 ## Evidentiary discipline for the agent itself
 
-- Do not describe repository, AWS, workflow, or data state that has not been verified live in the current session (or by a clearly identified prior verification with date).
+- Do not describe repository, AWS, workflow, schedule, or data state that has not been verified live in the current session (or by a clearly identified prior verification with date).
 - "Probably", "should be", and "I'd expect" are not substitutes for checking.
+- Do not infer the current Instagram calendar from chat history. Run the schedule inventory when schedule state matters.
 - If the tree marks something `draft`, `experimental`, `superseded`, or `needs_review`, say so rather than presenting it as production truth.
 
 ## Background
