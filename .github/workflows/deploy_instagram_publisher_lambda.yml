@@ -140,28 +140,78 @@ jobs:
       - name: Prepare and verify Gate 5 scheduled canary
         if: ${{ env.OPERATION == 'prepare-gate5-schedule' }}
         run: |
-          python -m pip install --quiet boto3 pillow
+          set -euo pipefail
+          state="$(aws dynamodb get-item \
+            --table-name eirepolitic-publications \
+            --key '{"pk":{"S":"PUB#instagram-scheduled-canary-20260926"},"sk":{"S":"CONTROL"}}' \
+            --projection-expression '#s, publication_version' \
+            --expression-attribute-names '{"#s":"state"}' \
+            --query 'Item.state.S' \
+            --output text)"
+          version="$(aws dynamodb get-item \
+            --table-name eirepolitic-publications \
+            --key '{"pk":{"S":"PUB#instagram-scheduled-canary-20260926"},"sk":{"S":"CONTROL"}}' \
+            --projection-expression 'publication_version' \
+            --query 'Item.publication_version.N' \
+            --output text)"
+          if [ "$state" != "scheduled" ] || [ "$version" != "1" ]; then
+            echo "::error title=Gate 5 ledger state::Expected scheduled v1, got state=$state version=$version"
+            exit 1
+          fi
+
           function_arn="$(aws lambda get-function --function-name eirepolitic-instagram-publisher --query 'Configuration.FunctionArn' --output text)"
           role_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerExecutionRoleArn'].OutputValue | [0]" --output text)"
           dlq_arn="$(aws cloudformation describe-stacks --stack-name eirepolitic-instagram-scheduler-support --query "Stacks[0].Outputs[?OutputKey=='SchedulerDeadLetterQueueArn'].OutputValue | [0]" --output text)"
-          FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" python - <<'PY'
-          import json, os, boto3
-          from dataclasses import asdict
-          from publishing.gate5_canary import prepare_scheduled_canary
-          from publishing.scheduler import SchedulerTarget
-          result = prepare_scheduled_canary(
-              dynamodb_resource=boto3.resource('dynamodb', region_name='us-east-2'),
-              scheduler_client=boto3.client('scheduler', region_name='us-east-2'),
-              target=SchedulerTarget(
-                  lambda_arn=os.environ['FUNCTION_ARN'],
-                  role_arn=os.environ['ROLE_ARN'],
-                  dlq_arn=os.environ['DLQ_ARN'],
-              ),
-          )
-          print(json.dumps(asdict(result), indent=2))
-          assert result.state == 'scheduled'
-          assert result.scheduled_at_utc == '2026-09-27T00:45:00Z'
-          assert result.verified is True
+          schedule_name="instagram-instagram-scheduled-canary-20260926-v1"
+          payload='{"expected_version":1,"publication_id":"instagram-scheduled-canary-20260926"}'
+
+          aws scheduler delete-schedule --name "$schedule_name" --group-name eirepolitic-instagram --no-cli-pager 2>/dev/null || true
+          target="$(FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" PAYLOAD="$payload" python - <<'PY'
+          import json, os
+          print(json.dumps({
+              'Arn': os.environ['FUNCTION_ARN'],
+              'RoleArn': os.environ['ROLE_ARN'],
+              'Input': os.environ['PAYLOAD'],
+              'DeadLetterConfig': {'Arn': os.environ['DLQ_ARN']},
+              'RetryPolicy': {'MaximumEventAgeInSeconds': 3600, 'MaximumRetryAttempts': 3},
+          }, separators=(',', ':')))
+          PY
+          )"
+
+          if ! aws scheduler create-schedule \
+            --name "$schedule_name" \
+            --group-name eirepolitic-instagram \
+            --schedule-expression 'at(2026-09-27T00:45:00)' \
+            --flexible-time-window '{"Mode":"OFF"}' \
+            --action-after-completion DELETE \
+            --target "$target" \
+            --description 'Eirepolitic Instagram Gate 5 scheduled canary' \
+            --no-cli-pager 2>schedule-error.txt; then
+            error="$(tr '\n' ' ' < schedule-error.txt | sed 's/%/%25/g; s/\r/%0D/g')"
+            echo "::error title=Gate 5 EventBridge create-schedule::$error"
+            exit 1
+          fi
+
+          aws scheduler get-schedule --name "$schedule_name" --group-name eirepolitic-instagram --no-cli-pager > schedule.json
+          FUNCTION_ARN="$function_arn" ROLE_ARN="$role_arn" DLQ_ARN="$dlq_arn" PAYLOAD="$payload" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          value = json.loads(Path('schedule.json').read_text())
+          assert value['ScheduleExpression'] == 'at(2026-09-27T00:45:00)', value
+          assert value['FlexibleTimeWindow'] == {'Mode': 'OFF'}, value
+          assert value['ActionAfterCompletion'] == 'DELETE', value
+          target = value['Target']
+          assert target['Arn'] == os.environ['FUNCTION_ARN'], target
+          assert target['RoleArn'] == os.environ['ROLE_ARN'], target
+          assert target['DeadLetterConfig']['Arn'] == os.environ['DLQ_ARN'], target
+          assert target['Input'] == os.environ['PAYLOAD'], target
+          print(json.dumps({
+              'schedule_name': value['Name'],
+              'state': value['State'],
+              'schedule_expression': value['ScheduleExpression'],
+              'action_after_completion': value['ActionAfterCompletion'],
+              'target_verified': True,
+          }, indent=2))
           PY
 
       - name: Invoke read-only publisher healthcheck
