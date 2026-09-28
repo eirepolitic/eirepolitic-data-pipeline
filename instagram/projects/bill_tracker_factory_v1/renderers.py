@@ -267,7 +267,7 @@ def render_process_glossary(glossary: dict[str, Any], output: str | Path) -> dic
     draw.text((W // 2, 136), glossary["process_subtitle"], font=font(23, True), fill=ACCENT, anchor="ma")
     _rule(draw, 176, left=112, right=968, width=4)
     steps = glossary["process_steps"]
-    start_x, y, bw, bh, gap = 35, 218, 80, 104, 15
+    start_x, y, bw, bh, gap = 35, 218, 105, 104, 15
     for idx, step in enumerate(steps):
         x = start_x + idx * (bw + gap)
         active = step["label"] == glossary["process_highlight"]
