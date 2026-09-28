@@ -1,0 +1,60 @@
+{
+  "session_id": "2026-09-27-bill-tracker-finalisation",
+  "branch": "sly/session/2026-09-27-bill-tracker-finalisation",
+  "created_at": "2026-09-28T00:13:00Z",
+  "updated_at": "2026-09-28T00:13:00Z",
+  "intent": "Finalise two already visually/editorially approved Bill Tracker Instagram carousels by reconciling the approved review work into the normal Bill Tracker generic-factory project, revalidating semantics/data, producing an exact production-factory review artifact, then finalising copy and scheduling only after explicit approval of the exact production render and exact captions.",
+  "resolved_project": "bill_tracker_factory_v1",
+  "resolved_period": null,
+  "data_sources": [
+    "current production Oireachtas pointer and official proposition records — to be revalidated before final production",
+    "previews/bill-tracker-full-posts-review approved review assets",
+    "feature/bill-content-snapshot-v1 / PR #130 draft implementation"
+  ],
+  "references_consulted": [
+    "docs/director_agent_reference.md",
+    "director/refs.yml",
+    "director/semantics.md",
+    "director/README.md",
+    "director/references.yml",
+    "director/visuals.yml",
+    "director/workflows_v1.md",
+    "director/publishing.yml",
+    "director/data_products.yml",
+    "docs/operations/instagram_publishing_standard.md",
+    "instagram/PUBLISHING.md",
+    "director/sessions/README.md"
+  ],
+  "decisions": [
+    {
+      "question": "What is the authoritative visual/editorial target for migration?",
+      "choice": "The two nine-slide carousels hosted on previews/bill-tracker-full-posts-review, not the older PR #130 render.",
+      "rationale": "The human reviewer explicitly approved those assets and current main still classifies the Bill Tracker series as draft; PR #130 predates the completed review evolution.",
+      "timestamp": "2026-09-28T00:13:00Z"
+    },
+    {
+      "question": "What publication architecture should be used?",
+      "choice": "Integrate into instagram/projects/bill_tracker_factory_v1 and render through the generic Instagram factory; keep publication_enabled=false and publishing_allowed=false in the factory.",
+      "rationale": "Canonical publishing docs require factory/publisher separation and prohibit using temporary preview tooling as the production dependency.",
+      "timestamp": "2026-09-28T00:13:00Z"
+    }
+  ],
+  "slide_plan": [],
+  "visual_decisions": {
+    "approved_target": "previews/bill-tracker-full-posts-review",
+    "dimensions": "1080x1350",
+    "house_style": "dark green / cream / gold with approved corner ornaments",
+    "process_timeline_direction": "left-to-right",
+    "process_highlight": "ENACTED"
+  },
+  "runs": [],
+  "feedback": [
+    {
+      "raw": "These look good and are ready to post.",
+      "interpretation": "Visual/content direction is approved; production migration must preserve it and only the new exact factory artifact requires a final explicit approval before publication/scheduling.",
+      "technical_change": "No redesign requested; migrate the approved target into the generic Bill Tracker factory and verify exact output.",
+      "run_id": null
+    }
+  ],
+  "approval_state": "in_progress"
+}
