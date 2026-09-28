@@ -110,8 +110,6 @@ def render_slide(parties: pd.DataFrame, output_path: Path) -> dict[str, Any]:
     draw = ImageDraw.Draw(image)
     elements: list[dict[str, Any]] = []
 
-    # Approved EirePolitic framing primitives: floral corners, centered title,
-    # gold top rule, dark green analytical panel and split footer.
     ornament_ft = font("regular", 72)
     ornament = "❦"
     ornament_specs = [
@@ -125,16 +123,9 @@ def render_slide(parties: pd.DataFrame, output_path: Path) -> dict[str, Any]:
         draw.text(xy, ornament, font=ornament_ft, fill=COLORS["accent"], anchor=anchor)
         register(elements, element_id=element_id, kind="ornament", bbox=box)
 
-    title_ft, title_text = fit_wrapped(
-        draw,
-        "Recorded voting participation — parties",
-        kind="bold",
-        max_size=48,
-        min_size=40,
-        max_width=850,
-        max_lines=2,
-    )
-    title_box = draw_centered_text(draw, title_text, 72, title_ft, COLORS["text"], spacing=5)
+    title_text = "Recorded voting participation — parties"
+    title_ft = fit_single_line(draw, title_text, kind="bold", max_size=44, min_size=38, max_width=900)
+    title_box = draw_centered_text(draw, title_text, 78, title_ft, COLORS["text"])
     register(elements, element_id="title", kind="text", bbox=title_box)
 
     subtitle_ft = font("regular", 22)
@@ -172,7 +163,6 @@ def render_slide(parties: pd.DataFrame, output_path: Path) -> dict[str, Any]:
     value_x = 982
     max_rate = 100.0
 
-    # Grid lines at 25/50/75/100 to make comparison easier without ranking.
     grid_top = chart_top + 4
     grid_bottom = chart_bottom - 5
     for tick in (25, 50, 75, 100):
@@ -233,19 +223,15 @@ def render_slide(parties: pd.DataFrame, output_path: Path) -> dict[str, Any]:
     draw.text((W // 2, 1310), source_text, font=source_ft, fill=COLORS["muted"], anchor="ma")
     register(elements, element_id="source", kind="text", bbox=source_box)
 
-    # Slide-level computer-visual QA. Containers are not considered collisions
-    # with their children; this checks only text/text, text/bar and framing clashes.
     collisions: list[dict[str, Any]] = []
     text_elements = [e for e in elements if e["kind"] == "text"]
     for i, a in enumerate(text_elements):
         for b in text_elements[i + 1:]:
-            # Percentage + denominator are intentionally stacked in one value column.
             if a.get("row") is not None and a.get("row") == b.get("row") and {a["id"].split("_")[-1], b["id"].split("_")[-1]} == {"pct", "denom"}:
                 continue
             if intersects(tuple(a["bbox"]), tuple(b["bbox"]), pad=2):
                 collisions.append({"a": a["id"], "b": b["id"], "a_bbox": a["bbox"], "b_bbox": b["bbox"]})
 
-    # Text may not intrude into a bar in the same row.
     for e in text_elements:
         if e.get("row") is None:
             continue
@@ -257,8 +243,6 @@ def render_slide(parties: pd.DataFrame, output_path: Path) -> dict[str, Any]:
     panel_text_ids = [e for e in text_elements if e["id"].startswith("party_") or e["id"].startswith("header_")]
     panel_out = [e for e in panel_text_ids if not within(tuple(e["bbox"]), panel, pad=16)]
 
-    # Additional spacing checks catch adjacent-row crowding even when glyph boxes
-    # narrowly avoid overlap.
     row_spacing_issues: list[dict[str, Any]] = []
     for idx in range(row_count - 1):
         row_a = [e for e in text_elements if e.get("row") == idx]
