@@ -24,19 +24,6 @@ from instagram.projects.bill_tracker_factory_v1.renderers import (
 
 PROJECT_ID = "bill_tracker_factory_v1"
 _ALLOWED_PERIODS = {"post1", "post2"}
-_EXPECTED_PARTIES = {
-    "Fianna Fáil": "Fianna Fáil",
-    "Sinn Féin": "Sinn Féin",
-    "Fine Gael": "Fine Gael",
-    "Independent": "Independent",
-    "Social Democrats": "Social Democrats",
-    "Labour": "Labour",
-    "Independent Ireland": "Independent Ireland",
-    "PBP-S": "PBP-S",
-    "Aontú": "Aontú",
-    "Green": "Green",
-    "100% Redress": "100% Redress",
-}
 
 
 def _assert_image(path: Path) -> None:
@@ -108,7 +95,7 @@ def _party_bucket(value: Any) -> str:
         ("people before profit", "PBP-S"), ("pbp", "PBP-S"), ("solidarity", "PBP-S"),
         ("aontú", "Aontú"), ("aontu", "Aontú"),
         ("green", "Green"),
-        ("100% redress", "100% Redress"), ("redress", "100% Redress"),
+        ("100% rdr", "100% Redress"), ("100% redress", "100% Redress"), ("redress", "100% Redress"),
         ("independent", "Independent"),
     ]
     for token, label in aliases:
@@ -117,36 +104,69 @@ def _party_bucket(value: Any) -> str:
     raise RuntimeError(f"Unmapped party/group name in historical party data: {text!r}")
 
 
-def _find_division(member_votes: pd.DataFrame, vote: dict[str, Any]) -> tuple[str, pd.DataFrame, dict[str, int]]:
-    division_col = _col(member_votes, "division_id")
-    date_col = _col(member_votes, "division_date", "date")
-    label_col = _col(member_votes, "vote_label", "vote")
+def _find_division(
+    member_votes: pd.DataFrame,
+    divisions: pd.DataFrame,
+    vote: dict[str, Any],
+    *,
+    bill_title: str,
+) -> tuple[str, pd.DataFrame, dict[str, int], dict[str, Any]]:
+    mv_division_col = _col(member_votes, "division_id")
+    mv_date_col = _col(member_votes, "division_date", "date")
+    mv_label_col = _col(member_votes, "vote_label", "vote")
+    div_id_col = _col(divisions, "division_id")
+    div_date_col = _col(divisions, "division_date", "date")
+    debate_col = _col(divisions, "debate_show_as", "debateShowAs")
+    subject_col = _col(divisions, "subject")
+    outcome_col = _col(divisions, "outcome")
+
     target_date = date.fromisoformat(str(vote["date"]))
-    day = member_votes[member_votes[date_col].map(_as_date) == target_date].copy()
-    candidates: list[tuple[str, pd.DataFrame, dict[str, int]]] = []
-    for division_id, group in day.groupby(division_col, dropna=False):
-        counts = {"ta": 0, "nil": 0, "abstain": 0}
-        try:
-            for label, count in group[label_col].value_counts(dropna=False).items():
-                counts[_vote_bucket(label)] += int(count)
-        except RuntimeError:
+    day_votes = member_votes[member_votes[mv_date_col].map(_as_date) == target_date].copy()
+    day_divisions = divisions[divisions[div_date_col].map(_as_date) == target_date].copy()
+    title_matches = day_divisions[
+        day_divisions[debate_col].fillna("").astype(str).str.startswith(bill_title, na=False)
+    ].copy()
+    if title_matches.empty:
+        raise RuntimeError(f"No official division record found for {bill_title!r} on {target_date}")
+
+    candidates: list[tuple[str, pd.DataFrame, dict[str, int], dict[str, Any]]] = []
+    for _, division_row in title_matches.iterrows():
+        division_id = str(division_row[div_id_col])
+        group = day_votes[day_votes[mv_division_col].astype(str).eq(division_id)].copy()
+        if group.empty:
             continue
-        if (counts["ta"], counts["nil"], counts["abstain"]) == (int(vote["ta"]), int(vote["nil"]), int(vote["abstain"])):
-            candidates.append((str(division_id), group.copy(), counts))
+        counts = {"ta": 0, "nil": 0, "abstain": 0}
+        for label, count in group[mv_label_col].value_counts(dropna=False).items():
+            counts[_vote_bucket(label)] += int(count)
+        if (counts["ta"], counts["nil"], counts["abstain"]) == (
+            int(vote["ta"]), int(vote["nil"]), int(vote["abstain"])
+        ):
+            official = {
+                "division_id": division_id,
+                "date": target_date.isoformat(),
+                "subject": str(division_row[subject_col] or ""),
+                "outcome": str(division_row[outcome_col] or ""),
+                "debate_show_as": str(division_row[debate_col] or ""),
+            }
+            candidates.append((division_id, group, counts, official))
+
     if len(candidates) != 1:
-        summary = [(item[0], item[2]) for item in candidates]
+        summary = [(item[0], item[2], item[3]["debate_show_as"]) for item in candidates]
         raise RuntimeError(
-            f"Expected one exact division on {target_date} matching "
-            f"{vote['ta']}/{vote['nil']}/{vote['abstain']}; found {len(candidates)}: {summary}"
+            f"Expected one Bill-linked official division on {target_date} matching "
+            f"{vote['ta']}/{vote['nil']}/{vote['abstain']} for {bill_title!r}; found {len(candidates)}: {summary}"
         )
     return candidates[0]
 
 
-def _validate_vote(vote: dict[str, Any], frames: dict[str, pd.DataFrame]) -> dict[str, Any]:
+def _validate_vote(vote: dict[str, Any], frames: dict[str, pd.DataFrame], *, bill_title: str) -> dict[str, Any]:
     member_votes = frames["silver_member_votes"]
     memberships = frames["silver_member_memberships"]
     parties = frames["silver_member_parties"]
-    division_id, division_votes, recorded = _find_division(member_votes, vote)
+    divisions = frames["silver_divisions"]
+    division_id, division_votes, recorded, official = _find_division(
+        member_votes, divisions, vote, bill_title=bill_title
+    )
     target_date = date.fromisoformat(str(vote["date"]))
 
     mv_member = _col(division_votes, "member_code")
@@ -163,7 +183,9 @@ def _validate_vote(vote: dict[str, Any], frames: dict[str, pd.DataFrame]) -> dic
     ].copy()
     eligible_members = sorted(set(active_memberships[membership_member].dropna().astype(str)))
     if len(eligible_members) != int(vote["eligible"]):
-        raise RuntimeError(f"Eligible Dáil membership mismatch on {target_date}: production={len(eligible_members)}, approved={vote['eligible']}")
+        raise RuntimeError(
+            f"Eligible Dáil membership mismatch on {target_date}: production={len(eligible_members)}, approved={vote['eligible']}"
+        )
 
     recorded_members = set(division_votes[mv_member].dropna().astype(str))
     if not recorded_members.issubset(set(eligible_members)):
@@ -171,7 +193,9 @@ def _validate_vote(vote: dict[str, Any], frames: dict[str, pd.DataFrame]) -> dic
         raise RuntimeError(f"Recorded voters outside eligible membership for {division_id}: {extra}")
     no_recorded = len(eligible_members) - len(recorded_members)
     if no_recorded != int(vote["no_recorded_vote"]):
-        raise RuntimeError(f"No-recorded-vote mismatch for {division_id}: production={no_recorded}, approved={vote['no_recorded_vote']}")
+        raise RuntimeError(
+            f"No-recorded-vote mismatch for {division_id}: production={no_recorded}, approved={vote['no_recorded_vote']}"
+        )
 
     party_member = _col(parties, "member_code")
     party_name = _col(parties, "party_name")
@@ -189,30 +213,63 @@ def _validate_vote(vote: dict[str, Any], frames: dict[str, pd.DataFrame]) -> dic
         raise RuntimeError(f"Eligible members missing date-correct party history on {target_date}: {missing_party}")
 
     result: dict[str, dict[str, int]] = {}
-    recorded_vote_by_member = {str(row[mv_member]): _vote_bucket(row[mv_label]) for _, row in division_votes.iterrows()}
+    recorded_vote_by_member = {
+        str(row[mv_member]): _vote_bucket(row[mv_label]) for _, row in division_votes.iterrows()
+    }
     for member in eligible_members:
         party = _party_bucket(party_by_member[member])
-        result.setdefault(party, {"eligible": 0, "ta": 0, "nil": 0, "abstain": 0, "no_recorded_vote": 0})
+        result.setdefault(
+            party,
+            {"eligible": 0, "ta": 0, "nil": 0, "abstain": 0, "no_recorded_vote": 0},
+        )
         result[party]["eligible"] += 1
         bucket = recorded_vote_by_member.get(member, "no_recorded_vote")
         result[party][bucket] += 1
 
-    approved: dict[str, dict[str, int]] = {}
+    approved_main: dict[str, dict[str, int]] = {}
     for row in vote["rows"]:
         party, eligible, ta, nil, nr = row
-        approved[str(party)] = {"eligible": int(eligible), "ta": int(ta), "nil": int(nil), "abstain": 0, "no_recorded_vote": int(nr)}
-    for party in ("Aontú", "Green", "100% Redress"):
-        approved.setdefault(party, result.get(party, {"eligible": 0, "ta": 0, "nil": 0, "abstain": 0, "no_recorded_vote": 0}))
-
-    mismatches = {party: {"production": result.get(party), "approved": expected} for party, expected in approved.items() if result.get(party) != expected}
+        approved_main[str(party)] = {
+            "eligible": int(eligible), "ta": int(ta), "nil": int(nil),
+            "abstain": 0, "no_recorded_vote": int(nr),
+        }
+    mismatches = {
+        party: {"production": result.get(party), "approved": expected}
+        for party, expected in approved_main.items()
+        if result.get(party) != expected
+    }
     if mismatches:
-        raise RuntimeError(f"Date-correct party breakdown differs from approved target for {division_id}: {mismatches}")
+        raise RuntimeError(
+            f"Date-correct displayed party breakdown differs from approved target for {division_id}: {mismatches}"
+        )
+
+    displayed = set(approved_main)
+    smaller = {party: counts for party, counts in result.items() if party not in displayed}
+    if sum(x["eligible"] for x in result.values()) != len(eligible_members):
+        raise RuntimeError(f"Party eligible totals do not reconcile to membership for {division_id}")
+    if sum(x["ta"] for x in result.values()) != recorded["ta"]:
+        raise RuntimeError(f"Party Tá totals do not reconcile to overall result for {division_id}")
+    if sum(x["nil"] for x in result.values()) != recorded["nil"]:
+        raise RuntimeError(f"Party Níl totals do not reconcile to overall result for {division_id}")
+    if sum(x["abstain"] for x in result.values()) != recorded["abstain"]:
+        raise RuntimeError(f"Party abstention totals do not reconcile to overall result for {division_id}")
+    if sum(x["no_recorded_vote"] for x in result.values()) != no_recorded:
+        raise RuntimeError(f"Party no-recorded totals do not reconcile to overall result for {division_id}")
 
     overall = {
         "ta": recorded["ta"], "nil": recorded["nil"], "abstain": recorded["abstain"],
         "no_recorded_vote": no_recorded, "eligible": len(eligible_members),
     }
-    return {"division_id": division_id, "date": target_date.isoformat(), "overall": overall, "party_breakdown": result, "ambiguous_party_histories": [], "eligible_member_count": len(eligible_members)}
+    return {
+        "division_id": division_id,
+        "official_proposition_record": official,
+        "date": target_date.isoformat(),
+        "overall": overall,
+        "party_breakdown": result,
+        "smaller_groups": smaller,
+        "ambiguous_party_histories": [],
+        "eligible_member_count": len(eligible_members),
+    }
 
 
 def _render_slide(path: Path, fn, payload: dict[str, Any]) -> dict[str, Any]:
@@ -226,13 +283,21 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
     series, post = _load_content(period)
 
     batch = resolve_validated_production_batch()
-    tables, lineage = load_csv_tables(batch, ["silver_member_votes", "silver_member_memberships", "silver_member_parties"])
+    tables, lineage = load_csv_tables(
+        batch,
+        ["silver_divisions", "silver_member_votes", "silver_member_memberships", "silver_member_parties"],
+    )
     validations: dict[str, Any] = {}
     for bill in post["bills"]:
         if bill.get("vote"):
-            validations[str(bill["key"])] = _validate_vote(bill["vote"], tables)
+            validations[str(bill["key"])] = _validate_vote(
+                bill["vote"], tables, bill_title=str(bill["formal_title"])
+            )
         else:
-            validations[str(bill["key"])] = {"recorded_division": False, "treatment": "procedure_explainer"}
+            validations[str(bill["key"])] = {
+                "recorded_division": False,
+                "treatment": "procedure_explainer",
+            }
 
     root = output_root / f"period={period}"
     if root.exists():
@@ -245,17 +310,29 @@ def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) ->
 
     slides: list[Path] = []
     render_manifests: dict[str, Any] = {}
-    p = slides_dir / "01_cover.png"; render_manifests["01_cover"] = _render_slide(p, lambda x, out: render_cover(x, series, out), post); slides.append(p)
+    p = slides_dir / "01_cover.png"
+    render_manifests["01_cover"] = _render_slide(p, lambda x, out: render_cover(x, series, out), post)
+    slides.append(p)
     slide_no = 2
     for bill in post["bills"]:
-        p = slides_dir / f"{slide_no:02d}_{bill['key']}_explainer.png"; render_manifests[p.stem] = _render_slide(p, render_explainer, bill); slides.append(p); slide_no += 1
+        p = slides_dir / f"{slide_no:02d}_{bill['key']}_explainer.png"
+        render_manifests[p.stem] = _render_slide(p, render_explainer, bill)
+        slides.append(p)
+        slide_no += 1
         if bill.get("vote"):
-            p = slides_dir / f"{slide_no:02d}_{bill['key']}_vote.png"; render_manifests[p.stem] = _render_slide(p, render_party_vote, bill["vote"])
+            p = slides_dir / f"{slide_no:02d}_{bill['key']}_vote.png"
+            render_manifests[p.stem] = _render_slide(p, render_party_vote, bill["vote"])
         else:
-            p = slides_dir / f"{slide_no:02d}_{bill['key']}_procedure.png"; render_manifests[p.stem] = _render_slide(p, render_procedure, bill["procedure"])
-        slides.append(p); slide_no += 1
-    p = slides_dir / "08_process_glossary.png"; render_manifests[p.stem] = _render_slide(p, render_process_glossary, series["glossary"]); slides.append(p)
-    p = slides_dir / "09_vote_glossary.png"; render_manifests[p.stem] = _render_slide(p, render_vote_glossary, series["glossary"]); slides.append(p)
+            p = slides_dir / f"{slide_no:02d}_{bill['key']}_procedure.png"
+            render_manifests[p.stem] = _render_slide(p, render_procedure, bill["procedure"])
+        slides.append(p)
+        slide_no += 1
+    p = slides_dir / "08_process_glossary.png"
+    render_manifests[p.stem] = _render_slide(p, render_process_glossary, series["glossary"])
+    slides.append(p)
+    p = slides_dir / "09_vote_glossary.png"
+    render_manifests[p.stem] = _render_slide(p, render_vote_glossary, series["glossary"])
+    slides.append(p)
 
     if len(slides) != 9:
         raise RuntimeError(f"Bill Tracker {period} rendered {len(slides)} slides, expected 9")
