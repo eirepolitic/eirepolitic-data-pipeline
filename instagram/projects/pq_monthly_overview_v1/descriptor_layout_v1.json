@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "template_id": "pq_monthly_overview_descriptor_v1",
+  "description": "Plain-English descriptor slide explaining Dáil parliamentary questions, using the established EirePolitic house style and canonical corner ornaments.",
+  "width": 1080,
+  "height": 1350,
+  "palette": "eirepolitic_dark",
+  "background": {"type": "solid", "color": "{palette.background}"},
+  "elements": [
+    {"id":"ornament_tl","type":"image","source":"instagram/templates/assets/corner_tl.png","x":0,"y":0,"w":155,"h":155,"fit":"contain"},
+    {"id":"ornament_tr","type":"image","source":"instagram/templates/assets/corner_tr.png","x":925,"y":0,"w":155,"h":155,"fit":"contain"},
+    {"id":"ornament_bl","type":"image","source":"instagram/templates/assets/corner_bl.png","x":0,"y":1195,"w":155,"h":155,"fit":"contain"},
+    {"id":"ornament_br","type":"image","source":"instagram/templates/assets/corner_br.png","x":925,"y":1195,"w":155,"h":155,"fit":"contain"},
+
+    {"id":"eyebrow","type":"text","placeholder":"eyebrow","x":170,"y":100,"w":740,"h":38,"style":{"font_family":"default_bold","font_size":22,"color":"{palette.accent}","align":"center","valign":"middle","max_lines":1}},
+    {"id":"title","type":"text","placeholder":"title","x":115,"y":168,"w":850,"h":130,"style":{"font_family":"default_bold","font_size":58,"min_font_size":46,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":2,"shrink_to_fit":true}},
+    {"id":"rule","type":"rectangle","x":190,"y":326,"w":700,"h":2,"fill":"{palette.accent}"},
+
+    {"id":"intro","type":"text","placeholder":"intro","x":130,"y":374,"w":820,"h":154,"style":{"font_family":"default_regular","font_size":30,"min_font_size":25,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":4,"shrink_to_fit":true}},
+
+    {"id":"written_panel","type":"rectangle","x":90,"y":574,"w":430,"h":330,"fill":"{palette.panel_background}","outline":"{palette.accent}","stroke_width":2,"radius":26},
+    {"id":"written_heading","type":"text","placeholder":"written_heading","x":125,"y":612,"w":360,"h":54,"style":{"font_family":"default_bold","font_size":31,"color":"{palette.accent}","align":"center","valign":"middle","max_lines":1}},
+    {"id":"written_rule","type":"rectangle","x":155,"y":686,"w":300,"h":2,"fill":"{palette.accent}"},
+    {"id":"written_body","type":"text","placeholder":"written_body","x":132,"y":716,"w":346,"h":152,"style":{"font_family":"default_regular","font_size":27,"min_font_size":23,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":5,"shrink_to_fit":true}},
+
+    {"id":"oral_panel","type":"rectangle","x":560,"y":574,"w":430,"h":330,"fill":"{palette.panel_background}","outline":"{palette.accent}","stroke_width":2,"radius":26},
+    {"id":"oral_heading","type":"text","placeholder":"oral_heading","x":595,"y":612,"w":360,"h":54,"style":{"font_family":"default_bold","font_size":31,"color":"{palette.accent}","align":"center","valign":"middle","max_lines":1}},
+    {"id":"oral_rule","type":"rectangle","x":625,"y":686,"w":300,"h":2,"fill":"{palette.accent}"},
+    {"id":"oral_body","type":"text","placeholder":"oral_body","x":602,"y":716,"w":346,"h":152,"style":{"font_family":"default_regular","font_size":27,"min_font_size":23,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":5,"shrink_to_fit":true}},
+
+    {"id":"scope_panel","type":"rectangle","x":135,"y":956,"w":810,"h":170,"fill":"{palette.panel_background_alt}","outline":"{palette.accent}","stroke_width":2,"radius":24},
+    {"id":"scope_heading","type":"text","placeholder":"scope_heading","x":175,"y":982,"w":730,"h":38,"style":{"font_family":"default_bold","font_size":23,"color":"{palette.accent}","align":"center","valign":"middle","max_lines":1}},
+    {"id":"scope_body","type":"text","placeholder":"scope_body","x":175,"y":1026,"w":730,"h":76,"style":{"font_family":"default_regular","font_size":25,"min_font_size":21,"color":"{palette.text_primary}","align":"center","valign":"middle","max_lines":3,"shrink_to_fit":true}},
+
+    {"id":"footer_rule","type":"rectangle","x":80,"y":1204,"w":920,"h":2,"fill":"{palette.accent}"},
+    {"id":"footer","type":"text","placeholder":"footer_text","x":115,"y":1220,"w":850,"h":66,"style":{"font_family":"default_regular","font_size":21,"min_font_size":18,"color":"{palette.text_muted}","align":"center","valign":"middle","max_lines":2,"shrink_to_fit":true}}
+  ]
+}
