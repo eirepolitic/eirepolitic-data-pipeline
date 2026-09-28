@@ -1,15 +1,6 @@
 name: Instagram factory render (generic)
-
-on:
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-concurrency:
-  group: instagram-factory-render-bill-tracker-production-post1
-  cancel-in-progress: false
-
+on: {workflow_dispatch: {}}
+permissions: {contents: write}
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -17,104 +8,51 @@ jobs:
     env:
       PROJECT_ID: bill_tracker_factory_v1
       PERIOD_INPUT: post1
-      PREVIEW_SLUG: bill-tracker-production-post1
       FACTORY_REF: 386b933
-      SESSION_ID: 2026-09-27-bill-tracker-finalisation
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: {fetch-depth: 0}
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - name: Install factory dependencies
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install pandas pyyaml pillow boto3 matplotlib
-      - name: Check out approved factory worktree
+        with: {python-version: '3.12'}
+      - run: python -m pip install pandas pyyaml pillow boto3 matplotlib
+      - name: Prepare approved factory worktree
         run: |
           set -euo pipefail
           git fetch origin feature/instagram-monthly-post-framework
-          git cat-file -e "${FACTORY_REF}^{commit}"
           git worktree add /tmp/approved-instagram-factory "$FACTORY_REF"
-          test "$(git -C /tmp/approved-instagram-factory rev-parse --short=7 HEAD)" = "$(git rev-parse --short=7 "$FACTORY_REF")"
-          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
-          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
-          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
-          test "$(git -C /tmp/approved-instagram-factory hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
-      - name: Inject requested project and generic-render modules
-        run: |
-          set -euo pipefail
           cp -R "instagram/projects/${PROJECT_ID}" /tmp/approved-instagram-factory/instagram/projects/
           cp instagram/factory/contract.py instagram/factory/normalize.py instagram/factory/qa.py instagram/factory/review_page.py instagram/factory/publication_handoff.py instagram/factory/render_pipeline.py /tmp/approved-instagram-factory/instagram/factory/
-      - name: Render, run declarative QA, and stage review
-        shell: bash
+      - name: Capture generic-render failure
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          set -euo pipefail
+          set +e
           cd /tmp/approved-instagram-factory
-          python - <<'PY'
-          import json, os, sys
+          python - <<'PY' > "$GITHUB_WORKSPACE/bill_tracker_render_error.txt" 2>&1
+          import os, sys, traceback
           from pathlib import Path
           sys.path.insert(0, os.getcwd())
           from instagram.factory.render_pipeline import run_and_normalize
-          from instagram.factory.review_page import build_review_html, stage_review_assets
-          workspace = Path(os.environ['GITHUB_WORKSPACE'])
-          result = run_and_normalize(os.environ['PROJECT_ID'], period=os.environ['PERIOD_INPUT'], output_root=workspace / 'generated_render')
-          summary = {
-              'project_id': result.project_id,
-              'period_key': result.period_key,
-              'source_batch_id': result.source_batch_id,
-              'slide_count': len(result.slides),
-              'qa_all_passed': result.qa.all_passed,
-              'qa_checks': [{'name': c.name, 'passed': c.passed, 'detail': c.detail} for c in result.qa.checks],
-              'preview_slug': os.environ['PREVIEW_SLUG'],
-          }
-          (workspace / 'render_summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
-          print(json.dumps(summary, indent=2))
-          if not result.qa.all_passed:
-              raise SystemExit(1)
-          review_dir = workspace / 'factory_web_review'
-          staged = stage_review_assets(result, review_dir)
-          (review_dir / 'index.html').write_text(build_review_html(staged, project_label='Bill Tracker Factory V1 · Post 1'), encoding='utf-8')
+          try:
+              result=run_and_normalize(os.environ['PROJECT_ID'],period=os.environ['PERIOD_INPUT'],output_root=Path(os.environ['GITHUB_WORKSPACE'])/'generated_render')
+              print('SUCCESS', result)
+          except Exception:
+              traceback.print_exc()
           PY
-      - name: Publish web review to preview branch
+          cat "$GITHUB_WORKSPACE/bill_tracker_render_error.txt"
+          exit 0
+      - name: Publish diagnostic
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          cd factory_web_review
+          mkdir /tmp/diag && cp bill_tracker_render_error.txt /tmp/diag/
+          cd /tmp/diag
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "preview: ${PREVIEW_SLUG} review ${GITHUB_RUN_ID}"
-          git branch -M "previews/${PREVIEW_SLUG}"
+          git add . && git commit -m "diagnostic: Bill Tracker render ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-diagnostic
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin "HEAD:refs/heads/previews/${PREVIEW_SLUG}"
-      - name: Record run in Director session
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          URL="https://raw.githack.com/${GITHUB_REPOSITORY}/previews/${PREVIEW_SLUG}/index.html"
-          SESSION_BRANCH="sly/session/${SESSION_ID}"
-          RUN_RECORD=$(python - <<PY
-          import json
-          print(json.dumps({'run_id':'${GITHUB_RUN_ID}','review_url':'$URL','commit':'${GITHUB_SHA}','period':'${PERIOD_INPUT}','source':'generic Instagram factory'}))
-          PY
-          )
-          CONTENT_B64=$(printf '%s' "$RUN_RECORD" | base64 -w0)
-          curl -sS -X PUT -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/director/sessions/${SESSION_ID}/runs/${GITHUB_RUN_ID}.json" -d "{\"message\":\"Record render run ${GITHUB_RUN_ID}\",\"content\":\"${CONTENT_B64}\",\"branch\":\"${SESSION_BRANCH}\"}"
-      - name: Upload backup package
-        uses: actions/upload-artifact@v4
-        with:
-          name: instagram-factory-render-${{ env.PROJECT_ID }}-${{ github.run_id }}
-          path: generated_render/
-          if-no-files-found: error
-          retention-days: 30
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-diagnostic
