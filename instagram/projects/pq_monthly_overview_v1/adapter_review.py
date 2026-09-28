@@ -8,7 +8,8 @@ from typing import Any
 from instagram.projects.pq_monthly_overview_v1 import adapter as base
 from instagram.renderer.template_renderer import render_template
 
-PROJECT_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
+HEADLINE_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
+DESCRIPTOR_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/descriptor_layout_v1.json")
 _original_render_text_slide = base._render_text_slide
 
 
@@ -62,7 +63,7 @@ def _render_text_slide_review(
         previous_month = match.group(1).strip()
         previous_total = match.group(2)
 
-    custom_layout = json.loads(PROJECT_LAYOUT.read_text(encoding="utf-8"))
+    custom_layout = json.loads(HEADLINE_LAYOUT.read_text(encoding="utf-8"))
     slides_dir = period_root / "slides"
     slide_path = slides_dir / f"{slide_index:02d}_{slide_id}.png"
     bindings = {
@@ -97,5 +98,63 @@ def _render_text_slide_review(
 base._render_text_slide = _render_text_slide_review
 
 
+def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
+    slides_dir = period_root / "slides"
+    existing = sorted(slides_dir.glob("*.png"))
+
+    # Shift existing slides 2..N upward by one, moving from the end so names never collide.
+    for path in reversed(existing):
+        match = re.match(r"(\d{2})_(.+)\.png$", path.name)
+        if not match:
+            continue
+        index = int(match.group(1))
+        if index >= 2:
+            path.rename(slides_dir / f"{index + 1:02d}_{match.group(2)}.png")
+
+    layout = json.loads(DESCRIPTOR_LAYOUT.read_text(encoding="utf-8"))
+    descriptor_path = slides_dir / "02_descriptor.png"
+    bindings = {
+        "eyebrow": "HOW TO READ THIS POST",
+        "title": "What is a parliamentary question?",
+        "intro": (
+            "Parliamentary questions are one of the main ways TDs ask Government ministers "
+            "for information and explanations about public matters."
+        ),
+        "written_heading": "WRITTEN QUESTIONS",
+        "written_body": (
+            "Submitted in writing to a minister. The reply is provided in writing and published "
+            "in the official parliamentary record."
+        ),
+        "oral_heading": "ORAL QUESTIONS",
+        "oral_body": (
+            "Selected for oral answer in the Dáil. The minister answers in the chamber and TDs "
+            "may ask supplementary questions."
+        ),
+        "scope_heading": "WHAT “QUESTIONS” MEANS IN THIS CAROUSEL",
+        "scope_body": (
+            "Dáil parliamentary questions recorded by the Houses of the Oireachtas during the month."
+        ),
+        "footer_text": "Source: Houses of the Oireachtas — Parliamentary Questions procedure guidance",
+    }
+    rendered = render_template(layout, bindings, descriptor_path)
+    if rendered.warnings:
+        raise RuntimeError(f"Descriptor layout warnings: {rendered.warnings}")
+
+    raw["slides"] = [str(p) for p in sorted(slides_dir.glob("*.png"))]
+    raw["slide_count"] = len(raw["slides"])
+
+    manifest_path = Path(raw.get("manifest_path") or period_root / "run_manifest.json")
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["slide_count"] = raw["slide_count"]
+        manifest["slides"] = [str(Path(p).relative_to(period_root)) for p in raw["slides"]]
+        manifest.setdefault("review_notes", []).append(
+            "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2."
+        )
+        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+
 def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) -> dict[str, Any]:
-    return base.generate(project=project, period_spec=period_spec, output_root=output_root)
+    raw = base.generate(project=project, period_spec=period_spec, output_root=output_root)
+    _insert_descriptor(Path(raw["output_root"]), raw)
+    return raw
