@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/director_recorded_voting_participation_prototype_v5.py", line 186, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/process/director_recorded_voting_participation_prototype_v5.py", line 172, in main
+    "destructive_corner_background_patches": false,
+                                             ^^^^^
+NameError: name 'false' is not defined. Did you mean: 'False'?
