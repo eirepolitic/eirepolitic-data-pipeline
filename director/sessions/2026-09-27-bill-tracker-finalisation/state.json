@@ -2,12 +2,13 @@
   "session_id": "2026-09-27-bill-tracker-finalisation",
   "branch": "sly/session/2026-09-27-bill-tracker-finalisation",
   "created_at": "2026-09-28T00:13:00Z",
-  "updated_at": "2026-09-28T00:13:00Z",
+  "updated_at": "2026-09-28T21:19:23Z",
   "intent": "Finalise two already visually/editorially approved Bill Tracker Instagram carousels by reconciling the approved review work into the normal Bill Tracker generic-factory project, revalidating semantics/data, producing an exact production-factory review artifact, then finalising copy and scheduling only after explicit approval of the exact production render and exact captions.",
   "resolved_project": "bill_tracker_factory_v1",
-  "resolved_period": null,
+  "resolved_period": ["post1", "post2"],
+  "integration_branch": "feature/bill-tracker-production-finalisation",
   "data_sources": [
-    "current production Oireachtas pointer and official proposition records — to be revalidated before final production",
+    "validated production batch written-pq-answers-20260905-1",
     "previews/bill-tracker-full-posts-review approved review assets",
     "feature/bill-content-snapshot-v1 / PR #130 draft implementation"
   ],
@@ -37,17 +38,61 @@
       "choice": "Integrate into instagram/projects/bill_tracker_factory_v1 and render through the generic Instagram factory; keep publication_enabled=false and publishing_allowed=false in the factory.",
       "rationale": "Canonical publishing docs require factory/publisher separation and prohibit using temporary preview tooling as the production dependency.",
       "timestamp": "2026-09-28T00:13:00Z"
+    },
+    {
+      "question": "How should the two carousels map to factory artifacts?",
+      "choice": "Use one Bill Tracker project with separate post1 and post2 periods, each producing a nine-slide artifact, caption, contact sheet and run ID.",
+      "rationale": "This preserves one reusable renderer while giving each Instagram carousel an independently reviewable and publishable artifact.",
+      "timestamp": "2026-09-28T21:19:23Z"
     }
   ],
-  "slide_plan": [],
+  "slide_plan": {
+    "post1": ["cover", "gas explainer", "gas vote", "settlements explainer", "services amendment vote", "criminal/civil/defence explainer", "criminal/civil/defence vote", "process glossary", "vote glossary"],
+    "post2": ["cover", "housing explainer", "housing vote", "pharmacy explainer", "pharmacy procedure explainer", "AI explainer", "AI vote", "process glossary", "vote glossary"]
+  },
   "visual_decisions": {
     "approved_target": "previews/bill-tracker-full-posts-review",
     "dimensions": "1080x1350",
     "house_style": "dark green / cream / gold with approved corner ornaments",
     "process_timeline_direction": "left-to-right",
-    "process_highlight": "ENACTED"
+    "process_highlight": "ENACTED",
+    "shared_fit": "comparable explainer and glossary components use a shared font size fitted against the tightest component",
+    "overflow_assertions": true
   },
-  "runs": [],
+  "data_validation": {
+    "source_batch_id": "written-pq-answers-20260905-1",
+    "method": "exact silver_member_votes division + active 34th Dáil membership + silver_member_parties party_start/party_end on division date; overlapping histories hard-fail; no recorded vote derived separately from eligible membership",
+    "status": "passed for all displayed recorded divisions",
+    "notes": [
+      "Production historical party label 100% RDR is mapped to the approved display label 100% Redress.",
+      "Housing division selection is disambiguated using bill-linked division metadata rather than relying on the 80-67 tally alone.",
+      "Pharmacy contraception remains a procedure explainer with no invented party tally."
+    ]
+  },
+  "runs": [
+    {
+      "run_id": "36484935695",
+      "period": "post1",
+      "commit": "f734909189282329666d45090b500124397d609e",
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/index.html",
+      "contact_sheet": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/contact-post1.jpg",
+      "qa": "passed",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "source_batch_id": "written-pq-answers-20260905-1"
+    },
+    {
+      "run_id": "36485178875",
+      "period": "post2",
+      "commit": "dc0886db396b9c2811df5be85d3ae7d4cb610e6a",
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/index.html",
+      "contact_sheet": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/contact-post2.jpg",
+      "qa": "passed",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "source_batch_id": "written-pq-answers-20260905-1"
+    }
+  ],
   "feedback": [
     {
       "raw": "These look good and are ready to post.",
@@ -56,5 +101,7 @@
       "run_id": null
     }
   ],
-  "approval_state": "in_progress"
+  "caption_state": "draft captions embedded in both exact review artifacts; awaiting human finalisation after exact render approval",
+  "scheduling_state": "not started; inventory must be run only after exact visuals and exact captions are approved",
+  "approval_state": "awaiting_human_approval_of_exact_factory_renders"
 }
