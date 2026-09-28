@@ -1,0 +1,453 @@
+{
+  "abstentions": {
+    "counts_as_recorded_participation": true,
+    "divisions_with_recorded_abstention": 3,
+    "recorded_abstention_rows": 73,
+    "representation": "vote_code=staon / formal registered abstention"
+  },
+  "audit_version": 1,
+  "checks": {
+    "all_divisions_have_complete_member_vote_coverage": true,
+    "all_eligible_opportunities_have_constituency_attribution": true,
+    "all_eligible_opportunities_have_party_attribution": true,
+    "all_recorded_votes_are_eligible_after_presiding_rule": true,
+    "all_recorded_votes_have_constituency_attribution": true,
+    "all_recorded_votes_have_party_attribution": true,
+    "all_vote_codes_recognised": true,
+    "constituency_aggregate_reconciles_to_member_universe": true,
+    "constituency_history_unambiguous": true,
+    "member_vote_pairs_unique": true,
+    "membership_history_unambiguous": true,
+    "party_aggregate_reconciles_to_member_universe": true,
+    "party_history_unambiguous": true,
+    "period_contains_divisions": true,
+    "presiding_member_resolved_for_every_analysis_division": true,
+    "production_batch_manifest_validated": true,
+    "production_pointer_stable_during_read": true,
+    "td_division_pairs_unique": true
+  },
+  "division_counts": {
+    "excluded_division_ids": [],
+    "excluded_for_incomplete_member_vote_coverage": 0,
+    "in_period": 136,
+    "included_after_completeness_check": 136
+  },
+  "editorial_caveat": "Recorded voting participation does not by itself measure a TD's attendance, workload, effectiveness, or overall job performance.",
+  "generated_at_utc": "2026-09-28T00:18:17.689067+00:00",
+  "histories": {
+    "constituency": {
+      "dataset": "silver_member_constituencies",
+      "entity_count": 176,
+      "max_end": "2025-11-21",
+      "min_start": "2024-11-29",
+      "open_ended_rows": 174,
+      "overlap_examples": [],
+      "row_count": 176,
+      "validation_errors": []
+    },
+    "membership": {
+      "dataset": "silver_member_memberships",
+      "entity_count": 176,
+      "max_end": "2025-11-21",
+      "min_start": "2024-11-29",
+      "open_ended_rows": 174,
+      "overlap_examples": [],
+      "row_count": 176,
+      "validation_errors": []
+    },
+    "party": {
+      "dataset": "silver_member_parties",
+      "entity_count": 176,
+      "max_end": "2025-11-21",
+      "min_start": "2024-11-29",
+      "open_ended_rows": 174,
+      "overlap_examples": [],
+      "row_count": 178,
+      "validation_errors": []
+    }
+  },
+  "member_vote_completeness": {
+    "division_reconciliation_failures": [],
+    "duplicate_member_division_rows": 0,
+    "invalid_member_vote_codes": [],
+    "invalid_tally_vote_codes": []
+  },
+  "pairing_or_statutory_leave": {
+    "available_as_canonical_adjustment": false,
+    "production_manifest_keyword_hits": [],
+    "treatment": "No denominator adjustment unless a canonical production field/table is present; external or LLM-inferred absence reasons are not used."
+  },
+  "presiding_member": {
+    "excluded_ordinary_presiding_opportunities": 128,
+    "identified_ceann_comhairle_office_rows": [
+      {
+        "is_current": "True",
+        "member_code": "Verona-Murphy.D.2020-02-08",
+        "member_name": "Verona Murphy",
+        "office_end": "",
+        "office_name": "Ceann Comhairle",
+        "office_start": "2024-12-18"
+      }
+    ],
+    "multi_candidate_divisions": [
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_143"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_144"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_145"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_146"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_147"
+      },
+      {
+        "candidate_member_codes": [
+          "Aidan-Farrelly.D.2024-11-29",
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_140"
+      },
+      {
+        "candidate_member_codes": [
+          "Aidan-Farrelly.D.2024-11-29",
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-17/vote_141"
+      },
+      {
+        "candidate_member_codes": [
+          "Cathal-Crowe.D.2020-02-08",
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_130"
+      },
+      {
+        "candidate_member_codes": [
+          "Cathal-Crowe.D.2020-02-08",
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-10/vote_131"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-05-27/vote_122"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-05-27/vote_123"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Ruair\u00ed-\u00d3-Murch\u00fa.D.2020-02-08",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-05-27/vote_124"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-15/vote_80"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-15/vote_81"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-15/vote_82"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-15/vote_83"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-14/vote_76"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-14/vote_77"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-14/vote_78"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-04-14/vote_79"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-03-24/vote_62"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-03-24/vote_63"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_160"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_161"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_162"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_163"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_164"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_165"
+      },
+      {
+        "candidate_member_codes": [
+          "Erin-McGreehan.S.2020-06-29",
+          "Miche\u00e1l-Carrigy.S.2020-03-30",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_166"
+      },
+      {
+        "candidate_member_codes": [
+          "Erin-McGreehan.S.2020-06-29",
+          "Miche\u00e1l-Carrigy.S.2020-03-30",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_167"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_170"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_171"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_172"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_173"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-08/vote_174"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-07/vote_169"
+      },
+      {
+        "candidate_member_codes": [
+          "John-McGuinness.D.1997-06-26",
+          "Verona-Murphy.D.2020-02-08"
+        ],
+        "division_id": "https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-07-15/vote_188"
+      }
+    ],
+    "observed_presiding_speaker_labels": [
+      "An Cathaoirleach Gn\u00edomhach (Deputy Aidan Farrelly)",
+      "An Cathaoirleach Gn\u00edomhach (Deputy Miche\u00e1l Carrigy)",
+      "An Ceann Comhairle",
+      "An Leas-Cheann Comhairle"
+    ],
+    "resolved_divisions": 136,
+    "rule": "exclude the identified presiding member from an ordinary eligible opportunity unless that member has a recorded vote in the division (casting-vote case)",
+    "unresolved_divisions": 0
+  },
+  "production_batch_id": "written-pq-answers-20260905-1",
+  "production_division_date_range": {
+    "max": "2026-08-28",
+    "min": "2024-12-18"
+  },
+  "production_pointer": {
+    "batch_id": "written-pq-answers-20260905-1",
+    "manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "contextual-monthly-voting-20260904-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-06T00:07:10+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "34000036601"
+  },
+  "ready_for_content_development": true,
+  "reconciliation": {
+    "constituency_eligible_division_opportunities": 23408,
+    "constituency_recorded_participation_opportunities": 19956,
+    "member_eligible_division_opportunities": 23408,
+    "member_recorded_participation_opportunities": 19956,
+    "party_eligible_division_opportunities": 23408,
+    "party_recorded_participation_opportunities": 19956,
+    "recorded_votes_not_in_final_eligible_universe": 0
+  },
+  "resolved_period": {
+    "end": "2026-08-28",
+    "rule": "latest D\u00e1il division date minus six calendar months, inclusive",
+    "start": "2026-02-28"
+  },
+  "resolved_source_keys": {
+    "silver_division_tallies": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_division_tallies/csv/silver_division_tallies.csv",
+    "silver_divisions": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_divisions/csv/silver_divisions.csv",
+    "silver_member_constituencies": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_constituencies/csv/silver_member_constituencies.csv",
+    "silver_member_memberships": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_memberships/csv/silver_member_memberships.csv",
+    "silver_member_offices": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_offices/csv/silver_member_offices.csv",
+    "silver_member_parties": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_parties/csv/silver_member_parties.csv",
+    "silver_member_votes": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_member_votes/csv/silver_member_votes.csv",
+    "silver_members": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_members/csv/silver_members.csv",
+    "silver_speeches": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/tables/silver_speeches/csv/silver_speeches.csv"
+  },
+  "temporal_attribution": {
+    "eligible_constituency_unmatched_rows": 0,
+    "eligible_party_unmatched_rows": 0,
+    "entered_or_left_membership_cases": [
+      {
+        "chamber": "dail",
+        "house_no": "34",
+        "member_code": "Daniel-Ennis.D.2026-05-25",
+        "member_name": "Daniel Ennis",
+        "membership_end": "",
+        "membership_start": "2026-05-25"
+      },
+      {
+        "chamber": "dail",
+        "house_no": "34",
+        "member_code": "Se\u00e1n-Kyne.D.2011-03-09",
+        "member_name": "Se\u00e1n Kyne",
+        "membership_end": "",
+        "membership_start": "2026-05-25"
+      }
+    ],
+    "party_change_cases": [
+      {
+        "member_code": "Daniel-Ennis.D.2026-05-25",
+        "member_name": "Daniel Ennis",
+        "party_end": "",
+        "party_name": "Social Democrats",
+        "party_start": "2026-05-25"
+      },
+      {
+        "member_code": "Se\u00e1n-Kyne.D.2011-03-09",
+        "member_name": "Se\u00e1n Kyne",
+        "party_end": "",
+        "party_name": "Fine Gael",
+        "party_start": "2026-05-25"
+      }
+    ],
+    "vote_constituency_unmatched_rows": 0,
+    "vote_party_unmatched_rows": 0
+  }
+}

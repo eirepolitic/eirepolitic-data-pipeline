@@ -1,0 +1,24 @@
+{
+  "previous": {
+    "batch_id": "contextual-monthly-voting-20260904-1",
+    "manifest_key": "processed/oireachtas_unified/batches/contextual-monthly-voting-20260904-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "contextual-vote-foundations-20260904-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-04T16:47:07+00:00",
+    "promoted_by": "eirepolitic",
+    "superseded_at_utc": "2026-09-06T00:07:10+00:00",
+    "superseded_by_batch_id": "written-pq-answers-20260905-1",
+    "workflow_run_id": "33896920206"
+  },
+  "production": {
+    "batch_id": "written-pq-answers-20260905-1",
+    "manifest_key": "processed/oireachtas_unified/batches/written-pq-answers-20260905-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "contextual-monthly-voting-20260904-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-09-06T00:07:10+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "34000036601"
+  }
+}
