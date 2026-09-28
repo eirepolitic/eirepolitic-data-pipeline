@@ -1,21 +1,88 @@
 {
-  "status": "PASS",
-  "prototype_only": true,
-  "visual_direction_gate": "pending_human_review",
-  "slide": "director/sessions/2026-09-27-recorded-voting-participation/prototype/prototype_party_slide.png",
-  "period": {
-    "start": "2026-02-28",
-    "end": "2026-08-28"
+  "visual_id": "recorded-voting-participation-parties-prototype",
+  "template_id": "recorded_voting_participation_party_prototype_v1",
+  "renderer": "horizontal_bar",
+  "created_at": "2026-09-28T00:26:54.380941+00:00",
+  "input": {
+    "source": "director/sessions/2026-09-27-recorded-voting-participation/evidence/party_participation.csv",
+    "period_start": "2026-02-28",
+    "period_end": "2026-08-28",
+    "division_count": 136,
+    "ordering": "alphabetical",
+    "metric": "recorded participation opportunities / eligible division opportunities",
+    "prototype_only": true
   },
-  "division_count": 136,
-  "party_count": 11,
-  "ordering": "alphabetical",
-  "metric": "recorded participation opportunities / eligible division opportunities",
-  "denominator_display": "numerator/denominator embedded beside each party label",
-  "canonical_reference": "party_issue_monthly_profile_v2 July 2026 analytical horizontal-bar treatment",
-  "renderer": "instagram.visuals.renderers.horizontal_bar",
-  "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
-  "chart_readability": {
+  "bindings": {
+    "label": "label",
+    "value": "value"
+  },
+  "source_note": "Labels show recorded participation opportunities / eligible division opportunities",
+  "rows_rendered": [
+    {
+      "label": "100% RDR · 60/136",
+      "value": 44.1,
+      "group": ""
+    },
+    {
+      "label": "Aontú · 234/272",
+      "value": 86.0,
+      "group": ""
+    },
+    {
+      "label": "Fianna Fáil · 5,701/6,514",
+      "value": 87.5,
+      "group": ""
+    },
+    {
+      "label": "Fine Gael · 4,374/5,104",
+      "value": 85.7,
+      "group": ""
+    },
+    {
+      "label": "Green Party · 110/136",
+      "value": 80.9,
+      "group": ""
+    },
+    {
+      "label": "Independent · 1,393/1,926",
+      "value": 72.3,
+      "group": ""
+    },
+    {
+      "label": "Independent Ireland · 336/544",
+      "value": 61.8,
+      "group": ""
+    },
+    {
+      "label": "Labour Party · 1,269/1,496",
+      "value": 84.8,
+      "group": ""
+    },
+    {
+      "label": "People Before Profit-Solidarity · 320/408",
+      "value": 78.4,
+      "group": ""
+    },
+    {
+      "label": "Sinn Féin · 4,746/5,304",
+      "value": 89.5,
+      "group": ""
+    },
+    {
+      "label": "Social Democrats · 1,413/1,568",
+      "value": 90.1,
+      "group": ""
+    }
+  ],
+  "plot_bounds": [
+    0.40301724137931033,
+    0.14,
+    0.5669827586206897,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4422,
+  "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
     "category_label_font_size_minimum": 14,
@@ -340,8 +407,5 @@
       }
     ]
   },
-  "chart_warnings": [],
-  "layout_warnings": [],
-  "editorial_caveat": "Recorded voting participation does not by itself measure a TD's attendance, workload, effectiveness, or overall job performance.",
-  "publication_enabled": false
+  "warnings": []
 }

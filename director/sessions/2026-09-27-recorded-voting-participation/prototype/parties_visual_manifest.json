@@ -1,21 +1,21 @@
 {
-  "status": "PASS",
-  "prototype_only": true,
-  "visual_direction_gate": "pending_human_review",
-  "slide": "director/sessions/2026-09-27-recorded-voting-participation/prototype/prototype_party_slide.png",
-  "period": {
-    "start": "2026-02-28",
-    "end": "2026-08-28"
-  },
-  "division_count": 136,
-  "party_count": 11,
-  "ordering": "alphabetical",
-  "metric": "recorded participation opportunities / eligible division opportunities",
-  "denominator_display": "numerator/denominator embedded beside each party label",
-  "canonical_reference": "party_issue_monthly_profile_v2 July 2026 analytical horizontal-bar treatment",
-  "renderer": "instagram.visuals.renderers.horizontal_bar",
-  "outer_layout": "instagram/templates/layouts/title_text_media_v1.json",
-  "chart_readability": {
+  "success": true,
+  "visual_id": "recorded-voting-participation-parties-prototype",
+  "template_id": "recorded_voting_participation_party_prototype_v1",
+  "renderer": "horizontal_bar",
+  "output_png": "director/sessions/2026-09-27-recorded-voting-participation/prototype/parties_visual.png",
+  "metadata_path": "director/sessions/2026-09-27-recorded-voting-participation/prototype/parties_visual_metadata.json",
+  "width": 928,
+  "height": 760,
+  "plot_bounds": [
+    0.40301724137931033,
+    0.14,
+    0.5669827586206897,
+    0.78
+  ],
+  "plot_vertical_fill_ratio": 0.78,
+  "plot_area_ratio": 0.4422,
+  "readability": {
     "category_label_font_size": 18,
     "category_label_font_size_requested": 18,
     "category_label_font_size_minimum": 14,
@@ -340,8 +340,6 @@
       }
     ]
   },
-  "chart_warnings": [],
-  "layout_warnings": [],
-  "editorial_caveat": "Recorded voting participation does not by itself measure a TD's attendance, workload, effectiveness, or overall job performance.",
-  "publication_enabled": false
+  "warnings": [],
+  "created_at": "2026-09-28T00:26:54.380941+00:00"
 }
