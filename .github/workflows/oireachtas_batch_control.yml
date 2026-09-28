@@ -38,7 +38,9 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      DIRECTOR_VOTE_AUDIT_DIR: artifacts/director-recorded-voting-participation
       OIREACHTAS_PUBLISH_ENABLED: ${{ vars.OIREACHTAS_PUBLISH_ENABLED || 'false' }}
       OIREACHTAS_PUBLISH_LATEST: ${{ (inputs.operation == 'promote' || inputs.operation == 'rollback' || inputs.operation == 'rollback-previous') && 'true' || 'false' }}
     steps:
@@ -88,6 +90,19 @@ jobs:
             done
           fi
           python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas-batch-control.json
+      - name: Run Director recorded-voting participation audit
+        if: ${{ inputs.operation == 'status' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/director_recorded_voting_participation_audit.py
+      - name: Add Director audit summary
+        if: ${{ always() && inputs.operation == 'status' }}
+        shell: bash
+        run: |
+          if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then
+            cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload control evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -96,3 +111,11 @@ jobs:
           path: oireachtas-batch-control.json
           if-no-files-found: warn
           retention-days: 90
+      - name: Upload Director voting participation audit
+        if: ${{ always() && inputs.operation == 'status' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: director-recorded-voting-participation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/director-recorded-voting-participation/
+          if-no-files-found: error
+          retention-days: 30
