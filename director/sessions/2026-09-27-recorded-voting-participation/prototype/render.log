@@ -1,5 +1,5 @@
 {
-  "status": "FAIL",
+  "status": "PASS",
   "prototype_only": true,
   "visual_direction_gate": "pending_human_review",
   "slide": "director/sessions/2026-09-27-recorded-voting-participation/prototype/prototype_party_slide_v2.png",
@@ -14,12 +14,12 @@
   "denominator_display": "separate right-side recorded / eligible column",
   "canonical_reference": "EirePolitic dark analytical framing: floral corner ornaments, centered title, gold rule, analytical panel and split footer; bars retain party_issue_monthly_profile_v2 analytical treatment",
   "computer_visual_qa": {
-    "text_collision_count": 1,
+    "text_collision_count": 0,
     "out_of_bounds_count": 0,
     "panel_text_out_of_bounds_count": 0,
     "row_spacing_issue_count": 0,
     "ornament_count": 4,
-    "pass": false
+    "pass": true
   },
   "editorial_caveat": "Recorded voting participation does not by itself measure a TD's attendance, workload, effectiveness, or overall job performance.",
   "publication_enabled": false

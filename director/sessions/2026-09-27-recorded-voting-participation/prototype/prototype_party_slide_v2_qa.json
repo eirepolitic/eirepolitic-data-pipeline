@@ -3,25 +3,8 @@
     1080,
     1350
   ],
-  "text_collision_count": 1,
-  "text_collisions": [
-    {
-      "a": "title",
-      "b": "subtitle",
-      "a_bbox": [
-        135,
-        81,
-        945,
-        177
-      ],
-      "b_bbox": [
-        62,
-        148,
-        1018,
-        171
-      ]
-    }
-  ],
+  "text_collision_count": 0,
+  "text_collisions": [],
   "out_of_bounds_count": 0,
   "out_of_bounds": [],
   "panel_text_out_of_bounds_count": 0,
@@ -81,10 +64,10 @@
       "id": "title",
       "kind": "text",
       "bbox": [
-        135,
-        81,
-        945,
-        177
+        100,
+        85,
+        979,
+        123
       ],
       "row": null
     },
@@ -672,5 +655,5 @@
       "row": null
     }
   ],
-  "pass": false
+  "pass": true
 }
