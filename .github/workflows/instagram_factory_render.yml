@@ -9,42 +9,48 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
       - run: python -m pip install pandas pyyaml pillow boto3 matplotlib
-      - name: Resolve candidate division propositions
+      - name: Validate all approved Bill Tracker divisions against production
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           python - <<'PY'
-          import json
-          import pandas as pd
+          import json, traceback
           from instagram.factory.oireachtas_source import load_csv_tables, resolve_validated_production_batch
+          from instagram.projects.bill_tracker_factory_v1.adapter import _load_content, _validate_vote
           batch = resolve_validated_production_batch()
-          frames, _ = load_csv_tables(batch, ['silver_divisions'])
-          d = frames['silver_divisions']
-          out={'batch_id':batch.batch_id,'columns':list(d.columns),'matches':{}}
-          for day, ids in {
-              '2026-07-08':['vote_174','vote_178'],
-              '2026-07-07':[],
-              '2026-06-30':['vote_162'],
-              '2026-06-10':[],
-          }.items():
-              date_col='division_date' if 'division_date' in d.columns else 'date'
-              rows=d[pd.to_datetime(d[date_col],errors='coerce').dt.strftime('%Y-%m-%d').eq(day)].copy()
-              keep=[c for c in ['division_id','vote_id','division_date','subject','outcome','debate_show_as','debate_section_id'] if c in rows.columns]
-              out['matches'][day]=rows[keep].to_dict(orient='records')
+          frames, lineage = load_csv_tables(batch, ['silver_divisions','silver_member_votes','silver_member_memberships','silver_member_parties'])
+          out={'batch_id':batch.batch_id,'periods':{}}
+          all_ok=True
+          for period in ('post1','post2'):
+              _, post = _load_content(period); out['periods'][period]={}
+              for bill in post['bills']:
+                  if bill.get('vote'):
+                      try:
+                          result=_validate_vote(bill['vote'],frames,bill_title=bill['formal_title'])
+                          out['periods'][period][bill['key']]={'ok':True,'result':result}
+                      except Exception as exc:
+                          all_ok=False
+                          out['periods'][period][bill['key']]={'ok':False,'error':repr(exc),'traceback':traceback.format_exc()}
+                  else:
+                      out['periods'][period][bill['key']]={'ok':True,'result':'procedure slide; no party tally'}
+          out['all_vote_validations_passed']=all_ok
           open('bill_tracker_diagnostic.json','w').write(json.dumps(out,indent=2,default=str,ensure_ascii=False))
+          if not all_ok: raise SystemExit(1)
           PY
       - name: Publish diagnostic branch
+        if: ${{ always() }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
+          test -f bill_tracker_diagnostic.json || exit 1
           mkdir /tmp/diag && cp bill_tracker_diagnostic.json /tmp/diag/
           cd /tmp/diag
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add . && git commit -m "diagnostic: Bill Tracker division propositions ${GITHUB_RUN_ID}"
+          git add . && git commit -m "diagnostic: Bill Tracker validation ${GITHUB_RUN_ID}"
           git branch -M previews/bill-tracker-diagnostic
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin HEAD:refs/heads/previews/bill-tracker-diagnostic
