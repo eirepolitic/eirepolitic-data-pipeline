@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<stdin>", line 15, in <module>
+  File "/tmp/approved-instagram-factory/instagram/factory/render_pipeline.py", line 49, in run_and_normalize
+    raw = recurring.run_project(project_id, period=period, output_root=output_root)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 45, in run_project
+    result = generate(project=project, period_spec=resolved_period, output_root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter_review.py", line 159, in generate
+    _insert_descriptor(Path(raw["output_root"]), raw)
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter_review.py", line 141, in _insert_descriptor
+    raise RuntimeError(f"Descriptor layout warnings: {rendered.warnings}")
+RuntimeError: Descriptor layout warnings: ['text_clipped:written_heading']
