@@ -96,6 +96,12 @@ jobs:
         run: |
           set -euo pipefail
           python process/director_recorded_voting_participation_audit.py
+      - name: Render representative Director prototype
+        if: ${{ inputs.operation == 'status' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/director_recorded_voting_participation_prototype.py
       - name: Add Director audit summary
         if: ${{ always() && inputs.operation == 'status' }}
         shell: bash
@@ -103,22 +109,23 @@ jobs:
           if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then
             cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Persist Director audit evidence on session branch
+      - name: Persist Director audit evidence and prototype on session branch
         if: ${{ inputs.operation == 'status' }}
         shell: bash
         run: |
           set -euo pipefail
-          target="director/sessions/2026-09-27-recorded-voting-participation/evidence"
-          mkdir -p "$target"
-          cp -f artifacts/director-recorded-voting-participation/* "$target/"
-          cp -f oireachtas-batch-control.json "$target/oireachtas-batch-control.json"
+          evidence_target="director/sessions/2026-09-27-recorded-voting-participation/evidence"
+          prototype_target="director/sessions/2026-09-27-recorded-voting-participation/prototype"
+          mkdir -p "$evidence_target" "$prototype_target"
+          cp -f artifacts/director-recorded-voting-participation/* "$evidence_target/"
+          cp -f oireachtas-batch-control.json "$evidence_target/oireachtas-batch-control.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$target"
+          git add "$evidence_target" "$prototype_target"
           if git diff --cached --quiet; then
-            echo "No Director audit evidence changes to commit."
+            echo "No Director evidence/prototype changes to commit."
           else
-            git commit -m "Persist recorded voting participation audit evidence"
+            git commit -m "Persist recorded voting participation review evidence"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
       - name: Upload control evidence
@@ -134,6 +141,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: director-recorded-voting-participation-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/director-recorded-voting-participation/
+          path: |
+            artifacts/director-recorded-voting-participation/
+            director/sessions/2026-09-27-recorded-voting-participation/prototype/
           if-no-files-found: error
           retention-days: 30
