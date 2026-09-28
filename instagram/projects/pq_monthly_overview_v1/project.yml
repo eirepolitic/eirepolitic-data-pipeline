@@ -7,15 +7,18 @@ purpose: >
   picked the visual direction for the "Most questions submitted" slide on
   2026-09-22 (colored bars by party with a 3-column/2-row legend, chart enlarged
   into the freed space — horizontal_bar_grouped renderer) and asked to proceed to
-  the remaining six slides in the agreed content spec
+  the remaining slides in the agreed content spec
   (director/workflows_v1.md §6.1, session
   director/sessions/2026-09-21-monthly-questions-overview/). "Fewest questions
   submitted" now excludes office-holders (silver_member_offices) and lists every
   TD who asked no questions by name when that's under 25% of the eligible pool,
-  per Warren's 2026-09-22 instructions. This build renders the full seven-slide
-  carousel: headline, top_askers, fewest_askers, party_per_td, departments,
-  answers, methodology. Still pending human review and final approval
-  (workflows_v1.md §6.1 step 6) before this graduates past prototype status.
+  per Warren's 2026-09-22 instructions. During final review on 2026-09-27 Warren
+  approved the redesigned headline and asked for a new plain-English descriptor
+  slide explaining what a Dáil Parliamentary Question is before the analytical
+  slides. This review build therefore renders eight slides: headline, descriptor,
+  top_askers, fewest_askers, party_per_td, departments, answers, methodology.
+  Still pending human review and final approval (workflows_v1.md §6.1 step 6)
+  before this graduates past prototype status.
 adapter_module: instagram.projects.pq_monthly_overview_v1.adapter_review
 
 period:
@@ -42,7 +45,7 @@ metrics:
   denominator: none_this_slide_is_a_simple_ranking
 
 slides:
-  expected_count: 7
+  expected_count: 8
   definitions:
     - id: headline
       title: "Parliamentary Questions: <Month YYYY>"
@@ -99,7 +102,7 @@ render:
     grid: '#f4ead7'
 
 qa:
-  expected_slide_count: 7
+  expected_slide_count: 8
   require_publication_disabled: true
   require_review_state: pending_human_review
 
