@@ -24,7 +24,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: oireachtas-production-promotion
@@ -102,6 +102,24 @@ jobs:
         run: |
           if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then
             cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Persist Director audit evidence on session branch
+        if: ${{ inputs.operation == 'status' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="director/sessions/2026-09-27-recorded-voting-participation/evidence"
+          mkdir -p "$target"
+          cp -f artifacts/director-recorded-voting-participation/* "$target/"
+          cp -f oireachtas-batch-control.json "$target/oireachtas-batch-control.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$target"
+          if git diff --cached --quiet; then
+            echo "No Director audit evidence changes to commit."
+          else
+            git commit -m "Persist recorded voting participation audit evidence"
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
       - name: Upload control evidence
         if: always()
