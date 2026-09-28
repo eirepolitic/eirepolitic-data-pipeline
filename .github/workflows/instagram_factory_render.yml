@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: instagram-factory-render-bill-tracker-production-post1
+  group: instagram-factory-render-bill-tracker-production-post2
   cancel-in-progress: false
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
     timeout-minutes: 25
     env:
       PROJECT_ID: bill_tracker_factory_v1
-      PERIOD_INPUT: post1
-      PREVIEW_SLUG: bill-tracker-production-post1
+      PERIOD_INPUT: post2
+      PREVIEW_SLUG: bill-tracker-production-post2
       FACTORY_REF: 386b933
       SESSION_ID: 2026-09-27-bill-tracker-finalisation
     steps:
@@ -63,7 +63,7 @@ jobs:
               raise SystemExit(1)
           review_dir = workspace/'factory_web_review'
           staged = stage_review_assets(result, review_dir)
-          (review_dir/'index.html').write_text(build_review_html(staged, project_label='Bill Tracker Factory V1 · Post 1'), encoding='utf-8')
+          (review_dir/'index.html').write_text(build_review_html(staged, project_label='Bill Tracker Factory V1 · Post 2'), encoding='utf-8')
           summary={'run_id':os.environ['GITHUB_RUN_ID'],'project_id':result.project_id,'period':result.period_key,'source_batch_id':result.source_batch_id,'slide_count':len(result.slides),'qa_all_passed':result.qa.all_passed,'qa_checks':[{'name':c.name,'passed':c.passed,'detail':c.detail} for c in result.qa.checks]}
           (review_dir/'render_summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
           PY
