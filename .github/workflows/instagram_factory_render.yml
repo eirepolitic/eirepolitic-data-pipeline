@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: instagram-factory-render-bill-tracker-production-post1
+  group: instagram-factory-render-bill-tracker-production-post2
   cancel-in-progress: false
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
     timeout-minutes: 25
     env:
       PROJECT_ID: bill_tracker_factory_v1
-      PERIOD_INPUT: post1
-      PREVIEW_SLUG: bill-tracker-production-post1
+      PERIOD_INPUT: post2
+      PREVIEW_SLUG: bill-tracker-production-post2
       FACTORY_REF: 386b933
       SESSION_ID: 2026-09-27-bill-tracker-finalisation
     steps:
@@ -71,7 +71,7 @@ jobs:
           if not result.qa.all_passed: raise SystemExit(1)
           review_dir = workspace / 'factory_web_review'
           staged = stage_review_assets(result, review_dir)
-          (review_dir / 'index.html').write_text(build_review_html(staged, project_label='Bill Tracker Factory V1 · Post 1'), encoding='utf-8')
+          (review_dir / 'index.html').write_text(build_review_html(staged, project_label='Bill Tracker Factory V1 · Post 2'), encoding='utf-8')
           PY
       - name: Publish web review to preview branch
         env:
