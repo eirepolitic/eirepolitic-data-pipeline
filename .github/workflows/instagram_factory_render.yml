@@ -5,15 +5,16 @@ on:
     inputs:
       project_id:
         description: 'Project id (e.g. party_issue_monthly_profile_v2, ipi_polling_factory_v1)'
-        required: true
+        required: false
+        default: 'pq_monthly_overview_v1'
       period:
         description: 'Period spec (YYYY-MM, latest, last_completed_month) — leave blank for the project default'
         required: false
-        default: ''
+        default: '2026-07'
       preview_slug:
         description: 'Preview branch slug (defaults to project_id)'
         required: false
-        default: ''
+        default: 'pq-monthly-overview-v1-review'
       factory_ref:
         description: 'Commit/ref to pin the approved factory worktree (code + pixel-critical assets) to'
         required: false
@@ -80,23 +81,12 @@ jobs:
           cp instagram/factory/qa.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/review_page.py /tmp/approved-instagram-factory/instagram/factory/
           cp instagram/factory/render_pipeline.py /tmp/approved-instagram-factory/instagram/factory/
-          # A project can also ship its own additional (non-frozen) renderer
-          # module under instagram/visuals/renderers/ — e.g. a variant that
-          # imports and reuses a frozen renderer's internals rather than
-          # duplicating them. The frozen renderers themselves
-          # (horizontal_bar.py, __init__.py, common.py, s3_resolver.py, ...)
-          # already live in the pinned worktree and are never touched here;
-          # this only adds files that don't already exist there.
           for extra_renderer in instagram/visuals/renderers/*.py; do
             base="$(basename "$extra_renderer")"
             if [ ! -f "/tmp/approved-instagram-factory/instagram/visuals/renderers/${base}" ]; then
               cp "$extra_renderer" "/tmp/approved-instagram-factory/instagram/visuals/renderers/${base}"
             fi
           done
-          # Same idea for a project-added (non-frozen) template layout under
-          # instagram/templates/layouts/ — e.g. a new text-only layout that
-          # doesn't exist in the pinned worktree yet. Existing frozen layout
-          # files already there are never touched here.
           if [ -d instagram/templates/layouts ]; then
             for extra_layout in instagram/templates/layouts/*.json; do
               [ -e "$extra_layout" ] || continue
