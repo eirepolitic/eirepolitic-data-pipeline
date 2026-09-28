@@ -1,0 +1,676 @@
+{
+  "canvas": [
+    1080,
+    1350
+  ],
+  "text_collision_count": 1,
+  "text_collisions": [
+    {
+      "a": "title",
+      "b": "subtitle",
+      "a_bbox": [
+        135,
+        81,
+        945,
+        177
+      ],
+      "b_bbox": [
+        62,
+        148,
+        1018,
+        171
+      ]
+    }
+  ],
+  "out_of_bounds_count": 0,
+  "out_of_bounds": [],
+  "panel_text_out_of_bounds_count": 0,
+  "panel_text_out_of_bounds": [],
+  "row_spacing_issue_count": 0,
+  "row_spacing_issues": [],
+  "ornament_count": 4,
+  "top_rule_present": true,
+  "panel_present": true,
+  "footer_present": true,
+  "elements": [
+    {
+      "id": "ornament_tl",
+      "kind": "ornament",
+      "bbox": [
+        22,
+        34,
+        82,
+        85
+      ],
+      "row": null
+    },
+    {
+      "id": "ornament_tr",
+      "kind": "ornament",
+      "bbox": [
+        998,
+        34,
+        1058,
+        85
+      ],
+      "row": null
+    },
+    {
+      "id": "ornament_bl",
+      "kind": "ornament",
+      "bbox": [
+        22,
+        1277,
+        82,
+        1328
+      ],
+      "row": null
+    },
+    {
+      "id": "ornament_br",
+      "kind": "ornament",
+      "bbox": [
+        998,
+        1277,
+        1058,
+        1328
+      ],
+      "row": null
+    },
+    {
+      "id": "title",
+      "kind": "text",
+      "bbox": [
+        135,
+        81,
+        945,
+        177
+      ],
+      "row": null
+    },
+    {
+      "id": "subtitle",
+      "kind": "text",
+      "bbox": [
+        62,
+        148,
+        1018,
+        171
+      ],
+      "row": null
+    },
+    {
+      "id": "qualifier",
+      "kind": "text",
+      "bbox": [
+        211,
+        184,
+        869,
+        202
+      ],
+      "row": null
+    },
+    {
+      "id": "top_rule",
+      "kind": "rule",
+      "bbox": [
+        70,
+        222,
+        1010,
+        230
+      ],
+      "row": null
+    },
+    {
+      "id": "panel",
+      "kind": "container",
+      "bbox": [
+        58,
+        258,
+        1022,
+        1192
+      ],
+      "row": null
+    },
+    {
+      "id": "header_left",
+      "kind": "text",
+      "bbox": [
+        86,
+        285,
+        215,
+        297
+      ],
+      "row": null
+    },
+    {
+      "id": "header_right",
+      "kind": "text",
+      "bbox": [
+        730,
+        285,
+        982,
+        297
+      ],
+      "row": null
+    },
+    {
+      "id": "party_0_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        349,
+        202,
+        364
+      ],
+      "row": 0
+    },
+    {
+      "id": "party_0_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        340,
+        583,
+        374
+      ],
+      "row": 0
+    },
+    {
+      "id": "party_0_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        336,
+        982,
+        352
+      ],
+      "row": 0
+    },
+    {
+      "id": "party_0_denom",
+      "kind": "text",
+      "bbox": [
+        924,
+        371,
+        982,
+        383
+      ],
+      "row": 0
+    },
+    {
+      "id": "party_1_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        422,
+        153,
+        438
+      ],
+      "row": 1
+    },
+    {
+      "id": "party_1_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        414,
+        738,
+        448
+      ],
+      "row": 1
+    },
+    {
+      "id": "party_1_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        410,
+        982,
+        426
+      ],
+      "row": 1
+    },
+    {
+      "id": "party_1_denom",
+      "kind": "text",
+      "bbox": [
+        915,
+        445,
+        982,
+        457
+      ],
+      "row": 1
+    },
+    {
+      "id": "party_2_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        497,
+        209,
+        513
+      ],
+      "row": 2
+    },
+    {
+      "id": "party_2_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        489,
+        743,
+        523
+      ],
+      "row": 2
+    },
+    {
+      "id": "party_2_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        485,
+        982,
+        501
+      ],
+      "row": 2
+    },
+    {
+      "id": "party_2_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        520,
+        982,
+        532
+      ],
+      "row": 2
+    },
+    {
+      "id": "party_3_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        573,
+        192,
+        588
+      ],
+      "row": 3
+    },
+    {
+      "id": "party_3_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        564,
+        737,
+        598
+      ],
+      "row": 3
+    },
+    {
+      "id": "party_3_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        560,
+        982,
+        576
+      ],
+      "row": 3
+    },
+    {
+      "id": "party_3_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        595,
+        982,
+        607
+      ],
+      "row": 3
+    },
+    {
+      "id": "party_4_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        648,
+        221,
+        667
+      ],
+      "row": 4
+    },
+    {
+      "id": "party_4_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        639,
+        719,
+        673
+      ],
+      "row": 4
+    },
+    {
+      "id": "party_4_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        635,
+        982,
+        651
+      ],
+      "row": 4
+    },
+    {
+      "id": "party_4_denom",
+      "kind": "text",
+      "bbox": [
+        915,
+        670,
+        982,
+        682
+      ],
+      "row": 4
+    },
+    {
+      "id": "party_5_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        723,
+        230,
+        742
+      ],
+      "row": 5
+    },
+    {
+      "id": "party_5_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        714,
+        687,
+        748
+      ],
+      "row": 5
+    },
+    {
+      "id": "party_5_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        710,
+        982,
+        726
+      ],
+      "row": 5
+    },
+    {
+      "id": "party_5_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        745,
+        982,
+        757
+      ],
+      "row": 5
+    },
+    {
+      "id": "party_6_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        798,
+        316,
+        817
+      ],
+      "row": 6
+    },
+    {
+      "id": "party_6_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        789,
+        648,
+        823
+      ],
+      "row": 6
+    },
+    {
+      "id": "party_6_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        785,
+        982,
+        801
+      ],
+      "row": 6
+    },
+    {
+      "id": "party_6_denom",
+      "kind": "text",
+      "bbox": [
+        915,
+        820,
+        982,
+        832
+      ],
+      "row": 6
+    },
+    {
+      "id": "party_7_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        873,
+        231,
+        892
+      ],
+      "row": 7
+    },
+    {
+      "id": "party_7_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        864,
+        733,
+        898
+      ],
+      "row": 7
+    },
+    {
+      "id": "party_7_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        860,
+        982,
+        876
+      ],
+      "row": 7
+    },
+    {
+      "id": "party_7_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        895,
+        982,
+        907
+      ],
+      "row": 7
+    },
+    {
+      "id": "party_8_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        937,
+        266,
+        977
+      ],
+      "row": 8
+    },
+    {
+      "id": "party_8_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        939,
+        710,
+        973
+      ],
+      "row": 8
+    },
+    {
+      "id": "party_8_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        935,
+        982,
+        951
+      ],
+      "row": 8
+    },
+    {
+      "id": "party_8_denom",
+      "kind": "text",
+      "bbox": [
+        915,
+        970,
+        982,
+        982
+      ],
+      "row": 8
+    },
+    {
+      "id": "party_9_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        1022,
+        190,
+        1038
+      ],
+      "row": 9
+    },
+    {
+      "id": "party_9_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        1014,
+        751,
+        1048
+      ],
+      "row": 9
+    },
+    {
+      "id": "party_9_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        1010,
+        982,
+        1026
+      ],
+      "row": 9
+    },
+    {
+      "id": "party_9_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        1045,
+        982,
+        1057
+      ],
+      "row": 9
+    },
+    {
+      "id": "party_10_name",
+      "kind": "text",
+      "bbox": [
+        86,
+        1098,
+        282,
+        1113
+      ],
+      "row": 10
+    },
+    {
+      "id": "party_10_bar",
+      "kind": "bar",
+      "bbox": [
+        420,
+        1089,
+        753,
+        1123
+      ],
+      "row": 10
+    },
+    {
+      "id": "party_10_pct",
+      "kind": "text",
+      "bbox": [
+        906,
+        1085,
+        982,
+        1101
+      ],
+      "row": 10
+    },
+    {
+      "id": "party_10_denom",
+      "kind": "text",
+      "bbox": [
+        888,
+        1120,
+        982,
+        1132
+      ],
+      "row": 10
+    },
+    {
+      "id": "footer_left",
+      "kind": "text",
+      "bbox": [
+        66,
+        1281,
+        161,
+        1296
+      ],
+      "row": null
+    },
+    {
+      "id": "footer_right",
+      "kind": "text",
+      "bbox": [
+        693,
+        1280,
+        1014,
+        1296
+      ],
+      "row": null
+    },
+    {
+      "id": "source",
+      "kind": "text",
+      "bbox": [
+        355,
+        1312,
+        724,
+        1325
+      ],
+      "row": null
+    }
+  ],
+  "pass": false
+}
