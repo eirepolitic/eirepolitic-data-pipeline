@@ -96,16 +96,16 @@ jobs:
         run: |
           set -euo pipefail
           python process/director_recorded_voting_participation_audit.py
-      - name: Render representative Director prototype v4 with exact reference corners
+      - name: Render representative Director prototype v5 with preserved body
         if: ${{ inputs.operation == 'status' }}
         shell: bash
         run: |
           set +e
           mkdir -p director/sessions/2026-09-27-recorded-voting-participation/prototype
-          python process/director_recorded_voting_participation_prototype_v4.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v4.log 2>&1
+          python process/director_recorded_voting_participation_prototype_v5.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v5.log 2>&1
           code=$?
-          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v4.log
-          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v4.exitcode
+          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v5.log
+          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v5.exitcode
           exit 0
       - name: Add Director audit summary
         if: ${{ always() && inputs.operation == 'status' }}
