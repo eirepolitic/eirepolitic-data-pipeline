@@ -21,6 +21,7 @@ jobs:
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
       POLITICAL_METRICS_AUDIT_DIR: artifacts/political-metrics-audit
+      DIRECTOR_VOTE_AUDIT_DIR: artifacts/director-recorded-voting-participation
       OIREACHTAS_PUBLISH_ENABLED: 'false'
       OIREACHTAS_PUBLISH_LATEST: 'false'
     steps:
@@ -56,6 +57,12 @@ jobs:
           set -euo pipefail
           python process/political_metrics_question_context_audit.py
 
+      - name: Run Director recorded-voting participation audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python process/director_recorded_voting_participation_audit.py
+
       - name: Add plain-language audit summary
         if: always()
         shell: bash
@@ -66,12 +73,24 @@ jobs:
           if [ -f artifacts/political-metrics-audit/question_context_summary.md ]; then
             cat artifacts/political-metrics-audit/question_context_summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
+          if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then
+            cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
 
-      - name: Upload audit report
+      - name: Upload historical audit report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: political-metrics-historical-audit-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/political-metrics-audit/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Director voting participation audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: director-recorded-voting-participation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/director-recorded-voting-participation/
           if-no-files-found: error
           retention-days: 30
