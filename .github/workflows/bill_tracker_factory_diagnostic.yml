@@ -1,0 +1,54 @@
+name: Bill Tracker factory diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install pandas pyyaml pillow boto3 matplotlib
+      - name: Diagnose production data validation
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          python - <<'PY'
+          import json, traceback
+          from instagram.factory.oireachtas_source import load_csv_tables, resolve_validated_production_batch
+          from instagram.projects.bill_tracker_factory_v1.adapter import _load_content, _validate_vote
+          out = {}
+          try:
+              batch = resolve_validated_production_batch()
+              frames, lineage = load_csv_tables(batch, ['silver_member_votes','silver_member_memberships','silver_member_parties'])
+              out['batch_id'] = batch.batch_id
+              out['columns'] = {k:list(v.columns) for k,v in frames.items()}
+              out['row_counts'] = {k:len(v) for k,v in frames.items()}
+              for period in ('post1','post2'):
+                  _, post = _load_content(period)
+                  out[period] = {}
+                  for bill in post['bills']:
+                      if bill.get('vote'):
+                          try: out[period][bill['key']] = {'ok':True,'result':_validate_vote(bill['vote'],frames)}
+                          except Exception as exc: out[period][bill['key']] = {'ok':False,'error':repr(exc),'traceback':traceback.format_exc()}
+                      else: out[period][bill['key']] = {'ok':True,'result':'procedure slide; no party tally'}
+          except Exception as exc:
+              out['fatal'] = repr(exc); out['traceback'] = traceback.format_exc()
+          open('bill_tracker_diagnostic.json','w').write(json.dumps(out,indent=2,default=str,ensure_ascii=False))
+          PY
+      - name: Publish diagnostic
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir /tmp/diag && cp bill_tracker_diagnostic.json /tmp/diag/
+          cd /tmp/diag
+          git init && git config user.name 'github-actions[bot]' && git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add . && git commit -m "diagnostic: Bill Tracker ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-diagnostic
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-diagnostic
