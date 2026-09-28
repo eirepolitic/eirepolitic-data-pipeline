@@ -302,7 +302,9 @@ def render_process_glossary(glossary: dict[str, Any], output: str | Path) -> dic
 
     terms = glossary["terms"]
     boxes = [(60, 520, 515, 685), (565, 520, 1020, 685), (60, 710, 515, 875), (565, 710, 1020, 875), (312, 900, 768, 1065)]
-    body_font = _shared_body_font(draw, [t["body"] for t in terms], width=395, height=92, start=24, minimum=19, max_lines=4, gap=4)
+    body_width = min(box[2] - box[0] - 46 for box in boxes)
+    body_height = min(box[3] - (box[1] + 76) - 12 for box in boxes)
+    body_font = _shared_body_font(draw, [t["body"] for t in terms], width=body_width, height=body_height, start=24, minimum=19, max_lines=4, gap=4)
     for term, box in zip(terms, boxes):
         _panel(draw, box, radius=16)
         draw.text(((box[0] + box[2]) // 2, box[1] + 34), term["term"], font=font(18, True), fill=ACCENT, anchor="ma")
