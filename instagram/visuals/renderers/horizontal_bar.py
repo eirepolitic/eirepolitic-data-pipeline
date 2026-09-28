@@ -50,7 +50,12 @@ def _clean_rows(rows: list[dict[str, Any]], template: dict[str, Any], sample: di
         value = _as_float(row.get(value_field), 0.0)
         group_value = str(row.get(group_field, "")).strip() if group_field else ""
         clean.append({"label": label, "value": value, "group": group_value})
-    clean = sorted(clean, key=lambda item: item["value"], reverse=sort != "ascending")
+    if sort == "input":
+        pass
+    elif sort == "ascending":
+        clean = sorted(clean, key=lambda item: item["value"])
+    else:
+        clean = sorted(clean, key=lambda item: item["value"], reverse=True)
     if len(clean) > max_items:
         warnings.append(f"truncated_rows:{len(clean)}->{max_items}")
         clean = clean[:max_items]
