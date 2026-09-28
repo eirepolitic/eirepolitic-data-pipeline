@@ -16,7 +16,7 @@ purpose: >
   carousel: headline, top_askers, fewest_askers, party_per_td, departments,
   answers, methodology. Still pending human review and final approval
   (workflows_v1.md §6.1 step 6) before this graduates past prototype status.
-adapter_module: instagram.projects.pq_monthly_overview_v1.adapter
+adapter_module: instagram.projects.pq_monthly_overview_v1.adapter_review
 
 period:
   cadence: monthly
@@ -34,13 +34,6 @@ source:
     - silver_member_constituencies
     - silver_members
     - silver_member_offices
-  # written_question_answer_sections / written_question_answer_bridge are loaded
-  # separately by the adapter, outside this hard-required list: they're a
-  # contract-approved but separately-published dataset, and whether they've been
-  # carried into the current production batch isn't guaranteed the way the core
-  # silver_* tables are (director/data_products.yml known_drift_fact). A gap
-  # there degrades the "answers" slide to a placeholder rather than failing the
-  # whole render — see adapter.py's answer_tables_available handling.
   require_batch_status: validated
 
 metrics:
