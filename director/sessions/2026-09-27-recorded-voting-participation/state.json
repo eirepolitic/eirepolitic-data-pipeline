@@ -2,18 +2,27 @@
   "session_id": "2026-09-27-recorded-voting-participation",
   "branch": "sly/session/2026-09-27-recorded-voting-participation",
   "created_at": "2026-09-27T21:48:00Z",
-  "updated_at": "2026-09-27T21:51:00Z",
+  "updated_at": "2026-09-28T00:28:00Z",
   "intent": "Develop a neutral Instagram carousel explaining recorded Dáil voting participation over the latest complete six-month period supported by one production batch, at TD, party and constituency levels, through the Director evidence/prototype/review workflow. Do not publish or schedule.",
   "resolved_project": null,
-  "resolved_period": null,
+  "resolved_period": {
+    "start": "2026-02-28",
+    "end": "2026-08-28",
+    "division_count": 136,
+    "resolution_rule": "latest Dáil division date in the validated production batch minus six calendar months, inclusive"
+  },
   "data_sources": [
-    "processed/oireachtas_unified/pointers/production.json (required production pointer; live value not exposed by current connector output)",
-    "processed/oireachtas_unified/latest/csv/silver_divisions.csv (required; production key identified from commission code, live contents not yet inspected)",
-    "processed/oireachtas_unified/latest/csv/silver_member_votes.csv (required; production key identified from commission code, live contents not yet inspected)",
-    "processed/oireachtas_unified/latest/csv/silver_member_memberships.csv (required)",
-    "processed/oireachtas_unified/latest/csv/silver_member_parties.csv (required)",
-    "processed/oireachtas_unified/latest/csv/silver_member_constituencies.csv (required)",
-    "GitHub Actions run 36353072089 — Political metrics historical audit — completed success on main"
+    "processed/oireachtas_unified/pointers/production.json -> written-pq-answers-20260905-1",
+    "silver_divisions",
+    "silver_division_tallies",
+    "silver_member_votes",
+    "silver_member_memberships",
+    "silver_member_parties",
+    "silver_member_constituencies",
+    "silver_member_offices",
+    "silver_members",
+    "silver_speeches",
+    "director/sessions/2026-09-27-recorded-voting-participation/evidence/"
   ],
   "references_consulted": [
     "docs/director_agent_reference.md",
@@ -27,92 +36,120 @@
     "director/data_products.yml",
     "director/projects.yml",
     "director/publishing.yml",
+    "director/sessions/README.md",
     "docs/operations/instagram_publishing_standard.md",
     "instagram/PUBLISHING.md",
-    "director/sessions/README.md",
     "docs/research/contextual_voting.md",
     "docs/research/contextual_voting_metrics.md",
+    "Irish Politics Data Model catalogue source in eirepolitic.github.io",
     "completed_posts/summaries/2026-07-party-speech-breakdown-carousel.json",
     "process/political_metrics_vote_commission.py",
     "political_metrics/calculators/votes.py",
     "political_metrics/eligibility.py",
     "political_metrics/temporal_joins.py",
     "process/build_dail_votes_member_records.py",
-    ".github/workflows/political_metrics_historical_audit.yml",
-    "process/political_metrics_audit.py"
+    "instagram/projects/party_issue_monthly_profile_v2/project.yml",
+    "instagram/projects/party_issue_monthly_profile_v2/adapter.py",
+    "instagram/visuals/renderers/horizontal_bar.py",
+    "instagram/templates/layouts/title_text_media_v1.json"
   ],
   "decisions": [
     {
       "question": "Has the human content-direction gate been satisfied?",
-      "choice": "Yes for the content idea only; later visual and final approval gates remain open.",
-      "rationale": "The operator explicitly supplied the topic, target period, metric, editorial constraints, required validation and desired slide structure.",
+      "choice": "Yes for the content idea only; visual-direction and final approval gates remain open.",
+      "rationale": "The operator supplied the topic, metric, editorial constraints, validation requirements and preferred carousel structure.",
       "timestamp": "2026-09-27T21:48:00Z"
     },
     {
       "question": "How should no recorded vote be interpreted?",
       "choice": "Only as no recorded vote; never as proof of absence or attendance failure.",
-      "rationale": "Required by both the operator and live repository voting semantics.",
+      "rationale": "Required by the operator and repository voting semantics.",
       "timestamp": "2026-09-27T21:48:00Z"
     },
     {
       "question": "What counts as recorded participation?",
-      "choice": "Recorded ta, nil, or staon vote codes. Staon is the production representation of formal abstention.",
-      "rationale": "The source flattener reads taVotes, nilVotes and staonVotes; the production vote commissioner accepts exactly ta, nil and staon.",
-      "timestamp": "2026-09-27T21:50:00Z"
+      "choice": "Recorded ta, nil, or staon vote codes; staon is formal recorded abstention.",
+      "rationale": "The production vote model recognises ta, nil and staon and the audit found 73 staon rows across 3 divisions.",
+      "timestamp": "2026-09-28T00:18:00Z"
     },
     {
-      "question": "What temporal rules govern eligibility and attribution?",
-      "choice": "Membership, party and constituency histories use start-inclusive/end-exclusive ranges; ambiguous temporal overlaps must raise rather than be silently resolved.",
-      "rationale": "This is implemented in political_metrics/eligibility.py and political_metrics/temporal_joins.py.",
-      "timestamp": "2026-09-27T21:50:00Z"
+      "question": "What is the production period?",
+      "choice": "2026-02-28 to 2026-08-28 inclusive.",
+      "rationale": "The validated production batch's latest Dáil division is 2026-08-28; the requested 2026-03-27 to 2026-09-27 window is therefore not fully supported.",
+      "timestamp": "2026-09-28T00:18:00Z"
     },
     {
-      "question": "What approved visual precedent should be used if evidence clears?",
-      "choice": "Use the July 2026 party_issue_monthly_profile_v2 canonical analytical horizontal-bar treatment as the starting reference for comparison slides, while retaining alphabetical editorial ordering.",
-      "rationale": "director/references.yml designates that completed post as the canonical visual reference; latest production runs are not automatically aesthetic references.",
-      "timestamp": "2026-09-27T21:50:00Z"
+      "question": "Is the denominator defensible?",
+      "choice": "Yes. Advance to content development.",
+      "rationale": "The read-only audit passed TD×division uniqueness, vote/tally reconciliation, membership eligibility, event-date party and constituency attribution, presiding-member treatment, history ambiguity checks and aggregate reconciliation. No division was excluded for incomplete member-vote coverage.",
+      "timestamp": "2026-09-28T00:18:00Z"
     },
     {
-      "question": "Can the carousel advance to prototype now?",
-      "choice": "No. Stop before claim/prototype generation because the live production denominator cannot yet be fully defended through the approved accessible evidence path.",
-      "rationale": "The current connector cannot expose the live production pointer value or inspect the required silver_divisions/silver_member_votes contents from the successful read-only audit. Therefore exact latest division coverage, division-level member-vote completeness, Ceann Comhairle treatment, pairing/statutory-leave availability, and incomplete-division exclusions have not been proven for one current immutable production batch.",
-      "timestamp": "2026-09-27T21:51:00Z"
+      "question": "How is the presiding member treated?",
+      "choice": "Exclude the identified presiding member from an ordinary eligible opportunity unless that member has a recorded vote in that division.",
+      "rationale": "The audit resolved a presiding member for all 136 divisions and removed 128 ordinary presiding-member opportunities. Recorded votes remain in the universe.",
+      "timestamp": "2026-09-28T00:18:00Z"
+    },
+    {
+      "question": "Is pairing/statutory leave used to adjust the denominator?",
+      "choice": "No.",
+      "rationale": "No canonical pairing/statutory-leave field was found in the promoted production batch manifest; no missing evidence is inferred.",
+      "timestamp": "2026-09-28T00:18:00Z"
+    },
+    {
+      "question": "What approved visual precedent should guide the prototype?",
+      "choice": "Use the July 2026 party_issue_monthly_profile_v2 analytical horizontal-bar treatment while preserving alphabetical order.",
+      "rationale": "director/references.yml identifies it as the canonical analytical visual reference.",
+      "timestamp": "2026-09-28T00:20:00Z"
+    },
+    {
+      "question": "Can the carousel scale to all slides now?",
+      "choice": "No. Stop at the visual-direction gate after one representative Parties slide.",
+      "rationale": "The new-post Director workflow requires explicit human visual-direction approval before scaling a prototype into a full carousel.",
+      "timestamp": "2026-09-28T00:28:00Z"
     }
   ],
-  "slide_plan": [],
+  "slide_plan": [
+    {"id": "cover", "title": "Recorded Dáil voting participation — last six months", "status": "planned"},
+    {"id": "metric", "title": "What the metric means", "status": "planned"},
+    {"id": "parties", "title": "Recorded voting participation — parties", "status": "prototype_rendered", "ordering": "alphabetical"},
+    {"id": "constituencies", "title": "Recorded voting participation — constituencies", "status": "planned", "ordering": "alphabetical", "pagination": "as needed for readability"},
+    {"id": "tds", "title": "Recorded voting participation — TDs", "status": "planned", "ordering": "alphabetical", "pagination": "as needed for readability after visual direction is approved"},
+    {"id": "methodology", "title": "Period, denominator and methodology", "status": "planned"}
+  ],
   "visual_decisions": {
     "canonical_reference": "party_issue_monthly_profile_v2 July 2026 analytical horizontal-bar reference",
     "ordering": "alphabetical for parties, constituencies and TDs",
-    "prototype_status": "blocked_pending_denominator_evidence"
+    "representative_slide": "parties",
+    "prototype_path": "director/sessions/2026-09-27-recorded-voting-participation/prototype/prototype_party_slide.png",
+    "prototype_manifest": "director/sessions/2026-09-27-recorded-voting-participation/prototype/prototype_manifest.json",
+    "prototype_qa": "PASS; no chart or layout warnings; no clipping or truncation",
+    "prototype_status": "pending_human_visual_direction_review"
   },
   "runs": [
     {
-      "run_id": "36352947096",
-      "workflow": "completed_post_reference.yml",
-      "project_id": null,
-      "period": null,
-      "resolved_period": null,
-      "review_url": null,
-      "commit": "ed2e0dfc189fa668994165c231b60c5ae43cea81",
-      "qa_all_passed": null,
-      "dispatched_by": "claude",
-      "timestamp": "2026-09-27T21:46:29Z",
-      "purpose": "Resolve approved completed-post references; no downloadable artifact exposed by connector from prior successful run."
+      "run_id": "36361529589",
+      "workflow": "oireachtas_batch_control.yml",
+      "purpose": "Read-only production batch status and recorded-voting participation audit",
+      "resolved_period": "2026-02-28/2026-08-28",
+      "qa_all_passed": true
     },
     {
-      "run_id": "36353072089",
-      "workflow": "political_metrics_historical_audit.yml",
-      "project_id": null,
-      "period": null,
-      "resolved_period": null,
-      "review_url": null,
-      "commit": "ed2e0dfc189fa668994165c231b60c5ae43cea81",
+      "run_id": "36361683047",
+      "workflow": "oireachtas_batch_control.yml",
+      "purpose": "Persist validated audit evidence to Director session branch",
+      "resolved_period": "2026-02-28/2026-08-28",
+      "qa_all_passed": true
+    },
+    {
+      "run_id": "36362212238",
+      "workflow": "oireachtas_batch_control.yml",
+      "purpose": "Re-run validated audit and render representative Parties prototype",
+      "resolved_period": "2026-02-28/2026-08-28",
       "qa_all_passed": true,
-      "dispatched_by": "claude",
-      "timestamp": "2026-09-27T21:48:39Z",
-      "purpose": "Read-only production history/temporal-attribution audit. Workflow completed successfully; connector could not read the signed ZIP log bundle needed to extract the live production pointer details."
+      "prototype_qa": true
     }
   ],
   "feedback": [],
-  "approval_state": "pending_review"
+  "approval_state": "pending_visual_direction_review"
 }
