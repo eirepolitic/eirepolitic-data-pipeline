@@ -26,6 +26,15 @@ def _measure_lines(draw: ImageDraw.ImageDraw, lines: Iterable[str], f: ImageFont
     return sum(heights) + gap * (len(lines) - 1)
 
 
+def _wrapped_advance(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.ImageFont, width: int, gap: int) -> tuple[int, list[str]]:
+    lines = wrap_text_px(draw, text, f, width)
+    cur = 0
+    for line in lines:
+        b = draw.textbbox((0, cur), line, font=f, anchor="la")
+        cur = int(b[3] + gap)
+    return cur, lines
+
+
 def _fit_wrapped(draw: ImageDraw.ImageDraw, text: str, *, width: int, start: int, minimum: int, max_lines: int, bold: bool = False) -> tuple[ImageFont.ImageFont, list[str]]:
     for size in range(start, minimum - 1, -1):
         f = font(size, bold)
@@ -40,8 +49,8 @@ def _shared_body_font(draw: ImageDraw.ImageDraw, texts: list[str], *, width: int
         f = font(size)
         good = True
         for text in texts:
-            lines = wrap_text_px(draw, text, f, width)
-            if len(lines) > max_lines or _measure_lines(draw, lines, f, gap) > height:
+            advance, lines = _wrapped_advance(draw, text, f, width, gap)
+            if len(lines) > max_lines or advance > height:
                 good = False
                 break
         if good:
@@ -153,7 +162,9 @@ def render_explainer(bill: dict[str, Any], output: str | Path) -> dict[str, Any]
     for box, label, text in zip(boxes, labels, texts):
         _panel(draw, box)
         draw.text((box[0] + 24, box[1] + 20), label, font=font(18, True), fill=ACCENT, anchor="la")
-        _draw_wrapped(draw, text, xy=(box[0] + 24, box[1] + 63), f=body_font, width=box_w - 48, fill=TEXT, gap=4)
+        body_end = _draw_wrapped(draw, text, xy=(box[0] + 24, box[1] + 63), f=body_font, width=box_w - 48, fill=TEXT, gap=4)
+        if body_end > box[3] - 18:
+            raise RuntimeError(f"Explainer body overflow for {bill['formal_title']} / {label}: {body_end} > {box[3] - 18}")
 
     result_top = boxes[2][3] + 38
     result_bottom = 1206
@@ -295,7 +306,9 @@ def render_process_glossary(glossary: dict[str, Any], output: str | Path) -> dic
     for term, box in zip(terms, boxes):
         _panel(draw, box, radius=16)
         draw.text(((box[0] + box[2]) // 2, box[1] + 34), term["term"], font=font(18, True), fill=ACCENT, anchor="ma")
-        _draw_centered_wrapped(draw, term["body"], cx=(box[0] + box[2]) // 2, y=box[1] + 76, f=body_font, width=box[2] - box[0] - 46, fill=TEXT, gap=4)
+        body_end = _draw_centered_wrapped(draw, term["body"], cx=(box[0] + box[2]) // 2, y=box[1] + 76, f=body_font, width=box[2] - box[0] - 46, fill=TEXT, gap=4)
+        if body_end > box[3] - 12:
+            raise RuntimeError(f"Process glossary definition overflow for {term['term']}: {body_end} > {box[3] - 12}")
     _footer(draw, "EirePolitic · Glossary · Parliamentary process & terms")
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); im.save(output)
     return {"renderer": "bill_tracker_process_glossary_v3", "warnings": [], "shared_body_font": body_font.size, "highlight": glossary["process_highlight"]}
@@ -314,7 +327,9 @@ def render_vote_glossary(glossary: dict[str, Any], output: str | Path) -> dict[s
         box = (82, y, 998, y + bh)
         _panel(draw, box, radius=16)
         draw.text((106, y + 24), term["term"], font=font(21, True), fill=ACCENT, anchor="la")
-        _draw_wrapped(draw, term["body"], xy=(106, y + 66), f=body_font, width=820, fill=TEXT, gap=4)
+        body_end = _draw_wrapped(draw, term["body"], xy=(106, y + 66), f=body_font, width=820, fill=TEXT, gap=4)
+        if body_end > box[3] - 12:
+            raise RuntimeError(f"Vote glossary definition overflow for {term['term']}: {body_end} > {box[3] - 12}")
         y += bh + 20
     rule_box = (82, y, 998, min(y + 150, 1198))
     _panel(draw, rule_box, radius=16, outline=ACCENT, width=3, fill=BG)
