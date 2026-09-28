@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<stdin>", line 15, in <module>
+  File "/tmp/approved-instagram-factory/instagram/factory/render_pipeline.py", line 49, in run_and_normalize
+    raw = recurring.run_project(project_id, period=period, output_root=output_root)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/factory/recurring.py", line 45, in run_project
+    result = generate(project=project, period_spec=resolved_period, output_root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter_review.py", line 101, in generate
+    return base.generate(project=project, period_spec=period_spec, output_root=output_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter.py", line 467, in generate
+    slide_headline = _render_text_slide(
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/approved-instagram-factory/instagram/projects/pq_monthly_overview_v1/adapter_review.py", line 88, in _render_text_slide_review
+    raise RuntimeError(f"Headline layout warnings for {slide_id}: {rendered.warnings}")
+RuntimeError: Headline layout warnings for headline: ['unsupported_element:corner_tl_v:line', 'unsupported_element:corner_tl_h:line', 'unsupported_element:corner_tr_v:line', 'unsupported_element:corner_tr_h:line', 'unsupported_element:corner_bl_v:line', 'unsupported_element:corner_bl_h:line', 'unsupported_element:corner_br_v:line', 'unsupported_element:corner_br_h:line', 'text_clipped:eyebrow', 'unsupported_element:top_rule:line', 'unsupported_element:footer_rule:line']
