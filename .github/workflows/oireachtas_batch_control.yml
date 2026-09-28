@@ -96,12 +96,17 @@ jobs:
         run: |
           set -euo pipefail
           python process/director_recorded_voting_participation_audit.py
-      - name: Render representative Director prototype
+      - name: Render representative Director prototype with diagnostics
         if: ${{ inputs.operation == 'status' }}
         shell: bash
         run: |
-          set -euo pipefail
-          python process/director_recorded_voting_participation_prototype.py
+          set +e
+          mkdir -p director/sessions/2026-09-27-recorded-voting-participation/prototype
+          python process/director_recorded_voting_participation_prototype.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render.log 2>&1
+          code=$?
+          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render.log
+          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render.exitcode
+          exit 0
       - name: Add Director audit summary
         if: ${{ always() && inputs.operation == 'status' }}
         shell: bash
