@@ -1,0 +1,53 @@
+{
+  "composition_qa_from_v3": {
+    "text_collision_count": 0,
+    "text_collisions": [],
+    "out_of_bounds_count": 0,
+    "out_of_bounds": [],
+    "panel_text_out_of_bounds_count": 0,
+    "panel_text_out_of_bounds": [],
+    "row_spacing_issue_count": 0,
+    "row_spacing_issues": [],
+    "ornament_count": 4,
+    "ornament_transform_reference": {
+      "tl": "normal",
+      "tr": "scaleX(-1)",
+      "bl": "scaleY(-1)",
+      "br": "scale(-1,-1)"
+    },
+    "people_before_profit_display_label": "People Before Profit",
+    "people_before_profit_single_line": true,
+    "pass": true
+  },
+  "corner_qa": {
+    "reference_asset": "instagram/reference/member_profile_template.png",
+    "reference_dimensions": [
+      1229,
+      1536
+    ],
+    "source_corner_crop_dimensions": [
+      356,
+      338
+    ],
+    "rendered_corner_dimensions": [
+      313,
+      297
+    ],
+    "transformations": {
+      "tl": "reference top-left unchanged",
+      "tr": "horizontal mirror",
+      "bl": "vertical mirror",
+      "br": "horizontal + vertical mirror"
+    },
+    "non_background_pixels_by_corner": {
+      "tl": 4228,
+      "tr": 4228,
+      "bl": 4228,
+      "br": 4228
+    },
+    "all_four_corners_present": true
+  },
+  "people_before_profit_display_label": "People Before Profit",
+  "people_before_profit_single_line": true,
+  "pass": true
+}
