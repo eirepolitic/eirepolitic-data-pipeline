@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 
 import pytest
 from botocore.exceptions import ClientError
@@ -72,6 +73,22 @@ def test_scheduler_payload_contains_identity_only() -> None:
     assert payload == {"publication_id": "pub/one", "expected_version": 3}
     assert "caption" not in payload
     assert "token" not in payload
+
+
+def test_scheduler_payload_normalizes_dynamodb_decimal_version() -> None:
+    schedule = PublicationSchedule(
+        schedule_id="schedule-decimal",
+        publication_id="pub/decimal",
+        publication_version=Decimal("1"),
+        scheduled_local="2026-10-03T01:00:00",
+        timezone="America/Vancouver",
+        scheduled_at_utc="2026-10-03T08:00:00Z",
+        status="scheduled",
+    )
+    assert json.loads(_scheduler().payload(schedule)) == {
+        "publication_id": "pub/decimal",
+        "expected_version": 1,
+    }
 
 
 def test_scheduler_creates_exact_utc_job_and_verifies_it() -> None:
