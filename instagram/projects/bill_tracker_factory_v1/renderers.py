@@ -13,6 +13,7 @@ PANEL_OUTLINE = "#346857"
 NO_VOTE = "#65756d"
 LEFT, RIGHT = 60, 1020
 CONTENT_W = RIGHT - LEFT
+FORBIDDEN_FOOTER_MARKERS = ("draft", "review copy", "preview", "debug", "test copy")
 
 
 def _measure_lines(draw: ImageDraw.ImageDraw, lines: Iterable[str], f: ImageFont.ImageFont, gap: int) -> int:
@@ -96,6 +97,10 @@ def _rule(draw: ImageDraw.ImageDraw, y: int, *, left: int = 82, right: int = 998
 
 
 def _footer(draw: ImageDraw.ImageDraw, text: str) -> None:
+    folded = text.casefold()
+    bad = [marker for marker in FORBIDDEN_FOOTER_MARKERS if marker in folded]
+    if bad:
+        raise RuntimeError(f"Production-inappropriate footer marker(s) {bad}: {text!r}")
     _rule(draw, 1260, left=58, right=1022, width=4)
     draw.text((W // 2, 1286), text, font=font(14, True), fill=MUTED, anchor="ma")
 
@@ -183,7 +188,7 @@ def render_explainer(bill: dict[str, Any], output: str | Path) -> dict[str, Any]
     final_y = _draw_centered_wrapped(draw, bill["result_line"], cx=W // 2, y=carried_y, f=result_line_f, width=840, fill=MUTED, gap=4)
     if final_y > result_bottom - 24:
         raise RuntimeError(f"Explainer result box overflow for {bill['formal_title']}: {final_y}")
-    _footer(draw, "EirePolitic · Draft review copy")
+    _footer(draw, "EirePolitic · Bills of the Current Session")
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); im.save(output)
     return {"renderer": "bill_tracker_explainer_v3", "warnings": [], "shared_body_font": body_font.size, "result_bottom": final_y}
 
