@@ -1,5 +1,4 @@
 name: Oireachtas batch control
-
 on:
   workflow_dispatch:
     inputs:
@@ -67,15 +66,15 @@ jobs:
       - name: Run Director recorded-voting participation audit
         if: ${{ inputs.operation == 'status' }}
         run: python process/director_recorded_voting_participation_audit.py
-      - name: Render representative Director prototype v7
+      - name: Render representative Director prototype v8
         if: ${{ inputs.operation == 'status' }}
         run: |
           set +e
           mkdir -p director/sessions/2026-09-27-recorded-voting-participation/prototype
-          python process/director_recorded_voting_participation_prototype_v7.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.log 2>&1
+          python process/director_recorded_voting_participation_prototype_v8.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.log 2>&1
           code=$?
-          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.log
-          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.exitcode
+          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.log
+          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.exitcode
           exit 0
       - name: Add Director audit summary
         if: ${{ always() && inputs.operation == 'status' }}
