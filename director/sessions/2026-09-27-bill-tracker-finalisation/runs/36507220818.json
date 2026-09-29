@@ -1,0 +1,26 @@
+{
+  "run_id": "36507220818",
+  "type": "generic_factory_rerender_after_review_label_cleanup",
+  "source_batch_id": "written-pq-answers-20260905-1",
+  "integration_commit": "d31a3212790c47881fdb4c4865d6a1c816541709",
+  "periods": {
+    "post1": {
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/index.html",
+      "contact_sheet": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/contact-post1.jpg",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "qa": "passed"
+    },
+    "post2": {
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/index.html",
+      "contact_sheet": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/contact-post2.jpg",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "qa": "passed"
+    }
+  },
+  "review_issue_fixed": "Removed user-visible 'Draft review copy' footer from all six explainer slides and replaced it with the neutral series footer 'EirePolitic · Bills of the Current Session'.",
+  "additional_hygiene": "Renderer now rejects production footers containing draft/review-copy/preview/debug/test-copy markers.",
+  "supersedes": ["36484935695", "36485178875"],
+  "approval_state": "awaiting_human_approval_of_exact_cleaned_renders"
+}
