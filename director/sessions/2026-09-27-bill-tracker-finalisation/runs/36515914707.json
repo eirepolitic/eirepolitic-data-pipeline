@@ -1,0 +1,25 @@
+{
+  "run_id": "36515914707",
+  "type": "final_factory_render_with_locked_captions",
+  "source_batch_id": "written-pq-answers-20260905-1",
+  "integration_commit": "941dc3837c9e7aac580fdaf65f4bf980b23dc8ea",
+  "periods": {
+    "post1": {
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/index.html",
+      "caption_file": "https://raw.githubusercontent.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post1/caption.txt",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "qa": "passed"
+    },
+    "post2": {
+      "review_url": "https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/index.html",
+      "caption_file": "https://raw.githubusercontent.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-production-post2/caption.txt",
+      "slide_count": 9,
+      "dimensions": "1080x1350",
+      "qa": "passed"
+    }
+  },
+  "caption_override_required": false,
+  "supersedes": ["36507220818"],
+  "approval_state": "visuals_and_captions_approved; awaiting_schedule_selection"
+}
