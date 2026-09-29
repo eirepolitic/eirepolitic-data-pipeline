@@ -99,8 +99,8 @@
   state: merged
   ref: main
   path: instagram/projects/bill_tracker_factory_v1/
-  merged_by: pull_request_173
-  supersedes_pull_request: 130
+  merged_by: pull_request_177
+  supersedes_pull_requests: [130, 173]
   depends_on: [recurring_instagram_factory, corner_assets_pinned, oireachtas_data_pipeline]
   workflows: [instagram_factory_render.yml, instagram_publish_standard.yml, instagram_schedule_inventory.yml]
   canonical_reference: see references.yml (bill_tracker_series.canonical_visual_reference)
@@ -114,8 +114,8 @@
     Human approval covered the exact cleaned production renders and captions;
     publication schedules were created through the standard publisher for
     2026-10-02 and 2026-10-03 at 01:00 America/Vancouver and verified against
-    DynamoDB plus EventBridge Scheduler. PR #130 is superseded and must not be
-    merged separately.
+    DynamoDB plus EventBridge Scheduler. PR #130 and draft PR #173 are
+    superseded and must not be merged separately.
 
 - capability: publishing_stack
   state: draft
