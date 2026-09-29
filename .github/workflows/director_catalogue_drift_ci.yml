@@ -12,28 +12,27 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install pyyaml
-      - name: Regenerate Director catalogue from live state
+      - name: Generate clean catalogue-sync branch from main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python process/build_director_catalogue.py
-      - name: Publish regenerated catalogue for reconciliation
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir /tmp/catalogue
-          cp director/workflows.yml director/projects.yml /tmp/catalogue/
-          cd /tmp/catalogue
-          git init
+          git fetch origin main
+          git checkout -B fix/director-catalogue-sync origin/main
+          python process/build_director_catalogue.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "director catalogue regeneration ${GITHUB_RUN_ID}"
-          git branch -M previews/director-catalogue-regenerated
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/director-catalogue-regenerated
+          git add director/workflows.yml director/projects.yml
+          if git diff --cached --quiet; then
+            echo 'No catalogue changes required.'
+          else
+            git commit -m 'chore: sync Director catalogue with live GitHub state'
+            git push --force origin HEAD:refs/heads/fix/director-catalogue-sync
+          fi
