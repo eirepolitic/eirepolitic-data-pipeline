@@ -10,8 +10,8 @@
 
 # AUTO-GENERATED — do not hand-edit below this line until the matching END marker.
 inventory:
-  generated_from: GitHub Actions workflows API (all 143 workflows in the repo)
-  generated_at_last_hand_sync: "2026-09-27"
+  generated_from: GitHub Actions workflows API (all 144 workflows in the repo)
+  generated_at_last_hand_sync: "2026-09-29"
   workflows:
     - id: 232687901
       name: Run Absence Reason (Manual)
@@ -224,6 +224,10 @@ inventory:
     - id: 272816341
       name: Instagram S3 Preview Test (Manual)
       path: .github/workflows/instagram_s3_preview_test.yml
+      state: active
+    - id: 368595606
+      name: Instagram schedule inventory
+      path: .github/workflows/instagram_schedule_inventory.yml
       state: active
     - id: 349980162
       name: Instagram source attribution CI
