@@ -2,8 +2,9 @@
 
 Changes requested during final visual review:
 - category/name labels are forced to one line at a slightly smaller font size;
-- the legend uses the full party names and is expanded across almost the full
-  figure width instead of applying horizontal_bar_grouped's 13-character cap.
+- the legend uses full party names;
+- the 3-column legend is naturally packed (not stretched across the full width)
+  and sits higher in the chart to reduce the gap below the slide title.
 
 All chart rendering/QA otherwise delegates to horizontal_bar_grouped.
 """
@@ -19,8 +20,9 @@ from . import horizontal_bar_grouped as grouped
 
 MAX_SINGLELINE_FONT_SIZE = 13
 MIN_SINGLELINE_FONT_SIZE = 10
-WIDE_LEGEND_FONT_SIZE = 10.5
-WIDE_LEGEND_COLUMNS = 3
+LEGEND_FONT_SIZE = 10.5
+LEGEND_COLUMNS = 3
+LEGEND_Y_OFFSET = 0.05
 
 
 def _text_width(renderer: Any, text: str, font_size: int) -> float:
@@ -74,20 +76,19 @@ def render(
     original_layout = grouped._select_label_layout
     original_figure_legend = Figure.legend
 
-    def _wide_figure_legend(self, handles=None, labels=None, *args, **kwargs):
-        # grouped.render deliberately shortens legend labels to 13 characters.
-        # Replace those display-only labels with the full configured party names
-        # and distribute the three columns across almost the full figure width.
+    def _packed_figure_legend(self, handles=None, labels=None, *args, **kwargs):
         if full_legend_texts and labels is not None and len(labels) == len(full_legend_texts):
             labels = full_legend_texts
+            kwargs.pop("mode", None)
             kwargs.update(
                 {
-                    "loc": "lower left",
-                    "bbox_to_anchor": (0.035, grouped.LEGEND_ANCHOR_Y, 0.93, 0.11),
-                    "ncol": min(len(full_legend_texts), WIDE_LEGEND_COLUMNS),
-                    "mode": "expand",
-                    "fontsize": WIDE_LEGEND_FONT_SIZE,
-                    "columnspacing": 0.7,
+                    "loc": "lower center",
+                    "bbox_to_anchor": (0.5, grouped.LEGEND_ANCHOR_Y + LEGEND_Y_OFFSET),
+                    "ncol": min(len(full_legend_texts), LEGEND_COLUMNS),
+                    "fontsize": LEGEND_FONT_SIZE,
+                    "columnspacing": 1.0,
+                    "handlelength": 1.0,
+                    "handleheight": 1.0,
                     "handletextpad": 0.35,
                     "borderaxespad": 0.0,
                 }
@@ -95,7 +96,7 @@ def render(
         return original_figure_legend(self, handles, labels, *args, **kwargs)
 
     grouped._select_label_layout = _select_label_layout_singleline
-    Figure.legend = _wide_figure_legend
+    Figure.legend = _packed_figure_legend
     try:
         return grouped.render(
             template,
