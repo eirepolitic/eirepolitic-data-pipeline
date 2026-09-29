@@ -45,7 +45,7 @@ def list_upcoming_scheduled_publications(
         assert record.schedule is not None
         schedule_name = scheduler.schedule_name(record.schedule)
         try:
-            live = scheduler_client.get_schedule(Name=schedule_name, GroupName=scheduler_target.group_name)
+            live = scheduler_client.get_schedule(Name=schedule_name, GroupName=scheduler.group_name)
             scheduler_state = str(live.get("State", "UNKNOWN"))
             scheduler_matches = scheduler.verify(record.schedule)
         except Exception:
