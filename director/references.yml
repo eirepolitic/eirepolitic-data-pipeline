@@ -94,6 +94,11 @@ bill_tracker_series:
       scheduled_at_utc: "2026-10-02T08:00:00Z"
       scheduler_state: ENABLED
       scheduler_matches_ledger: true
+      completed_post_id: 2026-10-02-bill-tracker-enacted-post1
+      archived: true
+      archive_run_id: 36518161375
+      s3_prefix: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-10-02-bill-tracker-enacted-post1/
+      git_summary: completed_posts/summaries/2026-10-02-bill-tracker-enacted-post1.json
     - period: post2
       factory_run_id: 36516586918
       publication_id: ig-bill-tracker-factory-v1-post2-36516586918
@@ -102,3 +107,8 @@ bill_tracker_series:
       scheduled_at_utc: "2026-10-03T08:00:00Z"
       scheduler_state: ENABLED
       scheduler_matches_ledger: true
+      completed_post_id: 2026-10-03-bill-tracker-enacted-post2
+      archived: true
+      archive_run_id: 36518211143
+      s3_prefix: instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-10-03-bill-tracker-enacted-post2/
+      git_summary: completed_posts/summaries/2026-10-03-bill-tracker-enacted-post2.json
