@@ -61,53 +61,33 @@ jobs:
           set -euo pipefail
           args=(--bucket "${S3_BUCKET}" --region "${AWS_REGION}" "${OPERATION}")
           if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ ]]; then args+=(--batch-id "${BATCH_ID}"); fi
-          if [[ "${OPERATION}" == 'assemble' && -n "${REQUIRED_TABLES}" ]]; then IFS=',' read -ra tables <<< "${REQUIRED_TABLES}"; for table in "${tables[@]}"; do table="${table//[[:space:]]/}"; [[ -n "${table}" ]] && args+=(--required-table "${table}"); done; fi
           python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas-batch-control.json
       - name: Run Director recorded-voting participation audit
         if: ${{ inputs.operation == 'status' }}
         run: python process/director_recorded_voting_participation_audit.py
-      - name: Render representative Director prototype v8
+      - name: Render approved prototype v8 and full review carousel
         if: ${{ inputs.operation == 'status' }}
         run: |
-          set +e
-          mkdir -p director/sessions/2026-09-27-recorded-voting-participation/prototype
-          python process/director_recorded_voting_participation_prototype_v8.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.log 2>&1
-          code=$?
-          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.log
-          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v8.exitcode
-          exit 0
-      - name: Add Director audit summary
-        if: ${{ always() && inputs.operation == 'status' }}
-        run: |
-          if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"; fi
-      - name: Persist Director audit evidence and prototype on session branch
+          set -euo pipefail
+          python process/director_recorded_voting_participation_prototype_v8.py
+          python process/director_recorded_voting_participation_carousel.py
+      - name: Persist Director review evidence
         if: ${{ inputs.operation == 'status' }}
         run: |
           set -euo pipefail
           evidence_target="director/sessions/2026-09-27-recorded-voting-participation/evidence"
-          prototype_target="director/sessions/2026-09-27-recorded-voting-participation/prototype"
-          mkdir -p "$evidence_target" "$prototype_target"
+          mkdir -p "$evidence_target"
           cp -f artifacts/director-recorded-voting-participation/* "$evidence_target/"
           cp -f oireachtas-batch-control.json "$evidence_target/oireachtas-batch-control.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$evidence_target" "$prototype_target"
-          if ! git diff --cached --quiet; then git commit -m "Persist recorded voting participation review evidence"; git push origin HEAD:${GITHUB_REF_NAME}; fi
-      - name: Upload control evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: oireachtas-batch-control-${{ inputs.operation }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: oireachtas-batch-control.json
-          if-no-files-found: warn
-          retention-days: 90
-      - name: Upload Director voting participation audit
+          git add director/sessions/2026-09-27-recorded-voting-participation
+          if ! git diff --cached --quiet; then git commit -m "Persist full recorded voting participation review carousel"; git push origin HEAD:${GITHUB_REF_NAME}; fi
+      - name: Upload Director review artifact
         if: ${{ always() && inputs.operation == 'status' }}
         uses: actions/upload-artifact@v4
         with:
-          name: director-recorded-voting-participation-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            artifacts/director-recorded-voting-participation/
-            director/sessions/2026-09-27-recorded-voting-participation/prototype/
+          name: director-recorded-voting-participation-${{ github.run_id }}
+          path: director/sessions/2026-09-27-recorded-voting-participation/
           if-no-files-found: error
           retention-days: 30
