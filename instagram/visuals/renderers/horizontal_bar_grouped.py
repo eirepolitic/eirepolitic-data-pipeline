@@ -1,14 +1,10 @@
 """Grouped/colored variant of horizontal_bar.py (director session
 2026-09-21-monthly-questions-overview, visual-direction option B).
 
-horizontal_bar.py is part of the frozen v1 file set
-(.github/workflows/director_factory_v1_identity_ci.yml byte-identity-checks
-it against 386b933), so it is never edited here. This module imports its
-already-proven label-wrapping and clipping-detection helpers unchanged and
-adds only what horizontal_bar.py doesn't do: one bar color per group (e.g.
-per party) instead of a single accent color, plus a legend mapping color to
-group. Everything else — wrapping, ellipsizing, clip/truncation detection,
-value-label placement — is the same code horizontal_bar.py already uses.
+Review-branch note (2026-09-28): the legend uses full party names across a
+full-width 3-column layout. The former 13-character display cap was removed
+because it visibly truncated labels such as Social Democrats and Independent
+Ireland during Warren's slide-by-slide review.
 """
 
 from __future__ import annotations
@@ -37,21 +33,12 @@ from .horizontal_bar import (
 
 PLOT_BOTTOM = 0.14
 PLOT_RIGHT = 0.97
-# Warren picked option B (2026-09-22) with one change: a 3-column/2-row
-# legend instead of 2-column/3-row, and to use the vertical space that frees
-# up above the plot to make the chart itself slightly larger. PLOT_HEIGHT
-# raised from 0.66 (2-col/3-row build) to 0.70 accordingly.
 PLOT_HEIGHT = 0.70
-# The legend's anchor (its lower-center point, per loc="lower center") sits just
-# above the plot's top edge and grows upward into the reserved band (PLOT_BOTTOM +
-# PLOT_HEIGHT = 0.84 to figure top = 1.0, a 0.16 figure-fraction gap). A 2-row
-# legend needs noticeably less vertical room than the 3-row layout that fit
-# comfortably in the old, larger 0.185 gap, so 0.16 still leaves margin; the
-# render() function itself checks this and raises if it doesn't.
 LEGEND_ANCHOR_Y = PLOT_BOTTOM + PLOT_HEIGHT + 0.015
 MIN_PLOT_LEFT = 0.28
 MAX_PLOT_LEFT = 0.42
-LEGEND_FONT_SIZE = 12
+LEGEND_FONT_SIZE = 10.5
+LEGEND_MAX_COLUMNS = 3
 
 
 def render(
@@ -167,48 +154,29 @@ def render(
     if source_note:
         fig.text(0.5, 0.025, source_note, color=palette["muted"], fontsize=8.5, ha="center", va="center")
 
-    # Legend: one swatch + label per group actually present, in a fixed
-    # left-to-right order matching sample["group_legend_order"] if given
-    # (falls back to first-seen order) — never reordered by value, so a
-    # party's position in the legend stays stable render to render.
-    #
-    # Full party names vary a lot in length ("Fine Gael" vs "People Before
-    # Profit-Solidarity"), and a wide multi-column legend of long names can
-    # run past the figure's left/right edge even though there's plenty of
-    # vertical room above the plot. Warren asked for a 3-column/2-row legend
-    # (rather than the earlier 2-column/3-row layout); three columns leaves
-    # noticeably less horizontal room per column on this narrow 1032px
-    # canvas than two did, so the per-label character cap is tightened
-    # (18 -> 13) and column/handle spacing trimmed to compensate — full
-    # party names still live in group_legend_labels / the run manifest,
-    # only the on-image label is shortened.
-    LEGEND_MAX_LABEL_CHARS = 13
-    LEGEND_MAX_COLUMNS = 3
-
-    def _short_legend_label(text: str) -> str:
-        text = str(text)
-        return text if len(text) <= LEGEND_MAX_LABEL_CHARS else text[: LEGEND_MAX_LABEL_CHARS - 1].rstrip() + "…"
-
+    # Full party names, spread across almost the full chart width.
     present_groups = list(dict.fromkeys(groups))
     legend_order = [g for g in (sample.get("group_legend_order") or []) if g in present_groups]
     legend_order += [g for g in present_groups if g not in legend_order]
     legend_handles = [mpatches.Patch(facecolor=group_colors.get(g, fallback_color), edgecolor="none") for g in legend_order]
-    legend_texts = [_short_legend_label(group_legend_labels.get(g, g)) for g in legend_order]
+    legend_texts = [str(group_legend_labels.get(g, g)) for g in legend_order]
     legend = None
     if legend_order:
         legend = fig.legend(
             legend_handles,
             legend_texts,
-            loc="lower center",
-            bbox_to_anchor=(0.5, LEGEND_ANCHOR_Y),
+            loc="lower left",
+            bbox_to_anchor=(0.035, LEGEND_ANCHOR_Y, 0.93, 0.105),
             ncol=min(len(legend_order), LEGEND_MAX_COLUMNS),
+            mode="expand",
             frameon=False,
             fontsize=LEGEND_FONT_SIZE,
             labelcolor=palette["text"],
-            handlelength=1.1,
-            handleheight=1.1,
-            columnspacing=0.9,
-            handletextpad=0.4,
+            handlelength=1.0,
+            handleheight=1.0,
+            columnspacing=0.6,
+            handletextpad=0.35,
+            borderaxespad=0.0,
         )
 
     fig.canvas.draw()
@@ -283,6 +251,7 @@ def render(
         "legend_group_count": len(legend_order),
         "legend_clipped_to_figure": legend_clipped,
         "groups_without_color_mapping": ungrouped_count,
+        "legend_labels": legend_texts,
         "category_text_bounds": category_bounds,
         "value_text_bounds": value_bounds,
     }
