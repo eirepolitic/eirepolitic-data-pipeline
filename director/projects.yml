@@ -10,6 +10,10 @@ directory_listing:
   generated_from: instagram/projects/*/project.yml on main
   generated_at_last_hand_sync: "2026-09-29"
   projects:
+    - project_id: bill_tracker_factory_v1
+      path: instagram/projects/bill_tracker_factory_v1/
+      cadence: post1
+      adapter_module: instagram.projects.bill_tracker_factory_v1.adapter
     - project_id: ipi_polling_factory_v1
       path: instagram/projects/ipi_polling_factory_v1/
       cadence: latest
@@ -22,6 +26,24 @@ directory_listing:
 # END AUTO-GENERATED
 
 notes:
+  bill_tracker_factory_v1:
+    purpose: Reusable Bill Tracker carousel for Bills of the Current Session, including explainer, exact recorded-division, procedure and glossary slides.
+    cadence_note: >
+      The period values are post identifiers rather than a time cadence. The
+      promoted project currently supports post1 and post2, each as a separate
+      nine-slide publication artifact.
+    ref_state: see refs.yml (merged via PR #177; supersedes stale PR #130 and draft PR #173)
+    source: validated Oireachtas production pointer plus official Oireachtas proposition records and relevant official departmental material
+    required_tables: [silver_member_votes, silver_member_memberships, silver_member_parties]
+    expected_bill_count: 3
+    expected_slide_count: 9
+    render: {width: 1080, height: 1350}
+    qa_declared_in_project_yml: {expected_slide_count: 9, expected_dimensions: [1080, 1350], require_publication_disabled: true, require_review_state: pending_human_review, require_source_footer: true}
+    publication_enabled: false
+    publishing_allowed: false
+    canonical_visual_reference: see references.yml (bill_tracker_series.canonical_visual_reference)
+    completed_posts: [2026-10-02-bill-tracker-enacted-post1, 2026-10-03-bill-tracker-enacted-post2]
+
   party_issue_monthly_profile_v2:
     purpose: Reusable monthly Party Speech Breakdown carousel using classified Dáil speeches.
     ref_state: see refs.yml (merged, depends_on corner_assets_pinned)
@@ -51,7 +73,3 @@ notes:
     publication_enabled: false
     workflows: [instagram_polling_factory_render.yml, instagram_polling_factory_ci.yml]
     archived_reference: 2026-09-06-ipi-polling-carousel (the one entry in the completed-post archive as of Phase 0/1/2 — see references.yml)
-
-not_yet_a_project:
-  bill_tracker_series:
-    reason: Still an active draft PR (#130), not merged, explicitly do-not-merge pending visual review. See refs.yml. Do not treat as a resolvable project_id in projects.yml until it merges — route requests about it through refs.yml's do_not_merge_until note instead.
