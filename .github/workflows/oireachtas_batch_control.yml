@@ -7,12 +7,7 @@ on:
         description: Operation to perform
         required: true
         type: choice
-        options:
-          - status
-          - assemble
-          - promote
-          - rollback
-          - rollback-previous
+        options: [status, assemble, promote, rollback, rollback-previous]
         default: status
       batch_id:
         description: Required for assemble, promote, and rollback; use legacy_direct for first-cutover rollback
@@ -22,14 +17,11 @@ on:
         description: Optional comma-separated required tables for assemble
         required: false
         type: string
-
 permissions:
   contents: write
-
 concurrency:
   group: oireachtas-production-promotion
   cancel-in-progress: false
-
 jobs:
   control:
     runs-on: ubuntu-latest
@@ -50,28 +42,18 @@ jobs:
           python-version: '3.12'
           cache: pip
       - name: Install dependencies
-        shell: bash
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       - name: Validate inputs
-        shell: bash
         env:
           OPERATION: ${{ inputs.operation }}
           BATCH_ID: ${{ inputs.batch_id }}
         run: |
           set -euo pipefail
-          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ && -z "${BATCH_ID}" ]]; then
-            echo 'batch_id is required for this operation' >&2
-            exit 2
-          fi
-          if [[ -n "${BATCH_ID}" && ! "${BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
-            echo 'batch_id contains unsafe characters' >&2
-            exit 2
-          fi
+          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ && -z "${BATCH_ID}" ]]; then exit 2; fi
+          if [[ -n "${BATCH_ID}" && ! "${BATCH_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then exit 2; fi
       - name: Run batch control
-        shell: bash
         env:
           OPERATION: ${{ inputs.operation }}
           BATCH_ID: ${{ inputs.batch_id }}
@@ -79,44 +61,28 @@ jobs:
         run: |
           set -euo pipefail
           args=(--bucket "${S3_BUCKET}" --region "${AWS_REGION}" "${OPERATION}")
-          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ ]]; then
-            args+=(--batch-id "${BATCH_ID}")
-          fi
-          if [[ "${OPERATION}" == 'assemble' && -n "${REQUIRED_TABLES}" ]]; then
-            IFS=',' read -ra tables <<< "${REQUIRED_TABLES}"
-            for table in "${tables[@]}"; do
-              table="${table//[[:space:]]/}"
-              [[ -n "${table}" ]] && args+=(--required-table "${table}")
-            done
-          fi
+          if [[ "${OPERATION}" =~ ^(assemble|promote|rollback)$ ]]; then args+=(--batch-id "${BATCH_ID}"); fi
+          if [[ "${OPERATION}" == 'assemble' && -n "${REQUIRED_TABLES}" ]]; then IFS=',' read -ra tables <<< "${REQUIRED_TABLES}"; for table in "${tables[@]}"; do table="${table//[[:space:]]/}"; [[ -n "${table}" ]] && args+=(--required-table "${table}"); done; fi
           python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas-batch-control.json
       - name: Run Director recorded-voting participation audit
         if: ${{ inputs.operation == 'status' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          python process/director_recorded_voting_participation_audit.py
-      - name: Render representative Director prototype v6 without vertical guides
+        run: python process/director_recorded_voting_participation_audit.py
+      - name: Render representative Director prototype v7
         if: ${{ inputs.operation == 'status' }}
-        shell: bash
         run: |
           set +e
           mkdir -p director/sessions/2026-09-27-recorded-voting-participation/prototype
-          python process/director_recorded_voting_participation_prototype_v6.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v6.log 2>&1
+          python process/director_recorded_voting_participation_prototype_v7.py > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.log 2>&1
           code=$?
-          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v6.log
-          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v6.exitcode
+          cat director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.log
+          echo "$code" > director/sessions/2026-09-27-recorded-voting-participation/prototype/render_v7.exitcode
           exit 0
       - name: Add Director audit summary
         if: ${{ always() && inputs.operation == 'status' }}
-        shell: bash
         run: |
-          if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then
-            cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          if [ -f artifacts/director-recorded-voting-participation/summary.md ]; then cat artifacts/director-recorded-voting-participation/summary.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Persist Director audit evidence and prototype on session branch
         if: ${{ inputs.operation == 'status' }}
-        shell: bash
         run: |
           set -euo pipefail
           evidence_target="director/sessions/2026-09-27-recorded-voting-participation/evidence"
@@ -127,12 +93,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$evidence_target" "$prototype_target"
-          if git diff --cached --quiet; then
-            echo "No Director evidence/prototype changes to commit."
-          else
-            git commit -m "Persist recorded voting participation review evidence"
-            git push origin HEAD:${GITHUB_REF_NAME}
-          fi
+          if ! git diff --cached --quiet; then git commit -m "Persist recorded voting participation review evidence"; git push origin HEAD:${GITHUB_REF_NAME}; fi
       - name: Upload control evidence
         if: always()
         uses: actions/upload-artifact@v4
