@@ -10,6 +10,10 @@ directory_listing:
   generated_from: instagram/projects/*/project.yml on main
   generated_at_last_hand_sync: "2026-09-29"
   projects:
+    - project_id: bill_tracker_factory_v1
+      path: instagram/projects/bill_tracker_factory_v1/
+      cadence: post1
+      adapter_module: instagram.projects.bill_tracker_factory_v1.adapter
     - project_id: ipi_polling_factory_v1
       path: instagram/projects/ipi_polling_factory_v1/
       cadence: latest
