@@ -96,12 +96,26 @@
     rebuilt — see plan §9.
 
 - capability: bill_tracker_series
-  state: draft
-  ref: feature/bill-content-snapshot-v1
-  pull_request: 130
-  do_not_merge_until: visual review approved
-  validated_by_run: 34163813979
-  notes: 72 commits, 15 files, mergeable, clean. Eight 1080x1350 slides validated. Explicitly marked do-not-merge pending visual review — the Director must not merge or archive this as approved.
+  state: merged
+  ref: main
+  path: instagram/projects/bill_tracker_factory_v1/
+  merged_by: pull_request_177
+  supersedes_pull_requests: [130, 173]
+  depends_on: [recurring_instagram_factory, corner_assets_pinned, oireachtas_data_pipeline]
+  workflows: [instagram_factory_render.yml, instagram_publish_standard.yml, instagram_schedule_inventory.yml]
+  canonical_reference: see references.yml (bill_tracker_series.canonical_visual_reference)
+  verified_by_runs: [36516563391, 36516586918]
+  notes: >
+    Two approved nine-slide 1080x1350 enacted-Bill carousels were migrated
+    from temporary review tooling into one reusable generic-factory project
+    with separate post1/post2 periods. Recorded Dáil divisions are revalidated
+    against the current validated production batch using exact member votes,
+    active 34th Dáil membership and date-correct silver_member_parties history.
+    Human approval covered the exact cleaned production renders and captions;
+    publication schedules were created through the standard publisher for
+    2026-10-02 and 2026-10-03 at 01:00 America/Vancouver and verified against
+    DynamoDB plus EventBridge Scheduler. PR #130 and draft PR #173 are
+    superseded and must not be merged separately.
 
 - capability: publishing_stack
   state: draft

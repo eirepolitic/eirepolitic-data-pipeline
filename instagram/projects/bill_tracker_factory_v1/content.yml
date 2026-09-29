@@ -1,0 +1,248 @@
+series:
+  title_top: BILLS OF THE
+  title_main: CURRENT SESSION
+  status: ENACTED
+  source_footer: Houses of the Oireachtas + relevant official departmental material
+  glossary:
+    process_subtitle: HOW A BILL MOVES THROUGH PARLIAMENT
+    process_highlight: ENACTED
+    process_steps:
+      - {number: 1, label: FIRST}
+      - {number: 2, label: SECOND}
+      - {number: 3, label: COMMITTEE}
+      - {number: 4, label: REPORT}
+      - {number: 5, label: FINAL}
+      - {number: 6, label: OTHER HOUSE}
+      - {number: 7, label: PRESIDENT}
+      - {number: 8, label: ENACTED}
+    process_copy: "A Government Bill normally moves through stages in one House, then through the other House. Once both Houses agree the text and the President signs it, the Bill becomes law."
+    terms:
+      - {term: BILL, body: "A proposed law."}
+      - {term: DÁIL ÉIREANN, body: "Ireland’s directly elected house; members are TDs."}
+      - {term: SEANAD ÉIREANN, body: "Ireland’s second parliamentary chamber; members are Senators."}
+      - {term: STAGE, body: "A formal step in considering, amending or approving a Bill."}
+      - {term: ENACTED, body: "The Bill has completed the required process and become law."}
+    vote_terms:
+      - {term: TÁ / NÍL, body: "Tá means Yes. Níl means No. What “Yes” or “No” means depends on the exact proposition being voted on."}
+      - {term: DIVISION, body: "A recorded vote where individual members’ votes are listed."}
+      - {term: AMENDMENT, body: "A proposed change. A Tá on an amendment supports that change. It does not automatically mean support for the whole Bill."}
+      - {term: NO RECORDED VOTE, body: "No vote is recorded for that TD in the division data. It does not automatically mean the TD was absent."}
+    vote_rule: "We describe the exact proposition shown. Speaking about a Bill does not equal supporting it, and a linked vote may be about an amendment or procedure rather than the Bill itself."
+
+posts:
+  post1:
+    edition_label: POST 1
+    cover_intro: "These are the Bills that have been passed so far this session. These are the first three of six that we’re going to look at."
+    caption_draft: |
+      This next series of posts will look at the Bills passed this session, with Bills still in progress to be covered in future posts.
+
+      This first post covers 3 Bills that have passed this session:
+
+      • Development (Strategic Gas Reserve) Bill 2026
+      • Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026
+      • Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026
+
+      #EirePolitic #Oireachtas #DáilÉireann #IrishPolitics #Legislation
+    bills:
+      - key: gas
+        formal_title: Development (Strategic Gas Reserve) Bill 2026
+        introduced_by: Government · Minister for Climate, Energy and the Environment
+        what: "Sets up a special legal route for approving a strategic gas reserve at Cahiracon, Co. Clare. It replaces the normal planning route for this project, but environmental assessments still apply."
+        effect: "The Minister could decide the project directly under a faster process. The reserve is intended for emergencies if Ireland’s normal gas supplies are seriously disrupted."
+        backed: "Supporters said Ireland relies heavily on imported gas and needs a back-up supply if imports are seriously disrupted. They described it as an energy-security measure while Ireland moves toward renewables."
+        concerns_label: WHY SOME TDs OPPOSED IT
+        concerns: "Critics said the project could prolong reliance on fossil fuels. They also objected to the special planning route, faster timetable and limited time for scrutiny."
+        vote_box_title: WHAT THE 30 JUNE DÁIL VOTE MEANT
+        vote_box_body: "TDs were voting on one combined question that completed the Bill’s remaining Dáil steps and passed it. A Tá meant pass the Bill and send it on. A Níl meant reject that passage motion."
+        result: "90 Tá · 57 Níl — carried"
+        result_line: "The Bill passed the Dáil and moved to the Seanad, Ireland’s second parliamentary chamber."
+        vote:
+          title: Strategic Gas Reserve · Party Split
+          subtitle: Dáil passage vote · 30 June 2026
+          date: 2026-06-30
+          proposition: "Remaining sections and Title agreed; Fourth Stage completed; Bill passed"
+          official_division_url: https://data.oireachtas.ie/ie/oireachtas/division/house/dail/34/2026-06-30/vote_162
+          eligible: 174
+          ta: 90
+          nil: 57
+          abstain: 0
+          no_recorded_vote: 27
+          context: "This was the combined final Dáil question completing the Bill’s remaining Dáil stages."
+          rows:
+            - [Fianna Fáil, 48, 42, 0, 6]
+            - [Sinn Féin, 39, 0, 31, 8]
+            - [Fine Gael, 38, 35, 0, 3]
+            - [Independent, 15, 10, 2, 3]
+            - [Social Democrats, 12, 0, 12, 0]
+            - [Labour, 11, 0, 7, 4]
+            - [Independent Ireland, 4, 3, 0, 1]
+            - [PBP-S, 3, 0, 3, 0]
+          smaller_groups: "Aontú 0/0/2 · Green 0/1/0 · 100% Redress 0/1/0"
+      - key: settlements
+        formal_title: Israeli Settlements in the Occupied Palestinian Territory (Prohibition of Importation of Goods) Bill 2026
+        introduced_by: Government · Minister for Foreign Affairs and Trade
+        what: "Makes it unlawful to import goods into Ireland that originate in Israeli settlements in the occupied Palestinian territory. Those imports become enforceable under customs law."
+        effect: "Businesses could not lawfully import those goods into Ireland. The enacted Bill is about goods only and does not extend the ban to services."
+        backed: "Supporters said Ireland should not trade in goods from settlements they view as illegal and that the State should reflect international-law obligations in domestic law."
+        concerns_label: WHY SOME TDs RAISED CONCERNS
+        concerns: "A major debate was whether the Bill should also cover services. Others raised questions about trade law, enforceability and whether Ireland acting alone could face legal complications."
+        vote_box_title: WHAT THE KEY DÁIL AMENDMENT VOTE MEANT
+        vote_box_body: "The recorded vote shown next was on adding certain settlement-related services to the Bill. It was not a final yes-or-no vote on the whole Bill."
+        result: "67 Tá · 79 Níl — amendment lost"
+        result_line: "The proposal to add services did not pass, so the Bill continued in goods-only form."
+        vote:
+          title: Settlement Goods Ban · Party Split
+          subtitle: Services amendment · 7 July 2026
+          date: 2026-07-07
+          proposition: "Services amendment"
+          eligible: 174
+          ta: 67
+          nil: 79
+          abstain: 0
+          no_recorded_vote: 28
+          context: "This division was on the services amendment, not final passage of the Bill. Tá = add the services provision; Níl = reject that amendment."
+          rows:
+            - [Fianna Fáil, 48, 0, 41, 7]
+            - [Sinn Féin, 39, 37, 0, 2]
+            - [Fine Gael, 38, 0, 32, 6]
+            - [Independent, 15, 3, 6, 6]
+            - [Social Democrats, 12, 11, 0, 1]
+            - [Labour, 11, 9, 0, 2]
+            - [Independent Ireland, 4, 2, 0, 2]
+            - [PBP-S, 3, 2, 0, 1]
+          smaller_groups: "Aontú 2/0/0 · Green 1/0/0 · 100% Redress 0/0/1"
+      - key: criminal
+        formal_title: Criminal Law, Civil Law and Defence (Miscellaneous Provisions) Bill 2026
+        introduced_by: Government · Minister for Justice, Home Affairs and Migration
+        what: "Bundles a wide range of legal changes into one Bill across criminal law, civil law, court procedure and Defence, including practical changes to evidence, administration and powers."
+        effect: "Instead of changing these areas through many separate Bills, the legislation updates several parts of the justice and defence system together in one package."
+        backed: "Supporters argued that a large number of practical legal fixes were needed and that progressing them together would address gaps more quickly."
+        concerns_label: WHY SOME TDs RAISED CONCERNS
+        concerns: "Critics said the Bill was too broad and moved too quickly. They questioned whether significant Defence and justice provisions got enough detailed scrutiny."
+        vote_box_title: WHAT THE 10 JUNE DÁIL VOTE MEANT
+        vote_box_body: "The recorded division shown next was the concluding question during Report and Final Stages. The Dáil’s agreed business arrangements provided for those stages to finish by one question from the Chair."
+        result: "102 Tá · 45 Níl — carried"
+        result_line: "The Bill completed its Dáil consideration and was sent to the Seanad."
+        vote:
+          title: Criminal, Civil & Defence · Party Split
+          subtitle: Dáil Report and Final Stages · 10 June 2026
+          date: 2026-06-10
+          proposition: "Concluding question during Report and Final Stages"
+          eligible: 174
+          ta: 102
+          nil: 45
+          abstain: 0
+          no_recorded_vote: 27
+          context: "This was the recorded concluding question during Report and Final Stages; the motion carried."
+          rows:
+            - [Fianna Fáil, 48, 42, 0, 6]
+            - [Sinn Féin, 39, 0, 34, 5]
+            - [Fine Gael, 38, 28, 0, 10]
+            - [Independent, 15, 9, 2, 4]
+            - [Social Democrats, 12, 12, 0, 0]
+            - [Labour, 11, 11, 0, 0]
+            - [Independent Ireland, 4, 0, 3, 1]
+            - [PBP-S, 3, 0, 3, 0]
+          smaller_groups: "Aontú 0/1/1 · Green 0/1/0 · 100% Redress 0/1/0"
+
+  post2:
+    edition_label: POST 2
+    cover_intro: "These are the Bills that have been passed so far this session. These are the next three of six that we’re going to look at."
+    caption_draft: |
+      This next series of posts will look at the Bills passed this session, with Bills still in progress to be covered in future posts.
+
+      This second post covers 3 more Bills that have passed this session:
+
+      • Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026
+      • Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026
+      • Regulation of Artificial Intelligence Bill 2026
+
+      #EirePolitic #Oireachtas #DáilÉireann #IrishPolitics #Legislation
+    bills:
+      - key: housing
+        formal_title: Housing and Residential Tenancies (Miscellaneous Provisions) Bill 2026
+        introduced_by: Government · Minister for Housing, Local Government and Heritage
+        what: "Puts residency requirements for social-housing eligibility into legislation, creates a statutory appeals process for eligibility decisions, and also changes parts of residential-tenancy law."
+        effect: "Local authorities get a clearer legal framework for deciding social-housing eligibility, and applicants get a formal route to challenge those decisions."
+        backed: "Supporters said the Bill would create clearer and more consistent rules for social-housing eligibility across different local authorities."
+        concerns_label: WHY SOME TDs RAISED CONCERNS
+        concerns: "Critics said the interaction between housing, immigration and EU law was complex. They also warned that significant changes affecting vulnerable people needed closer scrutiny."
+        vote_box_title: WHAT THE 8 JULY DÁIL VOTE MEANT
+        vote_box_body: "The recorded division shown next was the concluding question during Report and Final Stages. It was carried by 80 votes to 67."
+        result: "80 Tá · 67 Níl — carried"
+        result_line: "The Bill completed its Dáil consideration and continued through the Seanad before enactment."
+        vote:
+          title: Housing & Tenancies · Party Split
+          subtitle: Dáil Report and Final Stages · 8 July 2026
+          date: 2026-07-08
+          proposition: "Concluding question during Report and Final Stages"
+          eligible: 174
+          ta: 80
+          nil: 67
+          abstain: 0
+          no_recorded_vote: 27
+          context: "This was the recorded concluding question during Report and Final Stages; the motion carried."
+          rows:
+            - [Fianna Fáil, 48, 42, 0, 6]
+            - [Sinn Féin, 39, 0, 38, 1]
+            - [Fine Gael, 38, 32, 0, 6]
+            - [Independent, 15, 6, 4, 5]
+            - [Social Democrats, 12, 0, 10, 2]
+            - [Labour, 11, 0, 9, 2]
+            - [Independent Ireland, 4, 0, 2, 2]
+            - [PBP-S, 3, 0, 1, 2]
+          smaller_groups: "Aontú 0/2/0 · Green 0/1/0 · 100% Redress 0/0/1"
+      - key: pharmacy
+        formal_title: Health (Provision of Contraception Prescribing Service in Retail Pharmacy Businesses) Bill 2026
+        introduced_by: Government · Minister for Health
+        what: "Creates the legal basis for a community-pharmacy contraception service, including pharmacist repeat prescribing for specified contraception after an initial GP prescription."
+        effect: "Eligible people could be able to renew certain contraception through trained pharmacists instead of always returning to a GP for every repeat prescription."
+        backed: "Supporters said the Bill could make access quicker, easier and more convenient while expanding the role community pharmacies can play in routine care."
+        concerns_label: WHY SOME TDs RAISED CONCERNS
+        concerns: "Questions focused mainly on implementation: pharmacist training, clinical guidance, record-sharing, patient safety and how the service would work in practice."
+        vote_box_title: WHY THERE IS NO PARTY BREAKDOWN
+        vote_box_body: "The Bill completed its parliamentary stages and became law, but the official Oireachtas vote data contains no recorded member-by-member division linked to this Bill."
+        result: "No recorded division"
+        result_line: "Because there is no recorded division, there is no reliable Tá / Níl party split to display."
+        procedure:
+          title: Pharmacy Contraception · How This Passed
+          subtitle: PASSED WITHOUT A RECORDED DIVISION
+          steps:
+            - {title: "1 · QUESTION PUT", body: "The Chair puts the question to the House. Members respond Tá or Níl aloud."}
+            - {title: "2 · RESULT DECLARED", body: "The Chair judges the response and declares which side has carried the question."}
+            - {title: "3 · DIVISION IF REQUIRED", body: "If the result is challenged and a formal division is taken, individual members’ votes are recorded. That is what produces the party tally used on our other slides."}
+          result_title: WHAT HAPPENED HERE
+          result_body: "This Bill passed its Dáil stage without a recorded division. The decision stood, but no member-by-member Tá / Níl tally was produced, so there is no party breakdown to show."
+      - key: ai
+        formal_title: Regulation of Artificial Intelligence Bill 2026
+        introduced_by: Government · Minister for Enterprise, Tourism and Employment
+        what: "Builds Ireland’s domestic enforcement system for the EU AI Act, including an AI Office of Ireland and powers for regulators to supervise, investigate and enforce the EU rules."
+        effect: "AI providers and users in Ireland face national oversight and enforcement mechanisms under the EU framework, with a central office coordinating implementation."
+        backed: "Supporters said Ireland needed the national infrastructure required to make the EU AI Act work in practice before key EU obligations took effect."
+        concerns_label: WHY SOME TDs RAISED CONCERNS
+        concerns: "Critics questioned the AI Office’s independence and resourcing, how regulators would coordinate, and whether protections around rights, privacy, children and work were strong enough."
+        vote_box_title: WHAT THE 30 JUNE DÁIL VOTE MEANT
+        vote_box_body: "The recorded division shown next was the concluding question during Committee and Remaining Stages. It was carried by 81 votes to 58."
+        result: "81 Tá · 58 Níl — carried"
+        result_line: "The Bill completed its Dáil consideration and continued through the Seanad before enactment."
+        vote:
+          title: AI Regulation · Party Split
+          subtitle: Dáil Committee and Remaining Stages · 30 June 2026
+          date: 2026-06-30
+          proposition: "Concluding question during Committee and Remaining Stages"
+          eligible: 174
+          ta: 81
+          nil: 58
+          abstain: 0
+          no_recorded_vote: 35
+          context: "This was the recorded concluding question during Committee and Remaining Stages; the motion carried."
+          rows:
+            - [Fianna Fáil, 48, 41, 0, 7]
+            - [Sinn Féin, 39, 0, 31, 8]
+            - [Fine Gael, 38, 34, 0, 4]
+            - [Independent, 15, 6, 2, 7]
+            - [Social Democrats, 12, 0, 12, 0]
+            - [Labour, 11, 0, 7, 4]
+            - [Independent Ireland, 4, 0, 2, 2]
+            - [PBP-S, 3, 0, 2, 1]
+          smaller_groups: "Aontú 0/0/2 · Green 0/1/0 · 100% Redress 0/1/0"

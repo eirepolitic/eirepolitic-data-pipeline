@@ -64,11 +64,41 @@ ipi_polling_factory_v1:
   canonical_visual_reference: not_yet_designated
 
 bill_tracker_series:
-  canonical_visual_reference: not_yet_designated
-  note: >
-    Validated run 34163813979 (eight 1080x1350 slides) exists but the
-    branch is an active draft (PR #130, do-not-merge pending visual
-    review — see refs.yml). Do not archive or treat any Bill Tracker
-    render as an approved reference until that PR's visual review
-    concludes; archiving a not-yet-approved render here would misrepresent
-    it as a completed post.
+  canonical_visual_reference:
+    approved_at: "2026-09-29"
+    source_batch: written-pq-answers-20260905-1
+    dimensions: [1080, 1350]
+    rationale: >
+      Human-approved production-factory migration of the two enacted-Bill
+      carousels. This replaces the obsolete eight-slide PR #130 reference and
+      preserves the approved dark-green/cream/gold house style, shared-fit
+      explainer/glossary components, left-to-right parliamentary-process
+      timeline and date-correct party-breakdown grammar.
+    posts:
+      - period: post1
+        workflow_run_id: 36516563391
+        slide_count: 9
+        review_ref: previews/bill-tracker-publication-post1
+        review_url: https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-publication-post1/index.html
+      - period: post2
+        workflow_run_id: 36516586918
+        slide_count: 9
+        review_ref: previews/bill-tracker-publication-post2
+        review_url: https://raw.githack.com/eirepolitic/Eirepolitic-data-pipeline/previews/bill-tracker-publication-post2/index.html
+  production_references:
+    - period: post1
+      factory_run_id: 36516563391
+      publication_id: ig-bill-tracker-factory-v1-post1-36516563391
+      scheduled_local: "2026-10-02T01:00:00"
+      timezone: America/Vancouver
+      scheduled_at_utc: "2026-10-02T08:00:00Z"
+      scheduler_state: ENABLED
+      scheduler_matches_ledger: true
+    - period: post2
+      factory_run_id: 36516586918
+      publication_id: ig-bill-tracker-factory-v1-post2-36516586918
+      scheduled_local: "2026-10-03T01:00:00"
+      timezone: America/Vancouver
+      scheduled_at_utc: "2026-10-03T08:00:00Z"
+      scheduler_state: ENABLED
+      scheduler_matches_ledger: true

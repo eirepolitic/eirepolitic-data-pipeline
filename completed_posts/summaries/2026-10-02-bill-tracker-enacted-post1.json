@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "post_id": "2026-10-02-bill-tracker-enacted-post1",
+  "title": "Bills of the Current Session — Enacted · Post 1",
+  "status": "completed",
+  "repository": "Eirepolitic-data-pipeline",
+  "created_by": "ChatGPT execution agent",
+  "created_at": "2026-09-28T20:29:00-07:00",
+  "platform": "Instagram",
+  "assets": [
+    "slide-001-01-cover.png",
+    "slide-002-02-gas-explainer.png",
+    "slide-003-03-gas-vote.png",
+    "slide-004-04-settlements-explainer.png",
+    "slide-005-05-settlements-vote.png",
+    "slide-006-06-criminal-explainer.png",
+    "slide-007-07-criminal-vote.png",
+    "slide-008-08-process-glossary.png",
+    "slide-009-09-vote-glossary.png",
+    "contact-post1.jpg",
+    "caption.txt",
+    "render_summary.json"
+  ],
+  "tools_used": [
+    "GitHub repository file/branch/PR/workflow actions",
+    "GitHub Actions generic Instagram factory",
+    "instagram.projects.bill_tracker_factory_v1 adapter and renderers",
+    "validated Oireachtas production batch written-pq-answers-20260905-1",
+    "silver_member_votes, silver_member_memberships and silver_member_parties",
+    "approved recurring factory worktree at 386b933",
+    "standard Instagram publisher with DynamoDB ledger and EventBridge Scheduler"
+  ],
+  "process": [
+    "Migrated the human-approved Bill Tracker review from temporary preview tooling into instagram/projects/bill_tracker_factory_v1 rather than publishing from the preview branch.",
+    "Rendered Post 1 as an independent nine-slide generic-factory period with publication_enabled=false and publishing_allowed=false.",
+    "Revalidated each displayed Dáil division against the current validated production batch using exact member votes, active 34th Dáil membership and date-correct historical party assignments.",
+    "Removed review-only footer text, added a renderer safeguard against draft/preview/debug footer markers, and obtained human approval of the exact cleaned render.",
+    "Embedded the human-approved caption and focused hashtag set in the factory artifact so no caption override is required.",
+    "Created the immutable standalone publication artifact in factory run 36516563391 and scheduled it through the standard publisher for 2026-10-02 01:00 America/Vancouver.",
+    "Verified the DynamoDB publication record and EventBridge schedule match through the corrected canonical inventory path."
+  ],
+  "qa": [
+    "All nine slides passed 1080x1350 dimension validation.",
+    "Factory review state remained pending_human_review and factory publication remained disabled.",
+    "Strategic Gas Reserve reconciled to 90 Tá, 57 Níl and 27 no recorded vote from 174 eligible TDs.",
+    "Israeli Settlements slide explicitly presents the 67 Tá / 79 Níl services-amendment division and not a final whole-Bill vote.",
+    "Criminal Law, Civil Law and Defence reconciled to 102 Tá, 45 Níl and 27 no recorded vote from 174 eligible TDs.",
+    "Historical party joins hard-fail on overlapping/ambiguous party records and never substitute current affiliations.",
+    "No recorded vote remains distinct from absence.",
+    "Human reviewer approved the exact cleaned production render and exact caption.",
+    "EventBridge Scheduler state verified ENABLED and matching the DynamoDB ledger."
+  ],
+  "decisions": [
+    "Use the approved nine-slide production migration instead of stale PR #130's older eight-slide snapshot.",
+    "Treat the Israeli Settlements displayed division as a services-amendment vote only.",
+    "Use shared body-text fitting across comparable explainer boxes and glossary components.",
+    "Keep the parliamentary-process timeline left-to-right and highlight ENACTED.",
+    "Use the caption authored and approved by the human reviewer with hashtags #EirePolitic #Oireachtas #DáilÉireann #IrishPolitics #Legislation.",
+    "Publish Post 1 before Post 2 on consecutive days at 01:00 America/Vancouver."
+  ],
+  "sources": [
+    "Houses of the Oireachtas official bill/division records",
+    "validated production batch written-pq-answers-20260905-1",
+    "silver_member_votes",
+    "silver_member_memberships",
+    "silver_member_parties",
+    "relevant official departmental material"
+  ],
+  "limitations": [
+    "Party breakdowns describe the exact displayed parliamentary proposition and must not be generalized to every stage or every position on the Bill.",
+    "No recorded vote means no vote is present for that TD in the recorded division data; it does not establish absence."
+  ],
+  "related_workflows": [
+    "factory publication run 36516563391",
+    "standard publisher run 36517016345",
+    "final schedule inventory run 36517305144"
+  ],
+  "related_pull_requests": [
+    "#173 Bill Tracker generic-factory production migration",
+    "#174 scheduler Decimal payload serialization fix",
+    "#175 schedule inventory scheduler-group verification fix"
+  ],
+  "publication": {
+    "publication_id": "ig-bill-tracker-factory-v1-post1-36516563391",
+    "scheduled_local": "2026-10-02T01:00:00",
+    "timezone": "America/Vancouver",
+    "scheduled_at_utc": "2026-10-02T08:00:00Z",
+    "schedule_name": "instagram-ig-bill-tracker-factory-v1-post1-36516563391-v1",
+    "scheduler_state": "ENABLED",
+    "scheduler_matches_ledger": true
+  }
+}
