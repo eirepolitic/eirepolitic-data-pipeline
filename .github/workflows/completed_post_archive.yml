@@ -2,44 +2,23 @@ name: Completed post archive
 
 on:
   workflow_dispatch:
-    inputs:
-      post_id:
-        description: Stable immutable post ID
-        required: true
-        type: string
-      asset_ref:
-        description: Git ref containing the final assets
-        required: true
-        default: main
-        type: string
-      asset_dir:
-        description: Directory within asset_ref containing final assets
-        required: true
-        type: string
-      summary_ref:
-        description: Git ref containing the agent summary
-        required: true
-        default: main
-        type: string
-      summary_path:
-        description: Path to agent-summary JSON within summary_ref
-        required: true
-        type: string
 
 permissions:
   contents: read
 
-concurrency:
-  group: completed-post-archive-eirepolitic-data-pipeline
-  cancel-in-progress: false
+env:
+  POST_ID: 2026-10-02-bill-tracker-enacted-post1
+  ASSET_REF: previews/bill-tracker-publication-post1
+  ASSET_DIR: .
+  SUMMARY_REF: main
+  SUMMARY_PATH: completed_posts/summaries/2026-10-02-bill-tracker-enacted-post1.json
+  BUCKET: eirepolitic-data
+  PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
 
 jobs:
   archive:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      BUCKET: eirepolitic-data
-      PREFIX: instagram/previews/completed-posts/eirepolitic-data-pipeline
     steps:
       - name: Check out archive tooling
         uses: actions/checkout@v4
@@ -49,12 +28,12 @@ jobs:
       - name: Check out final assets
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.asset_ref }}
+          ref: ${{ env.ASSET_REF }}
           path: asset-source
       - name: Check out agent summary
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.summary_ref }}
+          ref: ${{ env.SUMMARY_REF }}
           path: summary-source
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -63,28 +42,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Validate and prepare immutable archive bundle
-        shell: bash
         run: |
           set -euo pipefail
-          python tooling/tools/completed_post_archive.py prepare \
-            --source-dir "asset-source/${{ inputs.asset_dir }}" \
-            --summary "summary-source/${{ inputs.summary_path }}" \
-            --out-dir archive-bundle \
-            --repo Eirepolitic-data-pipeline \
-            --post-id "${{ inputs.post_id }}"
+          python tooling/tools/completed_post_archive.py prepare --source-dir "asset-source/${ASSET_DIR}" --summary "summary-source/${SUMMARY_PATH}" --out-dir archive-bundle --repo Eirepolitic-data-pipeline --post-id "$POST_ID"
       - name: Inspect existing completed archive
         id: existing
-        shell: bash
         run: |
           set -euo pipefail
-          if aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" existing-provenance.json --only-show-errors; then
-            aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/agent-summary.json" existing-summary.json --only-show-errors
+          if aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/provenance.json" existing-provenance.json --only-show-errors; then
+            aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/agent-summary.json" existing-summary.json --only-show-errors
             python - <<'PY'
           import json
           expected=json.load(open('archive-bundle/agent-summary.json', encoding='utf-8'))
           existing=json.load(open('existing-summary.json', encoding='utf-8'))
           assert existing == expected, 'completed archive exists with different agent summary'
-          print('matching completed archive found; catalog repair is allowed')
           PY
             echo "completed=true" >> "$GITHUB_OUTPUT"
           else
@@ -92,33 +63,24 @@ jobs:
           fi
       - name: Upload recoverable archive content
         if: ${{ steps.existing.outputs.completed != 'true' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/" --recursive --exclude provenance.json --only-show-errors
+        run: aws s3 cp archive-bundle "s3://$BUCKET/$PREFIX/$POST_ID/" --recursive --exclude provenance.json --only-show-errors
       - name: Update repository archive index
-        shell: bash
         run: |
           set -euo pipefail
           aws s3 cp "s3://$BUCKET/$PREFIX/index.json" index.json --only-show-errors || printf '{"schema_version":1,"posts":[]}\n' > index.json
-          python tooling/tools/completed_post_archive.py update-index \
-            --index index.json \
-            --summary archive-bundle/agent-summary.json \
-            --s3-uri "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/"
+          python tooling/tools/completed_post_archive.py update-index --index index.json --summary archive-bundle/agent-summary.json --s3-uri "s3://$BUCKET/$PREFIX/$POST_ID/"
           aws s3 cp index.json "s3://$BUCKET/$PREFIX/index.json" --only-show-errors
       - name: Write completion marker
         if: ${{ steps.existing.outputs.completed != 'true' }}
-        shell: bash
-        run: aws s3 cp archive-bundle/provenance.json "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" --only-show-errors
+        run: aws s3 cp archive-bundle/provenance.json "s3://$BUCKET/$PREFIX/$POST_ID/provenance.json" --only-show-errors
       - name: Verify completed archive
-        shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp "s3://$BUCKET/$PREFIX/${{ inputs.post_id }}/provenance.json" verify-provenance.json --only-show-errors
+          aws s3 cp "s3://$BUCKET/$PREFIX/$POST_ID/provenance.json" verify-provenance.json --only-show-errors
           aws s3 cp "s3://$BUCKET/$PREFIX/index.json" verify-index.json --only-show-errors
-          python - <<'PY'
-          import json
+          POST_ID="$POST_ID" python - <<'PY'
+          import json, os
           data=json.load(open('verify-index.json', encoding='utf-8'))
-          assert any(x['post_id']=='${{ inputs.post_id }}' for x in data['posts'])
+          assert any(x['post_id']==os.environ['POST_ID'] for x in data['posts'])
           print('completed archive and catalog verified')
           PY
