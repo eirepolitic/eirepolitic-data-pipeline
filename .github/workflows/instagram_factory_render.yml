@@ -7,8 +7,8 @@ jobs:
     timeout-minutes: 25
     env:
       PROJECT_ID: bill_tracker_factory_v1
-      PERIOD_INPUT: post1
-      PREVIEW_SLUG: bill-tracker-publication-post1
+      PERIOD_INPUT: post2
+      PREVIEW_SLUG: bill-tracker-publication-post2
       FACTORY_REF: 386b933
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
           summary={'run_id':os.environ['GITHUB_RUN_ID'],'project_id':r.project_id,'period_key':r.period_key,'source_batch_id':r.source_batch_id,'slide_count':len(r.slides),'qa_all_passed':r.qa.all_passed}
           (ws/'render_summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
           review=ws/'factory_web_review'; staged=stage_review_assets(r,review)
-          (review/'index.html').write_text(build_review_html(staged,project_label='Bill Tracker · Publication Post 1'),encoding='utf-8')
+          (review/'index.html').write_text(build_review_html(staged,project_label='Bill Tracker · Publication Post 2'),encoding='utf-8')
           PY
       - name: Publish review branch
         env: {GITHUB_TOKEN: '${{ github.token }}'}
@@ -62,7 +62,7 @@ jobs:
           git push --force origin "HEAD:refs/heads/previews/${PREVIEW_SLUG}"
       - uses: actions/upload-artifact@v4
         with:
-          name: instagram-factory-render-post1-${{ github.run_id }}
+          name: instagram-factory-render-post2-${{ github.run_id }}
           path: generated_render/
           if-no-files-found: error
           retention-days: 30
