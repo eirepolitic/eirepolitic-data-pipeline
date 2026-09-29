@@ -1,0 +1,69 @@
+{
+  "session_id": "2026-09-27-bill-tracker-finalisation",
+  "status": "completed",
+  "completed_at": "2026-09-29T03:43:00Z",
+  "production_promotion": {
+    "pull_request": 177,
+    "merge_commit": "6fdbb4a2df5ae30cddcc76dca9fc78f94eeb00de",
+    "post_merge_catalogue_pull_request": 178,
+    "post_merge_catalogue_commit": "e1f4ad136cb0fdf796e8568aad6a9e8a39616d96",
+    "superseded_pull_requests": [130, 173]
+  },
+  "approved_artifacts": {
+    "post1_factory_run_id": "36516563391",
+    "post1_review_ref": "previews/bill-tracker-publication-post1",
+    "post2_factory_run_id": "36516586918",
+    "post2_review_ref": "previews/bill-tracker-publication-post2",
+    "source_batch_id": "written-pq-answers-20260905-1",
+    "visual_approval": "approved by human reviewer",
+    "caption_approval": "approved by human reviewer",
+    "caption_override_required": false
+  },
+  "publication": {
+    "inventory_verification_run": "36517305144",
+    "post1": {
+      "publisher_run_id": "36517016345",
+      "publication_id": "ig-bill-tracker-factory-v1-post1-36516563391",
+      "scheduled_local": "2026-10-02T01:00:00",
+      "timezone": "America/Vancouver",
+      "scheduled_at_utc": "2026-10-02T08:00:00Z",
+      "scheduler_state": "ENABLED",
+      "scheduler_matches_ledger": true
+    },
+    "post2": {
+      "publisher_run_id": "36517037608",
+      "publication_id": "ig-bill-tracker-factory-v1-post2-36516586918",
+      "scheduled_local": "2026-10-03T01:00:00",
+      "timezone": "America/Vancouver",
+      "scheduled_at_utc": "2026-10-03T08:00:00Z",
+      "scheduler_state": "ENABLED",
+      "scheduler_matches_ledger": true
+    }
+  },
+  "archives": {
+    "post1": {
+      "post_id": "2026-10-02-bill-tracker-enacted-post1",
+      "archive_run_id": "36518161375",
+      "s3_prefix": "instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-10-02-bill-tracker-enacted-post1/",
+      "verified": true
+    },
+    "post2": {
+      "post_id": "2026-10-03-bill-tracker-enacted-post2",
+      "archive_run_id": "36518211143",
+      "s3_prefix": "instagram/previews/completed-posts/eirepolitic-data-pipeline/2026-10-03-bill-tracker-enacted-post2/",
+      "verified": true
+    }
+  },
+  "generic_publishing_fixes": [
+    {"pull_request": 174, "summary": "Normalize DynamoDB Decimal publication_version before EventBridge payload JSON serialization."},
+    {"pull_request": 175, "summary": "Use EventBridgePublicationScheduler.group_name when verifying schedule inventory."},
+    {"pull_request": 176, "summary": "Sync pre-existing Director workflow catalogue drift with live GitHub state."}
+  ],
+  "final_notes": [
+    "Factory/publisher separation remains intact; factory publication flags remain disabled.",
+    "No caption override or advanced Instagram options were used; options_json was {}.",
+    "Both schedules were verified against DynamoDB and EventBridge after the publisher fixes.",
+    "Both completed-post archive workflows verified their S3 completion marker and catalogue entry.",
+    "Director refs/references/projects catalogue on main now reflects the promoted Bill Tracker project and its archived production references."
+  ]
+}
