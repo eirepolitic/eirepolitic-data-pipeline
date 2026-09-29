@@ -7,10 +7,29 @@ from typing import Any
 
 from instagram.projects.pq_monthly_overview_v1 import adapter as base
 from instagram.renderer.template_renderer import render_template
+from instagram.visuals.renderers import horizontal_bar_grouped_singleline
 
 HEADLINE_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
 DESCRIPTOR_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/descriptor_layout_v1.json")
 _original_render_text_slide = base._render_text_slide
+
+# Review-only Slide 3 adjustments requested by Warren on 2026-09-28:
+# - force top-asker names to one line at a slightly smaller font size;
+# - soften the categorical bar colors without changing party identity/order.
+base.horizontal_bar_grouped = horizontal_bar_grouped_singleline
+base.PARTY_COLOR = {
+    "fianna-fail": "#4583cb",
+    "sinn-fein": "#c15f36",
+    "fine-gael": "#2c9570",
+    "independent-ireland": "#b58218",
+    "social-democrats": "#be597d",
+    "green-party": "#188018",
+    "labour-party": "#cc6a69",
+    "aontu": "#8982ce",
+    "independent": "#4583cb",
+    "people-before-profit-solidarity": "#c15f36",
+    "100-rdr": "#2c9570",
+}
 
 
 def _first_int(text: str) -> str:
@@ -102,7 +121,6 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
     slides_dir = period_root / "slides"
     existing = sorted(slides_dir.glob("*.png"))
 
-    # Shift existing slides 2..N upward by one, moving from the end so names never collide.
     for path in reversed(existing):
         match = re.match(r"(\d{2})_(.+)\.png$", path.name)
         if not match:
@@ -148,9 +166,10 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["slide_count"] = raw["slide_count"]
         manifest["slides"] = [str(Path(p).relative_to(period_root)) for p in raw["slides"]]
-        manifest.setdefault("review_notes", []).append(
-            "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2."
-        )
+        manifest.setdefault("review_notes", []).extend([
+            "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2.",
+            "Top-askers review slide uses smaller one-line name labels and a muted categorical palette per Warren feedback on 2026-09-28.",
+        ])
         manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
