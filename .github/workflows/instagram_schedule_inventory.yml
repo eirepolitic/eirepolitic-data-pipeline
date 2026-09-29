@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   AWS_REGION: us-east-2
@@ -16,34 +16,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
+        with: {python-version: '3.12'}
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.INSTAGRAM_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.INSTAGRAM_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-
       - name: Assume High Director AWS administrator role
         run: |
           set -euo pipefail
           account_id="$(aws sts get-caller-identity --query Account --output text)"
-          credentials="$(aws sts assume-role \
-            --role-arn "arn:aws:iam::${account_id}:role/HighDirectorAwsAdmin" \
-            --role-session-name instagram-schedule-inventory-${GITHUB_RUN_ID} \
-            --duration-seconds 3600 \
-            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
-            --output text)"
+          credentials="$(aws sts assume-role --role-arn "arn:aws:iam::${account_id}:role/HighDirectorAwsAdmin" --role-session-name instagram-schedule-inventory-${GITHUB_RUN_ID} --duration-seconds 3600 --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)"
           read -r access_key secret_key session_token <<< "$credentials"
           echo "::add-mask::$access_key"; echo "::add-mask::$secret_key"; echo "::add-mask::$session_token"
           echo "AWS_ACCESS_KEY_ID=$access_key" >> "$GITHUB_ENV"
           echo "AWS_SECRET_ACCESS_KEY=$secret_key" >> "$GITHUB_ENV"
           echo "AWS_SESSION_TOKEN=$session_token" >> "$GITHUB_ENV"
-
-      - name: List upcoming scheduled Instagram publications
+      - name: List and verify upcoming Instagram publications
         run: |
           set -euo pipefail
           python -m pip install --quiet boto3
@@ -55,30 +45,26 @@ jobs:
           from dataclasses import asdict
           from publishing.schedule_inventory import list_upcoming_scheduled_publications
           from publishing.scheduler import SchedulerTarget
-
-          table = boto3.resource('dynamodb', region_name='us-east-2').Table('eirepolitic-publications')
-          items = list_upcoming_scheduled_publications(
+          table=boto3.resource('dynamodb',region_name='us-east-2').Table('eirepolitic-publications')
+          items=list_upcoming_scheduled_publications(
               table=table,
-              scheduler_client=boto3.client('scheduler', region_name='us-east-2'),
-              scheduler_target=SchedulerTarget(
-                  lambda_arn=os.environ['FUNCTION_ARN'],
-                  role_arn=os.environ['ROLE_ARN'],
-                  dlq_arn=os.environ['DLQ_ARN'],
-              ),
+              scheduler_client=boto3.client('scheduler',region_name='us-east-2'),
+              scheduler_target=SchedulerTarget(lambda_arn=os.environ['FUNCTION_ARN'],role_arn=os.environ['ROLE_ARN'],dlq_arn=os.environ['DLQ_ARN']),
           )
-          value = [asdict(item) for item in items]
-          print(json.dumps(value, indent=2))
-          if os.environ.get('GITHUB_STEP_SUMMARY'):
-              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as handle:
-                  handle.write('## Upcoming Instagram schedule\n\n')
-                  if not value:
-                      handle.write('No upcoming scheduled Instagram publications.\n')
-                  else:
-                      handle.write('| Local time | Timezone | Project | Publication | Scheduler | Verified |\n')
-                      handle.write('|---|---|---|---|---|---|\n')
-                      for item in value:
-                          handle.write(
-                              f"| {item['scheduled_local']} | {item['timezone']} | {item['project_id']} | "
-                              f"{item['publication_id']} | {item['scheduler_state']} | {item['scheduler_matches_ledger']} |\n"
-                          )
+          value=[asdict(item) for item in items]
+          open('schedule_inventory.json','w',encoding='utf-8').write(json.dumps(value,indent=2,default=str))
+          print(json.dumps(value,indent=2,default=str))
           PY
+      - name: Publish verified inventory result
+        env: {GITHUB_TOKEN: '${{ github.token }}'}
+        run: |
+          set -euo pipefail
+          mkdir /tmp/inventory && cp schedule_inventory.json /tmp/inventory/
+          cd /tmp/inventory
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add . && git commit -m "inventory: ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-final-schedule-inventory
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-final-schedule-inventory
