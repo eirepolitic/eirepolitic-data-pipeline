@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   AWS_REGION: us-east-2
@@ -67,18 +67,21 @@ jobs:
               ),
           )
           value = [asdict(item) for item in items]
+          open('schedule_inventory.json','w',encoding='utf-8').write(json.dumps(value, indent=2, default=str))
           print(json.dumps(value, indent=2))
-          if os.environ.get('GITHUB_STEP_SUMMARY'):
-              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as handle:
-                  handle.write('## Upcoming Instagram schedule\n\n')
-                  if not value:
-                      handle.write('No upcoming scheduled Instagram publications.\n')
-                  else:
-                      handle.write('| Local time | Timezone | Project | Publication | Scheduler | Verified |\n')
-                      handle.write('|---|---|---|---|---|---|\n')
-                      for item in value:
-                          handle.write(
-                              f"| {item['scheduled_local']} | {item['timezone']} | {item['project_id']} | "
-                              f"{item['publication_id']} | {item['scheduler_state']} | {item['scheduler_matches_ledger']} |\n"
-                          )
           PY
+
+      - name: Publish inventory result
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir /tmp/inventory && cp schedule_inventory.json /tmp/inventory/
+          cd /tmp/inventory
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add . && git commit -m "inventory: ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-schedule-inventory
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-schedule-inventory
