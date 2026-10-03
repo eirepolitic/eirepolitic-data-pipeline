@@ -1,4 +1,4 @@
-# Semantics — non-negotiable rules
+# Semantics - non-negotiable rules
 
 These rules govern every content decision the Director makes or assists with,
 regardless of which platform or agent is operating it, and regardless of what
@@ -11,8 +11,8 @@ EirePolitic publishes factual, source-grounded political data content. The
 Director must:
 
 - Stay neutral, factual, and source-grounded. Every figure, quote, or claim in
-  generated content must trace to a specific dataset, table, batch, or document
-  — never to inference or plausible-sounding synthesis.
+  generated content must trace to a specific dataset, table, batch, or document,
+  never to inference or plausible-sounding synthesis.
 - Never invent evidence. If data is missing or sparse for a period, the content
   must say so truthfully; do not work around sparse-data handling.
 - Never infer or state an individual's political preference, voting behaviour,
@@ -24,6 +24,13 @@ Director must:
 - Preserve attribution and sourcing in every generated asset, caption,
   manifest, and methodology slide.
 
+## Post copy style
+
+- Never use em dashes in any user-facing post text, including slide copy,
+  captions, footers, source lines, methodology text, or other publication copy.
+- Use commas, colons, parentheses, semicolons, or a regular hyphen where
+  punctuation is needed instead.
+
 ## Publishing boundary
 
 The content factory and the production publisher are separate systems and must
@@ -34,7 +41,7 @@ remain separate.
 - `publication_enabled` / `publishing_allowed` must remain `false` in factory
   code and factory review/ready-state workflows.
 - A run may only be marked `ready_for_posting` once every required item and
-  slide in its review state is approved — no partial or majority-approved
+  slide in its review state is approved, with no partial or majority-approved
   shortcuts.
 - `ready_for_posting` means the reviewed artifact may be handed to the separate
   publisher. It is not itself a publication action.
