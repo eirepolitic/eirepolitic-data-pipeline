@@ -25,8 +25,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin previews/bill-tracker-publication-post1:refs/remotes/origin/previews/bill-tracker-publication-post1
-          git show origin/previews/bill-tracker-publication-post1:slide_01.png > /tmp/canonical_bill_tracker.png
+          git fetch origin "+refs/heads/previews/bill-tracker-publication-post1:refs/remotes/origin/previews/bill-tracker-publication-post1"
+          git show refs/remotes/origin/previews/bill-tracker-publication-post1:slide_01.png > /tmp/canonical_bill_tracker.png
+          test -s /tmp/canonical_bill_tracker.png
       - name: Extract exact canonical corner accents
         shell: bash
         run: |
@@ -36,16 +37,13 @@ jobs:
           from PIL import Image
           src=Image.open('/tmp/canonical_bill_tracker.png').convert('RGBA')
           out=Path('instagram/templates/assets'); out.mkdir(parents=True,exist_ok=True)
-          # render_primitives pastes TL/TR at x=0/925 and BL/BR at x=0/925,y=1195,
-          # so extract the exact 155x155 production corner regions.
           crops={
             'corner_tl.png':(0,0,155,155),
             'corner_tr.png':(925,0,1080,155),
             'corner_bl.png':(0,1195,155,1350),
             'corner_br.png':(925,1195,1080,1350),
           }
-          for name,box in crops.items():
-              src.crop(box).save(out/name)
+          for name,box in crops.items(): src.crop(box).save(out/name)
           print('canonical corner accents extracted')
           PY
       - name: Render both Second Stage posts
