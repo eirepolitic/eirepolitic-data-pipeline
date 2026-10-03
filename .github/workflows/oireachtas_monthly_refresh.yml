@@ -17,7 +17,7 @@ on:
       tables:
         description: Optional comma-separated table list
         required: false
-        default: ""
+        default: "silver_questions,silver_members,silver_member_memberships,silver_member_parties,silver_member_constituencies,silver_member_offices,control_pipeline_runs,control_data_quality_results,control_table_manifests"
         type: string
       chamber:
         required: false
