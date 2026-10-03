@@ -6,18 +6,13 @@ on:
       batch_id:
         description: Validated immutable candidate batch ID
         required: false
-        default: "manual-monthly-37153120836-1"
+        default: "manual-monthly-37154194927-1"
         type: string
       required_tables:
         description: Optional comma-separated required tables; existing manifest requirements are always preserved
         required: false
         default: ""
         type: string
-  push:
-    branches:
-      - repair/oireachtas-production-hardening
-    paths:
-      - .github/workflows/oireachtas_release_readiness.yml
 
 permissions:
   contents: read
@@ -79,6 +74,53 @@ jobs:
           fi
           python process/oireachtas_reassemble_candidate.py "${args[@]}" \
             | tee release-candidate-manifest.json
+      - name: Validate September PQ coverage in candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import boto3
+          import pandas as pd
+          from extract.oireachtas.batch import batch_manifest_key, read_json_required
+          from instagram.factory.oireachtas_source import ResolvedOireachtasBatch, load_csv_tables
+          from political_metrics.calculators.questions import prepare_eligible_td_questions
+
+          bucket = os.environ['S3_BUCKET']
+          batch_id = os.environ['BATCH_ID']
+          s3 = boto3.client('s3', region_name=os.environ['AWS_REGION'])
+          manifest = read_json_required(s3, bucket=bucket, key=batch_manifest_key(batch_id))
+          batch = ResolvedOireachtasBatch(bucket=bucket, batch_id=batch_id, pointer={}, manifest=manifest)
+          names = ['silver_questions','silver_member_memberships','silver_member_parties','silver_member_constituencies']
+          frames, _ = load_csv_tables(batch, names, s3=s3)
+          q = frames['silver_questions'].copy()
+          q['question_date'] = pd.to_datetime(q['question_date'], errors='coerce')
+          sep = q[(q['question_date'] >= '2026-09-01') & (q['question_date'] < '2026-10-01')].copy()
+          dedupe_cols = [c for c in ['question_id','member_code','question_date'] if c in sep.columns]
+          deduped = sep.drop_duplicates(subset=dedupe_cols) if dedupe_cols else sep.copy()
+          eligible = prepare_eligible_td_questions(
+              deduped,
+              frames['silver_member_memberships'],
+              frames['silver_member_parties'],
+              frames['silver_member_constituencies'],
+          ) if not deduped.empty else deduped.copy()
+          dates = q['question_date'].dropna()
+          result = {
+              'batch_id': batch_id,
+              'all_question_rows': int(len(q)),
+              'all_question_max_date': dates.max().isoformat() if not dates.empty else None,
+              'september_question_rows': int(len(sep)),
+              'september_deduped_rows': int(len(deduped)),
+              'september_eligible_rows': int(len(eligible)),
+          }
+          print(json.dumps(result, indent=2))
+          with open('september-pq-coverage.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, indent=2)
+              f.write('\n')
+          assert result['september_question_rows'] > 0, result
+          assert result['september_eligible_rows'] > 0, result
+          PY
       - name: Validate release evidence
         shell: bash
         run: |
@@ -89,6 +131,7 @@ jobs:
 
           manifest = json.loads(Path('release-candidate-manifest.json').read_text())
           pointers = json.loads(Path('pointer-status.json').read_text())
+          coverage = json.loads(Path('september-pq-coverage.json').read_text())
           assert manifest['status'] == 'validated', manifest
           validation = manifest['validation']
           assert validation['missing_tables'] == [], validation
@@ -96,6 +139,8 @@ jobs:
           assert validation['missing_objects'] == [], validation
           assert validation['duplicate_tables'] == [], validation
           assert manifest['table_count'] >= len(manifest['required_tables']) > 0, manifest
+          assert coverage['september_question_rows'] > 0, coverage
+          assert coverage['september_eligible_rows'] > 0, coverage
 
           production = pointers.get('production')
           previous = pointers.get('previous')
@@ -113,6 +158,9 @@ jobs:
               'production_pointer_present': production is not None,
               'previous_pointer_present': previous is not None,
               'promotion_performed': False,
+              'september_question_rows': coverage['september_question_rows'],
+              'september_eligible_rows': coverage['september_eligible_rows'],
+              'all_question_max_date': coverage['all_question_max_date'],
           }
           Path('release-readiness.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
           print(json.dumps(result, indent=2, sort_keys=True))
@@ -138,6 +186,7 @@ jobs:
           path: |
             pointer-status.json
             release-candidate-manifest.json
+            september-pq-coverage.json
             release-readiness.json
           if-no-files-found: warn
           retention-days: 180
