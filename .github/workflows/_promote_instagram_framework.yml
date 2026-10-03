@@ -7,16 +7,19 @@ permissions:
   contents: write
 
 jobs:
-  compare-vote-window:
+  validate-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ca-central-1
       AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
-      BATCH_ID: scheduled-weekly-37154732444-1
+      OIREACHTAS_BATCH_ID: scheduled-weekly-37154732444-1
+      OIREACHTAS_PUBLISH_ENABLED: 'false'
+      OIREACHTAS_PUBLISH_LATEST: 'true'
+      REVIEW_OUTPUT_ROOT: oireachtas_review_output
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,43 +27,68 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pandas boto3
-      - name: Compare common vote date window
+          cache: pip
+      - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+      - name: Run compatibility regression tests
+        run: python -m pytest -q tests/test_oireachtas_compat_comparison.py
+      - name: Run patched strict compatibility and mismatch validation
+        run: |
+          set -euo pipefail
+          python -m extract.oireachtas.compat_comparison | tee oireachtas_compat_comparison.log
+          python -m extract.oireachtas.mismatch_review | tee oireachtas_mismatch_review.log
+      - name: Build year-aware member metrics
+        run: |
+          set -euo pipefail
+          export TARGET_YEAR="$(date -u -d '1 year ago' +%Y)"
+          python process/build_member_profile_metrics.py | tee member_profile_metrics.json
+          echo "TARGET_YEAR=${TARGET_YEAR}" >> "$GITHUB_ENV"
+      - name: Run candidate-only Instagram HTML smoke test
+        run: |
+          set -euo pipefail
+          python process/oireachtas_consumer_smoke.py \
+            --batch-id "$OIREACHTAS_BATCH_ID" \
+            --target-year "$TARGET_YEAR" \
+            --bucket "$S3_BUCKET" \
+            --region "$AWS_REGION" \
+            --output consumer_smoke \
+            | tee oireachtas_consumer_smoke.log
+      - name: Reassemble final candidate manifest
+        run: |
+          set -euo pipefail
+          OIREACHTAS_PUBLISH_LATEST=false \
+            python process/oireachtas_reassemble_candidate.py \
+              --batch-id "$OIREACHTAS_BATCH_ID" \
+              --bucket "$S3_BUCKET" \
+              --region "$AWS_REGION" \
+              --require compat_downstream_adapters \
+              | tee oireachtas_final_batch_manifest.json
+      - name: Commit compact proof
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/oireachtas_validation
           python - <<'PY'
-          import io, json, os
+          import json
           from pathlib import Path
-          import boto3, pandas as pd
-          from extract.oireachtas.batch import batch_key_for_production_key
-
-          s3=boto3.client('s3'); bucket=os.environ['S3_BUCKET']; batch_id=os.environ['BATCH_ID']
-          def read(key):
-              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False)
-          legacy=read('processed/votes/dail_vote_member_records.csv')
-          candidate=read(batch_key_for_production_key('processed/oireachtas_unified/latest/csv/silver_member_votes.csv',batch_id))
-          ld=pd.to_datetime(legacy['date'],errors='coerce'); cd=pd.to_datetime(candidate['division_date'],errors='coerce')
-          start,end=ld.min(),ld.max(); scoped=candidate[(cd>=start)&(cd<=end)].copy()
-          row_delta=abs(len(scoped)-len(legacy))/max(len(legacy),1)*100
-          legacy_members=set(legacy['memberCode'].astype(str).str.strip())-{''}
-          scoped_members=set(scoped['member_code'].astype(str).str.strip())-{''}
-          report={
-            'legacy_window_start':str(start.date()),'legacy_window_end':str(end.date()),
-            'legacy_rows':len(legacy),'candidate_rows_in_legacy_window':len(scoped),
-            'row_delta_pct_in_legacy_window':round(row_delta,4),
-            'legacy_unique_vote_ids':int(legacy['unique_vote_id'].nunique()),
-            'candidate_unique_divisions_in_legacy_window':int(scoped['division_id'].nunique()),
-            'legacy_only_member_codes':sorted(legacy_members-scoped_members),
-            'candidate_only_member_codes':sorted(scoped_members-legacy_members),
-            'candidate_pk_duplicates_in_legacy_window':int(scoped.duplicated(['member_code','division_id']).sum()),
+          proof={
+            'batch_id':'scheduled-weekly-37154732444-1',
+            'compatibility_fix':'legacy_date_range',
+            'regression_test':'tests/test_oireachtas_compat_comparison.py',
           }
-          out=Path('diagnostics/oireachtas_validation/vote_compat_overlap.json')
-          out.write_text(json.dumps(report,indent=2),encoding='utf-8')
-          print(json.dumps(report,indent=2))
+          final=Path('oireachtas_final_batch_manifest.json')
+          if final.exists():
+            try: proof['final_manifest']=json.loads(final.read_text())
+            except Exception: proof['final_manifest_text']=final.read_text()[-4000:]
+          Path('diagnostics/oireachtas_validation/post_fix_validation.json').write_text(json.dumps(proof,indent=2,default=str),encoding='utf-8')
           PY
-      - name: Commit diagnostics
-        run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/oireachtas_validation/vote_compat_overlap.json
-          git commit -m 'chore: record vote compatibility overlap analysis'
-          git push origin HEAD:fix/oireachtas-orchestrator-startup
+          git add diagnostics/oireachtas_validation/post_fix_validation.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: record post-fix candidate validation proof'
+            git push origin HEAD:fix/oireachtas-orchestrator-startup
+          fi
