@@ -16,17 +16,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: analysis/bill-second-stage-visual-v1
-          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install pillow
-      - name: Fetch canonical enacted preview
+      - name: Download canonical enacted production slide
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git fetch origin "+refs/heads/previews/bill-tracker-publication-post1:refs/remotes/origin/previews/bill-tracker-publication-post1"
-          git show refs/remotes/origin/previews/bill-tracker-publication-post1:slide_01.png > /tmp/canonical_bill_tracker.png
+          curl -fL \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.raw" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/slide_01.png?ref=previews%2Fbill-tracker-publication-post1" \
+            -o /tmp/canonical_bill_tracker.png
           test -s /tmp/canonical_bill_tracker.png
       - name: Extract exact canonical corner accents
         shell: bash
@@ -36,6 +40,8 @@ jobs:
           from pathlib import Path
           from PIL import Image
           src=Image.open('/tmp/canonical_bill_tracker.png').convert('RGBA')
+          if src.size != (1080,1350):
+              raise SystemExit(f'unexpected canonical size: {src.size}')
           out=Path('instagram/templates/assets'); out.mkdir(parents=True,exist_ok=True)
           crops={
             'corner_tl.png':(0,0,155,155),
