@@ -1,0 +1,42 @@
+{
+  "session_id": "2026-10-03-bill-tracker-first-stage",
+  "branch": "sly/session/2026-10-03-bill-tracker-first-stage",
+  "created_at": "2026-10-03T20:07:00Z",
+  "updated_at": "2026-10-03T20:07:00Z",
+  "intent": "Refresh the live First Stage Bill inventory, verify it against current official Oireachtas state, propose the stage-specific grouping and one-slide information hierarchy, then build one representative First Stage Bill slide through the existing Bill Tracker factory for hosted human review. Do not publish or schedule.",
+  "resolved_project": "bill_tracker_factory_v1",
+  "resolved_period": null,
+  "data_sources": [],
+  "references_consulted": [
+    "docs/director_agent_reference.md",
+    "director/refs.yml",
+    "director/semantics.md",
+    "director/README.md",
+    "director/references.yml",
+    "director/visuals.yml",
+    "director/workflows_v1.md",
+    "director/data_products.yml",
+    "director/sessions/README.md",
+    "instagram/projects/bill_tracker_factory_v1/project.yml",
+    "instagram/projects/bill_tracker_factory_v1/content.yml",
+    "instagram/projects/bill_tracker_factory_v1/adapter.py",
+    "instagram/projects/bill_tracker_factory_v1/renderers.py",
+    "completed_posts/summaries/2026-10-02-bill-tracker-enacted-post1.json",
+    "completed_posts/summaries/2026-10-03-bill-tracker-enacted-post2.json",
+    "Irish Politics Data Model public documentation",
+    "docs/research/bill_tracker_series.md on feature/bill-content-snapshot-v1 (historical only)"
+  ],
+  "decisions": [
+    {
+      "question": "Which architecture should the prototype use?",
+      "choice": "Extend bill_tracker_factory_v1 on the session branch; no parallel permanent renderer.",
+      "rationale": "Current main marks bill_tracker_series as merged and the handoff explicitly requires extending the existing factory.",
+      "timestamp": "2026-10-03T20:07:00Z"
+    }
+  ],
+  "slide_plan": [],
+  "visual_decisions": {},
+  "runs": [],
+  "feedback": [],
+  "approval_state": "in_progress"
+}
