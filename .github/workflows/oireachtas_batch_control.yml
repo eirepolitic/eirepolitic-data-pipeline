@@ -65,12 +65,11 @@ jobs:
       - name: Run Director recorded-voting participation audit
         if: ${{ inputs.operation == 'status' }}
         run: python process/director_recorded_voting_participation_audit.py
-      - name: Render approved prototype v8 and full review carousel
+      - name: Render split review posts
         if: ${{ inputs.operation == 'status' }}
         run: |
           set -euo pipefail
-          python process/director_recorded_voting_participation_prototype_v8.py
-          python process/director_recorded_voting_participation_carousel.py
+          python process/director_recorded_voting_participation_split_posts.py
       - name: Persist Director review evidence
         if: ${{ inputs.operation == 'status' }}
         run: |
@@ -82,7 +81,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add director/sessions/2026-09-27-recorded-voting-participation
-          if ! git diff --cached --quiet; then git commit -m "Persist full recorded voting participation review carousel"; git push origin HEAD:${GITHUB_REF_NAME}; fi
+          if ! git diff --cached --quiet; then git commit -m "Persist split recorded voting participation review posts"; git push origin HEAD:${GITHUB_REF_NAME}; fi
       - name: Upload Director review artifact
         if: ${{ always() && inputs.operation == 'status' }}
         uses: actions/upload-artifact@v4
