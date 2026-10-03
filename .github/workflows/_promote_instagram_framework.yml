@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  prove-monthly-runtime:
+  prove-weekly-runtime:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
@@ -34,24 +34,25 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Resolve monthly inputs
+      - name: Resolve weekly inputs
         id: inputs
         run: |
           set -euo pipefail
-          BATCH_ID="diagnostic-monthly-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          BATCH_ID="diagnostic-weekly-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           echo "batch_id=${BATCH_ID}" >> "$GITHUB_OUTPUT"
           echo "OIREACHTAS_BATCH_ID=${BATCH_ID}" >> "$GITHUB_ENV"
           python process/oireachtas_refresh_inputs.py \
-            --refresh-type monthly --mode '' --tables '' --chamber dail --house-no 34 \
+            --refresh-type weekly --mode '' --tables '' --chamber dail --house-no 34 \
             --date-start '' --date-end '' --page-size '' --sample-rows 10 \
             --github-output "$GITHUB_OUTPUT" | tee oireachtas_refresh_inputs.json
+          test "$(grep '^changes_speeches=' "$GITHUB_OUTPUT" | tail -1 | cut -d= -f2)" = true
       - name: Seed candidate from production
         run: |
           set -euo pipefail
           OIREACHTAS_PUBLISH_LATEST=false python process/oireachtas_seed_candidate.py \
             --batch-id "$OIREACHTAS_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
             | tee oireachtas_seed_candidate.json
-      - name: Build monthly refresh table set
+      - name: Build weekly speech refresh table set
         env:
           MODE: ${{ steps.inputs.outputs.mode }}
           TABLES: ${{ steps.inputs.outputs.tables }}
@@ -76,8 +77,27 @@ jobs:
               --s3-bucket "$S3_BUCKET" --aws-region "$AWS_REGION" --review-root "$REVIEW_OUTPUT_ROOT" \
               --github-repository "$GITHUB_REPOSITORY" 2>&1 | tee -a oireachtas_refresh.log
           done
-      - name: Classify speech issues when monthly refresh changes speeches
-        if: steps.inputs.outputs.changes_speeches == 'true'
+      - name: Audit September speech rows before classification
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import io, json, os
+          from pathlib import Path
+          import boto3, pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+          from political_metrics.sources import canonical_speeches
+          s3=boto3.client('s3'); bucket=os.environ['S3_BUCKET']; batch_id=os.environ['OIREACHTAS_BATCH_ID']
+          key=batch_key_for_production_key('processed/oireachtas_unified/latest/csv/silver_speeches.csv',batch_id)
+          obj=s3.get_object(Bucket=bucket,Key=key)
+          df=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,na_values=[''])
+          canonical=canonical_speeches(df); dates=pd.to_datetime(canonical['debate_date'],errors='coerce')
+          sept=canonical[(dates>=pd.Timestamp('2026-09-01'))&(dates<=pd.Timestamp('2026-09-30'))]
+          report={'batch_id':batch_id,'latest_speech_date':dates.max().date().isoformat() if dates.notna().any() else None,'september_speech_rows':int(len(sept)),'september_unique_speech_ids':int(sept['speech_id'].astype(str).nunique())}
+          Path('september_preclassification.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+          print(json.dumps(report,indent=2))
+          assert report['september_speech_rows'] > 0, report
+          PY
+      - name: Classify unified speech issue enrichment
         run: |
           set -euo pipefail
           python -m pip install 'openai>=3.6.0,<4'
@@ -99,7 +119,7 @@ jobs:
           python process/political_metrics_materialize_candidate.py \
             --batch-id "$OIREACHTAS_BATCH_ID" --bucket "$S3_BUCKET" --region "$AWS_REGION" \
             --report-path political_metrics_candidate_report.json
-      - name: Audit September candidate coverage
+      - name: Audit September classification readiness
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -128,23 +148,24 @@ jobs:
             'september_unique_labelled_speech_ids':int(sept_labels['speech_id'].astype(str).nunique()) if not sept_labels.empty else 0,
             'classification_status_counts':sept_labels['classification_status'].fillna('').value_counts().to_dict() if 'classification_status' in sept_labels.columns else {},
             'classification_audit':audit,
-            'changes_speeches':'${{ steps.inputs.outputs.changes_speeches }}',
-            'tables':'${{ steps.inputs.outputs.tables }}'
+            'date_window':{'start':'${{ steps.inputs.outputs.date_start }}','end':'${{ steps.inputs.outputs.date_end }}'}
           }
           Path('september_candidate_readiness.json').write_text(json.dumps(report,indent=2,default=str),encoding='utf-8')
           print(json.dumps(report,indent=2,default=str))
           assert report['september_speech_rows'] > 0, report
           assert report['september_unique_labelled_speech_ids'] > 0, report
+          assert bool(audit.get('ready')), audit
           PY
       - name: Upload proof evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: direct-monthly-runtime-proof-${{ github.run_id }}
+          name: direct-weekly-september-proof-${{ github.run_id }}
           path: |
             oireachtas_refresh_inputs.json
             oireachtas_seed_candidate.json
             oireachtas_refresh.log
+            september_preclassification.json
             speech_issue_classifier_report.json
             political_metrics_candidate_report.json
             september_candidate_readiness.json
