@@ -7,35 +7,81 @@ permissions:
   contents: write
 
 jobs:
-  capture-oireachtas-validation:
+  inspect-vote-compat:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ca-central-1
       AWS_DEFAULT_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      BATCH_ID: scheduled-weekly-37154732444-1
     steps:
       - uses: actions/checkout@v4
         with:
           ref: fix/oireachtas-orchestrator-startup
-      - name: Fetch validation evidence
-        shell: bash
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas boto3
+      - name: Analyze legacy vs unified vote compatibility
         run: |
-          set -euo pipefail
-          mkdir -p diagnostics/oireachtas_validation
-          for table in compat_adapter_comparison member_code_mismatch_review; do
-            for file in manifest.json sample.csv report.md; do
-              aws s3 cp "s3://${S3_BUCKET}/processed/oireachtas_unified/review/${table}/latest/${file}" \
-                "diagnostics/oireachtas_validation/${table}_${file}" --only-show-errors || true
-            done
-          done
+          python - <<'PY'
+          import io, json, os
+          from pathlib import Path
+          import boto3, pandas as pd
+          from extract.oireachtas.batch import batch_key_for_production_key
+
+          s3=boto3.client('s3'); bucket=os.environ['S3_BUCKET']; batch_id=os.environ['BATCH_ID']
+          def read(key):
+              body=s3.get_object(Bucket=bucket,Key=key)['Body'].read()
+              return pd.read_csv(io.BytesIO(body),dtype=str,keep_default_na=False)
+          legacy_key='processed/votes/dail_vote_member_records.csv'
+          compat_key='processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv'
+          candidate_key=batch_key_for_production_key('processed/oireachtas_unified/latest/csv/silver_member_votes.csv',batch_id)
+          legacy=read(legacy_key); compat=read(compat_key); candidate=read(candidate_key)
+
+          def dates(df,col):
+              d=pd.to_datetime(df[col],errors='coerce') if col in df.columns else pd.Series(dtype='datetime64[ns]')
+              return d
+          ld=dates(legacy,'date'); cd=dates(compat,'date'); vd=dates(candidate,'division_date')
+          legacy_max=ld.max()
+          compat_key_dupes=int(compat.duplicated(['memberCode','unique_vote_id']).sum())
+          legacy_key_dupes=int(legacy.duplicated(['memberCode','unique_vote_id']).sum()) if {'memberCode','unique_vote_id'}.issubset(legacy.columns) else None
+          candidate_pk=[c for c in ['member_code','division_id'] if c in candidate.columns]
+          candidate_dupes=int(candidate.duplicated(candidate_pk).sum()) if len(candidate_pk)==2 else None
+
+          overlap_compat=compat[cd <= legacy_max] if pd.notna(legacy_max) else compat.iloc[0:0]
+          newer_compat=compat[cd > legacy_max] if pd.notna(legacy_max) else compat
+          report={
+              'legacy':{
+                  'rows':len(legacy),'columns':list(legacy.columns),'date_min':str(ld.min().date()) if ld.notna().any() else None,
+                  'date_max':str(ld.max().date()) if ld.notna().any() else None,'unique_dates':int(ld.dt.date.nunique()) if ld.notna().any() else 0,
+                  'unique_vote_ids':int(legacy['unique_vote_id'].nunique()) if 'unique_vote_id' in legacy.columns else None,
+                  'member_vote_pk_duplicates':legacy_key_dupes,
+              },
+              'compat':{
+                  'rows':len(compat),'date_min':str(cd.min().date()) if cd.notna().any() else None,
+                  'date_max':str(cd.max().date()) if cd.notna().any() else None,'unique_dates':int(cd.dt.date.nunique()) if cd.notna().any() else 0,
+                  'unique_vote_ids':int(compat['unique_vote_id'].nunique()),'member_vote_pk_duplicates':compat_key_dupes,
+                  'rows_through_legacy_max_date':int(len(overlap_compat)),'rows_after_legacy_max_date':int(len(newer_compat)),
+                  'unique_vote_ids_after_legacy_max_date':int(newer_compat['unique_vote_id'].nunique()) if len(newer_compat) else 0,
+              },
+              'candidate_silver_member_votes':{
+                  'key':candidate_key,'rows':len(candidate),'date_min':str(vd.min().date()) if vd.notna().any() else None,
+                  'date_max':str(vd.max().date()) if vd.notna().any() else None,'unique_division_ids':int(candidate['division_id'].nunique()) if 'division_id' in candidate.columns else None,
+                  'pk_duplicates':candidate_dupes,
+              },
+          }
+          out=Path('diagnostics/oireachtas_validation/vote_compat_divergence.json')
+          out.parent.mkdir(parents=True,exist_ok=True); out.write_text(json.dumps(report,indent=2),encoding='utf-8')
+          print(json.dumps(report,indent=2))
+          PY
       - name: Commit diagnostics
         run: |
-          set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/oireachtas_validation
-          git commit -m 'chore: capture Oireachtas validation failure evidence'
+          git add diagnostics/oireachtas_validation/vote_compat_divergence.json
+          git commit -m 'chore: record vote compatibility divergence analysis'
           git push origin HEAD:fix/oireachtas-orchestrator-startup
