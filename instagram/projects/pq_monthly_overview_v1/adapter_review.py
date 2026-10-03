@@ -280,7 +280,7 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
         "scope_body": (
             "Dáil parliamentary questions recorded by the Houses of the Oireachtas during the month."
         ),
-        "footer_text": "Source: Houses of the Oireachtas — Parliamentary Questions procedure guidance",
+        "footer_text": "Source: Houses of the Oireachtas: Parliamentary Questions procedure guidance",
     }
     rendered = render_template(layout, bindings, descriptor_path)
     if rendered.warnings:
