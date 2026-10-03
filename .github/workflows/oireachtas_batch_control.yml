@@ -13,10 +13,11 @@ on:
           - promote
           - rollback
           - rollback-previous
-        default: status
+        default: promote
       batch_id:
         description: Required for assemble, promote, and rollback; use legacy_direct for first-cutover rollback
         required: false
+        default: "manual-monthly-37154194927-1"
         type: string
       required_tables:
         description: Optional comma-separated required tables for assemble
@@ -90,66 +91,11 @@ jobs:
             done
           fi
           python process/oireachtas_batch_control.py "${args[@]}" | tee oireachtas-batch-control.json
-      - name: Diagnose September PQ coverage
-        if: inputs.operation == 'status'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import boto3
-          import pandas as pd
-          from instagram.factory.oireachtas_source import load_csv_tables, resolve_validated_production_batch
-          from political_metrics.calculators.questions import prepare_eligible_td_questions
-
-          s3 = boto3.client('s3', region_name='ca-central-1')
-          batch = resolve_validated_production_batch(s3=s3)
-          names = ['silver_questions','silver_member_memberships','silver_member_parties','silver_member_constituencies']
-          frames, _ = load_csv_tables(batch, names, s3=s3)
-          q = frames['silver_questions'].copy()
-          q['question_date'] = pd.to_datetime(q['question_date'], errors='coerce')
-          sep = q[(q['question_date'] >= '2026-09-01') & (q['question_date'] < '2026-10-01')].copy()
-          dedupe_cols = [c for c in ['question_id','member_code','question_date'] if c in sep.columns]
-          deduped = sep.drop_duplicates(subset=dedupe_cols) if dedupe_cols else sep.copy()
-          eligible = prepare_eligible_td_questions(
-              deduped,
-              frames['silver_member_memberships'],
-              frames['silver_member_parties'],
-              frames['silver_member_constituencies'],
-          ) if not deduped.empty else deduped.copy()
-          dates = q['question_date'].dropna()
-          result = {
-              'production_batch_id': batch.batch_id,
-              'all_question_rows': int(len(q)),
-              'all_question_min_date': dates.min().isoformat() if not dates.empty else None,
-              'all_question_max_date': dates.max().isoformat() if not dates.empty else None,
-              'september_question_rows': int(len(sep)),
-              'september_deduped_rows': int(len(deduped)),
-              'september_eligible_rows': int(len(eligible)),
-              'september_member_code_nonnull': int(sep['member_code'].notna().sum()) if 'member_code' in sep.columns else None,
-          }
-          Path('director/diagnostics').mkdir(parents=True, exist_ok=True)
-          Path('director/diagnostics/pq-september-2026.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
-          print(json.dumps(result, indent=2))
-          PY
-      - name: Commit September diagnostic
-        if: inputs.operation == 'status'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add director/diagnostics/pq-september-2026.json
-          git commit -m 'Record September PQ production diagnostic' || true
-          git push origin HEAD:sly/data/september-2026-pq-refresh
       - name: Upload control evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: oireachtas-batch-control-${{ inputs.operation }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            oireachtas-batch-control.json
-            director/diagnostics/pq-september-2026.json
+          path: oireachtas-batch-control.json
           if-no-files-found: warn
           retention-days: 90
