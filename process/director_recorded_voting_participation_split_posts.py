@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+"""Build three review-only Instagram carousels: TDs, constituencies, parties.
+
+Selection is by the validated recorded-participation percentage only.
+Highest/lowest language is descriptive of this metric and must not be interpreted
+as an overall evaluation of representatives, parties, or constituencies.
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+import pandas as pd
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+from instagram.renderer.constants import FONT_CANDIDATES
+from process.director_recorded_voting_participation_prototype_v7 import clean_corner
+
+W, H = 1080, 1350
+C = {
+    "bg": "#0f2f24",
+    "panel": "#173d30",
+    "alt": "#214a3b",
+    "text": "#f4ead7",
+    "muted": "#cbbf9f",
+    "gold": "#d8b45f",
+}
+SESSION = Path("director/sessions/2026-09-27-recorded-voting-participation")
+EV = SESSION / "evidence"
+OUT = SESSION / "split_posts_review"
+PERIOD = "28 Feb–28 Aug 2026"
+DIVISIONS = 136
+
+CONTEXT = {
+    "Verona Murphy": {
+        "marker": "1",
+        "short": "Ceann Comhairle / presiding context",
+        "detail": "Ceann Comhairle. Under this analysis, identified presiding-member opportunities are excluded from the ordinary denominator unless a recorded vote exists.",
+        "source": "Houses of the Oireachtas — Ceann Comhairle office-holder page",
+        "url": "https://www.oireachtas.ie/en/members/office-holders/ceann-comhairle/",
+    },
+    "Mattie McGrath": {
+        "marker": "2",
+        "short": "Documented health-related absence, 14 Apr",
+        "detail": "Reported unable to travel to the Dáil on 14 April 2026 after a cardiac procedure; admitted to hospital the preceding Friday.",
+        "source": "Tipp Mid West Radio — 14 Apr 2026",
+        "url": "https://www.tippmidwestradio.com/2026/04/14/the-dail-is-currently-debating-on-a-motion-of-confidence-in-the-government/",
+    },
+    "Patrick O'Donovan": {
+        "marker": "3",
+        "short": "Hospitalised on official business, July",
+        "detail": "Hospitalised in Brussels after becoming unwell while on official business in July 2026; later returned to Ireland and recuperated at home.",
+        "source": "RTÉ — 14 Jul 2026",
+        "url": "https://www.rte.ie/news/2026/0714/1583374-patrick-odonovan/",
+    },
+}
+
+
+def font(size: int, bold: bool = False):
+    key = "bold" if bold else "regular"
+    for p in FONT_CANDIDATES[key]:
+        if Path(p).exists():
+            return ImageFont.truetype(p, size=size)
+    return ImageFont.load_default()
+
+
+def wrap(draw: ImageDraw.ImageDraw, text: str, fnt, max_width: int) -> str:
+    words = text.split()
+    lines, current = [], ""
+    for word in words:
+        probe = word if not current else f"{current} {word}"
+        if draw.textbbox((0, 0), probe, font=fnt)[2] <= max_width:
+            current = probe
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return "\n".join(lines)
+
+
+def corners(im: Image.Image):
+    ref, src = clean_corner()
+    size = (round(src.width * W / ref.width), round(src.height * H / ref.height))
+    art = src.resize(size, Image.Resampling.LANCZOS)
+    for x, y, a in [
+        (0, 0, art),
+        (W - size[0], 0, ImageOps.mirror(art)),
+        (0, H - size[1], ImageOps.flip(art)),
+        (W - size[0], H - size[1], ImageOps.mirror(ImageOps.flip(art))),
+    ]:
+        im.alpha_composite(a, (x, y))
+
+
+def base(title: str, subtitle: str | None = None):
+    im = Image.new("RGBA", (W, H), C["bg"])
+    d = ImageDraw.Draw(im)
+    corners(im)
+    tf = font(43, True)
+    while d.textbbox((0, 0), title, font=tf)[2] > 850 and getattr(tf, "size", 31) > 31:
+        tf = font(tf.size - 1, True)
+    d.text((W // 2, 80), title, font=tf, fill=C["text"], anchor="ma")
+    if subtitle:
+        sf = font(20)
+        d.multiline_text((W // 2, 145), wrap(d, subtitle, sf, 850), font=sf, fill=C["muted"], anchor="ma", align="center", spacing=5)
+    d.rectangle((70, 215, 1010, 223), fill=C["gold"])
+    return im, d
+
+
+def save(im: Image.Image, folder: Path, number: int, slug: str):
+    folder.mkdir(parents=True, exist_ok=True)
+    p = folder / f"{number:02d}_{slug}.png"
+    im.convert("RGB").save(p)
+    return str(p)
+
+
+def cover(kind: str, n: int):
+    im, d = base(f"Recorded Voting Participation — {kind}", f"{PERIOD} · Dáil Éireann")
+    question = {
+        "TDs": f"{n} highest and {n} lowest\nrecorded-participation percentages",
+        "Constituencies": f"{n} highest and {n} lowest\nconstituency percentages",
+        "Parties": f"{n} highest and {n} lowest\nparty/group percentages",
+    }[kind]
+    d.multiline_text((W // 2, 525), question, font=font(40, True), fill=C["text"], anchor="ma", align="center", spacing=14)
+    d.multiline_text(
+        (W // 2, 750),
+        "Highest/lowest refers only to this recorded-participation metric.\nIt is not an overall performance ranking.",
+        font=font(21), fill=C["muted"], anchor="ma", align="center", spacing=8,
+    )
+    return im
+
+
+def explainer(kind: str):
+    im, d = base("What This Metric Measures", f"Applied consistently in the {kind.lower()} post")
+    d.rounded_rectangle((100, 295, 980, 1040), 30, fill=C["panel"])
+    blocks = [
+        ("Recorded participation", "An eligible opportunity with a recorded Tá, Níl or formal abstention."),
+        ("Eligible divisions", "Membership dates determine whether a division enters a TD’s denominator."),
+        ("No recorded vote", "Means only that no qualifying vote or abstention was recorded for that eligible opportunity. It does not establish physical absence."),
+        ("Aggregated views", "Party and constituency percentages use summed recorded opportunities divided by summed eligible opportunities — not an average of TD percentages."),
+    ]
+    y = 345
+    for h, t in blocks:
+        d.text((145, y), h, font=font(24, True), fill=C["gold"])
+        body = wrap(d, t, font(20), 760)
+        d.multiline_text((145, y + 38), body, font=font(20), fill=C["text"], spacing=7)
+        y += 165
+    return im
+
+
+def selection(df: pd.DataFrame, name_col: str, n: int, highest: bool):
+    asc = not highest
+    ordered = df.sort_values(["recorded_participation_pct", name_col], ascending=[asc, True], kind="stable").reset_index(drop=True)
+    chosen = ordered.head(n).copy()
+    boundary = float(chosen.iloc[-1].recorded_participation_pct)
+    tied_total = int((df.recorded_participation_pct == boundary).sum())
+    tied_shown = int((chosen.recorded_participation_pct == boundary).sum())
+    tie_note = None
+    if tied_total > tied_shown:
+        tie_note = f"Boundary tie: {tied_total} entries are at {boundary:.1f}%; alphabetical tiebreak used for the {n} shown."
+    return chosen, tie_note
+
+
+def ranking_slide(kind: str, df: pd.DataFrame, name_col: str, n: int, highest: bool, context=False):
+    direction = "Highest" if highest else "Lowest"
+    im, d = base(f"{n} {direction} Recorded-Participation Percentages", f"{kind} · {PERIOD}")
+    chosen, tie_note = selection(df, name_col, n, highest)
+    panel_bottom = 1000 if context else 1165
+    panel = (58, 260, 1022, panel_bottom)
+    d.rounded_rectangle(panel, 28, fill=C["panel"], outline=C["alt"], width=2)
+    d.text((86, 285), kind.upper(), font=font(14, True), fill=C["muted"])
+    d.text((982, 285), "RATE  ·  RECORDED / ELIGIBLE", font=font(14, True), fill=C["muted"], anchor="ra")
+    top, bottom = 320, panel_bottom - 30
+    rh = (bottom - top) / len(chosen)
+    selected_rows = []
+    for j, row in enumerate(chosen.itertuples(index=False)):
+        cy = int(top + (j + 0.5) * rh)
+        y0 = int(top + j * rh)
+        if j:
+            d.line((80, y0, 994, y0), fill=C["alt"], width=1)
+        name = str(getattr(row, name_col))
+        if "People Before Profit" in name:
+            name = "People Before Profit"
+        marker = ""
+        if context and name in CONTEXT:
+            marker = f" [{CONTEXT[name]['marker']}]"
+        display = name + marker
+        nf = font(18, True)
+        while d.textbbox((0, 0), display, font=nf)[2] > 320 and nf.size > 12:
+            nf = font(nf.size - 1, True)
+        d.text((86, cy), display, font=nf, fill=C["text"], anchor="lm")
+        pct = float(row.recorded_participation_pct)
+        bx, bw, bh = 430, 345, 26
+        d.rounded_rectangle((bx, cy - bh // 2, bx + bw, cy + bh // 2), 7, fill=C["alt"])
+        d.rounded_rectangle((bx, cy - bh // 2, int(bx + bw * pct / 100), cy + bh // 2), 7, fill=C["gold"])
+        d.text((982, cy - 4), f"{pct:.1f}%", font=font(19, True), fill=C["text"], anchor="rs")
+        d.text((982, cy + 12), f"{int(row.recorded_participation_opportunities):,} / {int(row.eligible_division_opportunities):,}", font=font(12), fill=C["muted"], anchor="ra")
+        selected_rows.append({
+            "name": name,
+            "recorded": int(row.recorded_participation_opportunities),
+            "eligible": int(row.eligible_division_opportunities),
+            "pct": pct,
+        })
+    if context:
+        y = 1025
+        notes = [
+            "[1] Verona Murphy: Ceann Comhairle / presiding context; ordinary presiding opportunities are excluded under this methodology.",
+            "[2] Mattie McGrath: documented health-related absence on 14 Apr 2026 following a cardiac procedure.",
+            "[3] Patrick O’Donovan: hospitalised in Brussels while on official business in July 2026; later recuperated at home.",
+        ]
+        for note in notes:
+            body = wrap(d, note, font(13), 860)
+            d.multiline_text((90, y), body, font=font(13), fill=C["muted"], spacing=3)
+            y += 48
+        d.text((90, 1190), "Context flags cover documented circumstances only; they are not assigned as the reason for every unrecorded division.", font=font(12), fill=C["gold"])
+    elif tie_note:
+        d.text((W // 2, 1192), tie_note, font=font(13), fill=C["muted"], anchor="ma")
+    return im, selected_rows, tie_note
+
+
+def methodology(kind: str, n: int):
+    im, d = base("Methodology & Limitations", f"{kind} post · {PERIOD}")
+    d.rounded_rectangle((80, 265, 1000, 1130), 28, fill=C["panel"])
+    items = [
+        f"Period: {PERIOD} inclusive; {DIVISIONS} production-supported Dáil divisions.",
+        "Grain: one eligible TD × division opportunity. Numerator = recorded Tá, Níl or formal abstention; denominator = eligible division opportunities.",
+        "Membership dates define eligibility. Party and constituency are attributed using event-date histories.",
+        "Party and constituency percentages are calculated from summed numerators and denominators, not average TD percentages.",
+        "Identified presiding members are excluded from ordinary eligible opportunities unless that member has a recorded vote, preserving a casting-vote case.",
+        "No canonical pairing/statutory-leave field exists in the promoted production batch, so the denominator is not adjusted for those circumstances.",
+        f"Selection: {n} highest and {n} lowest percentages for this metric; equal percentages use alphabetical tiebreaks where a boundary tie must be resolved.",
+        "Recorded voting participation does not by itself measure a TD’s attendance, workload, effectiveness, or overall job performance.",
+    ]
+    y = 310
+    for item in items:
+        body = wrap(d, "• " + item, font(17), 820)
+        d.multiline_text((125, y), body, font=font(17), fill=C["text"], spacing=5)
+        box = d.multiline_textbbox((125, y), body, font=font(17), spacing=5)
+        y = box[3] + 23
+    if kind == "TDs":
+        d.text((125, 1085), "Context sources: Houses of the Oireachtas; Tipp Mid West Radio (14 Apr 2026); RTÉ (14 Jul 2026).", font=font(12), fill=C["muted"])
+    return im
+
+
+def build_post(kind: str, df: pd.DataFrame, name_col: str, n: int):
+    folder = OUT / kind.lower().replace(" ", "_")
+    slides = []
+    slides.append(save(cover(kind, n), folder, 1, "cover"))
+    slides.append(save(explainer(kind), folder, 2, "metric"))
+    hi, hi_rows, hi_tie = ranking_slide(kind, df, name_col, n, True, context=False)
+    slides.append(save(hi, folder, 3, "highest"))
+    lo, lo_rows, lo_tie = ranking_slide(kind, df, name_col, n, False, context=(kind == "TDs"))
+    slides.append(save(lo, folder, 4, "lowest"))
+    slides.append(save(methodology(kind, n), folder, 5, "methodology"))
+    return {
+        "kind": kind,
+        "n": n,
+        "slides": slides,
+        "highest": hi_rows,
+        "lowest": lo_rows,
+        "highest_boundary_tie_note": hi_tie,
+        "lowest_boundary_tie_note": lo_tie,
+    }
+
+
+def qa(paths):
+    issues = []
+    for p in paths:
+        img = Image.open(p)
+        if img.size != (W, H):
+            issues.append({"file": p, "issue": f"unexpected dimensions {img.size}"})
+    return {"pass": not issues, "issues": issues, "expected_dimensions": [W, H]}
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    td = pd.read_csv(EV / "td_participation.csv")
+    con = pd.read_csv(EV / "constituency_participation.csv")
+    party = pd.read_csv(EV / "party_participation.csv")
+    posts = [
+        build_post("TDs", td, "member_name", 10),
+        build_post("Constituencies", con, "constituency_name", 10),
+        build_post("Parties", party, "party_name", 5),
+    ]
+    all_paths = [p for post in posts for p in post["slides"]]
+    visual_qa = qa(all_paths)
+    manifest = {
+        "status": "PASS" if visual_qa["pass"] else "FAIL",
+        "review_only": True,
+        "publication_enabled": False,
+        "period": {"start": "2026-02-28", "end": "2026-08-28"},
+        "division_count": DIVISIONS,
+        "selection_rule": "Highest/lowest recorded-participation percentages; alphabetical tiebreak for equal percentages at a selection boundary.",
+        "interpretation": "Highest/lowest describes this metric only and is not an overall performance ranking.",
+        "required_statement": "Recorded voting participation does not by itself measure a TD’s attendance, workload, effectiveness, or overall job performance.",
+        "td_context": CONTEXT,
+        "posts": posts,
+        "computer_visual_qa": visual_qa,
+    }
+    (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(json.dumps(manifest, indent=2, ensure_ascii=False))
+    return 0 if visual_qa["pass"] else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
