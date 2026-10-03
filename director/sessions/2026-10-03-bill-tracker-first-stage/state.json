@@ -2,7 +2,7 @@
   "session_id": "2026-10-03-bill-tracker-first-stage",
   "branch": "sly/session/2026-10-03-bill-tracker-first-stage",
   "created_at": "2026-10-03T20:07:00Z",
-  "updated_at": "2026-10-03T21:20:00Z",
+  "updated_at": "2026-10-03T21:25:00Z",
   "intent": "Develop and review the First Stage variant of the merged Bill Tracker factory using current verified Oireachtas state. No publishing or scheduling unless separately and explicitly approved.",
   "resolved_project": "bill_tracker_factory_v1",
   "data_sources": [
@@ -37,7 +37,7 @@
     },
     "first_stage_post1": {
       "status": "pending_human_review",
-      "build_started": true
+      "clean_review_run": "37154982183"
     }
   },
   "visual_decisions": {
@@ -52,9 +52,10 @@
   "runs": [
     {"run_id": "37152028977", "purpose": "prototype", "conclusion": "success"},
     {"run_id": "37154378301", "purpose": "first_stage_post2 clean review", "conclusion": "success", "human_approval": true},
-    {"run_id": "37154679275", "purpose": "first_stage_post1 clean review", "conclusion": "in_progress"}
+    {"run_id": "37154865001", "purpose": "first_stage_post1 internal diagnostic", "conclusion": "success", "reviewable": false},
+    {"run_id": "37154982183", "purpose": "first_stage_post1 clean review", "conclusion": "success", "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/bill-tracker-first-stage/index.html"}
   ],
-  "approval_state": "partially_approved_pending_post1_review",
+  "approval_state": "post2_approved_post1_pending_human_review",
   "publication_enabled": false,
   "publishing_allowed": false
 }
