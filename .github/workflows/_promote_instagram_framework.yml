@@ -7,19 +7,16 @@ permissions:
   contents: write
 
 jobs:
-  validate-candidate:
+  summarize-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
       OIREACHTAS_BATCH_ID: scheduled-weekly-37154732444-1
-      OIREACHTAS_PUBLISH_ENABLED: 'false'
-      OIREACHTAS_PUBLISH_LATEST: 'true'
-      REVIEW_OUTPUT_ROOT: oireachtas_review_output
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,68 +24,40 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Install dependencies
+      - run: pip install pandas boto3
+      - name: Summarize candidate readiness
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install pytest
-      - name: Run compatibility regression tests
-        run: python -m pytest -q tests/test_oireachtas_compat_comparison.py
-      - name: Run patched strict compatibility and mismatch validation
-        run: |
-          set -euo pipefail
-          python -m extract.oireachtas.compat_comparison | tee oireachtas_compat_comparison.log
-          python -m extract.oireachtas.mismatch_review | tee oireachtas_mismatch_review.log
-      - name: Build year-aware member metrics
-        run: |
-          set -euo pipefail
-          export TARGET_YEAR="$(date -u -d '1 year ago' +%Y)"
-          python process/build_member_profile_metrics.py | tee member_profile_metrics.json
-          echo "TARGET_YEAR=${TARGET_YEAR}" >> "$GITHUB_ENV"
-      - name: Run candidate-only Instagram HTML smoke test
-        run: |
-          set -euo pipefail
-          python process/oireachtas_consumer_smoke.py \
-            --batch-id "$OIREACHTAS_BATCH_ID" \
-            --target-year "$TARGET_YEAR" \
-            --bucket "$S3_BUCKET" \
-            --region "$AWS_REGION" \
-            --output consumer_smoke \
-            | tee oireachtas_consumer_smoke.log
-      - name: Reassemble final candidate manifest
-        run: |
-          set -euo pipefail
-          OIREACHTAS_PUBLISH_LATEST=false \
-            python process/oireachtas_reassemble_candidate.py \
-              --batch-id "$OIREACHTAS_BATCH_ID" \
-              --bucket "$S3_BUCKET" \
-              --region "$AWS_REGION" \
-              --require compat_downstream_adapters \
-              | tee oireachtas_final_batch_manifest.json
-      - name: Commit compact proof
-        if: always()
-        run: |
-          set -euo pipefail
-          mkdir -p diagnostics/oireachtas_validation
           python - <<'PY'
-          import json
+          import io, json, os
           from pathlib import Path
-          proof={
-            'batch_id':'scheduled-weekly-37154732444-1',
-            'compatibility_fix':'legacy_date_range',
-            'regression_test':'tests/test_oireachtas_compat_comparison.py',
+          import boto3, pandas as pd
+          from extract.oireachtas.batch import batch_manifest_key, batch_key_for_production_key, read_json_required
+          s3=boto3.client('s3'); bucket=os.environ['S3_BUCKET']; batch_id=os.environ['OIREACHTAS_BATCH_ID']
+          manifest=read_json_required(s3,bucket=bucket,key=batch_manifest_key(batch_id))
+          def load(table):
+              key=batch_key_for_production_key(f'processed/oireachtas_unified/latest/csv/{table}.csv',batch_id)
+              body=s3.get_object(Bucket=bucket,Key=key)['Body'].read()
+              return pd.read_csv(io.BytesIO(body),dtype=str,keep_default_na=False,na_values=['']), key
+          speeches,skey=load('silver_speeches'); labels,lkey=load('enrichment_speech_issue_labels')
+          dates=pd.to_datetime(speeches['debate_date'],errors='coerce')
+          sept=speeches[(dates>=pd.Timestamp('2026-09-01'))&(dates<=pd.Timestamp('2026-09-30'))].copy()
+          sept_ids=set(sept['speech_id'].astype(str)); sl=labels[labels['speech_id'].astype(str).isin(sept_ids)].copy()
+          report={
+            'batch_id':batch_id,'manifest_status':manifest.get('status'),'manifest_dq_status':manifest.get('dq_status'),
+            'manifest_blockers':manifest.get('blockers') or manifest.get('validation_blockers') or [],
+            'latest_speech_date':dates.max().date().isoformat() if dates.notna().any() else None,
+            'september_speech_rows':int(len(sept)),'september_unique_speech_ids':int(sept['speech_id'].astype(str).nunique()),
+            'september_label_rows':int(len(sl)),'september_unique_labelled_speech_ids':int(sl['speech_id'].astype(str).nunique()) if len(sl) else 0,
+            'classification_status_counts':sl['classification_status'].fillna('').value_counts().to_dict() if 'classification_status' in sl.columns else {},
+            'speech_key':skey,'label_key':lkey,
           }
-          final=Path('oireachtas_final_batch_manifest.json')
-          if final.exists():
-            try: proof['final_manifest']=json.loads(final.read_text())
-            except Exception: proof['final_manifest_text']=final.read_text()[-4000:]
-          Path('diagnostics/oireachtas_validation/post_fix_validation.json').write_text(json.dumps(proof,indent=2,default=str),encoding='utf-8')
+          Path('diagnostics/september_candidate_summary.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+          print(json.dumps(report,indent=2))
           PY
+      - name: Commit summary
+        run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/oireachtas_validation/post_fix_validation.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'chore: record post-fix candidate validation proof'
-            git push origin HEAD:fix/oireachtas-orchestrator-startup
-          fi
+          git add diagnostics/september_candidate_summary.json
+          git commit -m 'chore: capture recovered September candidate summary'
+          git push origin HEAD:fix/oireachtas-orchestrator-startup
