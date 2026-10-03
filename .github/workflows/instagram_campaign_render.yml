@@ -29,7 +29,47 @@ jobs:
           from extract.oireachtas.client import OireachtasClient
 
           client = OireachtasClient()
-          rows = []
+          all_rows = []
+
+          def first_scalar(value, keys):
+              if isinstance(value, dict):
+                  for key in keys:
+                      v = value.get(key)
+                      if v is not None and not isinstance(v, (dict, list)) and str(v).strip():
+                          return str(v).strip()
+                  for v in value.values():
+                      got = first_scalar(v, keys)
+                      if got:
+                          return got
+              elif isinstance(value, list):
+                  for v in value:
+                      got = first_scalar(v, keys)
+                      if got:
+                          return got
+              return ''
+
+          def stage_summary(recent):
+              return {
+                  'name': first_scalar(recent, ['showAs','stageName','name']),
+                  'outcome': first_scalar(recent, ['stageOutcome','outcome']),
+                  'date': first_scalar(recent, ['date']),
+                  'house': first_scalar(recent, ['showAs','name']),
+              }
+
+          def sponsor_summary(sponsors):
+              out = []
+              if not isinstance(sponsors, list):
+                  return out
+              for wrapper in sponsors:
+                  s = wrapper.get('sponsor') if isinstance(wrapper, dict) and isinstance(wrapper.get('sponsor'), dict) else wrapper
+                  if not isinstance(s, dict):
+                      continue
+                  name = first_scalar(s, ['showAs','name'])
+                  role = first_scalar(s, ['roleName','showAs'])
+                  if name or role:
+                      out.append(name or role)
+              return out
+
           for chamber, house_no in [('dail','34'), ('seanad','27')]:
               summary = client.get_json_summary('/legislation', params={
                   'chamber': chamber,
@@ -44,58 +84,35 @@ jobs:
                   bill = item.get('bill') if isinstance(item, dict) and isinstance(item.get('bill'), dict) else item
                   if not isinstance(bill, dict):
                       continue
-                  title = bill.get('shortTitleEn') or bill.get('longTitleEn') or bill.get('showAs') or bill.get('title')
-                  bill_no = bill.get('billNo') or bill.get('billNumber')
-                  bill_year = bill.get('billYear') or bill.get('year')
-                  status = bill.get('status')
-                  uri = bill.get('uri') or bill.get('billUri')
                   recent = bill.get('mostRecentStage')
-                  stages = bill.get('stages') if isinstance(bill.get('stages'), list) else []
-                  rows.append({
-                      'query_chamber': chamber,
-                      'query_house_no': house_no,
-                      'bill_no': bill_no,
-                      'bill_year': bill_year,
-                      'title': title,
-                      'status': status,
-                      'uri': uri,
-                      'most_recent_stage': recent,
-                      'stages': stages,
-                      'sponsors': bill.get('sponsors'),
-                      'origin_house': bill.get('originHouse'),
-                      'last_updated': bill.get('lastUpdated'),
-                  })
+                  stage = stage_summary(recent)
+                  row = {
+                      'chamber': chamber,
+                      'house_no': house_no,
+                      'bill_no': str(bill.get('billNo') or bill.get('billNumber') or ''),
+                      'bill_year': str(bill.get('billYear') or bill.get('year') or ''),
+                      'title': bill.get('shortTitleEn') or bill.get('longTitleEn') or bill.get('showAs') or bill.get('title') or '',
+                      'status': bill.get('status') or '',
+                      'uri': bill.get('uri') or bill.get('billUri') or '',
+                      'origin_house': first_scalar(bill.get('originHouse'), ['showAs','name']),
+                      'sponsors': sponsor_summary(bill.get('sponsors')),
+                      'current_stage': stage,
+                      'last_updated': bill.get('lastUpdated') or '',
+                  }
+                  all_rows.append(row)
 
-          def texts(value):
-              if isinstance(value, dict):
-                  for k,v in value.items():
-                      if str(k).lower() in {'showas','stagename','name','stageoutcome','outcome'} and not isinstance(v,(dict,list)):
-                          yield str(v)
-                      yield from texts(v)
-              elif isinstance(value, list):
-                  for v in value:
-                      yield from texts(v)
-
-          first_stage = []
-          for row in rows:
-              recent_text = ' | '.join(texts(row.get('most_recent_stage')))
-              if 'first stage' in recent_text.lower():
-                  first_stage.append(row)
-
+          first_stage = [r for r in all_rows if 'first stage' in str(r['current_stage']['name']).lower()]
+          candidates = [r for r in all_rows if r['bill_year'] == '2026' and r['bill_no'] in {'26','40','44','63','65','76','82'}]
           report = {
               'verified_date': '2026-10-03',
               'source': 'https://api.oireachtas.ie/v1/legislation',
-              'queries': [
-                  {'chamber':'dail','house_no':'34','date_start':'2025-11-01','date_end':'2026-10-03'},
-                  {'chamber':'seanad','house_no':'27','date_start':'2025-11-01','date_end':'2026-10-03'},
-              ],
               'first_stage_count': len(first_stage),
-              'first_stage_bills': first_stage,
-              'production_candidate_checks': [r for r in rows if str(r.get('bill_year')) == '2026' and str(r.get('bill_no')) in {'26','40','44','63','65','76','82'}],
+              'first_stage_bills': sorted(first_stage, key=lambda r: (r['chamber'], int(r['bill_no'] or 0))),
+              'production_candidate_current_state': sorted(candidates, key=lambda r: int(r['bill_no'] or 0)),
           }
-          out = Path('director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory.json')
+          out = Path('director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory_compact.json')
           out.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding='utf-8')
-          print(json.dumps({'first_stage_count': len(first_stage), 'first_stage': [(r['bill_no'],r['title'],r['query_chamber']) for r in first_stage]}, indent=2, ensure_ascii=False))
+          print(json.dumps(report, indent=2, ensure_ascii=False, default=str))
           PY
       - name: Commit official verification report
         shell: bash
@@ -103,6 +120,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory.json
-          git commit -m 'director: record current official First Stage inventory'
+          git add director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory_compact.json
+          git commit -m 'director: record compact current official First Stage inventory'
           git push origin HEAD:sly/session/2026-10-03-bill-tracker-first-stage
