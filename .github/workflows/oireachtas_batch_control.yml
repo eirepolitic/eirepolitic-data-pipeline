@@ -5,7 +5,7 @@ on:
     inputs:
       operation:
         description: Operation to perform
-        required: true
+        required: false
         type: choice
         options:
           - status
@@ -13,10 +13,11 @@ on:
           - promote
           - rollback
           - rollback-previous
-        default: status
+        default: promote
       batch_id:
         description: Required for assemble, promote, and rollback; use legacy_direct for first-cutover rollback
         required: false
+        default: "manual-monthly-37153120836-1"
         type: string
       required_tables:
         description: Optional comma-separated required tables for assemble
