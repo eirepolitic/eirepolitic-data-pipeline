@@ -30,37 +30,36 @@ jobs:
           gold='#d8b45f'
           base=Image.new('RGBA',(155,155),(0,0,0,0)); d=ImageDraw.Draw(base)
           d.line((18,0,18,78),fill=gold,width=3); d.line((0,18,78,18),fill=gold,width=3)
-          d.arc((18,18,112,112),180,270,fill=gold,width=3)
-          d.ellipse((66,66,74,74),fill=gold)
+          d.arc((18,18,112,112),180,270,fill=gold,width=3); d.ellipse((66,66,74,74),fill=gold)
           base.save(out/'corner_tl.png')
           base.transpose(Image.Transpose.FLIP_LEFT_RIGHT).save(out/'corner_tr.png')
           base.transpose(Image.Transpose.FLIP_TOP_BOTTOM).save(out/'corner_bl.png')
           base.transpose(Image.Transpose.ROTATE_180).save(out/'corner_br.png')
           PY
-      - name: Render Second Stage review
-        run: python process/tmp_render_second_stage_review.py
-      - name: Build hosted review
+      - name: Render and capture diagnostics
         shell: bash
         run: |
-          set -euo pipefail
-          REVIEW=second_stage_review_web
-          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
-          cp artifacts/bill-tracker-second-stage-review/*.png "$REVIEW/"
-          cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Second Stage review</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}.meta{color:#c8bda8;line-height:1.5}.sheet{width:100%;height:auto;display:block;margin:22px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid img{width:100%;height:auto;display:block}@media(max-width:900px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Bill Tracker · Second Stage · Format Review</h1><div class="meta">Seven-slide review: cover, three Bill explainers, one recorded-decision treatment, process glossary and Second Stage explainer. Party bars are intentionally deferred until the vote-date affiliation join is revalidated.</div><img class="sheet" src="contact-sheet.png"><div class="grid"><img src="00-cover.png"><img src="01-anti-shrinkflation.png"><img src="02-broadcasting-explainer.png"><img src="03-broadcasting-decision.png"><img src="04-carers.png"><img src="05-process-glossary.png"><img src="06-second-stage-explainer.png"></div></main></body></html>
-          HTML
-      - name: Publish preview branch
+          set +e
+          python process/tmp_render_second_stage_review.py > render.log 2>&1
+          echo $? > render.exit
+          cat render.log
+          exit 0
+      - name: Publish diagnostics and any images
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cd second_stage_review_web
+          REVIEW=second_stage_review_web
+          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
+          cp render.log render.exit "$REVIEW/"
+          if [ -d artifacts/bill-tracker-second-stage-review ]; then cp artifacts/bill-tracker-second-stage-review/*.png "$REVIEW/" 2>/dev/null || true; fi
+          cd "$REVIEW"
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "preview: Second Stage format ${GITHUB_RUN_ID}"
+          git commit -m "preview: Second Stage diagnostics ${GITHUB_RUN_ID}"
           git branch -M previews/bill-tracker-second-stage-review
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-review
