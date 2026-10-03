@@ -30,12 +30,12 @@ on:
       date_start:
         description: Optional YYYY-MM-DD; defaults to prior-month overlap window
         required: false
-        default: "2026-09-01"
+        default: "2026-08-01"
         type: string
       date_end:
         description: Optional YYYY-MM-DD
         required: false
-        default: "2026-09-30"
+        default: "2026-08-31"
         type: string
       page_size:
         required: false
