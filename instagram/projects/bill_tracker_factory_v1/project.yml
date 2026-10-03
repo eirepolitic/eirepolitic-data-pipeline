@@ -20,12 +20,14 @@ slides:
     post1: 3
     post2: 3
     first_stage_prototype: 1
+    first_stage_post1: 3
+    first_stage_post2: 3
   expected_slide_count:
     post1: 9
     post2: 9
     first_stage_prototype: 1
     first_stage_post1: 6
-    first_stage_post2: 7
+    first_stage_post2: 6
 output:
   local_root: instagram/production/output/bill_tracker_factory_v1
 publication:
@@ -37,7 +39,7 @@ qa:
     post2: 9
     first_stage_prototype: 1
     first_stage_post1: 6
-    first_stage_post2: 7
+    first_stage_post2: 6
   expected_dimensions: [1080, 1350]
   require_publication_disabled: true
   require_review_state: pending_human_review
