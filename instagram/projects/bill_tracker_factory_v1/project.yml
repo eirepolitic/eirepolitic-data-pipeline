@@ -2,7 +2,7 @@ project_id: bill_tracker_factory_v1
 adapter_module: instagram.projects.bill_tracker_factory_v1.adapter_stage_aware
 period:
   default: post1
-  allowed: [post1, post2, first_stage_prototype]
+  allowed: [post1, post2, first_stage_prototype, first_stage_post1, first_stage_post2]
 source:
   source_label: Houses of the Oireachtas + relevant official departmental material
 render:
