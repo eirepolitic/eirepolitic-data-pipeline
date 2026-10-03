@@ -2,11 +2,25 @@
   "session_id": "2026-10-03-bill-tracker-first-stage",
   "branch": "sly/session/2026-10-03-bill-tracker-first-stage",
   "created_at": "2026-10-03T20:07:00Z",
-  "updated_at": "2026-10-03T20:07:00Z",
+  "updated_at": "2026-10-03T20:40:00Z",
   "intent": "Refresh the live First Stage Bill inventory, verify it against current official Oireachtas state, propose the stage-specific grouping and one-slide information hierarchy, then build one representative First Stage Bill slide through the existing Bill Tracker factory for hosted human review. Do not publish or schedule.",
   "resolved_project": "bill_tracker_factory_v1",
-  "resolved_period": null,
-  "data_sources": [],
+  "resolved_period": "first_stage_prototype",
+  "data_sources": [
+    {
+      "kind": "validated_production_pointer",
+      "batch_id": "written-pq-answers-20260905-1",
+      "pointer": "processed/oireachtas_unified/pointers/production.json",
+      "manifest_status": "validated",
+      "verified_at_utc": "2026-10-03T20:25:31.714286+00:00"
+    },
+    {
+      "kind": "live_official_verification",
+      "source": "Houses of the Oireachtas legislation API and official Bill/debate documents",
+      "verified_date": "2026-10-03",
+      "live_first_stage_count": 6
+    }
+  ],
   "references_consulted": [
     "docs/director_agent_reference.md",
     "director/refs.yml",
@@ -32,11 +46,72 @@
       "choice": "Extend bill_tracker_factory_v1 on the session branch; no parallel permanent renderer.",
       "rationale": "Current main marks bill_tracker_series as merged and the handoff explicitly requires extending the existing factory.",
       "timestamp": "2026-10-03T20:07:00Z"
+    },
+    {
+      "question": "How should the live six-Bill inventory be grouped?",
+      "choice": "Use 3 Bills in Post 1 and 3 Bills in Post 2, producing six slides per post: cover + three Bill slides + process glossary + First Stage explainer.",
+      "rationale": "The live official inventory contains six current First Stage Bills, not seven, so retaining a 3/4 split would knowingly preserve stale inventory assumptions.",
+      "timestamp": "2026-10-03T20:40:00Z"
+    },
+    {
+      "question": "Which Bill should anchor the prototype?",
+      "choice": "Criminal Law (Adult Safeguarding) Bill 2026 (44/2026).",
+      "rationale": "Layout/data complexity only: long title, three named sponsors, substantive initiated text and explanatory memorandum, and enough legal-effect detail to stress-test a single-slide hierarchy without requiring a vote slide.",
+      "timestamp": "2026-10-03T20:40:00Z"
     }
   ],
-  "slide_plan": [],
-  "visual_decisions": {},
-  "runs": [],
+  "slide_plan": [
+    {
+      "period": "first_stage_prototype",
+      "slides": 1,
+      "bill": "Criminal Law (Adult Safeguarding) Bill 2026",
+      "hierarchy": [
+        "Bill identity and metadata",
+        "WHAT THE BILL PROPOSES",
+        "PRACTICAL EFFECT",
+        "WHY IT WAS INTRODUCED",
+        "WHERE IT IS NOW / WHAT HAPPENS NEXT",
+        "official source footer"
+      ]
+    },
+    {
+      "period": "first_stage_post1",
+      "slides": 6,
+      "bills": [
+        "Protection of Tenants' Deposits Bill 2025",
+        "Energy Poverty Reduction (Use of Surplus Renewable Energy) Bill 2025",
+        "Criminal Justice (Trespass on Land) Bill 2025"
+      ]
+    },
+    {
+      "period": "first_stage_post2",
+      "slides": 6,
+      "bills": [
+        "Criminal Law (Adult Safeguarding) Bill 2026",
+        "Defence (Amendment) Bill 2026",
+        "Railway Safety Bill 2026"
+      ]
+    }
+  ],
+  "visual_decisions": {
+    "family": "canonical Bill Tracker Enacted visual grammar",
+    "dimensions": [1080, 1350],
+    "first_stage_bill_slide": "one substantive slide per Bill by default",
+    "comparable_box_typography": "shared-fit sizing based on the most constrained comparable component",
+    "process_direction": "left-to-right",
+    "publication": "disabled"
+  },
+  "runs": [
+    {
+      "run_id": "37152028977",
+      "workflow": "Instagram factory render (generic)",
+      "conclusion": "success",
+      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/bill-tracker-first-stage/index.html",
+      "head_sha": "a40d65b739905d531b1867606b120ee33430178b"
+    }
+  ],
   "feedback": [],
-  "approval_state": "in_progress"
+  "approval_state": "pending_human_review",
+  "publication_enabled": false,
+  "publishing_allowed": false
 }
