@@ -1,0 +1,95 @@
+name: PQ September 2026 diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sly/data/september-2026-pq-refresh
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Inspect production September question coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import boto3
+          import pandas as pd
+
+          from instagram.factory.oireachtas_source import load_csv_tables, resolve_validated_production_batch
+          from political_metrics.calculators.questions import prepare_eligible_td_questions
+
+          s3 = boto3.client('s3', region_name='ca-central-1')
+          batch = resolve_validated_production_batch(s3=s3)
+          tables = [
+              'silver_questions',
+              'silver_member_memberships',
+              'silver_member_parties',
+              'silver_member_constituencies',
+          ]
+          frames, _ = load_csv_tables(batch, tables, s3=s3)
+          q = frames['silver_questions'].copy()
+          q['question_date'] = pd.to_datetime(q['question_date'], errors='coerce')
+          september = q[(q['question_date'] >= '2026-09-01') & (q['question_date'] < '2026-10-01')].copy()
+          dedupe_cols = [c for c in ['question_id', 'member_code', 'question_date'] if c in september.columns]
+          deduped = september.drop_duplicates(subset=dedupe_cols) if dedupe_cols else september.copy()
+          eligible = prepare_eligible_td_questions(
+              deduped,
+              frames['silver_member_memberships'],
+              frames['silver_member_parties'],
+              frames['silver_member_constituencies'],
+          ) if not deduped.empty else deduped.copy()
+
+          def date_range(df):
+              if df.empty or 'question_date' not in df.columns:
+                  return {'min': None, 'max': None}
+              s = pd.to_datetime(df['question_date'], errors='coerce').dropna()
+              return {'min': s.min().isoformat() if not s.empty else None, 'max': s.max().isoformat() if not s.empty else None}
+
+          result = {
+              'production_batch_id': batch.batch_id,
+              'all_question_rows': int(len(q)),
+              'all_question_date_range': date_range(q),
+              'september_question_rows': int(len(september)),
+              'september_deduped_rows': int(len(deduped)),
+              'september_eligible_rows': int(len(eligible)),
+              'september_date_range': date_range(september),
+              'question_columns': list(q.columns),
+              'september_member_code_nonnull': int(september['member_code'].notna().sum()) if 'member_code' in september.columns else None,
+          }
+          Path('director/diagnostics').mkdir(parents=True, exist_ok=True)
+          Path('director/diagnostics/pq-september-2026.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Commit diagnostic evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '4189826+github-actions[bot]@users.noreply.github.com'
+          git add director/diagnostics/pq-september-2026.json
+          git commit -m 'Record September PQ production diagnostic' || true
+          git push origin HEAD:sly/data/september-2026-pq-refresh
