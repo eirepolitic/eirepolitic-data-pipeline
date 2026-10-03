@@ -7,13 +7,9 @@ permissions:
   contents: write
 
 jobs:
-  first_stage_inventory:
+  first_stage_live_verification:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,74 +18,91 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install bounded analysis dependencies
-        run: python -m pip install boto3 pandas
-      - name: Resolve validated production batch and extract First Stage inventory
+        run: python -m pip install requests
+      - name: Fetch current official legislation state
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
-          import pandas as pd
-          from instagram.factory.oireachtas_source import resolve_validated_production_batch, load_csv_tables
+          from extract.oireachtas.client import OireachtasClient
 
-          batch = resolve_validated_production_batch()
-          wanted = [
-              'silver_bills', 'silver_bill_stages', 'silver_bill_sponsors',
-              'silver_bill_debates', 'silver_speeches', 'silver_divisions', 'silver_member_votes'
-          ]
-          frames, lineage = load_csv_tables(batch, wanted)
-          bills = frames['silver_bills'].copy()
-          stages = frames['silver_bill_stages'].copy()
+          client = OireachtasClient()
+          rows = []
+          for chamber, house_no in [('dail','34'), ('seanad','27')]:
+              summary = client.get_json_summary('/legislation', params={
+                  'chamber': chamber,
+                  'house_no': house_no,
+                  'date_start': '2025-11-01',
+                  'date_end': '2026-10-03',
+                  'limit': 200,
+              })
+              if not summary.ok or not summary.payload:
+                  raise RuntimeError(f'Official Oireachtas API failed for {chamber}/{house_no}: {summary.error}')
+              for item in summary.payload.get('results') or []:
+                  bill = item.get('bill') if isinstance(item, dict) and isinstance(item.get('bill'), dict) else item
+                  if not isinstance(bill, dict):
+                      continue
+                  title = bill.get('shortTitleEn') or bill.get('longTitleEn') or bill.get('showAs') or bill.get('title')
+                  bill_no = bill.get('billNo') or bill.get('billNumber')
+                  bill_year = bill.get('billYear') or bill.get('year')
+                  status = bill.get('status')
+                  uri = bill.get('uri') or bill.get('billUri')
+                  recent = bill.get('mostRecentStage')
+                  stages = bill.get('stages') if isinstance(bill.get('stages'), list) else []
+                  rows.append({
+                      'query_chamber': chamber,
+                      'query_house_no': house_no,
+                      'bill_no': bill_no,
+                      'bill_year': bill_year,
+                      'title': title,
+                      'status': status,
+                      'uri': uri,
+                      'most_recent_stage': recent,
+                      'stages': stages,
+                      'sponsors': bill.get('sponsors'),
+                      'origin_house': bill.get('originHouse'),
+                      'last_updated': bill.get('lastUpdated'),
+                  })
 
-          def textcol(df, name):
-              return df[name].fillna('').astype(str) if name in df.columns else pd.Series([''] * len(df), index=df.index)
+          def texts(value):
+              if isinstance(value, dict):
+                  for k,v in value.items():
+                      if str(k).lower() in {'showas','stagename','name','stageoutcome','outcome'} and not isinstance(v,(dict,list)):
+                          yield str(v)
+                      yield from texts(v)
+              elif isinstance(value, list):
+                  for v in value:
+                      yield from texts(v)
 
-          stages['_date'] = pd.to_datetime(textcol(stages, 'stage_date'), errors='coerce')
-          stages['_order'] = pd.to_numeric(textcol(stages, 'order_in_bill'), errors='coerce').fillna(-1)
-          latest = (stages.sort_values(['bill_id', '_date', '_order'], na_position='first')
-                         .groupby('bill_id', as_index=False).tail(1))
-          first = latest[textcol(latest, 'stage_name').str.contains('First Stage', case=False, na=False)].copy()
-          first_ids = set(first['bill_id'].astype(str))
-          bill_rows = bills[bills['bill_id'].astype(str).isin(first_ids)].copy()
-          if 'bill_year' in bill_rows.columns:
-              bill_rows = bill_rows[bill_rows['bill_year'].astype(str).eq('2026')]
-              first_ids = set(bill_rows['bill_id'].astype(str))
-              first = first[first['bill_id'].astype(str).isin(first_ids)]
+          first_stage = []
+          for row in rows:
+              recent_text = ' | '.join(texts(row.get('most_recent_stage')))
+              if 'first stage' in recent_text.lower():
+                  first_stage.append(row)
 
           report = {
-              'verified_at_utc': pd.Timestamp.utcnow().isoformat(),
-              'source_batch_id': batch.batch_id,
-              'source_pointer': batch.pointer,
-              'batch_manifest_status': batch.manifest.get('status'),
-              'lineage': lineage,
-              'latest_first_stage_count_2026': len(first_ids),
-              'bills': bill_rows.fillna('').to_dict(orient='records'),
-              'latest_stage_rows': first.drop(columns=['_date','_order'], errors='ignore').fillna('').to_dict(orient='records'),
-              'all_stage_rows': frames['silver_bill_stages'][frames['silver_bill_stages']['bill_id'].astype(str).isin(first_ids)].fillna('').to_dict(orient='records'),
-              'sponsor_rows': frames['silver_bill_sponsors'][frames['silver_bill_sponsors']['bill_id'].astype(str).isin(first_ids)].fillna('').to_dict(orient='records'),
-              'bill_debate_rows': frames['silver_bill_debates'][frames['silver_bill_debates']['bill_id'].astype(str).isin(first_ids)].fillna('').to_dict(orient='records'),
+              'verified_date': '2026-10-03',
+              'source': 'https://api.oireachtas.ie/v1/legislation',
+              'queries': [
+                  {'chamber':'dail','house_no':'34','date_start':'2025-11-01','date_end':'2026-10-03'},
+                  {'chamber':'seanad','house_no':'27','date_start':'2025-11-01','date_end':'2026-10-03'},
+              ],
+              'first_stage_count': len(first_stage),
+              'first_stage_bills': first_stage,
+              'production_candidate_checks': [r for r in rows if str(r.get('bill_year')) == '2026' and str(r.get('bill_no')) in {'26','40','44','63','65','76','82'}],
           }
-          # Include divisions/member-vote table schemas and counts for procedural inspection without assuming a direct bill_id column.
-          report['division_table'] = {'columns': list(frames['silver_divisions'].columns), 'row_count': len(frames['silver_divisions'])}
-          report['member_vote_table'] = {'columns': list(frames['silver_member_votes'].columns), 'row_count': len(frames['silver_member_votes'])}
-          report['speech_table'] = {'columns': list(frames['silver_speeches'].columns), 'row_count': len(frames['silver_speeches'])}
-
-          out = Path('director/sessions/2026-10-03-bill-tracker-first-stage/production_inventory.json')
-          out.parent.mkdir(parents=True, exist_ok=True)
+          out = Path('director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory.json')
           out.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding='utf-8')
-          print(json.dumps({
-              'source_batch_id': batch.batch_id,
-              'latest_first_stage_count_2026': len(first_ids),
-              'titles': bill_rows.get('title', pd.Series(dtype=str)).tolist(),
-          }, indent=2, ensure_ascii=False))
+          print(json.dumps({'first_stage_count': len(first_stage), 'first_stage': [(r['bill_no'],r['title'],r['query_chamber']) for r in first_stage]}, indent=2, ensure_ascii=False))
           PY
-      - name: Commit inventory report to session branch
+      - name: Commit official verification report
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add director/sessions/2026-10-03-bill-tracker-first-stage/production_inventory.json
-          git commit -m 'director: record live First Stage production inventory'
+          git add director/sessions/2026-10-03-bill-tracker-first-stage/official_live_inventory.json
+          git commit -m 'director: record current official First Stage inventory'
           git push origin HEAD:sly/session/2026-10-03-bill-tracker-first-stage
