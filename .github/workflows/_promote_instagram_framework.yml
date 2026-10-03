@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  inspect-vote-compat:
+  compare-vote-window:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pandas boto3
-      - name: Analyze legacy vs unified vote compatibility
+      - name: Compare common vote date window
         run: |
           python - <<'PY'
           import io, json, os
@@ -35,53 +35,32 @@ jobs:
 
           s3=boto3.client('s3'); bucket=os.environ['S3_BUCKET']; batch_id=os.environ['BATCH_ID']
           def read(key):
-              body=s3.get_object(Bucket=bucket,Key=key)['Body'].read()
-              return pd.read_csv(io.BytesIO(body),dtype=str,keep_default_na=False)
-          legacy_key='processed/votes/dail_vote_member_records.csv'
-          compat_key='processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv'
-          candidate_key=batch_key_for_production_key('processed/oireachtas_unified/latest/csv/silver_member_votes.csv',batch_id)
-          legacy=read(legacy_key); compat=read(compat_key); candidate=read(candidate_key)
-
-          def dates(df,col):
-              d=pd.to_datetime(df[col],errors='coerce') if col in df.columns else pd.Series(dtype='datetime64[ns]')
-              return d
-          ld=dates(legacy,'date'); cd=dates(compat,'date'); vd=dates(candidate,'division_date')
-          legacy_max=ld.max()
-          compat_key_dupes=int(compat.duplicated(['memberCode','unique_vote_id']).sum())
-          legacy_key_dupes=int(legacy.duplicated(['memberCode','unique_vote_id']).sum()) if {'memberCode','unique_vote_id'}.issubset(legacy.columns) else None
-          candidate_pk=[c for c in ['member_code','division_id'] if c in candidate.columns]
-          candidate_dupes=int(candidate.duplicated(candidate_pk).sum()) if len(candidate_pk)==2 else None
-
-          overlap_compat=compat[cd <= legacy_max] if pd.notna(legacy_max) else compat.iloc[0:0]
-          newer_compat=compat[cd > legacy_max] if pd.notna(legacy_max) else compat
+              return pd.read_csv(io.BytesIO(s3.get_object(Bucket=bucket,Key=key)['Body'].read()),dtype=str,keep_default_na=False)
+          legacy=read('processed/votes/dail_vote_member_records.csv')
+          candidate=read(batch_key_for_production_key('processed/oireachtas_unified/latest/csv/silver_member_votes.csv',batch_id))
+          ld=pd.to_datetime(legacy['date'],errors='coerce'); cd=pd.to_datetime(candidate['division_date'],errors='coerce')
+          start,end=ld.min(),ld.max(); scoped=candidate[(cd>=start)&(cd<=end)].copy()
+          row_delta=abs(len(scoped)-len(legacy))/max(len(legacy),1)*100
+          legacy_members=set(legacy['memberCode'].astype(str).str.strip())-{''}
+          scoped_members=set(scoped['member_code'].astype(str).str.strip())-{''}
           report={
-              'legacy':{
-                  'rows':len(legacy),'columns':list(legacy.columns),'date_min':str(ld.min().date()) if ld.notna().any() else None,
-                  'date_max':str(ld.max().date()) if ld.notna().any() else None,'unique_dates':int(ld.dt.date.nunique()) if ld.notna().any() else 0,
-                  'unique_vote_ids':int(legacy['unique_vote_id'].nunique()) if 'unique_vote_id' in legacy.columns else None,
-                  'member_vote_pk_duplicates':legacy_key_dupes,
-              },
-              'compat':{
-                  'rows':len(compat),'date_min':str(cd.min().date()) if cd.notna().any() else None,
-                  'date_max':str(cd.max().date()) if cd.notna().any() else None,'unique_dates':int(cd.dt.date.nunique()) if cd.notna().any() else 0,
-                  'unique_vote_ids':int(compat['unique_vote_id'].nunique()),'member_vote_pk_duplicates':compat_key_dupes,
-                  'rows_through_legacy_max_date':int(len(overlap_compat)),'rows_after_legacy_max_date':int(len(newer_compat)),
-                  'unique_vote_ids_after_legacy_max_date':int(newer_compat['unique_vote_id'].nunique()) if len(newer_compat) else 0,
-              },
-              'candidate_silver_member_votes':{
-                  'key':candidate_key,'rows':len(candidate),'date_min':str(vd.min().date()) if vd.notna().any() else None,
-                  'date_max':str(vd.max().date()) if vd.notna().any() else None,'unique_division_ids':int(candidate['division_id'].nunique()) if 'division_id' in candidate.columns else None,
-                  'pk_duplicates':candidate_dupes,
-              },
+            'legacy_window_start':str(start.date()),'legacy_window_end':str(end.date()),
+            'legacy_rows':len(legacy),'candidate_rows_in_legacy_window':len(scoped),
+            'row_delta_pct_in_legacy_window':round(row_delta,4),
+            'legacy_unique_vote_ids':int(legacy['unique_vote_id'].nunique()),
+            'candidate_unique_divisions_in_legacy_window':int(scoped['division_id'].nunique()),
+            'legacy_only_member_codes':sorted(legacy_members-scoped_members),
+            'candidate_only_member_codes':sorted(scoped_members-legacy_members),
+            'candidate_pk_duplicates_in_legacy_window':int(scoped.duplicated(['member_code','division_id']).sum()),
           }
-          out=Path('diagnostics/oireachtas_validation/vote_compat_divergence.json')
-          out.parent.mkdir(parents=True,exist_ok=True); out.write_text(json.dumps(report,indent=2),encoding='utf-8')
+          out=Path('diagnostics/oireachtas_validation/vote_compat_overlap.json')
+          out.write_text(json.dumps(report,indent=2),encoding='utf-8')
           print(json.dumps(report,indent=2))
           PY
       - name: Commit diagnostics
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/oireachtas_validation/vote_compat_divergence.json
-          git commit -m 'chore: record vote compatibility divergence analysis'
+          git add diagnostics/oireachtas_validation/vote_compat_overlap.json
+          git commit -m 'chore: record vote compatibility overlap analysis'
           git push origin HEAD:fix/oireachtas-orchestrator-startup
