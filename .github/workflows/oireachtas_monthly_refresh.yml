@@ -6,13 +6,13 @@ on:
       mode:
         description: Build mode
         required: true
-        default: test
+        default: incremental
         type: choice
         options: [test, incremental, full]
       publish_candidate:
         description: Write immutable candidate batch objects
         required: true
-        default: false
+        default: true
         type: boolean
       tables:
         description: Optional comma-separated table list
@@ -30,12 +30,12 @@ on:
       date_start:
         description: Optional YYYY-MM-DD; defaults to prior-month overlap window
         required: false
-        default: ""
+        default: "2026-09-01"
         type: string
       date_end:
         description: Optional YYYY-MM-DD
         required: false
-        default: ""
+        default: "2026-09-30"
         type: string
       page_size:
         required: false
@@ -64,4 +64,5 @@ jobs:
       sample_rows: ${{ inputs.sample_rows }}
       batch_id: manual-monthly-${{ github.run_id }}-${{ github.run_attempt }}
       publish_candidate: ${{ inputs.publish_candidate }}
+      seed_from_production: ${{ inputs.publish_candidate }}
     secrets: inherit
