@@ -10,7 +10,7 @@ on:
       period:
         description: 'Period spec (YYYY-MM, latest, last_completed_month) — leave blank for the project default'
         required: false
-        default: 'first_stage_post2'
+        default: 'first_stage_post1'
       preview_slug:
         description: 'Preview branch slug (defaults to project_id)'
         required: false
