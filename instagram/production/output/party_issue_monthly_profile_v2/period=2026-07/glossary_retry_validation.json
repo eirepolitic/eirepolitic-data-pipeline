@@ -1,0 +1,32 @@
+{
+  "period": "2026-07",
+  "source_batch_id": "contextual-vote-foundations-20260904-1",
+  "classification_policy_labelled_rows": 2009,
+  "eligible_policy_speeches_used_in_post": 2008,
+  "count_note": "The classification readiness gate contains 2,009 policy-labelled July rows. The recurring post uses the 2,008-row Dail-eligible, period-correct party-attributed policy subset after canonical membership/party eligibility filtering.",
+  "unmatched_classified_rows": 0,
+  "party_count": 11,
+  "slide_count": 55,
+  "qa_passed": 55,
+  "qa_failed": 0,
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "glossary_content_bounds": {
+    "left": 135,
+    "right": 945,
+    "max_width": 810
+  },
+  "glossary_checks": [
+    {"party":"100% RDR","party_key":"100-rdr","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Aontú","party_key":"aontu","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Fianna Fáil","party_key":"fianna-fail","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Fine Gael","party_key":"fine-gael","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Green Party","party_key":"green-party","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Independent","party_key":"independent","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Independent Ireland","party_key":"independent-ireland","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Labour Party","party_key":"labour-party","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"People Before Profit-Solidarity","party_key":"people-before-profit-solidarity","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Sinn Féin","party_key":"sinn-fein","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0},
+    {"party":"Social Democrats","party_key":"social-democrats","min_text_left_px":135,"max_text_right_px":928,"left_overflow_count":0,"right_overflow_count":0}
+  ]
+}
