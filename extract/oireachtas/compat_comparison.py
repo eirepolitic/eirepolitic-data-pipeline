@@ -26,6 +26,7 @@ COMPARISONS = [
         "compat_key": "processed/oireachtas_unified/compat/members/oireachtas_members_34th_dail_compat.csv",
         "legacy_join_column": "member_code",
         "compat_join_column": "member_code",
+        "comparison_scope": "all_rows",
     },
     {
         "comparison_name": "member_votes_compat",
@@ -33,6 +34,9 @@ COMPARISONS = [
         "compat_key": "processed/oireachtas_unified/compat/votes/dail_vote_member_records_compat.csv",
         "legacy_join_column": "memberCode",
         "compat_join_column": "memberCode",
+        "comparison_scope": "legacy_date_range",
+        "legacy_date_column": "date",
+        "compat_date_column": "date",
     },
 ]
 
@@ -98,8 +102,9 @@ def build_compat_comparison(*, s3: Any, bucket: str, review_root: Path, sample_r
 
 
 def _compare_one(*, s3: Any, bucket: str, config: dict[str, str], thresholds: dict[str, Any]) -> dict[str, Any]:
-    legacy_df = _read_csv(s3, bucket=bucket, key=config["legacy_key"])
-    compat_df = _read_csv(s3, bucket=bucket, key=config["compat_key"])
+    legacy_full = _read_csv(s3, bucket=bucket, key=config["legacy_key"])
+    compat_full = _read_csv(s3, bucket=bucket, key=config["compat_key"])
+    legacy_df, compat_df, scope_meta = _scope_comparison_frames(legacy_full, compat_full, config)
     legacy_col = config["legacy_join_column"]
     compat_col = config["compat_join_column"]
     legacy_keys = _keys(legacy_df, legacy_col)
@@ -109,8 +114,15 @@ def _compare_one(*, s3: Any, bucket: str, config: dict[str, str], thresholds: di
         "comparison_name": config["comparison_name"],
         "legacy_key": config["legacy_key"],
         "compat_key": config["compat_key"],
+        "comparison_scope": scope_meta["comparison_scope"],
+        "comparison_date_start": scope_meta["comparison_date_start"],
+        "comparison_date_end": scope_meta["comparison_date_end"],
+        "legacy_total_rows": int(len(legacy_full)),
+        "compat_total_rows": int(len(compat_full)),
         "legacy_rows": int(len(legacy_df)),
         "compat_rows": int(len(compat_df)),
+        "compat_rows_before_comparison_window": scope_meta["compat_rows_before_comparison_window"],
+        "compat_rows_after_comparison_window": scope_meta["compat_rows_after_comparison_window"],
         "legacy_columns": int(len(legacy_df.columns)),
         "compat_columns": int(len(compat_df.columns)),
         "legacy_join_column": legacy_col,
@@ -136,6 +148,52 @@ def _compare_one(*, s3: Any, bucket: str, config: dict[str, str], thresholds: di
     row["max_row_delta_pct"] = threshold.max_row_delta_pct
     row["minimum_compat_join_coverage_pct"] = threshold.minimum_compat_join_coverage_pct
     return row
+
+
+def _scope_comparison_frames(
+    legacy_df: pd.DataFrame,
+    compat_df: pd.DataFrame,
+    config: dict[str, str],
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    scope = str(config.get("comparison_scope") or "all_rows")
+    metadata: dict[str, Any] = {
+        "comparison_scope": scope,
+        "comparison_date_start": "",
+        "comparison_date_end": "",
+        "compat_rows_before_comparison_window": 0,
+        "compat_rows_after_comparison_window": 0,
+    }
+    if scope == "all_rows":
+        return legacy_df, compat_df, metadata
+    if scope != "legacy_date_range":
+        raise ValueError(f"Unsupported comparison scope {scope!r} for {config.get('comparison_name')}")
+
+    legacy_date_col = str(config.get("legacy_date_column") or "")
+    compat_date_col = str(config.get("compat_date_column") or "")
+    if legacy_date_col not in legacy_df.columns:
+        raise ValueError(f"Legacy date column {legacy_date_col!r} is missing for {config.get('comparison_name')}")
+    if compat_date_col not in compat_df.columns:
+        raise ValueError(f"Compat date column {compat_date_col!r} is missing for {config.get('comparison_name')}")
+
+    legacy_dates = pd.to_datetime(legacy_df[legacy_date_col], errors="coerce")
+    valid_legacy = legacy_dates.notna()
+    if not valid_legacy.any():
+        raise ValueError(f"Legacy comparison has no valid dates for {config.get('comparison_name')}")
+    start = legacy_dates.loc[valid_legacy].min()
+    end = legacy_dates.loc[valid_legacy].max()
+    compat_dates = pd.to_datetime(compat_df[compat_date_col], errors="coerce")
+
+    legacy_mask = valid_legacy & legacy_dates.between(start, end, inclusive="both")
+    compat_mask = compat_dates.notna() & compat_dates.between(start, end, inclusive="both")
+    metadata.update(
+        {
+            "comparison_date_start": start.date().isoformat(),
+            "comparison_date_end": end.date().isoformat(),
+            "compat_rows_before_comparison_window": int((compat_dates.notna() & (compat_dates < start)).sum()),
+            "compat_rows_after_comparison_window": int((compat_dates.notna() & (compat_dates > end)).sum()),
+        }
+    )
+    return legacy_df.loc[legacy_mask].copy(), compat_df.loc[compat_mask].copy(), metadata
 
 
 def _read_csv(s3: Any, *, bucket: str, key: str) -> pd.DataFrame:
@@ -187,7 +245,7 @@ def _markdown_report(df: pd.DataFrame, manifest: dict[str, Any]) -> str:
         "",
         f"Run ID: `{manifest['run_id']}`",
         "",
-        "Strict configured thresholds are applied to missing keys, row divergence, and join coverage.",
+        "Strict configured thresholds are applied to missing keys, row divergence, and join coverage. Date-bounded legacy snapshots are compared only over their own observed date range; newer unified history is reported separately and is not treated as divergence.",
         "",
         _simple_markdown_table(df),
         "",
