@@ -1,0 +1,42 @@
+{
+  "legacy": {
+    "rows": 30968,
+    "columns": [
+      "voteId",
+      "date",
+      "subject",
+      "outcome",
+      "memberCode",
+      "memberName",
+      "vote",
+      "debateShowAs",
+      "debateSection",
+      "committeeCode",
+      "unique_vote_id"
+    ],
+    "date_min": "2025-01-23",
+    "date_max": "2025-12-17",
+    "unique_dates": 54,
+    "unique_vote_ids": 207,
+    "member_vote_pk_duplicates": 0
+  },
+  "compat": {
+    "rows": 8252,
+    "date_min": "2026-06-09",
+    "date_max": "2026-07-08",
+    "unique_dates": 9,
+    "unique_vote_ids": 56,
+    "member_vote_pk_duplicates": 0,
+    "rows_through_legacy_max_date": 0,
+    "rows_after_legacy_max_date": 8252,
+    "unique_vote_ids_after_legacy_max_date": 56
+  },
+  "candidate_silver_member_votes": {
+    "key": "processed/oireachtas_unified/batches/scheduled-weekly-37154732444-1/tables/silver_member_votes/csv/silver_member_votes.csv",
+    "rows": 62447,
+    "date_min": "2024-12-18",
+    "date_max": "2026-09-30",
+    "unique_division_ids": 422,
+    "pk_duplicates": 0
+  }
+}
