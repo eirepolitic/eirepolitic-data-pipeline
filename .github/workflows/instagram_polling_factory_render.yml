@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   render:
@@ -20,7 +21,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pillow
-      - name: Download canonical enacted production slide
+      - name: Download canonical Bill Tracker factory artifact
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -28,10 +29,12 @@ jobs:
           set -euo pipefail
           curl -fL \
             -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github.raw" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/slide_01.png?ref=previews%2Fbill-tracker-publication-post1" \
-            -o /tmp/canonical_bill_tracker.png
-          test -s /tmp/canonical_bill_tracker.png
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11010749005/zip" \
+            -o /tmp/canonical.zip
+          mkdir -p /tmp/canonical
+          unzip -q /tmp/canonical.zip -d /tmp/canonical
+          find /tmp/canonical -maxdepth 3 -type f -print
       - name: Extract exact canonical corner accents
         shell: bash
         run: |
@@ -39,9 +42,19 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           from PIL import Image
-          src=Image.open('/tmp/canonical_bill_tracker.png').convert('RGBA')
-          if src.size != (1080,1350):
-              raise SystemExit(f'unexpected canonical size: {src.size}')
+          root=Path('/tmp/canonical')
+          # Prefer a rendered 1080x1350 slide from the approved factory artifact.
+          candidates=[]
+          for p in root.rglob('*.png'):
+              try:
+                  with Image.open(p) as im:
+                      if im.size == (1080,1350): candidates.append(p)
+              except Exception:
+                  pass
+          if not candidates:
+              raise SystemExit('No 1080x1350 canonical slide found in approved factory artifact')
+          src=Image.open(candidates[0]).convert('RGBA')
+          print('using canonical slide', candidates[0])
           out=Path('instagram/templates/assets'); out.mkdir(parents=True,exist_ok=True)
           crops={
             'corner_tl.png':(0,0,155,155),
@@ -50,7 +63,7 @@ jobs:
             'corner_br.png':(925,1195,1080,1350),
           }
           for name,box in crops.items(): src.crop(box).save(out/name)
-          print('canonical corner accents extracted')
+          print('canonical corner accents extracted from approved factory artifact')
           PY
       - name: Render both Second Stage posts
         run: python process/tmp_render_second_stage_posts.py
@@ -80,7 +93,7 @@ jobs:
           cp artifacts/bill-tracker-second-stage-posts/post1/*.png "$REVIEW/post1/"
           cp artifacts/bill-tracker-second-stage-posts/post2/*.png "$REVIEW/post2/"
           cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Second Stage posts</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}a{color:#d8b45f}.sheet{width:100%;height:auto;display:block;margin:20px 0 44px}.meta{color:#c8bda8;line-height:1.5}</style></head><body><main><h1>Bill Tracker · Second Stage</h1><div class="meta">Two review carousels using the canonical Bill Tracker corner accents extracted directly from the approved Enacted production slide.</div><h2>Post 1</h2><p><a href="post1/index.html">Open Post 1 individual-slide review</a></p><img class="sheet" src="post1/contact-sheet.png"><h2>Post 2</h2><p><a href="post2/index.html">Open Post 2 individual-slide review</a></p><img class="sheet" src="post2/contact-sheet.png"></main></body></html>
+          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Second Stage posts</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}a{color:#d8b45f}.sheet{width:100%;height:auto;display:block;margin:20px 0 44px}.meta{color:#c8bda8;line-height:1.5}</style></head><body><main><h1>Bill Tracker · Second Stage</h1><div class="meta">Two review carousels using the canonical Bill Tracker corner accents extracted from the approved Enacted factory artifact.</div><h2>Post 1</h2><p><a href="post1/index.html">Open Post 1 individual-slide review</a></p><img class="sheet" src="post1/contact-sheet.png"><h2>Post 2</h2><p><a href="post2/index.html">Open Post 2 individual-slide review</a></p><img class="sheet" src="post2/contact-sheet.png"></main></body></html>
           HTML
           for P in post1 post2; do
             cat > "$REVIEW/$P/index.html" <<HTML
