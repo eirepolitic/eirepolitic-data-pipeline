@@ -2,10 +2,9 @@
   "session_id": "2026-10-03-bill-tracker-first-stage",
   "branch": "sly/session/2026-10-03-bill-tracker-first-stage",
   "created_at": "2026-10-03T20:07:00Z",
-  "updated_at": "2026-10-03T20:40:00Z",
-  "intent": "Refresh the live First Stage Bill inventory, verify it against current official Oireachtas state, propose the stage-specific grouping and one-slide information hierarchy, then build one representative First Stage Bill slide through the existing Bill Tracker factory for hosted human review. Do not publish or schedule.",
+  "updated_at": "2026-10-03T21:20:00Z",
+  "intent": "Develop and review the First Stage variant of the merged Bill Tracker factory using current verified Oireachtas state. No publishing or scheduling unless separately and explicitly approved.",
   "resolved_project": "bill_tracker_factory_v1",
-  "resolved_period": "first_stage_prototype",
   "data_sources": [
     {
       "kind": "validated_production_pointer",
@@ -16,102 +15,46 @@
     },
     {
       "kind": "live_official_verification",
-      "source": "Houses of the Oireachtas legislation API and official Bill/debate documents",
+      "source": "Houses of the Oireachtas legislation API, Bill pages, initiated Bills, explanatory memoranda and First Stage records",
       "verified_date": "2026-10-03",
       "live_first_stage_count": 6
     }
   ],
-  "references_consulted": [
-    "docs/director_agent_reference.md",
-    "director/refs.yml",
-    "director/semantics.md",
-    "director/README.md",
-    "director/references.yml",
-    "director/visuals.yml",
-    "director/workflows_v1.md",
-    "director/data_products.yml",
-    "director/sessions/README.md",
-    "instagram/projects/bill_tracker_factory_v1/project.yml",
-    "instagram/projects/bill_tracker_factory_v1/content.yml",
-    "instagram/projects/bill_tracker_factory_v1/adapter.py",
-    "instagram/projects/bill_tracker_factory_v1/renderers.py",
-    "completed_posts/summaries/2026-10-02-bill-tracker-enacted-post1.json",
-    "completed_posts/summaries/2026-10-03-bill-tracker-enacted-post2.json",
-    "Irish Politics Data Model public documentation",
-    "docs/research/bill_tracker_series.md on feature/bill-content-snapshot-v1 (historical only)"
-  ],
-  "decisions": [
-    {
-      "question": "Which architecture should the prototype use?",
-      "choice": "Extend bill_tracker_factory_v1 on the session branch; no parallel permanent renderer.",
-      "rationale": "Current main marks bill_tracker_series as merged and the handoff explicitly requires extending the existing factory.",
-      "timestamp": "2026-10-03T20:07:00Z"
+  "grouping": {
+    "first_stage_post1": ["4/2025", "6/2025", "55/2025"],
+    "first_stage_post2": ["44/2026", "63/2026", "82/2026"]
+  },
+  "approval": {
+    "prototype": {
+      "status": "approved",
+      "approved_with_change": "Increase WHAT FIRST STAGE MEANS body text to fill the box more fully",
+      "implemented": true
     },
-    {
-      "question": "How should the live six-Bill inventory be grouped?",
-      "choice": "Use 3 Bills in Post 1 and 3 Bills in Post 2, producing six slides per post: cover + three Bill slides + process glossary + First Stage explainer.",
-      "rationale": "The live official inventory contains six current First Stage Bills, not seven, so retaining a 3/4 split would knowingly preserve stale inventory assumptions.",
-      "timestamp": "2026-10-03T20:40:00Z"
+    "first_stage_post2": {
+      "status": "approved",
+      "approved_by_human": true,
+      "approved_after_run": "37154378301"
     },
-    {
-      "question": "Which Bill should anchor the prototype?",
-      "choice": "Criminal Law (Adult Safeguarding) Bill 2026 (44/2026).",
-      "rationale": "Layout/data complexity only: long title, three named sponsors, substantive initiated text and explanatory memorandum, and enough legal-effect detail to stress-test a single-slide hierarchy without requiring a vote slide.",
-      "timestamp": "2026-10-03T20:40:00Z"
+    "first_stage_post1": {
+      "status": "pending_human_review",
+      "build_started": true
     }
-  ],
-  "slide_plan": [
-    {
-      "period": "first_stage_prototype",
-      "slides": 1,
-      "bill": "Criminal Law (Adult Safeguarding) Bill 2026",
-      "hierarchy": [
-        "Bill identity and metadata",
-        "WHAT THE BILL PROPOSES",
-        "PRACTICAL EFFECT",
-        "WHY IT WAS INTRODUCED",
-        "WHERE IT IS NOW / WHAT HAPPENS NEXT",
-        "official source footer"
-      ]
-    },
-    {
-      "period": "first_stage_post1",
-      "slides": 6,
-      "bills": [
-        "Protection of Tenants' Deposits Bill 2025",
-        "Energy Poverty Reduction (Use of Surplus Renewable Energy) Bill 2025",
-        "Criminal Justice (Trespass on Land) Bill 2025"
-      ]
-    },
-    {
-      "period": "first_stage_post2",
-      "slides": 6,
-      "bills": [
-        "Criminal Law (Adult Safeguarding) Bill 2026",
-        "Defence (Amendment) Bill 2026",
-        "Railway Safety Bill 2026"
-      ]
-    }
-  ],
+  },
   "visual_decisions": {
     "family": "canonical Bill Tracker Enacted visual grammar",
     "dimensions": [1080, 1350],
     "first_stage_bill_slide": "one substantive slide per Bill by default",
     "comparable_box_typography": "shared-fit sizing based on the most constrained comparable component",
     "process_direction": "left-to-right",
+    "process_highlight": "FIRST",
     "publication": "disabled"
   },
   "runs": [
-    {
-      "run_id": "37152028977",
-      "workflow": "Instagram factory render (generic)",
-      "conclusion": "success",
-      "review_url": "https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/bill-tracker-first-stage/index.html",
-      "head_sha": "a40d65b739905d531b1867606b120ee33430178b"
-    }
+    {"run_id": "37152028977", "purpose": "prototype", "conclusion": "success"},
+    {"run_id": "37154378301", "purpose": "first_stage_post2 clean review", "conclusion": "success", "human_approval": true},
+    {"run_id": "37154679275", "purpose": "first_stage_post1 clean review", "conclusion": "in_progress"}
   ],
-  "feedback": [],
-  "approval_state": "pending_human_review",
+  "approval_state": "partially_approved_pending_post1_review",
   "publication_enabled": false,
   "publishing_allowed": false
 }
