@@ -12,6 +12,7 @@ from instagram.visuals.renderers import horizontal_bar_grouped_singleline
 HEADLINE_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
 DESCRIPTOR_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/descriptor_layout_v1.json")
 _original_render_text_slide = base._render_text_slide
+_fewest_override: dict[str, Any] | None = None
 
 # Review-only Slide 3 adjustments requested by Warren on 2026-09-28:
 # - force top-asker names to one line at a slightly smaller font size;
@@ -37,6 +38,82 @@ def _first_int(text: str) -> str:
     return match.group(0) if match else ""
 
 
+def _prepare_fewest_override(project: dict[str, Any], period_spec: str) -> dict[str, Any]:
+    """Compute the bottom-10 eligible non-office-holder TDs for the review slide.
+
+    This deliberately preserves the established eligibility rule (seated for the
+    full period; ministerial-type office-holders excluded via silver_member_offices)
+    but removes the old under-25%-zero-question text-only branch. Warren requested
+    a bottom-10 chart during final review on 2026-10-03.
+    """
+    period = base.resolve_period(period_spec)
+    base.require_completed_calendar_month(period)
+    period_key = period.start.strftime("%Y-%m")
+    period_label = base._period_label(period)
+
+    s3 = base.boto3.client("s3", region_name="ca-central-1")
+    batch = base.resolve_validated_production_batch(s3=s3)
+    required_tables = [str(v) for v in ((project.get("source") or {}).get("required_tables") or [])]
+    frames, _ = base.load_csv_tables(batch, required_tables, s3=s3)
+
+    period_questions = base.filter_period(frames["silver_questions"], "question_date", period)
+    deduped_questions, _ = base._dedupe_questions(period_questions)
+    eligible = base.prepare_eligible_td_questions(
+        deduped_questions,
+        frames["silver_member_memberships"],
+        frames["silver_member_parties"],
+        frames["silver_member_constituencies"],
+    )
+    if eligible.empty:
+        raise RuntimeError(f"No Dáil-eligible questions found for {period_key}")
+
+    member_counts = base.member_question_metrics(eligible)
+    roster = base._period_end_roster(
+        frames["silver_member_memberships"],
+        frames["silver_member_parties"],
+        frames["silver_members"],
+        period=period,
+    )
+    office_holder_codes = base._office_holder_codes(frames["silver_member_offices"], period=period)
+    full_month_roster = roster[roster["seated_full_period"]].copy()
+    pool = full_month_roster[~full_month_roster["member_code"].isin(office_holder_codes)].copy()
+    pool = pool.merge(member_counts[["member_code", "question_count"]], on="member_code", how="left")
+    pool["question_count"] = pool["question_count"].fillna(0).astype(int)
+
+    bottom = pool.sort_values(["question_count", "member_name"], ascending=[True, True]).head(10).copy()
+    rows = [
+        {"label": row.member_name, "value": int(row.question_count), "group": row.party_key}
+        for row in bottom.itertuples(index=False)
+    ]
+    legend_labels = {row.party_key: row.display_party_name for row in bottom.itertuples(index=False)}
+    records = [
+        {
+            "member_code": row.member_code,
+            "member_name": row.member_name,
+            "party_name": row.display_party_name,
+            "party_key": row.party_key,
+            "question_count": int(row.question_count),
+        }
+        for row in bottom.itertuples(index=False)
+    ]
+    zero_count = int((pool["question_count"] == 0).sum())
+    total_pool = int(len(pool))
+
+    return {
+        "period": period,
+        "period_key": period_key,
+        "period_label": period_label,
+        "source_batch_id": batch.batch_id,
+        "rows": rows,
+        "legend_labels": legend_labels,
+        "records": records,
+        "office_holders_excluded_count": int(len(full_month_roster) - len(pool)),
+        "eligible_pool_after_exclusion": total_pool,
+        "zero_question_count": zero_count,
+        "zero_question_proportion": (zero_count / total_pool) if total_pool else 0.0,
+    }
+
+
 def _render_text_slide_review(
     *,
     slide_id: str,
@@ -47,6 +124,57 @@ def _render_text_slide_review(
     layout: dict[str, Any],
     slide_index: int,
 ) -> dict[str, Any]:
+    if slide_id == "fewest_askers" and _fewest_override is not None:
+        rows = list(_fewest_override["rows"])
+        if not rows:
+            return _original_render_text_slide(
+                slide_id=slide_id,
+                slide_title=slide_title,
+                lines=["No eligible non-office-holder TDs seated for the full month were found."],
+                footer_text=footer_text,
+                period_root=period_root,
+                layout=layout,
+                slide_index=slide_index,
+            )
+        return base._render_slide(
+            variant_id="fewest_askers",
+            slide_title="Fewest questions submitted",
+            body_text=(
+                f"The {len(rows)} non-office-holder TDs seated for the whole of {_fewest_override['period_label']} "
+                "with the fewest recorded parliamentary questions."
+            ),
+            rows=rows,
+            renderer_module=horizontal_bar_grouped_singleline,
+            render_kwargs={
+                "template": base._chart_template(
+                    _fewest_override["project"],
+                    value_format="integer",
+                    sort="ascending",
+                    max_items=10,
+                ),
+                "sample": {
+                    "visual_id": f"{base.PROJECT_ID}-fewest_askers-{_fewest_override['period_key']}",
+                    "bindings": {"label": "label", "value": "value", "group": "group"},
+                    "source_note": footer_text,
+                    "empty_message": "No data available",
+                    "group_colors": base.PARTY_COLOR,
+                    "group_legend_labels": _fewest_override["legend_labels"],
+                    "group_legend_order": base.PARTY_LEGEND_ORDER,
+                    "group_fallback_color": base.FALLBACK_PARTY_COLOR,
+                },
+                "input_metadata": {
+                    "project_id": base.PROJECT_ID,
+                    "source_batch_id": _fewest_override["source_batch_id"],
+                    "period_start": _fewest_override["period"].start.isoformat(),
+                    "period_end": _fewest_override["period"].end.isoformat(),
+                    "metric_id": "fewest_askers",
+                },
+            },
+            period_root=period_root,
+            layout=json.loads(Path(str((_fewest_override["project"].get("render") or {})["outer_layout"])).read_text(encoding="utf-8")),
+            slide_index=slide_index,
+        )
+
     if slide_id != "headline":
         return _original_render_text_slide(
             slide_id=slide_id,
@@ -166,14 +294,32 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["slide_count"] = raw["slide_count"]
         manifest["slides"] = [str(Path(p).relative_to(period_root)) for p in raw["slides"]]
+        if _fewest_override is not None:
+            manifest["fewest_askers"] = _fewest_override["records"]
+            manifest["fewest_askers_stats"] = {
+                "office_holders_excluded_count": _fewest_override["office_holders_excluded_count"],
+                "eligible_pool_after_exclusion": _fewest_override["eligible_pool_after_exclusion"],
+                "zero_question_count": _fewest_override["zero_question_count"],
+                "zero_question_proportion": round(_fewest_override["zero_question_proportion"], 4),
+                "rendered_as": "bottom_10_chart",
+            }
+            if isinstance(manifest.get("calculation"), dict):
+                manifest["calculation"]["fewest_askers"] = (
+                    "period-end roster filtered to membership_start <= period.start (seated full period) and not an "
+                    "office-holder overlapping the period (silver_member_offices); bottom 10 by question count ascending"
+                )
         manifest.setdefault("review_notes", []).extend([
             "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2.",
             "Top-askers review slide uses smaller one-line name labels and a muted categorical palette per Warren feedback on 2026-09-28.",
+            "Fewest-askers review slide always shows the bottom 10 eligible non-office-holder TDs by recorded question count, per Warren feedback on 2026-10-03.",
         ])
         manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
 def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) -> dict[str, Any]:
+    global _fewest_override
+    _fewest_override = _prepare_fewest_override(project, period_spec)
+    _fewest_override["project"] = project
     raw = base.generate(project=project, period_spec=period_spec, output_root=output_root)
     _insert_descriptor(Path(raw["output_root"]), raw)
     return raw
