@@ -9,6 +9,8 @@ from PIL import ImageDraw
 from instagram.factory.render_primitives import ACCENT, BG, MUTED, TEXT, base_slide, font
 from instagram.projects.bill_tracker_factory_v1.renderers import (
     W,
+    PANEL,
+    PANEL_OUTLINE,
     _draw_centered_wrapped,
     _draw_wrapped,
     _fit_wrapped,
@@ -100,6 +102,47 @@ def render_first_stage_bill(bill: dict[str, Any], output: str | Path) -> dict[st
     _footer(draw, f"EirePolitic · Source: Houses of the Oireachtas · Bill {bill['bill_number']}")
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); im.save(output)
     return {"renderer": "bill_tracker_first_stage_bill_v1", "warnings": [], "shared_body_font": body_font.size, "first_stage_note_font": note_font.size, "source_footer": True}
+
+
+def render_first_stage_process_glossary(glossary: dict[str, Any], output: str | Path) -> dict[str, Any]:
+    im = base_slide(); draw = ImageDraw.Draw(im)
+    draw.text((W // 2, 75), "GLOSSARY", font=font(40, True), fill=TEXT, anchor="ma")
+    draw.text((W // 2, 136), glossary["process_subtitle"], font=font(23, True), fill=ACCENT, anchor="ma")
+    _rule(draw, 176, left=112, right=968, width=4)
+    steps = glossary["process_steps"]
+    start_x, y, bw, bh, gap = 35, 218, 105, 104, 15
+    for idx, step in enumerate(steps):
+        x = start_x + idx * (bw + gap)
+        active = step["label"] == glossary["process_highlight"]
+        fill = ACCENT if active else PANEL
+        outline = ACCENT if active else PANEL_OUTLINE
+        _panel(draw, (x, y, x + bw, y + bh), radius=12, fill=fill, outline=outline, width=2)
+        draw.text((x + bw // 2, y + 24), str(step["number"]), font=font(14, True), fill=BG if active else ACCENT, anchor="mm")
+        label_f, lines = _fit_wrapped(draw, step["label"], width=bw - 12, start=12, minimum=10, max_lines=2, bold=True)
+        total = _measure_lines(draw, lines, label_f, 1); ly = y + 62 - total // 2
+        for line in lines:
+            draw.text((x + bw // 2, ly), line, font=label_f, fill=BG if active else ACCENT, anchor="ma")
+            b = draw.textbbox((x + bw // 2, ly), line, font=label_f, anchor="ma"); ly = int(b[3] + 1)
+        if idx < len(steps) - 1:
+            ax = x + bw + 4
+            draw.polygon([(ax, y + 52), (ax + 9, y + 45), (ax + 9, y + 59)], fill=ACCENT)
+    draw.text((W // 2, 352), "THIS POST: FIRST", font=font(18, True), fill=ACCENT, anchor="ma")
+    process_f, _ = _fit_wrapped(draw, glossary["process_copy"], width=860, start=18, minimum=16, max_lines=4)
+    _draw_centered_wrapped(draw, glossary["process_copy"], cx=W // 2, y=390, f=process_f, width=860, fill=TEXT, gap=4)
+    draw.text((W // 2, 486), "COMMON TERMS", font=font(21, True), fill=ACCENT, anchor="ma")
+
+    terms = glossary["terms"]
+    boxes = [(60, 520, 515, 710), (565, 520, 1020, 710), (60, 730, 515, 920), (565, 730, 1020, 920), (312, 940, 768, 1130)]
+    body_font = _shared_body_font(draw, [t["body"] for t in terms], width=409, height=102, start=23, minimum=17, max_lines=5, gap=4)
+    for term, box in zip(terms, boxes):
+        _panel(draw, box, radius=16)
+        draw.text(((box[0] + box[2]) // 2, box[1] + 34), term["term"], font=font(18, True), fill=ACCENT, anchor="ma")
+        body_end = _draw_centered_wrapped(draw, term["body"], cx=(box[0] + box[2]) // 2, y=box[1] + 76, f=body_font, width=box[2] - box[0] - 46, fill=TEXT, gap=4)
+        if body_end > box[3] - 12:
+            raise RuntimeError(f"First Stage process glossary overflow for {term['term']}: {body_end} > {box[3] - 12}")
+    _footer(draw, "EirePolitic · Glossary · Parliamentary process & terms")
+    output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); im.save(output)
+    return {"renderer": "bill_tracker_first_stage_process_glossary_v1", "warnings": [], "shared_body_font": body_font.size, "highlight": "FIRST", "source_footer": True}
 
 
 def render_first_stage_explainer(glossary: dict[str, Any], output: str | Path) -> dict[str, Any]:
