@@ -10,15 +10,16 @@ purpose: >
   the remaining slides in the agreed content spec
   (director/workflows_v1.md §6.1, session
   director/sessions/2026-09-21-monthly-questions-overview/). "Fewest questions
-  submitted" now excludes office-holders (silver_member_offices) and lists every
-  TD who asked no questions by name when that's under 25% of the eligible pool,
-  per Warren's 2026-09-22 instructions. During final review on 2026-09-27 Warren
-  approved the redesigned headline and asked for a new plain-English descriptor
-  slide explaining what a Dáil Parliamentary Question is before the analytical
-  slides. This review build therefore renders eight slides: headline, descriptor,
-  top_askers, fewest_askers, party_per_td, departments, answers, methodology.
-  Still pending human review and final approval (workflows_v1.md §6.1 step 6)
-  before this graduates past prototype status.
+  submitted" excludes office-holders using silver_member_offices and, following
+  final-review feedback on 2026-10-03, always shows the bottom 10 eligible
+  non-office-holder TDs by recorded question count. Party leaders are not excluded
+  because no party-leader reference data exists in the pipeline. During final
+  review on 2026-09-27 Warren approved the redesigned headline and asked for a new
+  plain-English descriptor slide explaining what a Dáil Parliamentary Question is
+  before the analytical slides. This review build therefore renders eight slides:
+  headline, descriptor, top_askers, fewest_askers, party_per_td, departments,
+  answers, methodology. Still pending human review and final approval
+  (workflows_v1.md §6.1 step 6) before this graduates past prototype status.
 adapter_module: instagram.projects.pq_monthly_overview_v1.adapter_review
 
 period:
@@ -58,14 +59,13 @@ slides:
       variant: colored_bars_with_legend_option_b
     - id: fewest_askers
       title: Fewest questions submitted
-      kind: chart_or_text
+      kind: chart
       value_format: integer
       content: >-
         non-office-holder eligible TDs seated the full period (office-holders
         excluded via silver_member_offices; party leaders are not excluded —
-        not tracked anywhere in the pipeline, see methodology). If under 25%
-        of that pool asked zero questions, lists all of them by name as a
-        text slide; otherwise a bottom-10-by-count chart.
+        not tracked anywhere in the pipeline, see methodology). Shows the
+        bottom 10 by recorded question count.
     - id: party_per_td
       title: Questions per TD by party
       kind: chart
