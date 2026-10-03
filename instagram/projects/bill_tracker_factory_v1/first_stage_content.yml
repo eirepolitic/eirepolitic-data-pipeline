@@ -1,6 +1,33 @@
 series:
+  title_top: BILLS OF THE
+  title_main: CURRENT SESSION
   status: FIRST STAGE
-  source_footer: Houses of the Oireachtas · Bill 44/2026 · initiated Bill + explanatory memorandum
+  source_footer: Houses of the Oireachtas + initiated Bills + explanatory memoranda
+  glossary:
+    process_subtitle: HOW A BILL MOVES THROUGH PARLIAMENT
+    process_highlight: FIRST
+    process_steps:
+      - {number: 1, label: FIRST}
+      - {number: 2, label: SECOND}
+      - {number: 3, label: COMMITTEE}
+      - {number: 4, label: REPORT}
+      - {number: 5, label: FINAL}
+      - {number: 6, label: OTHER HOUSE}
+      - {number: 7, label: PRESIDENT}
+      - {number: 8, label: ENACTED}
+    process_copy: "First Stage is the formal initiation step. If a Bill proceeds, its general principles are normally debated at Second Stage before detailed examination and possible amendment at later stages."
+    terms:
+      - {term: BILL, body: "A proposed law. It is not law unless it completes the required parliamentary process and is enacted."}
+      - {term: FIRST STAGE, body: "The Bill is formally initiated or presented. This is the starting point of the parliamentary process."}
+      - {term: SECOND STAGE, body: "The House debates the Bill’s general principles and whether it should proceed to detailed scrutiny."}
+      - {term: FIRST HOUSE, body: "The House where the Bill begins. A Bill normally completes its stages there before moving to the other House."}
+      - {term: ENACTED, body: "After both Houses agree the text and the President signs it, the Bill becomes an Act."}
+    first_stage_terms:
+      - {term: FIRST STAGE, body: "The Bill is formally introduced or presented. This is not normally the main debate on whether its general principles should be accepted."}
+      - {term: GOVERNMENT BILL, body: "A Bill introduced on behalf of the Government. Government Bills are initiated by presentation."}
+      - {term: PRIVATE MEMBER’S BILL, body: "A Bill introduced by a TD or Senator who is not introducing it on behalf of the Government."}
+      - {term: WHY THERE MAY BE NO VOTE, body: "Many First Stage introductions do not produce a recorded member-by-member division. That is normal and does not indicate a data failure."}
+      - {term: WHAT HAPPENS NEXT, body: "If the Bill proceeds, Second Stage is normally where its general principles are debated. Introduction at First Stage does not itself show broad political support."}
 
 prototype:
   period_key: first_stage_prototype
@@ -11,6 +38,7 @@ prototype:
     origin_house: Dáil Éireann
     introduction_date: 5 May 2026
     sponsors: David Cullinane · Matt Carthy · Natasha Newsome Drennan
+    bill_type: Private Member’s Bill
     what: "Creates specific criminal offences concerning abuse, neglect, serious-risk exposure, coercive control and coercive exploitation of certain adults whose ability to protect themselves is significantly impaired."
     effect: "If enacted, the law would create new criminal liability in defined safeguarding situations. Courts could also prohibit certain offenders from working with protected adults, and the Bill provides for publicity orders, anonymity protections and related procedures."
     why: "The sponsors’ explanatory memorandum says the Bill is intended to create specific criminal-law protections for adults who require care and may be unable to protect themselves from abuse, neglect, exploitation or coercive control."
@@ -19,3 +47,66 @@ prototype:
       - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/eng/initiated/b4426d.pdf
       - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/eng/memo/b4426d-memo.pdf
       - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44
+
+posts:
+  first_stage_post2:
+    edition_label: POST 2
+    cover_intro: "These Bills are currently at First Stage — the point where a Bill is formally introduced or presented. Detailed debate on the Bill’s general principles normally comes at Second Stage."
+    caption_draft: |
+      Bills of the Current Session · First Stage · Post 2
+
+      This post explains three Bills currently listed at First Stage and what that stage means in the Irish legislative process.
+
+      • Criminal Law (Adult Safeguarding) Bill 2026
+      • Defence (Amendment) Bill 2026
+      • Railway Safety Bill 2026
+
+      First Stage is the formal initiation step. It does not by itself show that the House supports the Bill’s general principles.
+
+      #EirePolitic #Oireachtas #DáilÉireann #IrishPolitics #Legislation
+    bills:
+      - key: adult_safeguarding
+        formal_title: Criminal Law (Adult Safeguarding) Bill 2026
+        bill_number: 44/2026
+        origin_house: Dáil Éireann
+        introduction_date: 5 May 2026
+        sponsors: David Cullinane · Matt Carthy · Natasha Newsome Drennan
+        bill_type: Private Member’s Bill
+        what: "Creates specific criminal offences concerning abuse, neglect, serious-risk exposure, coercive control and coercive exploitation of certain adults whose ability to protect themselves is significantly impaired."
+        effect: "If enacted, the law would create new criminal liability in defined safeguarding situations. Courts could also prohibit certain offenders from working with protected adults, and the Bill provides for publicity orders, anonymity protections and related procedures."
+        why: "The sponsors’ explanatory memorandum says the Bill is intended to create specific criminal-law protections for adults who require care and may be unable to protect themselves from abuse, neglect, exploitation or coercive control."
+        where: "Official records list the Bill as current at First Stage in Dáil Éireann. First Stage formally initiates a Bill; the main debate on its general principles normally occurs at Second Stage."
+        sources:
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/eng/initiated/b4426d.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/eng/memo/b4426d-memo.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/44
+      - key: defence_amendment
+        formal_title: Defence (Amendment) Bill 2026
+        bill_number: 63/2026
+        origin_house: Dáil Éireann
+        introduction_date: 16 June 2026
+        sponsors: Minister for Defence
+        bill_type: Government Bill
+        what: "Rewrites rules for sending Defence Forces personnel abroad, including removing the statutory requirement for a UN mandate for certain international-force deployments. It also changes Defence Forces suspension and criminal-charge procedures."
+        effect: "For relevant international-force deployments, prior Government approval would still be required and a Dáil resolution would normally still be required, subject to exceptions. The Bill also raises the small-contingent exception from 12 to 50 personnel and creates new suspension procedures."
+        why: "The explanatory memorandum says the Bill is intended to consolidate overseas-service rules, modify the existing ‘triple lock’ by removing the UN-mandate requirement, and implement recommendations on managing Defence Forces members charged with or convicted of serious criminal offences."
+        where: "Official records list the Bill as current at First Stage in Dáil Éireann. Its general principles would normally be debated at Second Stage if it proceeds."
+        sources:
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/eng/initiated/b6326d.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/eng/memo/b6326d-memo.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/63
+      - key: railway_safety
+        formal_title: Railway Safety Bill 2026
+        bill_number: 82/2026
+        origin_house: Dáil Éireann
+        introduction_date: 24 July 2026
+        sponsors: Minister for Transport
+        bill_type: Government Bill
+        what: "Places the Railway Accident Investigation Unit on a primary-legislation footing for investigating railway accidents and incidents, and updates the Railway Safety Act 2005, including rules on intoxicants and safety-critical railway workers."
+        effect: "The RAIU would have a statutory basis and investigation powers covering prescribed railways, including light rail, metro and heritage railways. The Bill also updates testing, sampling and Garda enforcement provisions relating to intoxicants in railway work."
+        why: "The explanatory memorandum says the existing 2020 arrangement was a stop-gap after EU railway-safety rules changed. The Bill is intended to provide a longer-term statutory basis for the RAIU and update older railway-safety provisions."
+        where: "Official records list the Bill as current at First Stage in Dáil Éireann. Its general principles would normally be debated at Second Stage if it proceeds."
+        sources:
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/eng/initiated/b8226d.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/eng/memo/b8226d-memo.pdf
+          - https://data.oireachtas.ie/ie/oireachtas/bill/2026/82
