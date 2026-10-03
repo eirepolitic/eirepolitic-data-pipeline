@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import boto3, json, os, io, pandas as pd
+from pathlib import Path
 from extract.oireachtas.batch import resolve_production_key
 BUCKET=os.getenv('S3_BUCKET','eirepolitic-data')
 s3=boto3.client('s3',region_name=os.getenv('AWS_REGION','ca-central-1'))
@@ -15,4 +16,7 @@ while True:
  if not r.get('IsTruncated'): break
  token=r.get('NextContinuationToken')
 obj=s3.get_object(Bucket=BUCKET,Key=resolved); votes=pd.read_csv(io.BytesIO(obj['Body'].read()),dtype=str,keep_default_na=False,nrows=3)
-print(json.dumps({'batch_root':batch_root,'candidate_keys':keys,'member_vote_columns':list(votes.columns),'sample_votes':votes.to_dict(orient='records')},ensure_ascii=False,indent=2))
+out={'batch_root':batch_root,'candidate_keys':keys,'member_vote_columns':list(votes.columns),'sample_votes':votes.to_dict(orient='records')}
+Path('artifacts/party-discovery').mkdir(parents=True,exist_ok=True)
+Path('artifacts/party-discovery/discovery.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(out,ensure_ascii=False,indent=2))
