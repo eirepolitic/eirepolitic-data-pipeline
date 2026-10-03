@@ -75,7 +75,7 @@ def render_first_stage_bill(bill: dict[str, Any], output: str | Path) -> dict[st
     ]
     labels = ["WHAT THE BILL PROPOSES", "PRACTICAL EFFECT", "WHY IT WAS INTRODUCED", "WHERE IT IS NOW"]
     texts = [bill["what"], bill["effect"], bill["why"], bill["where"]]
-    body_font = _shared_body_font(draw, texts, width=PANEL_W - 48, height=202, start=24, minimum=17, max_lines=9, gap=4)
+    body_font = _shared_body_font(draw, texts, width=PANEL_W - 48, height=202, start=24, minimum=16, max_lines=10, gap=4)
     for box, label, text in zip(boxes, labels, texts):
         _panel(draw, box)
         label_font, _ = _fit_wrapped(draw, label, width=PANEL_W - 48, start=18, minimum=16, max_lines=2, bold=True)
@@ -92,10 +92,8 @@ def render_first_stage_bill(bill: dict[str, Any], output: str | Path) -> dict[st
         "This is the formal initiation step, not a finding that the House supports the Bill’s general principles. "
         "A recorded member-by-member vote is not normally required here; substantive principle debate usually comes at Second Stage."
     )
-    # Human-approved change: fill the explanatory box more assertively while retaining deterministic fit.
     note_font = _shared_body_font(draw, [note], width=850, height=note_bottom - (note_top + 76) - 22, start=34, minimum=20, max_lines=8, gap=6)
-    note_y = note_top + 82
-    note_end = _draw_centered_wrapped(draw, note, cx=W // 2, y=note_y, f=note_font, width=850, fill=TEXT, gap=6)
+    note_end = _draw_centered_wrapped(draw, note, cx=W // 2, y=note_top + 82, f=note_font, width=850, fill=TEXT, gap=6)
     if note_end > note_bottom - 18:
         raise RuntimeError(f"First Stage note overflow: {note_end} > {note_bottom - 18}")
 
@@ -110,19 +108,16 @@ def render_first_stage_explainer(glossary: dict[str, Any], output: str | Path) -
     draw.text((W // 2, 142), "HOW TO READ FIRST STAGE BILLS", font=font(23, True), fill=ACCENT, anchor="ma")
     _rule(draw, 186, left=112, right=968, width=4)
     terms = glossary["first_stage_terms"]
-    heights = [170, 150, 165, 190, 195]
-    y = 230
-    body_width = 820
-    body_height = min(h - 72 for h in heights) - 12
-    shared = _shared_body_font(draw, [t["body"] for t in terms], width=body_width, height=body_height, start=23, minimum=17, max_lines=5, gap=4)
-    for term, bh in zip(terms, heights):
-        box = (82, y, 998, y + bh)
+    y = 220; box_h = 180; box_gap = 14; body_width = 820
+    shared = _shared_body_font(draw, [t["body"] for t in terms], width=body_width, height=96, start=23, minimum=16, max_lines=6, gap=4)
+    for term in terms:
+        box = (82, y, 998, y + box_h)
         _panel(draw, box, radius=16)
         draw.text((106, y + 23), term["term"], font=font(20, True), fill=ACCENT, anchor="la")
         body_end = _draw_wrapped(draw, term["body"], xy=(106, y + 66), f=shared, width=body_width, fill=TEXT, gap=4)
         if body_end > box[3] - 12:
             raise RuntimeError(f"First Stage glossary overflow for {term['term']}: {body_end} > {box[3] - 12}")
-        y += bh + 18
+        y += box_h + box_gap
     _footer(draw, "EirePolitic · Glossary · First Stage")
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); im.save(output)
     return {"renderer": "bill_tracker_first_stage_glossary_v1", "warnings": [], "shared_body_font": shared.size, "source_footer": True}
