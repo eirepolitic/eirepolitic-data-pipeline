@@ -32,12 +32,6 @@ def _assert_image(path: Path) -> None:
             raise RuntimeError(f"Unexpected dimensions for {path}: {image.size}")
 
 
-def _render(path: Path, fn, payload: dict[str, Any], *extra) -> dict[str, Any]:
-    manifest = fn(payload, *extra, path) if extra else fn(payload, path)
-    _assert_image(path)
-    return manifest
-
-
 def _load_payload() -> dict[str, Any]:
     path = Path("instagram/projects/bill_tracker_factory_v1/first_stage_content.yml")
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -110,7 +104,7 @@ def _generate_first_stage_post2(*, output_root: Path) -> dict[str, Any]:
         raise RuntimeError(f"First Stage Post 2 requires exactly three current Bills; got {len(bills)}")
 
     batch = resolve_validated_production_batch()
-    frames, lineage = load_csv_tables(batch, ["silver_bills", "silver_bill_stages", "silver_bill_sponsors", "silver_bill_debates", "silver_speeches", "silver_divisions", "silver_member_votes"])
+    frames, lineage = load_csv_tables(batch, ["silver_bills", "silver_bill_stages", "silver_bill_sponsors", "silver_bill_debates"])
     production_rows = _production_counts(bills, frames)
     root, slides_dir, metadata_dir, contact_dir = _prepare_root(output_root, FIRST_STAGE_POST2)
 
