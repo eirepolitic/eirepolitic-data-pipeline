@@ -1,0 +1,5197 @@
+{
+  "verified_date": "2026-10-03",
+  "source": "https://api.oireachtas.ie/v1/legislation",
+  "queries": [
+    {
+      "chamber": "dail",
+      "house_no": "34",
+      "date_start": "2025-11-01",
+      "date_end": "2026-10-03"
+    },
+    {
+      "chamber": "seanad",
+      "house_no": "27",
+      "date_start": "2025-11-01",
+      "date_end": "2026-10-03"
+    }
+  ],
+  "first_stage_count": 30,
+  "first_stage_bills": [
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "82",
+      "bill_year": "2026",
+      "title": "Railway Safety Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-07-24"
+            },
+            {
+              "date": "2026-07-24"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-24"
+              },
+              {
+                "date": "2026-07-24"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Transport",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-07T17:05:52.540000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "65",
+      "bill_year": "2026",
+      "title": "Planning for Constitutional Change Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-03"
+            },
+            {
+              "date": "2026-06-10"
+            },
+            {
+              "date": "2026-06-16"
+            },
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-03"
+              },
+              {
+                "date": "2026-06-10"
+              },
+              {
+                "date": "2026-06-16"
+              },
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mary Lou McDonald",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mary-Lou-McDonald.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T12:00:16.560000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "63",
+      "bill_year": "2026",
+      "title": "Defence (Amendment) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Defence",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-16T07:21:17.470000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "44",
+      "bill_year": "2026",
+      "title": "Criminal Law (Adult Safeguarding) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-05-05"
+            },
+            {
+              "date": "2026-05-06"
+            },
+            {
+              "date": "2026-05-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-05-05"
+              },
+              {
+                "date": "2026-05-06"
+              },
+              {
+                "date": "2026-05-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "David Cullinane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/David-Cullinane.S.2011-05-25"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Natasha Newsome Drennan",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Natasha-Newsome-Drennan.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-07T09:22:09.130000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "40",
+      "bill_year": "2026",
+      "title": "Reproductive Rights (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-04-15"
+            },
+            {
+              "date": "2026-04-28"
+            },
+            {
+              "date": "2026-04-28"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-04-15"
+              },
+              {
+                "date": "2026-04-28"
+              },
+              {
+                "date": "2026-04-28"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Holly Cairns",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Holly-Cairns.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T13:41:57.820000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "26",
+      "bill_year": "2026",
+      "title": "Electricity Regulation (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-03-04"
+            },
+            {
+              "date": "2026-03-05"
+            },
+            {
+              "date": "2026-03-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-03-04"
+              },
+              {
+                "date": "2026-03-05"
+              },
+              {
+                "date": "2026-03-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pa Daly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pa-Daly.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Louis O'Hara",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Louis-O'Hara.D.2024-11-29"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Réada Cronin",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Réada-Cronin.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T14:01:59.590000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "14",
+      "bill_year": "2026",
+      "title": "Waste Management (Single Household Waste Collection Service) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-01-13"
+            },
+            {
+              "date": "2026-02-09"
+            },
+            {
+              "date": "2026-02-10"
+            },
+            {
+              "date": "2026-02-10"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-01-13"
+              },
+              {
+                "date": "2026-02-09"
+              },
+              {
+                "date": "2026-02-10"
+              },
+              {
+                "date": "2026-02-10"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Marie Sherlock",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Marie-Sherlock.S.2020-03-30"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-24T13:21:18.390000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "7",
+      "bill_year": "2026",
+      "title": "Online Safety (Recommender Algorithms) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-05-30"
+            },
+            {
+              "date": "2026-01-22"
+            },
+            {
+              "date": "2026-01-22"
+            },
+            {
+              "date": "2026-01-22"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-05-30"
+              },
+              {
+                "date": "2026-01-22"
+              },
+              {
+                "date": "2026-01-22"
+              },
+              {
+                "date": "2026-01-22"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ruth Coppinger",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ruth-Coppinger.D.2014-05-23"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-22T10:08:28.080000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "73",
+      "bill_year": "2025",
+      "title": "Sanctions against the State of Israel Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-08-25"
+            },
+            {
+              "date": "2025-11-19"
+            },
+            {
+              "date": "2025-11-27"
+            },
+            {
+              "date": "2025-11-27"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-08-25"
+              },
+              {
+                "date": "2025-11-19"
+              },
+              {
+                "date": "2025-11-27"
+              },
+              {
+                "date": "2025-11-27"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ruth Coppinger",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ruth-Coppinger.D.2014-05-23"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-21T16:12:07.510000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "72",
+      "bill_year": "2025",
+      "title": "Electricity Regulation (Climate Action and Connection to Distribution and Transmission Systems) Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-10-01"
+            },
+            {
+              "date": "2025-11-18"
+            },
+            {
+              "date": "2025-11-26"
+            },
+            {
+              "date": "2025-11-26"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-10-01"
+              },
+              {
+                "date": "2025-11-18"
+              },
+              {
+                "date": "2025-11-26"
+              },
+              {
+                "date": "2025-11-26"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ciarán Ahern",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ciarán-Ahern.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-10-01T14:54:05.540000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "56",
+      "bill_year": "2025",
+      "title": "Public Health (Alcohol) (Amendment) Bill 2025 ",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-06-23"
+            },
+            {
+              "date": "2025-07-08"
+            },
+            {
+              "date": "2025-09-25"
+            },
+            {
+              "date": "2025-09-25"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-06-23"
+              },
+              {
+                "date": "2025-07-08"
+              },
+              {
+                "date": "2025-09-25"
+              },
+              {
+                "date": "2025-09-25"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pádraig Rice",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pádraig-Rice.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-11T15:21:01.480000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "54",
+      "bill_year": "2025",
+      "title": "Education (Affordable School Uniforms) Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-09-16"
+            },
+            {
+              "date": "2025-09-16"
+            },
+            {
+              "date": "2025-09-23"
+            },
+            {
+              "date": "2025-09-23"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-09-16"
+              },
+              {
+                "date": "2025-09-16"
+              },
+              {
+                "date": "2025-09-23"
+              },
+              {
+                "date": "2025-09-23"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Sorca Clarke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Sorca-Clarke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Donnchadh Ó Laoghaire",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Donnchadh-Ó-Laoghaire.D.2016-10-03"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2025-11-06T15:16:01.940000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "25",
+      "bill_year": "2024",
+      "title": "Commission on the Future of the Family Farm Bill 2024",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2023-05-18"
+            },
+            {
+              "date": "2024-03-07"
+            },
+            {
+              "date": "2024-04-13"
+            },
+            {
+              "date": "2024-04-16"
+            },
+            {
+              "date": "2024-04-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "33",
+            "showAs": "33rd Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2023-05-18"
+              },
+              {
+                "date": "2024-03-07"
+              },
+              {
+                "date": "2024-04-13"
+              },
+              {
+                "date": "2024-04-16"
+              },
+              {
+                "date": "2024-04-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "33",
+              "showAs": "33rd Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Claire Kerrane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Claire-Kerrane.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-02-26T15:08:54.200000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "89",
+      "bill_year": "2022",
+      "title": "Institutional Burials (Amendment) Bill 2022",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "seanad",
+            "showAs": "Seanad Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+          },
+          "dates": [
+            {
+              "date": "2022-09-26"
+            },
+            {
+              "date": "2022-09-29"
+            },
+            {
+              "date": "2022-09-29"
+            }
+          ],
+          "house": {
+            "chamberCode": "seanad",
+            "chamberType": "house",
+            "houseCode": "seanad",
+            "houseNo": "26",
+            "showAs": "26th Seanad",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/26"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89/stage/seanad/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "seanad",
+              "showAs": "Seanad Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+            },
+            "dates": [
+              {
+                "date": "2022-09-26"
+              },
+              {
+                "date": "2022-09-29"
+              },
+              {
+                "date": "2022-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "seanad",
+              "chamberType": "house",
+              "houseCode": "seanad",
+              "houseNo": "26",
+              "showAs": "26th Seanad",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/26"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89/stage/seanad/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Eileen Flynn",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Eileen-Flynn.S.2020-06-29"
+            },
+            "isPrimary": false
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Lynn Ruane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Lynn-Ruane.S.2016-04-25"
+            },
+            "isPrimary": true
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Alice-Mary Higgins",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Alice-Mary-Higgins.S.2016-04-25"
+            },
+            "isPrimary": false
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Frances Black",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Frances-Black.S.2016-04-25"
+            },
+            "isPrimary": false
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Seanad Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+      },
+      "last_updated": "2026-02-26T15:29:55.660000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "26",
+      "bill_year": "2020",
+      "title": "Animal Health and Welfare (Ban on Hare Coursing) Bill 2020",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2020-09-02"
+            },
+            {
+              "date": "2020-09-16"
+            },
+            {
+              "date": "2020-09-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "33",
+            "showAs": "33rd Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2020-09-02"
+              },
+              {
+                "date": "2020-09-16"
+              },
+              {
+                "date": "2020-09-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "33",
+              "showAs": "33rd Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mick Barry",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mick-Barry.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Gino Kenny",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Gino-Kenny.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Bríd Smith",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Bríd-Smith.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Catherine Connolly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Catherine-Connolly.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Joan Collins",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Joan-Collins.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T11:55:58.250000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "82",
+      "bill_year": "2026",
+      "title": "Railway Safety Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-07-24"
+            },
+            {
+              "date": "2026-07-24"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-24"
+              },
+              {
+                "date": "2026-07-24"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Transport",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-07T17:05:52.540000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "65",
+      "bill_year": "2026",
+      "title": "Planning for Constitutional Change Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-03"
+            },
+            {
+              "date": "2026-06-10"
+            },
+            {
+              "date": "2026-06-16"
+            },
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-03"
+              },
+              {
+                "date": "2026-06-10"
+              },
+              {
+                "date": "2026-06-16"
+              },
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mary Lou McDonald",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mary-Lou-McDonald.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T12:00:16.560000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "63",
+      "bill_year": "2026",
+      "title": "Defence (Amendment) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Defence",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-16T07:21:17.470000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "44",
+      "bill_year": "2026",
+      "title": "Criminal Law (Adult Safeguarding) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-05-05"
+            },
+            {
+              "date": "2026-05-06"
+            },
+            {
+              "date": "2026-05-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-05-05"
+              },
+              {
+                "date": "2026-05-06"
+              },
+              {
+                "date": "2026-05-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "David Cullinane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/David-Cullinane.S.2011-05-25"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Natasha Newsome Drennan",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Natasha-Newsome-Drennan.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-07T09:22:09.130000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "40",
+      "bill_year": "2026",
+      "title": "Reproductive Rights (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-04-15"
+            },
+            {
+              "date": "2026-04-28"
+            },
+            {
+              "date": "2026-04-28"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-04-15"
+              },
+              {
+                "date": "2026-04-28"
+              },
+              {
+                "date": "2026-04-28"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Holly Cairns",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Holly-Cairns.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T13:41:57.820000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "26",
+      "bill_year": "2026",
+      "title": "Electricity Regulation (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-03-04"
+            },
+            {
+              "date": "2026-03-05"
+            },
+            {
+              "date": "2026-03-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-03-04"
+              },
+              {
+                "date": "2026-03-05"
+              },
+              {
+                "date": "2026-03-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pa Daly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pa-Daly.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Louis O'Hara",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Louis-O'Hara.D.2024-11-29"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Réada Cronin",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Réada-Cronin.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T14:01:59.590000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "14",
+      "bill_year": "2026",
+      "title": "Waste Management (Single Household Waste Collection Service) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-01-13"
+            },
+            {
+              "date": "2026-02-09"
+            },
+            {
+              "date": "2026-02-10"
+            },
+            {
+              "date": "2026-02-10"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-01-13"
+              },
+              {
+                "date": "2026-02-09"
+              },
+              {
+                "date": "2026-02-10"
+              },
+              {
+                "date": "2026-02-10"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/14/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Marie Sherlock",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Marie-Sherlock.S.2020-03-30"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-24T13:21:18.390000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "7",
+      "bill_year": "2026",
+      "title": "Online Safety (Recommender Algorithms) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-05-30"
+            },
+            {
+              "date": "2026-01-22"
+            },
+            {
+              "date": "2026-01-22"
+            },
+            {
+              "date": "2026-01-22"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-05-30"
+              },
+              {
+                "date": "2026-01-22"
+              },
+              {
+                "date": "2026-01-22"
+              },
+              {
+                "date": "2026-01-22"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/7/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ruth Coppinger",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ruth-Coppinger.D.2014-05-23"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-22T10:08:28.080000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "73",
+      "bill_year": "2025",
+      "title": "Sanctions against the State of Israel Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-08-25"
+            },
+            {
+              "date": "2025-11-19"
+            },
+            {
+              "date": "2025-11-27"
+            },
+            {
+              "date": "2025-11-27"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-08-25"
+              },
+              {
+                "date": "2025-11-19"
+              },
+              {
+                "date": "2025-11-27"
+              },
+              {
+                "date": "2025-11-27"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/73/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ruth Coppinger",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ruth-Coppinger.D.2014-05-23"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-21T16:12:07.510000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "72",
+      "bill_year": "2025",
+      "title": "Electricity Regulation (Climate Action and Connection to Distribution and Transmission Systems) Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-10-01"
+            },
+            {
+              "date": "2025-11-18"
+            },
+            {
+              "date": "2025-11-26"
+            },
+            {
+              "date": "2025-11-26"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-10-01"
+              },
+              {
+                "date": "2025-11-18"
+              },
+              {
+                "date": "2025-11-26"
+              },
+              {
+                "date": "2025-11-26"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/72/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Ciarán Ahern",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Ciarán-Ahern.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-10-01T14:54:05.540000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "56",
+      "bill_year": "2025",
+      "title": "Public Health (Alcohol) (Amendment) Bill 2025 ",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-06-23"
+            },
+            {
+              "date": "2025-07-08"
+            },
+            {
+              "date": "2025-09-25"
+            },
+            {
+              "date": "2025-09-25"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-06-23"
+              },
+              {
+                "date": "2025-07-08"
+              },
+              {
+                "date": "2025-09-25"
+              },
+              {
+                "date": "2025-09-25"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/56/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pádraig Rice",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pádraig-Rice.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-11T15:21:01.480000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "54",
+      "bill_year": "2025",
+      "title": "Education (Affordable School Uniforms) Bill 2025",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2025-09-16"
+            },
+            {
+              "date": "2025-09-16"
+            },
+            {
+              "date": "2025-09-23"
+            },
+            {
+              "date": "2025-09-23"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2025-09-16"
+              },
+              {
+                "date": "2025-09-16"
+              },
+              {
+                "date": "2025-09-23"
+              },
+              {
+                "date": "2025-09-23"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2025/54/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Sorca Clarke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Sorca-Clarke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Donnchadh Ó Laoghaire",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Donnchadh-Ó-Laoghaire.D.2016-10-03"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2025-11-06T15:16:01.940000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "25",
+      "bill_year": "2024",
+      "title": "Commission on the Future of the Family Farm Bill 2024",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2023-05-18"
+            },
+            {
+              "date": "2024-03-07"
+            },
+            {
+              "date": "2024-04-13"
+            },
+            {
+              "date": "2024-04-16"
+            },
+            {
+              "date": "2024-04-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "33",
+            "showAs": "33rd Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2023-05-18"
+              },
+              {
+                "date": "2024-03-07"
+              },
+              {
+                "date": "2024-04-13"
+              },
+              {
+                "date": "2024-04-16"
+              },
+              {
+                "date": "2024-04-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "33",
+              "showAs": "33rd Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2024/25/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Claire Kerrane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Claire-Kerrane.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-02-26T15:08:54.200000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "89",
+      "bill_year": "2022",
+      "title": "Institutional Burials (Amendment) Bill 2022",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "seanad",
+            "showAs": "Seanad Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+          },
+          "dates": [
+            {
+              "date": "2022-09-26"
+            },
+            {
+              "date": "2022-09-29"
+            },
+            {
+              "date": "2022-09-29"
+            }
+          ],
+          "house": {
+            "chamberCode": "seanad",
+            "chamberType": "house",
+            "houseCode": "seanad",
+            "houseNo": "26",
+            "showAs": "26th Seanad",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/26"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89/stage/seanad/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "seanad",
+              "showAs": "Seanad Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+            },
+            "dates": [
+              {
+                "date": "2022-09-26"
+              },
+              {
+                "date": "2022-09-29"
+              },
+              {
+                "date": "2022-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "seanad",
+              "chamberType": "house",
+              "houseCode": "seanad",
+              "houseNo": "26",
+              "showAs": "26th Seanad",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/seanad/26"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2022/89/stage/seanad/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Eileen Flynn",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Eileen-Flynn.S.2020-06-29"
+            },
+            "isPrimary": false
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Lynn Ruane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Lynn-Ruane.S.2016-04-25"
+            },
+            "isPrimary": true
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Alice-Mary Higgins",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Alice-Mary-Higgins.S.2016-04-25"
+            },
+            "isPrimary": false
+          }
+        },
+        {
+          "sponsor": {
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Frances Black",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Frances-Black.S.2016-04-25"
+            },
+            "isPrimary": false
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Seanad Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/seanad"
+      },
+      "last_updated": "2026-02-26T15:29:55.660000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "26",
+      "bill_year": "2020",
+      "title": "Animal Health and Welfare (Ban on Hare Coursing) Bill 2020",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2020-09-02"
+            },
+            {
+              "date": "2020-09-16"
+            },
+            {
+              "date": "2020-09-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "33",
+            "showAs": "33rd Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2020-09-02"
+              },
+              {
+                "date": "2020-09-16"
+              },
+              {
+                "date": "2020-09-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "33",
+              "showAs": "33rd Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/33"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2020/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Paul Murphy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Paul-Murphy.D.2014-10-10"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mick Barry",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mick-Barry.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Richard Boyd Barrett",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Richard-Boyd-Barrett.D.2011-03-09"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Gino Kenny",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Gino-Kenny.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Bríd Smith",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Bríd-Smith.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Catherine Connolly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Catherine-Connolly.D.2016-10-03"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Joan Collins",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Joan-Collins.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T11:55:58.250000+00:00"
+    }
+  ],
+  "production_candidate_checks": [
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "82",
+      "bill_year": "2026",
+      "title": "Railway Safety Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-07-24"
+            },
+            {
+              "date": "2026-07-24"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-24"
+              },
+              {
+                "date": "2026-07-24"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Transport",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-07T17:05:52.540000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "76",
+      "bill_year": "2026",
+      "title": "Strategic Lawsuits against Public Participation Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-09-29"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 3,
+          "showAs": "Committee Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/3",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/3"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-01"
+              },
+              {
+                "date": "2026-07-01"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/1"
+          }
+        },
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 2,
+            "showAs": "Second Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/2",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/2"
+          }
+        },
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 3,
+            "showAs": "Committee Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/3",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/3"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Justice, Home Affairs and Migration",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-10-02T09:06:36.170000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "65",
+      "bill_year": "2026",
+      "title": "Planning for Constitutional Change Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-03"
+            },
+            {
+              "date": "2026-06-10"
+            },
+            {
+              "date": "2026-06-16"
+            },
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-03"
+              },
+              {
+                "date": "2026-06-10"
+              },
+              {
+                "date": "2026-06-16"
+              },
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mary Lou McDonald",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mary-Lou-McDonald.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T12:00:16.560000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "63",
+      "bill_year": "2026",
+      "title": "Defence (Amendment) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Defence",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-16T07:21:17.470000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "44",
+      "bill_year": "2026",
+      "title": "Criminal Law (Adult Safeguarding) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-05-05"
+            },
+            {
+              "date": "2026-05-06"
+            },
+            {
+              "date": "2026-05-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-05-05"
+              },
+              {
+                "date": "2026-05-06"
+              },
+              {
+                "date": "2026-05-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "David Cullinane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/David-Cullinane.S.2011-05-25"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Natasha Newsome Drennan",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Natasha-Newsome-Drennan.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-07T09:22:09.130000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "40",
+      "bill_year": "2026",
+      "title": "Reproductive Rights (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-04-15"
+            },
+            {
+              "date": "2026-04-28"
+            },
+            {
+              "date": "2026-04-28"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-04-15"
+              },
+              {
+                "date": "2026-04-28"
+              },
+              {
+                "date": "2026-04-28"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Holly Cairns",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Holly-Cairns.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T13:41:57.820000+00:00"
+    },
+    {
+      "query_chamber": "dail",
+      "query_house_no": "34",
+      "bill_no": "26",
+      "bill_year": "2026",
+      "title": "Electricity Regulation (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-03-04"
+            },
+            {
+              "date": "2026-03-05"
+            },
+            {
+              "date": "2026-03-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-03-04"
+              },
+              {
+                "date": "2026-03-05"
+              },
+              {
+                "date": "2026-03-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pa Daly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pa-Daly.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Louis O'Hara",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Louis-O'Hara.D.2024-11-29"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Réada Cronin",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Réada-Cronin.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T14:01:59.590000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "82",
+      "bill_year": "2026",
+      "title": "Railway Safety Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-07-24"
+            },
+            {
+              "date": "2026-07-24"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-24"
+              },
+              {
+                "date": "2026-07-24"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/82/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Transport",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-09-07T17:05:52.540000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "76",
+      "bill_year": "2026",
+      "title": "Strategic Lawsuits against Public Participation Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-09-29"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 3,
+          "showAs": "Committee Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/3",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/3"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-07-01"
+              },
+              {
+                "date": "2026-07-01"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/1"
+          }
+        },
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 2,
+            "showAs": "Second Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/2",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/2"
+          }
+        },
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-09-29"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 3,
+            "showAs": "Committee Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/3",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/76/stage/dail/3"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Justice, Home Affairs and Migration",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-10-02T09:06:36.170000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "65",
+      "bill_year": "2026",
+      "title": "Planning for Constitutional Change Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-03"
+            },
+            {
+              "date": "2026-06-10"
+            },
+            {
+              "date": "2026-06-16"
+            },
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-03"
+              },
+              {
+                "date": "2026-06-10"
+              },
+              {
+                "date": "2026-06-16"
+              },
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/65/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Mary Lou McDonald",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Mary-Lou-McDonald.D.2011-03-09"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-07-09T12:00:16.560000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "63",
+      "bill_year": "2026",
+      "title": "Defence (Amendment) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-06-16"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": false,
+          "stageOutcome": "Current",
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-06-16"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": false,
+            "stageOutcome": "Current",
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/63/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": "Minister for Defence",
+              "uri": null
+            },
+            "by": {
+              "showAs": null,
+              "uri": null
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-06-16T07:21:17.470000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "44",
+      "bill_year": "2026",
+      "title": "Criminal Law (Adult Safeguarding) Bill 2026",
+      "status": "Current",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-05-05"
+            },
+            {
+              "date": "2026-05-06"
+            },
+            {
+              "date": "2026-05-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-05-05"
+              },
+              {
+                "date": "2026-05-06"
+              },
+              {
+                "date": "2026-05-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/44/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "David Cullinane",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/David-Cullinane.S.2011-05-25"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Matt Carthy",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Matt-Carthy.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Natasha Newsome Drennan",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Natasha-Newsome-Drennan.D.2024-11-29"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-07T09:22:09.130000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "40",
+      "bill_year": "2026",
+      "title": "Reproductive Rights (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-04-15"
+            },
+            {
+              "date": "2026-04-28"
+            },
+            {
+              "date": "2026-04-28"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-04-15"
+              },
+              {
+                "date": "2026-04-28"
+              },
+              {
+                "date": "2026-04-28"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/40/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Holly Cairns",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Holly-Cairns.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T13:41:57.820000+00:00"
+    },
+    {
+      "query_chamber": "seanad",
+      "query_house_no": "27",
+      "bill_no": "26",
+      "bill_year": "2026",
+      "title": "Electricity Regulation (Amendment) Bill 2026",
+      "status": "Defeated",
+      "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26",
+      "most_recent_stage": {
+        "event": {
+          "chamber": {
+            "chamberCode": "dail",
+            "showAs": "Dáil Éireann",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+          },
+          "dates": [
+            {
+              "date": "2026-03-04"
+            },
+            {
+              "date": "2026-03-05"
+            },
+            {
+              "date": "2026-03-06"
+            }
+          ],
+          "house": {
+            "chamberCode": "dail",
+            "chamberType": "house",
+            "houseCode": "dail",
+            "houseNo": "34",
+            "showAs": "34th Dáil",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+          },
+          "progressStage": 1,
+          "showAs": "First Stage",
+          "stageCompleted": true,
+          "stageOutcome": null,
+          "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+          "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+        }
+      },
+      "stages": [
+        {
+          "event": {
+            "chamber": {
+              "chamberCode": "dail",
+              "showAs": "Dáil Éireann",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+            },
+            "dates": [
+              {
+                "date": "2026-03-04"
+              },
+              {
+                "date": "2026-03-05"
+              },
+              {
+                "date": "2026-03-06"
+              }
+            ],
+            "house": {
+              "chamberCode": "dail",
+              "chamberType": "house",
+              "houseCode": "dail",
+              "houseNo": "34",
+              "showAs": "34th Dáil",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/house/dail/34"
+            },
+            "progressStage": 1,
+            "showAs": "First Stage",
+            "stageCompleted": true,
+            "stageOutcome": null,
+            "stageURI": "https://data.oireachtas.ie/ie/oireachtas/def/bill-stage/1",
+            "uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/26/stage/dail/1"
+          }
+        }
+      ],
+      "sponsors": [
+        {
+          "sponsor": {
+            "isPrimary": true,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Pa Daly",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Pa-Daly.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Darren O'Rourke",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Darren-O'Rourke.D.2020-02-08"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Louis O'Hara",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Louis-O'Hara.D.2024-11-29"
+            }
+          }
+        },
+        {
+          "sponsor": {
+            "isPrimary": false,
+            "as": {
+              "showAs": null,
+              "uri": null
+            },
+            "by": {
+              "showAs": "Réada Cronin",
+              "uri": "https://data.oireachtas.ie/ie/oireachtas/member/id/Réada-Cronin.D.2020-02-08"
+            }
+          }
+        }
+      ],
+      "origin_house": {
+        "showAs": "Dáil Éireann",
+        "uri": "https://data.oireachtas.ie/ie/oireachtas/def/house/dail"
+      },
+      "last_updated": "2026-05-14T14:01:59.590000+00:00"
+    }
+  ]
+}
