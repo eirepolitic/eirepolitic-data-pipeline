@@ -47,10 +47,31 @@ The one-slide information hierarchy is:
 5. WHERE IT IS NOW / WHAT HAPPENS NEXT — exact First Stage status and plain-English procedural context.
 6. Official source footer — Houses of the Oireachtas, initiated Bill and explanatory memorandum.
 
-## Render and review
+## Prototype approval and requested revision
 
-The generic `Instagram factory render (generic)` workflow run `37152028977` completed successfully from commit `a40d65b739905d531b1867606b120ee33430178b`. The stable preview branch `previews/bill-tracker-first-stage` contains the individual PNG, contact sheet, `index.html`, caption and ZIP. Review URL:
+The human approved the prototype direction on 3 October 2026 with one visual change: enlarge the body copy inside the `WHAT FIRST STAGE MEANS` panel so that it uses the available box more fully. The Bill-slide renderer now fits that note from a substantially larger starting size while retaining deterministic bounds and overflow assertions. All other approved prototype geometry and information hierarchy were preserved.
+
+## Full First Stage · Post 2 review
+
+The approved component system was scaled to the six-slide Post 2 period:
+
+1. Cover
+2. Criminal Law (Adult Safeguarding) Bill 2026
+3. Defence (Amendment) Bill 2026
+4. Railway Safety Bill 2026
+5. Parliamentary-process glossary with FIRST highlighted
+6. HOW TO READ FIRST STAGE BILLS explainer
+
+An inherited Enacted-process glossary layout initially failed the shared-fit typography assertion because the First Stage definitions required more vertical room. The failure was isolated with a temporary review-only diagnostic render. No diagnostic output was accepted as final. A First-Stage-specific process-glossary layout was then added within the same Bill Tracker factory, retaining the canonical left-to-right timeline and one shared body font across comparable term boxes. The temporary diagnostic fallback was removed before the clean run.
+
+Clean generic factory workflow run `37154378301` rendered and published the full Post 2 review successfully from commit `90e7457cd6062e8651b5a12ba80613b97bf9835f`. The stable preview branch contains six real 1080×1350 slides, the Post 2 contact sheet, `index.html`, caption and ZIP. The clean preview caption contains no diagnostic/review-only leakage.
+
+Review URL:
 
 https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/bill-tracker-first-stage/index.html
 
-The current state is `pending_human_review`. No full Post 1/Post 2 render has been produced, and no publishing or scheduling has been enabled.
+Direct contact sheet:
+
+https://raw.githack.com/eirepolitic/eirepolitic-data-pipeline/previews/bill-tracker-first-stage/contact-first-stage-post2.jpg
+
+The full Post 2 state remains `pending_human_review`. Publication and scheduling remain disabled.
