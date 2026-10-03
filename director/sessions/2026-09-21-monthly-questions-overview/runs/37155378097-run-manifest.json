@@ -1,0 +1,416 @@
+{
+  "project_id": "pq_monthly_overview_v1",
+  "generated_at_utc": "2026-10-03T21:31:47.066227+00:00",
+  "period": {
+    "key": "2026-09",
+    "start": "2026-09-01",
+    "end": "2026-09-30",
+    "label": "September 2026"
+  },
+  "source_batch_id": "manual-monthly-37154194927-1",
+  "source_pointer": {
+    "batch_id": "manual-monthly-37154194927-1",
+    "manifest_key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/manifest.json",
+    "mode": "batch",
+    "previous_batch_id": "manual-monthly-37153120836-1",
+    "previous_mode": "batch",
+    "promoted_at_utc": "2026-10-03T21:19:28+00:00",
+    "promoted_by": "eirepolitic",
+    "workflow_run_id": "37154664517"
+  },
+  "source_batch_manifest_key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/manifest.json",
+  "source_batch_status": "validated",
+  "sources": {
+    "silver_questions": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_questions/csv/silver_questions.csv",
+      "etag": "54e2195898f6684137f0901702295480",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:19+00:00",
+      "row_count": 129390,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    },
+    "silver_member_memberships": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_member_memberships/csv/silver_member_memberships.csv",
+      "etag": "23f5cc661d77a59a3e975f5fe54fa9a8",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:27+00:00",
+      "row_count": 176,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    },
+    "silver_member_parties": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_member_parties/csv/silver_member_parties.csv",
+      "etag": "13c5235c11e4b9f0e4eae0d283c64ea7",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:30+00:00",
+      "row_count": 178,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    },
+    "silver_member_constituencies": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_member_constituencies/csv/silver_member_constituencies.csv",
+      "etag": "a1c202791105ea13ef0d7b3ca0a38eb7",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:33+00:00",
+      "row_count": 176,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    },
+    "silver_members": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_members/csv/silver_members.csv",
+      "etag": "9356ddbad649eb3475ce66e9f95bbe2d",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:25+00:00",
+      "row_count": 176,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    },
+    "silver_member_offices": {
+      "bucket": "eirepolitic-data",
+      "key": "processed/oireachtas_unified/batches/manual-monthly-37154194927-1/tables/silver_member_offices/csv/silver_member_offices.csv",
+      "etag": "9100c4df492c48044c695d03ebc01869",
+      "version_id": null,
+      "last_modified": "2026-10-03T21:12:35+00:00",
+      "row_count": 123,
+      "source_batch_id": "manual-monthly-37154194927-1"
+    }
+  },
+  "data_quality": {
+    "question_dedupe": {
+      "raw_row_count": 8035,
+      "deduped_row_count": 8035,
+      "duplicate_question_id_count": 0,
+      "duplicate_row_count_removed": 0
+    },
+    "note": "silver_questions contained duplicate question_id rows for this period; deduped by keeping the first occurrence per question_id before eligibility and ranking. Warren reviewed 2026-09-22 and asked to leave this as-is for now."
+  },
+  "calculation": {
+    "eligibility": "active D\u00e1il membership on question_date (prepare_eligible_td_questions)",
+    "period_end_roster": "active D\u00e1il membership at period.end, party as of period.end (temporal_join + attach_event_party)",
+    "top_askers": "distinct question_id per member_code, deduped, descending by count then question_day_count then name",
+    "fewest_askers": "period-end roster filtered to membership_start <= period.start (seated full period) and not an office-holder overlapping the period (silver_member_offices); bottom 10 by question count ascending",
+    "party_per_td": "grouped_question_metrics by party_name / period-end TD count per party",
+    "departments": "recipient_distribution grouped by to_minister_or_department, top 8 by count",
+    "answers": "written_question_answer_bridge joined to written_question_answer_sections by debate_section_id, grouped by answer_status",
+    "month_over_month": "current vs previous calendar month, both computed from the same source batch (see data_products.yml known_drift_fact caveat)"
+  },
+  "caveats": [
+    "'Fewest questions submitted' excludes 40 TD(s) holding a ministerial-type office (Minister, Minister of State, Taoiseach, Ceann Comhairle, or Leas-Cheann Comhairle) active at any point in the month, using the Oireachtas member-offices record (silver_member_offices). It does not exclude party leaders \u2014 no party-leader reference data exists anywhere in this pipeline yet; this is a missing component to add in future, not an editorial choice.",
+    "written_question_answer_sections/written_question_answer_bridge were not available in this run's source batch (NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.). The 'What happened to the answers' slide shows a placeholder instead of real figures \u2014 check whether that dataset has been carried into the current production batch."
+  ],
+  "visual_direction": {
+    "note": "top_askers uses Warren's approved option B design (colored bars + legend), decided 2026-09-22."
+  },
+  "top_askers": [
+    {
+      "member_code": "Ken-O'Flynn.D.2024-11-29",
+      "member_name": "Ken O'Flynn",
+      "party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "question_count": 736,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Barry-Ward.S.2020-03-30",
+      "member_name": "Barry Ward",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 560,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Michael-Cahill.D.2024-11-29",
+      "member_name": "Michael Cahill",
+      "party_name": "Fianna F\u00e1il",
+      "party_key": "fianna-fail",
+      "question_count": 279,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Peadar-T\u00f3ib\u00edn.D.2011-03-09",
+      "member_name": "Peadar T\u00f3ib\u00edn",
+      "party_name": "Aont\u00fa",
+      "party_key": "aontu",
+      "question_count": 206,
+      "question_day_count": 6
+    },
+    {
+      "member_code": "Paul-Lawless.D.2024-11-29",
+      "member_name": "Paul Lawless",
+      "party_name": "Aont\u00fa",
+      "party_key": "aontu",
+      "question_count": 195,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Emer-Currie.S.2020-06-29",
+      "member_name": "Emer Currie",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 187,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Grace-Boland.D.2024-11-29",
+      "member_name": "Grace Boland",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 140,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Pa-Daly.D.2020-02-08",
+      "member_name": "Pa Daly",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 135,
+      "question_day_count": 7
+    },
+    {
+      "member_code": "Matt-Carthy.D.2020-02-08",
+      "member_name": "Matt Carthy",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 129,
+      "question_day_count": 8
+    },
+    {
+      "member_code": "Carol-Nolan.D.2016-10-03",
+      "member_name": "Carol Nolan",
+      "party_name": "Independents",
+      "party_key": "independent",
+      "question_count": 125,
+      "question_day_count": 5
+    }
+  ],
+  "fewest_askers": [
+    {
+      "member_code": "David-Maxwell.D.2024-11-29",
+      "member_name": "David Maxwell",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 2
+    },
+    {
+      "member_code": "Dessie-Ellis.D.2011-03-09",
+      "member_name": "Dessie Ellis",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 2
+    },
+    {
+      "member_code": "Michael-Lowry.D.1987-03-10",
+      "member_name": "Michael Lowry",
+      "party_name": "Independents",
+      "party_key": "independent",
+      "question_count": 2
+    },
+    {
+      "member_code": "Pat-Buckley.D.2016-10-03",
+      "member_name": "Pat Buckley",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 2
+    },
+    {
+      "member_code": "Richard-O'Donoghue.D.2020-02-08",
+      "member_name": "Richard O'Donoghue",
+      "party_name": "Independent Ireland",
+      "party_key": "independent-ireland",
+      "question_count": 2
+    },
+    {
+      "member_code": "James-O'Connor.D.2020-02-08",
+      "member_name": "James O'Connor",
+      "party_name": "Fianna F\u00e1il",
+      "party_key": "fianna-fail",
+      "question_count": 3
+    },
+    {
+      "member_code": "Pat-the-Cope-Gallagher.D.1981-06-30",
+      "member_name": "Pat the Cope Gallagher",
+      "party_name": "Fianna F\u00e1il",
+      "party_key": "fianna-fail",
+      "question_count": 3
+    },
+    {
+      "member_code": "M\u00e1ire-Devine.S.2016-04-25",
+      "member_name": "M\u00e1ire Devine",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 4
+    },
+    {
+      "member_code": "Maeve-O'Connell.D.2024-11-29",
+      "member_name": "Maeve O'Connell",
+      "party_name": "Fine Gael",
+      "party_key": "fine-gael",
+      "question_count": 5
+    },
+    {
+      "member_code": "Johnny-Mythen.D.2020-02-08",
+      "member_name": "Johnny Mythen",
+      "party_name": "Sinn F\u00e9in",
+      "party_key": "sinn-fein",
+      "question_count": 6
+    }
+  ],
+  "fewest_askers_stats": {
+    "office_holders_excluded_count": 40,
+    "eligible_pool_after_exclusion": 134,
+    "zero_question_count": 0,
+    "zero_question_proportion": 0.0,
+    "rendered_as": "bottom_10_chart"
+  },
+  "party_per_td": [
+    {
+      "party_name": "Aont\u00fa",
+      "td_count": 2,
+      "question_count": 401,
+      "questions_per_td": 200.5
+    },
+    {
+      "party_name": "Independent Ireland",
+      "td_count": 4,
+      "question_count": 764,
+      "questions_per_td": 191.0
+    },
+    {
+      "party_name": "Green Party",
+      "td_count": 1,
+      "question_count": 114,
+      "questions_per_td": 114.0
+    },
+    {
+      "party_name": "People Before Profit-Solidarity",
+      "td_count": 3,
+      "question_count": 244,
+      "questions_per_td": 81.33
+    },
+    {
+      "party_name": "Labour Party",
+      "td_count": 11,
+      "question_count": 543,
+      "questions_per_td": 49.36
+    },
+    {
+      "party_name": "Fine Gael",
+      "td_count": 38,
+      "question_count": 1699,
+      "questions_per_td": 44.71
+    },
+    {
+      "party_name": "100% RDR",
+      "td_count": 1,
+      "question_count": 43,
+      "questions_per_td": 43.0
+    },
+    {
+      "party_name": "Sinn F\u00e9in",
+      "td_count": 39,
+      "question_count": 1640,
+      "questions_per_td": 42.05
+    },
+    {
+      "party_name": "Social Democrats",
+      "td_count": 12,
+      "question_count": 440,
+      "questions_per_td": 36.67
+    },
+    {
+      "party_name": "Fianna F\u00e1il",
+      "td_count": 48,
+      "question_count": 1684,
+      "questions_per_td": 35.08
+    },
+    {
+      "party_name": "Independents",
+      "td_count": 15,
+      "question_count": 463,
+      "questions_per_td": 30.87
+    }
+  ],
+  "departments": [
+    {
+      "recipient": "Health",
+      "question_count": 1708,
+      "question_share": 0.2126
+    },
+    {
+      "recipient": "Justice",
+      "question_count": 911,
+      "question_share": 0.1134
+    },
+    {
+      "recipient": "Education",
+      "question_count": 905,
+      "question_share": 0.1126
+    },
+    {
+      "recipient": "Transport",
+      "question_count": 838,
+      "question_share": 0.1043
+    },
+    {
+      "recipient": "Children",
+      "question_count": 545,
+      "question_share": 0.0678
+    },
+    {
+      "recipient": "Finance",
+      "question_count": 503,
+      "question_share": 0.0626
+    },
+    {
+      "recipient": "Housing",
+      "question_count": 453,
+      "question_share": 0.0564
+    },
+    {
+      "recipient": "Social",
+      "question_count": 443,
+      "question_share": 0.0551
+    }
+  ],
+  "answers": {
+    "data_available": false,
+    "error": "NoSuchKey: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+  },
+  "national_headline": {
+    "current": {
+      "question_count": 8035,
+      "asking_member_count": 146,
+      "question_day_count": 8,
+      "question_type_count": 2,
+      "recipient_count": 18
+    },
+    "previous": {
+      "question_count": 0,
+      "asking_member_count": 0,
+      "question_day_count": 0,
+      "question_type_count": 0,
+      "recipient_count": 0
+    },
+    "written_count": 7916,
+    "oral_count": 119
+  },
+  "slides": [
+    "slides/01_headline.png",
+    "slides/02_descriptor.png",
+    "slides/03_top_askers.png",
+    "slides/04_fewest_askers.png",
+    "slides/05_party_per_td.png",
+    "slides/06_departments.png",
+    "slides/07_answers.png",
+    "slides/08_methodology.png"
+  ],
+  "review_state": "pending_human_review",
+  "publication_enabled": false,
+  "slide_count": 8,
+  "review_notes": [
+    "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2.",
+    "Top-askers review slide uses smaller one-line name labels and a muted categorical palette per Warren feedback on 2026-09-28.",
+    "Fewest-askers review slide always shows the bottom 10 eligible non-office-holder TDs by recorded question count, per Warren feedback on 2026-10-03."
+  ]
+}
