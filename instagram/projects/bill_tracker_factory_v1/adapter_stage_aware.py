@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from instagram.factory.oireachtas_source import load_csv_tables, resolve_validated_production_batch
 from instagram.factory.package import deterministic_zip
@@ -58,69 +58,90 @@ def _production_counts(bills: list[dict[str, Any]], frames: dict[str, Any]) -> t
 
 def _prepare_root(output_root: Path, period: str) -> tuple[Path, Path, Path, Path]:
     root = output_root / f"period={period}"
-    if root.exists(): shutil.rmtree(root)
+    if root.exists():
+        shutil.rmtree(root)
     slides_dir = root / "slides"; metadata_dir = root / "metadata"; contact_dir = root / "contact_sheets"
-    for directory in (slides_dir, metadata_dir, contact_dir): directory.mkdir(parents=True, exist_ok=True)
+    for directory in (slides_dir, metadata_dir, contact_dir):
+        directory.mkdir(parents=True, exist_ok=True)
     return root, slides_dir, metadata_dir, contact_dir
-
-
-def _diagnostic_placeholder(path: Path, label: str, exc: Exception) -> dict[str, Any]:
-    im = Image.new("RGB", (1080, 1350), "#0f2f24")
-    draw = ImageDraw.Draw(im)
-    draw.text((60, 80), "INTERNAL POST 1 RENDER DIAGNOSTIC", fill="#d8b45f")
-    draw.text((60, 140), label, fill="#f4ead7")
-    msg = f"{type(exc).__name__}: {exc}"
-    y = 210
-    for i in range(0, len(msg), 105):
-        draw.text((60, y), msg[i:i+105], fill="#f4ead7")
-        y += 34
-    path.parent.mkdir(parents=True, exist_ok=True); im.save(path)
-    return {"renderer":"internal_diagnostic_placeholder","warnings":[msg],"source_footer":True}
 
 
 def _generate_first_stage_prototype(*, output_root: Path) -> dict[str, Any]:
     payload = _load_payload(); bill = (payload.get("prototype") or {}).get("bill") or {}
-    if not bill: raise RuntimeError("First Stage prototype content is missing its Bill payload")
-    batch = resolve_validated_production_batch(); frames, lineage = load_csv_tables(batch,["silver_bills","silver_bill_stages","silver_bill_sponsors","silver_bill_debates"])
+    if not bill:
+        raise RuntimeError("First Stage prototype content is missing its Bill payload")
+    batch = resolve_validated_production_batch()
+    frames, lineage = load_csv_tables(batch, ["silver_bills", "silver_bill_stages", "silver_bill_sponsors", "silver_bill_debates"])
     production_rows, production_gaps = _production_counts([bill], frames)
-    root, slides_dir, metadata_dir, contact_dir = _prepare_root(output_root,FIRST_STAGE_PROTOTYPE)
-    slide=slides_dir/"01_adult_safeguarding_first_stage.png"; render_manifest=render_first_stage_bill(bill,slide); _assert_image(slide)
-    contact_path=contact_dir/"first_stage_prototype_contact_sheet.jpg"; contact_sheet([("Adult Safeguarding · First Stage",slide)],contact_path,columns=1)
-    caption_path=root/"caption.txt"; caption_path.write_text("Approved component prototype — publication remains disabled.\n",encoding="utf-8")
-    manifest={"project_id":PROJECT_ID,"period_key":FIRST_STAGE_PROTOTYPE,"review_state":"pending_human_review","publication_enabled":False,"publishing_allowed":False,"source_batch_id":batch.batch_id,"source_pointer":batch.pointer,"source_lineage":lineage,"production_bill_row_counts":production_rows,"production_snapshot_gaps":production_gaps,"editorial_verification_date":"2026-10-03","editorial_sources":bill.get("sources") or [],"slides":[str(slide)],"contact_sheets":{FIRST_STAGE_PROTOTYPE:str(contact_path)},"caption":str(caption_path),"render_manifests":{slide.stem:render_manifest},"qa":{"expected_slide_count":1,"actual_slide_count":1,"dimensions":[1080,1350],"source_footer_required":True,"publication_enabled":False,"publishing_allowed":False,"overflow_assertions_passed":True}}
-    manifest_path=metadata_dir/"manifest.json"; manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False,default=str),encoding="utf-8"); manifest["package"]=deterministic_zip(root,root/"bill_tracker_first_stage_prototype_review.zip"); manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False,default=str),encoding="utf-8"); return manifest
+    root, slides_dir, metadata_dir, contact_dir = _prepare_root(output_root, FIRST_STAGE_PROTOTYPE)
+    slide = slides_dir / "01_adult_safeguarding_first_stage.png"
+    render_manifest = render_first_stage_bill(bill, slide); _assert_image(slide)
+    contact_path = contact_dir / "first_stage_prototype_contact_sheet.jpg"
+    contact_sheet([("Adult Safeguarding · First Stage", slide)], contact_path, columns=1)
+    caption_path = root / "caption.txt"; caption_path.write_text("Approved component prototype — publication remains disabled.\n", encoding="utf-8")
+    manifest = {
+        "project_id": PROJECT_ID, "period_key": FIRST_STAGE_PROTOTYPE,
+        "review_state": "pending_human_review", "publication_enabled": False, "publishing_allowed": False,
+        "source_batch_id": batch.batch_id, "source_pointer": batch.pointer, "source_lineage": lineage,
+        "production_bill_row_counts": production_rows, "production_snapshot_gaps": production_gaps,
+        "editorial_verification_date": "2026-10-03", "editorial_sources": bill.get("sources") or [],
+        "slides": [str(slide)], "contact_sheets": {FIRST_STAGE_PROTOTYPE: str(contact_path)},
+        "caption": str(caption_path), "render_manifests": {slide.stem: render_manifest},
+        "qa": {"expected_slide_count": 1, "actual_slide_count": 1, "dimensions": [1080, 1350], "source_footer_required": True, "publication_enabled": False, "publishing_allowed": False, "overflow_assertions_passed": True},
+    }
+    manifest_path = metadata_dir / "manifest.json"; manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    manifest["package"] = deterministic_zip(root, root / "bill_tracker_first_stage_prototype_review.zip")
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    return manifest
 
 
 def _generate_first_stage_post(*, period: str, output_root: Path) -> dict[str, Any]:
-    payload=_load_payload(); series=payload["series"]; post=(payload.get("posts") or {}).get(period) or {}; bills=post.get("bills") or []
-    if len(bills)!=3: raise RuntimeError(f"{period} requires exactly three current Bills; got {len(bills)}")
-    batch=resolve_validated_production_batch(); frames,lineage=load_csv_tables(batch,["silver_bills","silver_bill_stages","silver_bill_sponsors","silver_bill_debates"])
-    production_rows,production_gaps=_production_counts(bills,frames)
-    root,slides_dir,metadata_dir,contact_dir=_prepare_root(output_root,period)
-    slides:list[Path]=[]; render_manifests:dict[str,Any]={}; diagnostics:list[str]=[]
-    jobs=[(slides_dir/"01_cover.png","cover",lambda p:render_first_stage_cover(post,series,p))]
-    for idx,bill in enumerate(bills,start=2): jobs.append((slides_dir/f"{idx:02d}_{bill['key']}.png",bill['key'],lambda p,b=bill:render_first_stage_bill(b,p)))
-    jobs.append((slides_dir/"05_process_glossary.png","process_glossary",lambda p:render_first_stage_process_glossary(series["glossary"],p)))
-    jobs.append((slides_dir/"06_first_stage_explainer.png","first_stage_explainer",lambda p:render_first_stage_explainer(series["glossary"],p)))
-    for path,label,fn in jobs:
-        try:
-            render_manifests[path.stem]=fn(path)
-        except Exception as exc:
-            if period!=FIRST_STAGE_POST1: raise
-            diagnostics.append(f"{label}: {type(exc).__name__}: {exc}")
-            render_manifests[path.stem]=_diagnostic_placeholder(path,label,exc)
-        _assert_image(path); slides.append(path)
-    contact_path=contact_dir/f"{period}_contact_sheet.jpg"; labels=[p.stem.replace("_"," ").title() for p in slides]; contact_sheet(list(zip(labels,slides)),contact_path,columns=2)
-    caption_path=root/"caption.txt"; caption_text=str(post["caption_draft"]).strip()+"\n"
-    if diagnostics: caption_text+="\nINTERNAL_RENDER_DIAGNOSTICS\n"+"\n".join(diagnostics)+"\n"
-    caption_path.write_text(caption_text,encoding="utf-8")
-    editorial_sources=[source for bill in bills for source in (bill.get("sources") or [])]
-    manifest={"project_id":PROJECT_ID,"period_key":period,"review_state":"pending_human_review","publication_enabled":False,"publishing_allowed":False,"source_batch_id":batch.batch_id,"source_pointer":batch.pointer,"source_lineage":lineage,"production_bill_row_counts":production_rows,"production_snapshot_gaps":production_gaps,"editorial_verification_date":"2026-10-03","editorial_sources":editorial_sources,"slides":[str(p) for p in slides],"contact_sheets":{period:str(contact_path)},"caption":str(caption_path),"render_manifests":render_manifests,"diagnostics":diagnostics,"qa":{"expected_slide_count":6,"actual_slide_count":6,"dimensions":[1080,1350],"source_footer_required":True,"publication_enabled":False,"publishing_allowed":False,"overflow_assertions_passed":not diagnostics,"live_stage_verification_date":"2026-10-03","production_snapshot_gaps_recorded":True}}
-    manifest_path=metadata_dir/"manifest.json"; manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False,default=str),encoding="utf-8"); manifest["package"]=deterministic_zip(root,root/f"bill_tracker_{period}_review.zip"); manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False,default=str),encoding="utf-8"); return manifest
+    payload = _load_payload(); series = payload["series"]; post = (payload.get("posts") or {}).get(period) or {}; bills = post.get("bills") or []
+    if len(bills) != 3:
+        raise RuntimeError(f"{period} requires exactly three current Bills; got {len(bills)}")
+    batch = resolve_validated_production_batch()
+    frames, lineage = load_csv_tables(batch, ["silver_bills", "silver_bill_stages", "silver_bill_sponsors", "silver_bill_debates"])
+    production_rows, production_gaps = _production_counts(bills, frames)
+    root, slides_dir, metadata_dir, contact_dir = _prepare_root(output_root, period)
+
+    slides: list[Path] = []; render_manifests: dict[str, Any] = {}
+    cover = slides_dir / "01_cover.png"
+    render_manifests[cover.stem] = render_first_stage_cover(post, series, cover); _assert_image(cover); slides.append(cover)
+    for idx, bill in enumerate(bills, start=2):
+        p = slides_dir / f"{idx:02d}_{bill['key']}.png"
+        render_manifests[p.stem] = render_first_stage_bill(bill, p); _assert_image(p); slides.append(p)
+    process = slides_dir / "05_process_glossary.png"
+    render_manifests[process.stem] = render_first_stage_process_glossary(series["glossary"], process); _assert_image(process); slides.append(process)
+    explainer = slides_dir / "06_first_stage_explainer.png"
+    render_manifests[explainer.stem] = render_first_stage_explainer(series["glossary"], explainer); _assert_image(explainer); slides.append(explainer)
+    if len(slides) != 6:
+        raise RuntimeError(f"{period} rendered {len(slides)} slides, expected 6")
+
+    contact_path = contact_dir / f"{period}_contact_sheet.jpg"
+    labels = [p.stem.replace("_", " ").title() for p in slides]
+    contact_sheet(list(zip(labels, slides)), contact_path, columns=2)
+    caption_path = root / "caption.txt"; caption_path.write_text(str(post["caption_draft"]).strip() + "\n", encoding="utf-8")
+    editorial_sources = [source for bill in bills for source in (bill.get("sources") or [])]
+    manifest = {
+        "project_id": PROJECT_ID, "period_key": period,
+        "review_state": "pending_human_review", "publication_enabled": False, "publishing_allowed": False,
+        "source_batch_id": batch.batch_id, "source_pointer": batch.pointer, "source_lineage": lineage,
+        "production_bill_row_counts": production_rows, "production_snapshot_gaps": production_gaps,
+        "editorial_verification_date": "2026-10-03", "editorial_sources": editorial_sources,
+        "slides": [str(p) for p in slides], "contact_sheets": {period: str(contact_path)},
+        "caption": str(caption_path), "render_manifests": render_manifests,
+        "qa": {"expected_slide_count": 6, "actual_slide_count": 6, "dimensions": [1080, 1350], "source_footer_required": True, "publication_enabled": False, "publishing_allowed": False, "overflow_assertions_passed": True, "live_stage_verification_date": "2026-10-03", "production_snapshot_gaps_recorded": True},
+    }
+    manifest_path = metadata_dir / "manifest.json"; manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    manifest["package"] = deterministic_zip(root, root / f"bill_tracker_{period}_review.zip")
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    return manifest
 
 
 def generate(*, project: dict[str, Any], period_spec: str, output_root: Path) -> dict[str, Any]:
-    period=(period_spec or "post1").strip().lower()
-    if period==FIRST_STAGE_PROTOTYPE: return _generate_first_stage_prototype(output_root=output_root)
-    if period in {FIRST_STAGE_POST1,FIRST_STAGE_POST2}: return _generate_first_stage_post(period=period,output_root=output_root)
-    return enacted_adapter.generate(project=project,period_spec=period,output_root=output_root)
+    period = (period_spec or "post1").strip().lower()
+    if period == FIRST_STAGE_PROTOTYPE:
+        return _generate_first_stage_prototype(output_root=output_root)
+    if period in {FIRST_STAGE_POST1, FIRST_STAGE_POST2}:
+        return _generate_first_stage_post(period=period, output_root=output_root)
+    return enacted_adapter.generate(project=project, period_spec=period, output_root=output_root)
