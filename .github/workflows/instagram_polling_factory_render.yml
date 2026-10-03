@@ -7,9 +7,15 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  inventory:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ca-central-1
+      AWS_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,33 +23,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install pillow
-      - name: Generate Strategic Gas Reserve pair
-        run: python process/tmp_publish_gas_reserve_pair.py
-      - name: Build hosted review
-        shell: bash
-        run: |
-          set -euo pipefail
-          REVIEW=bill_gas_reserve_pair_web
-          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
-          cp artifacts/bill-gas-reserve-pair/01-gas-reserve-explainer.png "$REVIEW/01-gas-reserve-explainer.png"
-          cp artifacts/bill-gas-reserve-pair/02-gas-reserve-vote.png "$REVIEW/02-gas-reserve-vote.png"
-          cp artifacts/bill-gas-reserve-pair/contact-sheet.png "$REVIEW/contact-sheet.png"
-          cat > "$REVIEW/index.html" <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Strategic Gas Reserve pair</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}.meta{color:#c8bda8;line-height:1.5}.sheet{width:100%;height:auto;display:block;margin:22px 0;background:white}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid img{width:100%;height:auto;display:block}@media(max-width:900px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Bill Tracker · Strategic Gas Reserve</h1><div class="meta">Two-slide production pattern: explanation first, certified Dáil passage vote second.</div><img class="sheet" src="contact-sheet.png"><div class="grid"><img src="01-gas-reserve-explainer.png"><img src="02-gas-reserve-vote.png"></div></main></body></html>
-          HTML
-      - name: Publish preview branch
+      - run: python -m pip install boto3 pandas
+      - name: Build live Second Stage inventory
+        run: python process/tmp_second_stage_inventory.py
+      - name: Publish inventory branch
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cd bill_gas_reserve_pair_web
+          mkdir inventory-web
+          cp artifacts/second-stage-inventory/current_second_stage.json inventory-web/current_second_stage.json
+          cp artifacts/second-stage-inventory/current_second_stage.csv inventory-web/current_second_stage.csv
+          cd inventory-web
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m "preview: Strategic Gas Reserve pair ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-gas-reserve-pair
+          git commit -m "analysis: Second Stage inventory ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-second-stage-inventory
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-gas-reserve-pair
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-inventory
