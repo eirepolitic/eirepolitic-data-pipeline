@@ -4,33 +4,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  restore-corners:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-recurring-production-v2
-          fetch-depth: 0
-      - name: Restore exact approved corner assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin feature/instagram-monthly-post-framework
-          git checkout FETCH_HEAD -- \
-            instagram/templates/assets/corner_tl.png \
-            instagram/templates/assets/corner_tr.png \
-            instagram/templates/assets/corner_bl.png \
-            instagram/templates/assets/corner_br.png
-          test "$(git hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
-          test "$(git hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
-          test "$(git hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
-          test "$(git hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add instagram/templates/assets/corner_*.png
-          git commit -m 'fix(instagram): restore approved corner assets'
-          git push origin HEAD:feature/instagram-recurring-production-v2
+  september-acceptance:
+    uses: ./.github/workflows/instagram_factory_recurring.yml
+    with:
+      project_id: party_issue_monthly_profile_v2
+      period: "2026-09"
+    secrets: inherit
