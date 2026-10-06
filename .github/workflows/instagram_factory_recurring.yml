@@ -51,7 +51,8 @@ jobs:
       - name: Install runtime dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas pyyaml pillow matplotlib boto3 pytest
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
       - name: Validate Instagram runtime sources
         run: |
           python -m compileall -q instagram political_metrics
