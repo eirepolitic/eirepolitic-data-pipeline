@@ -13,6 +13,7 @@ Traceback (most recent call last):
   File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/projects/party_issue_monthly_profile_v2/adapter.py", line 571, in generate
     "most_discussed_issues": _render_analytical(
                              ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/projects/party_issue_monthly_profile_v2/adapter.py", line 443, in _render_analytical
-    raise RuntimeError(f"Outer layout warnings for {party['party']}/{slide_id}: {rendered.warnings}")
-RuntimeError: Outer layout warnings for 100% RDR/most_discussed_issues: ['missing_binding:body_text', 'missing_binding:footer_text']
+  File "/home/runner/work/eirepolitic-data-pipeline/eirepolitic-data-pipeline/instagram/projects/party_issue_monthly_profile_v2/adapter.py", line 459, in _render_analytical
+    "outer_text_metrics": rendered.text_metrics,
+                          ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'RenderResult' object has no attribute 'text_metrics'
