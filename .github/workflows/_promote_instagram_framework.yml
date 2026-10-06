@@ -7,30 +7,30 @@ permissions:
   contents: write
 
 jobs:
-  diagnose:
+  restore-corners:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feature/instagram-recurring-production-v2
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install pandas pyyaml pillow matplotlib boto3 pytest
-      - name: Capture regression failure
+          fetch-depth: 0
+      - name: Restore exact approved corner assets
         shell: bash
         run: |
-          set +e
-          python -m pytest -q tests/test_instagram_monthly_post_framework.py --tb=short > /tmp/pytest.log 2>&1
-          STATUS=$?
-          set -e
-          cat /tmp/pytest.log
-          mkdir -p diagnostics/instagram
-          cp /tmp/pytest.log diagnostics/instagram/monthly_post_regression.log
+          set -euo pipefail
+          git fetch origin feature/instagram-monthly-post-framework
+          git checkout FETCH_HEAD -- \
+            instagram/templates/assets/corner_tl.png \
+            instagram/templates/assets/corner_tr.png \
+            instagram/templates/assets/corner_bl.png \
+            instagram/templates/assets/corner_br.png
+          test "$(git hash-object instagram/templates/assets/corner_tl.png)" = "c2d2378c55cdc20fdd1f6e7a2f910a6fb156b5d1"
+          test "$(git hash-object instagram/templates/assets/corner_tr.png)" = "b81188dd14bf1423c5f450d0857701a043cf9b07"
+          test "$(git hash-object instagram/templates/assets/corner_bl.png)" = "434bd940e6bc2365835a74edd58e2e1260eb4669"
+          test "$(git hash-object instagram/templates/assets/corner_br.png)" = "9b920e6c3bdfbb1049865aac4f5de782f423bb1e"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/instagram/monthly_post_regression.log
-          git commit -m 'chore: capture monthly Instagram regression diagnostics'
+          git add instagram/templates/assets/corner_*.png
+          git commit -m 'fix(instagram): restore approved corner assets'
           git push origin HEAD:feature/instagram-recurring-production-v2
-          exit "$STATUS"
