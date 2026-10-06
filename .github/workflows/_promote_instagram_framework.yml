@@ -4,32 +4,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch-bindings:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: feature/instagram-recurring-production-v2
-      - name: Supply explicit optional layout bindings
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          path=Path('instagram/projects/party_issue_monthly_profile_v2/adapter.py')
-          text=path.read_text(encoding='utf-8')
-          old='rendered = render_template(layout, {"slide_title": slide_title, "main_media": str(visual_path)}, path)'
-          new='rendered = render_template(layout, {"slide_title": slide_title, "body_text": "", "main_media": str(visual_path), "footer_text": ""}, path)'
-          if old not in text:
-              raise SystemExit('Expected analytical render_template call not found')
-          path.write_text(text.replace(old,new,1),encoding='utf-8')
-          PY
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add instagram/projects/party_issue_monthly_profile_v2/adapter.py
-          git commit -m 'fix(instagram): supply optional analytical layout bindings'
-          git push origin HEAD:feature/instagram-recurring-production-v2
+  september-acceptance:
+    uses: ./.github/workflows/instagram_factory_recurring.yml
+    with:
+      project_id: party_issue_monthly_profile_v2
+      period: "2026-09"
+    secrets: inherit
