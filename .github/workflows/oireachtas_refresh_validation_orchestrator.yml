@@ -46,6 +46,7 @@ jobs:
       run_consumers: ${{ steps.values.outputs.run_consumers }}
       auto_promote: ${{ steps.values.outputs.auto_promote }}
       batch_id: ${{ steps.values.outputs.batch_id }}
+      generate_monthly_instagram: ${{ steps.values.outputs.generate_monthly_instagram }}
     steps:
       - name: Resolve orchestration inputs
         id: values
@@ -59,6 +60,7 @@ jobs:
           INPUT_AUTO_PROMOTE: ${{ inputs.auto_promote }}
         run: |
           set -euo pipefail
+          generate_monthly_instagram='false'
           if [[ "${EVENT_NAME}" == 'schedule' ]]; then
             case "${CRON_VALUE}" in
               '45 6 * * 0') refresh_type='weekly' ;;
@@ -69,6 +71,12 @@ jobs:
             publish_candidate='true'
             run_consumers='true'
             auto_promote='true'
+            if [[ "${refresh_type}" == 'weekly' ]]; then
+              day_of_month="$(date -u +%-d)"
+              if (( day_of_month <= 7 )); then
+                generate_monthly_instagram='true'
+              fi
+            fi
           else
             refresh_type="${INPUT_REFRESH_TYPE:-weekly}"
             publish_candidate="${INPUT_PUBLISH_CANDIDATE:-true}"
@@ -86,6 +94,7 @@ jobs:
           echo "run_consumers=${run_consumers}" >> "${GITHUB_OUTPUT}"
           echo "auto_promote=${auto_promote}" >> "${GITHUB_OUTPUT}"
           echo "batch_id=${batch_id}" >> "${GITHUB_OUTPUT}"
+          echo "generate_monthly_instagram=${generate_monthly_instagram}" >> "${GITHUB_OUTPUT}"
           {
             echo '## Oireachtas orchestration plan'
             echo
@@ -94,6 +103,7 @@ jobs:
             echo "- Complete candidate: `${publish_candidate}`"
             echo "- Consumer validation: `${run_consumers}`"
             echo "- Automatic promotion: `${auto_promote}`"
+            echo "- Monthly Instagram review generation: `${generate_monthly_instagram}`"
           } >> "${GITHUB_STEP_SUMMARY}"
 
   refresh:
@@ -200,10 +210,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 365
 
+  instagram_monthly_party_speech:
+    needs: [prepare, promote]
+    if: needs.prepare.outputs.generate_monthly_instagram == 'true' && needs.promote.result == 'success'
+    uses: ./.github/workflows/instagram_factory_recurring.yml
+    with:
+      project_id: party_issue_monthly_profile_v2
+      period: ""
+    secrets: inherit
+
   summary:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [prepare, refresh, validation, promote]
+    needs: [prepare, refresh, validation, promote, instagram_monthly_party_speech]
     if: always()
     steps:
       - name: Write orchestration result
@@ -218,10 +237,14 @@ jobs:
             echo "- Refresh: `${{ needs.refresh.result }}`"
             echo "- Validation: `${{ needs.validation.result }}`"
             echo "- Promotion: `${{ needs.promote.result }}`"
+            echo "- Monthly Instagram review: `${{ needs.instagram_monthly_party_speech.result }}`"
           } >> "${GITHUB_STEP_SUMMARY}"
           [[ '${{ needs.prepare.result }}' == 'success' ]]
           [[ '${{ needs.refresh.result }}' == 'success' ]]
           [[ '${{ needs.validation.result }}' == 'success' ]]
           if [[ '${{ needs.prepare.outputs.auto_promote }}' == 'true' ]]; then
             [[ '${{ needs.promote.result }}' == 'success' ]]
+          fi
+          if [[ '${{ needs.prepare.outputs.generate_monthly_instagram }}' == 'true' ]]; then
+            [[ '${{ needs.instagram_monthly_party_speech.result }}' == 'success' ]]
           fi
