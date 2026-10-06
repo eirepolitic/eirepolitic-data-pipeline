@@ -438,7 +438,7 @@ def _render_analytical(
 
     layout_path = Path(str((project.get("render") or {})["outer_layout"]))
     layout = json.loads(layout_path.read_text(encoding="utf-8"))
-    rendered = render_template(layout, {"slide_title": slide_title, "main_media": str(visual_path)}, path)
+    rendered = render_template(layout, {"slide_title": slide_title, "body_text": "", "main_media": str(visual_path), "footer_text": ""}, path)
     if rendered.warnings:
         raise RuntimeError(f"Outer layout warnings for {party['party']}/{slide_id}: {rendered.warnings}")
 
