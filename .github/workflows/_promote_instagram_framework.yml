@@ -4,12 +4,39 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  september-acceptance:
-    uses: ./.github/workflows/instagram_factory_recurring.yml
-    with:
-      project_id: party_issue_monthly_profile_v2
-      period: "2026-09"
-    secrets: inherit
+  diagnose-september:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ca-central-1
+      AWS_DEFAULT_REGION: ca-central-1
+      S3_BUCKET: eirepolitic-data
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/instagram-recurring-production-v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas pyyaml pillow matplotlib boto3 pytest
+      - name: Capture September generation failure
+        shell: bash
+        run: |
+          set +e
+          python -m instagram.factory.recurring --project-id party_issue_monthly_profile_v2 --period 2026-09 > /tmp/generation.log 2>&1
+          STATUS=$?
+          set -e
+          cat /tmp/generation.log
+          mkdir -p diagnostics/instagram
+          cp /tmp/generation.log diagnostics/instagram/september_generation.log
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/instagram/september_generation.log
+          git commit -m 'chore: capture September generation diagnostics'
+          git push origin HEAD:feature/instagram-recurring-production-v2
+          exit "$STATUS"
