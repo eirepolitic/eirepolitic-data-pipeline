@@ -456,7 +456,6 @@ def _render_analytical(
         "visual_manifest": str(visual_manifest_path),
         "readability": visual_manifest.get("readability") or {},
         "warnings": visual_manifest.get("warnings") or [],
-        "outer_text_metrics": rendered.text_metrics,
     }
 
 
