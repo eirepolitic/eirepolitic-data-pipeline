@@ -22,14 +22,34 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install boto3 pandas
-      - run: python process/tmp_count_second_stage_current_term.py
+      - name: Run count and always capture output
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts/second-stage-count
+          python process/tmp_count_second_stage_current_term.py > artifacts/second-stage-count/run.log 2>&1
+          code=$?
+          echo "$code" > artifacts/second-stage-count/exit_code.txt
+          if [ ! -f artifacts/second-stage-count/summary.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/second-stage-count')
+          p.joinpath('summary.json').write_text(json.dumps({'ok':False,'error':'script_failed_before_summary','log':p.joinpath('run.log').read_text(encoding='utf-8',errors='replace')},ensure_ascii=False,indent=2),encoding='utf-8')
+          PY
+          fi
+          cat artifacts/second-stage-count/run.log
+          exit 0
       - name: Publish count
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir out && cp artifacts/second-stage-count/summary.json out/
+          mkdir out
+          cp artifacts/second-stage-count/summary.json out/
+          cp artifacts/second-stage-count/run.log out/
+          cp artifacts/second-stage-count/exit_code.txt out/
           cd out
           git init
           git config user.name 'github-actions[bot]'
