@@ -4,7 +4,7 @@ on:
 permissions:
   contents: write
 jobs:
-  count:
+  export:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -22,19 +22,19 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install boto3 pandas
-      - run: python process/tmp_count_second_stage_current_term.py
-      - name: Publish count
+      - run: python process/tmp_export_second_stage_content_inputs.py
+      - name: Publish inputs
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir out && cp artifacts/second-stage-count/summary.json out/
+          mkdir out && cp artifacts/second-stage-content-inputs/inputs.json out/
           cd out
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add . && git commit -m "analysis: Second Stage term count ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-second-stage-count
+          git add . && git commit -m "analysis: Second Stage content inputs ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-second-stage-inputs
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-count
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-inputs
