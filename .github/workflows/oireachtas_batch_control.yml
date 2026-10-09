@@ -70,6 +70,65 @@ jobs:
         run: |
           set -euo pipefail
           python process/director_recorded_voting_participation_split_posts.py
+      - name: Build split-post contact sheets
+        if: ${{ inputs.operation == 'status' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+
+          root = Path("director/sessions/2026-09-27-recorded-voting-participation/split_posts_review")
+          folders = ["tds", "constituencies", "parties"]
+          bg = "#0f2f24"
+          text = "#f4ead7"
+          gold = "#d8b45f"
+          thumb_w, thumb_h = 324, 405
+          margin, gap, label_h = 30, 20, 48
+          canvas_w = margin * 2 + thumb_w * 5 + gap * 4
+          canvas_h = margin * 2 + thumb_h + label_h
+          font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+          label_font = ImageFont.truetype(font_path, 20) if Path(font_path).exists() else ImageFont.load_default()
+
+          manifest_path = root / "manifest.json"
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          posts_by_folder = {
+              post["kind"].lower().replace(" ", "_"): post
+              for post in manifest.get("posts", [])
+          }
+
+          for folder_name in folders:
+              folder = root / folder_name
+              slides = sorted(folder.glob("[0-9][0-9]_*.png"))
+              if len(slides) != 5:
+                  raise RuntimeError(f"Expected 5 slides in {folder}, found {len(slides)}")
+
+              canvas = Image.new("RGB", (canvas_w, canvas_h), bg)
+              draw = ImageDraw.Draw(canvas)
+              for i, slide_path in enumerate(slides, start=1):
+                  with Image.open(slide_path) as src:
+                      thumb = src.convert("RGB").resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
+                  x = margin + (i - 1) * (thumb_w + gap)
+                  y = margin
+                  canvas.paste(thumb, (x, y))
+                  draw.rectangle((x, y + thumb_h + 8, x + thumb_w, y + thumb_h + 11), fill=gold)
+                  label = f"Slide {i}"
+                  box = draw.textbbox((0, 0), label, font=label_font)
+                  tx = x + (thumb_w - (box[2] - box[0])) // 2
+                  draw.text((tx, y + thumb_h + 17), label, font=label_font, fill=text)
+
+              out = folder / "contact_sheet.png"
+              canvas.save(out, quality=95)
+              if folder_name in posts_by_folder:
+                  posts_by_folder[folder_name]["contact_sheet"] = str(out)
+              print(f"Wrote {out}")
+
+          manifest["contact_sheets"] = {
+              name: str(root / name / "contact_sheet.png") for name in folders
+          }
+          manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          PY
       - name: Persist Director review evidence
         if: ${{ inputs.operation == 'status' }}
         run: |
