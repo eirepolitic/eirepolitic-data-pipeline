@@ -1,0 +1,70 @@
+{
+  "docs_columns": [
+    "related_doc_id",
+    "bill_id",
+    "related_doc_label",
+    "related_doc_date",
+    "doc_type",
+    "language",
+    "format_pdf_uri",
+    "format_pdf_url",
+    "format_xml_uri",
+    "format_xml_url",
+    "source_file_id_pdf",
+    "source_file_id_xml",
+    "s3_pdf_key",
+    "s3_xml_key",
+    "snapshot_date"
+  ],
+  "docs_rows": [
+    {
+      "related_doc_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/memo",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94",
+      "related_doc_label": "Explanatory Memorandum",
+      "related_doc_date": "2026-10-01",
+      "doc_type": "memo",
+      "language": "eng",
+      "format_pdf_uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/memo/b9426d-memo-copy.pdf",
+      "format_pdf_url": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/memo/b9426d-memo-copy.pdf",
+      "format_xml_uri": "",
+      "format_xml_url": "",
+      "source_file_id_pdf": "source_file:c7c264ff64c05250e122a19e",
+      "source_file_id_xml": "",
+      "s3_pdf_key": "raw/oireachtas_unified/source_files/legislation/data.oireachtas.ie-ie-oireachtas-bill-2026-94/source_file-c7c264ff64c05250e122a19e.pdf",
+      "s3_xml_key": "",
+      "snapshot_date": "2026-10-03"
+    }
+  ],
+  "versions_columns": [
+    "bill_version_id",
+    "bill_id",
+    "version_label",
+    "version_date",
+    "format_pdf_uri",
+    "format_pdf_url",
+    "format_xml_uri",
+    "format_xml_url",
+    "source_file_id_pdf",
+    "source_file_id_xml",
+    "s3_pdf_key",
+    "s3_xml_key",
+    "snapshot_date"
+  ],
+  "versions_rows": [
+    {
+      "bill_version_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/initiated",
+      "bill_id": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94",
+      "version_label": "As Initiated",
+      "version_date": "2026-10-01",
+      "format_pdf_uri": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/initiated/b9426d.pdf",
+      "format_pdf_url": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/94/eng/initiated/b9426d.pdf",
+      "format_xml_uri": "",
+      "format_xml_url": "",
+      "source_file_id_pdf": "source_file:cf8cc5c5ec2a8768e6914f4e",
+      "source_file_id_xml": "",
+      "s3_pdf_key": "raw/oireachtas_unified/source_files/legislation/data.oireachtas.ie-ie-oireachtas-bill-2026-94/source_file-cf8cc5c5ec2a8768e6914f4e.pdf",
+      "s3_xml_key": "",
+      "snapshot_date": "2026-10-03"
+    }
+  ]
+}
