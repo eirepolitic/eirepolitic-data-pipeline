@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -46,7 +47,15 @@ class EventBridgePublicationScheduler:
     @staticmethod
     def schedule_name(schedule: PublicationSchedule) -> str:
         safe_id = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in schedule.publication_id)
-        return f"instagram-{safe_id}-v{schedule.publication_version}"
+        raw = f"instagram-{safe_id}-v{schedule.publication_version}"
+        if len(raw) <= 64:
+            return raw
+        # EventBridge Scheduler names are limited to 64 characters. Preserve a
+        # readable prefix and add a deterministic digest so long publication IDs
+        # remain stable and collision-resistant without changing existing short names.
+        digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:10]
+        suffix = f"-{digest}"
+        return f"{raw[:64 - len(suffix)]}{suffix}"
 
     @staticmethod
     def payload(schedule: PublicationSchedule) -> str:
