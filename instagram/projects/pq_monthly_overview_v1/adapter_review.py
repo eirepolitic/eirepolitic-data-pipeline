@@ -7,17 +7,19 @@ from typing import Any
 
 from instagram.projects.pq_monthly_overview_v1 import adapter as base
 from instagram.renderer.template_renderer import render_template
-from instagram.visuals.renderers import horizontal_bar_grouped_singleline
+from instagram.visuals.renderers import horizontal_bar_grouped_singleline, horizontal_bar_review
 
 HEADLINE_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
 DESCRIPTOR_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/descriptor_layout_v1.json")
 _original_render_text_slide = base._render_text_slide
 _fewest_override: dict[str, Any] | None = None
 
-# Review-only Slide 3 adjustments requested by Warren on 2026-09-28:
-# - force top-asker names to one line at a slightly smaller font size;
-# - soften the categorical bar colors without changing party identity/order.
+# Review-only chart adjustments.
+# Top/fewest-asker grouped charts use the approved one-line grouped renderer.
+# Standard horizontal bars delegate through horizontal_bar_review, which only
+# changes party_per_td and leaves all other horizontal-bar slides unchanged.
 base.horizontal_bar_grouped = horizontal_bar_grouped_singleline
+base.horizontal_bar = horizontal_bar_review
 base.PARTY_COLOR = {
     "fianna-fail": "#4583cb",
     "sinn-fein": "#c15f36",
@@ -39,13 +41,7 @@ def _first_int(text: str) -> str:
 
 
 def _prepare_fewest_override(project: dict[str, Any], period_spec: str) -> dict[str, Any]:
-    """Compute the bottom-10 eligible non-office-holder TDs for the review slide.
-
-    This deliberately preserves the established eligibility rule (seated for the
-    full period; ministerial-type office-holders excluded via silver_member_offices)
-    but removes the old under-25%-zero-question text-only branch. Warren requested
-    a bottom-10 chart during final review on 2026-10-03.
-    """
+    """Compute the bottom-10 eligible non-office-holder TDs for the review slide."""
     period = base.resolve_period(period_spec)
     base.require_completed_calendar_month(period)
     period_key = period.start.strftime("%Y-%m")
@@ -312,6 +308,7 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
             "Review branch inserts a plain-English parliamentary-question descriptor slide at position 2.",
             "Top-askers review slide uses smaller one-line name labels and a muted categorical palette per Warren feedback on 2026-09-28.",
             "Fewest-askers review slide always shows the bottom 10 eligible non-office-holder TDs by recorded question count, per Warren feedback on 2026-10-03.",
+            "Party-per-TD review slide displays whole-number value labels at regular weight and shortens People Before Profit-Solidarity to People Before Profit, per Warren feedback on 2026-10-08.",
         ])
         manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
