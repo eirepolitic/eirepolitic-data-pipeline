@@ -12,6 +12,7 @@ from instagram.visuals.renderers import horizontal_bar_grouped_singleline, horiz
 HEADLINE_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/headline_layout_v1.json")
 DESCRIPTOR_LAYOUT = Path("instagram/projects/pq_monthly_overview_v1/descriptor_layout_v1.json")
 _original_render_text_slide = base._render_text_slide
+_original_render_slide = base._render_slide
 _fewest_override: dict[str, Any] | None = None
 
 # Review-only chart adjustments.
@@ -33,6 +34,36 @@ base.PARTY_COLOR = {
     "people-before-profit-solidarity": "#c15f36",
     "100-rdr": "#2c9570",
 }
+
+
+def _render_slide_review(
+    *,
+    variant_id: str,
+    slide_title: str,
+    body_text: str,
+    rows: list[dict[str, Any]],
+    renderer_module,
+    render_kwargs: dict[str, Any],
+    period_root: Path,
+    layout: dict[str, Any],
+    slide_index: int,
+) -> dict[str, Any]:
+    if variant_id == "departments":
+        slide_title = "Most Asked Departments"
+    return _original_render_slide(
+        variant_id=variant_id,
+        slide_title=slide_title,
+        body_text=body_text,
+        rows=rows,
+        renderer_module=renderer_module,
+        render_kwargs=render_kwargs,
+        period_root=period_root,
+        layout=layout,
+        slide_index=slide_index,
+    )
+
+
+base._render_slide = _render_slide_review
 
 
 def _first_int(text: str) -> str:
@@ -309,6 +340,7 @@ def _insert_descriptor(period_root: Path, raw: dict[str, Any]) -> None:
             "Top-askers review slide uses smaller one-line name labels and a muted categorical palette per Warren feedback on 2026-09-28.",
             "Fewest-askers review slide always shows the bottom 10 eligible non-office-holder TDs by recorded question count, per Warren feedback on 2026-10-03.",
             "Party-per-TD review slide displays whole-number value labels at regular weight and shortens People Before Profit-Solidarity to People Before Profit, per Warren feedback on 2026-10-08.",
+            "Departments slide title changed to Most Asked Departments per Warren feedback on 2026-10-08.",
         ])
         manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
