@@ -19,24 +19,32 @@ for n,k in KEYS.items(): f[n],resolved[n]=read(k)
 s=build_bill_content_snapshot(bills=f['bills'],stages=f['stages'],sponsors=f['sponsors'],bill_debate_sections=f['bridge'],speeches=f['speeches'],divisions=f['divisions'],member_votes=f['member_votes'],batch_size=6)
 x=s[s['series_bucket'].eq('second_stage')].copy()
 x['_last']=pd.to_datetime(x['last_event_date'],errors='coerce')
+
 def current_term(r):
-    house=str(r.get('current_stage_house_name','') or r.get('origin_house_name','')).lower()
-    cutoff=pd.Timestamp('2025-02-12') if 'seanad' in house else pd.Timestamp('2024-12-18')
-    return pd.notna(r['_last']) and r['_last']>=cutoff
+    house=str(r.get('current_stage_house_name','')).strip().lower()
+    dt=r['_last']
+    if pd.isna(dt): return False
+    if house in {'34th dáil','34th dail'}:
+        return dt >= pd.Timestamp('2024-12-18')
+    if house == '27th seanad':
+        return dt >= pd.Timestamp('2025-02-12')
+    return False
+
 x=x[x.apply(current_term,axis=1)].copy().sort_values(['_last','bill_year','bill_no'],ascending=[False,False,False])
 count=len(x)
-# pack into 3-4 bill posts, minimizing number of posts while avoiding 2-bill tails
-post_count=(count+3)//4
-base=count//post_count if post_count else 0
-rem=count%post_count if post_count else 0
-sizes=[base+1]*rem+[base]*(post_count-rem) if post_count else []
-# If any post would fall below 3, fall back to mostly 3s with one 4.
-if sizes and min(sizes)<3:
-    q,r=divmod(count,3); sizes=[3]*q
-    if r==1 and sizes: sizes[-1]=4
-    elif r==2: sizes.append(2)
+# 3-4 bills per post; minimize post count while keeping every post within that range.
+post_count=(count+3)//4 if count else 0
+sizes=[]
+if post_count:
+    base=count//post_count; rem=count%post_count
+    sizes=[base+1]*rem+[base]*(post_count-rem)
+    if min(sizes)<3:
+        q,r=divmod(count,3); sizes=[3]*q
+        if r==1 and sizes: sizes[-1]=4
+        elif r==2: sizes.append(2)
 rows=[]
-for _,r in x.iterrows(): rows.append({'title':r['title'],'last_event_date':r['last_event_date'],'house':r.get('current_stage_house_name',''),'bill_no':r.get('bill_no',''),'bill_year':r.get('bill_year','')})
+for _,r in x.iterrows():
+    rows.append({'title':r['title'],'last_event_date':r['last_event_date'],'house':r.get('current_stage_house_name',''),'bill_no':r.get('bill_no',''),'bill_year':r.get('bill_year','')})
 out={'count':count,'post_count':len(sizes),'post_sizes':sizes,'resolved_bills_key':resolved['bills'],'bills':rows}
 Path('artifacts/second-stage-count').mkdir(parents=True,exist_ok=True)
 Path('artifacts/second-stage-count/summary.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
