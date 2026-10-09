@@ -14,7 +14,6 @@ OUT=Path('artifacts/bill-tracker-second-stage-all'); OUT.mkdir(parents=True,exis
 W,H=1080,1350; PANEL='#174638'; OUTLINE='#346857'
 BUCKET=os.getenv('S3_BUCKET','eirepolitic-data')
 KEYS={'bills':'processed/oireachtas_unified/latest/csv/silver_bills.csv','stages':'processed/oireachtas_unified/latest/csv/silver_bill_stages.csv','sponsors':'processed/oireachtas_unified/latest/csv/silver_bill_sponsors.csv','bridge':'processed/oireachtas_unified/latest/metrics/event/bill_debate_sections/csv/bill_debate_sections.csv','speeches':'processed/oireachtas_unified/latest/csv/silver_speeches.csv','divisions':'processed/oireachtas_unified/latest/csv/silver_divisions.csv','member_votes':'processed/oireachtas_unified/latest/csv/silver_member_votes.csv'}
-
 SPECIAL={
 'Anti-Shrinkflation Bill 2026':('Would require clearer retail labelling when a product’s quantity is reduced in a way that raises its unit price, so consumers can spot hidden price increases.','Large retailers would have to flag qualifying quantity reductions for a set period. The proposal focuses on price transparency rather than banning smaller packs or setting prices.','The sponsor argues shoppers should be told clearly when they are paying effectively more for less, particularly during a period of cost-of-living pressure.','At Second Stage the House can test the proposal’s general approach: which retailers or products should be covered, how notice rules work, exemptions, enforcement and proportionality.'),
 'Broadcasting (Amendment) Bill 2026':('Would reform governance, transparency, funding and oversight arrangements for RTÉ and TG4, expand Coimisiún na Meán functions and implement parts of the European Media Freedom Act.','The Bill would change how public service media governance, auditing, performance assessment and some public-service-content funding arrangements operate.','Government presented the Bill as implementing recommendations from the Future of Media Commission and the independent RTÉ governance review, alongside EU media-law requirements.','Second Stage debate raised issues including governance, long-term public-service-media funding, Irish-language provision, independent production, geo-blocking and implementation detail.'),
@@ -50,7 +49,12 @@ def rule(d,y,l=82,r=998,w=5): d.rectangle((l,y,r,y+w),fill=ACCENT)
 def panel(d,box,outline=OUTLINE,fill=PANEL,w=2): d.rounded_rectangle(box,radius=18,fill=fill,outline=outline,width=w)
 def footer(d,text,source='Source: Houses of the Oireachtas'):
     rule(d,1254,58,1022,4); d.text((64,1278),source,font=font(12),fill=MUTED,anchor='la'); d.text((1016,1278),text,font=font(12,True),fill=MUTED,anchor='ra')
-def lines_h(d,lines,f,g=5): return sum(d.textbbox((0,0),ln,font=f)[3]-d.textbbox((0,0),ln,font=f)[1] for ln in lines)+g*max(0,len(lines)-1)
+def lines_h(d,lines,f,g=5):
+    # Match draw_block's actual anchor='la' vertical advance exactly.
+    total=0
+    for ln in lines:
+        b=d.textbbox((0,0),ln,font=f,anchor='la'); total += b[3] + g
+    return max(0,total-g)
 def fit(d,text,width,height,start=28,min_size=15,max_lines=8,bold=False):
     for s in range(start,min_size-1,-1):
         f=font(s,bold); lines=wrap_text_px(d,text,f,width)
@@ -72,8 +76,7 @@ def generic_copy(r):
     elif 'Amendment' in title: what=f'Would amend existing legislation in the area of {subj.lower()}. The Bill is currently before the House at Second Stage, where its overall approach is considered.'
     else: what=f'Would create or change legislation concerning {subj.lower()}. At Second Stage, the House considers whether the Bill’s general approach should proceed to detailed scrutiny.'
     practical='If enacted, the Bill would change the legal framework in the area named above. This slide stays at that verified scope level unless the underlying Bill text has been separately researched and certified.'
-    sponsor=str(r.get('primary_sponsor_name','')).strip() or str(r.get('primary_sponsor_role_name','')).strip() or 'Sponsor recorded by the Oireachtas'
-    context=f'{sponsor} introduced or sponsors the Bill. EirePolitic treats the sponsor’s position separately from the views of other TDs or Senators and does not infer wider support from sponsorship or speeches.'
+    sponsor=str(r.get('primary_sponsor_name','')).strip() or str(r.get('primary_sponsor_role_name','')).strip() or 'Sponsor recorded by the Oireachtas'; context=f'{sponsor} introduced or sponsors the Bill. EirePolitic treats the sponsor’s position separately from the views of other TDs or Senators and does not infer wider support from sponsorship or speeches.'
     sections=int(r.get('certified_section_count',0)); speeches=int(r.get('certified_speech_count',0))
     if speeches: issues=f'The pipeline links {sections} certified debate section{"s" if sections!=1 else ""} and {speeches} certified intervention{"s" if speeches!=1 else ""} to this Bill. Those records provide context, but speaking does not by itself establish support or opposition.'
     else: issues='No certified substantive debate interventions are linked in the current production snapshot. That is not evidence that the Bill lacks importance; it means there is no debate record here to summarise safely.'
