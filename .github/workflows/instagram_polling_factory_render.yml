@@ -1,13 +1,10 @@
 name: Instagram polling factory render
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
-  inventory:
+  count:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -16,6 +13,7 @@ jobs:
       AWS_DEFAULT_REGION: ca-central-1
       AWS_REGION: ca-central-1
       S3_BUCKET: eirepolitic-data
+      PYTHONPATH: .
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,22 +22,19 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install boto3 pandas
-      - name: Build compact Second Stage inventory
-        run: python process/tmp_second_stage_inventory_compact.py
-      - name: Publish compact inventory
+      - run: python process/tmp_count_second_stage_current_term.py
+      - name: Publish count
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir inventory-web
-          cp artifacts/second-stage-compact/summary.json inventory-web/summary.json
-          cd inventory-web
+          mkdir out && cp artifacts/second-stage-count/summary.json out/
+          cd out
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "analysis: compact Second Stage inventory ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-second-stage-inventory
+          git add . && git commit -m "analysis: Second Stage term count ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-second-stage-count
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-inventory
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-count
