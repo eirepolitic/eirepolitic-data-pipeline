@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build three review-only Instagram carousels: TDs, constituencies, parties.
 
-Selection is by the validated recorded-participation percentage only.
-Highest/lowest language is descriptive of this metric and must not be interpreted
-as an overall evaluation of representatives, parties, or constituencies.
+Each post is chart-first: highest percentages, lowest percentages, metric explainer,
+then methodology. Selection is by the validated recorded-participation percentage
+only. Highest/lowest language is descriptive of this metric and must not be
+interpreted as an overall evaluation of representatives, parties, or constituencies.
 """
 from __future__ import annotations
 
@@ -119,22 +120,6 @@ def save(im: Image.Image, folder: Path, number: int, slug: str):
     return str(p)
 
 
-def cover(kind: str, n: int):
-    im, d = base(f"Recorded Voting Participation — {kind}", f"{PERIOD} · Dáil Éireann")
-    question = {
-        "TDs": f"{n} highest and {n} lowest\nrecorded-participation percentages",
-        "Constituencies": f"{n} highest and {n} lowest\nconstituency percentages",
-        "Parties": f"{n} highest and {n} lowest\nparty/group percentages",
-    }[kind]
-    d.multiline_text((W // 2, 525), question, font=font(40, True), fill=C["text"], anchor="ma", align="center", spacing=14)
-    d.multiline_text(
-        (W // 2, 750),
-        "Highest/lowest refers only to this recorded-participation metric.\nIt is not an overall performance ranking.",
-        font=font(21), fill=C["muted"], anchor="ma", align="center", spacing=8,
-    )
-    return im
-
-
 def explainer(kind: str):
     im, d = base("What This Metric Measures", f"Applied consistently in the {kind.lower()} post")
     d.rounded_rectangle((100, 295, 980, 1040), 30, fill=C["panel"])
@@ -168,7 +153,13 @@ def selection(df: pd.DataFrame, name_col: str, n: int, highest: bool):
 
 def ranking_slide(kind: str, df: pd.DataFrame, name_col: str, n: int, highest: bool, context=False):
     direction = "Highest" if highest else "Lowest"
-    im, d = base(f"{n} {direction} Recorded-Participation Percentages", f"{kind} · {PERIOD}")
+    if highest:
+        title = f"Recorded Voting Participation — {kind}"
+        subtitle = f"{n} Highest Recorded-Participation Percentages · {PERIOD}"
+    else:
+        title = f"{n} {direction} Recorded-Participation Percentages"
+        subtitle = f"{kind} · {PERIOD}"
+    im, d = base(title, subtitle)
     chosen, tie_note = selection(df, name_col, n, highest)
     panel_bottom = 1000 if context else 1165
     panel = (58, 260, 1022, panel_bottom)
@@ -249,17 +240,24 @@ def methodology(kind: str, n: int):
 
 def build_post(kind: str, df: pd.DataFrame, name_col: str, n: int):
     folder = OUT / kind.lower().replace(" ", "_")
+    folder.mkdir(parents=True, exist_ok=True)
+    for old in folder.glob("[0-9][0-9]_*.png"):
+        old.unlink()
+    contact_sheet = folder / "contact_sheet.png"
+    if contact_sheet.exists():
+        contact_sheet.unlink()
+
     slides = []
-    slides.append(save(cover(kind, n), folder, 1, "cover"))
-    slides.append(save(explainer(kind), folder, 2, "metric"))
     hi, hi_rows, hi_tie = ranking_slide(kind, df, name_col, n, True, context=False)
-    slides.append(save(hi, folder, 3, "highest"))
+    slides.append(save(hi, folder, 1, "highest"))
     lo, lo_rows, lo_tie = ranking_slide(kind, df, name_col, n, False, context=(kind == "TDs"))
-    slides.append(save(lo, folder, 4, "lowest"))
-    slides.append(save(methodology(kind, n), folder, 5, "methodology"))
+    slides.append(save(lo, folder, 2, "lowest"))
+    slides.append(save(explainer(kind), folder, 3, "metric"))
+    slides.append(save(methodology(kind, n), folder, 4, "methodology"))
     return {
         "kind": kind,
         "n": n,
+        "slide_order": ["highest", "lowest", "metric", "methodology"],
         "slides": slides,
         "highest": hi_rows,
         "lowest": lo_rows,
@@ -295,6 +293,7 @@ def main():
         "publication_enabled": False,
         "period": {"start": "2026-02-28", "end": "2026-08-28"},
         "division_count": DIVISIONS,
+        "slide_order": ["highest", "lowest", "metric", "methodology"],
         "selection_rule": "Highest/lowest recorded-participation percentages; alphabetical tiebreak for equal percentages at a selection boundary.",
         "interpretation": "Highest/lowest describes this metric only and is not an overall performance ranking.",
         "required_statement": "Recorded voting participation does not by itself measure a TD’s attendance, workload, effectiveness, or overall job performance.",
