@@ -2,14 +2,14 @@
 
 **Result: READY FOR CONTENT DEVELOPMENT**
 
-Production batch: `written-pq-answers-20260905-1`
-Resolved period: **2026-02-28 to 2026-08-28**
-Divisions in period: **136**
+Production batch: `scheduled-weekly-37154732444-1`
+Resolved period: **2026-03-30 to 2026-09-30**
+Divisions in period: **139**
 Divisions excluded for incomplete member-vote coverage: **0**
-Final eligible TD × division opportunities: **23,408**
-Recorded participation opportunities: **19,956**
-Formal recorded abstentions (`staon`): **73**
-Ordinary presiding-member opportunities removed: **128**
+Final eligible TD × division opportunities: **23,960**
+Recorded participation opportunities: **20,409**
+Formal recorded abstentions (`staon`): **74**
+Ordinary presiding-member opportunities removed: **134**
 
 ## Validation checks
 
