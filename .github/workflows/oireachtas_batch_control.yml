@@ -86,8 +86,6 @@ jobs:
           gold = "#d8b45f"
           thumb_w, thumb_h = 324, 405
           margin, gap, label_h = 30, 20, 48
-          canvas_w = margin * 2 + thumb_w * 5 + gap * 4
-          canvas_h = margin * 2 + thumb_h + label_h
           font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
           label_font = ImageFont.truetype(font_path, 20) if Path(font_path).exists() else ImageFont.load_default()
 
@@ -101,9 +99,14 @@ jobs:
           for folder_name in folders:
               folder = root / folder_name
               slides = sorted(folder.glob("[0-9][0-9]_*.png"))
-              if len(slides) != 5:
-                  raise RuntimeError(f"Expected 5 slides in {folder}, found {len(slides)}")
+              if not slides:
+                  raise RuntimeError(f"No slides found in {folder}")
+              expected = len(posts_by_folder.get(folder_name, {}).get("slides", slides))
+              if len(slides) != expected:
+                  raise RuntimeError(f"Expected {expected} slides in {folder}, found {len(slides)}")
 
+              canvas_w = margin * 2 + thumb_w * len(slides) + gap * (len(slides) - 1)
+              canvas_h = margin * 2 + thumb_h + label_h
               canvas = Image.new("RGB", (canvas_w, canvas_h), bg)
               draw = ImageDraw.Draw(canvas)
               for i, slide_path in enumerate(slides, start=1):
