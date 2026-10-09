@@ -4,9 +4,9 @@ on:
 permissions:
   contents: write
 jobs:
-  audit:
+  enrich:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -21,20 +21,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install boto3 pandas
-      - run: python process/tmp_audit_second_stage_docs.py
-      - name: Publish audit
+      - run: python -m pip install boto3 pandas requests pypdf
+      - name: Build enriched copy from official Oireachtas documents
+        run: python process/tmp_enrich_second_stage_copy.py
+      - name: Publish enrichment review data
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir out && cp artifacts/second-stage-doc-audit/summary.json out/
+          mkdir out
+          cp artifacts/second-stage-enrichment/copy.json out/
+          cp artifacts/second-stage-enrichment/review_needed.json out/
           cd out
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add . && git commit -m "analysis: Second Stage document audit ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-second-stage-doc-audit
+          git add . && git commit -m "analysis: enriched Second Stage copy ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-second-stage-enrichment
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-doc-audit
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-enrichment
