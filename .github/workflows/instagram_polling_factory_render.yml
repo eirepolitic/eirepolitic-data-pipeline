@@ -44,69 +44,29 @@ jobs:
                       if im.size==(1080,1350): candidates.append(p)
               except Exception: pass
           if not candidates: raise SystemExit('No canonical slide found')
-          src=Image.open(candidates[0]).convert('RGBA')
-          out=Path('instagram/templates/assets'); out.mkdir(parents=True,exist_ok=True)
+          src=Image.open(candidates[0]).convert('RGBA'); out=Path('instagram/templates/assets'); out.mkdir(parents=True,exist_ok=True)
           for n,b in {'corner_tl.png':(0,0,155,155),'corner_tr.png':(925,0,1080,155),'corner_bl.png':(0,1195,155,1350),'corner_br.png':(925,1195,1080,1350)}.items(): src.crop(b).save(out/n)
-          print('canonical accents ready')
           PY
-      - name: Render all Second Stage posts
-        run: python process/tmp_render_all_second_stage_posts.py
-      - name: Validate series
+      - name: Render and capture diagnostics
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          from PIL import Image
-          root=Path('artifacts/bill-tracker-second-stage-all')
-          posts=[p for p in root.glob('post*') if p.is_dir()]
-          if len(posts)!=27: raise SystemExit(f'expected 27 posts got {len(posts)}')
-          slides=0
-          for p in posts:
-              pngs=[x for x in p.glob('*.png') if x.name!='contact-sheet.png']
-              if len(pngs)!=7: raise SystemExit(f'{p} expected 7 slides got {len(pngs)}')
-              for x in pngs:
-                  if Image.open(x).size!=(1080,1350): raise SystemExit(f'bad size {x}')
-              if not (p/'contact-sheet.png').is_file(): raise SystemExit(f'missing contact sheet {p}')
-              slides+=len(pngs)
-          print(f'validated {len(posts)} posts / {slides} slides')
-          PY
-      - name: Build hosted review site
-        shell: bash
-        run: |
-          set -euo pipefail
-          REVIEW=second_stage_all_web
-          rm -rf "$REVIEW" && mkdir -p "$REVIEW"
-          cp artifacts/bill-tracker-second-stage-all/manifest.json "$REVIEW/manifest.json"
-          for P in artifacts/bill-tracker-second-stage-all/post*; do
-            NAME=$(basename "$P")
-            mkdir -p "$REVIEW/$NAME"
-            cp "$P"/*.png "$REVIEW/$NAME/"
-            cat > "$REVIEW/$NAME/index.html" <<HTML
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Second Stage · ${NAME}</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1400px;margin:auto;padding:24px}.sheet{width:100%;height:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid img{width:100%;height:auto}@media(max-width:900px){.grid{grid-template-columns:1fr}}</style></head><body><main><h1>Second Stage · ${NAME}</h1><img class="sheet" src="contact-sheet.png"><div class="grid"><img src="00-cover.png"><img src="01-bill.png"><img src="02-bill.png"><img src="03-bill.png"><img src="04-bill.png"><img src="05-process-glossary.png"><img src="06-second-stage-explainer.png"></div></main></body></html>
-          HTML
-          done
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          r=Path('second_stage_all_web'); m=json.loads((r/'manifest.json').read_text())
-          parts=['<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bill Tracker · Second Stage · 27 Posts</title><style>body{margin:0;background:#0f2f24;color:#f4ead7;font-family:Arial,sans-serif}main{max-width:1500px;margin:auto;padding:24px}a{color:#d8b45f}.post{margin:34px 0}.sheet{width:100%;height:auto}</style></head><body><main><h1>Bills of the Current Session · Second Stage</h1><p>27 posts · 108 Bills · current 34th Dáil / 27th Seanad cohort.</p>']
-          for p in m['posts']:
-              n=p['post']; name=f'post{n:02d}'; bills=' · '.join(p['bills'])
-              parts.append(f'<section class="post"><h2>Post {n}</h2><p>{bills}</p><p><a href="{name}/index.html">Open individual slides</a></p><img class="sheet" src="{name}/contact-sheet.png"></section>')
-          parts.append('</main></body></html>'); (r/'index.html').write_text(''.join(parts),encoding='utf-8')
-          PY
-      - name: Publish preview branch
+          set +e
+          python process/tmp_render_all_second_stage_posts.py > render.log 2>&1
+          echo $? > render.exit
+          cat render.log
+          exit 0
+      - name: Publish diagnostics
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cd second_stage_all_web
+          mkdir diag && cp render.log render.exit diag/
+          cd diag
           git init
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "preview: full Second Stage series ${GITHUB_RUN_ID}"
-          git branch -M previews/bill-tracker-second-stage-all
+          git add . && git commit -m "analysis: full Second Stage render diagnostics ${GITHUB_RUN_ID}"
+          git branch -M previews/bill-tracker-second-stage-all-diagnostics
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-all
+          git push --force origin HEAD:refs/heads/previews/bill-tracker-second-stage-all-diagnostics
